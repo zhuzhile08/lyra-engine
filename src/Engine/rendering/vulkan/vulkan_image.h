@@ -22,6 +22,10 @@
 
 namespace lyra {
 
+/**
+ * @brief wrapper around vulkan images
+ * @brief since vulkan has like 1000 kinds and methods of creating images, I won't directly create them
+ */
 struct VulkanImage {
 	VulkanImage();
 
@@ -37,28 +41,22 @@ struct VulkanImage {
 	 * @param format define how the data is stored in the image
 	 * @param extent size of the image
 	 * @param usage how or as what will be the image used
-	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
 	 * @param imageType the dimension to treat the image
 	 * @param mipLevels mipmapping stages of the image
 	 * @param arrayLayers layers of the image
 	 * @param samples configure multi sample anti-aliasing
 	 * @param tiling how to store the image in the GPU memory
-	 * @param viewType viewType how and in which dimension should the view to treat the image
-	 * @param colorComponents color modulation of the image
 	 */
-	void            create(
+	VkImageCreateInfo	get_image_create_info(
 		VulkanDevice            device, 
 		VkFormat                format, 
 		VkExtent3D              extent,
 		VkImageUsageFlags       usage,
-		VkImageSubresourceRange subresourceRange,
 		VkImageType             imageType        = VK_IMAGE_TYPE_2D,
 		uint32_t                mipLevels        = 1,
 		uint32_t                arrayLayers      = 1,
 		VkSampleCountFlagBits   samples          = VK_SAMPLE_COUNT_1_BIT,
-		VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL,
-		VkImageViewType         viewType         = VK_IMAGE_VIEW_TYPE_2D, 
-		VkComponentMapping      colorComponents  = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
+		VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL
 	);
 
 	/**
@@ -70,7 +68,7 @@ struct VulkanImage {
 	 * @param colorComponents color modulation of the image
 	 * @param viewType how and in which dimension to treat the image
 	 */
-	void            create_view(
+	void            	create_view(
 		VulkanDevice            device, 
 		VkFormat                format, 
 		VkImageSubresourceRange subresourceRange,
@@ -78,11 +76,11 @@ struct VulkanImage {
 		VkComponentMapping      colorComponents = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
 	);
 
-	VkImage 		image;
-	VkImageView 	view;
+	VkImage 			image;
+	VkImageView 		view;
 
 private:
-	VulkanDevice*   device;
+	VulkanDevice*   	device;
 };
 
 } // namespace lyra

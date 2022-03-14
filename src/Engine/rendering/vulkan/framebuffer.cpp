@@ -15,11 +15,12 @@ void VulkanFramebuffers::destroy() {
 }
 
 void VulkanFramebuffers::create_frame_buffers() {
-	var.framebuffers.resize(swapchain->get().images.views.size());
+	var.framebuffers.resize(swapchain->get().images.images.size());
 
-	for (size_t i = 0; i < swapchain->get().images.views.size(); i++) {
+	for (size_t i = 0; i < swapchain->get().images.images.size(); i++) {
 		VkImageView attachments[2] = {
-			swapchain->get().images.views[i]
+			swapchain->get().images.images[i].view,
+			swapchain->get().depthBuffer.image.view
 		};
 
 		// create the frame buffers

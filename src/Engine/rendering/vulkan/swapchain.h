@@ -25,62 +25,64 @@
 namespace lyra {
 
 /**
- * @brief wrapper around swapchain images
- */
-struct VulkanSwapchainImages {
-public:
-	VulkanSwapchainImages();
-
-	/**
-	 * @brief destroy the swapchain images
-	 */
-	void destroy();
-	
-	/**
-	 * @brief create the image views
-	 * 
-	 * @param device device
-	 * @param format swapchain format
-	 * @param swapchain swapchain
-	 */
-	void						create(VulkanDevice device, const VkSurfaceFormatKHR format, const VkSwapchainKHR swapchain);
-
-	std::vector <VulkanImage>   images;
-
-private:
-	VulkanDevice*				device;
-};
-
-/**
- * @brief wrapper around depth buffer
- */
-struct VulkanDepthBuffer {
-public:
-	VulkanDepthBuffer();
-
-	/**
-	 * @brief destroy the depth buffer
-	 */
-	void destroy();
-
-	void create();
-
-	VkImage 		image;
-	VkImageView 	view;
-	VmaAllocation	memory;
-
-private:
-	VulkanDevice*	device;
-
-	void create_image_view();
-	void create_image();
-};
-
-/**
  * @brief Wrapper around a Vulkan Swapchain
  */
 class VulkanSwapchain {
 private:
+	/**
+	 * @brief wrapper around swapchain images
+	 */
+	struct VulkanSwapchainImages {
+	public:
+		VulkanSwapchainImages();
+
+		/**
+		 * @brief destroy the swapchain images
+		 */
+		void destroy();
+		
+		/**
+		 * @brief create the image views
+		 * 
+		 * @param device device
+		 * @param format swapchain format
+		 * @param swapchain swapchain
+		 */
+		void						create(VulkanDevice device, const VulkanSwapchain swapchain);
+
+		std::vector <VulkanImage>   images;
+
+	private:
+		VulkanDevice*				device;
+	};
+	
+	/**
+	 * @brief wrapper around depth buffers
+	 */
+	struct VulkanDepthBuffer {
+	public:
+		VulkanDepthBuffer();
+
+		/**
+		 * @brief destroy the depth buffer
+		 */
+		void 			destroy();
+
+		/**
+		 * @brief create the image, view and allocate the memory
+		 * 
+		 * @param device device
+		 * @param swapchain swapchain
+		 */
+		void 			create(VulkanDevice device, const VulkanSwapchain swapchain);
+
+		VulkanImage 	image;
+		VmaAllocation	memory;
+
+	private:
+		VulkanDevice*	device;
+	};
+
 	/**
 	 * @brief struct containing all the variables
 	 */
@@ -89,6 +91,7 @@ private:
 		VkFormat 				format;
 		VkExtent2D 				extent;
 		VulkanSwapchainImages 	images;
+		VulkanDepthBuffer 		depthBuffer;
 
 		VulkanSwapchain*		oldSwapchain = nullptr;
 	};

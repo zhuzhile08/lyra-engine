@@ -6,24 +6,20 @@ VulkanImage::VulkanImage() { }
 
 void VulkanImage::destroy() {
     vkDestroyImageView(device->get().device, view, nullptr);
-    vkDestroyImage(device->get().device, image, nullptr);
 
     LOG_INFO("Succesfully destroyed Vulkan images!")
 }
 
-void VulkanImage::create(
+VkImageCreateInfo VulkanImage::get_image_create_info(
     VulkanDevice            device, 
     VkFormat                format, 
     VkExtent3D              extent,
     VkImageUsageFlags       usage,
-    VkImageSubresourceRange subresourceRange,
-    VkImageType             imageType        = VK_IMAGE_TYPE_2D,
-    uint32_t                mipLevels        = 1,
-    uint32_t                arrayLayers      = 1,
-    VkSampleCountFlagBits   samples          = VK_SAMPLE_COUNT_1_BIT,
-    VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL,
-    VkImageViewType         viewType         = VK_IMAGE_VIEW_TYPE_2D, 
-    VkComponentMapping      colorComponents  = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
+    VkImageType             imageType    = VK_IMAGE_TYPE_2D,
+    uint32_t                mipLevels    = 1,
+    uint32_t                arrayLayers  = 1,
+    VkSampleCountFlagBits   samples      = VK_SAMPLE_COUNT_1_BIT,
+    VkImageTiling           tiling       = VK_IMAGE_TILING_OPTIMAL
 ) {
     // image create info
     VkImageCreateInfo createInfo = {   
@@ -44,13 +40,7 @@ void VulkanImage::create(
         VK_IMAGE_LAYOUT_UNDEFINED
     };
 
-    // create the image
-    vkCreateImage(device.get().device, &createInfo, nullptr, &image);
-
-    // create the image view
-    create_view(device, format, subresourceRange, viewType, colorComponents);
-
-    LOG_INFO("Succesfully created Vulkan image and image view at ", GET_ADDRESS(this), "!", END_L)
+    return createInfo;
 }
 
 void VulkanImage::create_view(

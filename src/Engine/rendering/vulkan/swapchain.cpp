@@ -3,30 +3,65 @@
 namespace lyra {
 	
 // swap chain images
-VulkanSwapchainImages::VulkanSwapchainImages() {}
+VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 
-void VulkanSwapchainImages::destroy() {
-	for (auto& image : images) image.destroy();
+void VulkanSwapchain::VulkanSwapchainImages::destroy() {
+	for (auto& image : images) {
+		image.destroy();
+		vkDestroyImage(device->get().device, image.image, nullptr);
+	}
 
 	delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
 }
 
-void VulkanSwapchainImages::create(VulkanDevice device, const VkSurfaceFormatKHR format, const VkSwapchainKHR swapchain) {
+void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const VulkanSwapchain swapchain) {
 	this->device = &device;
 
 	// get the number of images
 	uint32 						imageCount;
-	vkGetSwapchainImagesKHR(device.get().device, swapchain, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, nullptr);
 	images.resize(imageCount);
-	vkGetSwapchainImagesKHR(device.get().device, swapchain, &imageCount, &images.data()->image);
+	vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, &images.data()->image);
 
 	for (size_t i = 0; i < imageCount; i++) {
-		images[i].create_view(device, format.format, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
+		images[i].create_view(device, swapchain.get().format, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 	}
 
 	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L)
+}
+
+// depth buffer
+VulkanSwapchain::VulkanDepthBuffer::VulkanDepthBuffer() { }
+
+void VulkanSwapchain::VulkanDepthBuffer::destroy() {
+	image.destroy();
+	vmaDestroyImage(device->get().allocator, image.image, memory);
+
+	delete device;
+
+	LOG_INFO("Succesfully destroyed depth buffer!")
+}
+
+void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+	this->device = &device;
+
+	// memory allocation info
+	VmaAllocationCreateInfo allocCreateInfo = {
+		0,
+		VMA_MEMORY_USAGE_GPU_ONLY,
+		VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+	};
+
+	// create memory and image
+	vmaCreateImage(device.get().allocator, &image.get_image_create_info(
+			device, VK_FORMAT_D32_SFLOAT, {swapchain.get().extent.width, swapchain.get().extent.height, 1}, VK_IMAGE_ASPECT_DEPTH_BIT
+		), &allocCreateInfo, &image.image, &memory, nullptr
+	);
+
+	// create the image view
+	image.create_view(device, VK_FORMAT_D32_SFLOAT, {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1});
 }
 
 // swap chain
@@ -205,7 +240,8 @@ void VulkanSwapchain::create_swapchain() {
 
 	if(vkCreateSwapchainKHR(device->get().device, &createInfo, nullptr, &var.swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain")
 
-	var.images.create(*device, format, var.swapchain);
+	var.images.create(*device, *this);
+	var.depthBuffer.create(*device, *this);
 }
 
 VulkanSwapchain::Variables VulkanSwapchain::get() const {
