@@ -112,7 +112,7 @@ void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain
 		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		nullptr,
 		0,
-		attachments.size(),
+		static_cast<uint32>(attachments.size()),
 		attachments.data(),
 		1,
 		&subpassDescriptions,
