@@ -1,4 +1,4 @@
-#include <res/vulkan_shader.h>
+#include <rendering/vulkan/vulkan_shader.h>
 
 namespace lyra {
 
