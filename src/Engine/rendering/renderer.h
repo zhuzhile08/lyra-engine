@@ -26,6 +26,10 @@
 
 namespace lyra { 
 
+/**
+ * @brief a vulkan renderer with basic features
+ * @todo maybe abstract vma memory allocation?
+ */
 class Renderer {
 public:
 	Renderer();
@@ -66,7 +70,7 @@ private:
 	VulkanSwapchain 					swapchain;
 	VulkanFramebuffers 					framebuffers;
 	VulkanDescriptorSetLayout 			descriptorSetLayout;
-	/// @todo textures samplers, depth buffers, cameras, and other stuff to do
+	/// @todo textures samplers, and other stuff to do
 	VulkanDescriptorPool				descriptorPool;
 	std::vector<VulkanDescriptor>		descriptors;
 	std::vector<VulkanCommandBuffer>	commandBuffers;

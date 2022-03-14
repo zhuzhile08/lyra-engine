@@ -23,15 +23,19 @@ void Renderer::create(Window window) {
     device.create(instance);
     commandPool.create(device);
     swapchain.create(device, instance, window);
-    /**
     framebuffers.create_render_pass(device, swapchain);
 
-    VulkanDescriptorSetLayout::Builder builder;
+    VulkanDescriptorSetLayout::Builder  layoutBuilder;
+    layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1);
+    descriptorSetLayout.create(device, layoutBuilder);
     
-    builder.add_binding();
+    VulkanDescriptorPool::Builder       poolBuilder;
+    poolBuilder.set_max_sets(50);   // just some random number
+    poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT);
+    descriptorPool.create(device, poolBuilder);
 
-    descriptorSetLayout.create(device, builder);
-    **/
+    for (auto& cmdBuff : commandBuffers) cmdBuff.create(device, commandPool);
+    syncObjects.create(device, swapchain);
 }
 
 void Renderer::destroySwapchain() {
