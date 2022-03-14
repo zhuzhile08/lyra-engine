@@ -19,7 +19,7 @@
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/framebuffer.h>
 #include <res/mesh.h>
-#include <res/vulkan_shader.h>
+#include <rendering/vulkan/vulkan_shader.h>
 #include <core/logger.h>
 
 #include <vector>
@@ -40,7 +40,7 @@ private:
 		std::vector <VkPipelineShaderStageCreateInfo> 	shaderStages;
 		VkPipelineVertexInputStateCreateInfo 			vertexInputInfo;
 		VkPipelineInputAssemblyStateCreateInfo 			inputAssembly;
-		VkPipelineTessellationStateCreateInfo			tesselation;
+		VkPipelineTessellationStateCreateInfo 			tesselation;
 		VkViewport 										viewport;
 		VkRect2D 										scissor;
 		VkPipelineViewportStateCreateInfo 				viewportState;

@@ -48,6 +48,7 @@ public:
 		 * @brief construct a new Vertex object
 		 * 
 		 * @param pos the new position
+		 * @param normal vertex normals
 		 * @param color the new color
 		 */
 		Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 color = {0, 0, 0});

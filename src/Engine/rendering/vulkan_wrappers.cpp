@@ -15,6 +15,7 @@
 #include <rendering/vulkan/command_buffer.cpp>
 #include <rendering/vulkan/descriptor.cpp>
 #include <rendering/vulkan/devices.cpp>
+#include <rendering/vulkan/vulkan_image.cpp>
 #include <rendering/vulkan/framebuffer.cpp>
 #include <rendering/vulkan/instance.cpp>
 #include <rendering/vulkan/pipeline.cpp>

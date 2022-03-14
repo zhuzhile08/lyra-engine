@@ -161,7 +161,7 @@ void VulkanGraphicsPipeline::create_pipeline(const std::string vertPath, const s
 			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			createInfo.dynamicStates.size(),
+			static_cast<uint32>(createInfo.dynamicStates.size()),
 			createInfo.dynamicStates.data()
 		}
 	};

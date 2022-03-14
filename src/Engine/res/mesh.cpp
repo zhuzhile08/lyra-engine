@@ -5,7 +5,7 @@ namespace lyra {
 // vertex
 Mesh::Vertex::Vertex() { }
 
-Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 _normal, glm::vec3 color) : pos(pos), normal(normal), color(color) { }
+Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 color) : pos(pos), normal(normal), color(color) { }
 
 VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() {
 	return {
@@ -104,11 +104,11 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 					}; 
 
 					// the vertex
-					Vertex vertex = {
+					Vertex vertex = Vertex(
 						{vertexPositions[0], vertexPositions[1], vertexPositions[2]}, // position
 						{normals[0], normals[1], normals[2]}, // normals
 						vertex.normal // color are now set to the normal position for testing purposes
-					};
+					);
 
 					// add the vertex to the list
 					var.vertices.push_back(vertex);
@@ -141,11 +141,11 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 				}; 
 
 				// the vertex
-				Vertex vertex = {
+				Vertex vertex = Vertex(
 					{vertexPositions[0], vertexPositions[1], vertexPositions[2]}, // position
 					{normals[0], normals[1], normals[2]}, // normals
 					vertex.normal // color are now set to the normal position for testing purposes
-				};
+				);
 
 				// add the vertex to the list
 				var.vertices.push_back(vertex);

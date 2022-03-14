@@ -88,7 +88,7 @@ void VulkanDescriptorPool::create(VulkanDevice device, const Builder builder) {
         nullptr,
         builder.poolFlags,
         builder.maxSets,
-        builder.poolSizes.size(),
+        static_cast<uint32>(builder.poolSizes.size()),
         builder.poolSizes.data()
     };
 

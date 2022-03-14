@@ -29,12 +29,12 @@ namespace lyra {
  */
 class VulkanSyncObjects {
 private:
-	struct 					Variables {
+	struct 			Variables {
 		std::vector <VkSemaphore> 	imageAvailableSemaphores;
 		std::vector <VkSemaphore>   renderFinishedSemaphores;
-		std::vector <VkFence>       inFlightFences;
-		std::vector <VkFence>       imagesInFlight;
-		size_t                      currentFrame = 0;
+		std::vector <VkFence> 		inFlightFences;
+		std::vector <VkFence> 		imagesInFlight;
+		size_t 						currentFrame = 0;
 	};
 
 public:
@@ -44,46 +44,46 @@ public:
 	 * @brief destroy the VulkanSyncObjects
 	 * @brief it works just like the destructor, but is callable anywhere
 	 */
-	void 					destroy();
+	void 			destroy();
 
 	/**
 	 * @brief create the syncronisation objects
 	 * 
 	 * @param device device
-	 * @param swapchain swapchai
+	 * @param swapchain swapchain
 	 */
-	void 					create(VulkanDevice device, const VulkanSwapchain swapchain);
+	void 			create(VulkanDevice device, const VulkanSwapchain swapchain);
 
 	/**
 	 * @brief wait for Vulkan fences
 	 * 
 	 * @param fenceIndex index of the fence
 	 */
-	void 					wait(const uint32 fenceIndex);
+	void 			wait(const uint32 fenceIndex);
 	/**
 	 * @brief reset Vulkan fences
 	 * 
 	 * @param fenceIndex index of fence to reset
 	 */
-	void 					reset(const uint32 imageIndex);
+	void 			reset(const uint32 imageIndex);
 
 	/**
 	 * @brief get all the variabels
 	 * 
 	 * @return Variables
 	 */
-	Variables 				get() const;
+	Variables 		get() const;
 	/**
 	 * @brief Set the current frame
 	 * 
 	 * @param newFrame the frame to set
 	 */
-	void					set_current_frame(const size_t newFrame);
+	void			set_current_frame(const size_t newFrame);
 
 private:
-	Variables 				var;
+	Variables 		var;
 
-	VulkanDevice*			device;
+	VulkanDevice*	device;
 };
 
 } // namespace lyra
