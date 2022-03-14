@@ -69,6 +69,7 @@ VulkanSwapchain::VulkanSwapchain() { }
 
 void VulkanSwapchain::destroy() {
 	var.images.destroy();
+	var.depthBuffer.destroy();
 
 	vkDestroySwapchainKHR(device->get().device, var.swapchain, nullptr);
 
