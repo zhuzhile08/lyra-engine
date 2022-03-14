@@ -7,17 +7,16 @@
  * @date 2022-02-05
  * 
  * @copyright Copyright (c) 2022
- * 
- */
+ *************************/
 
 #pragma once
 
 #include <core/defines.h>
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/instance.h>
+#include <rendering/vulkan/vulkan_image.h>
 #include <core/logger.h>
 
-#include <memory>
 #include <vector>
 
 #include <SDL.h>
@@ -33,7 +32,7 @@ public:
 	VulkanSwapchainImages();
 
 	/**
-	 * @brief destroy the VulkanSwapchainImages
+	 * @brief destroy the swapchain images
 	 */
 	void destroy();
 	
@@ -46,10 +45,35 @@ public:
 	 */
 	void						create(VulkanDevice device, const VkSurfaceFormatKHR format, const VkSwapchainKHR swapchain);
 
-	std::vector <VkImage>       images;
-	std::vector <VkImageView>   views;
+	std::vector <VulkanImage>   images;
 
+private:
 	VulkanDevice*				device;
+};
+
+/**
+ * @brief wrapper around depth buffer
+ */
+struct VulkanDepthBuffer {
+public:
+	VulkanDepthBuffer();
+
+	/**
+	 * @brief destroy the depth buffer
+	 */
+	void destroy();
+
+	void create();
+
+	VkImage 		image;
+	VkImageView 	view;
+	VmaAllocation	memory;
+
+private:
+	VulkanDevice*	device;
+
+	void create_image_view();
+	void create_image();
 };
 
 /**
@@ -60,13 +84,13 @@ private:
 	/**
 	 * @brief struct containing all the variables
 	 */
-	struct Variables {
-		VkSwapchainKHR  			swapchain;
-		VkFormat        			format;
-		VkExtent2D          		extent;
-		VulkanSwapchainImages 		images;
+	struct 			Variables {
+		VkSwapchainKHR  		swapchain;
+		VkFormat 				format;
+		VkExtent2D 				extent;
+		VulkanSwapchainImages 	images;
 
-		VulkanSwapchain*			oldSwapchain = nullptr;
+		VulkanSwapchain*		oldSwapchain = nullptr;
 	};
 
 public:
@@ -75,7 +99,7 @@ public:
 	/**
 	 * @brief destroy the VulkanSwapchain
 	 */
-	void 						destroy();
+	void 			destroy();
 
 	/**
 	 * @brief create the swapchain
@@ -84,7 +108,7 @@ public:
 	 * @param instance instance
 	 * @param window window
 	 */
-	void 						create(VulkanDevice device, VulkanInstance instance, Window window);
+	void 			create(VulkanDevice device, VulkanInstance instance, Window window);
 
 	/**
 	 * @brief create the swapchain
@@ -94,32 +118,32 @@ public:
 	 * @param window window
 	 * @param oldSwapchain old swapchain
 	 */
-	void 						create(VulkanDevice device, VulkanInstance instance, Window window, VulkanSwapchain oldSwapchain);
+	void 			create(VulkanDevice device, VulkanInstance instance, Window window, VulkanSwapchain oldSwapchain);
 
 	/**
 	 * @brief get all variables
 	 * 
 	 * @return Variables
 	 */
-	Variables  					get() const;
+	Variables 		get() const;
 	
 private:
-	Variables 					var;
+	Variables 		var;
 
-	VulkanDevice*				device;
-	VulkanInstance*				instance;
-	Window* 					window;
+	VulkanDevice*	device;
+	VulkanInstance*	instance;
+	Window* 		window;
 
 	/**
 	 * @brief create the swapchain
 	 */
-	void 						create_swapchain();
+	void 			create_swapchain();
 	/**
 	 * @brief create a extent of the swapchain 
 	 *
 	 * @param surfaceCapabilities capabilities of the swapchain
 	 */
-	void 						create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceCapabilities);
+	void 			create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceCapabilities);
 };
 
 } // namespace lyra

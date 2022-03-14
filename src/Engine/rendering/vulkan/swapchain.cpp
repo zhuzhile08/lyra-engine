@@ -6,7 +6,8 @@ namespace lyra {
 VulkanSwapchainImages::VulkanSwapchainImages() {}
 
 void VulkanSwapchainImages::destroy() {
-	for (auto& imageView : views) vkDestroyImageView(device->get().device, imageView, nullptr);
+	for (auto& image : images) image.destroy();
+
 	delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
@@ -16,30 +17,13 @@ void VulkanSwapchainImages::create(VulkanDevice device, const VkSurfaceFormatKHR
 	this->device = &device;
 
 	// get the number of images
-	uint32_t                            imageCount;
+	uint32 						imageCount;
 	vkGetSwapchainImagesKHR(device.get().device, swapchain, &imageCount, nullptr);
 	images.resize(imageCount);
-	vkGetSwapchainImagesKHR(device.get().device, swapchain, &imageCount, images.data());
+	vkGetSwapchainImagesKHR(device.get().device, swapchain, &imageCount, &images.data()->image);
 
-	views.resize(images.size());
-
-	for (size_t i = 0; i < views.size(); i++) {
-		VkImageViewCreateInfo createInfo {
-			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-			nullptr,
-			0,
-			images[i],
-			VK_IMAGE_VIEW_TYPE_2D,
-			format.format,
-			{
-				VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY
-			},
-			{
-				VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1
-			}
-		};
-
-		if(vkCreateImageView(device.get().device, &createInfo, nullptr, &views[i]) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain image views")
+	for (size_t i = 0; i < imageCount; i++) {
+		images[i].create_view(device, format.format, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 	}
 
 	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L)
