@@ -28,6 +28,8 @@ void Renderer::create(Window window) {
     VulkanDescriptorSetLayout::Builder  layoutBuilder;
     layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1);
     descriptorSetLayout.create(device, layoutBuilder);
+
+    framebuffers.create_frame_buffers();
     
     VulkanDescriptorPool::Builder       poolBuilder;
     poolBuilder.set_max_sets(50);   // just some random number

@@ -16,6 +16,7 @@
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/vulkan_image.h>
+#include <rendering/vulkan/vulkan_shader.h>
 #include <rendering/vulkan/framebuffer.h>
 #include <rendering/vulkan/instance.h>
 #include <rendering/vulkan/pipeline.h>

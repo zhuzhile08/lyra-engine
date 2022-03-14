@@ -23,9 +23,9 @@ void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const V
 	uint32 						imageCount;
 	vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, nullptr);
 	images.resize(imageCount);
-	vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, &images.data()->image);
 
 	for (size_t i = 0; i < imageCount; i++) {
+		vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, &images[i].image);
 		images[i].create_view(device, swapchain.get().format, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
 	}
 
@@ -56,12 +56,14 @@ void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const Vulka
 
 	// create memory and image
 	vmaCreateImage(device.get().allocator, &image.get_image_create_info(
-			device, VK_FORMAT_D32_SFLOAT, {swapchain.get().extent.width, swapchain.get().extent.height, 1}, VK_IMAGE_ASPECT_DEPTH_BIT
+			device, VK_FORMAT_D32_SFLOAT, {swapchain.get().extent.width, swapchain.get().extent.height, 1}, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
 		), &allocCreateInfo, &image.image, &memory, nullptr
 	);
 
 	// create the image view
 	image.create_view(device, VK_FORMAT_D32_SFLOAT, {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1});
+
+	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L)
 }
 
 // swap chain

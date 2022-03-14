@@ -15,11 +15,11 @@ VkImageCreateInfo VulkanImage::get_image_create_info(
     VkFormat                format, 
     VkExtent3D              extent,
     VkImageUsageFlags       usage,
-    VkImageType             imageType    = VK_IMAGE_TYPE_2D,
-    uint32_t                mipLevels    = 1,
-    uint32_t                arrayLayers  = 1,
-    VkSampleCountFlagBits   samples      = VK_SAMPLE_COUNT_1_BIT,
-    VkImageTiling           tiling       = VK_IMAGE_TILING_OPTIMAL
+    VkImageType             imageType,
+    uint32_t                mipLevels,
+    uint32_t                arrayLayers,
+    VkSampleCountFlagBits   samples,
+    VkImageTiling           tiling
 ) {
     // image create info
     VkImageCreateInfo createInfo = {   
@@ -47,8 +47,8 @@ void VulkanImage::create_view(
     VulkanDevice            device, 
     VkFormat                format, 
     VkImageSubresourceRange subresourceRange,
-    VkImageViewType         viewType = VK_IMAGE_VIEW_TYPE_2D, 
-    VkComponentMapping      colorComponents = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
+    VkImageViewType         viewType, 
+    VkComponentMapping      colorComponents
 ) {
     this->device = &device;
 

@@ -65,8 +65,8 @@ struct VulkanImage {
 	 * @param device device
 	 * @param format format of the image
 	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
-	 * @param colorComponents color modulation of the image
 	 * @param viewType how and in which dimension to treat the image
+	 * @param colorComponents color modulation of the image
 	 */
 	void            	create_view(
 		VulkanDevice            device, 

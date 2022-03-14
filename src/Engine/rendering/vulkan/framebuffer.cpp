@@ -47,7 +47,7 @@ void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain
     this->swapchain = &swapchain;
 
 	// define what to do with an image during rendering
-	VkAttachmentDescription	imageAttachmentDescriptions {
+	VkAttachmentDescription					imageAttachmentDescriptions {
 		0,
 		swapchain.get().format,
 		VK_SAMPLE_COUNT_1_BIT,
@@ -59,13 +59,8 @@ void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain
 		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 	};
 
-	VkAttachmentReference 	colorAttachmentReferences {
-		0, 
-		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-	};
-
 	// depth buffers
-	VkAttachmentDescription	depthBufferAttachmentDescriptions {
+	VkAttachmentDescription					depthBufferAttachmentDescriptions {
 		0,
 		VK_FORMAT_D32_SFLOAT,
 		VK_SAMPLE_COUNT_1_BIT,
@@ -77,14 +72,19 @@ void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
-	VkAttachmentReference 	depthBufferAttachmentReferences {
+	VkAttachmentReference 					colorAttachmentReferences {
 		0, 
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	VkAttachmentReference 					depthBufferAttachmentReferences {
+		1, 
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
-	VkAttachmentDescription attachments[2] = {imageAttachmentDescriptions, depthBufferAttachmentDescriptions};
+	std::vector<VkAttachmentDescription> 	attachments = {imageAttachmentDescriptions, depthBufferAttachmentDescriptions};
 
-	VkSubpassDescription 	subpassDescriptions {
+	VkSubpassDescription 					subpassDescriptions {
 		0,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
 		0,
@@ -97,39 +97,27 @@ void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain
 		nullptr
 	};
 
-	VkSubpassDependency 	dependency {
+	VkSubpassDependency 					dependencies {
 		VK_SUBPASS_EXTERNAL,
 		0,
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
 		0,
-		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
 		0
 	};
-
-	VkSubpassDependency 	depthBufferDependency {
-		VK_SUBPASS_EXTERNAL,
-		0,
-		VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-		VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-		0,
-		VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-		0
-	};
-
-	VkSubpassDependency 	dependencies[2] = {dependency, depthBufferDependency};
 
 	// create the render pass
-	VkRenderPassCreateInfo 	renderPassInfo {
+	VkRenderPassCreateInfo 					renderPassInfo {
 		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		nullptr,
 		0,
-		2,
-		&attachments[0],
+		attachments.size(),
+		attachments.data(),
 		1,
 		&subpassDescriptions,
-		2,
-		&dependencies[0]
+		1,
+		&dependencies
 	};
 
 	if(vkCreateRenderPass(device.get().device, &renderPassInfo, nullptr, &var.renderPass)) LOG_EXEPTION("create Vulkan render pass")

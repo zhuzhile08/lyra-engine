@@ -42,8 +42,6 @@ src/Engine/rendering/vulkan_wrappers.cpp
 src/Engine/rendering/camera.cpp
 src/Engine/rendering/window.cpp
 src/Engine/rendering/renderer.cpp
-src/Engine/rendering/vulkan/vulkan_shader.cpp
-src/Engine/rendering/vulkan/vulkan_image.cpp
 src/Engine/res/loaders.cpp
 src/Engine/res/mesh.cpp
 src/GUI/main.cpp 
