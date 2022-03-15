@@ -14,5 +14,4 @@
 #include <res/loaders/load_file.cpp>
 #include <res/loaders/load_font.cpp>
 #include <res/loaders/load_model.cpp>
-#include <res/loaders/load_material.cpp>
 #include <res/loaders/load_texture.cpp>

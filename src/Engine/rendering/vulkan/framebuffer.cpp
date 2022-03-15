@@ -14,7 +14,7 @@ void VulkanFramebuffers::destroy() {
 	LOG_INFO("Succesfully destroyed Vulkan frame buffer!")
 }
 
-void VulkanFramebuffers::create_frame_buffers() {
+void VulkanFramebuffers::create() {
 	var.framebuffers.resize(swapchain->get().images.images.size());
 
 	for (size_t i = 0; i < swapchain->get().images.images.size(); i++) {

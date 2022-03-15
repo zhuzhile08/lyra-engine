@@ -14,6 +14,8 @@ void VulkanDevice::destroy() {
 }
 
 void VulkanDevice::create(VulkanInstance instance) {
+	LOG_INFO("Creating Vulkan device...")
+
 	this->instance = &instance;
 	pick_physical_device();
 	create_logical_device();

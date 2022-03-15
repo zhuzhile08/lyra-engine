@@ -57,7 +57,7 @@ public:
 	/**
 	 * @brief create the frame buffers
 	 */
-	void 					create_frame_buffers();
+	void 					create();
 
 	/**
 	 * @brief get the begin information to begin a render pass

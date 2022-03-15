@@ -27,6 +27,8 @@ void VulkanDescriptorSetLayout::destroy() {
 }
 
 void VulkanDescriptorSetLayout::create(VulkanDevice device, const Builder builder) {
+    LOG_INFO("Creating Vulkan descriptor set layout...")
+
     this->device = &device;
 
 	// create the descriptor set
@@ -82,6 +84,8 @@ void VulkanDescriptorPool::destroy() {
 }
 
 void VulkanDescriptorPool::create(VulkanDevice device, const Builder builder) {
+    LOG_INFO("Creating Vulkan descriptor pool...")
+
     // create the descriptor pool
     VkDescriptorPoolCreateInfo 	poolInfo {
         VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
@@ -114,6 +118,8 @@ void VulkanDescriptor::destroy() {
 }
 
 void VulkanDescriptor::create(VulkanDevice device, const uint16 size, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, const Writer writer) {
+    LOG_INFO("Creating Vulkan descriptor sets...")
+
     // create the descriptor set
     VkDescriptorSetAllocateInfo allocInfo {
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,

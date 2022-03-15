@@ -17,6 +17,8 @@ void VulkanSwapchain::VulkanSwapchainImages::destroy() {
 }
 
 void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+	LOG_INFO("Creating Vulkan swapchain images...")
+
 	this->device = &device;
 
 	// get the number of images
@@ -45,6 +47,8 @@ void VulkanSwapchain::VulkanDepthBuffer::destroy() {
 }
 
 void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+	LOG_INFO("Creating Vulkan depth buffer...")
+
 	this->device = &device;
 
 	// memory allocation info
@@ -84,6 +88,8 @@ void VulkanSwapchain::destroy() {
 }
 
 void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Window window) {
+	LOG_INFO("Creating Vulkan swapchain...")
+
 	this->device = &device;
 	this->instance = &instance;
 	this->window = &window;

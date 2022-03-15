@@ -19,6 +19,8 @@ void VulkanSyncObjects::destroy() {
 }
 
 void VulkanSyncObjects::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+	LOG_INFO("Creating Vulkan synchronisation objects...")
+
 	var.imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	var.renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	var.inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);

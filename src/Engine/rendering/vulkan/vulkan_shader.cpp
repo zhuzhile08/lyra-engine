@@ -36,6 +36,8 @@ void VulkanShader::create(VulkanDevice device, const std::string path, str entry
 		entry,
 		nullptr
 	};
+
+	LOG_DEBUG(TAB, "Successfully created Vulkan shader from path: ", path, " at: ", GET_ADDRESS(this), "!")
 }
 
 VulkanShader::Variables VulkanShader::get() const {

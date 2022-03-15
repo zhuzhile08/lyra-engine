@@ -14,6 +14,8 @@ void VulkanCommandPool::destroy() {
 }
 
 void VulkanCommandPool::create(VulkanDevice device) {
+    LOG_INFO("Creating Vulkan command pool...")
+
     this->device = &device;
 
     VkCommandPoolCreateInfo createInfo {
@@ -48,6 +50,8 @@ void VulkanCommandBuffer::destroy() {
 }
 
 void VulkanCommandBuffer::create(VulkanDevice device, VulkanCommandPool commandPool, const VkCommandBufferLevel level) {
+    LOG_INFO("Creating Vulkan command buffer...")
+
     this->commandPool = &commandPool;
     this->device = &device;
 

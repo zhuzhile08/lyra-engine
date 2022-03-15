@@ -23,6 +23,8 @@ void VulkanGraphicsPipeline::create(
 	VkExtent2D                              size,
     VkExtent2D                              area
 ) {
+	LOG_INFO("Creating Vulkan graphics pipeline...")
+	
     this->device = &device;
 
     var.shaders.reserve(shaderCount);

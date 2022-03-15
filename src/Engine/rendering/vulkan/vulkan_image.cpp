@@ -67,7 +67,7 @@ void VulkanImage::create_view(
     // create the view
     if(vkCreateImageView(device.get().device, &createInfo, nullptr, &view) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views")
 
-	LOG_INFO("Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!", END_L)
+	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!")
 }
 
 } // namespace lyra

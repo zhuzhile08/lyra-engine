@@ -13,6 +13,7 @@ void VulkanInstance::destroy() {
 }
 
 void VulkanInstance::create(Window window) {
+	LOG_INFO("Creating Vulkan instance...")
 	this->window = &window;
 	create_instance();
 	create_window_surface();

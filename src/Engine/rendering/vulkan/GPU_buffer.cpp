@@ -13,6 +13,8 @@ void VulkanGPUBuffer::destroy() {
 }
 
 void VulkanGPUBuffer::create(VulkanDevice device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage) {
+    LOG_INFO("Creating Vulkan GPU memory buffer...")
+    
     var.bufferUsage = bufferUsage;
     var.memUsage = memUsage;
     var.size = size;

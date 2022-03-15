@@ -1,7 +1,7 @@
 /*************************
  * @file rendering.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
- * s
+ * 
  * @brief a rendering system around the Vulkan API with basic features
  * 
  * @date 2022-02-04
