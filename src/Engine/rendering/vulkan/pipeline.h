@@ -2,7 +2,8 @@
  * @file pipeline.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief wrappers around the Vulkan graphics pipeline
+ * @brief wrapper around the Vulkan graphics pipeline
+ * @brief loads shaders and processes the vertecies passing through
  * 
  * @date 2022-02-05
  * 
@@ -118,7 +119,11 @@ private:
 	 * @param descriptor descriptors
 	 */
 	void 				create_layout(const VulkanDescriptorSetLayout descriptorSetLayout);
-
 };
+
+/**
+ * @brief the pipeline is literally the material itself
+ */
+typedef VulkanGraphicsPipeline Material;
 
 } // namespace lyra
