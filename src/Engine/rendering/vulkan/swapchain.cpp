@@ -152,18 +152,21 @@ void VulkanSwapchain::create_swapchain() {
 			format = availableFormat;
 			break;
 		} else {
-			availableFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
-			LOG_INFO("Some Vulkan swapchain formats weren't found or the default")
+			format = availableFormats[0];
 		}
 	}
 
+	LOG_INFO("Swapchain configurations are: ")
+
 	var.format = format.format;
+
+	LOG_DEBUG(TAB, "format is ", var.format, " (prefered format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")")
 
 	// check the presentation modes
 	std::vector <VkPresentModeKHR>      availablePresentModes(availablePresentModeCount);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device->get().physicalDevice, instance->get().surface, &availablePresentModeCount, availablePresentModes.data());
 	for (const auto& mode : availablePresentModes) {
-		if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {          // fun fact: the GPU that this lyra was developed on didn't suppert this mode. Pretty bad, right?
+		if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
 			presentMode = mode;
 			break;
 		} else {
@@ -171,7 +174,7 @@ void VulkanSwapchain::create_swapchain() {
 		}
 	}
 
-	if (presentMode == VK_PRESENT_MODE_FIFO_KHR) LOG_INFO("The Vulkan present mode VK_PRESENT_MODE_MAILBOX_KHR wasn't available, so the present mode was set to VK_PRESENT_MODE_FIFO_KHR")
+	LOG_DEBUG(TAB, "present mode is ", presentMode, " (prefered present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")")
 
 	// set the surface capabilities if something went wrong
 	VkSurfaceCapabilitiesKHR            surfaceCapabilities;
@@ -180,15 +183,20 @@ void VulkanSwapchain::create_swapchain() {
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
 		surfaceCapabilities.currentExtent.width = WIDTH;
+		LOG_WARNING("Something went wrong whilst attempting getting the swapchain width!")
 	} if (surfaceCapabilities.currentExtent.height == 0xFFFFFFFF) {
 		surfaceCapabilities.currentExtent.height = HEIGHT;
+		LOG_WARNING("Something went wrong whilst attempting getting the swapchain height!")
 	} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
 		surfaceCapabilities.maxImageCount = 8;
+		LOG_WARNING("Something went wrong whilst attempting getting the number of swapchain images!")
 	} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT ) {
 		surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ) {
 		surfaceCapabilities.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	} 
+
+	LOG_DEBUG(TAB, "width is ", WIDTH, " and the height is ", HEIGHT)
 
 	// create the extent
 	create_swapchain_extent(&surfaceCapabilities);
