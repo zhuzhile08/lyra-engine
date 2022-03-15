@@ -7,36 +7,47 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline() { }
 void VulkanGraphicsPipeline::destroy() {
 	vkDestroyPipeline(device->get().device, var.graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device->get().device, var.pipelineLayout, nullptr);
-	var.vertShader.destroy();
-	var.fragShader.destroy();
+	for (auto& shader : var.shaders) shader.destroy();
 
     delete device;
-    delete swapchain;
 
 	LOG_INFO("Succesfully destroyed Vulkan graphics pipeline!")
 }
 
-void VulkanGraphicsPipeline::create(VulkanDevice device, VulkanSwapchain swapchain, const VulkanFramebuffers framebuffer, 
-	const VulkanDescriptorSetLayout descriptorSetLayout, const std::string vertPath, const std::string fragPath) {
+void VulkanGraphicsPipeline::create(
+	VulkanDevice                            device,    
+	const VulkanFramebuffers                framebuffer, 
+	const VulkanDescriptorSetLayout         descriptorSetLayout,
+    const size_t                            shaderCount, 
+	const std::vector<ShaderCreationInfo>   shaderCreationInfos,
+	VkExtent2D                              size,
+    VkExtent2D                              area
+) {
     this->device = &device;
-    this->swapchain = &swapchain;
 
-	var.vertShader.create(device, "data/shader/vert.spv", "main", "Vertex Shader", VK_SHADER_STAGE_VERTEX_BIT);
-	var.fragShader.create(device, "data/shader/frag.spv", "main", "Fragment Shader", VK_SHADER_STAGE_FRAGMENT_BIT);
+    var.shaders.reserve(shaderCount);
 
-	create_pipeline(vertPath, fragPath, framebuffer, descriptorSetLayout);
+	create_shaders(shaderCreationInfos);
+
+	create_pipeline(framebuffer, descriptorSetLayout, size, area);
 
 	LOG_INFO("Succesfully created Vulkan pipeline at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void VulkanGraphicsPipeline::create_pipeline(const std::string vertPath, const std::string fragPath, 
-	const VulkanFramebuffers framebuffer, const VulkanDescriptorSetLayout descriptorSetLayout) {
-	VulkanGraphicsPipelineCreateInfo createInfo = {
-		{	// create shaders
-			var.vertShader.get().stage,
-			var.fragShader.get().stage
-		},
-		{	// describe how shaders are loaded
+void VulkanGraphicsPipeline::create_pipeline(
+	const VulkanFramebuffers        framebuffer, 
+	const VulkanDescriptorSetLayout descriptorSetLayout,
+	VkExtent2D                      size,
+    VkExtent2D                      area
+) {
+    // add all the shader stage creation information into a vector
+    std::vector <VkPipelineShaderStageCreateInfo>   shaderStages;
+    shaderStages.reserve(var.shaders.size());
+    for (const auto& shader : var.shaders) shaderStages.push_back(shader.get().stage);
+
+	VulkanGraphicsPipelineCreateInfo                createInfo = {
+		shaderStages, // create shaders
+		{	// describe how vertices are inputed into shaders
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 			nullptr,
 			0,
@@ -58,14 +69,14 @@ void VulkanGraphicsPipeline::create_pipeline(const std::string vertPath, const s
 		{	// define where the drawable area on the window is
 			0.0f,
 			0.0f,
-			(float) swapchain->get().extent.width,
-			(float) swapchain->get().extent.height,
+			(float) size.width,
+			(float) size.height,
 			0.0f,
 			1.0f
 		},
 		{	// define where you will acutally draw to
 			{0, 0},
-			swapchain->get().extent
+			area
 		},
 		{
 			VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -209,6 +220,17 @@ void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout descr
 	};
 
 	if(vkCreatePipelineLayout(device->get().device, &pipelineLayoutInfo, nullptr, &var.pipelineLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan graphics pipeline layout");
+}
+
+void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos) {
+	if (shaderCreationInfos.size() != var.shaders.size()) {
+		LOG_WARNING("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", GET_ADDRESS(this), "!")
+	}
+
+	for (uint16 index = 0; index <= shaderCreationInfos.size(); index++) {
+		var.shaders[index].create(*device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
+		LOG_DEBUG(TAB, "Succesfully created Vulkan shader at: ", GET_ADDRESS(&var.shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!")
+	}
 }
 
 VulkanGraphicsPipeline::Variables VulkanGraphicsPipeline::get() const {

@@ -33,7 +33,6 @@ private:
 	struct Variables {
 		VkShaderModule 					module;
 		VkPipelineShaderStageCreateInfo	stage;
-		std::string                     name;
 		std::string                     entry;
 	};
 
@@ -51,12 +50,11 @@ public:
 	 * @param device device
 	 * @param path path of the shader
 	 * @param entry name of the entrance point of the shader
-	 * @param name name of the shader
 	 * @param stage type of the shader
 	 * @param shader the shader to create
 	 * @return VkPipelineShaderStageCreateInfo
 	 */
-	void							create(VulkanDevice device, const std::string path, const str entry, const std::string name, VkShaderStageFlagBits stage);
+	void							create(VulkanDevice device, const std::string path, const str entry, VkShaderStageFlagBits stage);
 
 	/**
 	 * @brief get all variables

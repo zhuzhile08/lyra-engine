@@ -8,11 +8,10 @@ void VulkanShader::destroy() {
 	vkDestroyShaderModule(device->get().device, var.module, nullptr);
 }
 
-void VulkanShader::create(VulkanDevice device, const std::string path, str entry, const std::string name, VkShaderStageFlagBits stageFlags) {
+void VulkanShader::create(VulkanDevice device, const std::string path, str entry, VkShaderStageFlagBits stageFlags) {
 	this->device = &device;
 
 	var.entry = entry;
-	var.name = name;
 
 	// load the shader
 	auto shaderSrc = read_binary(path);

@@ -3,13 +3,12 @@
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief wrapper around the Vulkan graphics pipeline
- * @brief loads shaders and processes the vertecies passing through
+ * @brief loads shaders and processes the vertices passing through
  * 
  * @date 2022-02-05
  * 
  * @copyright Copyright (c) 2022
- * 
- */
+ *************************/
 
 #pragma once
 
@@ -30,39 +29,46 @@
 namespace lyra {
 /**
  * @brief wrapper around the Vulkan graphics pipeline
- * 
  */
 class VulkanGraphicsPipeline {
 private:
 	/**
 	 * @brief creation information of a pipeline
 	 */
-	struct 							VulkanGraphicsPipelineCreateInfo {
-		std::vector <VkPipelineShaderStageCreateInfo> 	shaderStages;
-		VkPipelineVertexInputStateCreateInfo 			vertexInputInfo;
-		VkPipelineInputAssemblyStateCreateInfo 			inputAssembly;
-		VkPipelineTessellationStateCreateInfo 			tesselation;
-		VkViewport 										viewport;
-		VkRect2D 										scissor;
-		VkPipelineViewportStateCreateInfo 				viewportState;
-		VkPipelineRasterizationStateCreateInfo 			rasterizer;
-		VkPipelineMultisampleStateCreateInfo 			multisampling;
-		VkPipelineDepthStencilStateCreateInfo 			depthStencilState;
-		VkPipelineColorBlendAttachmentState 			colorBlendAttachment;
-		VkPipelineColorBlendStateCreateInfo 			colorBlending;
-		std::vector <VkDynamicState>					dynamicStates;
-		VkPipelineDynamicStateCreateInfo 				dynamicState;
+	struct          VulkanGraphicsPipelineCreateInfo {
+		std::vector <VkPipelineShaderStageCreateInfo>   shaderStages;
+		VkPipelineVertexInputStateCreateInfo            vertexInputInfo;
+		VkPipelineInputAssemblyStateCreateInfo          inputAssembly;
+		VkPipelineTessellationStateCreateInfo           tesselation;
+		VkViewport                                      viewport;
+		VkRect2D                                        scissor;
+		VkPipelineViewportStateCreateInfo               viewportState;
+		VkPipelineRasterizationStateCreateInfo          rasterizer;
+		VkPipelineMultisampleStateCreateInfo            multisampling;
+		VkPipelineDepthStencilStateCreateInfo           depthStencilState;
+		VkPipelineColorBlendAttachmentState             colorBlendAttachment;
+		VkPipelineColorBlendStateCreateInfo             colorBlending;
+		std::vector <VkDynamicState>                    dynamicStates;
+		VkPipelineDynamicStateCreateInfo                dynamicState;
 	};
+
+	/**
+	 * @brief struct holding creation information for a shader
+	 */
+    struct          ShaderCreationInfo {
+        str                     path;
+        str                     entry;
+        VkShaderStageFlagBits   flag;
+    };
 
 	/**
 	 * @brief struct containling all the variabels
 	 */
-	struct 				Variables {
-		VkPipeline 			graphicsPipeline;
-		VkPipelineLayout 	pipelineLayout;
+	struct          Variables {
+		VkPipeline                  graphicsPipeline;
+		VkPipelineLayout            pipelineLayout;
 		
-		VulkanShader 		vertShader;
-		VulkanShader 		fragShader;
+		std::vector<VulkanShader>   shaders;
 	};
 
 public:
@@ -74,51 +80,69 @@ public:
 	 * 
 	 * @param device device
 	 */
-	void 				destroy();
+	void            destroy();
 
 	/**
 	 * @brief create a new graphics pipeline
 	 * 
 	 * @param device device
-	 * @param swapchain swapchain
 	 * @param framebuffer framebuffer
-	 * @param descriptor descriptor sets
-	 * @param commandBuffer command buffer
-	 * @param vertPath path of the vertex shader
-	 * @param fragPath path of the fragment shader
+	 * @param descriptorSetLayout descriptor set layout
+     * @param shaderCount number of shaders
+	 * @param shaderCreationInfos creation information of the shaders
+     * @param size size of which part the pipeline will draw to
+     * @param area area of where the pipeline can draw to
 	 */
-	void 				create(VulkanDevice device, VulkanSwapchain swapchain, const VulkanFramebuffers framebuffer, 
-		const VulkanDescriptorSetLayout descriptorSetLayout, const std::string vertPath, const std::string fragPath);
+	void            create(
+        VulkanDevice                            device, 
+        const VulkanFramebuffers                framebuffer, 
+		const VulkanDescriptorSetLayout         descriptorSetLayout, 
+        const size_t                            shaderCount, 
+        const std::vector<ShaderCreationInfo>   shaderCreationInfos,
+        VkExtent2D                              size,
+        VkExtent2D                              area
+    );
 	
 	/**
 	 * @brief get all the variabels
 	 * 
 	 * @return Variables 
 	 */
-	Variables 			get() const;
+	Variables       get() const;
 
 private:
-	Variables 			var;
+	Variables       var;
 
-	VulkanDevice*		device;
-	VulkanSwapchain*	swapchain;
-
+	VulkanDevice*   device;
 
 	/**
 	 * @brief create the graphics pipeline
 	 * 
-	 * @param vertPath path of the vertex shader
-	 * @param fragPath path of the fragment shader
+	 * @param framebuffer framebuffer
 	 * @param descriptor descriptors
+     * @param size size of which part the pipeline will draw to
+     * @param area area of where the pipeline can draw to
 	 */
-	void 				create_pipeline(const std::string vertPath, const std::string fragPath, const VulkanFramebuffers framebuffer, 
-		const VulkanDescriptorSetLayout descriptorSetLayout);
+	void            create_pipeline(
+        const VulkanFramebuffers        framebuffer, 
+		const VulkanDescriptorSetLayout descriptorSetLayout,
+        VkExtent2D                      size,
+        VkExtent2D                      area
+    );
 	/**
 	 * @brief create the pipeline layout
 	 * 
 	 * @param descriptor descriptors
 	 */
-	void 				create_layout(const VulkanDescriptorSetLayout descriptorSetLayout);
+	void            create_layout(const VulkanDescriptorSetLayout descriptorSetLayout);
+    /**
+     * @brief create all the shaders
+     * @brief minor caveat: since all the shaders are stored in a vector, you can only refer to them by index (as far as I know)
+     * @brief you have to memorise in which order you have created them
+     * 
+     * @param shaderCreationInfos creation information of the shaders
+     */
+    void            create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos);
 };
 
 /**
