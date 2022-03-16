@@ -33,26 +33,40 @@ namespace lyra {
  */
 struct VulkanDevice {
 private:
+	friend class 	Renderer;
 	/**
 	 * @brief queue families
 	 */
-	struct 				VulkanQueueFamily {
+	struct          VulkanQueueFamily {
 	public:
-		VkQueue 		queue;
-		uint32  		familyIndex = 0;
+        VulkanQueueFamily();
+
+		VkQueue queue;
+		uint32  familyIndex = 0;
+
+        /**
+         * @brief submit the queue for recording
+         * 
+         * @param fence 
+         */
+        void    submit(VkFence fence = VK_NULL_HANDLE);
+        /**
+         * @brief wait for the queue to finish
+         */
+        void    wait();
 	};
 
 	/**
 	 * @brief struct containing all the variables
 	 */
-	struct 				Variables {
-		VkPhysicalDevice 	physicalDevice;
-		VkDevice         	device;	
+	struct 	        Variables {
+		VkPhysicalDevice    physicalDevice;
+		VkDevice            device;	
 
-		VulkanQueueFamily 	graphicsQueue;
-		VulkanQueueFamily 	presentQueue;
+		VulkanQueueFamily   graphicsQueue;
+		VulkanQueueFamily   presentQueue;
 
-		VmaAllocator 		allocator;
+		VmaAllocator        allocator;
 	};
 	
 public:
@@ -61,14 +75,14 @@ public:
 	/**
 	 * @brief destroy the VulkanDevice object
 	 */
-	void 				destroy();
+	void            destroy();
 
 	/**
 	 * @brief create the devices
 	 * 
 	 * @param instance instance
 	 */
-	void 				create(VulkanInstance instance);
+	void            create(VulkanInstance instance);
 
 	/**
 	 * @brief find a block of memory that has requested settings
@@ -76,7 +90,7 @@ public:
 	 * @param typeFilter types of memory that are usable
 	 * @param properties the properties that the memory needs to have
 	 */
-	uint32 				find_memory_type(const uint32 typeFilter, const VkMemoryPropertyFlags properties) const;
+	uint32 	        find_memory_type(const uint32 typeFilter, const VkMemoryPropertyFlags properties) const;
 
 	/**
 	 * @brief map GPU memory
@@ -85,30 +99,30 @@ public:
 	 * @param size size of the memory
 	 * @param mapped currently mapped memory
 	 */
-	void 				map_memory(const VkDeviceMemory memory, const VkDeviceSize size, void *mapped) const;
+	void            map_memory(const VkDeviceMemory memory, const VkDeviceSize size, void *mapped) const;
 	/**
 	 * @brief unmap GPU memory
 	 * 
 	 * @param memory memory to unmap
 	 */
-	void 				unmap_memory(const VkDeviceMemory memory) const;
+	void            unmap_memory(const VkDeviceMemory memory) const;
 
 	/**
 	 * @brief wait for device to finish
 	 */
-	void 				wait() const;
+	void            wait() const;
 
 	/**
 	 * @brief Get the physical device
 	 * 
 	 * @return VkPhysicalDevice 
 	 */
-	Variables 			get() const;
+	Variables       get() const;
 
 private:
-	Variables 			var;
+	Variables       var;
 
-	VulkanInstance* 	instance;
+	VulkanInstance* instance;
 
 	/**
 	 * @brief find the family index of a queues
@@ -117,13 +131,13 @@ private:
 	 * @param device device to find the family index of the queue of
 	 * @return VulkanQueueFamily 
 	 */
-	void 				find_family_index(VulkanQueueFamily *queue, const VkPhysicalDevice device);
+	void                find_family_index(VulkanQueueFamily *queue, const VkPhysicalDevice device);
 	/**
 	 * @brief create a Vulkan queue
 	 * 
 	 * @return VulkanQueueFamily 
 	 */
-	void 				create_queue(VulkanQueueFamily *queue);
+	void                create_queue(VulkanQueueFamily *queue);
 
 	/**
 	 * @brief rate a physical device by its features
@@ -131,27 +145,27 @@ private:
 	 * @param device the device to rate
 	 * @param map a map containing all the physical devices and their scores
 	 */
-	void 				rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> &map);
+	void                rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> &map);
 	/**
 	 * @brief check requested Vulkan device extensions
 	 * 
 	 * @param extensions the available extensions
 	 * @param requestedExtensions the requested extensions
 	 */
-	void 				check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const;
+	void                check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const;
 
 	/**
 	 * @brief select a physical device from the available ones
 	 */
-	void 				pick_physical_device();
+	void                pick_physical_device();
 	/**
 	 * @brief create a logical device
 	 */
-	void 				create_logical_device();
+	void                create_logical_device();
 	/**
 	 * @brief create the VMA memory allocator
 	 */
-	void 				create_allocator();
+	void                create_allocator();
 };
 
 } // namespace lyra

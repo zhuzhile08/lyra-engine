@@ -29,38 +29,38 @@ namespace lyra {
 struct VulkanCommandPool {
 public:
 
-	VulkanCommandPool();
+    VulkanCommandPool();
 
-	/**
-	 * @brief destroy the VulkanCommandBuffer object
-	 * @brief it works just like the destructor, but it can be called anywhere
-	 */
-	void 					destroy();
+    /**
+     * @brief destroy the VulkanCommandBuffer object
+     * @brief it works just like the destructor, but it can be called anywhere
+     */
+    void                    destroy();
 
-	/**
-	 * @brief create a Vulkan command pool to allocate the command buffers
-	 * 
-	 * @param device device
-	 */
-	void 					create(VulkanDevice device);
-	
-	/**
-	 * @brief get the command pool
-	 * 
-	 * @return VkCommandPool 
-	 */
-	VkCommandPool 			get() const;
-	/**
-	 * @brief get the command pool as a pointer
-	 * 
-	 * @return VkCommandPool 
-	 */
-	const VkCommandPool* 	get_ptr() const;
+    /**
+     * @brief create a Vulkan command pool to allocate the command buffers
+     * 
+     * @param device device
+     */
+    void                    create(VulkanDevice device);
+    
+    /**
+     * @brief get the command pool
+     * 
+     * @return VkCommandPool 
+     */
+    VkCommandPool           get() const;
+    /**
+     * @brief get the command pool as a pointer
+     * 
+     * @return VkCommandPool 
+     */
+    const VkCommandPool*    get_ptr() const;
 
 private:
-	VkCommandPool 			commandPool;
+    VkCommandPool           commandPool;
 
-	VulkanDevice*			device;
+    VulkanDevice*           device;
 };
 
 /**
@@ -69,53 +69,53 @@ private:
 struct VulkanCommandBuffer {
 public:
 
-	VulkanCommandBuffer();
+    VulkanCommandBuffer();
 
-	/**
-	 * @brief destroy the VulkanCommandBuffer object
-	 * @brief it works just like the destructor, but it can be called anywhere
-	 */	
-	void 					destroy();
+    /**
+     * @brief destroy the VulkanCommandBuffer object
+     * @brief it works just like the destructor, but it can be called anywhere
+     */	
+    void                    destroy();
 
-	/**
-	 * @brief create the Vulkan command buffers
-	 * 
-	 * @param device device
-	 * @param commandPool command pool
-	 * @param level level of the command buffer
-	 */
-	void 					create(VulkanDevice device, VulkanCommandPool commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    /**
+     * @brief create the Vulkan command buffers
+     * 
+     * @param device device
+     * @param commandPool command pool
+     * @param level level of the command buffer
+     */
+    void                    create(VulkanDevice device, VulkanCommandPool commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-	/**
-	 * @brief begin recording a commandBuffer
-	 * 
-	 * @param usage what the recording will be used for
-	 */
-	void					begin(const VkCommandBufferUsageFlags usage = 0) const;
-	/**
-	 * @brief end recording a commandBuffer
-	 */
-	void					end() const;
+    /**
+     * @brief begin recording a commandBuffer
+     * 
+     * @param usage what the recording will be used for
+     */
+    void                    begin(const VkCommandBufferUsageFlags usage = 0) const;
+    /**
+     * @brief end recording a commandBuffer
+     */
+    void                    end() const;
 
-	/**
-	 * @brief get the command buffer
-	 * 
-	 * @return VkCommandBuffer
-	 */
-	VkCommandBuffer 		get() const;
+    /**
+     * @brief get the command buffer
+     * 
+     * @return VkCommandBuffer
+     */
+    VkCommandBuffer         get() const;
 
-	/**
-	 * @brief get the command buffer as a pointer
-	 * 
-	 * @return const VkCommandBuffer* 
-	 */
-	const VkCommandBuffer* 	get_ptr() const;
+    /**
+     * @brief get the command buffer as a pointer
+     * 
+     * @return const VkCommandBuffer* 
+     */
+    const VkCommandBuffer* 	get_ptr() const;
 
 private:
-	VkCommandBuffer 		commandBuffer;
+    VkCommandBuffer         commandBuffer;
 
-	VulkanDevice*			device;
-	VulkanCommandPool*		commandPool;
+    VulkanDevice*           device;
+    VulkanCommandPool*      commandPool;
 };
 
 } // namespace lyra

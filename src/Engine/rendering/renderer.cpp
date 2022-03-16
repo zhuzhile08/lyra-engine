@@ -41,14 +41,44 @@ void Renderer::create(Window window) {
 }
 
 void Renderer::destroySwapchain() {
-    /// @todo image samplers and depth buffers
-
     framebuffers.destroy();
     swapchain.destroy();
 }
 
 void Renderer::recreateSwapchain() {
 
+}
+
+void Renderer::submit_queue(
+    VulkanDevice::VulkanQueueFamily queue, 
+    VulkanCommandBuffer             commandBuffer,
+    VulkanSyncObjects               syncObjects, 
+    uint32                          syncObjectIndex,
+    VkPipelineStageFlags            stageFlags
+) {
+    // queue submission info
+    VkSubmitInfo submitInfo = {
+        VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        nullptr,
+        0,
+        &syncObjects.get().imageAvailableSemaphores[syncObjectIndex],
+        &stageFlags,
+        1,
+        commandBuffer.get_ptr(),
+        1,
+        &syncObjects.get().renderFinishedSemaphores[syncObjectIndex]
+    };
+
+    // submit the queue
+    vkQueueSubmit(queue.queue, 1, &submitInfo, syncObjects.get().inFlightFences[syncObjectIndex]);
+}
+
+void Renderer::submit_queue(VulkanDevice::VulkanQueueFamily queue, uint32 index, VkPipelineStageFlags stageFlags) {
+    submit_queue(queue, commandBuffers[index], syncObjects, index, stageFlags);
+}
+
+void Renderer::wait_queue(VulkanDevice::VulkanQueueFamily queue) {
+    vkQueueWaitIdle(queue.queue);
 }
 
 void Renderer::bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const {

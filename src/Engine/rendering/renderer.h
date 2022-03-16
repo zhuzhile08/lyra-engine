@@ -32,81 +32,111 @@ namespace lyra {
  */
 class Renderer {
 public:
-	Renderer();
-	/**
-	 * @brief destroy the renderer
-	 */
-	void 								destroy();
-	/**
-	 * @brief create the renderer
-	 * 
-	 * @param window the window
-	 */
-	void 								create(Window window);
+    Renderer();
+    /**
+     * @brief destroy the renderer
+     */
+    void 								destroy();
+    /**
+     * @brief create the renderer
+     * 
+     * @param window the window
+     */
+    void 								create(Window window);
 
-	/**
-	 * @brief recreate the swapchain and related stuff in case of some events
-	 */
-	void 								recreateSwapchain();
-	/**
-	 * @brief destroy the swapchain and related stuff in case of some events
-	 */
-	void 								destroySwapchain();
+    /**
+     * @brief recreate the swapchain and related stuff in case of some events
+     */
+    void 								recreateSwapchain();
+    /**
+     * @brief destroy the swapchain and related stuff in case of some events
+     */
+    void 								destroySwapchain();
 
-	/// @todo queue and multithread this function
-	void load_scene();
-	void unload_scene();
-	/// @todo not sure how to do this, but output the drawn renders as pictures as efficiently as possible
+    /// @todo queue and multithread this function
+    void load_scene();
+    void unload_scene();
+    /// @todo not sure how to do this, but output the drawn renders as pictures as efficiently as possible
 
-	void update();
-	/// @todo also queue and multithread this function
-	void draw();
-	
+    void update();
+    /// @todo also queue and multithread this function
+    void draw();
+    
+    /**
+     * @brief submit a Vulkan queue after command queue recording
+     * 
+     * @param queue the queue to submit
+     * @param commandBuffer recorded commandbuffer
+     * @param syncObjects synchronisation objects (only needed if every command has finished recording)
+     * @param syncObjectIndex index of the synchronisation objects to use
+     * @param stageFlags pipeline shader stage flags
+     */
+    void                                submit_queue(
+        VulkanDevice::VulkanQueueFamily queue, 
+        VulkanCommandBuffer             commandBuffer   = VulkanCommandBuffer(),
+        VulkanSyncObjects               syncObjects     = VulkanSyncObjects(), 
+        uint32                          syncObjectIndex = 0,
+        VkPipelineStageFlags            stageFlags      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+    );
+    /**
+     * @brief overloaded Vulkan queue submitting function, only for after every commandbuffer has finisched recording
+     * 
+     * @param queue queue to submit
+     * @param index index of the synchronisation objects and commandbuffers
+     * @param stageFlags pipeline shader stage flags
+     */
+    void                                submit_queue(VulkanDevice::VulkanQueueFamily queue, uint32 index, VkPipelineStageFlags stageFlags);
+    /**
+     * @brief wait for queue to finish submitting
+     * 
+     * @param queue queue to wait for
+     */
+    void                                wait_queue(VulkanDevice::VulkanQueueFamily queue);
 
 private:
-	VulkanInstance						instance;
-	VulkanDevice						device;
-	VulkanCommandPool					commandPool;
-	VulkanSwapchain 					swapchain;
-	VulkanFramebuffers 					framebuffers;
-	VulkanDescriptorSetLayout 			descriptorSetLayout;
-	/// @todo textures samplers, and other stuff to do
-	VulkanDescriptorPool				descriptorPool;
-	std::vector<VulkanDescriptor>		descriptors;
-	std::vector<VulkanCommandBuffer>	commandBuffers;
-	VulkanSyncObjects 					syncObjects;
+    VulkanInstance						instance;
+    VulkanDevice						device;
+    VulkanCommandPool					commandPool;
+    VulkanSwapchain 					swapchain;
+    VulkanFramebuffers 					framebuffers;
+    VulkanDescriptorSetLayout 			descriptorSetLayout;
+    /// @todo textures samplers, and other stuff to do
+    VulkanDescriptorPool				descriptorPool;
+    std::vector<VulkanDescriptor>		descriptors;
+    std::vector<VulkanCommandBuffer>	commandBuffers;
+    VulkanSyncObjects 					syncObjects;
 
-	Window* 							window;
+    Window* 							window;
 
-	/**
-	 * @brief bind a descriptor set
-	 * 
-	 * @param descriptor descriptor
-	 * @param pipelineLayout pipeline layout
-	 */
-	void 								bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
-	void 								push_constants() const;
-	/**
-	 * @brief begin render passes
-	 * 
-	 * @param framebuffers frame buffer
-	 * @param index index of the frame buffer
-	 */
-	void 								begin_render_pass(const VulkanFramebuffers framebuffer, const int index, const VkClearValue clear, const int cmdBuffIndex) const;
-	/**
-	 * @brief end render passes
-	 * 
-	 * @param framebuffers frame buffer
-	 */
-	void								end_render_pass(const int cmdBuffIndex) const;
-	/**
-	 * @brief bind the graphics pipeline
-	 * 
-	 * @param pipeline pipeline
-	 */
-	void 								bind_pipeline(const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
-	void 								bind_model() const;
-	void								draw_model() const;
+    /**
+     * @brief bind a descriptor set
+     * 
+     * @param descriptor descriptor
+     * @param pipelineLayout pipeline layout
+     */
+    void 								bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
+    void 								push_constants() const;
+    /**
+     * @brief begin render passes
+     * 
+     * @param framebuffers frame buffer
+     * @param index index of the frame buffer
+     */
+    void 								begin_render_pass(const VulkanFramebuffers framebuffer, const int index, const VkClearValue clear, const int cmdBuffIndex) const;
+    /**
+     * @brief end render passes
+     * 
+     * @param framebuffers frame buffer
+     */
+    void								end_render_pass(const int cmdBuffIndex) const;
+    /**
+     * @brief bind the graphics pipeline
+     * 
+     * @param pipeline pipeline
+     */
+    void 								bind_pipeline(const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
+    void 								bind_model() const;
+    void								draw_model() const;
 };
 
 } // namespace Vulkan
