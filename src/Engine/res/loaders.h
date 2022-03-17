@@ -14,4 +14,3 @@
 #include <res/loaders/load_file.h>
 #include <res/loaders/load_font.h>
 #include <res/loaders/load_model.h>
-#include <res/loaders/load_texture.h>

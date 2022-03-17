@@ -11,7 +11,6 @@ void VulkanImage::destroy() {
 }
 
 VkImageCreateInfo VulkanImage::get_image_create_info(
-    VulkanDevice            device, 
     VkFormat                format, 
     VkExtent3D              extent,
     VkImageUsageFlags       usage,

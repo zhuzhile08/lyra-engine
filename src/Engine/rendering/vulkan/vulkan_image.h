@@ -37,7 +37,6 @@ struct VulkanImage {
 	/**
 	 * @brief create the image and image view
 	 * 
-	 * @param device device
 	 * @param format define how the data is stored in the image
 	 * @param extent size of the image
 	 * @param usage how or as what will be the image used
@@ -48,7 +47,6 @@ struct VulkanImage {
 	 * @param tiling how to store the image in the GPU memory
 	 */
 	VkImageCreateInfo	get_image_create_info(
-		VulkanDevice            device, 
 		VkFormat                format, 
 		VkExtent3D              extent,
 		VkImageUsageFlags       usage,
@@ -72,8 +70,8 @@ struct VulkanImage {
 		VulkanDevice            device, 
 		VkFormat                format, 
 		VkImageSubresourceRange subresourceRange,
-		VkImageViewType         viewType = VK_IMAGE_VIEW_TYPE_2D, 
-		VkComponentMapping      colorComponents = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
+		VkImageViewType         viewType		 = VK_IMAGE_VIEW_TYPE_2D, 
+		VkComponentMapping      colorComponents	 = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
 	);
 
 	VkImage 			image;

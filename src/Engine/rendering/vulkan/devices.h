@@ -39,21 +39,8 @@ private:
 	 */
 	struct          VulkanQueueFamily {
 	public:
-        VulkanQueueFamily();
-
 		VkQueue queue;
 		uint32  familyIndex = 0;
-
-        /**
-         * @brief submit the queue for recording
-         * 
-         * @param fence 
-         */
-        void    submit(VkFence fence = VK_NULL_HANDLE);
-        /**
-         * @brief wait for the queue to finish
-         */
-        void    wait();
 	};
 
 	/**
