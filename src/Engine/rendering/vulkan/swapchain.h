@@ -29,124 +29,121 @@ namespace lyra {
  */
 class VulkanSwapchain {
 private:
-	/**
-	 * @brief wrapper around swapchain images
-	 */
-	struct VulkanSwapchainImages {
-	public:
-		VulkanSwapchainImages();
+    /**
+     * @brief wrapper around swapchain images
+     */
+    struct          VulkanSwapchainImages {
+    public:
+        VulkanSwapchainImages();
 
-		/**
-		 * @brief destroy the swapchain images
-		 */
-		void destroy();
-		
-		/**
-		 * @brief create the image views
-		 * 
-		 * @param device device
-		 * @param format swapchain format
-		 * @param swapchain swapchain
-		 */
-		void						create(VulkanDevice device, const VulkanSwapchain swapchain);
+        /**
+         * @brief destroy the swapchain images
+         */
+        void destroy();
+        
+        /**
+         * @brief create the image views
+         * 
+         * @param device device
+         * @param format swapchain format
+         * @param swapchain swapchain
+         */
+        void                        create(VulkanDevice device, const VulkanSwapchain swapchain);
 
-		std::vector <VulkanImage>   images;
+        std::vector <VulkanImage>   images;
 
-	private:
-		VulkanDevice*				device;
-	};
-	
-	/**
-	 * @brief wrapper around depth buffers
-	 */
-	struct VulkanDepthBuffer {
-	public:
-		VulkanDepthBuffer();
+    private:
+        VulkanDevice*               device;
+    };
+    
+    /**
+     * @brief wrapper around depth buffers
+     */
+    struct          VulkanDepthBuffer {
+    public:
+        VulkanDepthBuffer();
 
-		/**
-		 * @brief destroy the depth buffer
-		 */
-		void 			destroy();
+        /**
+         * @brief destroy the depth buffer
+         */
+        void            destroy();
 
-		/**
-		 * @brief create the image, view and allocate the memory
-		 * 
-		 * @param device device
-		 * @param swapchain swapchain
-		 */
-		void 			create(VulkanDevice device, const VulkanSwapchain swapchain);
+        /**
+         * @brief create the image, view and allocate the memory
+         * 
+         * @param device device
+         * @param swapchain swapchain
+         */
+        void            create(VulkanDevice device, const VulkanSwapchain swapchain);
 
-		VulkanImage 	image;
-		VmaAllocation	memory;
+        VulkanImage     image;
+        VmaAllocation   memory;
 
-	private:
-		VulkanDevice*	device;
-	};
+    private:
+        VulkanDevice*   device;
+    };
 
-	/**
-	 * @brief struct containing all the variables
-	 */
-	struct 			Variables {
-		VkSwapchainKHR  		swapchain;
-		VkFormat 				format;
-		VkExtent2D 				extent;
-		VulkanSwapchainImages 	images;
-		VulkanDepthBuffer 		depthBuffer;
+    /**
+     * @brief struct containing all the variables
+     */
+    struct          Variables {
+        VkSwapchainKHR          swapchain;
+        VkFormat                format;
+        VkExtent2D              extent;
+        VulkanSwapchainImages   images;
+        VulkanDepthBuffer       depthBuffer;
 
-		VulkanSwapchain*		oldSwapchain = nullptr;
-	};
+        VulkanSwapchain*        oldSwapchain = nullptr;
+    };
 
 public:
-	VulkanSwapchain();
+    VulkanSwapchain();
 
-	/**
-	 * @brief destroy the VulkanSwapchain
-	 */
-	void 			destroy();
+    /**
+     * @brief destroy the VulkanSwapchain
+     */
+    void            destroy();
 
-	/**
-	 * @brief create the swapchain
-	 * 
-	 * @param device device
-	 * @param instance instance
-	 * @param window window
-	 */
-	void 			create(VulkanDevice device, VulkanInstance instance, Window window);
+    /**
+     * @brief create the swapchain
+     * 
+     * @param device device
+     * @param instance instance
+     * @param window window
+     */
+    void            create(VulkanDevice device, VulkanInstance instance, Window window);
 
-	/**
-	 * @brief create the swapchain
-	 * 
-	 * @param device device
-	 * @param instance instance
-	 * @param window window
-	 * @param oldSwapchain old swapchain
-	 */
-	void 			create(VulkanDevice device, VulkanInstance instance, Window window, VulkanSwapchain oldSwapchain);
+    /**
+     * @brief create the swapchain
+     * 
+     * @param oldSwapchain old swapchain
+     */
+    void            create(VulkanSwapchain oldSwapchain);
 
-	/**
-	 * @brief get all variables
-	 * 
-	 * @return Variables
-	 */
-	Variables 		get() const;
-	
+    /**
+     * @brief get all variables
+     * 
+     * @return Variables
+     */
+    Variables       get() const;
+    
 private:
-	Variables 		var;
+    Variables       var;
 
-	VulkanDevice*	device;
-	VulkanInstance*	instance;
-	Window* 		window;
+    VulkanDevice*   device;
+    VulkanInstance* instance;
+    Window*         window;
 
-	/**
-	 * @brief create the swapchain
-	 */
-	void 			create_swapchain();
-	/**
-	 * @brief create a extent of the swapchain 
-	 *
-	 * @param surfaceCapabilities capabilities of the swapchain
-	 */
-	void 			create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceCapabilities);
+    /**
+     * @brief create the swapchain
+     */
+    void            create_swapchain();
+    /**
+     * @brief create a extent of the swapchain 
+     *
+     * @param surfaceCapabilities capabilities of the swapchain
+     */
+    void            create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceCapabilities);
 };
 
 } // namespace lyra

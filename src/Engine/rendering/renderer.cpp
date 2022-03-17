@@ -46,7 +46,12 @@ void Renderer::destroySwapchain() {
 }
 
 void Renderer::recreateSwapchain() {
+    VulkanSwapchain oldSwapchain = std::move(swapchain);
 
+    destroySwapchain();
+
+    swapchain.create(oldSwapchain);
+    framebuffers.create();
 }
 
 void Renderer::submit_queue(

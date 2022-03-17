@@ -36,22 +36,22 @@ public:
     /**
      * @brief destroy the renderer
      */
-    void 								destroy();
+    void                                destroy();
     /**
      * @brief create the renderer
      * 
      * @param window the window
      */
-    void 								create(Window window);
+    void                                create(Window window);
 
     /**
      * @brief recreate the swapchain and related stuff in case of some events
      */
-    void 								recreateSwapchain();
+    void                                recreateSwapchain();
     /**
      * @brief destroy the swapchain and related stuff in case of some events
      */
-    void 								destroySwapchain();
+    void                                destroySwapchain();
 
     /// @todo queue and multithread this function
     void load_scene();
@@ -94,19 +94,19 @@ public:
     void                                wait_queue(VulkanDevice::VulkanQueueFamily queue);
 
 private:
-    VulkanInstance						instance;
-    VulkanDevice						device;
-    VulkanCommandPool					commandPool;
-    VulkanSwapchain 					swapchain;
-    VulkanFramebuffers 					framebuffers;
-    VulkanDescriptorSetLayout 			descriptorSetLayout;
+    VulkanInstance                      instance;
+    VulkanDevice                        device;
+    VulkanCommandPool                   commandPool;
+    VulkanSwapchain                     swapchain;
+    VulkanFramebuffers                  framebuffers;
+    VulkanDescriptorSetLayout           descriptorSetLayout;
     /// @todo textures samplers, and other stuff to do
-    VulkanDescriptorPool				descriptorPool;
-    std::vector<VulkanDescriptor>		descriptors;
-    std::vector<VulkanCommandBuffer>	commandBuffers;
-    VulkanSyncObjects 					syncObjects;
+    VulkanDescriptorPool                descriptorPool;
+    std::vector<VulkanDescriptor>       descriptors;
+    std::vector<VulkanCommandBuffer>    commandBuffers;
+    VulkanSyncObjects                   syncObjects;
 
-    Window* 							window;
+    Window*                             window;
 
     /**
      * @brief bind a descriptor set
@@ -114,29 +114,27 @@ private:
      * @param descriptor descriptor
      * @param pipelineLayout pipeline layout
      */
-    void 								bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
-    void 								push_constants() const;
+    void                                bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
+    void                                push_constants() const;
     /**
      * @brief begin render passes
      * 
      * @param framebuffers frame buffer
      * @param index index of the frame buffer
      */
-    void 								begin_render_pass(const VulkanFramebuffers framebuffer, const int index, const VkClearValue clear, const int cmdBuffIndex) const;
+    void                                begin_render_pass(const VulkanFramebuffers framebuffer, const int index, const VkClearValue clear, const int cmdBuffIndex) const;
     /**
      * @brief end render passes
      * 
      * @param framebuffers frame buffer
      */
-    void								end_render_pass(const int cmdBuffIndex) const;
+    void                                end_render_pass(const int cmdBuffIndex) const;
     /**
      * @brief bind the graphics pipeline
      * 
      * @param pipeline pipeline
      */
-    void 								bind_pipeline(const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
-    void 								bind_model() const;
-    void								draw_model() const;
+    void                                bind_pipeline(const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
 };
 
 } // namespace Vulkan

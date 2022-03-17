@@ -59,10 +59,10 @@ void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const Vulka
 	};
 
 	// create memory and image
-	vmaCreateImage(device.get().allocator, &image.get_image_create_info(
-			device, VK_FORMAT_D32_SFLOAT, {swapchain.get().extent.width, swapchain.get().extent.height, 1}, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+	if(vmaCreateImage(device.get().allocator, &image.get_image_create_info(
+			VK_FORMAT_D32_SFLOAT, {swapchain.get().extent.width, swapchain.get().extent.height, 1}, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
 		), &allocCreateInfo, &image.image, &memory, nullptr
-	);
+	) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan depth buffer!")
 
 	// create the image view
 	image.create_view(device, VK_FORMAT_D32_SFLOAT, {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1});
@@ -98,9 +98,9 @@ void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Windo
 	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Window window, VulkanSwapchain oldSwapchain) {
+void VulkanSwapchain::create(VulkanSwapchain oldSwapchain) {
 	var.oldSwapchain = &oldSwapchain;
-	create(device, instance, window);
+	create(*device, *instance, *window);
 
 	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
 }
