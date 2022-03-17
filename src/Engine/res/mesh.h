@@ -14,7 +14,6 @@
 
 #include <core/defines.h>
 #include <noud.h>
-#include <tiny_obj_loader.h>
 #include <res/loaders/load_model.h>
 
 #include <rendering/vulkan/GPU_buffer.h>
@@ -23,7 +22,6 @@
 
 #include <vector>
 #include <array>
-
 #include <glm.hpp>
 #include <vulkan/vulkan.h>
 
@@ -41,6 +39,7 @@ public:
 		glm::vec3 												pos;
 		glm::vec3 												normal;
 		glm::vec3 												color;
+		glm::vec3 												uv;
 
 		Vertex();
 
@@ -51,7 +50,7 @@ public:
 		 * @param normal vertex normals
 		 * @param color the new color
 		 */
-		Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 color = {0, 0, 0});
+		Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 uv, glm::vec3 color = {0, 0, 0});
 
 		/**
 		 * @brief returns a static vertex binding
@@ -63,9 +62,9 @@ public:
 		/**
 		 * @brief returns a static vertex input attribute
 		 * 
-		 * @return std::array<VkVertexInputAttributeDescription, 2> 
+		 * @return std::array<VkVertexInputAttributeDescription, 4> 
 		 */
-		static std::array<VkVertexInputAttributeDescription, 2> get_attribute_descriptions();
+		static std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions();
 	};
 
 private:
