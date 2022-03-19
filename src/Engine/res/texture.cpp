@@ -132,11 +132,11 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 }
 
 void Texture::create_sampler(
-    VkFilter                magnifiedTexel   = VK_FILTER_LINEAR,
-    VkFilter                minimizedTexel   = VK_FILTER_LINEAR,
-    VkSamplerMipmapMode     mipmapMode       = VK_SAMPLER_MIPMAP_MODE_NEAREST,
-    VkSamplerAddressMode    extendedTexels   = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-    VkBool32                anisotropy       = VK_TRUE
+    VkFilter                magnifiedTexel,
+    VkFilter                minimizedTexel,
+    VkSamplerMipmapMode     mipmapMode,
+    VkSamplerAddressMode    extendedTexels,
+    VkBool32                anisotropy
 ) {
     VkPhysicalDeviceProperties properties{};
     vkGetPhysicalDeviceProperties(device->get().physicalDevice, &properties);
