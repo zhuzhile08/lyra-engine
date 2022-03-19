@@ -145,9 +145,4 @@ private:
 	void            create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos);
 };
 
-/**
- * @brief the pipeline is literally the material itself
- */
-typedef VulkanGraphicsPipeline Material;
-
 } // namespace lyra

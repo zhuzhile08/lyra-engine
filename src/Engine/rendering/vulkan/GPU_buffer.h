@@ -14,7 +14,6 @@
 #include <core/defines.h>
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
-#include <rendering/vulkan/command_buffer.h>
 #include <core/logger.h>
 
 #include <memory>
@@ -31,11 +30,11 @@ namespace lyra {
 class VulkanGPUBuffer {
 private:
 	struct 			Variables {
-		VkBuffer        	buffer;
-		VmaAllocation 		memory;
-		VkDeviceSize		size;
+		VkBuffer            buffer;
+		VmaAllocation       memory;
+		VkDeviceSize        size;
 		VkBufferUsageFlags 	bufferUsage;
-		VmaMemoryUsage 		memUsage;
+		VmaMemoryUsage 	    memUsage;
 	};
 
 public:
@@ -44,14 +43,14 @@ public:
 	/**
 	 * @brief destroy the VulkanGPUBuffer object
 	 */
-	void 			destroy();
+	void            destroy();
 
 	/**
 	 * @brief create the buffer
 	 * 
 	 * @param device device
 	 */
-	void 			create(VulkanDevice device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
+	void            create(VulkanDevice device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
 
 	/**
 	 * @brief copy a buffer to another
@@ -62,19 +61,19 @@ public:
 	 * @param size the size of the buffer
 	 * @return true 
 	 */
-	void 			copy(const VulkanCommandPool commandPool, const VulkanGPUBuffer srcBuffer);
+	void            copy(const VulkanCommandPool commandPool, const VulkanGPUBuffer srcBuffer);
 
 	/**
 	 * @brief map GPU memory to normal memory
 	 * 
 	 * @param data empty block of data to copy to
 	 */
-	void 			map_memory(void* data);
+	void            map_memory(void* data);
 
 	/**
 	 * @brief unmap the GPU memory from normal memory
 	 */
-	void 			unmap_memory() const;
+	void            unmap_memory() const;
 
 	/**
 	 * @brief get the buffer
@@ -84,9 +83,9 @@ public:
 	Variables        get() const;
 
 private:
-	Variables 		var;
+	Variables       var;
 
-	VulkanDevice* 	device;
+	VulkanDevice*   device;
 };
 
 } // namespace lyra

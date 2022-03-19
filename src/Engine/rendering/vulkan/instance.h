@@ -26,61 +26,61 @@ namespace lyra {
  */
 class VulkanInstance {
 private:
-	/**
-	 * @brief struct containing the variables of a class
-	 */
-	struct 			Variables {
-		VkInstance      instance;
-		VkSurfaceKHR	surface;
-	};
+    /**
+     * @brief struct containing the variables of a class
+     */
+    struct          Variables {
+        VkInstance      instance;
+        VkSurfaceKHR    surface;
+    };
 
 public:
-	VulkanInstance();
-	
-	/**
-	 * @brief destroy a Instance
-	 */
-	void			destroy();
+    VulkanInstance();
+    
+    /**
+     * @brief destroy a Instance
+     */
+    void            destroy();
 
-	/**
-	 * @brief create the instance and surface
-	 * 
-	 * @param window window
-	 */
-	void 			create(Window window);
+    /**
+     * @brief create the instance and surface
+     * 
+     * @param window window
+     */
+    void            create(Window window);
 
-	/**
-	 * @brief get all variabels
-	 * 
-	 * @return Variables
-	 */
-	Variables      get() const;
+    /**
+     * @brief get all variabels
+     * 
+     * @return Variables
+     */
+    Variables      get() const;
 
 private:
-	Variables 		var;
+    Variables       var;
 
-	Window*			window;
+    Window*         window;
 
-	/**
-	 * @brief check if a vector of user requested Vulkan validation layers is actually available
-	 * 
-	 * @param layers the available validation layers
-	 * @param requestedLayers the requested validation layers
-	 */
-	void 			check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <str> requestedLayers) const;
-	/**
-	 * @brief create a Vulkan instance
-	 * 
-	 * @param window window
-	 */
-	void 			create_instance();
+    /**
+     * @brief check if a vector of user requested Vulkan validation layers is actually available
+     * 
+     * @param layers the available validation layers
+     * @param requestedLayers the requested validation layers
+     */
+    void            check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <str> requestedLayers) const;
+    /**
+     * @brief create a Vulkan instance
+     * 
+     * @param window window
+     */
+    void            create_instance();
 
-	/**
-	 * @brief create a Vulkan window surface
-	 * 
-	 * @param window window
-	 */
-	void 			create_window_surface();
+    /**
+     * @brief create a Vulkan window surface
+     * 
+     * @param window window
+     */
+    void            create_window_surface();
 };
 
 } // namespace lyra

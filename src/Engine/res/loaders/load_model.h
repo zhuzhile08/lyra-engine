@@ -4,7 +4,6 @@
 #include <core/logger.h>
 
 #include <vector>
-#include <string>
 #include <tiny_obj_loader.h>
 #include <glm.hpp>
 

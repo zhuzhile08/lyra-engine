@@ -45,8 +45,6 @@ void VulkanGPUBuffer::create(VulkanDevice device, VkDeviceSize size, VkBufferUsa
 
     vmaCreateBuffer(device.get().allocator, &bufferInfo, &memAllocInfo, &var.buffer, &var.memory, nullptr);
 
-    vmaBindBufferMemory(device.get().allocator, var.memory, var.buffer);
-
     LOG_INFO("Succesfully created Vulkan GPU buffer at ", GET_ADDRESS(this), "!", END_L)
 }
 
