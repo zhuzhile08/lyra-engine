@@ -108,6 +108,36 @@ VkDescriptorPool VulkanDescriptorPool::get() const {
 // descriptor writer
 VulkanDescriptor::Writer::Writer() { }
 
+void VulkanDescriptor::Writer::add_buffer_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorBufferInfo bufferInfo) {
+    writes.push_back({
+        VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        nullptr,
+        set,
+        binding,
+        0,
+        1,
+        type,
+        nullptr,
+        &bufferInfo,
+        nullptr
+    });
+}
+
+void VulkanDescriptor::Writer::add_image_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorImageInfo imageInfo) {
+    writes.push_back({
+        VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        nullptr,
+        set,
+        binding,
+        0,
+        1,
+        type,
+        &imageInfo,
+        nullptr,
+        nullptr
+    });
+}
+
 // descriptors
 VulkanDescriptor::VulkanDescriptor() { }
 
@@ -135,7 +165,7 @@ void VulkanDescriptor::create(VulkanDevice device, const uint16 size, const Vulk
 
     // configure each descriptor set
     for (int index = 0; index <= size; index++) {
-        vkUpdateDescriptorSets(device.get().device, 1, nullptr, 0, nullptr);
+        vkUpdateDescriptorSets(device.get().device, 1, &writer.writes[index], 0, nullptr);
     }
 
     LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L)

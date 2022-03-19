@@ -161,6 +161,27 @@ public:
 	 */
 	struct Writer {
 		Writer();
+
+		/**
+		 * @brief add a setting for buffers
+		 * 
+		 * @param binding at which position it will be entered into the shader
+		 * @param index index of the descriptor set
+		 * @param type type of the descriptor set
+		 * @param bufferInfo information about the buffer
+		 */
+		void								add_buffer_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorBufferInfo bufferInfo);
+		/**
+		 * @brief add a setting for images
+		 * 
+		 * @param binding at which position it will be entered into the shader
+		 * @param index index of the descriptor set
+		 * @param type type of the descriptor set
+		 * @param imageInfo information about the image
+		 */
+		void								add_image_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorImageInfo imageInfo);
+
+		std::vector<VkWriteDescriptorSet>	writes;
 	};
 
 	VulkanDescriptor();
