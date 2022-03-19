@@ -33,5 +33,5 @@
 
 # folders
 include/
-build/
-.vscode/
+out/
+.vs/
