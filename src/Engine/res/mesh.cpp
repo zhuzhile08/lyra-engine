@@ -5,7 +5,7 @@ namespace lyra {
 // vertex
 Mesh::Vertex::Vertex() { }
 
-Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec3 color) : pos(pos), normal(normal), color(color), uv(uv) { }
+Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color) : pos(pos), normal(normal), color(color), uv(uv) { }
 
 VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() {
     return {
@@ -115,10 +115,16 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
                         loaded.vertices.normals[3 * idx.normal_index + 2]
                     }; 
 
+                    tinyobj::real_t uv[2] = {
+                        loaded.vertices.texcoords[2 * idx.texcoord_index + 0],
+                        loaded.vertices.texcoords[2 * idx.texcoord_index + 1]
+                    };
+
                     // the vertex
                     Vertex vertex = Vertex(
                         {vertexPositions[0], vertexPositions[1], vertexPositions[2]}, // position
                         {normals[0], normals[1], normals[2]}, // normals
+                        {uv[0], 1 - uv[2]}, // texture UV coordinates
                         vertex.normal // color are now set to the normal position for testing purposes
                     );
 
@@ -152,10 +158,16 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
                     loaded.vertices.normals[3 * idx.normal_index + 2]
                 }; 
 
+                tinyobj::real_t uv[2] = {
+                    loaded.vertices.texcoords[2 * idx.texcoord_index + 0],
+                    loaded.vertices.texcoords[2 * idx.texcoord_index + 1]
+                };
+
                 // the vertex
                 Vertex vertex = Vertex(
                     {vertexPositions[0], vertexPositions[1], vertexPositions[2]}, // position
                     {normals[0], normals[1], normals[2]}, // normals
+                    {uv[0], 1 - uv[2]}, // texture UV coordinates
                     vertex.normal // color are now set to the normal position for testing purposes
                 );
 
