@@ -1,5 +1,5 @@
 /*************************
- * @file rendering.h
+ * @file renderer.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief a rendering system around the Vulkan API with basic features
@@ -12,6 +12,7 @@
 #pragma once
 
 #include <core/defines.h>
+#include <core/queue_types.h>
 #include <res/loaders/load_file.h>
 #include <res/mesh.h>
 #include <rendering/vulkan_wrappers.h>
@@ -31,6 +32,28 @@ namespace lyra {
  * @todo maybe abstract vma memory allocation?
  */
 class Renderer {
+private:
+    /**
+     * @brief struct containing all the variabels
+     */
+    struct                              Variables {
+        VulkanInstance                      instance;
+        VulkanDevice                        device;
+        VulkanCommandPool                   commandPool;
+        VulkanSwapchain                     swapchain;
+        VulkanFramebuffers                  framebuffers;
+        VulkanDescriptorSetLayout           descriptorSetLayout;
+        /// @todo textures samplers, and other stuff to do
+        VulkanDescriptorPool                descriptorPool;
+        std::vector<VulkanDescriptor>       descriptors;
+        std::vector<VulkanCommandBuffer>    commandBuffers;
+        VulkanSyncObjects                   syncObjects;
+
+        CallQueue                           draw_queue;
+
+        bool                                drawing = true;
+    };
+
 public:
     Renderer();
     /**
@@ -45,22 +68,27 @@ public:
     void                                create(Window window);
 
     /**
+     * @brief execute all the commands and update everything 
+     */
+    void                                draw();
+    
+    /**
+     * @brief the main loop. this is called every frame until drawing is set to false
+     */
+    void                                update();
+
+    /**
      * @brief recreate the swapchain and related stuff in case of some events
      */
-    void                                recreateSwapchain();
+    void                                recreate_swapchain();
     /**
      * @brief destroy the swapchain and related stuff in case of some events
      */
-    void                                destroySwapchain();
+    void                                destroy_swapchain();
 
     /// @todo queue and multithread this function
     void load_scene();
     void unload_scene();
-    /// @todo not sure how to do this, but output the drawn renders as pictures as efficiently as possible
-
-    void update();
-    /// @todo also queue and multithread this function
-    void draw();
     
     /**
      * @brief submit a Vulkan queue after command queue recording
@@ -71,7 +99,7 @@ public:
      * @param syncObjectIndex index of the synchronisation objects to use
      * @param stageFlags pipeline shader stage flags
      */
-    void                                submit_queue(
+    void                                submit_device_queue(
         VulkanDevice::VulkanQueueFamily queue, 
         VulkanCommandBuffer             commandBuffer   = VulkanCommandBuffer(),
         VulkanSyncObjects               syncObjects     = VulkanSyncObjects(), 
@@ -85,26 +113,16 @@ public:
      * @param index index of the synchronisation objects and commandbuffers
      * @param stageFlags pipeline shader stage flags
      */
-    void                                submit_queue(VulkanDevice::VulkanQueueFamily queue, uint32 index, VkPipelineStageFlags stageFlags);
+    void                                submit_device_queue(VulkanDevice::VulkanQueueFamily queue, uint32 index, VkPipelineStageFlags stageFlags);
     /**
      * @brief wait for queue to finish submitting
      * 
      * @param queue queue to wait for
      */
-    void                                wait_queue(VulkanDevice::VulkanQueueFamily queue);
+    void                                wait_device_queue(VulkanDevice::VulkanQueueFamily queue);
 
 private:
-    VulkanInstance                      instance;
-    VulkanDevice                        device;
-    VulkanCommandPool                   commandPool;
-    VulkanSwapchain                     swapchain;
-    VulkanFramebuffers                  framebuffers;
-    VulkanDescriptorSetLayout           descriptorSetLayout;
-    /// @todo textures samplers, and other stuff to do
-    VulkanDescriptorPool                descriptorPool;
-    std::vector<VulkanDescriptor>       descriptors;
-    std::vector<VulkanCommandBuffer>    commandBuffers;
-    VulkanSyncObjects                   syncObjects;
+    Variables                           var;
 
     Window*                             window;
 
@@ -135,6 +153,9 @@ private:
      * @param pipeline pipeline
      */
     void                                bind_pipeline(const VulkanGraphicsPipeline pipeline, const int cmdBuffIndex) const;
+
+    friend class                        Mesh;
+    friend class                        Texture;
 };
 
 } // namespace Vulkan
