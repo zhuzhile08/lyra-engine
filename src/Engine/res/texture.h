@@ -17,6 +17,7 @@ private:
      */
     struct          Variables {
         VulkanImage     image;
+        VkSampler       sampler;
         VmaAllocation   memory;
     };
 
@@ -29,7 +30,7 @@ public:
     void            destroy();
 
     /**
-     * @brief create the texture
+     * @brief create the texture and the sampler
      * 
      * @param device device
      * @param renderer renderer
@@ -62,6 +63,23 @@ private:
      * @param Format format of the image
      */
     void            copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent, VkFormat Format = VK_FORMAT_R8G8B8A8_SRGB);
+
+    /**
+     * load a image from a path
+     * 
+     * @param path path of the new image
+     * @param format format of the image
+     * @param channelsToLoad what channels to load
+     */
+    void            load_image(str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+
+    void            create_sampler(
+        VkFilter                magnifiedTexel  = VK_FILTER_LINEAR, 
+        VkFilter                minimizedTexel  = VK_FILTER_LINEAR, 
+        VkSamplerMipmapMode     mipmapMode      = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+        VkSamplerAddressMode    extendedTexels  = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+        VkBool32                anisotropy      = VK_TRUE
+    );
 };
 
 } // namespace lyra

@@ -118,13 +118,13 @@ private:
 	 * @param device device to find the family index of the queue of
 	 * @return VulkanQueueFamily 
 	 */
-	void                find_family_index(VulkanQueueFamily *queue, const VkPhysicalDevice device);
+	void            find_family_index(VulkanQueueFamily *queue, const VkPhysicalDevice device);
 	/**
 	 * @brief create a Vulkan queue
 	 * 
 	 * @return VulkanQueueFamily 
 	 */
-	void                create_queue(VulkanQueueFamily *queue);
+	void            create_queue(VulkanQueueFamily *queue);
 
 	/**
 	 * @brief rate a physical device by its features
@@ -132,27 +132,27 @@ private:
 	 * @param device the device to rate
 	 * @param map a map containing all the physical devices and their scores
 	 */
-	void                rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> &map);
+	void            rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> &map);
 	/**
 	 * @brief check requested Vulkan device extensions
 	 * 
 	 * @param extensions the available extensions
 	 * @param requestedExtensions the requested extensions
 	 */
-	void                check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const;
+	void            check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const;
 
 	/**
 	 * @brief select a physical device from the available ones
 	 */
-	void                pick_physical_device();
+	void            pick_physical_device();
 	/**
 	 * @brief create a logical device
 	 */
-	void                create_logical_device();
+	void            create_logical_device();
 	/**
-	 * @brief create the VMA memory allocator
+	 * @brief create the VMA memoryW allocator
 	 */
-	void                create_allocator();
+	void            create_allocator();
 };
 
 } // namespace lyra

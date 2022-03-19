@@ -26,10 +26,10 @@ find_package(TOL REQUIRED)
 find_package(Vulkan REQUIRED)
 
 # shaders
-#add_custom_target(build_shaders ALL
-#    COMMAND "${CMAKE_SOURCE_DIR}/compileShader.bat"
-#    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-#)
+add_custom_target(build_shaders ALL
+    COMMAND "${CMAKE_SOURCE_DIR}/compileShader.bat"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
 
 include_directories(${SDL2_INCLUDE_DIRS} ${NOUD_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${Engine_include_dir} ${STB_INCLUDE_DIRS} ${VMA_INCLUDE_DIRS} ${TOL_INCLUDE_DIRS})
 
@@ -38,15 +38,17 @@ include/NOUD/noud.cpp
 src/Engine/init/init_SDL.cpp 
 src/Engine/init/single_header_init.cpp
 src/Engine/math/math.cpp
+src/Engine/core/queue_types.cpp
 src/Engine/rendering/vulkan_wrappers.cpp
 src/Engine/rendering/camera.cpp
 src/Engine/rendering/window.cpp
 src/Engine/rendering/renderer.cpp
 src/Engine/res/loaders.cpp
 src/Engine/res/mesh.cpp
+src/Engine/res/texture.cpp
 src/GUI/main.cpp 
 )
 
-#add_dependencies(LyraEngine build_shaders)
+add_dependencies(LyraEngine build_shaders)
 
 target_link_libraries(LyraEngine ${SDL2_LIBRARIES} Vulkan::Vulkan)
