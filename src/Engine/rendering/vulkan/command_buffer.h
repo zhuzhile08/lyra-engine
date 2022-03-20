@@ -103,8 +103,6 @@ public:
      */
     void                    reset(VkCommandBufferResetFlags flags = 0) const;
 
-    void                    record() const;
-
     /**
      * @brief get the command buffer
      * 
