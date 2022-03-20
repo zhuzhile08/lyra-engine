@@ -125,7 +125,7 @@ void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain
 	LOG_INFO("Succesfully created Vulkan renderpass at ", GET_ADDRESS(this), "!", END_L)
 }
 
-VkRenderPassBeginInfo VulkanFramebuffers::begin_info(const int index, const VkClearValue clear) const {
+VkRenderPassBeginInfo VulkanFramebuffers::begin_info(const int index, const std::vector <VkClearValue> clear) const {
     return VkRenderPassBeginInfo {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
@@ -135,8 +135,8 @@ VkRenderPassBeginInfo VulkanFramebuffers::begin_info(const int index, const VkCl
 			{0, 0},
 			swapchain->get().extent
 		},
-		1,
-		&clear
+		static_cast<uint32>(clear.size()),
+		clear.data()
 	};
 }
 

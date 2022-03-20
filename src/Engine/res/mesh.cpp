@@ -232,6 +232,11 @@ void Mesh::create_index_buffer() {
     stagingBuffer.destroy();
 }
 
+void Mesh::draw(Renderer renderer, int index) {
+    renderer.var.bind_queue.add([&]() { renderer.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer, index); });
+    renderer.var.draw_queue.add([&]() { renderer.draw_model(static_cast<uint32>(var.indices.size()), index); });
+}
+
 Mesh::Variables Mesh::get() const {
     return var;
 };

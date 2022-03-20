@@ -16,6 +16,7 @@
 #include <noud.h>
 #include <res/loaders/load_model.h>
 
+#include <rendering/renderer.h>
 #include <rendering/vulkan/GPU_buffer.h>
 
 #define GLM_FORCE_RADIANS
@@ -112,10 +113,18 @@ public:
     /**
      * @brief create a mesh from a already loaded .obj file
      * 
-     * @param loaded an already loaded model
+     * @param load an already loaded model
      * @param index load the model with the following index if a file has more than just one object. Will load everything on default
      */
     void                create_mesh(const non_access::LoadedModel loaded, const uint16 index = UINT16_MAX);
+
+    /**
+     * add the mesh and its buffers to the renderer draw queue
+     * 
+     * @param renderer renderer to add the draw call to
+     * @param index index of the command buffer to record the draw and bind commands
+     */
+    void                draw(Renderer renderer, int index);
 
     /**
      * @brief get all variables

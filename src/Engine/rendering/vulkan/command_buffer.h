@@ -96,6 +96,14 @@ public:
      * @brief end recording a commandBuffer
      */
     void                    end() const;
+    /**
+     * reset the command buffer after everything has been recorded
+     * 
+     * @flags additional flags
+     */
+    void                    reset(VkCommandBufferResetFlags flags = 0) const;
+
+    void                    record() const;
 
     /**
      * @brief get the command buffer

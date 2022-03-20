@@ -66,7 +66,7 @@ public:
 	 * @param clear clear color
 	 * @return VkRenderPassBeginInfo 
 	 */
-	VkRenderPassBeginInfo 	begin_info(const int index, const VkClearValue clear = {{CLEAR_COLOR}}) const;
+	VkRenderPassBeginInfo 	begin_info(const int index, const std::vector<VkClearValue> clear = { {CLEAR_COLOR}, {1.0f, 0} }) const;
 
 	/**
 	 * @brief get all the variabels

@@ -87,6 +87,10 @@ void VulkanCommandBuffer::end() const {
 	if(vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to stop recording command buffer")
 }
 
+void VulkanCommandBuffer::reset(VkCommandBufferResetFlags flags) const {
+    vkResetCommandBuffer(commandBuffer, flags);
+}
+
 VkCommandBuffer VulkanCommandBuffer::get() const {
     return commandBuffer;
 }
