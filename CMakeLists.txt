@@ -47,6 +47,7 @@ src/Engine/res/loaders.cpp
 src/Engine/res/mesh.cpp
 src/Engine/res/texture.cpp
 src/GUI/main.cpp 
+src/Engine/rendering/renderStage.cpp
 )
 
 add_dependencies(LyraEngine build_shaders)
