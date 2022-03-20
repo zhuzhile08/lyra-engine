@@ -1,14 +1,13 @@
 /*************************
- * @file swapchain.h
+ * @file sync_objects.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief wrapper around a Vulkan swapchain and related stuff
+ * @brief wrapper around Vulkan semaphores and fences to synchronise GPU and CPU
  * 
  * @date 2022-02-05
  * 
  * @copyright Copyright (c) 2022
- * 
- */
+ *************************/
 
 #pragma once
 

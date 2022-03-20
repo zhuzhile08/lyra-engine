@@ -97,7 +97,6 @@ public:
 		VulkanDevice                            device, 
 		const VulkanFramebuffers                framebuffer, 
 		const VulkanDescriptorSetLayout         descriptorSetLayout, 
-		const size_t                            shaderCount, 
 		const std::vector<ShaderCreationInfo>   shaderCreationInfos,
 		VkExtent2D                              size,
 		VkExtent2D                              area

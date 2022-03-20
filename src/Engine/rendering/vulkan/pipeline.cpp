@@ -18,7 +18,6 @@ void VulkanGraphicsPipeline::create(
 	VulkanDevice                            device,    
 	const VulkanFramebuffers                framebuffer, 
 	const VulkanDescriptorSetLayout         descriptorSetLayout,
-    const size_t                            shaderCount, 
 	const std::vector<ShaderCreationInfo>   shaderCreationInfos,
 	VkExtent2D                              size,
     VkExtent2D                              area
@@ -27,7 +26,7 @@ void VulkanGraphicsPipeline::create(
 	
     this->device = &device;
 
-    var.shaders.reserve(shaderCount);
+    var.shaders.reserve(shaderCreationInfos.size());
 
 	create_shaders(shaderCreationInfos);
 

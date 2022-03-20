@@ -18,7 +18,7 @@
 #include <rendering/vulkan/vulkan_image.h>
 #include <rendering/vulkan/vulkan_shader.h>
 #include <rendering/vulkan/framebuffer.h>
+#include <rendering/vulkan/sync_objects.h>
 #include <rendering/vulkan/instance.h>
 #include <rendering/vulkan/pipeline.h>
 #include <rendering/vulkan/swapchain.h>
-#include <rendering/vulkan/sync_objects.h>
