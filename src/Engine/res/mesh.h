@@ -18,6 +18,7 @@
 #include <res/vertex.h>
 
 #include <rendering/render_stage.h>
+#include <rendering/renderer.h>
 #include <rendering/vulkan/GPU_buffer.h>
 
 #define GLM_FORCE_RADIANS
@@ -53,26 +54,25 @@ public:
     /**
      * @brief construct a new mesh loaded from a .obj file
      * 
-     * @param device a Vulkan device to create the buffers
-     * @param commandBuffer a Vulkan command buffer to create and record the buffers
+     * @param renderer the renderer
      * @param path path of the model to load
+     * @index index of the object in the model to load. Starts at 1, 0 is default
      * @param parent parent node
      * @param name name of the node
      */
-    void                create(VulkanDevice device, VulkanCommandPool commandPool, const non_access::LoadedModel loaded, uint16 index = 0, 
+    void                create(Renderer renderer, const non_access::LoadedModel loaded, uint16 index = 0, 
         noud::Node* parent = nullptr, const std::string name = "mesh");
     /**
      * @brief construct a new mesh with a custom model
      * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
      * 
-     * @param device a Vulkan device to create the buffers
-     * @param commandBuffer a Vulkan command buffer to create and record the buffers
+     * @param renderer the renderer
      * @param vertices the new vertices
      * @param indices the new indices
      * @param parent parent node
      * @param name name of the node
      */
-    void                create(VulkanDevice device, VulkanCommandPool commandPool, const std::vector <Vertex> vertices, const std::vector <uint16> indices, 
+    void                create(Renderer renderer, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
         noud::Node* parent = nullptr, const std::string name = "mesh");
 
     /**
@@ -87,9 +87,8 @@ public:
      * add the mesh and its buffers to the renderer draw queue
      * 
      * @param renderStage renderer to add the draw call to
-     * @param index index of the command buffer to record the draw and bind commands
      */
-    void                draw(RenderStage renderStage, int index);
+    void                draw(RenderStage renderStage);
 
     /**
      * @brief get all variables
@@ -101,8 +100,7 @@ public:
 private:
     Variables           var;
 
-    VulkanDevice*       device;
-    VulkanCommandPool*  commandPool;
+    Renderer*           renderer;
 
     /**
      * @brief create a vertex buffer

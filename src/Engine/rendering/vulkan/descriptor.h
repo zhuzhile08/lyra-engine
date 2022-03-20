@@ -14,6 +14,7 @@
 
 #include <core/defines.h>
 #include <rendering/vulkan/GPU_buffer.h>
+#include <res/texture.h>
 #include <rendering/vulkan/swapchain.h>
 #include <rendering/camera.h>
 #include <core/logger.h>
@@ -165,21 +166,21 @@ public:
 		/**
 		 * @brief add a setting for buffers
 		 * 
-		 * @param binding at which position it will be entered into the shader
 		 * @param index index of the descriptor set
-		 * @param type type of the descriptor set
 		 * @param bufferInfo information about the buffer
+		 * @param binding at which position it will be entered into the shader
+		 * @param type type of the descriptor set
 		 */
-		void								add_buffer_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorBufferInfo bufferInfo);
+		void								add_buffer_write(const VkDescriptorSet set, const VulkanGPUBuffer buffer, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
 		/**
 		 * @brief add a setting for images
 		 * 
-		 * @param binding at which position it will be entered into the shader
 		 * @param index index of the descriptor set
-		 * @param type type of the descriptor set
 		 * @param imageInfo information about the image
+		 * @param binding at which position it will be entered into the shader
+		 * @param type type of the descriptor set
 		 */
-		void								add_image_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorImageInfo imageInfo);
+		void								add_image_write(const VkDescriptorSet set, const Texture imageInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 
 		std::vector<VkWriteDescriptorSet>	writes;
 	};

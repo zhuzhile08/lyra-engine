@@ -8,18 +8,16 @@ void Mesh::destroy() {
     var.vertexBuffer.destroy();
     var.indexBuffer.destroy();
 
-    delete device;
-    delete commandPool;
+    delete renderer;
 
     LOG_INFO("Succesfully destroyed mesh!")
 }
 
-void Mesh::create(VulkanDevice device, VulkanCommandPool commandPool, const non_access::LoadedModel loaded, uint16 index, 
+void Mesh::create(Renderer renderer, const non_access::LoadedModel loaded, uint16 index, 
     noud::Node* parent, const std::string name) {
     (parent, name);
 
-    this->commandPool = &commandPool;
-    this->device = &device;
+    this->renderer = &renderer;
 
     create_mesh(loaded, index);
 
@@ -29,12 +27,11 @@ void Mesh::create(VulkanDevice device, VulkanCommandPool commandPool, const non_
     LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void Mesh::create(VulkanDevice device, VulkanCommandPool commandPool, const std::vector <Vertex> vertices, const std::vector <uint16> indices, 
+void Mesh::create(Renderer renderer, const std::vector <Vertex> vertices, const std::vector <uint16> indices, 
     noud::Node* parent, const std::string name) {
     (parent, name);
 
-    this->commandPool = &commandPool;
-    this->device = &device;
+    this->renderer = &renderer;
     var.vertices = vertices;
     var.indices = indices;
 
@@ -152,7 +149,7 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 void Mesh::create_vertex_buffer() {
     // create the staging buffer
     VulkanGPUBuffer stagingBuffer;
-    stagingBuffer.create(*device, sizeof(var.vertices[0]) * var.vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+    stagingBuffer.create(renderer->get().device, sizeof(var.vertices[0]) * var.vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
     void* data;
     stagingBuffer.map_memory(data);
@@ -160,10 +157,10 @@ void Mesh::create_vertex_buffer() {
     stagingBuffer.unmap_memory();
 
     // create the vertex buffer
-    var.vertexBuffer.create(*device, sizeof(var.vertices[0]) * var.vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+    var.vertexBuffer.create(renderer->get().device, sizeof(var.vertices[0]) * var.vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
     
     // copy the buffer
-    var.vertexBuffer.copy(*commandPool, stagingBuffer);
+    var.vertexBuffer.copy(renderer->get().commandPool, stagingBuffer);
     
     // destroy the staging buffer
     stagingBuffer.destroy();
@@ -172,7 +169,7 @@ void Mesh::create_vertex_buffer() {
 void Mesh::create_index_buffer() {
     // create the staging buffer
     VulkanGPUBuffer stagingBuffer;
-    stagingBuffer.create(*device, sizeof(var.indices[0]) * var.indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+    stagingBuffer.create(renderer->get().device, sizeof(var.indices[0]) * var.indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
     void* data;
     stagingBuffer.map_memory(data);
@@ -180,18 +177,18 @@ void Mesh::create_index_buffer() {
     stagingBuffer.unmap_memory();
 
     // create the vertex buffer
-    var.indexBuffer.create(*device, sizeof(var.indices[0]) * var.indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+    var.indexBuffer.create(renderer->get().device, sizeof(var.indices[0]) * var.indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
     
     // copy the buffer
-    var.indexBuffer.copy(*commandPool, stagingBuffer);
+    var.indexBuffer.copy(renderer->get().commandPool, stagingBuffer);
     
     // destroy the staging buffer
     stagingBuffer.destroy();
 }
 
-void Mesh::draw(RenderStage renderStage, int index) {
-    renderStage.var.bind_queue.add([&]() { renderStage.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer, index); });
-    renderStage.var.draw_queue.add([&]() { renderStage.draw_model(static_cast<uint32>(var.indices.size()), index); });
+void Mesh::draw(RenderStage renderStage) {
+    renderStage.var.bind_queue.add([&]() { renderStage.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer, renderer->get().imageIndex); });
+    renderStage.var.draw_queue.add([&]() { renderStage.draw_model(static_cast<uint32>(var.indices.size()), renderer->get().imageIndex); });
 }
 
 Mesh::Variables Mesh::get() const {

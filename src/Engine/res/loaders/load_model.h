@@ -28,6 +28,6 @@ struct LoadedModel {
  * @param path path of the model
  * @return non_access::LoadedModel
  */
-non_access::LoadedModel load(const str path);
+non_access::LoadedModel load_model(const str path);
 
 } // namespace lyra

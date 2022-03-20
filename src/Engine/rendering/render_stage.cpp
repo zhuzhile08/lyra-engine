@@ -39,10 +39,10 @@ void RenderStage::record_command_buffers(int index, int currentFrame) {
     var.commandBuffers[currentFrame].end();
 }
 
-void RenderStage::draw(Renderer renderer, int imageIndex, int currentFrame) {
-    renderer.var.renderQueue.add([&]() { var.commandBuffers[currentFrame].reset(); });
-    renderer.var.renderQueue.add([&]() { record_command_buffers(imageIndex, currentFrame); });
-    renderer.var.submitQueue.add([&]() { renderer.submit_device_queue(renderer.var.device.get().presentQueue, var.commandBuffers[currentFrame], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); });
+void RenderStage::draw(Renderer renderer) {
+    renderer.var.renderQueue.add([&]() { var.commandBuffers[renderer.var.currentFrame].reset(); });
+    renderer.var.renderQueue.add([&]() { record_command_buffers(renderer.get().imageIndex, renderer.var.currentFrame); });
+    renderer.var.submitQueue.add([&]() { renderer.submit_device_queue(renderer.var.device.get().presentQueue, var.commandBuffers[renderer.var.currentFrame], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); });
 }
 
 void RenderStage::bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const {

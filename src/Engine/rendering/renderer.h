@@ -56,6 +56,7 @@ private:
         bool                                running = true;
 
         uint8                               currentFrame;
+        uint32                              imageIndex;
     };
 
 public:
@@ -108,6 +109,8 @@ public:
      * @param queue queue to wait for
      */
     void            wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
+
+    Variables       get() const;
 
 private:
     Variables       var;

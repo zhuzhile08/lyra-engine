@@ -66,11 +66,9 @@ public:
     /**
      * @brief bind the functions for resetting and finish recording the command buffers
      * 
-     * @param renderer the renderer. Just set it to the parent
-     * @param imageIndex index of the current image
-     * @param currentFrame the current draw frame
+     * @param renderer the renderer
      */
-    void            draw(Renderer renderer, int imageIndex, int currentFrame);
+    void            draw(Renderer renderer);
 
 private:
     Variables       var;

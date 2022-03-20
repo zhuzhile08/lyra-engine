@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-    Renderer::Renderer() { ("Renderer", nullptr); }
+Renderer::Renderer() { ("Renderer", nullptr); }
 
 void Renderer::destroy() {
     destroy_swapchain();
@@ -62,8 +62,7 @@ void Renderer::update() {
 void Renderer::draw() {
     var.syncObjects.wait(var.currentFrame);
 
-    uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(var.device.get().device, var.swapchain.get().swapchain, UINT64_MAX, var.syncObjects.get().imageAvailableSemaphores[var.currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(var.device.get().device, var.swapchain.get().swapchain, UINT64_MAX, var.syncObjects.get().imageAvailableSemaphores[var.currentFrame], VK_NULL_HANDLE, &var.imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreate_swapchain();
@@ -77,7 +76,7 @@ void Renderer::draw() {
 
     var.submitQueue.flush();
 
-    present_queue(imageIndex);
+    present_queue(var.imageIndex);
 
     update_frame_count();
 }
@@ -140,6 +139,10 @@ void Renderer::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) co
 
 void Renderer::update_frame_count() {
     var.currentFrame = (var.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+Renderer::Variables Renderer::get() const {
+    return var;
 }
 
 } // namespace lyra

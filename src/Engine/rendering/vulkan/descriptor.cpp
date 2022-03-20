@@ -108,7 +108,9 @@ VkDescriptorPool VulkanDescriptorPool::get() const {
 // descriptor writer
 VulkanDescriptor::Writer::Writer() { }
 
-void VulkanDescriptor::Writer::add_buffer_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorBufferInfo bufferInfo) {
+void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorSet set, const VulkanGPUBuffer buffer, const uint16 binding, const VkDescriptorType type) {
+    VkDescriptorBufferInfo bufferInfo = { buffer.get().buffer, 0, buffer.get().size };
+
     writes.push_back({
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,
@@ -123,7 +125,9 @@ void VulkanDescriptor::Writer::add_buffer_write(const uint16 binding, const VkDe
     });
 }
 
-void VulkanDescriptor::Writer::add_image_write(const uint16 binding, const VkDescriptorSet set, const VkDescriptorType type, const VkDescriptorImageInfo imageInfo) {
+void VulkanDescriptor::Writer::add_image_write(const VkDescriptorSet set, const Texture image, const uint16 binding, const VkDescriptorType type) {
+    VkDescriptorImageInfo imageInfo = { image.get().sampler, image.get().image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
+
     writes.push_back({
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,

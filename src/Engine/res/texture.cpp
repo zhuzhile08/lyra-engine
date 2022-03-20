@@ -7,14 +7,12 @@ Texture::Texture() { }
 void Texture::destroy() {
     var.image.destroy();
 
-    delete device;
     delete renderer;
 }
 
-void Texture::create(VulkanDevice device, Renderer renderer, str path, VkFormat format, int channelsToLoad) {
+void Texture::create(Renderer renderer, str path, VkFormat format, int channelsToLoad) {
     LOG_INFO("Creating Vulkan texture and image sampler... ")
 
-    this->device = &device;
     this->renderer = &renderer;
 
     load_image(path, format, channelsToLoad);
@@ -86,8 +84,8 @@ void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent,
     cmdBuff.end();
 
     // submit queues after recording
-    renderer->submit_device_queue(device->get().graphicsQueue, cmdBuff);
-    renderer->wait_device_queue(device->get().graphicsQueue);
+    renderer->submit_device_queue(renderer->get().device.get().graphicsQueue, cmdBuff);
+    renderer->wait_device_queue(renderer->get().device.get().graphicsQueue);
 
     // destroy command buffer
     cmdBuff.destroy();
@@ -102,7 +100,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
         // create a staging buffer
         VulkanGPUBuffer         stagingBuffer;
     VkDeviceSize imageMemSize = width * height * 4; /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
-    stagingBuffer.create(*device, imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+    stagingBuffer.create(renderer->get().device, imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
     // copy the image data into the staging buffer
     void* data;
@@ -117,13 +115,13 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
     // memory allocation info
     VmaAllocationCreateInfo memoryAllocInfo { 0, VMA_MEMORY_USAGE_GPU_ONLY };
     // create the image and allocate its memory
-    if(vmaCreateImage(device->get().allocator, &imageCreationInfo, &memoryAllocInfo, &var.image.image, &var.memory, nullptr) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path)
+    if(vmaCreateImage(renderer->get().device.get().allocator, &imageCreationInfo, &memoryAllocInfo, &var.image.image, &var.memory, nullptr) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path)
 
     // convert the image layout and copy it from the buffer
     copy_from_buffer(stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
 
     // create the image view
-    var.image.create_view(*device, format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+    var.image.create_view(renderer->get().device, format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 
     // free the pixels of the image
     stbi_image_free(imagePixelData);
@@ -139,7 +137,7 @@ void Texture::create_sampler(
     VkBool32                anisotropy
 ) {
     VkPhysicalDeviceProperties properties{};
-    vkGetPhysicalDeviceProperties(device->get().physicalDevice, &properties);
+    vkGetPhysicalDeviceProperties(renderer->get().device.get().physicalDevice, &properties);
 
     VkSamplerCreateInfo samplerInfo{
         VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -162,7 +160,11 @@ void Texture::create_sampler(
         VK_FALSE
     };
 
-    if (vkCreateSampler(device->get().device, &samplerInfo, nullptr, &var.sampler) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image sampler!");
+    if (vkCreateSampler(renderer->get().device.get().device, &samplerInfo, nullptr, &var.sampler) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image sampler!");
+}
+
+Texture::Variables Texture::get() const {
+    return var;
 }
 
 } // namespace lyra

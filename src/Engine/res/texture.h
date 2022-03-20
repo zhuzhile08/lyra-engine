@@ -2,7 +2,7 @@
 
 #include <core/defines.h>
 #include <core/logger.h>
-#include <rendering/vulkan_wrappers.h>
+#include <rendering/vulkan/vulkan_image.h>
 #include <rendering/renderer.h>
 
 #include <stb_image.h>
@@ -32,13 +32,12 @@ public:
     /**
      * @brief create the texture and the sampler
      * 
-     * @param device device
      * @param renderer renderer
      * @param path path of the image
      * @param format format of the image
      * @param channelsToLoad what channels to load
      */
-    void            create(VulkanDevice device, Renderer renderer, str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+    void            create(Renderer renderer, str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
     /**
      * @brief load a new texture into the image
      * 
@@ -47,11 +46,16 @@ public:
      * @param channelsToLoad what channels to load
      */
     void            create(str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+    /**
+     * @brief get all the variables
+     * 
+     * @return Variables
+     */
+    Variables       get() const;
 
 private:
     Variables       var;
 
-    VulkanDevice*   device;
     Renderer*       renderer;
 
     /**
