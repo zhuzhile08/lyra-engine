@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-Renderer::Renderer() { }
+    Renderer::Renderer() { ("Renderer", nullptr); }
 
 void Renderer::destroy() {
     destroy_swapchain();
@@ -22,14 +22,11 @@ void Renderer::create(Window window) {
     var.device.create(var.instance);
     var.commandPool.create(var.device);
     var.swapchain.create(var.device, var.instance, window);
-    var.framebuffers.create_render_pass(var.device, var.swapchain);
 
     VulkanDescriptorSetLayout::Builder  layoutBuilder;
     layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1);
     layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT, 1);
     var.descriptorSetLayout.create(var.device, layoutBuilder);
-
-    var.framebuffers.create();
     
     VulkanDescriptorPool::Builder       poolBuilder;
     poolBuilder.set_max_sets(50);   // just some random number
@@ -37,12 +34,10 @@ void Renderer::create(Window window) {
     poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT);
     var.descriptorPool.create(var.device, poolBuilder);
 
-    for (auto& cmdBuff : var.commandBuffers) cmdBuff.create(var.device, var.commandPool);
     var.syncObjects.create(var.device, var.swapchain);
 }
 
 void Renderer::destroy_swapchain() {
-    var.framebuffers.destroy();
     var.swapchain.destroy();
 }
 
@@ -52,34 +47,16 @@ void Renderer::recreate_swapchain() {
     destroy_swapchain();
 
     var.swapchain.create(oldSwapchain);
-    var.framebuffers.create();
 
     oldSwapchain.destroy();
 }
 
 void Renderer::update() {
-    while (var.drawing) {
+    while (var.running) {
         draw();
     }
     
     var.device.wait();
-}
-
-void Renderer::record_command_buffers(int index) {
-    // look at how D Y N A M I C this is
-    var.commandBuffers[var.currentFrame].begin(0);
-
-    begin_render_pass(var.currentFrame, var.framebuffers.begin_info(index));
-
-    var.scene_queue.flush();
-
-    var.bind_queue.flush();
-
-    var.draw_queue.flush();
-
-    end_render_pass(var.currentFrame);
-
-    var.commandBuffers[var.currentFrame].end();
 }
 
 void Renderer::draw() {
@@ -96,12 +73,9 @@ void Renderer::draw() {
         LOG_EXEPTION("Failed to get the next Vulkan image layer to blit on!");
     }
 
-    var.syncObjects.reset(var.currentFrame);
-    var.commandBuffers[var.currentFrame].reset();
+    var.renderQueue.flush();
 
-    record_command_buffers(imageIndex);
-
-    submit_device_queue(var.device.get().graphicsQueue, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    var.submitQueue.flush();
 
     present_queue(imageIndex);
 
@@ -132,8 +106,8 @@ void Renderer::submit_device_queue(
     if (vkQueueSubmit(queue.queue, 1, &submitInfo, syncObjects.get().inFlightFences[syncObjectIndex]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
 }
 
-void Renderer::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VkPipelineStageFlags stageFlags) const {
-    submit_device_queue(queue, var.commandBuffers[var.currentFrame], var.syncObjects, var.currentFrame, stageFlags);
+void Renderer::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const {
+    submit_device_queue(queue, commandBuffer, var.syncObjects, var.currentFrame, stageFlags);
 }
 
 void Renderer::present_queue(const uint32 imageIndex) {
@@ -162,35 +136,6 @@ void Renderer::present_queue(const uint32 imageIndex) {
 
 void Renderer::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
     vkQueueWaitIdle(queue.queue);
-}
-
-/**
-void Renderer::bind_descriptor(const VulkanDescriptor descriptor, VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const {
-    vkCmdBindDescriptorSets(var.commandBuffers[cmdBuffIndex].get(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get().pipelineLayout, 0, 1, descriptor.get().data(), 0, nullptr);
-}
- */
-
-void Renderer::begin_render_pass(int cmdBuffIndex, const VkRenderPassBeginInfo beginInfo) const {
-	vkCmdBeginRenderPass(var.commandBuffers[cmdBuffIndex].get(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
-}
-
-void Renderer::end_render_pass(int cmdBuffIndex) const {
-    vkCmdEndRenderPass(var.commandBuffers[cmdBuffIndex].get());
-}
-
-/** 
-void Renderer::bind_pipeline(VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const {
-    vkCmdBindPipeline(var.commandBuffers[cmdBuffIndex].get(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get().graphicsPipeline);
-}
- */
-
-void Renderer::bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer, int cmdBuffIndex) const {
-    vkCmdBindVertexBuffers(var.commandBuffers[cmdBuffIndex].get(), 0, 1, &vertexBuffer, 0);
-    vkCmdBindIndexBuffer(var.commandBuffers[cmdBuffIndex].get(), indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-}
-
-void Renderer::draw_model(const uint32 size, int cmdBuffIndex) const {
-    vkCmdDrawIndexed(var.commandBuffers[cmdBuffIndex].get(), size, 1, 0, 0, 0);
 }
 
 void Renderer::update_frame_count() {

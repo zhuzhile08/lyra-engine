@@ -16,7 +16,6 @@
 #include <rendering/vulkan/command_buffer.h>
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/devices.h>
-#include <rendering/vulkan/framebuffer.h>
 #include <rendering/vulkan/sync_objects.h>
 #include <rendering/vulkan/instance.h>
 #include <rendering/vulkan/swapchain.h>
@@ -27,6 +26,7 @@
 #include <memory>
 #include <vector>
 
+#include <noud.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra { 
@@ -35,7 +35,7 @@ namespace lyra {
  * @brief a vulkan renderer with basic features
  * @todo maybe abstract vma memory allocation?
  */
-class Renderer {
+class Renderer : noud::Node {
 private:
     /**
      * @brief struct containing all the variabels
@@ -45,22 +45,17 @@ private:
         VulkanDevice                        device;
         VulkanCommandPool                   commandPool;
         VulkanSwapchain                     swapchain;
-        VulkanFramebuffers                  framebuffers;
         VulkanDescriptorSetLayout           descriptorSetLayout;
-        /// @todo textures samplers, and other stuff to do
         VulkanDescriptorPool                descriptorPool;
         std::vector<VulkanDescriptor>       descriptors;
-        std::vector<VulkanCommandBuffer>    commandBuffers;
         VulkanSyncObjects                   syncObjects;
 
+        CallQueue                           renderQueue;
+        CallQueue                           submitQueue;
+
+        bool                                running = true;
+
         uint8                               currentFrame;
-
-        CallQueue                           scene_queue;
-        CallQueue                           bind_queue;
-        CallQueue                           descriptor_queue;
-        CallQueue                           draw_queue;
-
-        bool                                drawing = true;
     };
 
 public:
@@ -80,19 +75,6 @@ public:
      * @brief the main loop. this is called every frame until drawing is set to false
      */
     void            update();
-
-    /**
-     * @brief recreate the swapchain and related stuff in case of some events
-     */
-    void            recreate_swapchain();
-    /**
-     * @brief destroy the swapchain and related stuff in case of some events
-     */
-    void            destroy_swapchain();
-
-    /// @todo queue and multithread this function
-    void load_scene();
-    void unload_scene();
     
     /**
      * @brief submit a Vulkan queue after command queue recording
@@ -112,6 +94,15 @@ public:
     ) const;
 
     /**
+     * @brief submit a Vulkan queue after command queue recording
+     *
+     * @param queue the queue to submit
+     * @param commandBuffer recorded commandbuffer
+     * @param stageFlags pipeline shader stage flags
+     */
+    void            submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const;
+
+    /**
      * @brief wait for queue to finish submitting
      * 
      * @param queue queue to wait for
@@ -124,83 +115,30 @@ private:
     Window*         window;
 
     /**
-     * @brief update the current frame count (increment to MAX_FRAMES_IN_FLIGHT and loop around)
+     * @brief recreate the swapchain and related stuff in case of some events
      */
-    void            update_frame_count();
+    void            recreate_swapchain();
+    /**
+     * @brief destroy the swapchain and related stuff in case of some events
+     */
+    void            destroy_swapchain();
 
     /**
-     * @brief overloaded Vulkan queue submitting function, only for after every commandbuffer has finisched recording
-     *
-     * @param queue queue to submit
-     * @param index index of the synchronisation objects and commandbuffers
-     * @param stageFlags pipeline shader stage flags
-     */
-    void            submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VkPipelineStageFlags stageFlags) const;
-    /**
-     * @brief presenting the device queues
+     * @brief present all the recorded commands
      * 
-     * @param imageIndex index of the current image
-     * 
-     * @return VkResult
+     * @param index of the images
      */
     void            present_queue(const uint32 imageIndex);
-
-    /**
-     * @brief bind a descriptor set
-     * 
-     * @param descriptor descriptor
-     * @param pipelineLayout pipeline layout
-    
-    void            bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const;
-     */
-    void            push_constants() const;
-    /**
-     * @brief begin render passes
-     * 
-     * @param framebuffers frame buffer
-     * @param index index of the frame buffer
-     */
-    void            begin_render_pass(int cmdBuffIndex, const VkRenderPassBeginInfo beginInfo) const;
-    /**
-     * @brief end render passes
-     * 
-     * @param framebuffers frame buffer
-     */
-    void            end_render_pass(int cmdBuffIndex) const;
-    /**
-     * @brief bind the graphics pipeline
-     * 
-     * @param pipeline pipeline
-    
-    void            bind_pipeline(const VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const;
-     */
-    /**
-     * @brief bind a model
-     * 
-     * @param vertexBuffer vertex buffer of the model
-     * @param indexBuffer index buffer of the model
-     * @param cmdBuffIndex index of the command buffer to bind the model
-     */
-    void            bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer, int cmdBuffIndex) const;
-    /**
-     * @brief draw a model
-     * 
-     * @param size size of the index buffer
-     * @param cmdBuffIndex index of the command buffer to draw the model
-     */
-    void            draw_model(const uint32 size, int cmdBuffIndex) const;
-
-    /**
-     * @brief record all the commands
-     */
-    void            record_command_buffers(int index);
     /**
      * @brief take the recorded commands and draw everything
      */
     void            draw();
+    /**
+     * @brief update the frame count
+     */
+    void            update_frame_count();
 
-    friend class    Mesh;
-    friend class    Texture;
+    friend class    RenderStage;
 };
 
 } // namespace Vulkan

@@ -17,7 +17,6 @@
 #include <rendering/vulkan/command_buffer.h>
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/framebuffer.h>
-#include <rendering/vulkan/swapchain.h>
 #include <rendering/renderer.h>
 
 #include <core/logger.h>
@@ -68,9 +67,10 @@ public:
      * @brief bind the functions for resetting and finish recording the command buffers
      * 
      * @param renderer the renderer. Just set it to the parent
+     * @param imageIndex index of the current image
      * @param currentFrame the current draw frame
      */
-    void            draw(Renderer renderer, int currentFrame) const;
+    void            draw(Renderer renderer, int imageIndex, int currentFrame);
 
 private:
     Variables       var;
