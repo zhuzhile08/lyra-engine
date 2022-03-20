@@ -18,7 +18,7 @@
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/framebuffer.h>
-#include <res/mesh.h>
+#include <res/vertex.h>
 #include <rendering/vulkan/vulkan_shader.h>
 #include <core/logger.h>
 

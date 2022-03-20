@@ -15,8 +15,9 @@
 #include <core/defines.h>
 #include <noud.h>
 #include <res/loaders/load_model.h>
+#include <res/vertex.h>
 
-#include <rendering/renderer.h>
+#include <rendering/render_stage.h>
 #include <rendering/vulkan/GPU_buffer.h>
 
 #define GLM_FORCE_RADIANS
@@ -32,42 +33,6 @@ namespace lyra {
  * @brief A mesh struct containing vertices, indecies and vertex and index buffers
  */
 class Mesh : noud::Node {
-public:
-    /**
-     * @brief Vertex struct with Vulkan input information
-     */
-    struct              Vertex {
-        glm::vec3                                               pos;
-        glm::vec3                                               normal;
-        glm::vec3                                               color;
-        glm::vec2                                               uv;
-
-        Vertex();
-
-        /**
-         * @brief construct a new Vertex object
-         * 
-         * @param pos the new position
-         * @param normal vertex normals
-         * @param color the new color
-         */
-        Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color = {0, 0, 0});
-
-        /**
-         * @brief returns a static vertex binding
-         * 
-         * @return VkVertexInputBindingDescription 
-         */
-        static VkVertexInputBindingDescription                  get_binding_description();
-
-        /**
-         * @brief returns a static vertex input attribute
-         * 
-         * @return std::array<VkVertexInputAttributeDescription, 4> 
-         */
-        static std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions();
-    };
-
 private:
     struct              Variables {
         std::vector <Vertex>    vertices;
@@ -121,10 +86,10 @@ public:
     /**
      * add the mesh and its buffers to the renderer draw queue
      * 
-     * @param renderer renderer to add the draw call to
+     * @param renderStage renderer to add the draw call to
      * @param index index of the command buffer to record the draw and bind commands
      */
-    void                draw(Renderer renderer, int index);
+    void                draw(RenderStage renderStage, int index);
 
     /**
      * @brief get all variables

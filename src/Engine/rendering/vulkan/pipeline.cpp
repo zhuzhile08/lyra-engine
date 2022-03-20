@@ -53,9 +53,9 @@ void VulkanGraphicsPipeline::create_pipeline(
 			nullptr,
 			0,
 			1,
-			&Mesh::Vertex::get_binding_description(),
-			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
-			Mesh::Vertex::get_attribute_descriptions().data()
+			&Vertex::get_binding_description(),
+			static_cast<uint32>(Vertex::get_attribute_descriptions().size()),
+			Vertex::get_attribute_descriptions().data()
 		},
 		{	// describe how shaders are executed
 			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,

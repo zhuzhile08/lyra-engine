@@ -2,49 +2,6 @@
 
 namespace lyra {
 
-// vertex
-Mesh::Vertex::Vertex() { }
-
-Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color) : pos(pos), normal(normal), color(color), uv(uv) { }
-
-VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() {
-    return {
-        0,
-        sizeof(Mesh::Vertex),
-        VK_VERTEX_INPUT_RATE_VERTEX
-    };
-}
-
-std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() {
-    return {
-        {{
-            0,
-            0,
-            VK_FORMAT_R32G32_SFLOAT,
-            offsetof(Vertex, pos)
-        },
-        {
-            0,
-            1,
-            VK_FORMAT_R32G32B32_SFLOAT,
-            offsetof(Vertex, normal)
-        },
-        {
-            0,
-            2,
-            VK_FORMAT_R32G32B32_SFLOAT,
-            offsetof(Vertex, color)
-        },
-        {
-            0,
-            3,
-            VK_FORMAT_R32G32B32_SFLOAT,
-            offsetof(Vertex, uv)
-        }}
-    };
-}
-
-// mesh
 Mesh::Mesh() { }
 
 void Mesh::destroy() {
@@ -232,9 +189,9 @@ void Mesh::create_index_buffer() {
     stagingBuffer.destroy();
 }
 
-void Mesh::draw(Renderer renderer, int index) {
-    renderer.var.bind_queue.add([&]() { renderer.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer, index); });
-    renderer.var.draw_queue.add([&]() { renderer.draw_model(static_cast<uint32>(var.indices.size()), index); });
+void Mesh::draw(RenderStage renderStage, int index) {
+    renderStage.var.bind_queue.add([&]() { renderStage.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer, index); });
+    renderStage.var.draw_queue.add([&]() { renderStage.draw_model(static_cast<uint32>(var.indices.size()), index); });
 }
 
 Mesh::Variables Mesh::get() const {
