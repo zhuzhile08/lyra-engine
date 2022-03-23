@@ -55,7 +55,7 @@ private:
 
         bool                                running = true;
 
-        uint8                               currentFrame;
+        uint8                               currentFrame = 0;
         uint32                              imageIndex;
     };
 
@@ -88,10 +88,7 @@ public:
      */
     void            submit_device_queue(
         const VulkanDevice::VulkanQueueFamily   queue,
-        const VulkanCommandBuffer               commandBuffer   = VulkanCommandBuffer(),
-        const VulkanSyncObjects                 syncObjects     = VulkanSyncObjects(),
-        const uint32                            syncObjectIndex = 0,
-        const VkPipelineStageFlags              stageFlags      = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+        const VulkanCommandBuffer               commandBuffer
     ) const;
 
     /**

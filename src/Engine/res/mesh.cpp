@@ -8,8 +8,6 @@ void Mesh::destroy() {
     var.vertexBuffer.destroy();
     var.indexBuffer.destroy();
 
-    delete renderer;
-
     LOG_INFO("Succesfully destroyed mesh!")
 }
 
@@ -151,10 +149,7 @@ void Mesh::create_vertex_buffer() {
     VulkanGPUBuffer stagingBuffer;
     stagingBuffer.create(renderer->get().device, sizeof(var.vertices[0]) * var.vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-    void* data;
-    stagingBuffer.map_memory(data);
-        memcpy(data, var.vertices.data(), (size_t)stagingBuffer.get().size);
-    stagingBuffer.unmap_memory();
+    stagingBuffer.copy_data(var.vertices.data());
 
     // create the vertex buffer
     var.vertexBuffer.create(renderer->get().device, sizeof(var.vertices[0]) * var.vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -171,10 +166,7 @@ void Mesh::create_index_buffer() {
     VulkanGPUBuffer stagingBuffer;
     stagingBuffer.create(renderer->get().device, sizeof(var.indices[0]) * var.indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-    void* data;
-    stagingBuffer.map_memory(data);
-        memcpy(data, var.indices.data(), (size_t)stagingBuffer.get().size);
-    stagingBuffer.unmap_memory();
+    stagingBuffer.copy_data(var.indices.data());
 
     // create the vertex buffer
     var.indexBuffer.create(renderer->get().device, sizeof(var.indices[0]) * var.indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -187,8 +179,8 @@ void Mesh::create_index_buffer() {
 }
 
 void Mesh::draw(RenderStage renderStage) {
-    renderStage.var.bind_queue.add([&]() { renderStage.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer, renderer->get().imageIndex); });
-    renderStage.var.draw_queue.add([&]() { renderStage.draw_model(static_cast<uint32>(var.indices.size()), renderer->get().imageIndex); });
+    renderStage.var.bind_queue.add([=]() { renderStage.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer); });
+    renderStage.var.draw_queue.add([=]() { renderStage.draw_model(static_cast<uint32>(var.indices.size())); });
 }
 
 Mesh::Variables Mesh::get() const {

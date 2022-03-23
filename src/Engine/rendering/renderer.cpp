@@ -13,10 +13,12 @@ void Renderer::destroy() {
     var.commandPool.destroy();
     var.device.destroy();
     var.instance.destroy();
+
+    delete window;
 }
 
 void Renderer::create(Window window) { 
-    this->window = &window;
+    this->window = new Window(window);
 
     var.instance.create(window);
     var.device.create(var.instance);
@@ -68,9 +70,9 @@ void Renderer::draw() {
         recreate_swapchain();
         return;
     }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        LOG_EXEPTION("Failed to get the next Vulkan image layer to blit on!");
-    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) LOG_EXEPTION("Failed to get the next Vulkan image layer to blit on!");
+
+    var.syncObjects.reset(var.currentFrame);
 
     var.renderQueue.flush();
 
@@ -83,40 +85,54 @@ void Renderer::draw() {
 
 void Renderer::submit_device_queue(
     const VulkanDevice::VulkanQueueFamily   queue,
-    const VulkanCommandBuffer               commandBuffer,
-    const VulkanSyncObjects                 syncObjects,
-    const uint32                            syncObjectIndex,
-    const VkPipelineStageFlags              stageFlags
+    const VulkanCommandBuffer               commandBuffer
 ) const {
     // queue submission info
     VkSubmitInfo submitInfo = {
         VK_STRUCTURE_TYPE_SUBMIT_INFO,
         nullptr,
         0,
-        &syncObjects.get().imageAvailableSemaphores[syncObjectIndex],
-        &stageFlags,
+        nullptr,
+        nullptr,
         1,
         commandBuffer.get_ptr(),
-        1,
-        &syncObjects.get().renderFinishedSemaphores[syncObjectIndex]
+        0,
+        nullptr
     };
 
     // submit the queue
-    if (vkQueueSubmit(queue.queue, 1, &submitInfo, syncObjects.get().inFlightFences[syncObjectIndex]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
+    if (vkQueueSubmit(queue.queue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
 }
 
 void Renderer::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const {
-    submit_device_queue(queue, commandBuffer, var.syncObjects, var.currentFrame, stageFlags);
+    VkSemaphore waitSemaphores[] = { var.syncObjects.get().imageAvailableSemaphores[var.currentFrame] };
+    VkSemaphore signalSemaphores[] = { var.syncObjects.get().renderFinishedSemaphores[var.currentFrame] };
+
+    VkSubmitInfo submitInfo = {
+       VK_STRUCTURE_TYPE_SUBMIT_INFO,
+       nullptr,
+       1,
+       waitSemaphores,
+       &stageFlags,
+       1,
+       commandBuffer.get_ptr(),
+       1,
+       signalSemaphores
+    };
+
+    // submit the queue
+    if (vkQueueSubmit(queue.queue, 1, &submitInfo, var.syncObjects.get().inFlightFences[var.currentFrame]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
 }
 
 void Renderer::present_queue(const uint32 imageIndex) {
     VkSwapchainKHR swapchains[] = { var.swapchain.get().swapchain };
+    VkSemaphore signalSemaphores[] = { var.syncObjects.get().renderFinishedSemaphores[var.currentFrame] };
 
     VkPresentInfoKHR presentInfo = {
         VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         nullptr,
         1,
-        &var.syncObjects.get().renderFinishedSemaphores[var.currentFrame],
+        signalSemaphores,
         1,
         swapchains,
         &imageIndex

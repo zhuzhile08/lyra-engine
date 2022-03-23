@@ -40,7 +40,6 @@ private:
      */
     struct          Variables {
         VulkanFramebuffers                  framebuffers;
-        VulkanDescriptor                    descriptors;
         std::vector<VulkanCommandBuffer>    commandBuffers;
         VulkanGraphicsPipeline              pipeline;
 
@@ -61,17 +60,19 @@ public:
      *
      * @param renderer the renderer
      */
-    void            create(Renderer renderer, uint16 descriptorCount, VulkanDescriptor::Writer writer);
+    void            create(Renderer renderer);
     
     /**
      * @brief bind the functions for resetting and finish recording the command buffers
      * 
      * @param renderer the renderer
      */
-    void            draw(Renderer renderer);
+    void            draw();
 
 private:
     Variables       var;
+
+    Renderer*       renderer;
 
     /**
      * @brief bind a descriptor set
@@ -79,7 +80,7 @@ private:
      * @param descriptor descriptor
      * @param pipelineLayout pipeline layout
      */
-    void            bind_descriptor(const VulkanDescriptor descriptor, const VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const;
+    void            bind_descriptor(const VulkanDescriptor descriptor) const;
     
     void            push_constants() const;
     /**
@@ -88,19 +89,19 @@ private:
      * @param framebuffers frame buffer
      * @param index index of the frame buffer
      */
-    void            begin_render_pass(int cmdBuffIndex, const VkRenderPassBeginInfo beginInfo) const;
+    void            begin_render_pass(const VkRenderPassBeginInfo beginInfo) const;
     /**
      * @brief end render passes
      *
      * @param framebuffers frame buffer
      */
-    void            end_render_pass(int cmdBuffIndex) const;
+    void            end_render_pass() const;
     /**
      * @brief bind the graphics pipeline
      *
      * @param pipeline pipeline
      */
-    void            bind_pipeline(const VulkanGraphicsPipeline pipeline, int cmdBuffIndex) const;
+    void            bind_pipeline() const;
     /**
      * @brief bind a model
      *
@@ -108,19 +109,19 @@ private:
      * @param indexBuffer index buffer of the model
      * @param cmdBuffIndex index of the command buffer to bind the model
      */
-    void            bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer, int cmdBuffIndex) const;
+    void            bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer) const;
     /**
      * @brief draw a model
      *
      * @param size size of the index buffer
      * @param cmdBuffIndex index of the command buffer to draw the model
      */
-    void            draw_model(const uint32 size, int cmdBuffIndex) const;
+    void            draw_model(const uint32 size) const;
 
     /**
      * @brief record all the commands
      */
-    void            record_command_buffers(int index, int currentFrame);
+    void            record_command_buffers();
 
     friend class    Mesh;
     friend class    Texture;

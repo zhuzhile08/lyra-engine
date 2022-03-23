@@ -64,16 +64,11 @@ public:
 	void            copy(const VulkanCommandPool commandPool, const VulkanGPUBuffer srcBuffer);
 
 	/**
-	 * @brief map GPU memory to normal memory
+	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
 	 * 
-	 * @param data empty block of data to copy to
+	 * @param src data to copy into the buffer
 	 */
-	void            map_memory(void* data);
-
-	/**
-	 * @brief unmap the GPU memory from normal memory
-	 */
-	void            unmap_memory() const;
+	void			copy_data(void* src);
 
 	/**
 	 * @brief get the buffer

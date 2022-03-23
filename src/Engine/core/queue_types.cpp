@@ -11,8 +11,8 @@ void CallQueue::remove(int index) {
 }
 
 void CallQueue::flush() {
-    for (auto func = queue.rbegin(); func != queue.rend(); func++) {
-        (*func)();
+    for (int i = queue.size() - 1; i >= 0; i++) {
+        queue[i]();
     }
 }
 

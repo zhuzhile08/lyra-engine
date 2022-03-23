@@ -2,10 +2,12 @@
 #define GLM_FORCE_RADIANS
 
 #include <core/logger.h>
+#include <core/queue_types.h>
 #include <rendering/window.h>
 #include <rendering/renderer.h>
 #include <rendering/render_stage.h>
 #include <res/mesh.h>
+#include <res/texture.h>
 #include <init/init_SDL.h>
 
 int main() {
@@ -18,20 +20,16 @@ int main() {
 	lyra::Mesh room;
 	room.create(renderer, lyra::load_model("data/model/viking_room.obj"));
 
-	/** 
 	lyra::Texture texture;
 	texture.create(renderer, "data/img/viking_room.png");
-	 */
 
 	lyra::RenderStage stage;
-	lyra::VulkanDescriptor::Writer writer;
-	/** 
-	writer.add_image_write();
-	 */
-	stage.create(renderer, 2, writer);
+	stage.create(renderer);
 
 	room.draw(stage);
-	stage.draw(renderer);
+	texture.draw(stage);
+
+	stage.draw();
 
 	renderer.update();
 

@@ -20,8 +20,6 @@ VulkanDescriptorSetLayout::VulkanDescriptorSetLayout() { }
 
 void VulkanDescriptorSetLayout::destroy() {
     vkDestroyDescriptorSetLayout(device->get().device, descriptorSetLayout, nullptr);
-    
-    delete device;
 
     LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!")
 }
@@ -29,7 +27,7 @@ void VulkanDescriptorSetLayout::destroy() {
 void VulkanDescriptorSetLayout::create(VulkanDevice device, const Builder builder) {
     LOG_INFO("Creating Vulkan descriptor set layout...")
 
-    this->device = &device;
+    this->device = new VulkanDevice(device);
 
 	// create the descriptor set
 	VkDescriptorSetLayoutCreateInfo layoutInfo {
@@ -52,7 +50,6 @@ VkDescriptorSetLayout VulkanDescriptorSetLayout::get() const {
 const VkDescriptorSetLayout* VulkanDescriptorSetLayout::get_ptr() const {
 	return &descriptorSetLayout;
 }
-
 
 // descriptor pool builder
 VulkanDescriptorPool::Builder::Builder() { }
@@ -77,8 +74,6 @@ VulkanDescriptorPool::VulkanDescriptorPool() { }
 
 void VulkanDescriptorPool::destroy() {
 	vkDestroyDescriptorPool(device->get().device, descriptorPool, nullptr);
-
-    delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!")
 }
@@ -108,13 +103,11 @@ VkDescriptorPool VulkanDescriptorPool::get() const {
 // descriptor writer
 VulkanDescriptor::Writer::Writer() { }
 
-void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorSet set, const VulkanGPUBuffer buffer, const uint16 binding, const VkDescriptorType type) {
-    VkDescriptorBufferInfo bufferInfo = { buffer.get().buffer, 0, buffer.get().size };
-
-    writes.push_back({
+void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding, const VkDescriptorType type) {
+    write = {
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,
-        set,
+        VK_NULL_HANDLE,
         binding,
         0,
         1,
@@ -122,16 +115,14 @@ void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorSet set, const
         nullptr,
         &bufferInfo,
         nullptr
-    });
+    };
 }
 
-void VulkanDescriptor::Writer::add_image_write(const VkDescriptorSet set, const Texture image, const uint16 binding, const VkDescriptorType type) {
-    VkDescriptorImageInfo imageInfo = { image.get().sampler, image.get().image.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
-
-    writes.push_back({
+void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding, const VkDescriptorType type) {
+    write = {
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,
-        set,
+        VK_NULL_HANDLE,
         binding,
         0,
         1,
@@ -139,19 +130,13 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorSet set, const 
         &imageInfo,
         nullptr,
         nullptr
-    });
+    };
 }
 
 // descriptors
 VulkanDescriptor::VulkanDescriptor() { }
 
-void VulkanDescriptor::destroy() {
-    delete device;
-
-    LOG_INFO("Succesfully destroyed Vulkan descriptor sets and layouts!")
-}
-
-void VulkanDescriptor::create(VulkanDevice device, const uint16 size, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, const Writer writer) {
+void VulkanDescriptor::create(VulkanDevice device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer) {
     LOG_INFO("Creating Vulkan descriptor sets...")
 
     // create the descriptor set
@@ -159,24 +144,25 @@ void VulkanDescriptor::create(VulkanDevice device, const uint16 size, const Vulk
         VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         nullptr,
         pool.get(),
-        size,
+        1,
         layout.get_ptr()
     };
 
-    descriptorSets.resize(size);
+    if (vkAllocateDescriptorSets(device.get().device, &allocInfo, &descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets")
 
-    if(vkAllocateDescriptorSets(device.get().device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets")
+    writer.write.dstSet = descriptorSet;
 
-    // configure each descriptor set
-    for (int index = 0; index <= size; index++) {
-        vkUpdateDescriptorSets(device.get().device, 1, &writer.writes[index], 0, nullptr);
-    }
+    vkUpdateDescriptorSets(device.get().device, 1, &writer.write, 0, nullptr);
 
     LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L)
 }
 
-std::vector<VkDescriptorSet> VulkanDescriptor::get() const {
-    return descriptorSets;
+VkDescriptorSet VulkanDescriptor::get() const {
+    return descriptorSet;
+}
+
+const VkDescriptorSet* VulkanDescriptor::get_ptr() const {
+    return &descriptorSet;
 }
 
 } // namespace lyra

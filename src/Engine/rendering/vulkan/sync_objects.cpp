@@ -10,7 +10,6 @@ void VulkanSyncObjects::destroy() {
 		vkDestroySemaphore(device->get().device, var.renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(device->get().device, var.imageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(device->get().device, var.inFlightFences[i], nullptr);
-		vkDestroyFence(device->get().device, var.imagesInFlight[i], nullptr);
 	}
 
 	delete device;
@@ -21,10 +20,11 @@ void VulkanSyncObjects::destroy() {
 void VulkanSyncObjects::create(VulkanDevice device, const VulkanSwapchain swapchain) {
 	LOG_INFO("Creating Vulkan synchronisation objects...")
 
+	this->device = new VulkanDevice(device);
+
 	var.imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	var.renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	var.inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-	var.imagesInFlight.resize(swapchain.get().images.images.size(), VK_NULL_HANDLE);
 
 	VkSemaphoreCreateInfo semaphoreInfo {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
 	VkFenceCreateInfo fenceInfo {
@@ -35,8 +35,8 @@ void VulkanSyncObjects::create(VulkanDevice device, const VulkanSwapchain swapch
 
 	for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		if(vkCreateSemaphore(device.get().device, &semaphoreInfo, nullptr, &var.imageAvailableSemaphores[i]) != VK_SUCCESS
-		|| vkCreateSemaphore(device.get().device, &semaphoreInfo, nullptr, &var.renderFinishedSemaphores[i]) != VK_SUCCESS
-		|| vkCreateFence(device.get().device, &fenceInfo, nullptr, &var.inFlightFences[i]) != VK_SUCCESS)
+			|| vkCreateSemaphore(device.get().device, &semaphoreInfo, nullptr, &var.renderFinishedSemaphores[i]) != VK_SUCCESS
+			|| vkCreateFence(device.get().device, &fenceInfo, nullptr, &var.inFlightFences[i]) != VK_SUCCESS)
 		LOG_EXEPTION("Failed to create Vulkan Synchronisation Objects")
 	}
 
@@ -53,10 +53,6 @@ void VulkanSyncObjects::reset(const uint32 fenceIndex) {
 
 VulkanSyncObjects::Variables VulkanSyncObjects::get() const {
 	return var;
-}
-
-void VulkanSyncObjects::set_current_frame(const size_t newFrame) {
-	var.currentFrame = newFrame;
 }
 
 }

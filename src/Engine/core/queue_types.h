@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <queue>
 #include <functional>
 
 namespace lyra {
@@ -12,7 +11,7 @@ namespace lyra {
  * @tparam Tp type of functions to queue
  */
 struct CallQueue {
-    std::deque<std::function<void()>> queue;
+    std::vector<std::function<void()>> queue;
 
     /**
      * @brief add a function to the queue

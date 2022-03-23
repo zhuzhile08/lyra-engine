@@ -8,15 +8,13 @@ VulkanCommandPool::VulkanCommandPool() { }
 void VulkanCommandPool::destroy() {
     vkDestroyCommandPool(device->get().device, commandPool, nullptr);
 
-    delete device;
-
     LOG_INFO("Succesfully destroyed Vulkan command pool!")
 }
 
 void VulkanCommandPool::create(VulkanDevice device) {
     LOG_INFO("Creating Vulkan command pool...")
 
-    this->device = &device;
+    this->device = new VulkanDevice(device);
 
     VkCommandPoolCreateInfo createInfo {
         VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -43,8 +41,6 @@ VulkanCommandBuffer::VulkanCommandBuffer() { }
 
 void VulkanCommandBuffer::destroy() {
 	vkFreeCommandBuffers(device->get().device, commandPool->get(), 1, &commandBuffer);
-    delete device;
-    delete commandPool;
 
     LOG_INFO("Succesfully destroyed Vulkan command buffer!")
 }
@@ -53,7 +49,7 @@ void VulkanCommandBuffer::create(VulkanDevice device, VulkanCommandPool commandP
     LOG_INFO("Creating Vulkan command buffer...")
 
     this->commandPool = &commandPool;
-    this->device = &device;
+    this->device = new VulkanDevice(device);
 
     // locate the memory
     VkCommandBufferAllocateInfo allocInfo {

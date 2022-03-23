@@ -8,9 +8,6 @@ void VulkanFramebuffers::destroy() {
     for (auto framebuffer : var.framebuffers) vkDestroyFramebuffer(device->get().device, framebuffer, nullptr);
     vkDestroyRenderPass(device->get().device, var.renderPass, nullptr);
 
-    delete device;
-    delete swapchain;
-
 	LOG_INFO("Succesfully destroyed Vulkan frame buffer!")
 }
 
@@ -43,8 +40,8 @@ void VulkanFramebuffers::create() {
 }
 
 void VulkanFramebuffers::create_render_pass(VulkanDevice device, VulkanSwapchain swapchain) {
-	this->device = &device;
-    this->swapchain = &swapchain;
+	this->device = new VulkanDevice(device);
+    this->swapchain = new VulkanSwapchain(swapchain);
 
 	// define what to do with an image during rendering
 	VkAttachmentDescription					imageAttachmentDescriptions {

@@ -49,7 +49,7 @@ void VulkanImage::create_view(
     VkImageViewType         viewType, 
     VkComponentMapping      colorComponents
 ) {
-    this->device = &device;
+    this->device = new VulkanDevice(device);
 
     // image view creation info
     VkImageViewCreateInfo createInfo {

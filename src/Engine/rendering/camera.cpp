@@ -7,13 +7,11 @@ Camera::Camera() { }
 void Camera::destroy() {
     for(auto buffer : var.buffers) buffer.destroy();
 
-    delete device;
-
     LOG_INFO("Succesfully destroyed Vulkan uniform buffers!")
 }
 
 void Camera::create(VulkanDevice device, const UniformBufferObject && ubo, const VulkanSwapchain swapchain) {
-    this->device = &device;
+    this->device = new VulkanDevice(device);
     var.ubo = ubo;
 
     // create the buffers
@@ -63,10 +61,7 @@ void Camera::look_at(const glm::vec3 target, const glm::vec3 up) {
 }
 
 void Camera::finish(uint32 index) {
-    void* data;
-    var.buffers[index].map_memory(data);
-        memcpy(data, &var.ubo, sizeof(var.ubo));
-    var.buffers[index].unmap_memory();
+    var.buffers[index].copy_data(&var.ubo);
 }
 
 Camera::Variables Camera::get() {

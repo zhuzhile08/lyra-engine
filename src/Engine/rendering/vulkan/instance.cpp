@@ -7,14 +7,13 @@ VulkanInstance::VulkanInstance() { }
 void VulkanInstance::destroy() {
 	vkDestroySurfaceKHR(var.instance, var.surface, nullptr);
     vkDestroyInstance(var.instance, nullptr);
-	delete window;
 
 	LOG_INFO("Succesfully destroyed Vulkan instance!")
 }
 
 void VulkanInstance::create(Window window) {
 	LOG_INFO("Creating Vulkan instance...")
-	this->window = &window;
+	this->window = new Window(window);
 	create_instance();
 	create_window_surface();
 

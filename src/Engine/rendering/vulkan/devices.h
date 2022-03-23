@@ -7,8 +7,7 @@
  * @date 2022-02-05
  * 
  * @copyright Copyright (c) 2022
- * 
- */
+ *************************/
 
 #pragma once
 
@@ -78,21 +77,6 @@ public:
 	 * @param properties the properties that the memory needs to have
 	 */
 	uint32 	        find_memory_type(const uint32 typeFilter, const VkMemoryPropertyFlags properties) const;
-
-	/**
-	 * @brief map GPU memory
-	 * 
-	 * @param memory memory to map
-	 * @param size size of the memory
-	 * @param mapped currently mapped memory
-	 */
-	void            map_memory(const VkDeviceMemory memory, const VkDeviceSize size, void *mapped) const;
-	/**
-	 * @brief unmap GPU memory
-	 * 
-	 * @param memory memory to unmap
-	 */
-	void            unmap_memory(const VkDeviceMemory memory) const;
 
 	/**
 	 * @brief wait for device to finish

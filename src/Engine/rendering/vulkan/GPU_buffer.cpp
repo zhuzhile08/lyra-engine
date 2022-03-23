@@ -7,8 +7,6 @@ VulkanGPUBuffer::VulkanGPUBuffer() {}
 void VulkanGPUBuffer::destroy() {
     vmaDestroyBuffer(device->get().allocator, var.buffer, var.memory);
 
-    delete device;
-
     LOG_INFO("Succesfully destroyed Vulkan GPU buffer!")
 }
 
@@ -18,6 +16,8 @@ void VulkanGPUBuffer::create(VulkanDevice device, VkDeviceSize size, VkBufferUsa
     var.bufferUsage = bufferUsage;
     var.memUsage = memUsage;
     var.size = size;
+
+    this->device = new VulkanDevice(device);
 
     // buffer creation info
     VkBufferCreateInfo 		bufferInfo {
@@ -86,14 +86,13 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool commandPool, const VulkanGPUB
 
     commandBuffer.destroy();		    // delete command buffer after copying
 
-    LOG_INFO("Succesfully copied Vulkan GPU buffer at ", GET_ADDRESS(&srcBuffer), "to ", GET_ADDRESS(this), "!", END_L)
+    LOG_INFO("Succesfully copied Vulkan GPU buffer at ", GET_ADDRESS(&srcBuffer), " to ", GET_ADDRESS(this), "!", END_L)
 }
 
-void VulkanGPUBuffer::map_memory(void* data) {
-    if(vmaMapMemory(device->get().allocator, var.memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", GET_ADDRESS(var.memory))
-}
-
-void VulkanGPUBuffer::unmap_memory() const {
+void VulkanGPUBuffer::copy_data(void* src) {
+    void* data;
+    if (vmaMapMemory(device->get().allocator, var.memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", GET_ADDRESS(var.memory))
+        memcpy(data, src, (size_t)var.size);
     vmaUnmapMemory(device->get().allocator, var.memory);
 }
 

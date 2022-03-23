@@ -8,15 +8,13 @@ void VulkanDevice::destroy() {
     vkDestroyDevice(var.device, nullptr);
     vmaDestroyAllocator(var.allocator);
 
-    delete instance;
-
     LOG_INFO("Succesfully destroyed Vulkan device!")
 }
 
 void VulkanDevice::create(VulkanInstance instance) {
     LOG_INFO("Creating Vulkan device...")
 
-    this->instance = &instance;
+    this->instance = new VulkanInstance(instance);
     pick_physical_device();
     create_logical_device();
     create_allocator();
@@ -186,14 +184,6 @@ void VulkanDevice::create_allocator() {
 
     // create the allocator
     vmaCreateAllocator(&createInfo, &var.allocator);
-}
-
-void VulkanDevice::map_memory(const VkDeviceMemory memory, const VkDeviceSize size, void *mapped) const {
-    vkMapMemory(var.device, memory, 0, size, 0, &mapped);
-}
-
-void VulkanDevice::unmap_memory(const VkDeviceMemory memory) const {
-    vkUnmapMemory(var.device, memory);
 }
 
 void VulkanDevice::wait() const {

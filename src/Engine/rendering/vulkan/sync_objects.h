@@ -32,8 +32,6 @@ private:
 		std::vector <VkSemaphore> 	imageAvailableSemaphores;
 		std::vector <VkSemaphore>   renderFinishedSemaphores;
 		std::vector <VkFence> 		inFlightFences;
-		std::vector <VkFence> 		imagesInFlight;
-		size_t 						currentFrame = 0;
 	};
 
 public:
@@ -72,12 +70,6 @@ public:
 	 * @return Variables
 	 */
 	Variables 		get() const;
-	/**
-	 * @brief Set the current frame
-	 * 
-	 * @param newFrame the frame to set
-	 */
-	void			set_current_frame(const size_t newFrame);
 
 private:
 	Variables 		var;

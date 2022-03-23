@@ -9,8 +9,6 @@ void VulkanGraphicsPipeline::destroy() {
     vkDestroyPipelineLayout(device->get().device, var.pipelineLayout, nullptr);
 	for (auto& shader : var.shaders) shader.destroy();
 
-    delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan graphics pipeline!")
 }
 
@@ -24,7 +22,7 @@ void VulkanGraphicsPipeline::create(
 ) {
 	LOG_INFO("Creating Vulkan graphics pipeline...")
 	
-    this->device = &device;
+    this->device = new VulkanDevice(device);
 
     var.shaders.reserve(shaderCreationInfos.size());
 

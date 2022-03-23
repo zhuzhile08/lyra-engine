@@ -11,15 +11,13 @@ void VulkanSwapchain::VulkanSwapchainImages::destroy() {
 		vkDestroyImage(device->get().device, image.image, nullptr);
 	}
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
 }
 
 void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const VulkanSwapchain swapchain) {
 	LOG_INFO("Creating Vulkan swapchain images...")
 
-	this->device = &device;
+	this->device = new VulkanDevice(device);
 
 	// get the number of images
 	uint32 						imageCount;
@@ -49,7 +47,7 @@ void VulkanSwapchain::VulkanDepthBuffer::destroy() {
 void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const VulkanSwapchain swapchain) {
 	LOG_INFO("Creating Vulkan depth buffer...")
 
-	this->device = &device;
+	this->device = new VulkanDevice(device);
 
 	// memory allocation info
 	VmaAllocationCreateInfo allocCreateInfo = {
@@ -80,9 +78,6 @@ void VulkanSwapchain::destroy() {
 	vkDestroySwapchainKHR(device->get().device, var.swapchain, nullptr);
 
 	delete var.oldSwapchain;
-	delete device;
-	delete instance;
-	delete window;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain!")
 }
@@ -90,9 +85,9 @@ void VulkanSwapchain::destroy() {
 void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Window window) {
 	LOG_INFO("Creating Vulkan swapchain...")
 
-	this->device = &device;
-	this->instance = &instance;
-	this->window = &window;
+	this->device = new VulkanDevice(device);
+	this->instance = new VulkanInstance(instance);
+	this->window = new Window(window);
 	create_swapchain();
 
 	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)

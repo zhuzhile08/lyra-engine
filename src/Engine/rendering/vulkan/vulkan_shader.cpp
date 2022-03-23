@@ -9,7 +9,7 @@ void VulkanShader::destroy() {
 }
 
 void VulkanShader::create(VulkanDevice device, const std::string path, str entry, VkShaderStageFlagBits stageFlags) {
-	this->device = &device;
+	this->device = new VulkanDevice(device);
 
 	var.entry = entry;
 
