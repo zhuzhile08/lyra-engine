@@ -4,7 +4,7 @@ namespace lyra {
 
 Renderer::Renderer() { ("Renderer", nullptr); }
 
-void Renderer::destroy() {
+void Renderer::destroy() noexcept {
     destroy_swapchain();
 
     var.descriptorPool.destroy();
@@ -39,7 +39,7 @@ void Renderer::create(Window window) {
     var.syncObjects.create(var.device, var.swapchain);
 }
 
-void Renderer::destroy_swapchain() {
+void Renderer::destroy_swapchain() noexcept {
     var.swapchain.destroy();
 }
 
@@ -153,11 +153,11 @@ void Renderer::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) co
     vkQueueWaitIdle(queue.queue);
 }
 
-void Renderer::update_frame_count() {
+void Renderer::update_frame_count() noexcept {
     var.currentFrame = (var.currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-Renderer::Variables Renderer::get() const {
+Renderer::Variables Renderer::get() const noexcept {
     return var;
 }
 

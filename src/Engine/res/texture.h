@@ -31,7 +31,7 @@ public:
     /**
      * @brief destroy the texture
      */
-    void            destroy();
+    void            destroy() noexcept;
 
     /**
      * @brief create the texture and the sampler
@@ -62,7 +62,7 @@ public:
      * 
      * @return Variables
      */
-    Variables       get() const;
+    Variables       get() const noexcept;
 
 private:
     Variables       var;

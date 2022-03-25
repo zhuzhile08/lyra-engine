@@ -32,7 +32,7 @@ struct VulkanImage {
 	/**
 	 * @brief destroy the image and the image view
 	 */
-	void            destroy();
+	void				destroy() noexcept;
 
 	/**
 	 * @brief create the image and image view
@@ -55,7 +55,7 @@ struct VulkanImage {
 		uint32_t                arrayLayers      = 1,
 		VkSampleCountFlagBits   samples          = VK_SAMPLE_COUNT_1_BIT,
 		VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL
-	);
+	) noexcept;
 
 	/**
 	 * @brief create the image view only

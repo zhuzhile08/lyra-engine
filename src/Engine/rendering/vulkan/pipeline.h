@@ -80,7 +80,7 @@ public:
 	 * 
 	 * @param device device
 	 */
-	void            destroy();
+	void            destroy() noexcept;
 
 	/**
 	 * @brief create a new graphics pipeline
@@ -107,7 +107,7 @@ public:
 	 * 
 	 * @return Variables 
 	 */
-	Variables       get() const;
+	Variables       get() const noexcept;
 
 private:
 	Variables       var;

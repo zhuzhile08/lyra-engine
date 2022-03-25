@@ -61,7 +61,7 @@ public:
 	/**
 	 * @brief destroy the VulkanDevice object
 	 */
-	void            destroy();
+	void            destroy() noexcept;
 
 	/**
 	 * @brief create the devices
@@ -88,7 +88,7 @@ public:
 	 * 
 	 * @return VkPhysicalDevice 
 	 */
-	Variables       get() const;
+	Variables       get() const noexcept;
 
 private:
 	Variables       var;
@@ -102,13 +102,13 @@ private:
 	 * @param device device to find the family index of the queue of
 	 * @return VulkanQueueFamily 
 	 */
-	void            find_family_index(VulkanQueueFamily *queue, const VkPhysicalDevice device);
+	void            find_family_index(VulkanQueueFamily *queue, const VkPhysicalDevice device) noexcept;
 	/**
 	 * @brief create a Vulkan queue
 	 * 
 	 * @return VulkanQueueFamily 
 	 */
-	void            create_queue(VulkanQueueFamily *queue);
+	void            create_queue(VulkanQueueFamily *queue) noexcept;
 
 	/**
 	 * @brief rate a physical device by its features

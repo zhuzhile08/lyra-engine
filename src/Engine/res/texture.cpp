@@ -4,10 +4,10 @@ namespace lyra {
 
 Texture::Texture() { }
 
-void Texture::destroy() {
+void Texture::destroy() noexcept {
     var.image.destroy();
 
-    renderer->destroy();
+    delete renderer;
 }
 
 void Texture::create(Renderer renderer, str path, VkFormat format, int channelsToLoad) {
@@ -195,7 +195,7 @@ void Texture::create_sampler(
     if (vkCreateSampler(renderer->get().device.get().device, &samplerInfo, nullptr, &var.sampler) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image sampler!");
 }
 
-Texture::Variables Texture::get() const {
+Texture::Variables Texture::get() const noexcept {
     return var;
 }
 

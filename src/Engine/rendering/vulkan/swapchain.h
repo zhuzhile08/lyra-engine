@@ -39,7 +39,7 @@ private:
         /**
          * @brief destroy the swapchain images
          */
-        void destroy();
+        void                        destroy() noexcept;
         
         /**
          * @brief create the image views
@@ -66,7 +66,7 @@ private:
         /**
          * @brief destroy the depth buffer
          */
-        void            destroy();
+        void            destroy() noexcept;
 
         /**
          * @brief create the image, view and allocate the memory
@@ -102,7 +102,7 @@ public:
     /**
      * @brief destroy the VulkanSwapchain
      */
-    void            destroy();
+    void            destroy() noexcept;
 
     /**
      * @brief create the swapchain
@@ -125,7 +125,7 @@ public:
      * 
      * @return Variables
      */
-    Variables       get() const;
+    Variables       get() const noexcept;
     
 private:
     Variables       var;

@@ -4,8 +4,11 @@ namespace lyra {
 
 VulkanImage::VulkanImage() { }
 
-void VulkanImage::destroy() {
+void VulkanImage::destroy() noexcept {
     vkDestroyImageView(device->get().device, view, nullptr);
+    vkDestroyImage(device->get().device, image, nullptr);
+
+    delete device;
 
     LOG_INFO("Succesfully destroyed Vulkan images!")
 }
@@ -19,7 +22,7 @@ VkImageCreateInfo VulkanImage::get_image_create_info(
     uint32_t                arrayLayers,
     VkSampleCountFlagBits   samples,
     VkImageTiling           tiling
-) {
+) noexcept {
     // image create info
     VkImageCreateInfo createInfo = {   
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,

@@ -64,7 +64,7 @@ public:
     /**
      * @brief destroy the renderer
      */
-    void            destroy();
+    void            destroy() noexcept;
     /**
      * @brief create the renderer
      * 
@@ -107,7 +107,7 @@ public:
      */
     void            wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
 
-    Variables       get() const;
+    Variables       get() const noexcept;
 
 private:
     Variables       var;
@@ -121,7 +121,7 @@ private:
     /**
      * @brief destroy the swapchain and related stuff in case of some events
      */
-    void            destroy_swapchain();
+    void            destroy_swapchain() noexcept;
 
     /**
      * @brief present all the recorded commands
@@ -136,7 +136,7 @@ private:
     /**
      * @brief update the frame count
      */
-    void            update_frame_count();
+    void            update_frame_count() noexcept;
 
     friend class    RenderStage;
 };

@@ -29,58 +29,58 @@ namespace lyra {
  */
 class VulkanGPUBuffer {
 private:
-	struct 			Variables {
-		VkBuffer            buffer;
-		VmaAllocation       memory;
-		VkDeviceSize        size;
-		VkBufferUsageFlags 	bufferUsage;
-		VmaMemoryUsage 	    memUsage;
-	};
+    struct          Variables {
+        VkBuffer            buffer;
+        VmaAllocation       memory;
+        VkDeviceSize        size;
+        VkBufferUsageFlags  bufferUsage;
+        VmaMemoryUsage      memUsage;
+    };
 
 public:
-	VulkanGPUBuffer();
+    VulkanGPUBuffer();
 
-	/**
-	 * @brief destroy the VulkanGPUBuffer object
-	 */
-	void            destroy();
+    /**
+     * @brief destroy the VulkanGPUBuffer object
+     */
+    void             destroy() noexcept;
 
-	/**
-	 * @brief create the buffer
-	 * 
-	 * @param device device
-	 */
-	void            create(VulkanDevice device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
+    /**
+     * @brief create the buffer
+     * 
+     * @param device device
+     */
+    void             create(VulkanDevice device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
 
-	/**
-	 * @brief copy a buffer to another
-	 * 
-	 * @param device device
-	 * @param commandBuffer command buffers
-	 * @param srcBuffer the buffer to copy
-	 * @param size the size of the buffer
-	 * @return true 
-	 */
-	void            copy(const VulkanCommandPool commandPool, const VulkanGPUBuffer srcBuffer);
+    /**
+     * @brief copy a buffer to another
+     * 
+     * @param device device
+     * @param commandBuffer command buffers
+     * @param srcBuffer the buffer to copy
+     * @param size the size of the buffer
+     * @return true 
+     */
+    void             copy(const VulkanCommandPool commandPool, const VulkanGPUBuffer srcBuffer);
 
-	/**
-	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
-	 * 
-	 * @param src data to copy into the buffer
-	 */
-	void			copy_data(void* src);
+    /**
+     * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
+     * 
+     * @param src data to copy into the buffer
+     */
+    void             copy_data(void* src);
 
-	/**
-	 * @brief get the buffer
-	 * 
-	 * @return Variables
-	 */
-	Variables        get() const;
+    /**
+     * @brief get the buffer
+     * 
+     * @return Variables
+     */
+    Variables        get() const noexcept;
 
 private:
-	Variables       var;
+    Variables        var;
 
-	VulkanDevice*   device;
+    VulkanDevice*    device;
 };
 
 } // namespace lyra

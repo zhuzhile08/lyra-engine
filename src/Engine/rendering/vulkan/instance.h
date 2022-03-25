@@ -40,7 +40,7 @@ public:
     /**
      * @brief destroy a Instance
      */
-    void            destroy();
+    void            destroy() noexcept;
 
     /**
      * @brief create the instance and surface
@@ -54,7 +54,7 @@ public:
      * 
      * @return Variables
      */
-    Variables      get() const;
+    Variables       get() const noexcept;
 
 private:
     Variables       var;

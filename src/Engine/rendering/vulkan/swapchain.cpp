@@ -5,11 +5,13 @@ namespace lyra {
 // swap chain images
 VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 
-void VulkanSwapchain::VulkanSwapchainImages::destroy() {
+void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 	for (auto& image : images) {
 		image.destroy();
 		vkDestroyImage(device->get().device, image.image, nullptr);
 	}
+
+	delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
 }
@@ -21,7 +23,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const V
 
 	// get the number of images
 	uint32 						imageCount;
-	vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, nullptr);
+	if(vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
 	images.resize(imageCount);
 
 	for (size_t i = 0; i < imageCount; i++) {
@@ -35,7 +37,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const V
 // depth buffer
 VulkanSwapchain::VulkanDepthBuffer::VulkanDepthBuffer() { }
 
-void VulkanSwapchain::VulkanDepthBuffer::destroy() {
+void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
 	image.destroy();
 	vmaDestroyImage(device->get().allocator, image.image, memory);
 
@@ -71,13 +73,13 @@ void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const Vulka
 // swap chain
 VulkanSwapchain::VulkanSwapchain() { }
 
-void VulkanSwapchain::destroy() {
+void VulkanSwapchain::destroy() noexcept {
 	var.images.destroy();
 	var.depthBuffer.destroy();
 
 	vkDestroySwapchainKHR(device->get().device, var.swapchain, nullptr);
 
-	delete var.oldSwapchain;
+	delete device, window, instance, var.oldSwapchain;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain!")
 }
@@ -256,7 +258,7 @@ void VulkanSwapchain::create_swapchain() {
 	var.depthBuffer.create(*device, *this);
 }
 
-VulkanSwapchain::Variables VulkanSwapchain::get() const {
+VulkanSwapchain::Variables VulkanSwapchain::get() const noexcept {
 	return var;
 }
 

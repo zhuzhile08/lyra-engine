@@ -43,11 +43,11 @@ private:
 	/**
 	 * @brief destroy the window
 	 */
-	void        destroy();
+	void        destroy() noexcept;
 	/**
 	 * @brief get window events like resizing
 	 */
-	void 		events(SDL_Event event);
+	void 		events(SDL_Event event) noexcept;
 
 public:
 	/**
@@ -60,13 +60,13 @@ public:
 	 * 
 	 * @return SDL_Window* 
 	 */
-	SDL_Window* get_window() 	const;
+	SDL_Window* get_window() const noexcept;
 	/**
 	 * @brief get if window was resized
 	 * 
 	 * @return bool 
 	 */
-	bool		get_resized()	const;
+	bool		get_resized() const;
 };
 
 } // namespace lyra

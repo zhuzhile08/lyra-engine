@@ -49,7 +49,7 @@ public:
     /**
      * @brief destroy the mesh
      */
-    void                destroy();
+    void                destroy() noexcept;
 
     /**
      * @brief construct a new mesh loaded from a .obj file
@@ -88,14 +88,14 @@ public:
      * 
      * @param renderStage renderer to add the draw call to
      */
-    void                draw(RenderStage renderStage);
+    void                draw(RenderStage renderStage) noexcept;
 
     /**
      * @brief get all variables
      * 
      * @return Variables 
      */
-    Variables           get() const;
+    Variables           get() const noexcept;
 
 private:
     Variables           var;

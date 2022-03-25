@@ -15,11 +15,11 @@ Window::Window() {
 	}
 }
 
-void Window::destroy() {
+void Window::destroy() noexcept {
 	SDL_DestroyWindow(window);
 }
 
-void Window::events(SDL_Event event) {
+void Window::events(SDL_Event event) noexcept {
 	if (event.type == SDL_WINDOWEVENT) {
 		switch(event.window.event) {
 			case SDL_WINDOWEVENT_RESIZED:
@@ -29,7 +29,7 @@ void Window::events(SDL_Event event) {
 	}
 }
 
-SDL_Window* Window::get_window() 		const {
+SDL_Window* Window::get_window() const noexcept {
 	return window;
 }
 

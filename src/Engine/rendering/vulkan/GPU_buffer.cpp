@@ -4,8 +4,10 @@ namespace lyra {
 
 VulkanGPUBuffer::VulkanGPUBuffer() {}
 
-void VulkanGPUBuffer::destroy() {
+void VulkanGPUBuffer::destroy() noexcept {
     vmaDestroyBuffer(device->get().allocator, var.buffer, var.memory);
+
+    delete device;
 
     LOG_INFO("Succesfully destroyed Vulkan GPU buffer!")
 }
@@ -43,7 +45,7 @@ void VulkanGPUBuffer::create(VulkanDevice device, VkDeviceSize size, VkBufferUsa
         0
     }; 
 
-    vmaCreateBuffer(device.get().allocator, &bufferInfo, &memAllocInfo, &var.buffer, &var.memory, nullptr);
+   if(vmaCreateBuffer(device.get().allocator, &bufferInfo, &memAllocInfo, &var.buffer, &var.memory, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan GPU memory buffer!");
 
     LOG_INFO("Succesfully created Vulkan GPU buffer at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -91,12 +93,12 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool commandPool, const VulkanGPUB
 
 void VulkanGPUBuffer::copy_data(void* src) {
     void* data;
-    if (vmaMapMemory(device->get().allocator, var.memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", GET_ADDRESS(var.memory))
+    if (vmaMapMemory(device->get().allocator, var.memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", GET_ADDRESS(var.memory), "!")
         memcpy(data, src, (size_t)var.size);
     vmaUnmapMemory(device->get().allocator, var.memory);
 }
 
-VulkanGPUBuffer::Variables VulkanGPUBuffer::get() const {
+VulkanGPUBuffer::Variables VulkanGPUBuffer::get() const noexcept {
     return var;
 }
 

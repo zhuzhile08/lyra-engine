@@ -2,6 +2,8 @@
 
 namespace lyra {
 
+CallQueue::CallQueue() { }
+
 void CallQueue::add(std::function<void()>&& function) {
     queue.push_back(function);
 }
@@ -11,8 +13,8 @@ void CallQueue::remove(int index) {
 }
 
 void CallQueue::flush() {
-    for (int i = queue.size() - 1; i >= 0; i++) {
-        queue[i]();
+    for (auto func = queue.rbegin(); func != queue.rend(); func++) {
+        (*func)();
     }
 }
 

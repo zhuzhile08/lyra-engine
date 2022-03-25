@@ -4,9 +4,11 @@ namespace lyra {
 
 Mesh::Mesh() { }
 
-void Mesh::destroy() {
+void Mesh::destroy() noexcept {
     var.vertexBuffer.destroy();
     var.indexBuffer.destroy();
+
+    delete renderer;
 
     LOG_INFO("Succesfully destroyed mesh!")
 }
@@ -178,12 +180,12 @@ void Mesh::create_index_buffer() {
     stagingBuffer.destroy();
 }
 
-void Mesh::draw(RenderStage renderStage) {
+void Mesh::draw(RenderStage renderStage) noexcept {
     renderStage.var.bind_queue.add([=]() { renderStage.bind_model(var.vertexBuffer.get().buffer, var.indexBuffer.get().buffer); });
     renderStage.var.draw_queue.add([=]() { renderStage.draw_model(static_cast<uint32>(var.indices.size())); });
 }
 
-Mesh::Variables Mesh::get() const {
+Mesh::Variables Mesh::get() const noexcept {
     return var;
 };
 

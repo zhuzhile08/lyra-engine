@@ -54,7 +54,7 @@ public:
     /**
      * @brief destroy the renderer
      */
-    void            destroy();
+    void            destroy() noexcept;
     /**
      * @brief create the renderer
      *
@@ -67,7 +67,7 @@ public:
      * 
      * @param renderer the renderer
      */
-    void            draw();
+    void            draw() noexcept;
 
 private:
     Variables       var;
@@ -80,28 +80,28 @@ private:
      * @param descriptor descriptor
      * @param pipelineLayout pipeline layout
      */
-    void            bind_descriptor(const VulkanDescriptor descriptor) const;
+    void            bind_descriptor(const VulkanDescriptor descriptor) const noexcept;
     
-    void            push_constants() const;
+    void            push_constants() const noexcept;
     /**
      * @brief begin render passes
      *
      * @param framebuffers frame buffer
      * @param index index of the frame buffer
      */
-    void            begin_render_pass(const VkRenderPassBeginInfo beginInfo) const;
+    void            begin_render_pass(const VkRenderPassBeginInfo beginInfo) const noexcept;
     /**
      * @brief end render passes
      *
      * @param framebuffers frame buffer
      */
-    void            end_render_pass() const;
+    void            end_render_pass() const noexcept;
     /**
      * @brief bind the graphics pipeline
      *
      * @param pipeline pipeline
      */
-    void            bind_pipeline() const;
+    void            bind_pipeline() const noexcept;
     /**
      * @brief bind a model
      *
@@ -109,14 +109,14 @@ private:
      * @param indexBuffer index buffer of the model
      * @param cmdBuffIndex index of the command buffer to bind the model
      */
-    void            bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer) const;
+    void            bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer) const noexcept;
     /**
      * @brief draw a model
      *
      * @param size size of the index buffer
      * @param cmdBuffIndex index of the command buffer to draw the model
      */
-    void            draw_model(const uint32 size) const;
+    void            draw_model(const uint32 size) const noexcept;
 
     /**
      * @brief record all the commands

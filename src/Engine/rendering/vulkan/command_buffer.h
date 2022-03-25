@@ -35,7 +35,7 @@ public:
      * @brief destroy the VulkanCommandBuffer object
      * @brief it works just like the destructor, but it can be called anywhere
      */
-    void                    destroy();
+    void                    destroy() noexcept;
 
     /**
      * @brief create a Vulkan command pool to allocate the command buffers
@@ -49,13 +49,13 @@ public:
      * 
      * @return VkCommandPool 
      */
-    VkCommandPool           get() const;
+    VkCommandPool           get() const noexcept;
     /**
      * @brief get the command pool as a pointer
      * 
      * @return VkCommandPool 
      */
-    const VkCommandPool*    get_ptr() const;
+    const VkCommandPool*    get_ptr() const noexcept;
 
 private:
     VkCommandPool           commandPool;
@@ -75,7 +75,7 @@ public:
      * @brief destroy the VulkanCommandBuffer object
      * @brief it works just like the destructor, but it can be called anywhere
      */	
-    void                    destroy();
+    void                    destroy() noexcept;
 
     /**
      * @brief create the Vulkan command buffers
@@ -108,14 +108,14 @@ public:
      * 
      * @return VkCommandBuffer
      */
-    VkCommandBuffer         get() const;
+    VkCommandBuffer         get() const noexcept;
 
     /**
      * @brief get the command buffer as a pointer
      * 
      * @return const VkCommandBuffer* 
      */
-    const VkCommandBuffer* 	get_ptr() const;
+    const VkCommandBuffer* 	get_ptr() const noexcept;
 
 private:
     VkCommandBuffer         commandBuffer;

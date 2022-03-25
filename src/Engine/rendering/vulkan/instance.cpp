@@ -4,16 +4,20 @@ namespace lyra {
 
 VulkanInstance::VulkanInstance() { }
 
-void VulkanInstance::destroy() {
+void VulkanInstance::destroy() noexcept {
 	vkDestroySurfaceKHR(var.instance, var.surface, nullptr);
     vkDestroyInstance(var.instance, nullptr);
+
+	delete window;
 
 	LOG_INFO("Succesfully destroyed Vulkan instance!")
 }
 
 void VulkanInstance::create(Window window) {
 	LOG_INFO("Creating Vulkan instance...")
+
 	this->window = new Window(window);
+
 	create_instance();
 	create_window_surface();
 
@@ -95,7 +99,7 @@ void VulkanInstance::create_window_surface() {
 	if(!SDL_Vulkan_CreateSurface(window->get_window(), var.instance, &var.surface)) LOG_EXEPTION("Failed to create Vulkan window surface")
 }
 
-VulkanInstance::Variables VulkanInstance::get() const {
+VulkanInstance::Variables VulkanInstance::get() const noexcept {
 	return var;
 }
 

@@ -4,10 +4,12 @@ namespace lyra {
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline() { }
 
-void VulkanGraphicsPipeline::destroy() {
+void VulkanGraphicsPipeline::destroy() noexcept {
 	vkDestroyPipeline(device->get().device, var.graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device->get().device, var.pipelineLayout, nullptr);
 	for (auto& shader : var.shaders) shader.destroy();
+
+	delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan graphics pipeline!")
 }
@@ -232,7 +234,7 @@ void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shad
 	}
 }
 
-VulkanGraphicsPipeline::Variables VulkanGraphicsPipeline::get() const {
+VulkanGraphicsPipeline::Variables VulkanGraphicsPipeline::get() const noexcept {
 	return var;
 }
 

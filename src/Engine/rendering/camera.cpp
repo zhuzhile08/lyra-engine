@@ -4,7 +4,7 @@ namespace lyra {
 
 Camera::Camera() { }
 
-void Camera::destroy() {
+void Camera::destroy() noexcept {
     for(auto buffer : var.buffers) buffer.destroy();
 
     LOG_INFO("Succesfully destroyed Vulkan uniform buffers!")
@@ -24,7 +24,7 @@ void Camera::create(VulkanDevice device, const UniformBufferObject && ubo, const
     LOG_INFO("Succesfully created Vulkan uniform buffers at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void Camera::rotate(const float deg, const glm::vec3 axis) {
+void Camera::rotate(const float deg, const glm::vec3 axis) noexcept {
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -33,7 +33,7 @@ void Camera::rotate(const float deg, const glm::vec3 axis) {
     var.ubo.model += glm::rotate(glm::mat4(1.0f), time * glm::radians(deg), axis);
 }
 
-void Camera::set_rotation(const float deg, const glm::vec3 axis) {
+void Camera::set_rotation(const float deg, const glm::vec3 axis) noexcept {
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -42,21 +42,21 @@ void Camera::set_rotation(const float deg, const glm::vec3 axis) {
     var.ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(deg), axis);
 }
 
-void Camera::move(const glm::vec3 pos) {
+void Camera::move(const glm::vec3 pos) noexcept {
     var.position += pos;
     var.ubo.view += glm::translate(glm::mat4(1.0f), pos);
 }
 
-void Camera::set_position(const glm::vec3 pos) {
+void Camera::set_position(const glm::vec3 pos) noexcept {
     var.position = pos;
     var.ubo.view = glm::translate(glm::mat4(1.0f), pos);
 }
 
-void Camera::set_perspective(const float aspect, const float fov, const float near, const float far) {
+void Camera::set_perspective(const float aspect, const float fov, const float near, const float far) noexcept {
     var.ubo.proj = glm::perspective(glm::radians(45.0f), aspect, near, far);
 } 
 
-void Camera::look_at(const glm::vec3 target, const glm::vec3 up) {
+void Camera::look_at(const glm::vec3 target, const glm::vec3 up) noexcept {
     var.ubo.view = glm::lookAt(var.position, target, up);
 }
 
@@ -64,7 +64,7 @@ void Camera::finish(uint32 index) {
     var.buffers[index].copy_data(&var.ubo);
 }
 
-Camera::Variables Camera::get() {
+Camera::Variables Camera::get() noexcept {
     return var;
 }
 

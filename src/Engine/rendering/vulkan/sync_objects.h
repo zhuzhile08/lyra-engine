@@ -41,7 +41,7 @@ public:
 	 * @brief destroy the VulkanSyncObjects
 	 * @brief it works just like the destructor, but is callable anywhere
 	 */
-	void 			destroy();
+	void 			destroy() noexcept;
 
 	/**
 	 * @brief create the syncronisation objects
@@ -69,7 +69,7 @@ public:
 	 * 
 	 * @return Variables
 	 */
-	Variables 		get() const;
+	Variables 		get() const noexcept;
 
 private:
 	Variables 		var;

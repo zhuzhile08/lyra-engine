@@ -10,8 +10,9 @@ namespace lyra {
  * 
  * @tparam Tp type of functions to queue
  */
-struct CallQueue {
-    std::vector<std::function<void()>> queue;
+class CallQueue {
+public:
+    CallQueue();
 
     /**
      * @brief add a function to the queue
@@ -29,6 +30,9 @@ struct CallQueue {
      * @brief flush the queue whilst calling all the functions
      */
     void flush();
+
+private:
+    std::vector<std::function<void()>> queue;
 };
 
 } // namespace lyra

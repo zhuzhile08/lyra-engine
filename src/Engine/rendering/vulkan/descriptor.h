@@ -44,9 +44,9 @@ public:
          * @param stage which shader can access the descriptor
          * @param count numbers of descriptors in the binding
          */
-        void                                         add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count = 1);
+        void                                        add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count = 1) noexcept;
 
-        std::vector<VkDescriptorSetLayoutBinding>     bindings;
+        std::vector<VkDescriptorSetLayoutBinding>   bindings;
     };
 
     VulkanDescriptorSetLayout();
@@ -54,7 +54,7 @@ public:
     /**
      * @brief destroy the descriptor set layout
      */
-    void                             destroy();
+    void                            destroy() noexcept;
 
     /**
      * @brief create the descriptor set layout
@@ -64,24 +64,24 @@ public:
      * @param typeCount number of types
      * @param flags shader stage flags ored together
      */
-    void                             create(VulkanDevice device, const Builder builder);
+    void                            create(VulkanDevice device, const Builder builder);
     /**
      * @brief get the descriptor set layout
      * 
      * @return VkDescriptorSetLayout 
      */
-    VkDescriptorSetLayout             get() const;
+    VkDescriptorSetLayout           get() const noexcept;
     /**
      * @brief get the descriptor set layout as pointers
      * 
      * @return VkDescriptorSetLayout 
      */
-    const VkDescriptorSetLayout*     get_ptr() const;
+    const VkDescriptorSetLayout*    get_ptr() const noexcept;
 
 private:
-    VkDescriptorSetLayout    descriptorSetLayout;
+    VkDescriptorSetLayout           descriptorSetLayout;
 
-    VulkanDevice*            device;
+    VulkanDevice*                   device;
 };
 
 /**
@@ -102,24 +102,24 @@ public:
          * @param type type of descriptor
          * @param count number of descriptors
          */
-        void                                 add_pool_sizes(const VkDescriptorType type, const uint32_t count);
+        void                                add_pool_sizes(const VkDescriptorType type, const uint32_t count) noexcept;
         /**
          * @brief set the number of maximum possible allocatable sets
          * 
          * @param _maxSets the number to set to
          */
-        void                                 set_max_sets(const uint32 _maxSets);
+        void                                set_max_sets(const uint32 _maxSets) noexcept;
         
         /**
          * @brief Set the pool flags object
          * 
          * @param _poolFlags 
          */
-        void                                 set_pool_flags(const VkDescriptorPoolCreateFlags _poolFlags);
+        void                                set_pool_flags(const VkDescriptorPoolCreateFlags _poolFlags) noexcept;
 
-        std::vector<VkDescriptorPoolSize>     poolSizes;
-        VkDescriptorPoolCreateFlags            poolFlags = 0;
-        uint32                                maxSets = 1000;
+        std::vector<VkDescriptorPoolSize>   poolSizes;
+        VkDescriptorPoolCreateFlags         poolFlags = 0;
+        uint32                              maxSets = 1000;
     };
 
     VulkanDescriptorPool();
@@ -127,7 +127,7 @@ public:
     /**
      * @brief destroy the descriptor pool
      */
-    void                 destroy();
+    void                 destroy() noexcept;
 
     /**
      * @brief create a descriptor pool to allocate the descriptor sets
@@ -142,12 +142,12 @@ public:
      * 
      * @return VkDescriptorPool 
      */
-    VkDescriptorPool    get() const;
+    VkDescriptorPool    get() const noexcept;
 
 private:
-    VkDescriptorPool     descriptorPool;
+    VkDescriptorPool    descriptorPool;
 
-    VulkanDevice*        device;
+    VulkanDevice*       device;
 };
 
 /**
@@ -168,7 +168,7 @@ public:
          * @param binding at which position it will be entered into the shader
          * @param type type of the descriptor set
          */
-        void                    add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+        void                    add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) noexcept;
         /**
          * @brief add a setting for images
          * 
@@ -176,7 +176,7 @@ public:
          * @param binding at which position it will be entered into the shader
          * @param type type of the descriptor set
          */
-        void                    add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        void                    add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
 
         VkWriteDescriptorSet    write;
     };
@@ -198,14 +198,14 @@ public:
      * 
      * @return std::vector<VkDescriptorSet>
      */
-    VkDescriptorSet         get() const;
+    VkDescriptorSet         get() const noexcept;
 
     /**
      * @brief get the descriptor set
      *
      * @return std::vector<VkDescriptorSet>
      */
-    const VkDescriptorSet*  get_ptr() const;
+    const VkDescriptorSet*  get_ptr() const noexcept;
 
 private:
     VkDescriptorSet         descriptorSet;

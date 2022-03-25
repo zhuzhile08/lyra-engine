@@ -42,7 +42,7 @@ public:
 	/**
 	 * @brief destroy the Shader
 	 */
-	void destroy();
+	void destroy() noexcept;
 
 	/**
 	 * @brief create a shader
@@ -61,7 +61,7 @@ public:
 	 * 
 	 * @return Variables
 	 */
-	Variables 						get() const;
+	Variables 						get() const noexcept;
     
 private:
 	Variables 						var;

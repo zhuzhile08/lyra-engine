@@ -5,7 +5,7 @@ namespace lyra {
 // descriptor set layout builder
 VulkanDescriptorSetLayout::Builder::Builder() { }
 
-void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count) {
+void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count) noexcept {
     bindings.push_back({
         binding,
         type,
@@ -18,8 +18,10 @@ void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const
 // descriptor set layout
 VulkanDescriptorSetLayout::VulkanDescriptorSetLayout() { }
 
-void VulkanDescriptorSetLayout::destroy() {
+void VulkanDescriptorSetLayout::destroy() noexcept {
     vkDestroyDescriptorSetLayout(device->get().device, descriptorSetLayout, nullptr);
+
+    delete device;
 
     LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!")
 }
@@ -43,43 +45,47 @@ void VulkanDescriptorSetLayout::create(VulkanDevice device, const Builder builde
     LOG_INFO("Succesfully created Vulkan descriptor set layout at ", GET_ADDRESS(this), "!", END_L)
 }
 
-VkDescriptorSetLayout VulkanDescriptorSetLayout::get() const {
+VkDescriptorSetLayout VulkanDescriptorSetLayout::get() const noexcept {
 	return descriptorSetLayout;
 }
 
-const VkDescriptorSetLayout* VulkanDescriptorSetLayout::get_ptr() const {
+const VkDescriptorSetLayout* VulkanDescriptorSetLayout::get_ptr() const noexcept {
 	return &descriptorSetLayout;
 }
 
 // descriptor pool builder
 VulkanDescriptorPool::Builder::Builder() { }
 
-void VulkanDescriptorPool::Builder::add_pool_sizes(const VkDescriptorType type, const uint32_t count) {
+void VulkanDescriptorPool::Builder::add_pool_sizes(const VkDescriptorType type, const uint32_t count) noexcept {
     poolSizes.push_back({
         type,
         count
     });
 }
 
-void VulkanDescriptorPool::Builder::set_max_sets(uint32 _maxSets) {
+void VulkanDescriptorPool::Builder::set_max_sets(uint32 _maxSets) noexcept {
     maxSets = _maxSets;
 }
 
-void VulkanDescriptorPool::Builder::set_pool_flags(VkDescriptorPoolCreateFlags _poolFlags) {
+void VulkanDescriptorPool::Builder::set_pool_flags(VkDescriptorPoolCreateFlags _poolFlags) noexcept {
     poolFlags = _poolFlags;
 }
 
 // descriptor pool
 VulkanDescriptorPool::VulkanDescriptorPool() { }
 
-void VulkanDescriptorPool::destroy() {
+void VulkanDescriptorPool::destroy() noexcept {
 	vkDestroyDescriptorPool(device->get().device, descriptorPool, nullptr);
+
+    delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!")
 }
 
 void VulkanDescriptorPool::create(VulkanDevice device, const Builder builder) {
     LOG_INFO("Creating Vulkan descriptor pool...")
+
+    this->device = new VulkanDevice(device);
 
     // create the descriptor pool
     VkDescriptorPoolCreateInfo 	poolInfo {
@@ -96,14 +102,14 @@ void VulkanDescriptorPool::create(VulkanDevice device, const Builder builder) {
 	LOG_INFO("Succesfully created Vulkan descriptor pool at ", GET_ADDRESS(this), "!", END_L)
 }
 
-VkDescriptorPool VulkanDescriptorPool::get() const {
+VkDescriptorPool VulkanDescriptorPool::get() const noexcept {
 	return descriptorPool;
 }
 
 // descriptor writer
 VulkanDescriptor::Writer::Writer() { }
 
-void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding, const VkDescriptorType type) {
+void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding, const VkDescriptorType type) noexcept {
     write = {
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,
@@ -118,7 +124,7 @@ void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo buf
     };
 }
 
-void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding, const VkDescriptorType type) {
+void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding, const VkDescriptorType type) noexcept {
     write = {
         VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
         nullptr,
@@ -157,11 +163,11 @@ void VulkanDescriptor::create(VulkanDevice device, const VulkanDescriptorSetLayo
     LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L)
 }
 
-VkDescriptorSet VulkanDescriptor::get() const {
+VkDescriptorSet VulkanDescriptor::get() const noexcept {
     return descriptorSet;
 }
 
-const VkDescriptorSet* VulkanDescriptor::get_ptr() const {
+const VkDescriptorSet* VulkanDescriptor::get_ptr() const noexcept {
     return &descriptorSet;
 }
 

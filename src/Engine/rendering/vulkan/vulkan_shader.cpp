@@ -4,8 +4,10 @@ namespace lyra {
 
 VulkanShader::VulkanShader() { }
 
-void VulkanShader::destroy() {
+void VulkanShader::destroy() noexcept {
 	vkDestroyShaderModule(device->get().device, var.module, nullptr);
+
+	delete device;
 }
 
 void VulkanShader::create(VulkanDevice device, const std::string path, str entry, VkShaderStageFlagBits stageFlags) {
@@ -40,7 +42,7 @@ void VulkanShader::create(VulkanDevice device, const std::string path, str entry
 	LOG_DEBUG(TAB, "Successfully created Vulkan shader from path: ", path, " at: ", GET_ADDRESS(this), "!")
 }
 
-VulkanShader::Variables VulkanShader::get() const {
+VulkanShader::Variables VulkanShader::get() const noexcept {
 	return var;
 }
 

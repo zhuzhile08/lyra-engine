@@ -5,7 +5,7 @@ namespace lyra {
 // syncronisation objects
 VulkanSyncObjects::VulkanSyncObjects() {}
 
-void VulkanSyncObjects::destroy() {
+void VulkanSyncObjects::destroy() noexcept {
 	for (int i = 0; i <= var.imageAvailableSemaphores.size(); i++){
 		vkDestroySemaphore(device->get().device, var.renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(device->get().device, var.imageAvailableSemaphores[i], nullptr);
@@ -44,14 +44,14 @@ void VulkanSyncObjects::create(VulkanDevice device, const VulkanSwapchain swapch
 }
 
 void VulkanSyncObjects::wait(const uint32 fenceIndex) {
-	vkWaitForFences(device->get().device, 1, &var.inFlightFences[fenceIndex], VK_TRUE, UINT64_MAX);
+	if(vkWaitForFences(device->get().device, 1, &var.inFlightFences[fenceIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for Vulkan fences to finish!")
 }
 
 void VulkanSyncObjects::reset(const uint32 fenceIndex) {
-	vkResetFences(device->get().device, 1, &var.inFlightFences[fenceIndex]);
+	if(vkResetFences(device->get().device, 1, &var.inFlightFences[fenceIndex]) != VK_SUCCESS) LOG_EXEPTION("Failed to reset Vulkan fences!")
 }
 
-VulkanSyncObjects::Variables VulkanSyncObjects::get() const {
+VulkanSyncObjects::Variables VulkanSyncObjects::get() const noexcept {
 	return var;
 }
 

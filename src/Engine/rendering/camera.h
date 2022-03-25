@@ -60,7 +60,7 @@ public:
     /**
      * @brief destroy the camera
      */
-    void            destroy();
+    void            destroy() noexcept;
 
     /**
      * @brief create the camera
@@ -76,33 +76,33 @@ public:
      * @param deg degrees of rotation in degrees
      * @param axis axis to rotate around
      */
-    void            rotate(const float deg, const glm::vec3 axis);
+    void            rotate(const float deg, const glm::vec3 axis) noexcept;
     /**
      * @brief set the rotation of the camera around an axis
      * 
      * @param deg degrees of rotation in degrees
      * @param axis axis to set the rotation of
      */
-    void            set_rotation(const float deg, const glm::vec3 axis);
+    void            set_rotation(const float deg, const glm::vec3 axis) noexcept;
 	/**
 	 * @brief move the camera by a certain amount
 	 * 
 	 * @param pos amount to move the camera
 	 */
-    void            move(const glm::vec3 pos);
+    void            move(const glm::vec3 pos) noexcept;
 	/**
 	 * @brief set the position of the camera
 	 * 
 	 * @param pos position to set to
 	 */
-	void 			set_position(const glm::vec3 pos);
+	void 			set_position(const glm::vec3 pos) noexcept;
 	/**
 	 * @brief make the camera look at a position
 	 * 
 	 * @param target target to look at
 	 * @param up normalized camera direction
 	 */
-	void 			look_at(const glm::vec3 target, const glm::vec3 up = {0.0f, 0.0f, 0.1f});
+	void 			look_at(const glm::vec3 target, const glm::vec3 up = {0.0f, 0.0f, 0.1f}) noexcept;
     /**
      * @brief set the perspective of the camera
      * 
@@ -111,7 +111,7 @@ public:
      * @param near near clipping plane
      * @param far far clipping plane
      */
-    void            set_perspective(const float aspect, const float fov = FOV, const float near = 0.1f, const float far = 10.0f);
+    void            set_perspective(const float aspect, const float fov = FOV, const float near = 0.1f, const float far = 10.0f) noexcept;
     /**
      * @brief copy all the data of the ubo into the buffers after all transformations are applied
      * 
@@ -124,7 +124,7 @@ public:
      * 
      * @return Variables 
      */
-    Variables       get();
+    Variables       get() noexcept;
 
 private:
     Variables       var;
