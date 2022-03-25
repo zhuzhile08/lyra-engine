@@ -53,7 +53,7 @@ void VulkanCommandBuffer::destroy() noexcept {
 void VulkanCommandBuffer::create(VulkanDevice device, VulkanCommandPool commandPool, const VkCommandBufferLevel level) {
     LOG_INFO("Creating Vulkan command buffer...")
 
-    this->commandPool = &commandPool;
+    this->commandPool = new VulkanCommandPool(commandPool);
     this->device = new VulkanDevice(device);
 
     // locate the memory
