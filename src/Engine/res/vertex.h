@@ -21,35 +21,35 @@
 namespace lyra {
 
 struct              Vertex {
-    glm::vec3                                               pos;
-    glm::vec3                                               normal;
-    glm::vec3                                               color;
-    glm::vec2                                               uv;
+	glm::vec3                                               pos;
+	glm::vec3                                               normal;
+	glm::vec3                                               color;
+	glm::vec2                                               uv;
 
-    Vertex();
+	Vertex();
 
-    /**
-     * @brief construct a new Vertex object
-     *
-     * @param pos the new position
-     * @param normal vertex normals
-     * @param color the new color
-     */
-    Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color = { 0, 0, 0 });
+	/**
+	 * @brief construct a new Vertex object
+	 *
+	 * @param pos the new position
+	 * @param normal vertex normals
+	 * @param color the new color
+	 */
+	Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color = { 0, 0, 0 });
 
-    /**
-     * @brief returns a static vertex binding
-     *
-     * @return VkVertexInputBindingDescription
-     */
-    static VkVertexInputBindingDescription                  get_binding_description() noexcept;
+	/**
+	 * @brief returns a static vertex binding
+	 *
+	 * @return VkVertexInputBindingDescription
+	 */
+	static VkVertexInputBindingDescription                  get_binding_description() noexcept;
 
-    /**
-     * @brief returns a static vertex input attribute
-     *
-     * @return std::array<VkVertexInputAttributeDescription, 4>
-     */
-    static std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
+	/**
+	 * @brief returns a static vertex input attribute
+	 *
+	 * @return std::array<VkVertexInputAttributeDescription, 4>
+	 */
+	static std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
 };
 
 } // namespace lyra
