@@ -7,8 +7,7 @@
  * @date 2022-02-03
  * 
  * @copyright Copyright (c) 2022
- * 
- */
+ *************************/
 
 #pragma once
 

@@ -15,16 +15,16 @@ namespace non_access {
  * @brief used as a hidden middle step, since a .obj model can have multiple seperate models inside
  */
 struct LoadedModel {
-    tinyobj::attrib_t                   vertices;
+	tinyobj::attrib_t                   vertices;
 	std::vector<tinyobj::shape_t>       shapes;
-    std::vector<tinyobj::material_t>    materials;
+	std::vector<tinyobj::material_t>    materials;
 };
 
 } // namespace non_access
 
 /**
  * @brief load a model from a .obj file
- * 
+ *
  * @param path path of the model
  * @return non_access::LoadedModel
  */
