@@ -5,8 +5,8 @@ namespace lyra {
 VulkanFramebuffers::VulkanFramebuffers() { }
 
 void VulkanFramebuffers::destroy() noexcept {
-    for (auto framebuffer : var.framebuffers) vkDestroyFramebuffer(device->get().device, framebuffer, nullptr);
-    vkDestroyRenderPass(device->get().device, var.renderPass, nullptr);
+	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
+	vkDestroyRenderPass(device->device(), _renderPass, nullptr);
 
 	delete device;
 	delete swapchain;
@@ -25,12 +25,12 @@ void VulkanFramebuffers::create(VulkanDevice device, VulkanSwapchain swapchain) 
 }
 
 void VulkanFramebuffers::create_render_pass() {
-	
+
 
 	// define what to do with an image during rendering
-	VkAttachmentDescription					imageAttachmentDescriptions {
+	VkAttachmentDescription imageAttachmentDescriptions{
 		0,
-		swapchain->get().format,
+		swapchain->format(),
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
@@ -41,7 +41,7 @@ void VulkanFramebuffers::create_render_pass() {
 	};
 
 	// depth buffers
-	VkAttachmentDescription					depthBufferAttachmentDescriptions {
+	VkAttachmentDescription	depthBufferAttachmentDescriptions{
 		0,
 		VK_FORMAT_D32_SFLOAT,
 		VK_SAMPLE_COUNT_1_BIT,
@@ -53,19 +53,19 @@ void VulkanFramebuffers::create_render_pass() {
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
-	VkAttachmentReference 					colorAttachmentReferences {
-		0, 
+	VkAttachmentReference colorAttachmentReferences{
+		0,
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 	};
 
-	VkAttachmentReference 					depthBufferAttachmentReferences {
-		1, 
+	VkAttachmentReference depthBufferAttachmentReferences{
+		1,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
-	std::vector<VkAttachmentDescription> 	attachments = {imageAttachmentDescriptions, depthBufferAttachmentDescriptions};
+	std::vector<VkAttachmentDescription> attachments = { imageAttachmentDescriptions, depthBufferAttachmentDescriptions };
 
-	VkSubpassDescription 					subpassDescriptions {
+	VkSubpassDescription subpassDescriptions{
 		0,
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
 		0,
@@ -78,7 +78,7 @@ void VulkanFramebuffers::create_render_pass() {
 		nullptr
 	};
 
-	VkSubpassDependency 					dependencies {
+	VkSubpassDependency dependencies{
 		VK_SUBPASS_EXTERNAL,
 		0,
 		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
@@ -89,7 +89,7 @@ void VulkanFramebuffers::create_render_pass() {
 	};
 
 	// create the render pass
-	VkRenderPassCreateInfo 					renderPassInfo {
+	VkRenderPassCreateInfo renderPassInfo{
 		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		nullptr,
 		0,
@@ -101,16 +101,16 @@ void VulkanFramebuffers::create_render_pass() {
 		&dependencies
 	};
 
-	if(vkCreateRenderPass(device->get().device, &renderPassInfo, nullptr, &var.renderPass)) LOG_EXEPTION("Failed to create Vulkan render pass!")
+	if (vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass)) LOG_EXEPTION("Failed to create Vulkan render pass!")
 }
 
 void VulkanFramebuffers::create_frame_buffers() {
-	var.framebuffers.resize(swapchain->get().images.images.size());
+	_framebuffers.resize(swapchain->images().size());
 
-	for (size_t i = 0; i < swapchain->get().images.images.size(); i++) {
+	for (size_t i = 0; i < swapchain->images().size(); i++) {
 		VkImageView attachments[2] = {
-			swapchain->get().images.images[i].view,
-			swapchain->get().depthBuffer.image.view
+			swapchain->images()[i]._view,
+			swapchain->depthBuffer()._view
 		};
 
 		// create the frame buffers
@@ -118,35 +118,31 @@ void VulkanFramebuffers::create_frame_buffers() {
 			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 			nullptr,
 			0,
-			var.renderPass,
+			_renderPass,
 			2,
 			attachments,
-			swapchain->get().extent.width,
-			swapchain->get().extent.height,
+			swapchain->extent().width,
+			swapchain->extent().height,
 			1
 		};
 
-		if (vkCreateFramebuffer(device->get().device, &framebufferInfo, nullptr, &var.framebuffers[i]) != VK_SUCCESS) LOG_EXEPTION("Failed to create a framebuffer!");
+		if (vkCreateFramebuffer(device->device(), &framebufferInfo, nullptr, &_framebuffers[i]) != VK_SUCCESS) LOG_EXEPTION("Failed to create a framebuffer!");
 	}
 }
 
 VkRenderPassBeginInfo VulkanFramebuffers::begin_info(const int index, const std::vector <VkClearValue> clear) const noexcept {
-    return VkRenderPassBeginInfo {
+	return VkRenderPassBeginInfo{
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
-		var.renderPass,
-		var.framebuffers[index],
+		_renderPass,
+		_framebuffers[index],
 		{	// rendering area
 			{0, 0},
-			swapchain->get().extent
+			swapchain->extent()
 		},
 		static_cast<uint32>(clear.size()),
 		clear.data()
 	};
-}
-
-VulkanFramebuffers::Variables VulkanFramebuffers::get() const noexcept {
-	return var;
 }
 
 } // namespace lyra

@@ -5,9 +5,9 @@ namespace lyra {
 VulkanGraphicsPipeline::VulkanGraphicsPipeline() { }
 
 void VulkanGraphicsPipeline::destroy() noexcept {
-	vkDestroyPipeline(device->get().device, var.graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device->get().device, var.pipelineLayout, nullptr);
-	for (auto& shader : var.shaders) shader.destroy();
+	vkDestroyPipeline(device->device(), _graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device->device(), _pipelineLayout, nullptr);
+	for (auto& shader : _shaders) shader.destroy();
 
 	delete device;
 
@@ -26,7 +26,7 @@ void VulkanGraphicsPipeline::create(
 	
     this->device = new VulkanDevice(device);
 
-    var.shaders.reserve(shaderCreationInfos.size());
+    _shaders.reserve(shaderCreationInfos.size());
 
 	create_shaders(shaderCreationInfos);
 
@@ -43,8 +43,8 @@ void VulkanGraphicsPipeline::create_pipeline(
 ) {
     // add all the shader stage creation information into a vector
     std::vector <VkPipelineShaderStageCreateInfo>   shaderStages;
-    shaderStages.reserve(var.shaders.size());
-    for (const auto& shader : var.shaders) shaderStages.push_back(shader.get().stage);
+    shaderStages.reserve(_shaders.size());
+    for (const auto& shader : _shaders) shaderStages.push_back(shader.stage());
 
 	VulkanGraphicsPipelineCreateInfo                createInfo = {
 		shaderStages, // create shaders
@@ -197,14 +197,14 @@ void VulkanGraphicsPipeline::create_pipeline(
 		&createInfo.depthStencilState,
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
-		var.pipelineLayout,
-		framebuffer.get().renderPass,
+		_pipelineLayout,
+		framebuffer.renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0
 	};
 
-	if(vkCreateGraphicsPipelines(device->get().device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &var.graphicsPipeline) != VK_SUCCESS) 
+	if(vkCreateGraphicsPipelines(device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS) 
 		LOG_EXEPTION("Failed to create Vulkan Pipeline")
 }
 
@@ -220,22 +220,18 @@ void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout descr
 		nullptr
 	};
 
-	if(vkCreatePipelineLayout(device->get().device, &pipelineLayoutInfo, nullptr, &var.pipelineLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan graphics pipeline layout");
+	if(vkCreatePipelineLayout(device->device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan graphics pipeline layout");
 }
 
 void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos) {
-	if (shaderCreationInfos.size() != var.shaders.size()) {
+	if (shaderCreationInfos.size() != _shaders.size()) {
 		LOG_WARNING("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", GET_ADDRESS(this), "!")
 	}
 
 	for (uint16 index = 0; index <= shaderCreationInfos.size(); index++) {
-		var.shaders[index].create(*device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
-		LOG_DEBUG(TAB, "Succesfully created Vulkan shader at: ", GET_ADDRESS(&var.shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!")
+		_shaders[index].create(*device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
+		LOG_DEBUG(TAB, "Succesfully created Vulkan shader at: ", GET_ADDRESS(&_shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!")
 	}
-}
-
-VulkanGraphicsPipeline::Variables VulkanGraphicsPipeline::get() const noexcept {
-	return var;
 }
 
 } // namespace lyra

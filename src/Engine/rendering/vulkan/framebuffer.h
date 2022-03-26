@@ -1,14 +1,13 @@
 /*************************
  * @file framebuffer.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
- * 
+ *
  * @brief wrapper around a Vulkan swapchain and related stuff
- * 
+ *
  * @date 2022-02-05
- * 
+ *
  * @copyright Copyright (c) 2022
- * 
- */
+ *************************/
 
 #pragma once
 
@@ -29,62 +28,60 @@ namespace lyra {
  * @brief Wrapper around Vulkan frame buffers
  */
 class VulkanFramebuffers {
-private:
-    /**
-     * @brief struct containing all the variables
-     */
-    struct                  Variables {
-        VkRenderPass                renderPass;
-        std::vector <VkFramebuffer> framebuffers;
-    };
-
 public:
-    VulkanFramebuffers();
+	VulkanFramebuffers();
 
-    /**
-     * @brief destroy the frame buffers and render pass
-     */
-    void                    destroy() noexcept;
+	/**
+	 * @brief destroy the frame buffers and render pass
+	 */
+	void destroy() noexcept;
 
-    /**
-     * @brief create the frame buffers and render pass
-     * 
-     * @param device device
-     * @param swapchain swapchain
-     */
-    void                    create(VulkanDevice device, VulkanSwapchain swapchain);
+	/**
+	 * @brief create the frame buffers and render pass
+	 *
+	 * @param device device
+	 * @param swapchain swapchain
+	 */
+	void create(VulkanDevice device, VulkanSwapchain swapchain);
 
-    /**
-     * @brief get the begin information to begin a render pass
-     * 
-     * @param index index of framebuffer
-     * @param clear clear color
-     * @return VkRenderPassBeginInfo 
-     */
-    VkRenderPassBeginInfo   begin_info(const int index, const std::vector<VkClearValue> clear = { {CLEAR_COLOR}, {1.0f, 0} }) const noexcept;
+	/**
+	 * @brief get the begin information to begin a render pass
+	 *
+	 * @param index index of framebuffer
+	 * @param clear clear color
+	 * @return VkRenderPassBeginInfo
+	 */
+	VkRenderPassBeginInfo begin_info(const int index, const std::vector<VkClearValue> clear = { {CLEAR_COLOR}, {1.0f, 0} }) const noexcept;
 
-    /**
-     * @brief get all the variabels
-     * 
-     * @return Variables
-     */
-    Variables               get() const noexcept;
-    
+	/**
+	 * @brief get the render pass
+	 * 
+	 * @return const VkRenderPass
+	*/
+	const VkRenderPass renderPass() const noexcept { return _renderPass; }
+	/**
+	 * @brief get the framebuffers
+	 * 
+	 * @return const std::vector <VkFramebuffer>
+	*/
+	const std::vector <VkFramebuffer> framebuffers() const noexcept { return _framebuffers; }
+
 private:
-    Variables               var;
+	VkRenderPass _renderPass;
+	std::vector <VkFramebuffer> _framebuffers;
 
-    VulkanDevice*           device;
-    VulkanSwapchain*        swapchain;
+	VulkanDevice* device;
+	VulkanSwapchain* swapchain;
 
-    /**
-     * @brief create the render pass
-     */
-    void                    create_render_pass();
+	/**
+	 * @brief create the render pass
+	 */
+	void create_render_pass();
 
-    /**
-     * @brief create the frame buffers
-     */
-    void                    create_frame_buffers();
+	/**
+	 * @brief create the frame buffers
+	 */
+	void create_frame_buffers();
 };
 
 } // namespace lyra

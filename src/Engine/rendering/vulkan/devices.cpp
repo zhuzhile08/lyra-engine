@@ -5,8 +5,8 @@ namespace lyra {
 VulkanDevice::VulkanDevice() {}
 
 void VulkanDevice::destroy() noexcept {
-    vkDestroyDevice(var.device, nullptr);
-    vmaDestroyAllocator(var.allocator);
+    vkDestroyDevice(_device, nullptr);
+    vmaDestroyAllocator(_allocator);
 
     delete instance;
 
@@ -62,15 +62,15 @@ void VulkanDevice::find_family_index(VulkanQueueFamily *queue, const VkPhysicalD
 }
 
 void VulkanDevice::create_queue(VulkanQueueFamily *queue) noexcept {
-    vkGetDeviceQueue(var.device, queue->familyIndex, 0, &queue->queue);
+    vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
 }
 
 void VulkanDevice::pick_physical_device() {
     // get all devices
     uint32                                     deviceCount = 0;
-    if(vkEnumeratePhysicalDevices(instance->get().instance, &deviceCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to find any Vulkan auitable GPUs!")
+    if(vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to find any Vulkan auitable GPUs!")
     std::vector <VkPhysicalDevice>             devices(deviceCount);             // just put this in here cuz I was lazy
-    vkEnumeratePhysicalDevices(instance->get().instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, devices.data());
 
     // a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
     std::multimap <int, VkPhysicalDevice>    possibleDevices;
@@ -86,7 +86,7 @@ void VulkanDevice::pick_physical_device() {
         LOG_EXEPTION("Failed to find GPU with enough features")
     }
 
-    var.physicalDevice = possibleDevices.begin()->second;
+    _physicalDevice = possibleDevices.begin()->second;
 }
 
 void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> &map) {
@@ -105,8 +105,8 @@ void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::mult
     vkGetPhysicalDeviceFeatures(device, &features);
 
     check_requested_extensions(availableExtensions, requested_device_extensions);
-    find_family_index(&var.graphicsQueue, device);
-    find_family_index(&var.presentQueue, device);
+    find_family_index(&_graphicsQueue, device);
+    find_family_index(&_presentQueue, device);
 
     // some required features. If not available, make the GPU unavailable
     if (!features.geometryShader && !features.samplerAnisotropy) {
@@ -126,7 +126,7 @@ void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::mult
 
 void VulkanDevice::create_logical_device() {
     std::vector <VkDeviceQueueCreateInfo>   queueCreateInfos;
-    std::set<uint32>                        queueFamilies = {var.graphicsQueue.familyIndex, var.presentQueue.familyIndex};
+    std::set<uint32>                        queueFamilies = {_graphicsQueue.familyIndex, _presentQueue.familyIndex};
 
     float queuePriority = 1.0f;
     for (uint32 familyIndex : queueFamilies) {
@@ -163,38 +163,38 @@ void VulkanDevice::create_logical_device() {
     };
 
     // create the device and retrieve the graphics and presentation queue handles
-    if(vkCreateDevice(var.physicalDevice, &createInfo, nullptr, &var.device) != VK_SUCCESS) LOG_EXEPTION("Failed to create logical device!")
+    if(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) LOG_EXEPTION("Failed to create logical device!")
 
-    create_queue(&var.graphicsQueue);
-    create_queue(&var.presentQueue);
+    create_queue(&_graphicsQueue);
+    create_queue(&_presentQueue);
 }
 
 void VulkanDevice::create_allocator() {
     // creation info
     VmaAllocatorCreateInfo createInfo = {
         0,
-        var.physicalDevice,
-        var.device,
+        _physicalDevice,
+        _device,
         0,
         nullptr,
         nullptr,
         nullptr,
         nullptr,
-        instance->get().instance,
+        instance->instance(),
         VK_API_VERSION_1_2
     };
 
     // create the allocator
-    if(vmaCreateAllocator(&createInfo, &var.allocator) != VK_SUCCESS) LOG_EXEPTION("Failed to create VMA memory allocator!");
+    if(vmaCreateAllocator(&createInfo, &_allocator) != VK_SUCCESS) LOG_EXEPTION("Failed to create VMA memory allocator!");
 }
 
 void VulkanDevice::wait() const {
-    vkDeviceWaitIdle(var.device);
+    vkDeviceWaitIdle(_device);
 }
 
 uint32 VulkanDevice::find_memory_type(const uint32 typeFilter, const VkMemoryPropertyFlags properties) const {
     VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(var.physicalDevice, &memProperties);
+    vkGetPhysicalDeviceMemoryProperties(_physicalDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
         if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
@@ -205,10 +205,6 @@ uint32 VulkanDevice::find_memory_type(const uint32 typeFilter, const VkMemoryPro
 
     LOG_EXEPTION("Failed to find suitable memory type!");
     return INT32_MAX;
-}
-
-VulkanDevice::Variables VulkanDevice::get() const noexcept {
-    return var;
 }
 
 } // namespace lyra

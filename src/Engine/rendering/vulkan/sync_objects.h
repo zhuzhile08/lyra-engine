@@ -1,11 +1,11 @@
 /*************************
  * @file sync_objects.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
- * 
+ *
  * @brief wrapper around Vulkan semaphores and fences to synchronise GPU and CPU
- * 
+ *
  * @date 2022-02-05
- * 
+ *
  * @copyright Copyright (c) 2022
  *************************/
 
@@ -27,13 +27,6 @@ namespace lyra {
  * @brief semaphores and fences for frame CPU and GPU synchronisation
  */
 class VulkanSyncObjects {
-private:
-	struct 			Variables {
-		std::vector <VkSemaphore> 	imageAvailableSemaphores;
-		std::vector <VkSemaphore>   renderFinishedSemaphores;
-		std::vector <VkFence> 		inFlightFences;
-	};
-
 public:
 	VulkanSyncObjects();
 
@@ -41,40 +34,54 @@ public:
 	 * @brief destroy the VulkanSyncObjects
 	 * @brief it works just like the destructor, but is callable anywhere
 	 */
-	void 			destroy() noexcept;
+	void destroy() noexcept;
 
 	/**
 	 * @brief create the syncronisation objects
-	 * 
+	 *
 	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void 			create(VulkanDevice device, const VulkanSwapchain swapchain);
+	void create(VulkanDevice device, const VulkanSwapchain swapchain);
 
 	/**
 	 * @brief wait for Vulkan fences
-	 * 
+	 *
 	 * @param fenceIndex index of the fence
 	 */
-	void 			wait(const uint32 fenceIndex);
+	void wait(const uint32 fenceIndex);
 	/**
 	 * @brief reset Vulkan fences
-	 * 
+	 *
 	 * @param fenceIndex index of fence to reset
 	 */
-	void 			reset(const uint32 imageIndex);
+	void reset(const uint32 imageIndex);
 
 	/**
-	 * @brief get all the variabels
-	 * 
-	 * @return Variables
-	 */
-	Variables 		get() const noexcept;
+	 * @brief get the image available semaphores
+	 *
+	 * @return const std::vector <VkSemaphore>
+	*/
+	const std::vector <VkSemaphore> imageAvailableSemaphores() const noexcept { return _imageAvailableSemaphores; }
+	/**
+	 * @brief get the render finished semaphores
+	 *
+	 * @return const std::vector <VkSemaphore>
+	*/
+	const std::vector <VkSemaphore> renderFinishedSemaphores() const noexcept { return _renderFinishedSemaphores; }
+	/**
+	 * @brief get the in flight fences
+	 *
+	 * @return const std::vector <VkFence>
+	*/
+	const std::vector <VkFence> inFlightFences() const noexcept { return _inFlightFences; }
 
 private:
-	Variables 		var;
+	std::vector <VkSemaphore> _imageAvailableSemaphores;
+	std::vector <VkSemaphore> _renderFinishedSemaphores;
+	std::vector <VkFence> _inFlightFences;
 
-	VulkanDevice*	device;
+	VulkanDevice* device;
 };
 
 } // namespace lyra

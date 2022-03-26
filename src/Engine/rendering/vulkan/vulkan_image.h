@@ -1,11 +1,11 @@
 /*************************
  * @file vulkan_image.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
- * 
+ *
  * @brief wrapper around vulkan images. Do not mistake for textures
 
  * @date 2022-03-13
- * 
+ *
  * @copyright Copyright (c) 2022
  *************************/
 
@@ -24,7 +24,6 @@ namespace lyra {
 
 /**
  * @brief wrapper around vulkan images
- * @brief since vulkan has like 1000 kinds and methods of creating images, I won't directly create them
  */
 struct VulkanImage {
 	VulkanImage();
@@ -32,11 +31,11 @@ struct VulkanImage {
 	/**
 	 * @brief destroy the image and the image view
 	 */
-	void				destroy() noexcept;
+	void destroy_view() noexcept;
 
 	/**
 	 * @brief create the image and image view
-	 * 
+	 *
 	 * @param format define how the data is stored in the image
 	 * @param extent size of the image
 	 * @param usage how or as what will be the image used
@@ -47,38 +46,38 @@ struct VulkanImage {
 	 * @param tiling how to store the image in the GPU memory
 	 */
 	VkImageCreateInfo	get_image_create_info(
-		VkFormat                format, 
-		VkExtent3D              extent,
-		VkImageUsageFlags       usage,
-		VkImageType             imageType        = VK_IMAGE_TYPE_2D,
-		uint32_t                mipLevels        = 1,
-		uint32_t                arrayLayers      = 1,
-		VkSampleCountFlagBits   samples          = VK_SAMPLE_COUNT_1_BIT,
-		VkImageTiling           tiling           = VK_IMAGE_TILING_OPTIMAL
+		VkFormat format,
+		VkExtent3D extent,
+		VkImageUsageFlags usage,
+		VkImageType imageType = VK_IMAGE_TYPE_2D,
+		uint32_t mipLevels = 1,
+		uint32_t arrayLayers = 1,
+		VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
+		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
 	) noexcept;
 
 	/**
 	 * @brief create the image view only
-	 * 
+	 *
 	 * @param device device
 	 * @param format format of the image
 	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
 	 * @param viewType how and in which dimension to treat the image
 	 * @param colorComponents color modulation of the image
 	 */
-	void            	create_view(
-		VulkanDevice            device, 
-		VkFormat                format, 
+	void create_view(
+		VulkanDevice device,
+		VkFormat format,
 		VkImageSubresourceRange subresourceRange,
-		VkImageViewType         viewType		 = VK_IMAGE_VIEW_TYPE_2D, 
-		VkComponentMapping      colorComponents	 = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY}
+		VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
+		VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
 	);
 
-	VkImage 			image;
-	VkImageView 		view;
+	VkImage _image;
+	VkImageView _view;
 
-private:
-	VulkanDevice*   	device;
+protected:
+	VulkanDevice* device;
 };
 
 } // namespace lyra

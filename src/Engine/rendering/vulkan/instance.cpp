@@ -5,8 +5,8 @@ namespace lyra {
 VulkanInstance::VulkanInstance() { }
 
 void VulkanInstance::destroy() noexcept {
-	vkDestroySurfaceKHR(var.instance, var.surface, nullptr);
-    vkDestroyInstance(var.instance, nullptr);
+	vkDestroySurfaceKHR(_instance, _surface, nullptr);
+    vkDestroyInstance(_instance, nullptr);
 
 	delete window;
 
@@ -91,16 +91,12 @@ void VulkanInstance::create_instance() {
 
 
 // create the instance
-	if(vkCreateInstance(&createInfo, nullptr, &var.instance) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan instance")
+	if(vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan instance")
 }
 
 void VulkanInstance::create_window_surface() {
 	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
-	if(!SDL_Vulkan_CreateSurface(window->get_window(), var.instance, &var.surface)) LOG_EXEPTION("Failed to create Vulkan window surface")
-}
-
-VulkanInstance::Variables VulkanInstance::get() const noexcept {
-	return var;
+	if(!SDL_Vulkan_CreateSurface(window->get_window(), _instance, &_surface)) LOG_EXEPTION("Failed to create Vulkan window surface")
 }
 
 } // namespace lyra

@@ -48,7 +48,7 @@ src/Engine/res/mesh.cpp
 src/Engine/res/texture.cpp
 src/GUI/main.cpp 
 "src/Engine/rendering/render_stage.cpp"
- "src/Engine/res/vertex.cpp")
+ "src/Engine/res/vertex.cpp" "src/Engine/rendering/vulkan/GPU_memory.cpp" "src/Engine/rendering/vulkan/GPU_memory.h"  "src/Engine/res/UBO.h")
 
 add_dependencies(LyraEngine build_shaders)
 

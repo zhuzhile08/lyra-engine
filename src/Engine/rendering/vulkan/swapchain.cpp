@@ -1,14 +1,14 @@
 #include <rendering/vulkan/swapchain.h>
 
 namespace lyra {
-	
+
 // swap chain images
 VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 
 void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
-	for (auto& image : images) {
-		image.destroy();
-		vkDestroyImage(device->get().device, image.image, nullptr);
+	for (auto& image : *this) {
+		image.destroy_view();
+		vkDestroyImage(device->device(), image._image, nullptr);
 	}
 
 	delete device;
@@ -23,12 +23,12 @@ void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const V
 
 	// get the number of images
 	uint32 						imageCount;
-	if(vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
-	images.resize(imageCount);
+	if (vkGetSwapchainImagesKHR(device.device(), swapchain.swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
+	this->resize(imageCount);
 
-	for (size_t i = 0; i < imageCount; i++) {
-		vkGetSwapchainImagesKHR(device.get().device, swapchain.get().swapchain, &imageCount, &images[i].image);
-		images[i].create_view(device, swapchain.get().format, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
+	for (auto& image : *this) {
+		vkGetSwapchainImagesKHR(device.device(), swapchain.swapchain(), &imageCount, &image._image);
+		image.create_view(device, swapchain.format(), { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 	}
 
 	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L)
@@ -38,8 +38,8 @@ void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const V
 VulkanSwapchain::VulkanDepthBuffer::VulkanDepthBuffer() { }
 
 void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
-	image.destroy();
-	vmaDestroyImage(device->get().allocator, image.image, memory);
+	destroy_view();
+	vmaDestroyImage(device->allocator(), _image, _memory);
 
 	delete device;
 
@@ -49,23 +49,13 @@ void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
 void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const VulkanSwapchain swapchain) {
 	LOG_INFO("Creating Vulkan depth buffer...")
 
-	this->device = new VulkanDevice(device);
-
-	// memory allocation info
-	VmaAllocationCreateInfo allocCreateInfo = {
-		0,
-		VMA_MEMORY_USAGE_GPU_ONLY,
-		VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-	};
-
 	// create memory and image
-	if(vmaCreateImage(device.get().allocator, &image.get_image_create_info(
-			VK_FORMAT_D32_SFLOAT, {swapchain.get().extent.width, swapchain.get().extent.height, 1}, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-		), &allocCreateInfo, &image.image, &memory, nullptr
+	if (vmaCreateImage(device.allocator(), &get_image_create_info(VK_FORMAT_D32_SFLOAT, { swapchain.extent().width, swapchain.extent().height, 1 }, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT), 
+		&alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)), &_image, &_memory, nullptr
 	) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan depth buffer!")
 
 	// create the image view
-	image.create_view(device, VK_FORMAT_D32_SFLOAT, {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1});
+	create_view(device, VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -74,12 +64,12 @@ void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const Vulka
 VulkanSwapchain::VulkanSwapchain() { }
 
 void VulkanSwapchain::destroy() noexcept {
-	var.images.destroy();
-	var.depthBuffer.destroy();
+	_images.destroy();
+	_depthBuffer.destroy();
 
-	vkDestroySwapchainKHR(device->get().device, var.swapchain, nullptr);
+	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
 
-	delete device, window, instance, var.oldSwapchain;
+	delete device, window, instance, _oldSwapchain;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain!")
 }
@@ -96,13 +86,13 @@ void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Windo
 }
 
 void VulkanSwapchain::create(VulkanSwapchain oldSwapchain) {
-	var.oldSwapchain = &oldSwapchain;
+	_oldSwapchain = &oldSwapchain;
 	create(*device, *instance, *window);
 
 	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceCapabilities) {
+void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceCapabilities) {
 	if (surfaceCapabilities->currentExtent.width == UINT32_MAX) {           // if something is wrong, fix the extent
 		LOG_WARNING("Couldn't get Vulkan swapchain capabilities' width")
 		int width, height;
@@ -113,13 +103,15 @@ void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceC
 			static_cast<uint32>(height)
 		};
 
-		auto clamp = [ ] (int a, int min, int max) {
+		auto clamp = [](int a, int min, int max) {
 			if (a <= min) {
 				return min;
-			} else {
+			}
+			else {
 				if (a >= max) {
 					return max;
-				} else {
+				}
+				else {
 					return a;
 				}
 			}
@@ -128,51 +120,54 @@ void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR *surfaceC
 		newExtent.width = clamp(newExtent.width, surfaceCapabilities->minImageExtent.width, surfaceCapabilities->maxImageExtent.width);
 		newExtent.height = clamp(newExtent.height, surfaceCapabilities->minImageExtent.height, surfaceCapabilities->maxImageExtent.height);
 
-		var.extent = newExtent;
+		_extent = newExtent;
 
-	} else {                                                                // in this case, the extent is fine
-		var.extent = surfaceCapabilities->currentExtent;
+	}
+	else {                                                                // in this case, the extent is fine
+		_extent = surfaceCapabilities->currentExtent;
 	}
 }
 
 void VulkanSwapchain::create_swapchain() {
 	// query some details
-	uint32                              availableFormatCount = 0;    	   // formats
-	VkSurfaceFormatKHR                  format;
-	uint32                              availablePresentModeCount = 0;      // presentation modes
-	VkPresentModeKHR                    presentMode;
+	uint32 availableFormatCount = 0;    	   // formats
+	VkSurfaceFormatKHR format = { };
+	uint32 availablePresentModeCount = 0;      // presentation modes
+	VkPresentModeKHR presentMode = { };
 
-	if(vkGetPhysicalDeviceSurfaceFormatsKHR(device->get().physicalDevice, instance->get().surface, &availableFormatCount, nullptr) != VK_SUCCESS)
+	if (vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, nullptr) != VK_SUCCESS)
 		LOG_EXEPTION("Failed to get available swapchain surface modes")
-	if(vkGetPhysicalDeviceSurfacePresentModesKHR(device->get().physicalDevice, instance->get().surface, &availablePresentModeCount, nullptr) != VK_SUCCESS)
+	if (vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr) != VK_SUCCESS)
 		LOG_EXEPTION("Failed to get available swapchain present modes")
 
 	// check the formats
-	std::vector <VkSurfaceFormatKHR>    availableFormats(availableFormatCount);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device->get().physicalDevice, instance->get().surface, &availableFormatCount, availableFormats.data());
+	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, availableFormats.data());
 	for (auto& availableFormat : availableFormats) {
 		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 			format = availableFormat;
 			break;
-		} else {
+		}
+		else {
 			format = availableFormats[0];
 		}
 	}
 
 	LOG_INFO("Swapchain configurations are: ")
 
-	var.format = format.format;
+	_format = format.format;
 
-	LOG_DEBUG(TAB, "format is ", var.format, " (prefered format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")")
+	LOG_DEBUG(TAB, "format is ", _format, " (prefered format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")")
 
 	// check the presentation modes
-	std::vector <VkPresentModeKHR>      availablePresentModes(availablePresentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device->get().physicalDevice, instance->get().surface, &availablePresentModeCount, availablePresentModes.data());
+	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, availablePresentModes.data());
 	for (const auto& mode : availablePresentModes) {
 		if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
 			presentMode = mode;
 			break;
-		} else {
+		}
+		else {
 			presentMode = VK_PRESENT_MODE_FIFO_KHR;
 		}
 	}
@@ -180,9 +175,9 @@ void VulkanSwapchain::create_swapchain() {
 	LOG_DEBUG(TAB, "present mode is ", presentMode, " (prefered present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")")
 
 	// set the surface capabilities if something went wrong
-	VkSurfaceCapabilitiesKHR            surfaceCapabilities;
+	VkSurfaceCapabilitiesKHR surfaceCapabilities;
 
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->get().physicalDevice, instance->get().surface, &surfaceCapabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->physicalDevice(), instance->surface(), &surfaceCapabilities);
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
 		surfaceCapabilities.currentExtent.width = WIDTH;
@@ -193,11 +188,11 @@ void VulkanSwapchain::create_swapchain() {
 	} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
 		surfaceCapabilities.maxImageCount = 8;
 		LOG_WARNING("Something went wrong whilst attempting getting the number of swapchain images!")
-	} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT ) {
-		surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-	} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ) {
+	} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
+			surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
 		surfaceCapabilities.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-	} 
+	}
 
 	LOG_DEBUG(TAB, "width is ", WIDTH, " and the height is ", HEIGHT)
 
@@ -205,19 +200,19 @@ void VulkanSwapchain::create_swapchain() {
 	create_swapchain_extent(&surfaceCapabilities);
 
 	// create the swapchain
-	auto temp = device->get().graphicsQueue.familyIndex;
+	auto temp = device->graphicsQueue().familyIndex;
 
-	VkSwapchainCreateInfoKHR            createInfo;
-	if (device->get().graphicsQueue.familyIndex != device->get().presentQueue.familyIndex) {
+	VkSwapchainCreateInfoKHR createInfo;
+	if (device->graphicsQueue().familyIndex != device->presentQueue().familyIndex) {
 		createInfo = {
 			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 			nullptr,
 			0,
-			instance->get().surface,
+			instance->surface(),
 			surfaceCapabilities.minImageCount + 1,
 			format.format,
 			format.colorSpace,
-			var.extent,
+			_extent,
 			1,
 			surfaceCapabilities.supportedUsageFlags,
 			VK_SHARING_MODE_CONCURRENT,
@@ -227,18 +222,19 @@ void VulkanSwapchain::create_swapchain() {
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			presentMode,
 			VK_TRUE,
-			(var.oldSwapchain != nullptr) ? var.oldSwapchain->var.swapchain : VK_NULL_HANDLE
+			(_oldSwapchain != nullptr) ? _oldSwapchain->_swapchain : VK_NULL_HANDLE
 		};
-	} else {
+	}
+	else {
 		createInfo = {
 			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 			nullptr,
 			0,
-			instance->get().surface,
+			instance->surface(),
 			surfaceCapabilities.minImageCount,
 			format.format,
 			format.colorSpace,
-			var.extent,
+			_extent,
 			1,
 			surfaceCapabilities.supportedUsageFlags,
 			VK_SHARING_MODE_EXCLUSIVE,
@@ -248,18 +244,14 @@ void VulkanSwapchain::create_swapchain() {
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			presentMode,
 			true,
-			(var.oldSwapchain != nullptr) ? var.oldSwapchain->var.swapchain : VK_NULL_HANDLE
+			(_oldSwapchain != nullptr) ? _oldSwapchain->_swapchain : VK_NULL_HANDLE
 		};
 	}
 
-	if(vkCreateSwapchainKHR(device->get().device, &createInfo, nullptr, &var.swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain")
+	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain")
 
-	var.images.create(*device, *this);
-	var.depthBuffer.create(*device, *this);
-}
-
-VulkanSwapchain::Variables VulkanSwapchain::get() const noexcept {
-	return var;
+	_images.create(*device, *this);
+	_depthBuffer.create(*device, *this);
 }
 
 } // namespace lyra
