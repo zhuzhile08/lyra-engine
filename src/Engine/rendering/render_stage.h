@@ -45,7 +45,7 @@ public:
 	 *
 	 * @param renderer the renderer
 	 */
-	void create(Renderer renderer);
+	void create(Renderer* renderer);
 
 	/**
 	 * @brief bind the functions for resetting and finish recording the command buffers

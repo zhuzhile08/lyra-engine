@@ -10,16 +10,16 @@ void Camera::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan uniform buffers!")
 }
 
-void Camera::create(Renderer renderer, const UniformBufferObject&& ubo) {
-	this->renderer = new Renderer(renderer);
+void Camera::create(const Renderer* renderer, const UniformBufferObject&& ubo) {
+	this->renderer = renderer;
 	_ubo = ubo;
 
 	// create the buffers
 	_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-	for (auto buffer : _buffers) buffer.create(renderer.device(), sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_TO_CPU);
+	for (auto buffer : _buffers) buffer.create(&renderer->device(), sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_TO_CPU);
 
-	set_perspective(renderer.swapchain().extent().width / (float)renderer.swapchain().extent().height);
+	set_perspective(renderer->swapchain().extent().width / (float)renderer->swapchain().extent().height);
 
 	LOG_INFO("Succesfully created Vulkan uniform buffers at ", GET_ADDRESS(this), "!", END_L)
 }

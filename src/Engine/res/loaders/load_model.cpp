@@ -13,7 +13,7 @@ non_access::LoadedModel load_model(const str path) {
 	// check if there are errors
 	if (!warning.empty()) LOG_WARNING("A problem occured while loading a model: ", warning)
 	if (!error.empty()) LOG_ERROR("An error occured while loading a model: ", error)
-	if (warning.empty() && error.empty()) LOG_INFO("Succesfully loaded model data from adress ", path, "!", END_L)
+	if (warning.empty() && error.empty()) LOG_DEBUG(TAB, "Succesfully loaded model data from adress ", path, "!", END_L)
 
 	return load;
 }

@@ -56,7 +56,7 @@ public:
 	 *
 	 * @param instance instance
 	 */
-	void create(VulkanInstance instance);
+	void create(const VulkanInstance* instance);
 
 	/**
 	 * @brief find a block of memory that has requested settings
@@ -111,7 +111,7 @@ private:
 
 	VmaAllocator _allocator;
 
-	VulkanInstance* instance;
+	const VulkanInstance* instance;
 
 	/**
 	 * @brief find the family index of a queues

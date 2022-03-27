@@ -42,7 +42,7 @@ public:
 	 *
 	 * @param device device
 	 */
-	void create(VulkanDevice device);
+	void create(const VulkanDevice* device);
 
 	/**
 	 * @brief get the command pool
@@ -60,7 +60,7 @@ public:
 private:
 	VkCommandPool commandPool;
 
-	VulkanDevice* device;
+	const VulkanDevice* device;
 };
 
 /**
@@ -84,7 +84,7 @@ public:
 	 * @param commandPool command pool
 	 * @param level level of the command buffer
 	 */
-	void create(VulkanDevice device, VulkanCommandPool commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	void create(const VulkanDevice* device, const VulkanCommandPool* commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 	/**
 	 * @brief begin recording a commandBuffer
@@ -104,6 +104,21 @@ public:
 	void reset(VkCommandBufferResetFlags flags = 0) const;
 
 	/**
+	 * @brief submit a Vulkan queue after command queue recording. DO NOT confuse with the submit function in the renderer class. This is ONLY for small, local submits for one time commands
+	 *
+	 * @param queue the queue to submit
+	 */
+	void submit_queue(const VkQueue queue) const;
+
+	/**
+	 * @brief wait for the queue to finish
+	 *
+	 * @param queue the queue to wait for
+	*/
+	void wait_queue(const VkQueue queue) const;
+
+
+	/**
 	 * @brief get the command buffer
 	 *
 	 * @return const VkCommandBuffer
@@ -120,8 +135,8 @@ public:
 private:
 	VkCommandBuffer commandBuffer;
 
-	VulkanDevice* device;
-	VulkanCommandPool* commandPool;
+	const VulkanDevice* device;
+	const VulkanCommandPool* commandPool;
 };
 
 } // namespace lyra

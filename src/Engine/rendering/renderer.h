@@ -47,20 +47,12 @@ public:
 	 *
 	 * @param window the window
 	 */
-	void create(Window window);
+	void create(const Window* window);
 
 	/**
 	 * @brief the main loop. this is called every frame until drawing is set to false
 	 */
 	void update();
-
-	/**
-	 * @brief submit a Vulkan queue after command queue recording
-	 *
-	 * @param queue the queue to submit
-	 * @param commandBuffer recorded commandbuffer
-	 */
-	void submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer) const;
 
 	/**
 	 * @brief submit a Vulkan queue after command queue recording
@@ -138,7 +130,7 @@ private:
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;
 
-	Window* window;
+	const Window* window;
 
 	/**
 	 * @brief recreate the swapchain and related stuff in case of some events

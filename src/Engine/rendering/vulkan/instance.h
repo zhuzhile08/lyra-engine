@@ -38,7 +38,7 @@ public:
 	 *
 	 * @param window window
 	 */
-	void create(Window window);
+	void create(const Window* window);
 
 	/**
 	 * @brief get the Vulkan instance
@@ -57,7 +57,7 @@ private:
 	VkInstance _instance;
 	VkSurfaceKHR _surface;
 
-	Window* window;
+	const Window* window;
 
 	/**
 	 * @brief check if a vector of user requested Vulkan validation layers is actually available

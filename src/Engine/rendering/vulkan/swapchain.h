@@ -48,10 +48,10 @@ private:
 		 * @param device device
 		 * @param swapchain swapchain
 		 */
-		void create(VulkanDevice device, const VulkanSwapchain swapchain);
+		void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
 
 	private:
-		VulkanDevice* device;
+		const VulkanDevice* device;
 	};
 
 	/**
@@ -72,7 +72,7 @@ private:
 		 * @param device device
 		 * @param swapchain swapchain
 		 */
-		void create(VulkanDevice device, const VulkanSwapchain swapchain);
+		void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
 
 	private:
 		using VulkanImage::device;
@@ -93,7 +93,7 @@ public:
 	 * @param instance instance
 	 * @param window window
 	 */
-	void create(VulkanDevice device, VulkanInstance instance, Window window);
+	void create(const VulkanDevice* device, const VulkanInstance* instance, const Window* window);
 
 	/**
 	 * @brief create the swapchain
@@ -142,9 +142,9 @@ private:
 
 	VulkanSwapchain* _oldSwapchain = nullptr;
 
-	VulkanDevice* device;
-	VulkanInstance* instance;
-	Window* window;
+	const VulkanDevice* device;
+	const VulkanInstance* instance;
+	const Window* window;
 
 	/**
 	 * @brief create the swapchain

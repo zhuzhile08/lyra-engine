@@ -41,7 +41,14 @@ public:
 	 * @param entry name of the entrance point of the shader
 	 * @param stage type of the shader
 	 */
-	void create(VulkanDevice device, const std::string path, const str entry, VkShaderStageFlagBits stage);
+	void create(const VulkanDevice* device, const std::string path, const str entry, VkShaderStageFlagBits stage);
+
+	/**
+	 * @brief get the shader loading information
+	 *
+	 * @return const VkPipelineShaderStageCreateInfo
+	*/
+	const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept;
 
 	/**
 	 * @brief get the shader module
@@ -49,12 +56,6 @@ public:
 	 * @return const VkShaderModule
 	*/
 	const VkShaderModule module() const noexcept { return _module; }
-	/**
-	 * @brief get the shader loading information
-	 * 
-	 * @return const VkPipelineShaderStageCreateInfo
-	*/
-	const VkPipelineShaderStageCreateInfo stage() const noexcept { return _stage; }
 	/**
 	 * @brief get the entry point of the shader
 	 * 
@@ -64,10 +65,10 @@ public:
 
 private:
 	VkShaderModule _module;
-	VkPipelineShaderStageCreateInfo	_stage;
-	std::string _entry;
+	VkShaderStageFlagBits _stageFlags;
+	str _entry;
 
-	VulkanDevice* device;
+	const VulkanDevice* device;
 };
 
 } // namespace lyra

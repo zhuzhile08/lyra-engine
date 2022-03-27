@@ -7,17 +7,15 @@ VulkanGPUBuffer::VulkanGPUBuffer() {}
 void VulkanGPUBuffer::destroy() noexcept {
 	vmaDestroyBuffer(device->allocator(), _buffer, _memory);
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan GPU buffer!")
 }
 
-void VulkanGPUBuffer::create(VulkanDevice device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage) {
+void VulkanGPUBuffer::create(const VulkanDevice* device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage) {
 	LOG_INFO("Creating Vulkan GPU memory buffer...")
 
 	_size = size;
 
-	this->device = new VulkanDevice(device);
+	this->device = device;
 
 	// buffer creation info
 	VkBufferCreateInfo bufferInfo{
@@ -43,17 +41,17 @@ void VulkanGPUBuffer::create(VulkanDevice device, VkDeviceSize size, VkBufferUsa
 		0
 	};
 
-	if (vmaCreateBuffer(device.allocator(), &bufferInfo, &memAllocInfo, &_buffer, &_memory, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan GPU memory buffer!");
+	if (vmaCreateBuffer(device->allocator(), &bufferInfo, &memAllocInfo, &_buffer, &_memory, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan GPU memory buffer!");
 
 	LOG_INFO("Succesfully created Vulkan GPU buffer at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void VulkanGPUBuffer::copy(const VulkanCommandPool commandPool, const VulkanGPUBuffer srcBuffer) {
+void VulkanGPUBuffer::copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer srcBuffer) {
 	// create a temporary command buffer
 	VulkanCommandBuffer commandBuffer;
 
 	// create the command buffer
-	commandBuffer.create(*device, commandPool);
+	commandBuffer.create(device, commandPool);
 
 	// start recording
 	commandBuffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
@@ -69,20 +67,9 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool commandPool, const VulkanGPUB
 
 	commandBuffer.end();		// end recording
 
-	VkSubmitInfo submitInfo{
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		nullptr,
-		0,
-		nullptr,
-		nullptr,
-		1,
-		commandBuffer.get_ptr(),
-		0,
-		nullptr
-	};
-
-	vkQueueSubmit(device->graphicsQueue().queue, 1, &submitInfo, VK_NULL_HANDLE);   // @todo maybe move these functions into the device?
-	vkQueueWaitIdle(device->graphicsQueue().queue);		// wait for completion
+	// submit the commands
+	commandBuffer.submit_queue(device->graphicsQueue().queue);
+	commandBuffer.wait_queue(device->graphicsQueue().queue);
 
 	commandBuffer.destroy();		    // delete command buffer after copying
 

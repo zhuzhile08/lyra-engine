@@ -26,21 +26,21 @@ void VulkanDescriptorSetLayout::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!")
 }
 
-void VulkanDescriptorSetLayout::create(VulkanDevice device, const Builder builder) {
+void VulkanDescriptorSetLayout::create(const VulkanDevice* device, const Builder builder) {
 	LOG_INFO("Creating Vulkan descriptor set layout...")
 
-	this->device = new VulkanDevice(device);
+	this->device = device;
 
 	// create the descriptor set
 	VkDescriptorSetLayoutCreateInfo layoutInfo{
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
-		1,
+		builder.bindings.size(),
 		builder.bindings.data()
 	};
 
-	if (vkCreateDescriptorSetLayout(device.device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor set layout")
+	if (vkCreateDescriptorSetLayout(device->device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor set layout")
 
 	LOG_INFO("Succesfully created Vulkan descriptor set layout at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -74,10 +74,10 @@ void VulkanDescriptorPool::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!")
 }
 
-void VulkanDescriptorPool::create(VulkanDevice device, const Builder builder) {
+void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder builder) {
 	LOG_INFO("Creating Vulkan descriptor pool...")
 
-		this->device = new VulkanDevice(device);
+		this->device = device;
 
 	// create the descriptor pool
 	VkDescriptorPoolCreateInfo 	poolInfo{
@@ -89,7 +89,7 @@ void VulkanDescriptorPool::create(VulkanDevice device, const Builder builder) {
 		builder.poolSizes.data()
 	};
 
-	if (vkCreateDescriptorPool(device.device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor pool")
+	if (vkCreateDescriptorPool(device->device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor pool")
 
 	LOG_INFO("Succesfully created Vulkan descriptor pool at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -130,7 +130,7 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo image
 // descriptors
 VulkanDescriptor::VulkanDescriptor() { }
 
-void VulkanDescriptor::create(VulkanDevice device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer) {
+void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer) {
 	LOG_INFO("Creating Vulkan descriptor sets...")
 
 		// create the descriptor set
@@ -142,11 +142,11 @@ void VulkanDescriptor::create(VulkanDevice device, const VulkanDescriptorSetLayo
 			layout.get_ptr()
 	};
 
-	if (vkAllocateDescriptorSets(device.device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets")
+	if (vkAllocateDescriptorSets(device->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets")
 
 	writer.write.dstSet = _descriptorSet;
 
-	vkUpdateDescriptorSets(device.device(), 1, &writer.write, 0, nullptr);
+	vkUpdateDescriptorSets(device->device(), 1, &writer.write, 0, nullptr);
 
 	LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L)
 }

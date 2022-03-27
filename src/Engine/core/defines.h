@@ -41,7 +41,7 @@ const std::vector<str>			requested_validation_layers{"VK_LAYER_KHRONOS_validatio
 const std::vector<str>			requested_device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 #define ENABLE_MULTI_SAMPLING   0
 #define ENABLE_COLOR_BLENDING   0
-#define CLEAR_COLOR             0, 0, 0, 1
+#define CLEAR_COLOR             0.0f, 0.0f, 0.0f, 1.0f
 #define USING_GUI               0
 #define DOUBLE_BUFFERING        0
 #define MAX_FRAMES_IN_FLIGHT    2

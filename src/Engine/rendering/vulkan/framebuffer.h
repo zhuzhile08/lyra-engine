@@ -42,7 +42,7 @@ public:
 	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void create(VulkanDevice device, VulkanSwapchain swapchain);
+	void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
 
 	/**
 	 * @brief get the begin information to begin a render pass
@@ -51,7 +51,7 @@ public:
 	 * @param clear clear color
 	 * @return VkRenderPassBeginInfo
 	 */
-	VkRenderPassBeginInfo begin_info(const int index, const std::vector<VkClearValue> clear = { {CLEAR_COLOR}, {1.0f, 0} }) const noexcept;
+	VkRenderPassBeginInfo begin_info(const int index, const std::vector<VkClearValue> clear = { {{CLEAR_COLOR}}, {1.0f, 0} }) const noexcept;
 
 	/**
 	 * @brief get the render pass
@@ -70,8 +70,8 @@ private:
 	VkRenderPass _renderPass;
 	std::vector <VkFramebuffer> _framebuffers;
 
-	VulkanDevice* device;
-	VulkanSwapchain* swapchain;
+	const VulkanDevice* device;
+	const VulkanSwapchain* swapchain;
 
 	/**
 	 * @brief create the render pass

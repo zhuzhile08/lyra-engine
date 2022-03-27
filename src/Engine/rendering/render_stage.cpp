@@ -12,12 +12,13 @@ void RenderStage::destroy() noexcept {
     delete renderer;
 }
 
-void RenderStage::create(Renderer renderer) {
-    set_parent(&renderer);
-    this->renderer = new Renderer(renderer);
+void RenderStage::create(Renderer* renderer) {
+    this->renderer = renderer;
 
-    _framebuffers.create(renderer._device, renderer._swapchain);
-    for (auto& cmdBuff : _commandBuffers) cmdBuff.create(renderer._device, renderer._commandPool);
+    _framebuffers.create(&renderer->_device, &renderer->_swapchain);
+    _commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    for (auto& cmdBuff : _commandBuffers) cmdBuff.create(&renderer->_device, &renderer->_commandPool);
+    _pipeline.create(&renderer->_device, _framebuffers, renderer->descriptorSetLayout(), {{"data/shader/vert.spv", "main", VK_SHADER_STAGE_VERTEX_BIT}, {"data/shader/frag.spv", "main", VK_SHADER_STAGE_FRAGMENT_BIT}}, renderer->swapchain().extent(), renderer->swapchain().extent());
 }
 
 void RenderStage::record_command_buffers() {
@@ -38,8 +39,8 @@ void RenderStage::record_command_buffers() {
 }
 
 void RenderStage::draw() noexcept {
-    renderer->_renderQueue.add([=]() { _commandBuffers[renderer->currentFrame()].reset(); record_command_buffers(); });
-    renderer->_submitQueue.add([=]() { renderer->submit_device_queue(renderer->_device.presentQueue(), _commandBuffers[renderer->currentFrame()], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); });
+    renderer->_renderQueue.add([&]() { _commandBuffers[renderer->currentFrame()].reset(); record_command_buffers(); });
+    renderer->_submitQueue.add([&]() { renderer->submit_device_queue(renderer->_device.presentQueue(), _commandBuffers[renderer->currentFrame()], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT); });
 }
 
 void RenderStage::bind_descriptor(const VulkanDescriptor descriptor) const noexcept {

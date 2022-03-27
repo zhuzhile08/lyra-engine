@@ -31,7 +31,7 @@ public:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void create(Renderer renderer, str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+	void create(const Renderer* renderer, str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
 	/**
 	 * @brief load a new texture into the image
 	 *
@@ -60,7 +60,7 @@ private:
 
 	VulkanDescriptor _descriptor;
 
-	Renderer* renderer;
+	const Renderer* renderer;
 
 
 	void transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB) const;

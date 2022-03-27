@@ -42,7 +42,7 @@ public:
 	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void create(VulkanDevice device, const VulkanSwapchain swapchain);
+	void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
 
 	/**
 	 * @brief wait for Vulkan fences
@@ -81,7 +81,7 @@ private:
 	std::vector <VkSemaphore> _renderFinishedSemaphores;
 	std::vector <VkFence> _inFlightFences;
 
-	VulkanDevice* device;
+	const VulkanDevice* device;
 };
 
 } // namespace lyra

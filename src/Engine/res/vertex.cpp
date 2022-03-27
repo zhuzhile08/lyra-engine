@@ -19,24 +19,24 @@ std::array<VkVertexInputAttributeDescription, 4> Vertex::get_attribute_descripti
 		{{
 			0,
 			0,
-			VK_FORMAT_R32G32_SFLOAT,
+			VK_FORMAT_R32G32B32_SFLOAT,
 			offsetof(Vertex, pos)
 		},
 		{
-			0,
 			1,
+			0,
 			VK_FORMAT_R32G32B32_SFLOAT,
 			offsetof(Vertex, normal)
 		},
 		{
-			0,
 			2,
+			0,
 			VK_FORMAT_R32G32B32_SFLOAT,
 			offsetof(Vertex, color)
 		},
 		{
-			0,
 			3,
+			0,
 			VK_FORMAT_R32G32B32_SFLOAT,
 			offsetof(Vertex, uv)
 		}}

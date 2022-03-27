@@ -11,10 +11,10 @@ void Texture::destroy() noexcept {
 	delete renderer;
 }
 
-void Texture::create(Renderer renderer, str path, VkFormat format, int channelsToLoad) {
+void Texture::create(const Renderer* renderer, str path, VkFormat format, int channelsToLoad) {
 	LOG_INFO("Creating Vulkan texture and image sampler... ")
 
-	this->renderer = new Renderer(renderer);
+	this->renderer = renderer;
 
 	load_image(path, format, channelsToLoad);
 	create_sampler();
@@ -36,7 +36,7 @@ void Texture::create(str path, VkFormat format, int channelsToLoad) {
 void Texture::transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout, VkFormat format) const {
 	// temporary command buffer for copying
 	VulkanCommandBuffer     cmdBuff;
-	cmdBuff.create(renderer->device(), renderer->commandPool());
+	cmdBuff.create(&renderer->device(), &renderer->commandPool());
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -69,8 +69,13 @@ void Texture::transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout
 
 		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	}
-	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this))
+	} else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	} else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this))
 
 	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
@@ -78,8 +83,8 @@ void Texture::transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout
 	cmdBuff.end();
 
 	// submit queues after recording
-	renderer->submit_device_queue(renderer->device().graphicsQueue(), cmdBuff);
-	renderer->wait_device_queue(renderer->device().graphicsQueue());
+	cmdBuff.submit_queue(renderer->device().graphicsQueue().queue);
+	cmdBuff.wait_queue(renderer->device().graphicsQueue().queue);
 
 	// destroy command buffer
 	cmdBuff.destroy();
@@ -88,7 +93,7 @@ void Texture::transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout
 void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent) {
 	// temporary command buffer for copying
 	VulkanCommandBuffer     cmdBuff;
-	cmdBuff.create(renderer->device(), renderer->commandPool());
+	cmdBuff.create(&renderer->device(), &renderer->commandPool());
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -108,8 +113,8 @@ void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent)
 	cmdBuff.end();
 
 	// submit queues after recording
-	renderer->submit_device_queue(renderer->device().graphicsQueue(), cmdBuff);
-	renderer->wait_device_queue(renderer->device().graphicsQueue());
+	cmdBuff.submit_queue(renderer->device().graphicsQueue().queue);
+	cmdBuff.wait_queue(renderer->device().graphicsQueue().queue);
 
 	// destroy command buffer
 	cmdBuff.destroy();
@@ -120,9 +125,9 @@ void Texture::draw(RenderStage renderStage) {
 
 	writer.add_image_write({ _sampler, _view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
 
-	_descriptor.create(renderer->device(), renderer->descriptorSetLayout(), renderer->descriptorPool(), writer);
+	_descriptor.create(&renderer->device(), renderer->descriptorSetLayout(), renderer->descriptorPool(), writer);
 
-	renderStage._bind_queue.add([=]() {renderStage.bind_descriptor(_descriptor); });
+	renderStage._bind_queue.add([&]() {renderStage.bind_descriptor(_descriptor); });
 }
 
 void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
@@ -134,7 +139,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	// create a staging buffer
 	VulkanGPUBuffer         stagingBuffer;
 	VkDeviceSize imageMemSize = width * height * 4; /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
-	stagingBuffer.create(renderer->device(), imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+	stagingBuffer.create(&renderer->device(), imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
 	// copy the image data into the staging buffer
 	void* imagePtr = imagePixelData;
@@ -154,7 +159,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	transition_layout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	// create the image view
-	create_view(renderer->device(), format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+	create_view(&renderer->device(), format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 
 	// free the pixels of the image
 	stbi_image_free(imagePixelData);
@@ -162,13 +167,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	stagingBuffer.destroy();
 }
 
-void Texture::create_sampler(
-	VkFilter                magnifiedTexel,
-	VkFilter                minimizedTexel,
-	VkSamplerMipmapMode     mipmapMode,
-	VkSamplerAddressMode    extendedTexels,
-	VkBool32                anisotropy
-) {
+void Texture::create_sampler(VkFilter magnifiedTexel, VkFilter minimizedTexel, VkSamplerMipmapMode mipmapMode, VkSamplerAddressMode extendedTexels, VkBool32 anisotropy) {
 	VkPhysicalDeviceProperties properties{};
 	vkGetPhysicalDeviceProperties(renderer->device().physicalDevice(), &properties);
 

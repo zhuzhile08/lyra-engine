@@ -6,7 +6,7 @@ namespace lyra {
 std::vector <char> read_binary(std::string path) {
 	std::ifstream file(path, std::ios::ate | std::ios::binary);
 
-	LOG_INFO("Loaded file in binary format at path ", path)
+	LOG_DEBUG(TAB, "Loaded file in binary format at path ", path)
 
 	if (!file.is_open()) {
 		LOG_EXEPTION("Failed to open shader in binary format at path ", path)
@@ -26,7 +26,7 @@ std::vector <char> read_binary(std::string path) {
 std::vector <char> read_text(std::string path) {
 	std::ifstream file(path, std::ios::ate);
 
-	LOG_INFO("Loaded file in text format at path ", path)
+	LOG_DEBUG(TAB, "Loaded file in text format at path ", path)
 
 	if (!file.is_open()) {
 		LOG_EXEPTION("Failed to open shader in text format at path ", path)

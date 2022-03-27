@@ -17,10 +17,10 @@ void VulkanSyncObjects::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan synchronisation objects!")
 }
 
-void VulkanSyncObjects::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+void VulkanSyncObjects::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
 	LOG_INFO("Creating Vulkan synchronisation objects...")
 
-	this->device = new VulkanDevice(device);
+	this->device = device;
 
 	_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -34,9 +34,9 @@ void VulkanSyncObjects::create(VulkanDevice device, const VulkanSwapchain swapch
 	};
 
 	for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		if (vkCreateSemaphore(device.device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS
-			|| vkCreateSemaphore(device.device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS
-			|| vkCreateFence(device.device(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS)
+		if (vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS
+			|| vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS
+			|| vkCreateFence(device->device(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS)
 			LOG_EXEPTION("Failed to create Vulkan Synchronisation Objects")
 	}
 

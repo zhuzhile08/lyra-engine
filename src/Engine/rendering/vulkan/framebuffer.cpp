@@ -14,9 +14,9 @@ void VulkanFramebuffers::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan frame buffer!")
 }
 
-void VulkanFramebuffers::create(VulkanDevice device, VulkanSwapchain swapchain) {
-	this->device = new VulkanDevice(device);
-	this->swapchain = new VulkanSwapchain(swapchain);
+void VulkanFramebuffers::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
+	this->device = device;
+	this->swapchain = swapchain;
 
 	create_render_pass();
 	create_frame_buffers();
@@ -131,7 +131,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 }
 
 VkRenderPassBeginInfo VulkanFramebuffers::begin_info(const int index, const std::vector <VkClearValue> clear) const noexcept {
-	return VkRenderPassBeginInfo{
+	return {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		_renderPass,

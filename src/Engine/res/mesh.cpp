@@ -13,11 +13,11 @@ void Mesh::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed mesh!")
 }
 
-void Mesh::create(Renderer renderer, const non_access::LoadedModel loaded, uint16 index,
+void Mesh::create(const Renderer* renderer, const non_access::LoadedModel loaded, uint16 index,
 	noud::Node* parent, const std::string name) {
 	(parent, name);
 
-	this->renderer = &renderer;
+	this->renderer = renderer;
 
 	create_mesh(loaded, index);
 
@@ -27,11 +27,11 @@ void Mesh::create(Renderer renderer, const non_access::LoadedModel loaded, uint1
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void Mesh::create(Renderer renderer, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
+void Mesh::create(const Renderer* renderer, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
 	noud::Node* parent, const std::string name) {
 	(parent, name);
 
-	this->renderer = &renderer;
+	this->renderer = renderer;
 	_vertices = vertices;
 	_indices = indices;
 
@@ -149,15 +149,15 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 void Mesh::create_vertex_buffer() {
 	// create the staging buffer
 	VulkanGPUBuffer stagingBuffer;
-	stagingBuffer.create(renderer->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	stagingBuffer.create(&renderer->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	stagingBuffer.copy_data(_vertices.data());
 
 	// create the vertex buffer
-	_vertexBuffer.create(renderer->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_vertexBuffer.create(&renderer->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
-	_vertexBuffer.copy(renderer->commandPool(), stagingBuffer);
+	_vertexBuffer.copy(&renderer->commandPool(), stagingBuffer);
 
 	// destroy the staging buffer
 	stagingBuffer.destroy();
@@ -166,23 +166,23 @@ void Mesh::create_vertex_buffer() {
 void Mesh::create_index_buffer() {
 	// create the staging buffer
 	VulkanGPUBuffer stagingBuffer;
-	stagingBuffer.create(renderer->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	stagingBuffer.create(&renderer->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	stagingBuffer.copy_data(_indices.data());
 
 	// create the vertex buffer
-	_indexBuffer.create(renderer->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_indexBuffer.create(&renderer->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
-	_indexBuffer.copy(renderer->commandPool(), stagingBuffer);
+	_indexBuffer.copy(&renderer->commandPool(), stagingBuffer);
 
 	// destroy the staging buffer
 	stagingBuffer.destroy();
 }
 
 void Mesh::draw(RenderStage renderStage) noexcept {
-	renderStage._bind_queue.add([=]() { renderStage.bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); });
-	renderStage._draw_queue.add([=]() { renderStage.draw_model(static_cast<uint32>(_indices.size())); });
+	renderStage._bind_queue.add([&]() { renderStage.bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); });
+	renderStage._draw_queue.add([&]() { renderStage.draw_model(static_cast<uint32>(_indices.size())); });
 }
 
 } // namespace lyra

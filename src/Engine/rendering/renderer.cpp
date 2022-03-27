@@ -17,26 +17,26 @@ void Renderer::destroy() noexcept {
 	delete window;
 }
 
-void Renderer::create(Window window) { 
-	this->window = new Window(window);
+void Renderer::create(const Window* window) {
+	this->window = window;
 
 	_instance.create(window);
-	_device.create(_instance);
-	_commandPool.create(_device);
-	_swapchain.create(_device, _instance, window);
+	_device.create(&_instance);
+	_commandPool.create(&_device);
+	_swapchain.create(&_device, &_instance, window);
 
 	VulkanDescriptorSetLayout::Builder  layoutBuilder;
-	layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT, 1);
-	layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT, 1);
-	_descriptorSetLayout.create(_device, layoutBuilder);
-	
+	layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+	layoutBuilder.add_binding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
+	_descriptorSetLayout.create(&_device, layoutBuilder);
+
 	VulkanDescriptorPool::Builder       poolBuilder;
-	poolBuilder.set_max_sets(50);   // just some random number
+	poolBuilder.set_max_sets(21);   // 9 + 10 is 21, of course, what else whould it be, 19?
 	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT);
 	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT);
-	_descriptorPool.create(_device, poolBuilder);
+	_descriptorPool.create(&_device, poolBuilder);
 
-	_syncObjects.create(_device, _swapchain);
+	_syncObjects.create(&_device, &_swapchain);
 }
 
 void Renderer::destroy_swapchain() noexcept {
@@ -57,7 +57,7 @@ void Renderer::update() {
 	while (_running) {
 		draw();
 	}
-	
+
 	_device.wait();
 }
 
@@ -83,30 +83,9 @@ void Renderer::draw() {
 	update_frame_count();
 }
 
-void Renderer::submit_device_queue(
-	const VulkanDevice::VulkanQueueFamily   queue,
-	const VulkanCommandBuffer               commandBuffer
-) const {
-	// queue submission info
-	VkSubmitInfo submitInfo = {
-		VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		nullptr,
-		0,
-		nullptr,
-		nullptr,
-		1,
-		commandBuffer.get_ptr(),
-		0,
-		nullptr
-	};
-
-	// submit the queue
-	if (vkQueueSubmit(queue.queue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
-}
-
 void Renderer::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const {
-	VkSemaphore waitSemaphores[] = { _syncObjects.imageAvailableSemaphores()[_currentFrame]};
-	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame]};
+	VkSemaphore waitSemaphores[] = { _syncObjects.imageAvailableSemaphores()[_currentFrame] };
+	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
 
 	VkSubmitInfo submitInfo = {
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -126,7 +105,7 @@ void Renderer::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, 
 
 void Renderer::present_queue(const uint32 imageIndex) {
 	VkSwapchainKHR swapchains[] = { _swapchain.swapchain() };
-	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame]};
+	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
 
 	VkPresentInfoKHR presentInfo = {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -150,7 +129,7 @@ void Renderer::present_queue(const uint32 imageIndex) {
 }
 
 void Renderer::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-	vkQueueWaitIdle(queue.queue);
+	if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!")
 }
 
 void Renderer::update_frame_count() noexcept {

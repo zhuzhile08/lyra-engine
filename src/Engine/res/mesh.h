@@ -51,7 +51,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(Renderer renderer, const non_access::LoadedModel loaded, uint16 index = 0,
+	void create(const Renderer* renderer, const non_access::LoadedModel loaded, uint16 index = 0,
 		noud::Node* parent = nullptr, const std::string name = "mesh");
 	/**
 	 * @brief construct a new mesh with a custom model
@@ -63,7 +63,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(Renderer renderer, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
+	void create(const Renderer* renderer, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
 		noud::Node* parent = nullptr, const std::string name = "mesh");
 
 	/**
@@ -113,7 +113,7 @@ private:
 	VulkanGPUBuffer _vertexBuffer;
 	VulkanGPUBuffer _indexBuffer;
 
-	Renderer* renderer;
+	const Renderer* renderer;
 
 	/**
 	 * @brief create a vertex buffer

@@ -84,12 +84,12 @@ public:
 	 * @param area area of where the pipeline can draw to
 	 */
 	void create(
-		VulkanDevice                            device,
-		const VulkanFramebuffers                framebuffer,
-		const VulkanDescriptorSetLayout         descriptorSetLayout,
-		const std::vector<ShaderCreationInfo>   shaderCreationInfos,
-		VkExtent2D                              size,
-		VkExtent2D                              area
+		const VulkanDevice* device,
+		const VulkanFramebuffers framebuffer,
+		const VulkanDescriptorSetLayout descriptorSetLayout,
+		const std::vector<ShaderCreationInfo> shaderCreationInfos,
+		VkExtent2D size,
+		VkExtent2D area
 	);
 
 	/**
@@ -98,7 +98,17 @@ public:
 	 * @return const VkPipeline
 	*/
 	const VkPipeline graphicsPipeline() const noexcept { return _graphicsPipeline; }
+	/**
+	 * @brief get the pipeline layout
+	 * 
+	 * @return const VkPipelineLayout
+	*/
 	const VkPipelineLayout pipelineLayout() const noexcept { return _pipelineLayout; }
+	/**
+	 * @brief get the shaders
+	 * 
+	 * @return const std::vector<VulkanShader>
+	*/
 	const std::vector<VulkanShader> shaders() const noexcept { return _shaders; }
 
 private:
@@ -107,7 +117,7 @@ private:
 
 	std::vector<VulkanShader> _shaders;
 
-	VulkanDevice* device;
+	const VulkanDevice* device;
 
 	/**
 	 * @brief create the graphics pipeline

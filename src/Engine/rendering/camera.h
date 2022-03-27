@@ -49,7 +49,7 @@ public:
 	 * @param renderer renderer
 	 * @param ubo data of the ubo
 	 */
-	void create(Renderer renderer, const UniformBufferObject&& ubo);
+	void create(const Renderer* renderer, const UniformBufferObject&& ubo);
 
 	/**
 	 * @brief rotate the camera around an certain axis
@@ -106,7 +106,7 @@ private:
 	glm::vec3 _position;
 	float _aspect;
 
-	Renderer* renderer;
+	const Renderer* renderer;
 };
 
 } // namespace lyra

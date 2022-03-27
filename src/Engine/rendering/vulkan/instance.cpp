@@ -13,10 +13,10 @@ void VulkanInstance::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan instance!")
 }
 
-void VulkanInstance::create(Window window) {
+void VulkanInstance::create(const Window* window) {
 	LOG_INFO("Creating Vulkan instance...")
 
-	this->window = new Window(window);
+	this->window = window;
 
 	create_instance();
 	create_window_surface();

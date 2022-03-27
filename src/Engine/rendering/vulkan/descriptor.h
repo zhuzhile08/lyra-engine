@@ -61,7 +61,7 @@ public:
 	 * @param device device
 	 * @param builder the builder containing all the creation data
 	 */
-	void create(VulkanDevice device, const Builder builder);
+	void create(const VulkanDevice* device, const Builder builder);
 	/**
 	 * @brief get the descriptor set layout
 	 *
@@ -78,7 +78,7 @@ public:
 private:
 	VkDescriptorSetLayout _descriptorSetLayout;
 
-	VulkanDevice* device;
+	const VulkanDevice* device;
 };
 
 /**
@@ -132,7 +132,7 @@ public:
 	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void create(VulkanDevice device, const Builder builder);
+	void create(const VulkanDevice* device, const Builder builder);
 
 	/**
 	 * @brief get the descriptor pool
@@ -144,7 +144,7 @@ public:
 private:
 	VkDescriptorPool _descriptorPool;
 
-	VulkanDevice* device;
+	const VulkanDevice* device;
 };
 
 /**
@@ -188,7 +188,7 @@ public:
 	 * @param pool descriptor pool
 	 * @param writer data to be written into the descriptor
 	 */
-	void create(VulkanDevice device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer);
+	void create(const VulkanDevice* device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer);
 
 	/**
 	 * @brief get the descriptor set

@@ -16,19 +16,19 @@ void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
 }
 
-void VulkanSwapchain::VulkanSwapchainImages::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
 	LOG_INFO("Creating Vulkan swapchain images...")
 
-	this->device = new VulkanDevice(device);
+	this->device = device;
 
 	// get the number of images
 	uint32 						imageCount;
-	if (vkGetSwapchainImagesKHR(device.device(), swapchain.swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
+	if (vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
 	this->resize(imageCount);
 
 	for (auto& image : *this) {
-		vkGetSwapchainImagesKHR(device.device(), swapchain.swapchain(), &imageCount, &image._image);
-		image.create_view(device, swapchain.format(), { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+		vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, &image._image);
+		image.create_view(device, swapchain->format(), { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 	}
 
 	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L)
@@ -46,11 +46,11 @@ void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed depth buffer!")
 }
 
-void VulkanSwapchain::VulkanDepthBuffer::create(VulkanDevice device, const VulkanSwapchain swapchain) {
+void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
 	LOG_INFO("Creating Vulkan depth buffer...")
 
 	// create memory and image
-	if (vmaCreateImage(device.allocator(), &get_image_create_info(VK_FORMAT_D32_SFLOAT, { swapchain.extent().width, swapchain.extent().height, 1 }, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT), 
+	if (vmaCreateImage(device->allocator(), &get_image_create_info(VK_FORMAT_D32_SFLOAT, { swapchain->extent().width, swapchain->extent().height, 1 }, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT), 
 		&alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)), &_image, &_memory, nullptr
 	) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan depth buffer!")
 
@@ -74,12 +74,12 @@ void VulkanSwapchain::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan swapchain!")
 }
 
-void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Window window) {
-	LOG_INFO("Creating Vulkan swapchain...")
+void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* instance, const Window* window) {
+	LOG_INFO("Creating Vulkan swapchain->..")
 
-	this->device = new VulkanDevice(device);
-	this->instance = new VulkanInstance(instance);
-	this->window = new Window(window);
+	this->device = device;
+	this->instance = instance;
+	this->window = window;
 	create_swapchain();
 
 	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
@@ -87,7 +87,7 @@ void VulkanSwapchain::create(VulkanDevice device, VulkanInstance instance, Windo
 
 void VulkanSwapchain::create(VulkanSwapchain oldSwapchain) {
 	_oldSwapchain = &oldSwapchain;
-	create(*device, *instance, *window);
+	create(device, instance, window);
 
 	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -250,8 +250,8 @@ void VulkanSwapchain::create_swapchain() {
 
 	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain")
 
-	_images.create(*device, *this);
-	_depthBuffer.create(*device, *this);
+	_images.create(device, this);
+	_depthBuffer.create(device, this);
 }
 
 } // namespace lyra
