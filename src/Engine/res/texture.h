@@ -57,13 +57,9 @@ public:
 
 private:
 	VkSampler _sampler;
-
 	VulkanDescriptor _descriptor;
 
 	const Renderer* renderer;
-
-
-	void transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB) const;
 
 	/**
 	 * @brief copy raw image data from a buffer into the image

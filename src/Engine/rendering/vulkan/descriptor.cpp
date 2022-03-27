@@ -21,8 +21,6 @@ VulkanDescriptorSetLayout::VulkanDescriptorSetLayout() { }
 void VulkanDescriptorSetLayout::destroy() noexcept {
 	vkDestroyDescriptorSetLayout(device->device(), _descriptorSetLayout, nullptr);
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!")
 }
 
@@ -68,8 +66,6 @@ VulkanDescriptorPool::VulkanDescriptorPool() { }
 
 void VulkanDescriptorPool::destroy() noexcept {
 	vkDestroyDescriptorPool(device->device(), _descriptorPool, nullptr);
-
-	delete device;
 
 	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!")
 }

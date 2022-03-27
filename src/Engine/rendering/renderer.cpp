@@ -13,8 +13,6 @@ void Renderer::destroy() noexcept {
 	_commandPool.destroy();
 	_device.destroy();
 	_instance.destroy();
-
-	delete window;
 }
 
 void Renderer::create(const Window* window) {
@@ -23,7 +21,7 @@ void Renderer::create(const Window* window) {
 	_instance.create(window);
 	_device.create(&_instance);
 	_commandPool.create(&_device);
-	_swapchain.create(&_device, &_instance, window);
+	_swapchain.create(&_device, &_instance, _commandPool, window);
 
 	VulkanDescriptorSetLayout::Builder  layoutBuilder;
 	layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
@@ -48,7 +46,7 @@ void Renderer::recreate_swapchain() {
 
 	destroy_swapchain();
 
-	_swapchain.create(oldSwapchain);
+	_swapchain.create(oldSwapchain, _commandPool);
 
 	oldSwapchain.destroy();
 }

@@ -12,8 +12,6 @@ void VulkanSyncObjects::destroy() noexcept {
 		vkDestroyFence(device->device(), _inFlightFences[i], nullptr);
 	}
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan synchronisation objects!")
 }
 

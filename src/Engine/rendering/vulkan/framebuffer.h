@@ -51,7 +51,7 @@ public:
 	 * @param clear clear color
 	 * @return VkRenderPassBeginInfo
 	 */
-	VkRenderPassBeginInfo begin_info(const int index, const std::vector<VkClearValue> clear = { {{CLEAR_COLOR}}, {1.0f, 0} }) const noexcept;
+	VkRenderPassBeginInfo get_begin_info(const int index, const std::vector<VkClearValue> clear = { {{CLEAR_COLOR}}, {1.0f, 0} }) const noexcept;
 
 	/**
 	 * @brief get the render pass

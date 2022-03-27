@@ -8,8 +8,6 @@ void RenderStage::destroy() noexcept {
     _framebuffers.destroy();
     _pipeline.destroy();
     for (auto& commandBuffer : _commandBuffers) commandBuffer.destroy();
-
-    delete renderer;
 }
 
 void RenderStage::create(Renderer* renderer) {
@@ -25,7 +23,7 @@ void RenderStage::record_command_buffers() {
     // look at how D Y N A M I C this is
     _commandBuffers[renderer->currentFrame()].begin(0);
 
-    begin_render_pass(_framebuffers.begin_info(renderer->_imageIndex));
+    begin_render_pass(_framebuffers.get_begin_info(renderer->_imageIndex));
 
     bind_pipeline();
 

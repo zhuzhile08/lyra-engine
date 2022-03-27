@@ -7,8 +7,6 @@ Texture::Texture() { }
 void Texture::destroy() noexcept {
 	destroy_view();
 	vkDestroySampler(renderer->device().device(), _sampler, nullptr);
-
-	delete renderer;
 }
 
 void Texture::create(const Renderer* renderer, str path, VkFormat format, int channelsToLoad) {
@@ -31,63 +29,6 @@ void Texture::create(str path, VkFormat format, int channelsToLoad) {
 	create_sampler();
 
 	LOG_INFO("Successfully recreated Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this))
-}
-
-void Texture::transition_layout(VkImageLayout oldLayout, VkImageLayout newLayout, VkFormat format) const {
-	// temporary command buffer for copying
-	VulkanCommandBuffer     cmdBuff;
-	cmdBuff.create(&renderer->device(), &renderer->commandPool());
-	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-	VkImageMemoryBarrier barrier = {
-		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-		nullptr,
-		0,
-		VK_ACCESS_TRANSFER_WRITE_BIT,
-		oldLayout,
-		newLayout,
-		VK_QUEUE_FAMILY_IGNORED,
-		VK_QUEUE_FAMILY_IGNORED,
-		_image,
-		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}
-	};
-
-	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-
-	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	} else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	} else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this))
-
-	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-
-	// end recording
-	cmdBuff.end();
-
-	// submit queues after recording
-	cmdBuff.submit_queue(renderer->device().graphicsQueue().queue);
-	cmdBuff.wait_queue(renderer->device().graphicsQueue().queue);
-
-	// destroy command buffer
-	cmdBuff.destroy();
 }
 
 void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent) {
@@ -154,9 +95,9 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	if (vmaCreateImage(renderer->device().allocator(), &imageCreationInfo, &memoryAllocInfo, &_image, &_memory, nullptr) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path)
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	transition_layout(renderer->device(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, renderer->commandPool());
 	copy_from_buffer(stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
-	transition_layout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	transition_layout(renderer->device(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, renderer->commandPool());
 
 	// create the image view
 	create_view(&renderer->device(), format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });

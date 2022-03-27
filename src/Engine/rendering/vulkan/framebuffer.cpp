@@ -8,9 +8,6 @@ void VulkanFramebuffers::destroy() noexcept {
 	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
 	vkDestroyRenderPass(device->device(), _renderPass, nullptr);
 
-	delete device;
-	delete swapchain;
-
 	LOG_INFO("Succesfully destroyed Vulkan frame buffer!")
 }
 
@@ -25,8 +22,6 @@ void VulkanFramebuffers::create(const VulkanDevice* device, const VulkanSwapchai
 }
 
 void VulkanFramebuffers::create_render_pass() {
-
-
 	// define what to do with an image during rendering
 	VkAttachmentDescription imageAttachmentDescriptions{
 		0,
@@ -43,7 +38,7 @@ void VulkanFramebuffers::create_render_pass() {
 	// depth buffers
 	VkAttachmentDescription	depthBufferAttachmentDescriptions{
 		0,
-		VK_FORMAT_D32_SFLOAT,
+		swapchain->depthBuffer()._format,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
@@ -130,7 +125,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 	}
 }
 
-VkRenderPassBeginInfo VulkanFramebuffers::begin_info(const int index, const std::vector <VkClearValue> clear) const noexcept {
+VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, const std::vector <VkClearValue> clear) const noexcept {
 	return {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,

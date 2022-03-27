@@ -8,8 +8,6 @@ void Mesh::destroy() noexcept {
 	_vertexBuffer.destroy();
 	_indexBuffer.destroy();
 
-	delete renderer;
-
 	LOG_INFO("Succesfully destroyed mesh!")
 }
 

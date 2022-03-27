@@ -8,8 +8,6 @@ VulkanCommandPool::VulkanCommandPool() { }
 void VulkanCommandPool::destroy() noexcept {
 	vkDestroyCommandPool(device->device(), commandPool, nullptr);
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan command pool!")
 }
 

@@ -15,16 +15,16 @@ int main() {
 	lyra::Window window;
 
 	lyra::Renderer renderer;
-	renderer.create(window);
+	renderer.create(&window);
 
 	lyra::Mesh room;
-	room.create(renderer, lyra::load_model("data/model/viking_room.obj"));
+	room.create(&renderer, lyra::load_model("data/model/viking_room.obj"));
 
 	lyra::Texture texture;
-	texture.create(renderer, "data/img/viking_room.png");
+	texture.create(&renderer, "data/img/viking_room.png");
 
 	lyra::RenderStage stage;
-	stage.create(renderer);
+	stage.create(&renderer);
 
 	room.draw(stage);
 	texture.draw(stage);

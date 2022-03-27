@@ -8,8 +8,6 @@ void VulkanDevice::destroy() noexcept {
 	vkDestroyDevice(_device, nullptr);
 	vmaDestroyAllocator(_allocator);
 
-	delete instance;
-
 	LOG_INFO("Succesfully destroyed Vulkan device!")
 }
 

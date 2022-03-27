@@ -8,8 +8,6 @@ void VulkanInstance::destroy() noexcept {
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
     vkDestroyInstance(_instance, nullptr);
 
-	delete window;
-
 	LOG_INFO("Succesfully destroyed Vulkan instance!")
 }
 

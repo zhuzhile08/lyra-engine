@@ -11,8 +11,6 @@ void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 		vkDestroyImage(device->device(), image._image, nullptr);
 	}
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
 }
 
@@ -41,21 +39,31 @@ void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
 	destroy_view();
 	vmaDestroyImage(device->allocator(), _image, _memory);
 
-	delete device;
-
 	LOG_INFO("Succesfully destroyed depth buffer!")
 }
 
-void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
+void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain swapchain, const VulkanCommandPool cmdPool) {
 	LOG_INFO("Creating Vulkan depth buffer...")
 
+	this->device = device;
+
+	_format = get_best_format(*device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+
 	// create memory and image
-	if (vmaCreateImage(device->allocator(), &get_image_create_info(VK_FORMAT_D32_SFLOAT, { swapchain->extent().width, swapchain->extent().height, 1 }, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT), 
-		&alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)), &_image, &_memory, nullptr
+	if (vmaCreateImage(device->allocator(), 
+		&get_image_create_info(
+			_format,
+			{ swapchain.extent().width, swapchain.extent().height, 1 }, 
+			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT), 
+		&alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		&_image, &_memory, nullptr
 	) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan depth buffer!")
 
 	// create the image view
 	create_view(device, VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+
+	// transition the image layout
+	transition_layout(*device, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, cmdPool);
 
 	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -69,25 +77,25 @@ void VulkanSwapchain::destroy() noexcept {
 
 	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
 
-	delete device, window, instance, _oldSwapchain;
+	delete _oldSwapchain;
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain!")
 }
 
-void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* instance, const Window* window) {
-	LOG_INFO("Creating Vulkan swapchain->..")
+void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* instance, const VulkanCommandPool cmdPool, const Window* window) {
+	LOG_INFO("Creating Vulkan swapchain...")
 
 	this->device = device;
 	this->instance = instance;
 	this->window = window;
-	create_swapchain();
+	create_swapchain(cmdPool);
 
 	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
 }
 
-void VulkanSwapchain::create(VulkanSwapchain oldSwapchain) {
+void VulkanSwapchain::create(VulkanSwapchain oldSwapchain, const VulkanCommandPool cmdPool) {
 	_oldSwapchain = &oldSwapchain;
-	create(device, instance, window);
+	create(device, instance, cmdPool, window);
 
 	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -128,7 +136,7 @@ void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceC
 	}
 }
 
-void VulkanSwapchain::create_swapchain() {
+void VulkanSwapchain::create_swapchain(const VulkanCommandPool cmdPool) {
 	// query some details
 	uint32 availableFormatCount = 0;    	   // formats
 	VkSurfaceFormatKHR format = { };
@@ -251,7 +259,7 @@ void VulkanSwapchain::create_swapchain() {
 	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain")
 
 	_images.create(device, this);
-	_depthBuffer.create(device, this);
+	_depthBuffer.create(device, *this, cmdPool);
 }
 
 } // namespace lyra

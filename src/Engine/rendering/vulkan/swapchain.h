@@ -15,6 +15,7 @@
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/instance.h>
 #include <rendering/vulkan/vulkan_image.h>
+#include <rendering/vulkan/command_buffer.h>
 #include <rendering/vulkan/GPU_memory.h>
 #include <core/logger.h>
 
@@ -71,11 +72,14 @@ private:
 		 *
 		 * @param device device
 		 * @param swapchain swapchain
+		 * @param cmdPool command pool
 		 */
-		void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
+		void create(const VulkanDevice* device, const VulkanSwapchain swapchain, const VulkanCommandPool cmdPool);
+
+		VkFormat _format;
 
 	private:
-		using VulkanImage::device;
+		const VulkanDevice* device;
 	};
 
 public:
@@ -90,17 +94,18 @@ public:
 	 * @brief create the swapchain
 	 *
 	 * @param device device
+	 * @param cmdPool command pool
 	 * @param instance instance
 	 * @param window window
 	 */
-	void create(const VulkanDevice* device, const VulkanInstance* instance, const Window* window);
+	void create(const VulkanDevice* device, const VulkanInstance* instance, const VulkanCommandPool cmdPool, const Window* window);
 
 	/**
 	 * @brief create the swapchain
 	 *
 	 * @param oldSwapchain old swapchain
 	 */
-	void create(VulkanSwapchain oldSwapchain);
+	void create(VulkanSwapchain oldSwapchain, const VulkanCommandPool cmdPool);
 
 	/**
 	 * @brief get the swapchain
@@ -148,14 +153,16 @@ private:
 
 	/**
 	 * @brief create the swapchain
+	 * 
+	 * @param cmdPool command pool
 	 */
-	void create_swapchain();
+	void create_swapchain(const VulkanCommandPool cmdPool);
 	/**
 	 * @brief create a extent of the swapchain
 	 *
 	 * @param surfaceCapabilities capabilities of the swapchain
 	 */
-	void            create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceCapabilities);
+	void create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceCapabilities);
 };
 
 } // namespace lyra
