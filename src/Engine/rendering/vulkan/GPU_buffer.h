@@ -62,6 +62,12 @@ public:
 	void copy_data(void* src);
 
 	/**
+	 * @brief get the information in a buffer for descriptor sets
+	 * 
+	 * @return const VkDescriptorBufferInfo
+	*/
+	const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept { return {_buffer, 0, _size}; }
+	/**
 	 * @brief get the buffer
 	 * 
 	 * @return const VkBuffer 
