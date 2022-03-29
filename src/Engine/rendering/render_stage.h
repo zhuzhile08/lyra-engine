@@ -90,11 +90,8 @@ private:
 	void push_constants() const noexcept;
 	/**
 	 * @brief begin render passes
-	 *
-	 * @param framebuffers frame buffer
-	 * @param index index of the frame buffer
 	 */
-	void begin_render_pass(const VkRenderPassBeginInfo beginInfo) const noexcept;
+	void begin_render_pass() const noexcept;
 	/**
 	 * @brief end render passes
 	 *

@@ -95,9 +95,9 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	if (vmaCreateImage(renderer->device().allocator(), &imageCreationInfo, &memoryAllocInfo, &_image, &_memory, nullptr) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path)
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(renderer->device(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, renderer->commandPool());
+	transition_layout(renderer->device(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, renderer->commandPool());
 	copy_from_buffer(stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
-	transition_layout(renderer->device(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, renderer->commandPool());
+	transition_layout(renderer->device(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, renderer->commandPool());
 
 	// create the image view
 	create_view(&renderer->device(), format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });

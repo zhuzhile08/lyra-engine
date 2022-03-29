@@ -50,11 +50,6 @@ public:
 	void create(const Window* window);
 
 	/**
-	 * @brief the main loop. this is called every frame until drawing is set to false
-	 */
-	void update();
-
-	/**
 	 * @brief submit a Vulkan queue after command queue recording
 	 *
 	 * @param queue the queue to submit
@@ -69,6 +64,10 @@ public:
 	 * @param queue queue to wait for
 	 */
 	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
+	/**
+	 * @brief take the recorded commands and draw everything
+	 */
+	void draw();
 
 	/**
 	 * @brief get the device
@@ -125,8 +124,6 @@ private:
 	CallQueue _renderQueue;
 	CallQueue _submitQueue;
 
-	bool _running = true;
-
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;
 
@@ -143,14 +140,8 @@ private:
 
 	/**
 	 * @brief present all the recorded commands
-	 *
-	 * @param index of the images
 	 */
-	void present_queue(const uint32 imageIndex);
-	/**
-	 * @brief take the recorded commands and draw everything
-	 */
-	void draw();
+	void present_queue();
 	/**
 	 * @brief update the frame count
 	 */

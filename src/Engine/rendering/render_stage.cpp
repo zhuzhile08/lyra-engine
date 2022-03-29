@@ -23,7 +23,7 @@ void RenderStage::record_command_buffers() {
     // look at how D Y N A M I C this is
     _commandBuffers[renderer->currentFrame()].begin(0);
 
-    begin_render_pass(_framebuffers.get_begin_info(renderer->_imageIndex));
+    begin_render_pass();
 
     bind_pipeline();
 
@@ -45,8 +45,12 @@ void RenderStage::bind_descriptor(const VulkanDescriptor descriptor) const noexc
     vkCmdBindDescriptorSets(_commandBuffers[renderer->currentFrame()].get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline.pipelineLayout(), 0, 1, descriptor.get_ptr(), 0, nullptr);
 }
 
-void RenderStage::begin_render_pass(const VkRenderPassBeginInfo beginInfo) const noexcept {
-    vkCmdBeginRenderPass(_commandBuffers[renderer->currentFrame()].get(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+void RenderStage::begin_render_pass() const noexcept {
+    std::array<VkClearValue, 2> clear{};
+    clear[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+    clear[1].depthStencil = { 1.0f, 0 };
+
+    vkCmdBeginRenderPass(_commandBuffers[renderer->currentFrame()].get(), &_framebuffers.get_begin_info(renderer->imageIndex(), clear), VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void RenderStage::end_render_pass() const noexcept {

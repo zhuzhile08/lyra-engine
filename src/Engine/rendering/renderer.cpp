@@ -5,6 +5,8 @@ namespace lyra {
 Renderer::Renderer() { ("Renderer", nullptr); }
 
 void Renderer::destroy() noexcept {
+	_device.wait();
+
 	destroy_swapchain();
 
 	_descriptorPool.destroy();
@@ -51,14 +53,6 @@ void Renderer::recreate_swapchain() {
 	oldSwapchain.destroy();
 }
 
-void Renderer::update() {
-	while (_running) {
-		draw();
-	}
-
-	_device.wait();
-}
-
 void Renderer::draw() {
 	_syncObjects.wait(_currentFrame);
 
@@ -76,7 +70,7 @@ void Renderer::draw() {
 
 	_submitQueue.flush();
 
-	present_queue(_imageIndex);
+	present_queue();
 
 	update_frame_count();
 }
@@ -101,7 +95,7 @@ void Renderer::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, 
 	if (vkQueueSubmit(queue.queue, 1, &submitInfo, _syncObjects.inFlightFences()[_currentFrame]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
 }
 
-void Renderer::present_queue(const uint32 imageIndex) {
+void Renderer::present_queue() {
 	VkSwapchainKHR swapchains[] = { _swapchain.swapchain() };
 	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
 
@@ -112,7 +106,7 @@ void Renderer::present_queue(const uint32 imageIndex) {
 		signalSemaphores,
 		1,
 		swapchains,
-		&imageIndex
+		&_imageIndex
 	};
 
 	VkResult result = vkQueuePresentKHR(_device.presentQueue().queue, &presentInfo);
