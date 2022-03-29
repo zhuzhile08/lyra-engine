@@ -125,7 +125,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 	}
 }
 
-VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, const std::vector <VkClearValue> clear) const noexcept {
+VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept {
 	return {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,

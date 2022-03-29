@@ -67,7 +67,7 @@ public:
 	uint32 find_memory_type(const uint32 typeFilter, const VkMemoryPropertyFlags properties) const;
 
 	/**
-	 * @brief wait for device to finish
+	 * @brief wait for the logical device to finish with whatever operations are still going on
 	 */
 	void wait() const;
 

@@ -8,25 +8,25 @@ VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 	for (auto& image : *this) {
 		image.destroy_view();
-		vkDestroyImage(device->device(), image._image, nullptr);
 	}
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!")
 }
 
-void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
+void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, VulkanSwapchain swapchain) {
 	LOG_INFO("Creating Vulkan swapchain images...")
 
 	this->device = device;
 
 	// get the number of images
-	uint32 						imageCount;
-	if (vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
+	uint32 imageCount;
+	if (vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
 	this->resize(imageCount);
 
 	for (auto& image : *this) {
-		vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, &image._image);
-		image.create_view(device, swapchain->format(), { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+		vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, &image._image);
+
+		image.create_view(device, swapchain.format(), { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 	}
 
 	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L)
@@ -63,7 +63,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, cons
 	create_view(device, VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	// transition the image layout
-	transition_layout(*device, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, cmdPool);
+	transition_layout(*device, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, VK_IMAGE_ASPECT_DEPTH_BIT, cmdPool);
 
 	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L)
 }
@@ -111,7 +111,7 @@ void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceC
 			static_cast<uint32>(height)
 		};
 
-		auto clamp = [](int a, int min, int max) {
+		auto clamp = [&](int a, int min, int max) {
 			if (a <= min) {
 				return min;
 			}
@@ -258,7 +258,7 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool cmdPool) {
 
 	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain")
 
-	_images.create(device, this);
+	_images.create(device, *this);
 	_depthBuffer.create(device, *this, cmdPool);
 }
 

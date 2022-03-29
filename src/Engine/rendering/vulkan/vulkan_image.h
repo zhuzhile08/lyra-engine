@@ -81,9 +81,10 @@ struct VulkanImage {
 	 * @param oldLayout old layout
 	 * @param newLayout new layout
 	 * @param format format of the image
+	 * @param aspect purpose of the image
 	 * @param commandPool command pool
 	*/
-	void transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VulkanCommandPool commandPool) const;
+	void transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlagBits aspect, const VulkanCommandPool commandPool) const;
 
 	VkImage _image;
 	VkImageView _view;

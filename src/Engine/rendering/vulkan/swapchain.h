@@ -49,7 +49,7 @@ private:
 		 * @param device device
 		 * @param swapchain swapchain
 		 */
-		void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
+		void create(const VulkanDevice* device, VulkanSwapchain swapchain);
 
 	private:
 		const VulkanDevice* device;

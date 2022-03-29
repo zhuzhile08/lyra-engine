@@ -72,7 +72,7 @@ void VulkanImage::create_view(
 	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!")
 }
 
-void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VulkanCommandPool commandPool) const {
+void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlagBits aspect, const VulkanCommandPool commandPool) const {
 	// temporary command buffer for copying
 	VulkanCommandBuffer     cmdBuff;
 	cmdBuff.create(&device, &commandPool);
@@ -89,7 +89,7 @@ void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout old
 		VK_QUEUE_FAMILY_IGNORED,
 		VK_QUEUE_FAMILY_IGNORED,
 		_image,
-		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1}
+		{aspect, 0, 1, 0, 1}
 	};
 
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;

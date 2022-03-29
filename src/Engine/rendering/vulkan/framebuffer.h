@@ -16,7 +16,7 @@
 #include <rendering/vulkan/swapchain.h>
 #include <core/logger.h>
 
-#include <memory>
+#include <array>
 #include <vector>
 
 #include <SDL.h>
@@ -48,10 +48,10 @@ public:
 	 * @brief get the begin information to begin a render pass
 	 *
 	 * @param index index of framebuffer
-	 * @param clear clear color
+	 * r
 	 * @return VkRenderPassBeginInfo
 	 */
-	VkRenderPassBeginInfo get_begin_info(const int index, const std::vector<VkClearValue> clear = { {{CLEAR_COLOR}}, {1.0f, 0} }) const noexcept;
+	VkRenderPassBeginInfo get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept;
 
 	/**
 	 * @brief get the render pass
