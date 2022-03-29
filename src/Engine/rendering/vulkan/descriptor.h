@@ -175,7 +175,7 @@ public:
 		 */
 		void add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
 
-		VkWriteDescriptorSet write;
+		std::vector<VkWriteDescriptorSet> write;
 	};
 
 	VulkanDescriptor();

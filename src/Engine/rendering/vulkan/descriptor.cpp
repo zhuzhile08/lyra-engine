@@ -94,7 +94,7 @@ void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder buil
 VulkanDescriptor::Writer::Writer() { }
 
 void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding, const VkDescriptorType type) noexcept {
-	write = {
+	write.push_back({
 		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		nullptr,
 		VK_NULL_HANDLE,
@@ -105,11 +105,11 @@ void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo buf
 		nullptr,
 		&bufferInfo,
 		nullptr
-	};
+	});
 }
 
 void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding, const VkDescriptorType type) noexcept {
-	write = {
+	write.push_back({
 		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		nullptr,
 		VK_NULL_HANDLE,
@@ -120,7 +120,7 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo image
 		&imageInfo,
 		nullptr,
 		nullptr
-	};
+	});
 }
 
 // descriptors
@@ -129,20 +129,20 @@ VulkanDescriptor::VulkanDescriptor() { }
 void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer) {
 	LOG_INFO("Creating Vulkan descriptor sets...")
 
-		// create the descriptor set
-		VkDescriptorSetAllocateInfo allocInfo {
-		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-			nullptr,
-			pool.get(),
-			1,
-			layout.get_ptr()
+	// create the descriptor set
+	VkDescriptorSetAllocateInfo allocInfo {
+	VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		nullptr,
+		pool.get(),
+		1,
+		layout.get_ptr()
 	};
 
 	if (vkAllocateDescriptorSets(device->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets")
 
-	writer.write.dstSet = _descriptorSet;
+	for(auto& write : writer.write) write.dstSet = _descriptorSet;
 
-	vkUpdateDescriptorSets(device->device(), 1, &writer.write, 0, nullptr);
+	vkUpdateDescriptorSets(device->device(), 1, writer.write.data(), 0, nullptr);
 
 	LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L)
 }
