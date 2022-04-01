@@ -4,35 +4,35 @@
 #include <core/logger.h>
 #include <core/queue_types.h>
 #include <graphics/window.h>
+#include <core/rendering/context.h>
 #include <graphics/renderer.h>
-#include <graphics/render_stage.h>
-#include <res/mesh.h>
-#include <res/texture.h>
+#include <graphics/mesh.h>
+#include <graphics/texture.h>
 #include <init/init_SDL.h>
 
 int main() {
 	lyra::init_SDL();
 	lyra::Window window;
 
-	lyra::Renderer renderer;
-	renderer.create(&window);
+	lyra::Context context;
+	context.create(&window);
 
 	lyra::Mesh room;
-	room.create(&renderer, lyra::load_model("data/model/viking_room.obj"));
+	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
 
 	lyra::Texture texture;
-	texture.create(&renderer, "data/img/viking_room.png");
+	texture.create(&context, "data/img/viking_room.png");
 
-	lyra::RenderStage stage;
-	stage.create(&renderer);
+	lyra::Renderer renderer;
+	renderer.create(&context);
 
-	room.draw(stage);
-	texture.draw(stage);
+	room.draw(renderer);
+	texture.draw(renderer);
 
-	stage.draw();
+	renderer.draw();
 
 	while (true) {
-		renderer.draw();
+		context.draw();
 	}
 
 	return 0;

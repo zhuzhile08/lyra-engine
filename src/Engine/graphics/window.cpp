@@ -33,6 +33,7 @@ void Window::events() noexcept {
 
 bool Window::get_events(const uint32 eventType, const uint32 event) noexcept {
 	/// @todo
+	return false;
 }
 
 SDL_Window* Window::get() const noexcept {

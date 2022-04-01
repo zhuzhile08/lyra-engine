@@ -14,12 +14,12 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#include <graphics/vulkan/GPU_buffer.h>
-#include <graphics/vulkan/devices.h>
-#include <graphics/vulkan/swapchain.h>
-#include <graphics/vulkan/descriptor.h>
-#include <graphics/renderer.h>
-#include <res/UBO.h>
+#include <graphics/GPU_buffer.h>
+#include <core/rendering/vulkan/devices.h>
+#include <core/rendering/vulkan/swapchain.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/context.h>
+#include <graphics/UBO.h>
 #include <core/logger.h>
 #include <core/defines.h>
 #include <core/queue_types.h>
@@ -48,10 +48,10 @@ public:
 	/**
 	 * @brief create the camera
 	 *
-	 * @param renderer renderer
+	 * @param context context
 	 * @param ubo data of the ubo
 	 */
-	void create(const Renderer* renderer, const UniformBufferObject&& ubo);
+	void create(const Context* context, const UniformBufferObject&& ubo);
 
 	/**
 	 * @brief rotate the camera around an certain axis
@@ -110,7 +110,7 @@ private:
 	glm::vec3 _position;
 	float _aspect;
 
-	const Renderer* renderer;
+	const Context* context;
 };
 
 } // namespace lyra

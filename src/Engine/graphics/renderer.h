@@ -1,5 +1,5 @@
 /*************************
- * @file renderer.h
+ * @file context.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief a rendering system around the Vulkan API with basic features
@@ -13,13 +13,11 @@
 
 #include <core/defines.h>
 #include <core/queue_types.h>
-#include <graphics/vulkan/command_buffer.h>
-#include <graphics/vulkan/descriptor.h>
-#include <graphics/vulkan/devices.h>
-#include <graphics/vulkan/sync_objects.h>
-#include <graphics/vulkan/instance.h>
-#include <graphics/vulkan/swapchain.h>
-#include <graphics/window.h>
+#include <graphics/pipeline.h>
+#include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <graphics/framebuffer.h>
+#include <core/rendering/context.h>
 
 #include <core/logger.h>
 
@@ -32,122 +30,103 @@
 namespace lyra {
 
 /**
- * @brief a vulkan renderer with basic features
+ * @brief a vulkan context with basic features
  * @todo maybe abstract vma memory allocation?
  */
 class Renderer : noud::Node {
 public:
 	Renderer();
 	/**
-	 * @brief destroy the renderer
+	 * @brief destroy the context
 	 */
 	void destroy() noexcept;
 	/**
-	 * @brief create the renderer
+	 * @brief create the context
 	 *
-	 * @param window the window
+	 * @param context the context
 	 */
-	void create(const Window* window);
+	void create(Context* context);
 
 	/**
-	 * @brief submit a Vulkan queue after command queue recording
+	 * @brief bind the functions for resetting and finish recording the command buffers
 	 *
-	 * @param queue the queue to submit
-	 * @param commandBuffer recorded commandbuffer
-	 * @param stageFlags pipeline shader stage flags
+	 * @param context the context
 	 */
-	void submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const;
+	void draw() noexcept;
 
 	/**
-	 * @brief wait for queue to finish submitting
-	 *
-	 * @param queue queue to wait for
-	 */
-	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
-	/**
-	 * @brief take the recorded commands and draw everything
-	 */
-	void draw();
-
-	/**
-	 * @brief get the device
+	 * @brief get the bind queue
 	 * 
-	 * @return const VulkanDevice
+	 * @return const CallQueue
 	*/
-	const VulkanDevice device() const noexcept { return _device; }
+	const CallQueue bind_queue() const noexcept { return _bind_queue; }
 	/**
-	 * @brief get the command pool
+	 * @brief get the draw queue
 	 * 
-	 * @return const VulkanCommandPool
+	 * @return const CallQueue
 	*/
-	const VulkanCommandPool commandPool() const noexcept { return _commandPool; }
-	/**
-	 * @brief get the swapchain
-	 * 
-	 * @return const VulkanSwapchain
-	*/
-	const VulkanSwapchain swapchain() const noexcept { return _swapchain; }
-	/**
-	 * @brief get the descriptor set layout
-	 * 
-	 * @return const VulkanDescriptorSetLayout
-	*/
-	const VulkanDescriptorSetLayout descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
-	/**
-	 * @brief get the descriptor pool
-	 * 
-	 * @return const VulkanDescriptorPool
-	*/
-	const VulkanDescriptorPool descriptorPool() const noexcept { return _descriptorPool; }
-	/**
-	 * @brief get the current frame count
-	 * 
-	 * @return const uint8
-	*/
-	const uint8 currentFrame() const noexcept { return _currentFrame; }
-	/**
-	 * @brief get the image index
-	 * 
-	 * @return const uint32
-	*/
-	const uint32 imageIndex() const noexcept { return _imageIndex; }
+	const CallQueue draw_queue() const noexcept { return _draw_queue; }
 
 private:
-	VulkanInstance _instance;
-	VulkanDevice _device;
-	VulkanCommandPool _commandPool;
-	VulkanSwapchain _swapchain;
-	VulkanDescriptorSetLayout _descriptorSetLayout;
-	VulkanDescriptorPool _descriptorPool;
-	VulkanSyncObjects _syncObjects;
+	VulkanFramebuffers _framebuffers;
+	std::vector<VulkanCommandBuffer> _commandBuffers;
+	VulkanGraphicsPipeline _pipeline;
 
-	CallQueue _renderQueue;
-	CallQueue _submitQueue;
+	CallQueue _bind_queue;
+	CallQueue _draw_queue;
 
-	uint8 _currentFrame = 0;
-	uint32 _imageIndex;
+	bool _drawing = true;
 
-	const Window* window;
+	Context* context;
 
 	/**
-	 * @brief recreate the swapchain and related stuff in case of some events
+	 * @brief bind a descriptor set
+	 *
+	 * @param descriptor descriptor
+	 * @param pipelineLayout pipeline layout
 	 */
-	void recreate_swapchain();
+	void bind_descriptor(const VulkanDescriptor descriptor) const noexcept;
+
+	void push_constants() const noexcept;
 	/**
-	 * @brief destroy the swapchain and related stuff in case of some events
+	 * @brief begin render passes
 	 */
-	void destroy_swapchain() noexcept;
+	void begin_render_pass() const noexcept;
+	/**
+	 * @brief end render passes
+	 *
+	 * @param framebuffers frame buffer
+	 */
+	void end_render_pass() const noexcept;
+	/**
+	 * @brief bind the graphics pipeline
+	 *
+	 * @param pipeline pipeline
+	 */
+	void bind_pipeline() const noexcept;
+	/**
+	 * @brief bind a model
+	 *
+	 * @param vertexBuffer vertex buffer of the model
+	 * @param indexBuffer index buffer of the model
+	 * @param cmdBuffIndex index of the command buffer to bind the model
+	 */
+	void bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer) const noexcept;
+	/**
+	 * @brief draw a model
+	 *
+	 * @param size size of the index buffer
+	 * @param cmdBuffIndex index of the command buffer to draw the model
+	 */
+	void draw_model(const uint32 size) const noexcept;
 
 	/**
-	 * @brief present all the recorded commands
+	 * @brief record all the commands
 	 */
-	void present_queue();
-	/**
-	 * @brief update the frame count
-	 */
-	void update_frame_count() noexcept;
+	void record_command_buffers();
 
-	friend class RenderStage;
+	friend class Mesh;
+	friend class Texture;
 };
 
-} // namespace Vulkan
+}

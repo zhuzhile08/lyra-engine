@@ -34,21 +34,25 @@ add_custom_target(build_shaders ALL
 include_directories(${SDL2_INCLUDE_DIRS} ${NOUD_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${Engine_include_dir} ${STB_INCLUDE_DIRS} ${VMA_INCLUDE_DIRS} ${TOL_INCLUDE_DIRS})
 
 add_executable(LyraEngine 
-include/NOUD/noud.cpp
-src/Engine/init/init_SDL.cpp 
-src/Engine/init/single_header_init.cpp
-src/Engine/math/math.cpp
-src/Engine/core/queue_types.cpp
-src/Engine/graphics/vulkan_wrappers.cpp
-src/Engine/graphics/camera.cpp
-src/Engine/graphics/window.cpp
-src/Engine/graphics/renderer.cpp
-src/Engine/res/loaders.cpp
-src/Engine/res/mesh.cpp
-src/Engine/res/texture.cpp
-src/GUI/main.cpp 
-"src/Engine/graphics/render_stage.cpp"
- "src/Engine/res/vertex.cpp" "src/Engine/graphics/vulkan/GPU_memory.cpp" "src/Engine/graphics/vulkan/GPU_memory.h"  "src/Engine/res/UBO.h")
+ "include/NOUD/noud.cpp"
+ "src/Engine/init/init_SDL.cpp"
+ "src/Engine/init/single_header_init.cpp"
+ "src/Engine/math/math.cpp"
+ "src/Engine/graphics/camera.cpp"
+ "src/Engine/graphics/window.cpp"
+ "src/Engine/graphics/renderer.cpp"
+ "src/Engine/graphics/vertex.cpp"  
+ "src/Engine/graphics/framebuffer.cpp"
+ "src/Engine/graphics/GPU_Buffer.cpp"
+ "src/Engine/graphics/pipeline.cpp"
+ "src/Engine/graphics/mesh.cpp"
+ "src/Engine/graphics/texture.cpp"
+ "src/Engine/core/queue_types.cpp"
+ "src/Engine/core/rendering/context.cpp"
+ "src/Engine/core/rendering/vulkan_core_wrappers.cpp"
+ "src/Engine/res/loaders.cpp"
+ "src/GUI/main.cpp"
+)
 
 add_dependencies(LyraEngine build_shaders)
 
