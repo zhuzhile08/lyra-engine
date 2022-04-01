@@ -31,7 +31,9 @@ int main() {
 
 	stage.draw();
 
-	renderer.update();
+	while (true) {
+		renderer.draw();
+	}
 
 	return 0;
 }
