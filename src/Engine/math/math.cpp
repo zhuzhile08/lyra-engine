@@ -2,23 +2,28 @@
 
 namespace lyra {
 
-double pyth(glm::vec2 a, glm::vec2 b) {
+double pyth(const glm::vec2 a, const glm::vec2 b) {
 	double x = b.x - a.x, y = b.y - a.y, result;
-	result = sqrt(x * x + y * y);
-	return result;
+	return sqrt(x * x + y * y);
 }
 
-double pyth3(glm::vec3 a, glm::vec3 b) {
+double pyth3(const glm::vec3 a, const glm::vec3 b) {
 	double x = b.x - a.x, y = b.y - a.y, z = b.z - a.z, result;
-	result = sqrt(x * x + y * y + z * z);
-	return result;
+	return sqrt(x * x + y * y + z * z);
 }
 
-double deltaTime(double FPS) {
+const float FPS() {
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	return std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+}
+
+const double deltaTime(const double FPS) {
 	return 1/FPS;
 }
 
-double randDoub(double x, double y) {
+double randDoub(const double x, const double y) {
 	int precision = rand() % 1000000 + 100;			// calculate the precision
 	/**
 	 * if roughly works like this:
