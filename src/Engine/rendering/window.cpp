@@ -3,34 +3,40 @@
 namespace lyra {
 
 Window::Window() {
+	LOG_INFO("Creating SDL window...")
+
 	uint32 flags = SDL_WINDOW_VULKAN;
 
 	if (fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
 	if (resizable) flags |= SDL_WINDOW_RESIZABLE;
 
-	window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, flags);
+	_window = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, flags);
 
-	if (!window) {
-        LOG_EXEPTION("SDL create window", SDL_GetError());
+	if (!_window) {
+        LOG_EXEPTION("Failed to create SDL window with error: ", SDL_GetError());
 	}
+
+	LOG_INFO("Successfully created window at: ", GET_ADDRESS(this), "!", TAB)
 }
 
 void Window::destroy() noexcept {
-	SDL_DestroyWindow(window);
+	SDL_DestroyWindow(_window);
+
+	LOG_INFO("Successfully destroyed SDL window!", TAB)
 }
 
-void Window::events(SDL_Event event) noexcept {
-	if (event.type == SDL_WINDOWEVENT) {
-		switch(event.window.event) {
-			case SDL_WINDOWEVENT_RESIZED:
-				LOG_INFO("SDL Window was resized");
-				resized = true;
-		}
+void Window::events() noexcept {
+	while (SDL_PollEvent(&_event)) {
+		/// @todo
 	}
 }
 
-SDL_Window* Window::get_window() const noexcept {
-	return window;
+bool Window::get_events(const uint32 eventType, const uint32 event) noexcept {
+	/// @todo
+}
+
+SDL_Window* Window::get() const noexcept {
+	return _window;
 }
 
 }

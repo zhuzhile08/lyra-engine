@@ -17,16 +17,18 @@
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/swapchain.h>
+#include <rendering/vulkan/descriptor.h>
 #include <rendering/renderer.h>
 #include <res/UBO.h>
 #include <core/logger.h>
 #include <core/defines.h>
+#include <core/queue_types.h>
+#include <math/math.h>
 
 #include <vector>
 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
-#include <chrono>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -93,16 +95,18 @@ public:
 	 * @param far far clipping plane
 	 */
 	void set_perspective(const float aspect, const float fov = FOV, const float near = 0.1f, const float far = 10.0f) noexcept;
+
 	/**
-	 * @brief copy all the data of the ubo into the buffers after all transformations are applied
-	 *
-	 * @param index index of the buffer
-	 */
-	void finish(uint32 index);
+	 * @brief temporary draw function
+	*/
+	void draw();
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
 	UniformBufferObject _ubo;
+	VulkanDescriptor _descriptor;
+	CallQueue _update_queue;
+
 	glm::vec3 _position;
 	float _aspect;
 

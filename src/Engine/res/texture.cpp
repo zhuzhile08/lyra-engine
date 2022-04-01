@@ -17,6 +17,11 @@ void Texture::create(const Renderer* renderer, str path, VkFormat format, int ch
 	load_image(path, format, channelsToLoad);
 	create_sampler();
 
+	// create the descriptor set
+	VulkanDescriptor::Writer writer;
+	writer.add_image_write({ _sampler, _view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
+	_descriptor.create(&renderer->device(), renderer->descriptorSetLayout(), renderer->descriptorPool(), writer);
+
 	LOG_INFO("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this))
 }
 
@@ -27,6 +32,11 @@ void Texture::create(str path, VkFormat format, int channelsToLoad) {
 
 	load_image(path, format, channelsToLoad);
 	create_sampler();
+
+	// create the descriptor set
+	VulkanDescriptor::Writer writer;
+	writer.add_image_write({ _sampler, _view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
+	_descriptor.create(&renderer->device(), renderer->descriptorSetLayout(), renderer->descriptorPool(), writer);
 
 	LOG_INFO("Successfully recreated Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this))
 }
@@ -62,12 +72,6 @@ void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent)
 }
 
 void Texture::draw(RenderStage renderStage) {
-	VulkanDescriptor::Writer writer;
-
-	writer.add_image_write({ _sampler, _view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL });
-
-	_descriptor.create(&renderer->device(), renderer->descriptorSetLayout(), renderer->descriptorPool(), writer);
-
 	renderStage._bind_queue.add([&]() {renderStage.bind_descriptor(_descriptor); });
 }
 

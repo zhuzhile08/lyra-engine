@@ -104,7 +104,7 @@ void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceC
 	if (surfaceCapabilities->currentExtent.width == UINT32_MAX) {           // if something is wrong, fix the extent
 		LOG_WARNING("Couldn't get Vulkan swapchain capabilities' width")
 		int width, height;
-		SDL_GL_GetDrawableSize(window->get_window(), &width, &height);
+		SDL_GL_GetDrawableSize(window->get(), &width, &height);
 
 		VkExtent2D newExtent = {
 			static_cast<uint32>(width),

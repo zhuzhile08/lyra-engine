@@ -55,9 +55,9 @@ void VulkanInstance::create_instance() {
 	// get all extensions
 	uint32 SDLExtensionCount = 0;
 
-	if(!SDL_Vulkan_GetInstanceExtensions(window->get_window(), &SDLExtensionCount, nullptr)) LOG_EXEPTION("Failed to get number of Vulkan instance extensions")
+	if(!SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, nullptr)) LOG_EXEPTION("Failed to get number of Vulkan instance extensions")
 	str* SDLExtensions = new str [SDLExtensionCount];
-	if(!SDL_Vulkan_GetInstanceExtensions(window->get_window(), &SDLExtensionCount, SDLExtensions)) LOG_EXEPTION("Failed to get Vulkan instance extensions")
+	if(!SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, SDLExtensions)) LOG_EXEPTION("Failed to get Vulkan instance extensions")
 
 	// define some info for the application that will be used in instance creation
 	VkApplicationInfo appInfo {
@@ -94,7 +94,7 @@ void VulkanInstance::create_instance() {
 
 void VulkanInstance::create_window_surface() {
 	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
-	if(!SDL_Vulkan_CreateSurface(window->get_window(), _instance, &_surface)) LOG_EXEPTION("Failed to create Vulkan window surface")
+	if(!SDL_Vulkan_CreateSurface(window->get(), _instance, &_surface)) LOG_EXEPTION("Failed to create Vulkan window surface")
 }
 
 } // namespace lyra

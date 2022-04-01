@@ -17,6 +17,7 @@
 #include <core/defines.h>
 #include <math/math.h>
 #include <core/logger.h>
+#include <core/queue_types.h>
 
 #include <SDL.h>
 #include <SDL_error.h>
@@ -29,26 +30,6 @@ namespace lyra {
  * @todo get more events and window settings. The current window is VERY barebones and only the bone of the entire structure is implemented
  */
 class Window {
-private:
-	SDL_Window* window;
-
-	int         width       = WIDTH;
-	int         height      = HEIGHT;
-	bool        resizable   = RESIZEABLE;
-	bool        fullscreen  = FULLSCREEN;
-	const char* title       = TITLE;
-
-	bool 		resized 	= false;
-
-	/**
-	 * @brief destroy the window
-	 */
-	void        destroy() noexcept;
-	/**
-	 * @brief get window events like resizing
-	 */
-	void 		events(SDL_Event event) noexcept;
-
 public:
 	/**
 	 * @brief construct a new window
@@ -56,17 +37,43 @@ public:
 	Window();
 
 	/**
-	 * @brief get the window object
-	 * 
-	 * @return SDL_Window* 
+	 * @brief get the events
+	 *
+	 * @param eventType type of event occuring
+	 * @param event that is occuring
 	 */
-	SDL_Window* get_window() const noexcept;
+	void events() noexcept;
+
 	/**
-	 * @brief get if window was resized
-	 * 
-	 * @return bool 
+	 * @brief get the events
+	 *
+	 * @param eventType type of event occuring
+	 * @param event that is occuring
 	 */
-	bool		get_resized() const;
+	bool get_events(const uint32 eventType, const uint32 event) noexcept;
+
+	/**
+	 * @brief get the window object
+	 *
+	 * @return SDL_Window*
+	 */
+	SDL_Window* get() const noexcept;
+
+private:
+	SDL_Window* _window;
+	SDL_Event _event;
+	CallQueue _updates;
+
+	int width = WIDTH;
+	int height = HEIGHT;
+	bool resizable = RESIZEABLE;
+	bool fullscreen = FULLSCREEN;
+	const char* title = TITLE;
+
+	/**
+	 * @brief destroy the window
+	 */
+	void destroy() noexcept;
 };
 
 } // namespace lyra
