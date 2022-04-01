@@ -1,4 +1,4 @@
-#include <rendering/vulkan/swapchain.h>
+#include <graphics/vulkan/swapchain.h>
 
 namespace lyra {
 

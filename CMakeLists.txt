@@ -39,16 +39,16 @@ src/Engine/init/init_SDL.cpp
 src/Engine/init/single_header_init.cpp
 src/Engine/math/math.cpp
 src/Engine/core/queue_types.cpp
-src/Engine/rendering/vulkan_wrappers.cpp
-src/Engine/rendering/camera.cpp
-src/Engine/rendering/window.cpp
-src/Engine/rendering/renderer.cpp
+src/Engine/graphics/vulkan_wrappers.cpp
+src/Engine/graphics/camera.cpp
+src/Engine/graphics/window.cpp
+src/Engine/graphics/renderer.cpp
 src/Engine/res/loaders.cpp
 src/Engine/res/mesh.cpp
 src/Engine/res/texture.cpp
 src/GUI/main.cpp 
-"src/Engine/rendering/render_stage.cpp"
- "src/Engine/res/vertex.cpp" "src/Engine/rendering/vulkan/GPU_memory.cpp" "src/Engine/rendering/vulkan/GPU_memory.h"  "src/Engine/res/UBO.h")
+"src/Engine/graphics/render_stage.cpp"
+ "src/Engine/res/vertex.cpp" "src/Engine/graphics/vulkan/GPU_memory.cpp" "src/Engine/graphics/vulkan/GPU_memory.h"  "src/Engine/res/UBO.h")
 
 add_dependencies(LyraEngine build_shaders)
 

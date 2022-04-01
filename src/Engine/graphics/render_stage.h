@@ -13,11 +13,11 @@
 
 #include <core/defines.h>
 #include <core/queue_types.h>
-#include <rendering/vulkan/pipeline.h>
-#include <rendering/vulkan/command_buffer.h>
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/vulkan/framebuffer.h>
-#include <rendering/renderer.h>
+#include <graphics/vulkan/pipeline.h>
+#include <graphics/vulkan/command_buffer.h>
+#include <graphics/vulkan/descriptor.h>
+#include <graphics/vulkan/framebuffer.h>
+#include <graphics/renderer.h>
 
 #include <core/logger.h>
 

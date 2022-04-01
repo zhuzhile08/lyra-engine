@@ -12,7 +12,7 @@
 #pragma once
 
 #include <core/defines.h>
-#include <rendering/vulkan/swapchain.h>
+#include <graphics/vulkan/swapchain.h>
 #include <res/UBO.h>
 #include <core/logger.h>
 

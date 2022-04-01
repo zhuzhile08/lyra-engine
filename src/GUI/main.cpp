@@ -3,9 +3,9 @@
 
 #include <core/logger.h>
 #include <core/queue_types.h>
-#include <rendering/window.h>
-#include <rendering/renderer.h>
-#include <rendering/render_stage.h>
+#include <graphics/window.h>
+#include <graphics/renderer.h>
+#include <graphics/render_stage.h>
 #include <res/mesh.h>
 #include <res/texture.h>
 #include <init/init_SDL.h>

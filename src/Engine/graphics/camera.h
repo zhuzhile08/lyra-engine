@@ -14,11 +14,11 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#include <rendering/vulkan/GPU_buffer.h>
-#include <rendering/vulkan/devices.h>
-#include <rendering/vulkan/swapchain.h>
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/renderer.h>
+#include <graphics/vulkan/GPU_buffer.h>
+#include <graphics/vulkan/devices.h>
+#include <graphics/vulkan/swapchain.h>
+#include <graphics/vulkan/descriptor.h>
+#include <graphics/renderer.h>
 #include <res/UBO.h>
 #include <core/logger.h>
 #include <core/defines.h>

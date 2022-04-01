@@ -13,7 +13,7 @@
 
 #include <core/defines.h>
 #include <res/loaders/load_file.h>
-#include <rendering/vulkan/devices.h>
+#include <graphics/vulkan/devices.h>
 #include <core/logger.h>
 
 #include <vector>

@@ -17,9 +17,9 @@
 #include <res/loaders/load_model.h>
 #include <res/vertex.h>
 
-#include <rendering/render_stage.h>
-#include <rendering/renderer.h>
-#include <rendering/vulkan/GPU_buffer.h>
+#include <graphics/render_stage.h>
+#include <graphics/renderer.h>
+#include <graphics/vulkan/GPU_buffer.h>
 
 #define GLM_FORCE_RADIANS
 

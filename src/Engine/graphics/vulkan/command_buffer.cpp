@@ -1,4 +1,4 @@
-#include <rendering/vulkan/command_buffer.h>
+#include <graphics/vulkan/command_buffer.h>
 
 namespace lyra {
 

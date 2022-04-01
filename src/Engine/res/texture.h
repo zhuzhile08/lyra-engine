@@ -2,12 +2,12 @@
 
 #include <core/defines.h>
 #include <core/logger.h>
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/vulkan/vulkan_image.h>
-#include <rendering/vulkan/GPU_buffer.h>
-#include <rendering/vulkan/GPU_memory.h>
-#include <rendering/renderer.h>
-#include <rendering/render_stage.h>
+#include <graphics/vulkan/descriptor.h>
+#include <graphics/vulkan/vulkan_image.h>
+#include <graphics/vulkan/GPU_buffer.h>
+#include <graphics/vulkan/GPU_memory.h>
+#include <graphics/renderer.h>
+#include <graphics/render_stage.h>
 
 #include <stb_image.h>
 #include <vulkan/vulkan.h>

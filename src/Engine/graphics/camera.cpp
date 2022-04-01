@@ -1,4 +1,4 @@
-#include <rendering/camera.h>
+#include <graphics/camera.h>
 
 namespace lyra {
 

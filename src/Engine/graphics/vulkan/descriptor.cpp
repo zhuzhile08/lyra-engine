@@ -1,4 +1,4 @@
-#include <rendering/vulkan/descriptor.h>
+#include <graphics/vulkan/descriptor.h>
 
 namespace lyra {
 

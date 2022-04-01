@@ -12,9 +12,9 @@
 #pragma once
 
 #include <core/defines.h>
-#include <rendering/vulkan/devices.h>
-#include <rendering/vulkan/command_buffer.h>
-#include <rendering/vulkan/GPU_memory.h>
+#include <graphics/vulkan/devices.h>
+#include <graphics/vulkan/command_buffer.h>
+#include <graphics/vulkan/GPU_memory.h>
 #include <core/logger.h>
 
 #include <cstring>

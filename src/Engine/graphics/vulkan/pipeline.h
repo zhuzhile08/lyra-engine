@@ -14,12 +14,12 @@
 
 #include <core/defines.h>
 #include <res/loaders/load_file.h>
-#include <rendering/vulkan/swapchain.h>
-#include <rendering/vulkan/devices.h>
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/vulkan/framebuffer.h>
+#include <graphics/vulkan/swapchain.h>
+#include <graphics/vulkan/devices.h>
+#include <graphics/vulkan/descriptor.h>
+#include <graphics/vulkan/framebuffer.h>
 #include <res/vertex.h>
-#include <rendering/vulkan/vulkan_shader.h>
+#include <graphics/vulkan/vulkan_shader.h>
 #include <core/logger.h>
 
 #include <vector>

@@ -13,7 +13,7 @@
 
 #include <core/defines.h>
 #include <math/math.h>
-#include <rendering/vulkan/instance.h>
+#include <graphics/vulkan/instance.h>
 #include <core/logger.h>
 
 #include <vector>

@@ -13,8 +13,8 @@
 #pragma once
 
 #include <core/defines.h>
-#include <rendering/vulkan/devices.h>
-#include <rendering/vulkan/command_buffer.h>
+#include <graphics/vulkan/devices.h>
+#include <graphics/vulkan/command_buffer.h>
 #include <core/logger.h>
 
 #include <SDL.h>

@@ -1,4 +1,4 @@
-#include <rendering/renderer.h>
+#include <graphics/renderer.h>
 
 namespace lyra {
 

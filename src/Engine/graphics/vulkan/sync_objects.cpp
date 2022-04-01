@@ -1,4 +1,4 @@
-#include <rendering/vulkan/sync_objects.h>
+#include <graphics/vulkan/sync_objects.h>
 
 namespace lyra {
 

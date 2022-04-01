@@ -1,4 +1,4 @@
-#include <rendering/vulkan/devices.h>
+#include <graphics/vulkan/devices.h>
 
 namespace lyra {
 

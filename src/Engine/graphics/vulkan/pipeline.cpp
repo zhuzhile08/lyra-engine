@@ -1,4 +1,4 @@
-#include <rendering/vulkan/pipeline.h>
+#include <graphics/vulkan/pipeline.h>
 
 namespace lyra {
 

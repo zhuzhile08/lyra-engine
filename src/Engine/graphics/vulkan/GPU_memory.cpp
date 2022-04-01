@@ -1,4 +1,4 @@
-#include <rendering/vulkan/GPU_Memory.h>
+#include <graphics/vulkan/GPU_Memory.h>
 
 namespace lyra {
 

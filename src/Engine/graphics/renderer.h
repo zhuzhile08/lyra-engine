@@ -13,13 +13,13 @@
 
 #include <core/defines.h>
 #include <core/queue_types.h>
-#include <rendering/vulkan/command_buffer.h>
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/vulkan/devices.h>
-#include <rendering/vulkan/sync_objects.h>
-#include <rendering/vulkan/instance.h>
-#include <rendering/vulkan/swapchain.h>
-#include <rendering/window.h>
+#include <graphics/vulkan/command_buffer.h>
+#include <graphics/vulkan/descriptor.h>
+#include <graphics/vulkan/devices.h>
+#include <graphics/vulkan/sync_objects.h>
+#include <graphics/vulkan/instance.h>
+#include <graphics/vulkan/swapchain.h>
+#include <graphics/window.h>
 
 #include <core/logger.h>
 

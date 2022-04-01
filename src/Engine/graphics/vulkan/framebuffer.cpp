@@ -1,4 +1,4 @@
-#include <rendering/vulkan/framebuffer.h>
+#include <graphics/vulkan/framebuffer.h>
 
 namespace lyra {
 
