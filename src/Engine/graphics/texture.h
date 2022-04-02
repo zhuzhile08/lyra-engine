@@ -46,7 +46,7 @@ public:
 	 *
 	 * @renderer the subrenderer to render it on
 	 */
-	void draw(Renderer renderer);
+	void bind(Renderer renderer);
 
 	/**
 	const VulkanImage image() const noexcept { return _image; }

@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-Context::Context() { ("Context", nullptr); }
+Context::Context() { }
 
 void Context::destroy() noexcept {
 	_device.wait();

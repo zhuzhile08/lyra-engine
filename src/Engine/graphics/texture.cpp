@@ -71,7 +71,7 @@ void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent)
 	cmdBuff.destroy();
 }
 
-void Texture::draw(Renderer renderer) {
+void Texture::bind(Renderer renderer) {
 	renderer._bind_queue.add([&]() {renderer.bind_descriptor(_descriptor); });
 }
 

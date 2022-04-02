@@ -178,7 +178,7 @@ void Mesh::create_index_buffer() {
 	stagingBuffer.destroy();
 }
 
-void Mesh::draw(Renderer renderer) noexcept {
+void Mesh::bind(Renderer renderer) noexcept {
 	renderer._bind_queue.add([&]() { renderer.bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); });
 	renderer._draw_queue.add([&]() { renderer.draw_model(static_cast<uint32>(_indices.size())); });
 }

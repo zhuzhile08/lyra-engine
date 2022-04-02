@@ -33,7 +33,7 @@ namespace lyra {
  * @brief a vulkan context with basic features
  * @todo maybe abstract vma memory allocation?
  */
-class Renderer : noud::Node {
+class Renderer {
 public:
 	Renderer();
 	/**

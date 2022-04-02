@@ -75,11 +75,11 @@ public:
 	void create_mesh(const non_access::LoadedModel loaded, const uint16 index = UINT16_MAX);
 
 	/**
-	 * add the mesh and its buffers to the context draw queue
+	 * add the mesh and its buffers to the renderer draw queue
 	 *
 	 * @param renderer context to add the draw call to
 	 */
-	void draw(Renderer renderer) noexcept;
+	void bind(Renderer renderer) noexcept;
 
 	/**
 	 * @brief get the vertices

@@ -34,7 +34,7 @@ namespace lyra {
 /**
  * @brief a vulkan context containing everything needed for an application
  */
-class Context : noud::Node {
+class Context {
 public:
 	Context();
 	/**

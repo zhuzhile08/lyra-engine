@@ -17,17 +17,16 @@ int main() {
 	lyra::Context context;
 	context.create(&window);
 
-	lyra::Mesh room;
-	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
-
-	lyra::Texture texture;
-	texture.create(&context, "data/img/viking_room.png");
-
 	lyra::Renderer renderer;
 	renderer.create(&context);
 
-	room.draw(renderer);
-	texture.draw(renderer);
+	lyra::Mesh room;
+	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
+	room.bind(renderer);
+
+	lyra::Texture texture;
+	texture.create(&context, "data/img/viking_room.png");
+	texture.bind(renderer);
 
 	renderer.draw();
 
