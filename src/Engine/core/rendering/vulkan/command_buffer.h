@@ -58,7 +58,7 @@ public:
 	const VkCommandPool* get_ptr() const noexcept { return &commandPool; }
 
 private:
-	VkCommandPool commandPool;
+	VkCommandPool commandPool = VK_NULL_HANDLE;
 
 	const VulkanDevice* device;
 };
@@ -133,7 +133,7 @@ public:
 	const VkCommandBuffer* get_ptr() const noexcept { return &commandBuffer; }
 
 private:
-	VkCommandBuffer commandBuffer;
+	VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 
 	const VulkanDevice* device;
 	const VulkanCommandPool* commandPool;

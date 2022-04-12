@@ -7,11 +7,12 @@ Context::Context() { }
 void Context::destroy() noexcept {
 	_device.wait();
 
-	destroy_swapchain();
+	_swapchain.destroy();
 
 	_descriptorPool.destroy();
 	_descriptorSetLayout.destroy();
 	_syncObjects.destroy();
+	for (auto& commandBuffer : _commandBuffers) commandBuffer.destroy();
 	_commandPool.destroy();
 	_device.destroy();
 	_instance.destroy();
@@ -23,6 +24,9 @@ void Context::create(const Window* window) {
 	_instance.create(window);
 	_device.create(&_instance);
 	_commandPool.create(&_device);
+	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	for (auto& cmdBuff : _commandBuffers) cmdBuff.create(&_device, &_commandPool);
+	_syncObjects.create(&_device);
 	_swapchain.create(&_device, &_instance, _commandPool, window);
 
 	VulkanDescriptorSetLayout::Builder  layoutBuilder;
@@ -35,18 +39,12 @@ void Context::create(const Window* window) {
 	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT);
 	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT);
 	_descriptorPool.create(&_device, poolBuilder);
-
-	_syncObjects.create(&_device, &_swapchain);
-}
-
-void Context::destroy_swapchain() noexcept {
-	_swapchain.destroy();
 }
 
 void Context::recreate_swapchain() {
 	VulkanSwapchain oldSwapchain = std::move(_swapchain);
 
-	destroy_swapchain();
+	_swapchain.destroy();
 
 	_swapchain.create(oldSwapchain, _commandPool);
 
@@ -54,8 +52,14 @@ void Context::recreate_swapchain() {
 }
 
 void Context::draw() {
+	// wait for the already recorded stuff to finish executing
 	_syncObjects.wait(_currentFrame);
+	_syncObjects.reset(_currentFrame);
 
+	// reset command buffer after everything has been executed
+	_commandBuffers.at(currentFrame()).reset();
+
+	// get the next image to render on
 	VkResult result = vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores()[_currentFrame], VK_NULL_HANDLE, &_imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -64,18 +68,25 @@ void Context::draw() {
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) LOG_EXEPTION("Failed to get the next Vulkan image layer to blit on!");
 
-	_syncObjects.reset(_currentFrame);
+	// begin recording the command buffer
+	_commandBuffers[currentFrame()].begin(0);
 
+	// call the draw calls
 	_renderQueue.flush();
 
-	_submitQueue.flush();
+	// end recording the command buffer
+	_commandBuffers[currentFrame()].end();
 
-	present_queue();
+	// signal the synchronisation objects to wait until drawing is finished
+	submit_device_queue(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+	// executing all recorded commands and render the image onto the window
+	present_device_queue();
 
+	// update the frame
 	update_frame_count();
 }
 
-void Context::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const {
+void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 	VkSemaphore waitSemaphores[] = { _syncObjects.imageAvailableSemaphores()[_currentFrame] };
 	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
 
@@ -86,16 +97,16 @@ void Context::submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, c
 	   waitSemaphores,
 	   &stageFlags,
 	   1,
-	   commandBuffer.get_ptr(),
+	   _commandBuffers.at(_currentFrame).get_ptr(),
 	   1,
 	   signalSemaphores
 	};
 
 	// submit the queue
-	if (vkQueueSubmit(queue.queue, 1, &submitInfo, _syncObjects.inFlightFences()[_currentFrame]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
+	if (vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences()[_currentFrame]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
 }
 
-void Context::present_queue() {
+void Context::present_device_queue() {
 	VkSwapchainKHR swapchains[] = { _swapchain.swapchain() };
 	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
 
@@ -121,7 +132,7 @@ void Context::present_queue() {
 }
 
 void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-	if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!")
+	if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!");
 }
 
 void Context::update_frame_count() noexcept {

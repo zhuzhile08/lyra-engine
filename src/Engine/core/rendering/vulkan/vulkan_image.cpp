@@ -8,7 +8,7 @@ void VulkanImage::destroy_view() noexcept {
 	vkDestroyImageView(device->device(), _view, nullptr);
 	vkDestroyImage(device->device(), _image, nullptr);
 
-	LOG_INFO("Succesfully destroyed Vulkan images!")
+	LOG_INFO("Succesfully destroyed Vulkan images!");
 }
 
 VkImageCreateInfo VulkanImage::get_image_create_info(
@@ -67,12 +67,12 @@ void VulkanImage::create_view(
 	};
 
 	// create the view
-	if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views")
+	if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views");
 
-	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!")
+	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!");
 }
 
-void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlagBits aspect, const VulkanCommandPool commandPool) const {
+void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlags aspect, const VulkanCommandPool commandPool) const {
 	// temporary command buffer for copying
 	VulkanCommandBuffer     cmdBuff;
 	cmdBuff.create(&device, &commandPool);
@@ -116,7 +116,7 @@ void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout old
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this))
+	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this));
 
 	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
 
@@ -133,13 +133,13 @@ void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout old
 
 const VkFormat VulkanImage::get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, VkFormatFeatureFlags features, VkImageTiling tiling) const {
 	// check which tiling mode to use
-	VkImageTiling tiling_; // screw naming conventions, I don't care
+	VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM; // screw naming conventions, I don't care
 	if (_tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = tiling;
 	else if (tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = _tiling;
-	else if (tiling != VK_IMAGE_TILING_MAX_ENUM && tiling != VK_IMAGE_TILING_MAX_ENUM) {
-		LOG_WARNING("Defined 2 seperate tiling modes whilst finding the best format for a image: ", _tiling, " and ", tiling, "! Automatically set to the first mode!")
+	else if (tiling != VK_IMAGE_TILING_MAX_ENUM && tiling_ != VK_IMAGE_TILING_MAX_ENUM) {
+		LOG_WARNING("Defined 2 seperate tiling modes whilst finding the best format for a image: ", _tiling, " and ", tiling, "! Automatically set to the first mode!");
 		tiling_ = _tiling;
-	} else LOG_EXEPTION("No tiling mode was defined whilst attempting to find the best format for image: ", GET_ADDRESS(this), "!")
+	} else LOG_EXEPTION("No tiling mode was defined whilst attempting to find the best format for image: ", GET_ADDRESS(this), "!");
 
 	for (const auto& format : candidates) {
 		VkFormatProperties props;
@@ -149,7 +149,9 @@ const VkFormat VulkanImage::get_best_format(VulkanDevice device, const std::vect
 		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return format;
 	}
 
-	LOG_EXEPTION("Failed to find supported format out of user-defined formats for image at: ", GET_ADDRESS(this), "!")
+	LOG_EXEPTION("Failed to find supported format out of user-defined formats for image at: ", GET_ADDRESS(this), "!");
+
+	return VK_FORMAT_MAX_ENUM;
 }
 
 } // namespace lyra

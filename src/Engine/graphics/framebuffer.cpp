@@ -8,7 +8,7 @@ void VulkanFramebuffers::destroy() noexcept {
 	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
 	vkDestroyRenderPass(device->device(), _renderPass, nullptr);
 
-	LOG_INFO("Succesfully destroyed Vulkan frame buffer!")
+	LOG_INFO("Succesfully destroyed Vulkan frame buffer!");
 }
 
 void VulkanFramebuffers::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
@@ -18,7 +18,7 @@ void VulkanFramebuffers::create(const VulkanDevice* device, const VulkanSwapchai
 	create_render_pass();
 	create_frame_buffers();
 
-	LOG_INFO("Succesfully created Vulkan framebuffers and render pass at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan framebuffers and render pass at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void VulkanFramebuffers::create_render_pass() {
@@ -96,7 +96,7 @@ void VulkanFramebuffers::create_render_pass() {
 		&dependencies
 	};
 
-	if (vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass)) LOG_EXEPTION("Failed to create Vulkan render pass!")
+	if (vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass)) LOG_EXEPTION("Failed to create Vulkan render pass!");
 }
 
 void VulkanFramebuffers::create_frame_buffers() {

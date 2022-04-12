@@ -87,8 +87,8 @@ public:
 	const VkDeviceSize size() const noexcept { return _size; };
 
 private:
-	VkBuffer _buffer;
-	VkDeviceSize _size;
+	VkBuffer _buffer = VK_NULL_HANDLE;
+	VkDeviceSize _size = 0;
 
 protected:
 	const VulkanDevice* device;

@@ -67,7 +67,7 @@ public:
 	const std::vector <VkFramebuffer> framebuffers() const noexcept { return _framebuffers; }
 
 private:
-	VkRenderPass _renderPass;
+	VkRenderPass _renderPass = VK_NULL_HANDLE;
 	std::vector <VkFramebuffer> _framebuffers;
 
 	const VulkanDevice* device;

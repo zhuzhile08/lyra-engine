@@ -8,28 +8,28 @@ void VulkanDevice::destroy() noexcept {
 	vkDestroyDevice(_device, nullptr);
 	vmaDestroyAllocator(_allocator);
 
-	LOG_INFO("Succesfully destroyed Vulkan device!")
+	LOG_INFO("Succesfully destroyed Vulkan device!");
 }
 
 void VulkanDevice::create(const VulkanInstance* instance) {
-	LOG_INFO("Creating Vulkan device...")
+	LOG_INFO("Creating Vulkan device...");
 
 	this->instance = instance;
 	pick_physical_device();
 	create_logical_device();
 	create_allocator();
 
-	LOG_INFO("Succesfully created Vulkan device and allocated GPU at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan device and allocated GPU at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
 	for (str extension : requestedExtensions) {
 		bool found = false;
-		LOG_INFO("Available device extensions:")
+		LOG_INFO("Available device extensions:");
 
 			for (const auto& extensionProperties : extensions) {
-				LOG_DEBUG(TAB, extensionProperties.extensionName)
+				LOG_DEBUG(TAB, extensionProperties.extensionName);
 					if (strcmp(extension, extensionProperties.extensionName) == 0) {
 						found = true;
 						break;
@@ -37,7 +37,7 @@ void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProp
 			}
 
 		if (!found) {
-			LOG_EXEPTION("User required Vulkan extensions weren't found!", extension)
+			LOG_EXEPTION("User required Vulkan extensions weren't found!", extension);
 		}
 	}
 }
@@ -66,7 +66,7 @@ void VulkanDevice::create_queue(VulkanQueueFamily* queue) noexcept {
 void VulkanDevice::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
-	if (vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to find any Vulkan auitable GPUs!")
+	if (vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to find any Vulkan auitable GPUs!");
 		std::vector <VkPhysicalDevice>             devices(deviceCount);             // just put this in here cuz I was lazy
 	vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, devices.data());
 
@@ -75,13 +75,13 @@ void VulkanDevice::pick_physical_device() {
 
 	int i = 0;
 	for (auto& device : devices) {
-		LOG_INFO("GPU " + std::to_string(i + 1) + ": ")
+		LOG_INFO("GPU " + std::to_string(i + 1) + ": ");
 		rate_physical_device(device, possibleDevices);
 		i++;
 	}
 
 	if (possibleDevices.begin()->first <= 0) {
-		LOG_EXEPTION("Failed to find GPU with enough features")
+		LOG_EXEPTION("Failed to find GPU with enough features");
 	}
 
 	_physicalDevice = possibleDevices.begin()->second;
@@ -162,7 +162,7 @@ void VulkanDevice::create_logical_device() {
 	};
 
 	// create the device and retrieve the graphics and presentation queue handles
-	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) LOG_EXEPTION("Failed to create logical device!")
+	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) LOG_EXEPTION("Failed to create logical device!");
 
 	create_queue(&_graphicsQueue);
 	create_queue(&_presentQueue);
@@ -195,14 +195,14 @@ uint32 VulkanDevice::find_memory_type(const uint32 typeFilter, const VkMemoryPro
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(_physicalDevice, &memProperties);
 
-	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+	for (uint32 i = 0; i < memProperties.memoryTypeCount; i++) {
 		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
 			return i;
 			return true;
 		}
 	}
 
-	LOG_EXEPTION("Failed to find suitable memory type!")
+	LOG_EXEPTION("Failed to find suitable memory type!");
 	return INT32_MAX;
 }
 

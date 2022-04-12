@@ -23,7 +23,6 @@
 
 #include <core/logger.h>
 
-#include <memory>
 #include <vector>
 
 #include <noud.h>
@@ -49,15 +48,6 @@ public:
 	void create(const Window* window);
 
 	/**
-	 * @brief submit a Vulkan queue after command queue recording
-	 *
-	 * @param queue the queue to submit
-	 * @param commandBuffer recorded commandbuffer
-	 * @param stageFlags pipeline shader stage flags
-	 */
-	void submit_device_queue(const VulkanDevice::VulkanQueueFamily queue, const VulkanCommandBuffer commandBuffer, const VkPipelineStageFlags stageFlags) const;
-
-	/**
 	 * @brief wait for queue to finish submitting
 	 *
 	 * @param queue queue to wait for
@@ -81,6 +71,12 @@ public:
 	*/
 	const VulkanCommandPool commandPool() const noexcept { return _commandPool; }
 	/**
+	 * @brief get the command buffers
+	 *
+	 * @return const std::vector<VulkanCommandBuffer>
+	*/
+	const std::vector<VulkanCommandBuffer> commandBuffers() const noexcept { return _commandBuffers; }
+	/**
 	 * @brief get the swapchain
 	 * 
 	 * @return const VulkanSwapchain
@@ -99,6 +95,12 @@ public:
 	*/
 	const VulkanDescriptorPool descriptorPool() const noexcept { return _descriptorPool; }
 	/**
+	 * @brief get the queue with the draw calls
+	 * 
+	 * @return CallQueue
+	*/
+	CallQueue renderQueue() const noexcept { return _renderQueue; }
+	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
@@ -115,13 +117,13 @@ private:
 	VulkanInstance _instance;
 	VulkanDevice _device;
 	VulkanCommandPool _commandPool;
+	std::vector<VulkanCommandBuffer> _commandBuffers;
+	VulkanSyncObjects _syncObjects;
 	VulkanSwapchain _swapchain;
 	VulkanDescriptorSetLayout _descriptorSetLayout;
 	VulkanDescriptorPool _descriptorPool;
-	VulkanSyncObjects _syncObjects;
 
 	CallQueue _renderQueue;
-	CallQueue _submitQueue;
 
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;
@@ -132,21 +134,21 @@ private:
 	 * @brief recreate the swapchain and related stuff in case of some events
 	 */
 	void recreate_swapchain();
-	/**
-	 * @brief destroy the swapchain and related stuff in case of some events
-	 */
-	void destroy_swapchain() noexcept;
 
 	/**
 	 * @brief present all the recorded commands
 	 */
-	void present_queue();
+	void present_device_queue();
+	/**
+	 * @brief submit the device presentation queue after command recording
+	 *
+	 * @param stageFlags pipeline shader stage flags
+	 */
+	void submit_device_queue(const VkPipelineStageFlags stageFlags) const;
 	/**
 	 * @brief update the frame count
 	 */
 	void update_frame_count() noexcept;
-
-	friend class Renderer;
 };
 
 } // namespace Vulkan

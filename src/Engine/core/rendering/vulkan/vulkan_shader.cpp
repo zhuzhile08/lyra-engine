@@ -23,12 +23,12 @@ void VulkanShader::create(const VulkanDevice* device, const std::string path, st
 		nullptr,
 		0,
 		shaderSrc.size(),
-		reinterpret_cast<const uint32_t*>(shaderSrc.data())
+		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) LOG_EXEPTION("Failed to create a Vulkan shader module")
+	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) LOG_EXEPTION("Failed to create a Vulkan shader module");
 
-	LOG_DEBUG(TAB, "Successfully created Vulkan shader from path: ", path, " at: ", GET_ADDRESS(this), "!")
+	LOG_DEBUG(TAB, "Successfully created Vulkan shader from path: ", path, " at: ", GET_ADDRESS(this), "!");
 }
 
 const VkPipelineShaderStageCreateInfo VulkanShader::get_stage_create_info() const noexcept {

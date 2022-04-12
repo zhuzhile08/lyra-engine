@@ -56,7 +56,7 @@ public:
 	*/
 
 private:
-	VkSampler _sampler;
+	VkSampler _sampler = VK_NULL_HANDLE;
 	VulkanDescriptor _descriptor;
 
 	const Context* context;

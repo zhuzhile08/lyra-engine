@@ -3,7 +3,7 @@
 namespace lyra {
 
 Window::Window() {
-	LOG_INFO("Creating SDL window...")
+	LOG_INFO("Creating SDL window...");
 
 	uint32 flags = SDL_WINDOW_VULKAN;
 
@@ -16,13 +16,13 @@ Window::Window() {
         LOG_EXEPTION("Failed to create SDL window with error: ", SDL_GetError());
 	}
 
-	LOG_INFO("Successfully created window at: ", GET_ADDRESS(this), "!", TAB)
+	LOG_INFO("Successfully created window at: ", GET_ADDRESS(this), "!", TAB);
 }
 
 void Window::destroy() noexcept {
 	SDL_DestroyWindow(_window);
 
-	LOG_INFO("Successfully destroyed SDL window!", TAB)
+	LOG_INFO("Successfully destroyed SDL window!", TAB);
 }
 
 void Window::events() noexcept {

@@ -8,11 +8,11 @@ VulkanCommandPool::VulkanCommandPool() { }
 void VulkanCommandPool::destroy() noexcept {
 	vkDestroyCommandPool(device->device(), commandPool, nullptr);
 
-	LOG_INFO("Succesfully destroyed Vulkan command pool!")
+	LOG_INFO("Succesfully destroyed Vulkan command pool!");
 }
 
 void VulkanCommandPool::create(const VulkanDevice* device) {
-	LOG_INFO("Creating Vulkan command pool...")
+	LOG_INFO("Creating Vulkan command pool...");
 
 	this->device = device;
 
@@ -23,9 +23,9 @@ void VulkanCommandPool::create(const VulkanDevice* device) {
 		device->graphicsQueue().familyIndex
 	};
 
-	if (vkCreateCommandPool(device->device(), &createInfo, nullptr, &commandPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan command pool")
+	if (vkCreateCommandPool(device->device(), &createInfo, nullptr, &commandPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan command pool");
 
-	LOG_INFO("Succesfully created Vulkan command pool at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan command pool at ", GET_ADDRESS(this), "!", END_L);
 }
 
 // command buffer
@@ -34,11 +34,11 @@ VulkanCommandBuffer::VulkanCommandBuffer() { }
 void VulkanCommandBuffer::destroy() noexcept {
 	vkFreeCommandBuffers(device->device(), commandPool->get(), 1, &commandBuffer);
 
-	LOG_INFO("Succesfully destroyed Vulkan command buffer!")
+	LOG_INFO("Succesfully destroyed Vulkan command buffer!");
 }
 
 void VulkanCommandBuffer::create(const VulkanDevice* device, const VulkanCommandPool* commandPool, const VkCommandBufferLevel level) {
-	LOG_INFO("Creating Vulkan command buffer...")
+	LOG_INFO("Creating Vulkan command buffer...");
 
 	this->commandPool = commandPool;
 	this->device = device;
@@ -53,9 +53,9 @@ void VulkanCommandBuffer::create(const VulkanDevice* device, const VulkanCommand
 	};
 
 	// create the command buffers
-	if (vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan command buffer!")
+	if (vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan command buffer!");
 
-	LOG_INFO("Succesfully created Vulkan command buffer at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan command buffer at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags usage) const {
@@ -68,15 +68,15 @@ void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags usage) const {
 	};
 
 	// start recording
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) LOG_EXEPTION("Failed to start recording Vulkan command buffer!")
+	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) LOG_EXEPTION("Failed to start recording Vulkan command buffer!");
 }
 
 void VulkanCommandBuffer::end() const {
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to stop recording command buffer!")
+	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to stop recording command buffer!");
 }
 
 void VulkanCommandBuffer::reset(VkCommandBufferResetFlags flags) const {
-	if (vkResetCommandBuffer(commandBuffer, flags) != VK_SUCCESS) LOG_EXEPTION("Failed to reset command buffer!")
+	if (vkResetCommandBuffer(commandBuffer, flags) != VK_SUCCESS) LOG_EXEPTION("Failed to reset command buffer!");
 }
 
 void VulkanCommandBuffer::submit_queue(const VkQueue queue) const {
@@ -98,7 +98,7 @@ void VulkanCommandBuffer::submit_queue(const VkQueue queue) const {
 }
 
 void VulkanCommandBuffer::wait_queue(const VkQueue queue) const {
-	if (vkQueueWaitIdle(queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!")
+	if (vkQueueWaitIdle(queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!");
 }
 
 } // namespace lyra

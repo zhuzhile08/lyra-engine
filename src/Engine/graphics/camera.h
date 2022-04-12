@@ -19,7 +19,6 @@
 #include <core/rendering/vulkan/swapchain.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/context.h>
-#include <graphics/UBO.h>
 #include <core/logger.h>
 #include <core/defines.h>
 #include <core/queue_types.h>
@@ -38,6 +37,12 @@ namespace lyra {
  */
 class Camera {
 public:
+	struct UniformBufferObject {
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 proj;
+	};
+
 	Camera();
 
 	/**

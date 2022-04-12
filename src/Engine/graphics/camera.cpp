@@ -5,9 +5,9 @@ namespace lyra {
 Camera::Camera() { }
 
 void Camera::destroy() noexcept {
-	for (auto buffer : _buffers) buffer.destroy();
+	for (auto& buffer : _buffers) buffer.destroy();
 
-	LOG_INFO("Succesfully destroyed Vulkan uniform buffers!")
+	LOG_INFO("Succesfully destroyed Vulkan uniform buffers!");
 }
 
 void Camera::create(const Context* context, const UniformBufferObject&& ubo) {
@@ -17,7 +17,7 @@ void Camera::create(const Context* context, const UniformBufferObject&& ubo) {
 	// create the buffers
 	_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-	for (auto buffer : _buffers) buffer.create(&context->device(), sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_TO_CPU);
+	for (auto& buffer : _buffers) buffer.create(&context->device(), sizeof(UniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_GPU_TO_CPU);
 
 	set_perspective(context->swapchain().extent().width / (float)context->swapchain().extent().height);
 
@@ -26,7 +26,7 @@ void Camera::create(const Context* context, const UniformBufferObject&& ubo) {
 
 	_descriptor.create(&context->device(), context->descriptorSetLayout(), context->descriptorPool(), writer);
 
-	LOG_INFO("Succesfully created Vulkan uniform buffers at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan uniform buffers at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void Camera::rotate(const float deg, const glm::vec3 axis) noexcept {

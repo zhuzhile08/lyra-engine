@@ -13,7 +13,6 @@
 
 #include <core/defines.h>
 #include <core/rendering/vulkan/swapchain.h>
-#include <graphics/UBO.h>
 #include <core/logger.h>
 
 #include <vector>
@@ -76,7 +75,7 @@ public:
 	const VkDescriptorSetLayout* get_ptr() const noexcept { return &_descriptorSetLayout; }
 
 private:
-	VkDescriptorSetLayout _descriptorSetLayout;
+	VkDescriptorSetLayout _descriptorSetLayout = VK_NULL_HANDLE;
 
 	const VulkanDevice* device;
 };
@@ -99,7 +98,7 @@ public:
 		 * @param type type of descriptor
 		 * @param count number of descriptors
 		 */
-		void add_pool_sizes(const VkDescriptorType type, const uint32_t count) noexcept;
+		void add_pool_sizes(const VkDescriptorType type, const uint32 count) noexcept;
 		/**
 		 * @brief set the number of maximum possible allocatable sets
 		 *
@@ -142,7 +141,7 @@ public:
 	const VkDescriptorPool get() const noexcept { return _descriptorPool; }
 
 private:
-	VkDescriptorPool _descriptorPool;
+	VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
 
 	const VulkanDevice* device;
 };
@@ -205,7 +204,7 @@ public:
 	const VkDescriptorSet* get_ptr() const noexcept { return &_descriptorSet; }
 
 private:
-	VkDescriptorSet _descriptorSet;
+	VkDescriptorSet _descriptorSet = VK_NULL_HANDLE;
 };
 
 } // namespace lyra

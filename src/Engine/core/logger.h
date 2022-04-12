@@ -107,25 +107,25 @@ void clear_terminal_buffer() {
 }
 
 // debug functions
-#define TEST_REACHED 			log_message(LEVEL_DEBUG, "reached");
+#define TEST_REACHED 			log_message(LEVEL_DEBUG, "reached")
 
-#define LOG_ERROR(msg, ...) 	log_message(LEVEL_ERROR, msg, ##__VA_ARGS__);
-#define LOG_EXEPTION(msg, ...) 	log_message(LEVEL_FATAL, msg, ##__VA_ARGS__);
+#define LOG_ERROR(msg, ...) 	log_message(LEVEL_ERROR, msg, ##__VA_ARGS__)
+#define LOG_EXEPTION(msg, ...) 	log_message(LEVEL_FATAL, msg, ##__VA_ARGS__)
 
 #if ENABLE_WARN_LOG == 1
-#define LOG_WARNING(msg, ...) 	log_message(LEVEL_WARNING, msg, ##__VA_ARGS__);
+#define LOG_WARNING(msg, ...) 	log_message(LEVEL_WARNING, msg, ##__VA_ARGS__)
 #endif
 
 #if ENABLE_INFO_LOG == 1
-#define LOG_INFO(msg, ...) 		log_message(LEVEL_INFO, msg, ##__VA_ARGS__);
+#define LOG_INFO(msg, ...) 		log_message(LEVEL_INFO, msg, ##__VA_ARGS__)
 #endif
 
 #if ENABLE_DEBUG_LOG == 1
-#define LOG_DEBUG(msg, ...) 	log_message(LEVEL_DEBUG, msg, ##__VA_ARGS__);
+#define LOG_DEBUG(msg, ...) 	log_message(LEVEL_DEBUG, msg, ##__VA_ARGS__)
 #endif
 
 #if ENABLE_INFO_LOG == 1
-#define LOG_INFO(msg, ...) 	log_message(LEVEL_INFO, msg, ##__VA_ARGS__);
+#define LOG_INFO(msg, ...) 	log_message(LEVEL_INFO, msg, ##__VA_ARGS__)
 #endif
 
 };

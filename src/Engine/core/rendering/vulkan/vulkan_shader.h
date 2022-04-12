@@ -64,7 +64,7 @@ public:
 	const std::string entry() const noexcept { return _entry; }
 
 private:
-	VkShaderModule _module;
+	VkShaderModule _module = VK_NULL_HANDLE;
 	VkShaderStageFlagBits _stageFlags;
 	str _entry;
 

@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <string>
 
 namespace lyra {
@@ -57,7 +58,7 @@ typedef enum Color {
 inline void ANSI(Font font, Color color);
 
 void ANSI(Font font, Color color) {
-    std::cout << "\033[" << ";" << color << "m";
+    std::cout << "\033[" << font << ";" << color << "m";
 }
 
 #define SET_COLOR_DEFAULT ANSI(NON, DEF);

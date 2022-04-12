@@ -51,8 +51,8 @@ struct VulkanImage {
 		VkExtent3D extent,
 		VkImageUsageFlags usage,
 		VkImageType imageType = VK_IMAGE_TYPE_2D,
-		uint32_t mipLevels = 1,
-		uint32_t arrayLayers = 1,
+		uint32 mipLevels = 1,
+		uint32 arrayLayers = 1,
 		VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
 		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
 	) noexcept;
@@ -84,10 +84,10 @@ struct VulkanImage {
 	 * @param aspect purpose of the image
 	 * @param commandPool command pool
 	*/
-	void transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlagBits aspect, const VulkanCommandPool commandPool) const;
+	void transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlags aspect, const VulkanCommandPool commandPool) const;
 
-	VkImage _image;
-	VkImageView _view;
+	VkImage _image = VK_NULL_HANDLE;
+	VkImageView _view = VK_NULL_HANDLE;
 
 private:
 	const VulkanDevice* device;

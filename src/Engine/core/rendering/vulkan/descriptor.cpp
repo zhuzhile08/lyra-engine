@@ -21,11 +21,11 @@ VulkanDescriptorSetLayout::VulkanDescriptorSetLayout() { }
 void VulkanDescriptorSetLayout::destroy() noexcept {
 	vkDestroyDescriptorSetLayout(device->device(), _descriptorSetLayout, nullptr);
 
-	LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!")
+	LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!");
 }
 
 void VulkanDescriptorSetLayout::create(const VulkanDevice* device, const Builder builder) {
-	LOG_INFO("Creating Vulkan descriptor set layout...")
+	LOG_INFO("Creating Vulkan descriptor set layout...");
 
 	this->device = device;
 
@@ -34,19 +34,19 @@ void VulkanDescriptorSetLayout::create(const VulkanDevice* device, const Builder
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
-		builder.bindings.size(),
+		static_cast<uint32>(builder.bindings.size()),
 		builder.bindings.data()
 	};
 
-	if (vkCreateDescriptorSetLayout(device->device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor set layout")
+	if (vkCreateDescriptorSetLayout(device->device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor set layout");
 
-	LOG_INFO("Succesfully created Vulkan descriptor set layout at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan descriptor set layout at ", GET_ADDRESS(this), "!", END_L);
 }
 
 // descriptor pool builder
 VulkanDescriptorPool::Builder::Builder() { }
 
-void VulkanDescriptorPool::Builder::add_pool_sizes(const VkDescriptorType type, const uint32_t count) noexcept {
+void VulkanDescriptorPool::Builder::add_pool_sizes(const VkDescriptorType type, const uint32 count) noexcept {
 	poolSizes.push_back({
 		type,
 		count
@@ -67,11 +67,11 @@ VulkanDescriptorPool::VulkanDescriptorPool() { }
 void VulkanDescriptorPool::destroy() noexcept {
 	vkDestroyDescriptorPool(device->device(), _descriptorPool, nullptr);
 
-	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!")
+	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!");
 }
 
 void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder builder) {
-	LOG_INFO("Creating Vulkan descriptor pool...")
+	LOG_INFO("Creating Vulkan descriptor pool...");
 
 		this->device = device;
 
@@ -85,9 +85,9 @@ void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder buil
 		builder.poolSizes.data()
 	};
 
-	if (vkCreateDescriptorPool(device->device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor pool")
+	if (vkCreateDescriptorPool(device->device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create descriptor pool");
 
-	LOG_INFO("Succesfully created Vulkan descriptor pool at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan descriptor pool at ", GET_ADDRESS(this), "!", END_L);
 }
 
 // descriptor writer
@@ -127,7 +127,7 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo image
 VulkanDescriptor::VulkanDescriptor() { }
 
 void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer) {
-	LOG_INFO("Creating Vulkan descriptor sets...")
+	LOG_INFO("Creating Vulkan descriptor sets...");
 
 	// create the descriptor set
 	VkDescriptorSetAllocateInfo allocInfo {
@@ -138,13 +138,13 @@ void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptor
 		layout.get_ptr()
 	};
 
-	if (vkAllocateDescriptorSets(device->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets")
+	if (vkAllocateDescriptorSets(device->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets");
 
 	for(auto& write : writer.write) write.dstSet = _descriptorSet;
 
 	vkUpdateDescriptorSets(device->device(), 1, writer.write.data(), 0, nullptr);
 
-	LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L);
 }
 
 } // namespace lyra

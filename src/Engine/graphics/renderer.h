@@ -20,8 +20,6 @@
 #include <core/rendering/context.h>
 
 #include <core/logger.h>
-
-#include <memory>
 #include <vector>
 
 #include <noud.h>
@@ -69,7 +67,6 @@ public:
 
 private:
 	VulkanFramebuffers _framebuffers;
-	std::vector<VulkanCommandBuffer> _commandBuffers;
 	VulkanGraphicsPipeline _pipeline;
 
 	CallQueue _bind_queue;

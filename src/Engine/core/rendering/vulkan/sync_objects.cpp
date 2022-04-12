@@ -7,16 +7,16 @@ VulkanSyncObjects::VulkanSyncObjects() {}
 
 void VulkanSyncObjects::destroy() noexcept {
 	for (int i = 0; i <= _imageAvailableSemaphores.size(); i++) {
-		vkDestroySemaphore(device->device(), _renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(device->device(), _imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(device->device(), _inFlightFences[i], nullptr);
+		vkDestroySemaphore(device->device(), _renderFinishedSemaphores.at(i), nullptr);
+		vkDestroySemaphore(device->device(), _imageAvailableSemaphores.at(i), nullptr);
+		vkDestroyFence(device->device(), _inFlightFences.at(i), nullptr);
 	}
 
-	LOG_INFO("Succesfully destroyed Vulkan synchronisation objects!")
+	LOG_INFO("Succesfully destroyed Vulkan synchronisation objects!");
 }
 
-void VulkanSyncObjects::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
-	LOG_INFO("Creating Vulkan synchronisation objects...")
+void VulkanSyncObjects::create(const VulkanDevice* device) {
+	LOG_INFO("Creating Vulkan synchronisation objects...");
 
 	this->device = device;
 
@@ -35,18 +35,18 @@ void VulkanSyncObjects::create(const VulkanDevice* device, const VulkanSwapchain
 		if (vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores[i]) != VK_SUCCESS
 			|| vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores[i]) != VK_SUCCESS
 			|| vkCreateFence(device->device(), &fenceInfo, nullptr, &_inFlightFences[i]) != VK_SUCCESS)
-			LOG_EXEPTION("Failed to create Vulkan Synchronisation Objects")
+			LOG_EXEPTION("Failed to create Vulkan Synchronisation Objects");
 	}
 
-	LOG_INFO("Succesfully created Vulkan synchronisation objects at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan synchronisation objects at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void VulkanSyncObjects::wait(const uint32 fenceIndex) {
-	if (vkWaitForFences(device->device(), 1, &_inFlightFences[fenceIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for Vulkan fences to finish!")
+	if (vkWaitForFences(device->device(), 1, &_inFlightFences[fenceIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for Vulkan fences to finish!");
 }
 
 void VulkanSyncObjects::reset(const uint32 fenceIndex) {
-	if (vkResetFences(device->device(), 1, &_inFlightFences[fenceIndex]) != VK_SUCCESS) LOG_EXEPTION("Failed to reset Vulkan fences!")
+	if (vkResetFences(device->device(), 1, &_inFlightFences[fenceIndex]) != VK_SUCCESS) LOG_EXEPTION("Failed to reset Vulkan fences!");
 }
 
 }

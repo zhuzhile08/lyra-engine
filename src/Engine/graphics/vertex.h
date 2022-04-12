@@ -21,10 +21,10 @@
 namespace lyra {
 
 struct              Vertex {
-	glm::vec3                                               pos;
-	glm::vec3                                               normal;
-	glm::vec3                                               color;
-	glm::vec2                                               uv;
+	glm::vec3 pos;
+	glm::vec3 normal;
+	glm::vec3 color;
+	glm::vec2 uv;
 
 	Vertex();
 
@@ -42,14 +42,14 @@ struct              Vertex {
 	 *
 	 * @return VkVertexInputBindingDescription
 	 */
-	static VkVertexInputBindingDescription                  get_binding_description() noexcept;
+	static const VkVertexInputBindingDescription get_binding_description() noexcept;
 
 	/**
 	 * @brief returns a static vertex input attribute
 	 *
 	 * @return std::array<VkVertexInputAttributeDescription, 4>
 	 */
-	static std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
+	static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
 };
 
 } // namespace lyra

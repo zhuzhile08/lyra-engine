@@ -54,8 +54,8 @@ public:
 	const VkSurfaceKHR surface() const noexcept { return _surface; }
 
 private:
-	VkInstance _instance;
-	VkSurfaceKHR _surface;
+	VkInstance _instance = VK_NULL_HANDLE;
+	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 
 	const Window* window;
 

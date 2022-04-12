@@ -139,7 +139,7 @@ public:
 	const VulkanDepthBuffer depthBuffer() const noexcept { return _depthBuffer; }
 
 private:
-	VkSwapchainKHR _swapchain;
+	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
 	VkFormat _format;
 	VkExtent2D _extent;
 	VulkanSwapchainImages _images;

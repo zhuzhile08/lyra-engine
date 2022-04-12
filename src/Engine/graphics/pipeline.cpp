@@ -9,7 +9,7 @@ void VulkanGraphicsPipeline::destroy() noexcept {
     vkDestroyPipelineLayout(device->device(), _pipelineLayout, nullptr);
 	for (auto& shader : _shaders) shader.destroy();
 
-	LOG_INFO("Succesfully destroyed Vulkan graphics pipeline!")
+	LOG_INFO("Succesfully destroyed Vulkan graphics pipeline!");
 }
 
 void VulkanGraphicsPipeline::create(
@@ -20,7 +20,7 @@ void VulkanGraphicsPipeline::create(
 	VkExtent2D size,
     VkExtent2D area
 ) {
-	LOG_INFO("Creating Vulkan graphics pipeline...")
+	LOG_INFO("Creating Vulkan graphics pipeline...");
 	
     this->device = device;
 
@@ -30,7 +30,7 @@ void VulkanGraphicsPipeline::create(
 
 	create_pipeline(framebuffer, descriptorSetLayout, size, area);
 
-	LOG_INFO("Succesfully created Vulkan pipeline at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created Vulkan pipeline at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers framebuffer, const VulkanDescriptorSetLayout descriptorSetLayout, VkExtent2D size, VkExtent2D area) {
@@ -179,7 +179,7 @@ void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers framebuffe
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
 		nullptr,
 		0,
-		createInfo.shaderStages.size(),
+		static_cast<uint32>(createInfo.shaderStages.size()),
 		createInfo.shaderStages.data(),
 		&createInfo.vertexInputInfo,
 		&createInfo.inputAssembly,
@@ -197,8 +197,7 @@ void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers framebuffe
 		0
 	};
 
-	if(vkCreateGraphicsPipelines(device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS) 
-		LOG_EXEPTION("Failed to create Vulkan Pipeline")
+	if(vkCreateGraphicsPipelines(device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan Pipeline!");
 }
 
 void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout descriptorSetLayout) {
@@ -213,7 +212,7 @@ void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout descr
 		nullptr
 	};
 
-	if(vkCreatePipelineLayout(device->device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan graphics pipeline layout");
+	if(vkCreatePipelineLayout(device->device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan graphics pipeline layout!");
 }
 
 void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos) {
@@ -221,11 +220,11 @@ void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shad
 		VulkanShader shader;
 		shader.create(device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
 		_shaders.push_back(shader);
-		LOG_INFO("Succesfully created Vulkan shader at: ", GET_ADDRESS(&_shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!")
+		LOG_INFO("Succesfully created Vulkan shader at: ", GET_ADDRESS(&_shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!");
 	}
 
 	if (shaderCreationInfos.size() != _shaders.size()) {
-		LOG_WARNING("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", GET_ADDRESS(this), "!")
+		LOG_WARNING("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", GET_ADDRESS(this), "!");
 	}
 }
 

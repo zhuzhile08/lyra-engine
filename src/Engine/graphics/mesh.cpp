@@ -2,13 +2,58 @@
 
 namespace lyra {
 
+/*
+* still looking to somehow implement it in this folder, not in a different one
+* 
+Mesh::Vertex::Vertex() { }
+
+Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color) : pos(pos), normal(normal), color(color), uv(uv) { }
+
+VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() noexcept {
+	return {
+		0,
+		sizeof(Vertex),
+		VK_VERTEX_INPUT_RATE_VERTEX
+	};
+}
+
+std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() noexcept {
+	return {
+		{{
+			0,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, pos)
+		},
+		{
+			1,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, normal)
+		},
+		{
+			2,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, color)
+		},
+		{
+			3,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, uv)
+		}}
+	};
+}
+*/
+
 Mesh::Mesh() { }
 
 void Mesh::destroy() noexcept {
 	_vertexBuffer.destroy();
 	_indexBuffer.destroy();
 
-	LOG_INFO("Succesfully destroyed mesh!")
+	LOG_INFO("Succesfully destroyed mesh!");
 }
 
 void Mesh::create(const Context* context, const non_access::LoadedModel loaded, uint16 index,
@@ -22,7 +67,7 @@ void Mesh::create(const Context* context, const non_access::LoadedModel loaded, 
 	create_vertex_buffer();
 	create_index_buffer();
 
-	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void Mesh::create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
@@ -36,7 +81,7 @@ void Mesh::create(const Context* context, const std::vector <Vertex> vertices, c
 	create_vertex_buffer();
 	create_index_buffer();
 
-	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L)
+	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
@@ -85,11 +130,11 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 
 				// add the vertex to the list
 				_vertices.push_back(vertex);
-				_indices.push_back(_indices.size());
+				_indices.push_back(static_cast<uint16>(_indices.size()));
 
 				index_offset += 3;
 			}
-		}
+		} 
 
 		break;
 
@@ -133,7 +178,7 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 
 				// add the vertex to the list
 				_vertices.push_back(vertex);
-				_indices.push_back(_indices.size());
+				_indices.push_back(static_cast<uint16>(_indices.size()));
 
 				index_offset += 3;
 			}

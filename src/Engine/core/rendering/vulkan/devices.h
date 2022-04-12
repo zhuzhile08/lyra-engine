@@ -39,7 +39,7 @@ private:
 	 */
 	struct VulkanQueueFamily {
 	public:
-		VkQueue queue;
+		VkQueue queue = VK_NULL_HANDLE;
 		uint32  familyIndex = 0;
 	};
 
@@ -103,13 +103,13 @@ public:
 	const VmaAllocator allocator() const noexcept { return _allocator; }
 
 private:
-	VkPhysicalDevice _physicalDevice;
-	VkDevice _device;
+	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
+	VkDevice _device = VK_NULL_HANDLE;
 
 	VulkanQueueFamily _graphicsQueue;
 	VulkanQueueFamily _presentQueue;
 
-	VmaAllocator _allocator;
+	VmaAllocator _allocator = VK_NULL_HANDLE;
 
 	const VulkanInstance* instance;
 

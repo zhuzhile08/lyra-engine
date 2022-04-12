@@ -18,8 +18,8 @@
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <graphics/framebuffer.h>
-#include <graphics/vertex.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
+#include <graphics/vertex.h>
 #include <core/logger.h>
 
 #include <vector>
@@ -27,6 +27,7 @@
 #include <vulkan/vulkan.h>
 
 namespace lyra {
+
 /**
  * @brief wrapper around the Vulkan graphics pipeline
  */
@@ -112,8 +113,8 @@ public:
 	const std::vector<VulkanShader> shaders() const noexcept { return _shaders; }
 
 private:
-	VkPipeline _graphicsPipeline;
-	VkPipelineLayout _pipelineLayout;
+	VkPipeline _graphicsPipeline = VK_NULL_HANDLE;
+	VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
 
 	std::vector<VulkanShader> _shaders;
 

@@ -40,9 +40,8 @@ public:
 	 * @brief create the syncronisation objects
 	 *
 	 * @param device device
-	 * @param swapchain swapchain
 	 */
-	void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
+	void create(const VulkanDevice* device);
 
 	/**
 	 * @brief wait for Vulkan fences
