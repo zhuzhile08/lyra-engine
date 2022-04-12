@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.16.0)
 project(LyraEngine VERSION 0.1.0)
 
 # set default to debug
@@ -41,12 +41,12 @@ add_executable(LyraEngine
  "src/Engine/graphics/camera.cpp"
  "src/Engine/graphics/window.cpp"
  "src/Engine/graphics/renderer.cpp"
- "src/Engine/graphics/vertex.cpp"  
  "src/Engine/graphics/framebuffer.cpp"
  "src/Engine/graphics/GPU_Buffer.cpp"
  "src/Engine/graphics/pipeline.cpp"
  "src/Engine/graphics/mesh.cpp"
  "src/Engine/graphics/texture.cpp"
+ "src/Engine/graphics/vertex.cpp"
  "src/Engine/core/queue_types.cpp"
  "src/Engine/core/rendering/context.cpp"
  "src/Engine/core/rendering/vulkan_core_wrappers.cpp"
@@ -57,3 +57,14 @@ add_executable(LyraEngine
 add_dependencies(LyraEngine build_shaders)
 
 target_link_libraries(LyraEngine ${SDL2_LIBRARIES} Vulkan::Vulkan)
+
+target_precompile_headers(LyraEngine
+PRIVATE
+    <vector>
+    <iostream>
+    <fstream>
+    <string>
+    <unordered_map>
+    <array>
+    <math.h>
+)
