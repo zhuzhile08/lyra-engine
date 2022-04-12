@@ -3,13 +3,27 @@
 namespace lyra {
 
 double pyth(const glm::vec2 a, const glm::vec2 b) {
-	double x = b.x - a.x, y = b.y - a.y, result;
+	double x = b.x - a.x, y = b.y - a.y;
 	return sqrt(x * x + y * y);
 }
 
 double pyth3(const glm::vec3 a, const glm::vec3 b) {
-	double x = b.x - a.x, y = b.y - a.y, z = b.z - a.z, result;
+	double x = b.x - a.x, y = b.y - a.y, z = b.z - a.z;
 	return sqrt(x * x + y * y + z * z);
+}
+
+template <class Ty> Ty point_on_line(Ty first, Ty second, float value) {
+	return first + (second - first) * value;
+}
+
+template<class Ty> Ty bezier(std::vector<Ty> points, float value) {
+	std::vector<Ty> remaining_points;
+
+	for (int i; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
+	
+	if (remaining_points.size() == 2) return point_on_line<Ty>(points.at(0), points.at(1), value);
+
+	bezier<Ty>(remaining_points, value);
 }
 
 const float FPS() {
