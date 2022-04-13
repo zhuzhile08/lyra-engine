@@ -53,12 +53,6 @@ public:
 	void draw() noexcept;
 
 	/**
-	 * @brief get the bind queue
-	 * 
-	 * @return const CallQueue
-	*/
-	const CallQueue bind_queue() const noexcept { return _bind_queue; }
-	/**
 	 * @brief get the draw queue
 	 * 
 	 * @return const CallQueue
@@ -69,7 +63,6 @@ private:
 	VulkanFramebuffers _framebuffers;
 	VulkanGraphicsPipeline _pipeline;
 
-	CallQueue _bind_queue;
 	CallQueue _draw_queue;
 
 	bool _drawing = true;

@@ -164,7 +164,7 @@ public:
 		 * @param binding at which position it will be entered into the shader
 		 * @param type type of the descriptor set
 		 */
-		void add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) noexcept;
+		void add_buffer_write(const VkDescriptorBufferInfo *bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) noexcept;
 		/**
 		 * @brief add a setting for images
 		 *
@@ -172,9 +172,9 @@ public:
 		 * @param binding at which position it will be entered into the shader
 		 * @param type type of the descriptor set
 		 */
-		void add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
+		void add_image_write(const VkDescriptorImageInfo *imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
 
-		std::vector<VkWriteDescriptorSet> write;
+		std::vector<VkWriteDescriptorSet> writes;
 	};
 
 	VulkanDescriptor();

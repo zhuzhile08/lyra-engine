@@ -93,8 +93,8 @@ void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder buil
 // descriptor writer
 VulkanDescriptor::Writer::Writer() { }
 
-void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo bufferInfo, const uint16 binding, const VkDescriptorType type) noexcept {
-	write.push_back({
+void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo *bufferInfo, const uint16 binding, const VkDescriptorType type) noexcept {
+	writes.push_back({
 		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		nullptr,
 		VK_NULL_HANDLE,
@@ -103,13 +103,13 @@ void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo buf
 		1,
 		type,
 		nullptr,
-		&bufferInfo,
+		bufferInfo,
 		nullptr
 	});
 }
 
-void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo imageInfo, const uint16 binding, const VkDescriptorType type) noexcept {
-	write.push_back({
+void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo *imageInfo, const uint16 binding, const VkDescriptorType type) noexcept {
+	writes.push_back({
 		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		nullptr,
 		VK_NULL_HANDLE,
@@ -117,7 +117,7 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo image
 		0,
 		1,
 		type,
-		&imageInfo,
+		imageInfo,
 		nullptr,
 		nullptr
 	});
@@ -140,9 +140,9 @@ void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptor
 
 	if (vkAllocateDescriptorSets(device->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets");
 
-	for(auto& write : writer.write) write.dstSet = _descriptorSet;
+	for(auto& write : writer.writes) write.dstSet = _descriptorSet;
 
-	vkUpdateDescriptorSets(device->device(), 1, writer.write.data(), 0, nullptr);
+	vkUpdateDescriptorSets(device->device(), 1, writer.writes.data(), 0, nullptr);
 
 	LOG_INFO("Succesfully created Vulkan descriptor at ", GET_ADDRESS(this), "!", END_L);
 }

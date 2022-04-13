@@ -17,12 +17,15 @@
 #include <core/defines.h>
 #include <math/math.h>
 #include <core/logger.h>
-#include <core/queue_types.h>
 
 #include <SDL.h>
 #include <SDL_error.h>
 
 namespace lyra {
+
+struct WindowEvents {
+
+};
 
 /**
  * @brief wrapper around a SDL_Window with some quality of life improvements
@@ -62,7 +65,6 @@ public:
 private:
 	SDL_Window* _window;
 	SDL_Event _event;
-	CallQueue _updates;
 
 	int width = WIDTH;
 	int height = HEIGHT;

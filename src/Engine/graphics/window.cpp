@@ -16,7 +16,7 @@ Window::Window() {
         LOG_EXEPTION("Failed to create SDL window with error: ", SDL_GetError());
 	}
 
-	LOG_INFO("Successfully created window at: ", GET_ADDRESS(this), "!", TAB);
+	LOG_INFO("Successfully created window at: ", GET_ADDRESS(this), "!", END_L);
 }
 
 void Window::destroy() noexcept {
@@ -28,6 +28,7 @@ void Window::destroy() noexcept {
 void Window::events() noexcept {
 	while (SDL_PollEvent(&_event)) {
 		/// @todo
+		
 	}
 }
 

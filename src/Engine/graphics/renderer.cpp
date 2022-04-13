@@ -33,15 +33,13 @@ void Renderer::record_command_buffers() {
 
 	bind_pipeline();
 
-	_bind_queue.flush();
-
 	_draw_queue.flush();
 
 	end_render_pass();
 }
 
 void Renderer::draw() noexcept {
-	context->renderQueue().add([&]() { record_command_buffers(); });
+	context->add_to_render_queue([&]() { record_command_buffers(); });
 }
 
 void Renderer::bind_descriptor(const VulkanDescriptor descriptor) const noexcept {
