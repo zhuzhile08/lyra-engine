@@ -216,10 +216,10 @@ void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout descr
 }
 
 void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos) {
-	for (uint16 index = 0; index < shaderCreationInfos.size(); index++) {
-		VulkanShader shader;
-		shader.create(device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
-		_shaders.push_back(shader);
+	_shaders.resize(shaderCreationInfos.size());
+
+	for (int index = 0; index < shaderCreationInfos.size(); index++) {
+		_shaders.at(index).create(device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
 		LOG_INFO("Succesfully created Vulkan shader at: ", GET_ADDRESS(&_shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!");
 	}
 
