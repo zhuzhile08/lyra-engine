@@ -20,19 +20,26 @@ int main() {
 	lyra::Renderer renderer;
 	renderer.create(&context);
 
-	lyra::Mesh room;
-	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
-	room.bind(renderer);
-
 	lyra::Texture texture;
 	texture.create(&context, "data/img/viking_room.png");
-	texture.bind(renderer);
+
+	lyra::Camera camera;
+	camera.create(&context);
+
+	lyra::Mesh room;
+	room.bind_texture(texture);
+	room.bind_camera(camera);
+	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
+	room.bind(renderer);
 
 	renderer.draw();
 
 	while (true) {
 		context.draw();
 	}
+
+	renderer.destroy();
+	context.destroy();
 
 	return 0;
 }
