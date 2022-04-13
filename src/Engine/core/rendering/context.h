@@ -53,6 +53,14 @@ public:
 	 * @param queue queue to wait for
 	 */
 	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
+
+	/**
+	 * @brief add a function to the rendering queue
+	 * 
+	 * @param function the function
+	*/
+	void add_to_render_queue(std::function<void()>&& function);
+
 	/**
 	 * @brief take the recorded commands and draw everything
 	 */
@@ -97,9 +105,9 @@ public:
 	/**
 	 * @brief get the queue with the draw calls
 	 * 
-	 * @return CallQueue
+	 * @return const CallQueue
 	*/
-	CallQueue renderQueue() const noexcept { return _renderQueue; }
+	const CallQueue renderQueue() const noexcept { return _renderQueue; }
 	/**
 	 * @brief get the current frame count
 	 * 
@@ -145,6 +153,7 @@ private:
 	 * @param stageFlags pipeline shader stage flags
 	 */
 	void submit_device_queue(const VkPipelineStageFlags stageFlags) const;
+
 	/**
 	 * @brief update the frame count
 	 */

@@ -51,6 +51,10 @@ void Context::recreate_swapchain() {
 	oldSwapchain.destroy();
 }
 
+void Context::add_to_render_queue(std::function<void()> &&function) {
+	_renderQueue.add(std::move(function));
+}
+
 void Context::draw() {
 	// wait for the already recorded stuff to finish executing
 	_syncObjects.wait(_currentFrame);
@@ -108,7 +112,7 @@ void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 
 void Context::present_device_queue() {
 	VkSwapchainKHR swapchains[] = { _swapchain.swapchain() };
-	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
+	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores().at(_currentFrame)};
 
 	VkPresentInfoKHR presentInfo = {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -124,7 +128,6 @@ void Context::present_device_queue() {
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
 		recreate_swapchain();
-		LOG_EXEPTION("Failed to get the next Vulkan image layer to blit on!");
 	}
 	else if (result != VK_SUCCESS) {
 		LOG_EXEPTION("Failed to present swapchain image!");
