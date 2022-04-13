@@ -34,7 +34,7 @@ private:
 	/**
 	 * @brief wrapper around swapchain images
 	 */
-	struct VulkanSwapchainImages : std::vector<VulkanImage> {
+	struct VulkanSwapchainImages {
 	public:
 		VulkanSwapchainImages();
 
@@ -50,6 +50,9 @@ private:
 		 * @param swapchain swapchain
 		 */
 		void create(const VulkanDevice* device, VulkanSwapchain swapchain);
+
+		std::vector<VkImage> _images;
+		std::vector<VkImageView> _views;
 
 	private:
 		const VulkanDevice* device;

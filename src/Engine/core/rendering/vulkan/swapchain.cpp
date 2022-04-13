@@ -6,8 +6,10 @@ namespace lyra {
 VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 
 void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
-	for (auto& image : *this) {
-		image.destroy_view();
+	_images.clear();
+
+	for (auto& view : _views) {
+		vkDestroyImageView(device->device(), view, nullptr);
 	}
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!");
@@ -21,12 +23,27 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, 
 	// get the number of images
 	uint32 imageCount;
 	if (vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
-	this->resize(imageCount);
+	_images.resize(imageCount);
+	_views.resize(imageCount);
+	vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, _images.data());
 
-	for (auto& image : *this) {
-		vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, &image._image);
+	// I hate... HATE this bro why C++
+	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
+	for (int i = 0; i < imageCount; i++) {
+		// image view creation info
+		VkImageViewCreateInfo createInfo{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			nullptr,
+			0,
+			_images.at(i),
+			VK_IMAGE_VIEW_TYPE_2D,
+			swapchain.format(),
+			{ VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY },
+			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+		};
 
-		image.create_view(device, swapchain.format(), { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+		// create the view
+		if (vkCreateImageView(device->device(), &createInfo, nullptr, &_views.at(i)) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views");
 	}
 
 	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L);
