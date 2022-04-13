@@ -48,13 +48,13 @@ public:
 	 *
 	 * @param fenceIndex index of the fence
 	 */
-	void wait(const uint32 fenceIndex);
+	void wait(const uint32 fenceIndex) const;
 	/**
 	 * @brief reset Vulkan fences
 	 *
 	 * @param fenceIndex index of fence to reset
 	 */
-	void reset(const uint32 imageIndex);
+	void reset(const uint32 imageIndex) const;
 
 	/**
 	 * @brief get the image available semaphores

@@ -41,11 +41,11 @@ void VulkanSyncObjects::create(const VulkanDevice* device) {
 	LOG_INFO("Succesfully created Vulkan synchronisation objects at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanSyncObjects::wait(const uint32 fenceIndex) {
+void VulkanSyncObjects::wait(const uint32 fenceIndex) const {
 	if (vkWaitForFences(device->device(), 1, &_inFlightFences[fenceIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for Vulkan fences to finish!");
 }
 
-void VulkanSyncObjects::reset(const uint32 fenceIndex) {
+void VulkanSyncObjects::reset(const uint32 fenceIndex) const {
 	if (vkResetFences(device->device(), 1, &_inFlightFences[fenceIndex]) != VK_SUCCESS) LOG_EXEPTION("Failed to reset Vulkan fences!");
 }
 
