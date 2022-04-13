@@ -13,13 +13,16 @@
 #pragma once
 
 #include <core/defines.h>
-#include <noud.h>
+#include <core/rendering/context.h>
+#include <core/rendering/vulkan/descriptor.h>
 #include <res/loaders/load_model.h>
 #include <graphics/vertex.h>
-
-#include <graphics/renderer.h>
-#include <core/rendering/context.h>
 #include <graphics/GPU_buffer.h>
+#include <graphics/renderer.h>
+#include <graphics/texture.h>
+#include <graphics/camera.h>
+
+#include <noud.h>
 
 #define GLM_FORCE_RADIANS
 
@@ -46,13 +49,12 @@ public:
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
 	 * @param context the context
-	 * @param path path of the model to load
+	 * @param loaded loaded model data
 	 * @index index of the object in the model to load. Starts at 1, 0 is default
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const Context* context, const non_access::LoadedModel loaded, uint16 index = 0,
-		noud::Node* parent = nullptr, const std::string name = "mesh");
+	void create(const Context* context, const non_access::LoadedModel loaded, uint16 index = 0, noud::Node* parent = nullptr, const std::string name = "mesh");
 	/**
 	 * @brief construct a new mesh with a custom model
 	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
@@ -63,16 +65,20 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
-		noud::Node* parent = nullptr, const std::string name = "mesh");
+	void create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, noud::Node* parent = nullptr, const std::string name = "mesh");
 
 	/**
-	 * @brief create a mesh from a already loaded .obj file
-	 *
-	 * @param load an already loaded model
-	 * @param index load the model with the following index if a file has more than just one object. Will load everything on default
-	 */
-	void create_mesh(const non_access::LoadedModel loaded, const uint16 index = UINT16_MAX);
+	 * @brief bind a texture to the model
+	 * 
+	 * @param texture the texture to bind
+	*/
+	void bind_texture(Texture texture);
+	/**
+	 * @brief bind a camera to the model
+	 * 
+	 * @param camera the camera to bind
+	*/
+	void bind_camera(Camera camera);
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
@@ -112,14 +118,24 @@ private:
 
 	VulkanGPUBuffer _vertexBuffer;
 	VulkanGPUBuffer _indexBuffer;
+	VulkanDescriptor _descriptor;
+
+	VulkanDescriptor::Writer _writer;
 
 	const Context* context;
+
+	/**
+	 * @brief create a mesh from a already loaded .obj file
+	 *
+	 * @param load an already loaded model
+	 * @param index load the model with the following index if a file has more than just one object. Will load everything on default
+	 */
+	void create_mesh(const non_access::LoadedModel loaded, const uint16 index = UINT16_MAX);
 
 	/**
 	 * @brief create a vertex buffer
 	 */
 	void create_vertex_buffer();
-
 	/**
 	 * @brief create a index buffer
 	 */

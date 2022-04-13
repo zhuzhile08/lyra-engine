@@ -54,9 +54,8 @@ public:
 	 * @brief create the camera
 	 *
 	 * @param context context
-	 * @param ubo data of the ubo
 	 */
-	void create(const Context* context, const UniformBufferObject&& ubo);
+	void create(const Context* context);
 
 	/**
 	 * @brief rotate the camera around an certain axis
@@ -106,10 +105,16 @@ public:
 	*/
 	void draw();
 
+	/**
+	 * @brief get the GPU memory buffers
+	 * 
+	 * @return const std::vector<VulkanGPUBuffer>
+	*/
+	const std::vector<VulkanGPUBuffer> buffers() { return _buffers; }
+
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
 	UniformBufferObject _ubo;
-	VulkanDescriptor _descriptor;
 	CallQueue _update_queue;
 
 	glm::vec3 _position;

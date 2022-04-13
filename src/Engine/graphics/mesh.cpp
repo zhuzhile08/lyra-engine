@@ -56,8 +56,7 @@ void Mesh::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed mesh!");
 }
 
-void Mesh::create(const Context* context, const non_access::LoadedModel loaded, uint16 index,
-	noud::Node* parent, const std::string name) {
+void Mesh::create(const Context* context, const non_access::LoadedModel loaded, uint16 index, noud::Node* parent, const std::string name) {
 	(parent, name);
 
 	this->context = context;
@@ -66,12 +65,12 @@ void Mesh::create(const Context* context, const non_access::LoadedModel loaded, 
 
 	create_vertex_buffer();
 	create_index_buffer();
+	_descriptor.create(&context->device(), context->descriptorSetLayout(), context->descriptorPool(), _writer);
 
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void Mesh::create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices,
-	noud::Node* parent, const std::string name) {
+void Mesh::create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, noud::Node* parent, const std::string name) {
 	(parent, name);
 
 	this->context = context;
@@ -80,8 +79,21 @@ void Mesh::create(const Context* context, const std::vector <Vertex> vertices, c
 
 	create_vertex_buffer();
 	create_index_buffer();
+	_descriptor.create(&context->device(), context->descriptorSetLayout(), context->descriptorPool(), _writer);
 
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
+}
+
+void Mesh::bind_texture(Texture texture) {
+	_writer.add_image_write(&texture.get_descriptor_image_info());
+}
+
+void Mesh::bind_camera(Camera camera) {
+	for (auto& buffer : camera.buffers()) _writer.add_buffer_write(&buffer.get_descriptor_buffer_info(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+}
+
+void Mesh::bind(Renderer renderer) noexcept {
+	renderer._draw_queue.add([&]() { renderer.bind_descriptor(_descriptor); renderer.bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); renderer.draw_model(static_cast<uint32>(_indices.size())); });
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
@@ -221,11 +233,6 @@ void Mesh::create_index_buffer() {
 
 	// destroy the staging buffer
 	stagingBuffer.destroy();
-}
-
-void Mesh::bind(Renderer renderer) noexcept {
-	renderer._bind_queue.add([&]() { renderer.bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); });
-	renderer._draw_queue.add([&]() { renderer.draw_model(static_cast<uint32>(_indices.size())); });
 }
 
 } // namespace lyra

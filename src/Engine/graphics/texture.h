@@ -42,22 +42,33 @@ public:
 	void create(str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
 
 	/**
-	 * @brief draw the texture
-	 *
-	 * @renderer the subrenderer to render it on
-	 */
-	void bind(Renderer renderer);
+	 * @brief get the information to bind to a descriptor
+	 * 
+	 * @return const VkDescriptorImageInfo
+	*/
+	const VkDescriptorImageInfo get_descriptor_image_info() const noexcept;
 
 	/**
-	const VulkanImage image() const noexcept { return _image; }
-	const VkSampler sampler() const noexcept { return _sampler; }
-	const VmaAllocation memory() const noexcept { return _memory; }
-	const VulkanDescriptor descriptor() const noexcept { return _descriptor; }
+	 * @brief get the image
+	 * 
+	 * @return const VulkanImage
 	*/
+	const VkImageView view() const noexcept { return _view; }
+	/**
+	 * @brief get the sampler
+	 * 
+	 * @return const VkSampler
+	*/
+	const VkSampler sampler() const noexcept { return _sampler; }
+	/**
+	 * @brief get the memory
+	 * 
+	 * @return const VmaAllocation
+	*/
+	const VmaAllocation memory() const noexcept { return _memory; }
 
 private:
 	VkSampler _sampler = VK_NULL_HANDLE;
-	VulkanDescriptor _descriptor;
 
 	const Context* context;
 
