@@ -48,10 +48,10 @@ public:
 	 * @brief get the begin information to begin a render pass
 	 *
 	 * @param index index of framebuffer
-	 * r
-	 * @return VkRenderPassBeginInfo
+	 * 
+	 * @return const VkRenderPassBeginInfo
 	 */
-	VkRenderPassBeginInfo get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept;
+	const VkRenderPassBeginInfo get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept;
 
 	/**
 	 * @brief get the render pass

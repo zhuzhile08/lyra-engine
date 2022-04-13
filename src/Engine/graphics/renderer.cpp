@@ -14,14 +14,14 @@ void Renderer::create(Context* context) {
 
 	this->context = context;
 
-	_framebuffers.create(&context->device(), &context->swapchain());
+	_framebuffers.create(&context->_device, &context->_swapchain);
 	_pipeline.create(
-		&context->device(),
+		&context->_device,
 		_framebuffers, 
-		context->descriptorSetLayout(), 
-		{ {"data/shader/vert.spv", "main", VK_SHADER_STAGE_VERTEX_BIT}, {"data/shader/frag.spv", "main", VK_SHADER_STAGE_FRAGMENT_BIT} }, 
-		context->swapchain().extent(), 
-		context->swapchain().extent()
+		context->_descriptorSetLayout, 
+		{ { "data/shader/vert.spv", "main", VK_SHADER_STAGE_VERTEX_BIT }, { "data/shader/frag.spv", "main", VK_SHADER_STAGE_FRAGMENT_BIT } }, 
+		context->_swapchain.extent(),
+		context->_swapchain.extent()
 	);
 
 	LOG_INFO("Successfully created Renderer at: ", GET_ADDRESS(this), "!");

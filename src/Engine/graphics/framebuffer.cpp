@@ -12,6 +12,8 @@ void VulkanFramebuffers::destroy() noexcept {
 }
 
 void VulkanFramebuffers::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
+	LOG_INFO("Creating Vulkan framebuffers and render pass...");
+
 	this->device = device;
 	this->swapchain = swapchain;
 
@@ -125,7 +127,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 	}
 }
 
-VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept {
+const VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept {
 	return {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
@@ -133,7 +135,7 @@ VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, std::a
 		_framebuffers.at(index),
 		{	// rendering area
 			{ 0, 0 },
-			{ 690, 420 }
+			swapchain->extent()
 		},
 		static_cast<uint32>(clear.size()),
 		clear.data()

@@ -158,6 +158,8 @@ private:
 	 * @brief update the frame count
 	 */
 	void update_frame_count() noexcept;
+
+	friend class Renderer;
 };
 
 } // namespace Vulkan
