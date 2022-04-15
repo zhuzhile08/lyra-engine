@@ -67,4 +67,5 @@ PRIVATE
     <unordered_map>
     <array>
     <math.h>
+    <algorithm>
 )
