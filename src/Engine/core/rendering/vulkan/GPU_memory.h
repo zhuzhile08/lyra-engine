@@ -24,14 +24,14 @@ struct VulkanGPUMemory {
 	VulkanGPUMemory();
 
 	/**
-	 * @brief creation information of the allocation
+	 * @brief get the creation information of the allocation
 	 *
 	 * @param usage usage of the memory
 	 * @param requiredFlags required memory flags
 	 * 
 	 * @return const VmaAllocationCreateInfo*
 	 */
-	[[nodiscard]] const VmaAllocationCreateInfo* alloc_create_info(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) const noexcept;
+	[[nodiscard]] const VmaAllocationCreateInfo* get_alloc_create_info(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) const noexcept;
 
 	VmaAllocation _memory = VK_NULL_HANDLE;
 };
