@@ -45,16 +45,18 @@ struct VulkanImage {
 	 * @param arrayLayers layers of the image
 	 * @param samples configure multi sample anti-aliasing
 	 * @param tiling how to store the image in the GPU memory
+	 * 
+	 * @return const VkImageCreateInfo*
 	 */
-	VkImageCreateInfo	get_image_create_info(
-		VkFormat format,
-		VkExtent3D extent,
-		VkImageUsageFlags usage,
-		VkImageType imageType = VK_IMAGE_TYPE_2D,
-		uint32 mipLevels = 1,
-		uint32 arrayLayers = 1,
-		VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
-		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
+	[[nodiscard]] const VkImageCreateInfo* get_image_create_info(
+		const VkFormat format,
+		const VkExtent3D extent,
+		const VkImageUsageFlags usage,
+		const uint32 mipLevels = 1,
+		const VkImageType imageType = VK_IMAGE_TYPE_2D,
+		const uint32 arrayLayers = 1,
+		const VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
+		const VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
 	) noexcept;
 
 	/**
@@ -68,10 +70,10 @@ struct VulkanImage {
 	 */
 	void create_view(
 		const VulkanDevice* device,
-		VkFormat format,
-		VkImageSubresourceRange subresourceRange,
-		VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
-		VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
+		const VkFormat format,
+		const VkImageSubresourceRange subresourceRange,
+		const VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
+		const VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
 	);
 
 	/**
@@ -84,7 +86,37 @@ struct VulkanImage {
 	 * @param aspect purpose of the image
 	 * @param commandPool command pool
 	*/
-	void transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlags aspect, const VulkanCommandPool commandPool) const;
+	void transition_layout(
+		const VulkanDevice device, 
+		const VkImageLayout oldLayout, 
+		const VkImageLayout newLayout, 
+		const VkFormat format, 
+		const VkImageSubresourceRange subresourceRange, 
+		const VulkanCommandPool commandPool
+	) const;
+
+	/**
+	 * @brief return a memory barrier for this image
+	 * 
+	 * @param srcAccessMask the original accessability for the image
+	 * @param dstAccessMask the new accessability to transition to
+	 * @param srcLayout the original layout of the image
+	 * @param dstLayout the layout to transition to
+	 * @param srcQueueFamily the original queue family of the image
+	 * @param dstQueueFamily the queue family to transfer ownership to
+	 * @param subresourceRange some data about the image
+	 * 
+	 * @return const VkImageMemoryBarrier*
+	*/
+	[[nodiscard]] const VkImageMemoryBarrier* get_image_memory_barrier(
+		const VkAccessFlags srcAccessMask,
+		const VkAccessFlags dstAccessMask,
+		const VkImageLayout srcLayout,
+		const VkImageLayout dstLayout,
+		const VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
+		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept;
 
 	VkImage _image = VK_NULL_HANDLE;
 	VkImageView _view = VK_NULL_HANDLE;
@@ -96,15 +128,15 @@ private:
 protected:
 	/**
 	 * @brief get the best format out of a vector of requested ones for a certain situation
-	 * 
+	 *
 	 * @param device device (ignore the obviously bad architecture here)
 	 * @param candidates all candidates
 	 * @param features what type the image is
 	 * @param tiling tiling mode of the image
-	 * 
+	 *
 	 * @return const VkFormat
 	*/
-	const VkFormat get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, VkFormatFeatureFlags features, VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
+	[[nodiscard]] const VkFormat get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
 };
 
 } // namespace lyra

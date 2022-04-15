@@ -50,7 +50,6 @@ public:
 	 * @param commandBuffer command buffers
 	 * @param srcBuffer the buffer to copy
 	 * @param size the size of the buffer
-	 * @return true
 	 */
 	void copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer srcBuffer);
 
@@ -66,25 +65,42 @@ public:
 	 * 
 	 * @return const VkDescriptorBufferInfo
 	*/
-	const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept { return {_buffer, 0, _size}; }
+	[[nodiscard]] const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept;
+	/**
+	 * @brief return a memory barrier for this buffer
+	 *
+	 * @param srcAccessMask the original accessability for the buffer
+	 * @param dstAccessMask the new accessability to transition to
+	 * @param srcQueueFamily the original queue family of the buffer
+	 * @param dstQueueFamily the queue family to transfer ownership to
+	 *
+	 * @return const VkBufferMemoryBarrier*
+	*/
+	[[nodiscard]] const VkBufferMemoryBarrier* get_buffer_memory_barrier(
+		const VkAccessFlags srcAccessMask, 
+		const VkAccessFlags dstAccessMask,
+		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept;
+
 	/**
 	 * @brief get the buffer
 	 * 
 	 * @return const VkBuffer 
 	*/
-	const VkBuffer buffer() const noexcept { return _buffer; }
+	[[nodiscard]] const VkBuffer buffer() const noexcept { return _buffer; }
 	/**
 	 * @brief get the memory
 	 * 
 	 * @return const VmaAllocation
 	*/
-	const VmaAllocation memory() const noexcept { return _memory; };
+	[[nodiscard]] const VmaAllocation memory() const noexcept { return _memory; };
 	/**
 	 * @brief get the size of the buffer
 	 * 
-	 * @return  const VkDeviceSize
+	 * @return const VkDeviceSize
 	*/
-	const VkDeviceSize size() const noexcept { return _size; };
+	[[nodiscard]] const VkDeviceSize size() const noexcept { return _size; };
 
 private:
 	VkBuffer _buffer = VK_NULL_HANDLE;

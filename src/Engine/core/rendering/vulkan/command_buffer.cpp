@@ -101,4 +101,26 @@ void VulkanCommandBuffer::wait_queue(const VkQueue queue) const {
 	if (vkQueueWaitIdle(queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!");
 }
 
+void VulkanCommandBuffer::pipeline_barrier(
+	const VkPipelineStageFlags srcStageFlags,
+	const VkPipelineStageFlags dstStageFlags,
+	const VkMemoryBarrier *memory, 
+	const VkBufferMemoryBarrier *buffer, 
+	const VkImageMemoryBarrier *image, 
+	const VkDependencyFlags dependency
+) const {
+	vkCmdPipelineBarrier(
+		commandBuffer,
+		srcStageFlags,
+		dstStageFlags,
+		dependency,
+		(memory == nullptr) ? 0 : 1,
+		memory,
+		(buffer == nullptr) ? 0 : 1,
+		buffer,
+		(image == nullptr) ? 0 : 1,
+		image
+	);
+}
+
 } // namespace lyra

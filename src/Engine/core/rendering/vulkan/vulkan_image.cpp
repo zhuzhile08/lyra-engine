@@ -11,20 +11,19 @@ void VulkanImage::destroy_view() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan images!");
 }
 
-VkImageCreateInfo VulkanImage::get_image_create_info(
-	VkFormat format,
-	VkExtent3D extent,
-	VkImageUsageFlags usage,
-	VkImageType imageType,
-	uint32 mipLevels,
-	uint32 arrayLayers,
-	VkSampleCountFlagBits samples,
-	VkImageTiling tiling
+const VkImageCreateInfo* VulkanImage::get_image_create_info(
+	const VkFormat format,
+	const VkExtent3D extent,
+	const VkImageUsageFlags usage,
+	const uint32 mipLevels,
+	const VkImageType imageType,
+	const uint32 arrayLayers,
+	const VkSampleCountFlagBits samples,
+	const VkImageTiling tiling
 ) noexcept {
 	_tiling = tiling;
 
-	// image create info
-	VkImageCreateInfo createInfo = {
+	VkImageCreateInfo info = {
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
 		0,
@@ -42,15 +41,15 @@ VkImageCreateInfo VulkanImage::get_image_create_info(
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
 
-	return createInfo;
+	return &info;
 }
 
 void VulkanImage::create_view(
 	const VulkanDevice* device,
-	VkFormat format,
-	VkImageSubresourceRange subresourceRange,
-	VkImageViewType viewType,
-	VkComponentMapping colorComponents
+	const VkFormat format,
+	const VkImageSubresourceRange subresourceRange,
+	const VkImageViewType viewType,
+	const VkComponentMapping colorComponents
 ) {
 	this->device = device;
 
@@ -72,53 +71,38 @@ void VulkanImage::create_view(
 	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!");
 }
 
-void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout oldLayout, const VkImageLayout newLayout, const VkFormat format, const VkImageAspectFlags aspect, const VulkanCommandPool commandPool) const {
-	// temporary command buffer for copying
+void VulkanImage::transition_layout(
+	const VulkanDevice device,
+	const VkImageLayout oldLayout, 
+	const VkImageLayout newLayout, 
+	const VkFormat format, 
+	const VkImageSubresourceRange subresourceRange, 
+	const VulkanCommandPool commandPool) 
+const {
+
+	// temporary command buffer for setting up memory barrier
 	VulkanCommandBuffer     cmdBuff;
 	cmdBuff.create(&device, &commandPool);
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-	VkImageMemoryBarrier barrier = {
-		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-		nullptr,
-		0,
-		VK_ACCESS_TRANSFER_WRITE_BIT,
-		oldLayout,
-		newLayout,
-		VK_QUEUE_FAMILY_IGNORED,
-		VK_QUEUE_FAMILY_IGNORED,
-		_image,
-		{aspect, 0, 1, 0, 1}
-	};
-
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	VkAccessFlags sourceAccess = 0;
+	VkAccessFlags destinationAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
 
 	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		sourceAccess = 0; destinationAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	} else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		sourceAccess = VK_ACCESS_TRANSFER_WRITE_BIT; destinationAccess = VK_ACCESS_SHADER_READ_BIT;
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT; destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	} else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	} else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this));
 
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	}
-	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this));
-
-	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, get_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
 	// end recording
 	cmdBuff.end();
@@ -131,7 +115,32 @@ void VulkanImage::transition_layout(VulkanDevice device, const VkImageLayout old
 	cmdBuff.destroy();
 }
 
-const VkFormat VulkanImage::get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, VkFormatFeatureFlags features, VkImageTiling tiling) const {
+const VkImageMemoryBarrier* VulkanImage::get_barrier(
+	const VkAccessFlags srcAccessMask,
+	const VkAccessFlags dstAccessMask,
+	const VkImageLayout srcLayout,
+	const VkImageLayout dstLayout,
+	const VkImageSubresourceRange subresourceRange,
+	const uint32_t srcQueueFamily,
+	const uint32_t dstQueueFamily
+) const noexcept {
+	VkImageMemoryBarrier memBarr = {
+		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+		nullptr,
+		srcAccessMask,
+		dstAccessMask,
+		srcLayout,
+		dstLayout,
+		srcQueueFamily,
+		dstQueueFamily,
+		_image,
+		subresourceRange
+	};
+
+	return &memBarr;
+}
+
+const VkFormat VulkanImage::get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
 	// check which tiling mode to use
 	VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM; // screw naming conventions, I don't care
 	if (_tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = tiling;

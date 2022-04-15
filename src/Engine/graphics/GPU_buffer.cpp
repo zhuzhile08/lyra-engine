@@ -83,4 +83,31 @@ void VulkanGPUBuffer::copy_data(void* src) {
 	vmaUnmapMemory(device->allocator(), _memory);
 }
 
+const VkBufferMemoryBarrier* VulkanGPUBuffer::get_buffer_memory_barrier(
+	const VkAccessFlags srcAccessMask,
+	const VkAccessFlags dstAccessMask,
+	const uint32_t srcQueueFamily,
+	const uint32_t dstQueueFamily
+) const noexcept {
+	VkBufferMemoryBarrier barrier = {
+		VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+		nullptr,
+		srcAccessMask,
+		dstAccessMask,
+		srcQueueFamily,
+		dstQueueFamily,
+		_buffer,
+		0,
+		_size
+	};
+
+	return &barrier;
+}
+
+const VkDescriptorBufferInfo VulkanGPUBuffer::get_descriptor_buffer_info() const noexcept {
+	return {
+		_buffer, 0, _size
+	};
+}
+
 } // namespace lyra

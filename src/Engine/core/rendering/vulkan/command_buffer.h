@@ -16,6 +16,7 @@
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/logger.h>
 
+#include <array>
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
@@ -116,6 +117,24 @@ public:
 	*/
 	void wait_queue(const VkQueue queue) const;
 
+	/**
+	 * @brief setup a pipeline barrier
+	 * 
+	 * @param srcStageFlags the pipeline stage to wait for
+	 * @param dstStageFlags the pipeline stage to skip to
+	 * @param memory if there is, then the memory to transition
+	 * @param buffer if there is, then the buffer to transition
+	 * @param image if there is, then the image to transition
+	 * @param dependency I have no idea, just leave it zero
+	*/
+	void pipeline_barrier(
+		const VkPipelineStageFlags srcStageFlags, 
+		const VkPipelineStageFlags dstStageFlags,
+		const VkMemoryBarrier *memory = nullptr, 
+		const VkBufferMemoryBarrier *buffer = nullptr, 
+		const VkImageMemoryBarrier *image = nullptr,
+		const VkDependencyFlags dependency = 0
+	) const;
 
 	/**
 	 * @brief get the command buffer
