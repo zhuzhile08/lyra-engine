@@ -115,31 +115,31 @@ public:
 	 *
 	 * @return const VkSwapchainKHR
 	*/
-	const VkSwapchainKHR swapchain() const noexcept { return _swapchain; }
+	[[nodiscard]] const VkSwapchainKHR swapchain() const noexcept { return _swapchain; }
 	/**
 	 * @brief get the format
 	 *
 	 * @return const VkFormat
 	*/
-	const VkFormat format() const noexcept { return _format; }
+	[[nodiscard]] const VkFormat format() const noexcept { return _format; }
 	/**
 	 * @brief get the extent
 	 *
 	 * @return const VkExtent2D
 	*/
-	const VkExtent2D extent() const noexcept { return _extent; }
+	[[nodiscard]] const VkExtent2D extent() const noexcept { return _extent; }
 	/**
 	 * @brief get the swapchain images
 	 *
 	 * @return const VulkanSwapchainImages
 	*/
-	const VulkanSwapchainImages images() const noexcept { return _images; }
+	[[nodiscard]] const VulkanSwapchainImages images() const noexcept { return _images; }
 	/**
 	 * @brief get the depth buffer
 	 *
 	 * @return const VulkanDepthBuffer
 	*/
-	const VulkanDepthBuffer depthBuffer() const noexcept { return _depthBuffer; }
+	[[nodiscard]] const VulkanDepthBuffer depthBuffer() const noexcept { return _depthBuffer; }
 
 private:
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;

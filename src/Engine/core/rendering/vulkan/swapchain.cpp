@@ -68,11 +68,11 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, cons
 
 	// create memory and image
 	if (vmaCreateImage(device->allocator(), 
-		&get_image_create_info(
+		get_image_create_info(
 			_format,
 			{ swapchain.extent().width, swapchain.extent().height, 1 }, 
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT), 
-		&alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 		&_image, &_memory, nullptr
 	) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan depth buffer!");
 
@@ -80,7 +80,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, cons
 	create_view(device, VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	// transition the image layout
-	transition_layout(*device, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, VK_IMAGE_ASPECT_DEPTH_BIT, cmdPool);
+	transition_layout(*device, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 }, cmdPool);
 
 	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L);
 }
