@@ -46,9 +46,9 @@ struct VulkanImage {
 	 * @param samples configure multi sample anti-aliasing
 	 * @param tiling how to store the image in the GPU memory
 	 * 
-	 * @return const VkImageCreateInfo*
+	 * @return const VkImageCreateInfo
 	 */
-	[[nodiscard]] const VkImageCreateInfo* get_image_create_info(
+	[[nodiscard]] const VkImageCreateInfo get_image_create_info(
 		const VkFormat format,
 		const VkExtent3D extent,
 		const VkImageUsageFlags usage,
@@ -80,19 +80,19 @@ struct VulkanImage {
 	 * @brief transition the image layout to an another one
 	 * 
 	 * @param device device
+	 * @param commandPool command pool
 	 * @param oldLayout old layout
 	 * @param newLayout new layout
 	 * @param format format of the image
 	 * @param aspect purpose of the image
-	 * @param commandPool command pool
 	*/
 	void transition_layout(
-		const VulkanDevice device, 
+		const VulkanDevice device,
+		const VulkanCommandPool commandPool,
 		const VkImageLayout oldLayout, 
 		const VkImageLayout newLayout, 
 		const VkFormat format, 
-		const VkImageSubresourceRange subresourceRange, 
-		const VulkanCommandPool commandPool
+		const VkImageSubresourceRange subresourceRange
 	) const;
 
 	/**
@@ -106,9 +106,9 @@ struct VulkanImage {
 	 * @param dstQueueFamily the queue family to transfer ownership to
 	 * @param subresourceRange some data about the image
 	 * 
-	 * @return const VkImageMemoryBarrier*
+	 * @return const VkImageMemoryBarrier
 	*/
-	[[nodiscard]] const VkImageMemoryBarrier* get_image_memory_barrier(
+	[[nodiscard]] const VkImageMemoryBarrier get_image_memory_barrier(
 		const VkAccessFlags srcAccessMask,
 		const VkAccessFlags dstAccessMask,
 		const VkImageLayout srcLayout,

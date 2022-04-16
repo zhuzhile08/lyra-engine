@@ -4,11 +4,13 @@
 #include <core/logger.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/vulkan_image.h>
-#include <graphics/GPU_buffer.h>
 #include <core/rendering/vulkan/GPU_memory.h>
+#include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/context.h>
+#include <graphics/GPU_buffer.h>
 #include <graphics/renderer.h>
 
+#include <algorithm>
 #include <stb_image.h>
 #include <vulkan/vulkan.h>
 
@@ -46,29 +48,32 @@ public:
 	 * 
 	 * @return const VkDescriptorImageInfo
 	*/
-	const VkDescriptorImageInfo get_descriptor_image_info() const noexcept;
+	[[nodiscard]] const VkDescriptorImageInfo get_descriptor_image_info() const noexcept;
 
 	/**
 	 * @brief get the image
 	 * 
 	 * @return const VulkanImage
 	*/
-	const VkImageView view() const noexcept { return _view; }
+	[[nodiscard]] const VkImageView view() const noexcept { return _view; }
 	/**
 	 * @brief get the sampler
 	 * 
 	 * @return const VkSampler
 	*/
-	const VkSampler sampler() const noexcept { return _sampler; }
+	[[nodiscard]] const VkSampler sampler() const noexcept { return _sampler; }
 	/**
 	 * @brief get the memory
 	 * 
 	 * @return const VmaAllocation
 	*/
-	const VmaAllocation memory() const noexcept { return _memory; }
+	[[nodiscard]] const VmaAllocation memory() const noexcept { return _memory; }
 
 private:
 	VkSampler _sampler = VK_NULL_HANDLE;
+	uint32 _width;
+	uint32 _height;
+	uint32 _mipmap;
 
 	const Context* context;
 
@@ -88,6 +93,7 @@ private:
 	 * @param channelsToLoad what channels to load
 	 */
 	void load_image(str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+
 	/**
 	 * @brief create the image sampler
 	 *
@@ -100,10 +106,15 @@ private:
 	void create_sampler(
 		VkFilter magnifiedTexel = VK_FILTER_LINEAR,
 		VkFilter minimizedTexel = VK_FILTER_LINEAR,
-		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
 		VkSamplerAddressMode extendedTexels = VK_SAMPLER_ADDRESS_MODE_REPEAT,
 		VkBool32 anisotropy = VK_TRUE
 	);
+
+	/**
+	 * @brief generate the mipmaps for the image
+	*/
+	void generate_mipmaps() const;
 };
 
 } // namespace lyra

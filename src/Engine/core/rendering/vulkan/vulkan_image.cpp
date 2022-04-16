@@ -11,7 +11,7 @@ void VulkanImage::destroy_view() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan images!");
 }
 
-const VkImageCreateInfo* VulkanImage::get_image_create_info(
+const VkImageCreateInfo VulkanImage::get_image_create_info(
 	const VkFormat format,
 	const VkExtent3D extent,
 	const VkImageUsageFlags usage,
@@ -23,7 +23,7 @@ const VkImageCreateInfo* VulkanImage::get_image_create_info(
 ) noexcept {
 	_tiling = tiling;
 
-	VkImageCreateInfo info = {
+	return {
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
 		0,
@@ -40,8 +40,6 @@ const VkImageCreateInfo* VulkanImage::get_image_create_info(
 		0,
 		VK_IMAGE_LAYOUT_UNDEFINED
 	};
-
-	return &info;
 }
 
 void VulkanImage::create_view(
@@ -73,13 +71,12 @@ void VulkanImage::create_view(
 
 void VulkanImage::transition_layout(
 	const VulkanDevice device,
+	const VulkanCommandPool commandPool,
 	const VkImageLayout oldLayout, 
 	const VkImageLayout newLayout, 
 	const VkFormat format, 
-	const VkImageSubresourceRange subresourceRange, 
-	const VulkanCommandPool commandPool) 
-const {
-
+	const VkImageSubresourceRange subresourceRange
+) const {
 	// temporary command buffer for setting up memory barrier
 	VulkanCommandBuffer     cmdBuff;
 	cmdBuff.create(&device, &commandPool);
@@ -102,7 +99,7 @@ const {
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	} else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this));
 
-	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
+	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
 	// end recording
 	cmdBuff.end();
@@ -115,7 +112,7 @@ const {
 	cmdBuff.destroy();
 }
 
-const VkImageMemoryBarrier* VulkanImage::get_image_memory_barrier(
+const VkImageMemoryBarrier VulkanImage::get_image_memory_barrier(
 	const VkAccessFlags srcAccessMask,
 	const VkAccessFlags dstAccessMask,
 	const VkImageLayout srcLayout,
@@ -124,7 +121,7 @@ const VkImageMemoryBarrier* VulkanImage::get_image_memory_barrier(
 	const uint32_t srcQueueFamily,
 	const uint32_t dstQueueFamily
 ) const noexcept {
-	VkImageMemoryBarrier memBarr = {
+	return {
 		VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
 		nullptr,
 		srcAccessMask,
@@ -136,8 +133,6 @@ const VkImageMemoryBarrier* VulkanImage::get_image_memory_barrier(
 		_image,
 		subresourceRange
 	};
-
-	return &memBarr;
 }
 
 const VkFormat VulkanImage::get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
