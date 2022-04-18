@@ -9,6 +9,8 @@
 #include <graphics/mesh.h>
 #include <graphics/texture.h>
 #include <init/init_SDL.h>
+#include <math/math.h>
+#include <glm.hpp>
 
 int main() {
 	lyra::init_SDL();
@@ -25,6 +27,9 @@ int main() {
 
 	lyra::Camera camera;
 	camera.create(&context);
+	camera.set_rotation(90.0f, { 0.0f, 0.0f, 1.0f });
+	// camera.look_at({ 0.0f, 0.0f, 0.0f });
+	// camera.set_perspective(camera.aspect());
 
 	lyra::Mesh room;
 	room.bind_texture(texture);
@@ -35,9 +40,13 @@ int main() {
 	renderer.draw();
 
 	while (true) {
+		camera.draw();
 		context.draw();
 	}
 
+	texture.destroy();
+	camera.destroy();
+	room.destroy();
 	renderer.destroy();
 	context.destroy();
 
