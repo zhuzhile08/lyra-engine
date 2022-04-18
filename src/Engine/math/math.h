@@ -82,23 +82,24 @@ template<class Ty> Ty bezier(std::vector<Ty> points, float value);
 /**
  * @brief calculate the deltatime from the current FPS
  *
- * @return double
+ * @return float
  */
 const float FPS();
 /**
  * @brief calculate the deltatime from the current FPS
  * 
- * @return double 
+ * @return float
  */
-const double deltaTime(double FPS);
+const float deltaTime(double FPS);
 
 /**
  * @brief randomly generate a floating point number
  * 
  * @param x bottom limit
  * @param y upper limit
- * @return double 
+ * 
+ * @return float
  */
-double randDoub(const double x, const double y);
+float randFloat(const double x, const double y);
 
 } // namespace lyra

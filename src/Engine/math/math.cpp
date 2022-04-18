@@ -33,11 +33,11 @@ const float FPS() {
 	return std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 }
 
-const double deltaTime(const double FPS) {
+const float deltaTime(const double FPS) {
 	return 1/FPS;
 }
 
-double randDoub(const double x, const double y) {
+float randDoub(const double x, const double y) {
 	int precision = rand() % 1000000 + 100;			// calculate the precision
 	/**
 	 * if roughly works like this:
