@@ -21,9 +21,16 @@ public:
 	Texture();
 
 	/**
+	 * @brief destructor of the texture
+	 */
+	virtual ~Texture() noexcept;
+
+	/**
 	 * @brief destroy the texture
 	 */
 	void destroy() noexcept;
+
+	Texture operator=(const Texture&) = delete;
 
 	/**
 	 * @brief create the texture and the sampler

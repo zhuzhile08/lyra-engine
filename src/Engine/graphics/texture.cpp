@@ -4,9 +4,14 @@ namespace lyra {
 
 Texture::Texture() { }
 
-void Texture::destroy() noexcept {
-	destroy_view();
+Texture::~Texture() noexcept {
 	vkDestroySampler(context->device().device(), _sampler, nullptr);
+
+	LOG_INFO("Successfully destroyed Texture!");
+}
+
+void Texture::destroy() noexcept {
+	this->~Texture();
 }
 
 void Texture::create(const Context* context, str path, VkFormat format, int channelsToLoad) {
@@ -49,7 +54,7 @@ void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent)
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// copy image in buffer to the image
-	VkBufferImageCopy imageCopy = {
+	VkBufferImageCopy imageCopy {
 		0,
 		0,
 		0,
@@ -66,9 +71,6 @@ void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent)
 	// submit queues after recording
 	cmdBuff.submit_queue(context->device().graphicsQueue().queue);
 	cmdBuff.wait_queue(context->device().graphicsQueue().queue);
-
-	// destroy command buffer
-	cmdBuff.destroy();
 
 	LOG_DEBUG(TAB, "Copied image data from buffer to image at: ", GET_ADDRESS(this));
 }
@@ -113,7 +115,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path);
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(context->device(), context->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
+	transition_layout(&context->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
 	copy_from_buffer(stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();
@@ -131,7 +133,7 @@ void Texture::create_sampler(VkFilter magnifiedTexel, VkFilter minimizedTexel, V
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(context->device().physicalDevice(), &properties);
 
-	VkSamplerCreateInfo samplerInfo{
+	VkSamplerCreateInfo samplerInfo {
 		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
 		nullptr,
 		0,
@@ -169,7 +171,7 @@ void Texture::generate_mipmaps() const {
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-	uint32 mipWidth = _width, mipHeight = _height;
+	int32 mipWidth = _width, mipHeight = _height;
 
 	for (uint32 i = 1; i < _mipmap; i++) {
 		cmdBuff.pipeline_barrier(
@@ -187,7 +189,7 @@ void Texture::generate_mipmaps() const {
 		);
 
 		// draw the mipmap
-		VkImageBlit blit = {
+		VkImageBlit blit {
 			{ VK_IMAGE_ASPECT_COLOR_BIT, i - 1, 0, 1},
 			{ { 0, 0, 0 }, { mipWidth, mipHeight, 1 } },
 			{ VK_IMAGE_ASPECT_COLOR_BIT, i, 0, 1},
@@ -234,9 +236,6 @@ void Texture::generate_mipmaps() const {
 	// submit queues after recording
 	cmdBuff.submit_queue(context->device().graphicsQueue().queue);
 	cmdBuff.wait_queue(context->device().graphicsQueue().queue);
-
-	// destroy command buffer
-	cmdBuff.destroy();
 
 	LOG_DEBUG(TAB, "Created image mipmaps at: ", GET_ADDRESS(this));
 }

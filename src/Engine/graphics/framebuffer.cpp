@@ -4,11 +4,15 @@ namespace lyra {
 
 VulkanFramebuffers::VulkanFramebuffers() { }
 
-void VulkanFramebuffers::destroy() noexcept {
+VulkanFramebuffers::~VulkanFramebuffers() noexcept {
 	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
 	vkDestroyRenderPass(device->device(), _renderPass, nullptr);
 
 	LOG_INFO("Succesfully destroyed Vulkan frame buffer!");
+}
+
+void VulkanFramebuffers::destroy() noexcept {
+	this->~VulkanFramebuffers();
 }
 
 void VulkanFramebuffers::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
@@ -38,7 +42,7 @@ void VulkanFramebuffers::create_render_pass() {
 	};
 
 	// depth buffers
-	VkAttachmentDescription	depthBufferAttachmentDescriptions {
+	VkAttachmentDescription	depthBufferAttachmentDescriptions { // first error, depth buffer gets destroyed here
 		0,
 		swapchain->depthBuffer()._format,
 		VK_SAMPLE_COUNT_1_BIT,
@@ -106,7 +110,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 
 	for (int i = 0; i < swapchain->images()._images.size(); i++) {
 		std::array<VkImageView, 2> attachments = {
-			swapchain->images()._views.at(i),
+			swapchain->images()._views.at(i), // the swapchain images are destroyed here... multiple times
 			swapchain->depthBuffer()._view
 		};
 

@@ -39,11 +39,6 @@ private:
 		VulkanSwapchainImages();
 
 		/**
-		 * @brief destructor of the swapchain images
-		*/
-		virtual ~VulkanSwapchainImages() noexcept;
-
-		/**
 		 * @brief destroy the swapchain images
 		 */
 		void destroy() noexcept;
@@ -71,11 +66,6 @@ private:
 	struct VulkanDepthBuffer : VulkanImage, VulkanGPUMemory {
 	public:
 		VulkanDepthBuffer();
-
-		/**
-		 * @brief destructor of the depth buffer
-		 */
-		virtual ~VulkanDepthBuffer() noexcept;
 
 		/**
 		 * @brief destroy the depth buffer

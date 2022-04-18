@@ -4,10 +4,14 @@ namespace lyra {
 
 VulkanGPUBuffer::VulkanGPUBuffer() {}
 
-void VulkanGPUBuffer::destroy() noexcept {
+VulkanGPUBuffer::~VulkanGPUBuffer() noexcept {
 	vmaDestroyBuffer(device->allocator(), _buffer, _memory);
 
 	LOG_INFO("Succesfully destroyed Vulkan GPU buffer!");
+}
+
+void VulkanGPUBuffer::destroy() noexcept {
+	this->~VulkanGPUBuffer();
 }
 
 void VulkanGPUBuffer::create(const VulkanDevice* device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage) {
@@ -46,7 +50,7 @@ void VulkanGPUBuffer::create(const VulkanDevice* device, VkDeviceSize size, VkBu
 	LOG_INFO("Succesfully created Vulkan GPU buffer at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanGPUBuffer::copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer srcBuffer) {
+void VulkanGPUBuffer::copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer* srcBuffer) {
 	// create a temporary command buffer
 	VulkanCommandBuffer commandBuffer;
 
@@ -63,7 +67,7 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* commandPool, const VulkanGPU
 		_size
 	};
 
-	vkCmdCopyBuffer(commandBuffer.get(), srcBuffer.buffer(), _buffer, 1, &copyRegion);
+	vkCmdCopyBuffer(commandBuffer.get(), srcBuffer->buffer(), _buffer, 1, &copyRegion);
 
 	commandBuffer.end();		// end recording
 
@@ -76,7 +80,7 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* commandPool, const VulkanGPU
 	LOG_INFO("Succesfully copied Vulkan GPU buffer at ", GET_ADDRESS(&srcBuffer), " to ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanGPUBuffer::copy_data(void* src) {
+void VulkanGPUBuffer::copy_data(const void* src) {
 	void* data;
 	if (vmaMapMemory(device->allocator(), _memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", GET_ADDRESS(_memory), "!");
 		memcpy(data, src, (size_t)_size);

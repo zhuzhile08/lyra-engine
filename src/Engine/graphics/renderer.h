@@ -34,12 +34,21 @@ namespace lyra {
 class Renderer {
 public:
 	Renderer();
+
 	/**
-	 * @brief destroy the context
+	 * @brief destructor of the renderer
+	 */
+	virtual ~Renderer() noexcept;
+
+	/**
+	 * @brief destroy the renderer
 	 */
 	void destroy() noexcept;
+
+	Renderer operator=(const Renderer&) = delete;
+
 	/**
-	 * @brief create the context
+	 * @brief create the renderer
 	 *
 	 * @param context the context
 	 */

@@ -37,7 +37,9 @@ namespace lyra {
  */
 class Camera {
 public:
-	struct UniformBufferObject {
+	struct CameraData {
+		CameraData();
+
 		glm::mat4 model;
 		glm::mat4 view;
 		glm::mat4 proj;
@@ -46,9 +48,16 @@ public:
 	Camera();
 
 	/**
+	 * @brief destructor of the camera
+	 */
+	virtual ~Camera() noexcept;
+
+	/**
 	 * @brief destroy the camera
 	 */
 	void destroy() noexcept;
+
+	Camera operator=(const Camera&) = delete;
 
 	/**
 	 * @brief create the camera
@@ -110,14 +119,38 @@ public:
 	 * 
 	 * @return const std::vector<VulkanGPUBuffer>
 	*/
-	const std::vector<VulkanGPUBuffer> buffers() { return _buffers; }
+	[[nodiscard]] const std::vector<VulkanGPUBuffer> buffers() const noexcept { return _buffers; }
+	/**
+	 * @brief get the camera data of the camera
+	 * 
+	 * @return const CameraData
+	*/
+	[[nodiscard]] const CameraData data() const noexcept { return _data; }
+	/**
+	 * @brief get the queue with the update commands
+	 * 
+	 * @return const CallQueue
+	*/
+	[[nodiscard]] const CallQueue updateQueue() const noexcept { return _updateQueue; }
+	/**
+	 * @brief get the position of the camera
+	 * 
+	 * @return const glm::vec3
+	*/
+	[[nodiscard]] const glm::vec3 position() const noexcept { return _position; }
+	/**
+	 * @brief get the aspect ratio of the camera
+	 * 
+	 * @return const float
+	*/
+	[[nodiscard]] const float aspect() const noexcept { return _aspect; }
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
-	UniformBufferObject _ubo;
-	CallQueue _update_queue;
+	CameraData _data;
+	CallQueue _updateQueue;
 
-	glm::vec3 _position;
+	glm::vec3 _position = glm::vec3(2.0f);
 	float _aspect;
 
 	const Context* context;

@@ -5,7 +5,7 @@ namespace lyra {
 // swap chain images
 VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 
-VulkanSwapchain::VulkanSwapchainImages::~VulkanSwapchainImages() noexcept {
+void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 	_images.clear();
 
 	for (auto& view : _views) {
@@ -13,10 +13,6 @@ VulkanSwapchain::VulkanSwapchainImages::~VulkanSwapchainImages() noexcept {
 	}
 
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!");
-}
-
-void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
-	this->~VulkanSwapchainImages();
 }
 
 void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
@@ -55,14 +51,10 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, 
 // depth buffer
 VulkanSwapchain::VulkanDepthBuffer::VulkanDepthBuffer() { }
 
-VulkanSwapchain::VulkanDepthBuffer::~VulkanDepthBuffer() noexcept {
+void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
 	vmaDestroyImage(device->allocator(), _image, _memory);
 
 	LOG_INFO("Succesfully destroyed depth buffer!");
-}
-
-void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
-	this->~VulkanDepthBuffer();
 }
 
 void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain* swapchain, const VulkanCommandPool* cmdPool) {
@@ -98,7 +90,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, cons
 VulkanSwapchain::VulkanSwapchain() { }
 
 VulkanSwapchain::~VulkanSwapchain() noexcept {
-	_images.destroy();
+	_images.~VulkanSwapchainImages();
 	_depthBuffer.destroy();
 
 	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);

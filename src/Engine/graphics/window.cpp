@@ -19,10 +19,14 @@ Window::Window() {
 	LOG_INFO("Successfully created window at: ", GET_ADDRESS(this), "!", END_L);
 }
 
-void Window::destroy() noexcept {
+Window::~Window() noexcept {
 	SDL_DestroyWindow(_window);
 
 	LOG_INFO("Successfully destroyed SDL window!", TAB);
+}
+
+void Window::destroy() noexcept {
+	this->~Window();
 }
 
 void Window::events() noexcept {

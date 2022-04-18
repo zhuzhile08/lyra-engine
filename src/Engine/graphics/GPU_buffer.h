@@ -32,9 +32,16 @@ public:
 	VulkanGPUBuffer();
 
 	/**
-	 * @brief destroy the VulkanGPUBuffer object
+	 * @brief destructor of the buffer
+	 */
+	virtual ~VulkanGPUBuffer() noexcept;
+
+	/**
+	 * @brief destroy the buffer
 	 */
 	void destroy() noexcept;
+
+	VulkanGPUBuffer operator=(const VulkanGPUBuffer&) = delete;
 
 	/**
 	 * @brief create the buffer
@@ -51,14 +58,14 @@ public:
 	 * @param srcBuffer the buffer to copy
 	 * @param size the size of the buffer
 	 */
-	void copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer srcBuffer);
+	void copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer* srcBuffer);
 
 	/**
 	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
 	 *
 	 * @param src data to copy into the buffer
 	 */
-	void copy_data(void* src);
+	void copy_data(const void* src);
 
 	/**
 	 * @brief get the information in a buffer for descriptor sets

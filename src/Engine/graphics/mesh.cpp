@@ -49,14 +49,20 @@ std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_des
 
 Mesh::Mesh() { }
 
-void Mesh::destroy() noexcept {
+Mesh::~Mesh() noexcept {
 	_vertexBuffer.destroy();
 	_indexBuffer.destroy();
 
 	LOG_INFO("Succesfully destroyed mesh!");
 }
 
+void Mesh::destroy() noexcept {
+	this->destroy();
+}
+
 void Mesh::create(const Context* context, const non_access::LoadedModel loaded, uint16 index, noud::Node* parent, const std::string name) {
+	LOG_INFO("Creating Mesh... ");
+
 	(parent, name);
 
 	this->context = context;
@@ -84,12 +90,12 @@ void Mesh::create(const Context* context, const std::vector <Vertex> vertices, c
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void Mesh::bind_texture(Texture texture) {
-	_writer.add_image_write(&texture.get_descriptor_image_info());
+void Mesh::bind_texture(const Texture* texture) {
+	_writer.add_image_write(new VkDescriptorImageInfo(texture->get_descriptor_image_info()));
 }
 
-void Mesh::bind_camera(Camera camera) {
-	for (auto& buffer : camera.buffers()) _writer.add_buffer_write(&buffer.get_descriptor_buffer_info(), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+void Mesh::bind_camera(const Camera* camera) {
+	for (auto& buffer : camera->buffers()) _writer.add_buffer_write(new VkDescriptorBufferInfo(buffer.get_descriptor_buffer_info()), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 }
 
 void Mesh::bind(Renderer renderer) noexcept {
@@ -98,7 +104,7 @@ void Mesh::bind(Renderer renderer) noexcept {
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on
-	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier for now, I'll stick to this
+	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this
 
 	switch (index) {
 

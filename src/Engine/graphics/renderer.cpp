@@ -4,9 +4,15 @@ namespace lyra {
 
 Renderer::Renderer() { }
 
-void Renderer::destroy() noexcept {
+Renderer::~Renderer() noexcept {
 	_framebuffers.destroy();
 	_pipeline.destroy();
+
+	LOG_INFO("Successfully destroyed a renderer!");
+}
+
+void Renderer::destroy() noexcept {
+	this->~Renderer();
 }
 
 void Renderer::create(Context* context) {

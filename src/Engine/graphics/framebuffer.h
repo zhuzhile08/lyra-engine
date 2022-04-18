@@ -32,9 +32,16 @@ public:
 	VulkanFramebuffers();
 
 	/**
-	 * @brief destroy the frame buffers and render pass
+	 * @brief destructor of the framebuffers
+	 */
+	virtual ~VulkanFramebuffers() noexcept;
+
+	/**
+	 * @brief destroy the framebuffers
 	 */
 	void destroy() noexcept;
+
+	VulkanFramebuffers operator=(const VulkanFramebuffers&) = delete;
 
 	/**
 	 * @brief create the frame buffers and render pass

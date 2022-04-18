@@ -66,12 +66,16 @@ public:
 	VulkanGraphicsPipeline();
 
 	/**
-	 * @brief destroy the VulkanGraphicsPipeline
-	 * @brief works like the destructor, but can be called anywhere
-	 *
-	 * @param device device
+	 * @brief destructor of the pipeline
+	 */
+	virtual ~VulkanGraphicsPipeline() noexcept;
+
+	/**
+	 * @brief destroy the pipeline
 	 */
 	void destroy() noexcept;
+
+	VulkanGraphicsPipeline operator=(const VulkanGraphicsPipeline&) = delete;
 
 	/**
 	 * @brief create a new graphics pipeline

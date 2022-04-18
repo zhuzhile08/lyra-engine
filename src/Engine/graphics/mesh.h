@@ -41,9 +41,16 @@ public:
 	Mesh();
 
 	/**
+	 * @brief destructor of the mesh
+	 */
+	virtual ~Mesh() noexcept;
+
+	/**
 	 * @brief destroy the mesh
 	 */
 	void destroy() noexcept;
+
+	Mesh operator=(const Mesh&) = delete;
 
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
@@ -72,13 +79,13 @@ public:
 	 * 
 	 * @param texture the texture to bind
 	*/
-	void bind_texture(Texture texture);
+	void bind_texture(const Texture* texture);
 	/**
 	 * @brief bind a camera to the model
 	 * 
 	 * @param camera the camera to bind
 	*/
-	void bind_camera(Camera camera);
+	void bind_camera(const Camera* camera);
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
