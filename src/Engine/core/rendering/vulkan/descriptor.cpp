@@ -5,6 +5,10 @@ namespace lyra {
 // descriptor set layout builder
 VulkanDescriptorSetLayout::Builder::Builder() { }
 
+VulkanDescriptorSetLayout::Builder::~Builder() {
+	bindings.clear();
+}
+
 void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count) noexcept {
 	bindings.push_back({
 		binding,
@@ -18,10 +22,14 @@ void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const
 // descriptor set layout
 VulkanDescriptorSetLayout::VulkanDescriptorSetLayout() { }
 
-void VulkanDescriptorSetLayout::destroy() noexcept {
+VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout() {
 	vkDestroyDescriptorSetLayout(device->device(), _descriptorSetLayout, nullptr);
 
 	LOG_INFO("Succesfully destroyed Vulkan descriptor set layout!");
+}
+
+void VulkanDescriptorSetLayout::destroy() noexcept {
+	this->~VulkanDescriptorSetLayout();
 }
 
 void VulkanDescriptorSetLayout::create(const VulkanDevice* device, const Builder builder) {
@@ -46,6 +54,10 @@ void VulkanDescriptorSetLayout::create(const VulkanDevice* device, const Builder
 // descriptor pool builder
 VulkanDescriptorPool::Builder::Builder() { }
 
+VulkanDescriptorPool::Builder::~Builder() {
+	poolSizes.clear();
+}
+
 void VulkanDescriptorPool::Builder::add_pool_sizes(const VkDescriptorType type, const uint32 count) noexcept {
 	poolSizes.push_back({
 		type,
@@ -64,10 +76,14 @@ void VulkanDescriptorPool::Builder::set_pool_flags(VkDescriptorPoolCreateFlags _
 // descriptor pool
 VulkanDescriptorPool::VulkanDescriptorPool() { }
 
-void VulkanDescriptorPool::destroy() noexcept {
+VulkanDescriptorPool::~VulkanDescriptorPool() {
 	vkDestroyDescriptorPool(device->device(), _descriptorPool, nullptr);
 
 	LOG_INFO("Succesfully destroyed Vulkan descriptor pool!");
+}
+
+void VulkanDescriptorPool::destroy() noexcept {
+	this->~VulkanDescriptorPool();
 }
 
 void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder builder) {
@@ -76,7 +92,7 @@ void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder buil
 		this->device = device;
 
 	// create the descriptor pool
-	VkDescriptorPoolCreateInfo 	poolInfo{
+	VkDescriptorPoolCreateInfo 	poolInfo {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		nullptr,
 		builder.poolFlags,
@@ -92,6 +108,10 @@ void VulkanDescriptorPool::create(const VulkanDevice* device, const Builder buil
 
 // descriptor writer
 VulkanDescriptor::Writer::Writer() { }
+
+VulkanDescriptor::Writer::~Writer() {
+	writes.clear();
+}
 
 void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo *bufferInfo, const uint16 binding, const VkDescriptorType type) noexcept {
 	writes.push_back({
@@ -131,7 +151,7 @@ void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptor
 
 	// create the descriptor set
 	VkDescriptorSetAllocateInfo allocInfo {
-	VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		nullptr,
 		pool.get(),
 		1,

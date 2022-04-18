@@ -29,9 +29,16 @@ public:
 	VulkanInstance();
 
 	/**
-	 * @brief destroy a Instance
+	 * @brief destructor of the instance
+	 */
+	virtual ~VulkanInstance() noexcept;
+
+	/**
+	 * @brief destroy the instance
 	 */
 	void destroy() noexcept;
+
+	VulkanInstance operator=(const VulkanInstance&) = delete;
 
 	/**
 	 * @brief create the instance and surface

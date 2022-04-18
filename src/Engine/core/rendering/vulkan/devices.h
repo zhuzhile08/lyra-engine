@@ -47,9 +47,16 @@ public:
 	VulkanDevice();
 
 	/**
-	 * @brief destroy the VulkanDevice object
+	* @brief destructor of the device
+	**/
+	virtual ~VulkanDevice() noexcept;
+
+	/**
+	 * @brief destroy the device
 	 */
 	void destroy() noexcept;
+
+	VulkanDevice operator=(const VulkanDevice&) = delete;
 
 	/**
 	 * @brief create the devices

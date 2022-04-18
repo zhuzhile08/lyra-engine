@@ -5,7 +5,7 @@ namespace lyra {
 // syncronisation objects
 VulkanSyncObjects::VulkanSyncObjects() {}
 
-void VulkanSyncObjects::destroy() noexcept {
+VulkanSyncObjects::~VulkanSyncObjects() {
 	for (int i = 0; i <= _imageAvailableSemaphores.size(); i++) {
 		vkDestroySemaphore(device->device(), _renderFinishedSemaphores.at(i), nullptr);
 		vkDestroySemaphore(device->device(), _imageAvailableSemaphores.at(i), nullptr);
@@ -13,6 +13,10 @@ void VulkanSyncObjects::destroy() noexcept {
 	}
 
 	LOG_INFO("Succesfully destroyed Vulkan synchronisation objects!");
+}
+
+void VulkanSyncObjects::destroy() noexcept {
+	this->~VulkanSyncObjects();
 }
 
 void VulkanSyncObjects::create(const VulkanDevice* device) {

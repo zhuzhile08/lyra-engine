@@ -4,11 +4,15 @@ namespace lyra {
 
 VulkanDevice::VulkanDevice() {}
 
-void VulkanDevice::destroy() noexcept {
+VulkanDevice::~VulkanDevice() {
 	vkDestroyDevice(_device, nullptr);
 	vmaDestroyAllocator(_allocator);
 
 	LOG_INFO("Succesfully destroyed Vulkan device!");
+}
+
+void VulkanDevice::destroy() noexcept {
+	this->~VulkanDevice();
 }
 
 void VulkanDevice::create(const VulkanInstance* instance) {
@@ -67,7 +71,7 @@ void VulkanDevice::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
 	if (vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to find any Vulkan auitable GPUs!");
-		std::vector <VkPhysicalDevice>             devices(deviceCount);             // just put this in here cuz I was lazy
+		std::vector <VkPhysicalDevice> devices(deviceCount);             // just put this in here cuz I was lazy
 	vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, devices.data());
 
 	// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU

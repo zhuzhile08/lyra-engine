@@ -4,11 +4,23 @@ namespace lyra {
 
 VulkanShader::VulkanShader() { }
 
-void VulkanShader::destroy() noexcept {
+VulkanShader::~VulkanShader() {
 	vkDestroyShaderModule(device->device(), _module, nullptr);
+
+	LOG_INFO("Destroyed loaded Vulkan shader!");
+}
+
+void VulkanShader::destroy() noexcept {
+	this->~VulkanShader();
 }
 
 void VulkanShader::create(const VulkanDevice* device, const std::string path, str entry, VkShaderStageFlagBits stageFlags) {
+	LOG_INFO("Loading and creating Vulkan shader...");
+
+	LOG_DEBUG("Path: ", path);
+	LOG_DEBUG("Entry point: ", entry);
+	LOG_DEBUG("Type of shader(VkShaderStageFlagBits): ", stageFlags);
+
 	this->device = device;
 
 	_entry = entry;
@@ -28,7 +40,7 @@ void VulkanShader::create(const VulkanDevice* device, const std::string path, st
 
 	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) LOG_EXEPTION("Failed to create a Vulkan shader module");
 
-	LOG_DEBUG(TAB, "Successfully created Vulkan shader from path: ", path, " at: ", GET_ADDRESS(this), "!");
+	LOG_DEBUG(TAB, "Successfully created Vulkan shader from at: ", GET_ADDRESS(this), "!");
 }
 
 const VkPipelineShaderStageCreateInfo VulkanShader::get_stage_create_info() const noexcept {

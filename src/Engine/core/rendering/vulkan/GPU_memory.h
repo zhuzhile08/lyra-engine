@@ -23,6 +23,8 @@ namespace lyra {
 struct VulkanGPUMemory {
 	VulkanGPUMemory();
 
+	VulkanGPUMemory operator=(const VulkanGPUMemory&) = delete;
+
 	/**
 	 * @brief get the creation information of the allocation
 	 *

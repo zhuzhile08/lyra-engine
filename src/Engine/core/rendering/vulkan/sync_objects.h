@@ -31,10 +31,16 @@ public:
 	VulkanSyncObjects();
 
 	/**
-	 * @brief destroy the VulkanSyncObjects
-	 * @brief it works just like the destructor, but is callable anywhere
+	* @brief destructor of the synchronisation objects
+	**/
+	virtual ~VulkanSyncObjects() noexcept;
+
+	/**
+	 * @brief destroy the synchronisation objects
 	 */
 	void destroy() noexcept;
+
+	VulkanSyncObjects operator=(const VulkanSyncObjects&) = delete;
 
 	/**
 	 * @brief create the syncronisation objects

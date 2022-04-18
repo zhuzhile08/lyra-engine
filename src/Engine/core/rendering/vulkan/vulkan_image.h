@@ -30,9 +30,16 @@ struct VulkanImage {
 	VulkanImage();
 
 	/**
-	 * @brief destroy the image and the image view
+	* @brief destructor of the image
+	**/
+	virtual ~VulkanImage() noexcept;
+
+	/**
+	 * @brief destroy the image
 	 */
-	void destroy_view() noexcept;
+	void destroy() noexcept;
+
+	VulkanImage operator=(const VulkanImage&) = delete;
 
 	/**
 	 * @brief create the image and image view
@@ -62,7 +69,22 @@ struct VulkanImage {
 	/**
 	 * @brief create the image view only
 	 *
-	 * @param device device
+	 * @param format format of the image
+	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
+	 * @param viewType how and in which dimension to treat the image
+	 * @param colorComponents color modulation of the image
+	 */
+	void create_view(
+		const VkFormat format,
+		const VkImageSubresourceRange subresourceRange,
+		const VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
+		const VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
+	);
+
+	/**
+	 * @brief create the image view only
+	 *
+	 * @param device device, if not already defined
 	 * @param format format of the image
 	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
 	 * @param viewType how and in which dimension to treat the image
@@ -78,8 +100,8 @@ struct VulkanImage {
 
 	/**
 	 * @brief transition the image layout to an another one
-	 * 
-	 * @param device device
+	 *
+	 * @param device device, if not already defined
 	 * @param commandPool command pool
 	 * @param oldLayout old layout
 	 * @param newLayout new layout
@@ -87,11 +109,28 @@ struct VulkanImage {
 	 * @param aspect purpose of the image
 	*/
 	void transition_layout(
-		const VulkanDevice device,
-		const VulkanCommandPool commandPool,
-		const VkImageLayout oldLayout, 
-		const VkImageLayout newLayout, 
-		const VkFormat format, 
+		const VulkanDevice* device,
+		const VulkanCommandPool* commandPool,
+		const VkImageLayout oldLayout,
+		const VkImageLayout newLayout,
+		const VkFormat format,
+		const VkImageSubresourceRange subresourceRange
+	);
+
+	/**
+	 * @brief transition the image layout to an another one
+	 * 
+	 * @param commandPool command pool
+	 * @param oldLayout old layout
+	 * @param newLayout new layout
+	 * @param format format of the image
+	 * @param aspect purpose of the image
+	*/
+	void transition_layout(
+		const VulkanCommandPool* commandPool,
+		const VkImageLayout oldLayout,
+		const VkImageLayout newLayout,
+		const VkFormat format,
 		const VkImageSubresourceRange subresourceRange
 	) const;
 
@@ -129,14 +168,25 @@ protected:
 	/**
 	 * @brief get the best format out of a vector of requested ones for a certain situation
 	 *
-	 * @param device device (ignore the obviously bad architecture here)
 	 * @param candidates all candidates
 	 * @param features what type the image is
 	 * @param tiling tiling mode of the image
 	 *
 	 * @return const VkFormat
 	*/
-	[[nodiscard]] const VkFormat get_best_format(VulkanDevice device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
+	[[nodiscard]] const VkFormat get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
+
+	/**
+	 * @brief get the best format out of a vector of requested ones for a certain situation
+	 *
+	 * @param device device, if not already defined
+	 * @param candidates all candidates
+	 * @param features what type the image is
+	 * @param tiling tiling mode of the image
+	 *
+	 * @return const VkFormat
+	*/
+	[[nodiscard]] const VkFormat get_best_format(const VulkanDevice* device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM);
 };
 
 } // namespace lyra

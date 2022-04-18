@@ -4,11 +4,15 @@ namespace lyra {
 
 VulkanInstance::VulkanInstance() { }
 
-void VulkanInstance::destroy() noexcept {
+VulkanInstance::~VulkanInstance() noexcept {
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
-    vkDestroyInstance(_instance, nullptr);
+	vkDestroyInstance(_instance, nullptr);
 
 	LOG_INFO("Succesfully destroyed Vulkan instance!");
+}
+
+void VulkanInstance::destroy() noexcept {
+	this->~VulkanInstance();
 }
 
 void VulkanInstance::create(const Window* window) {

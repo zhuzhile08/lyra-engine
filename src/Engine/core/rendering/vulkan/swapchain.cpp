@@ -5,7 +5,7 @@ namespace lyra {
 // swap chain images
 VulkanSwapchain::VulkanSwapchainImages::VulkanSwapchainImages() { }
 
-void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
+VulkanSwapchain::VulkanSwapchainImages::~VulkanSwapchainImages() noexcept {
 	_images.clear();
 
 	for (auto& view : _views) {
@@ -15,16 +15,20 @@ void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan swapchain images!");
 }
 
-void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, VulkanSwapchain swapchain) {
+void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
+	this->~VulkanSwapchainImages();
+}
+
+void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
 	LOG_INFO("Creating Vulkan swapchain images...");
 
 	this->device = device;
 
 	// get the number of images
 	uint32 imageCount;
-	if (vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
+	if (vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to retrieve Vulkan swapchain images!");
 	_images.resize(imageCount); _views.resize(imageCount);
-	vkGetSwapchainImagesKHR(device->device(), swapchain.swapchain(), &imageCount, _images.data());
+	vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, _images.data());
 
 	// I hate... HATE this bro why C++
 	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
@@ -36,7 +40,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, 
 			0,
 			_images.at(i),
 			VK_IMAGE_VIEW_TYPE_2D,
-			swapchain.format(),
+			swapchain->format(),
 			{ VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY },
 			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
 		};
@@ -51,38 +55,41 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, 
 // depth buffer
 VulkanSwapchain::VulkanDepthBuffer::VulkanDepthBuffer() { }
 
-void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
-	destroy_view();
+VulkanSwapchain::VulkanDepthBuffer::~VulkanDepthBuffer() noexcept {
 	vmaDestroyImage(device->allocator(), _image, _memory);
 
 	LOG_INFO("Succesfully destroyed depth buffer!");
 }
 
-void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain swapchain, const VulkanCommandPool cmdPool) {
+void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
+	this->~VulkanDepthBuffer();
+}
+
+void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain* swapchain, const VulkanCommandPool* cmdPool) {
 	LOG_INFO("Creating Vulkan depth buffer...");
 
 	this->device = device;
 
-	_format = get_best_format(*device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+	_format = get_best_format(device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
-	if (vmaCreateImage(device->allocator(), 
+	if (vmaCreateImage(device->allocator(),
 		&get_image_create_info(
 			_format,
-			{ swapchain.extent().width, swapchain.extent().height, 1 }, 
+			{ swapchain->extent().width, swapchain->extent().height, 1 },
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-		), 
+		),
 		&get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
-		&_image, 
-		&_memory, 
+		&_image,
+		&_memory,
 		nullptr
 	) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan depth buffer!");
 
 	// create the image view
-	create_view(device, VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	// transition the image layout
-	transition_layout(*device, cmdPool, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	transition_layout(cmdPool, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L);
 }
@@ -90,7 +97,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, cons
 // swap chain
 VulkanSwapchain::VulkanSwapchain() { }
 
-void VulkanSwapchain::destroy() noexcept {
+VulkanSwapchain::~VulkanSwapchain() noexcept {
 	_images.destroy();
 	_depthBuffer.destroy();
 
@@ -101,7 +108,11 @@ void VulkanSwapchain::destroy() noexcept {
 	LOG_INFO("Succesfully destroyed Vulkan swapchain!");
 }
 
-void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* instance, const VulkanCommandPool cmdPool, const Window* window) {
+void VulkanSwapchain::destroy() noexcept {
+	this->~VulkanSwapchain();
+}
+
+void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* instance, const VulkanCommandPool* cmdPool, const Window* window) {
 	LOG_INFO("Creating Vulkan swapchain...");
 
 	this->device = device;
@@ -112,14 +123,14 @@ void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* i
 	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanSwapchain::create(VulkanSwapchain oldSwapchain, const VulkanCommandPool cmdPool) {
-	_oldSwapchain = &oldSwapchain;
+void VulkanSwapchain::create(VkSwapchainKHR* oldSwapchain, const VulkanCommandPool* cmdPool) {
+	_oldSwapchain = oldSwapchain;
 	create(device, instance, cmdPool, window);
 
 	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceCapabilities) {
+void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR* surfaceCapabilities) {
 	if (surfaceCapabilities->currentExtent.width == UINT32_MAX) {           // if something is wrong, fix the extent
 		LOG_WARNING("Couldn't get Vulkan swapchain capabilities' width");
 		int width, height;
@@ -148,14 +159,13 @@ void VulkanSwapchain::create_swapchain_extent(VkSurfaceCapabilitiesKHR* surfaceC
 		newExtent.height = clamp(newExtent.height, surfaceCapabilities->minImageExtent.height, surfaceCapabilities->maxImageExtent.height);
 
 		_extent = newExtent;
-
 	}
 	else {                                                                // in this case, the extent is fine
 		_extent = surfaceCapabilities->currentExtent;
 	}
 }
 
-void VulkanSwapchain::create_swapchain(const VulkanCommandPool cmdPool) {
+void VulkanSwapchain::create_swapchain(const VulkanCommandPool* cmdPool) {
 	// query some details
 	uint32 availableFormatCount = 0;    	   // formats
 	VkSurfaceFormatKHR format = { };
@@ -216,7 +226,7 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool cmdPool) {
 		surfaceCapabilities.maxImageCount = 8;
 		LOG_WARNING("Something went wrong whilst attempting getting the number of swapchain images!");
 	} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
-			surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
 		surfaceCapabilities.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	}
@@ -228,57 +238,33 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool cmdPool) {
 
 	// create the swapchain
 	auto temp = device->graphicsQueue().familyIndex;
+	auto cond = (device->graphicsQueue().familyIndex != device->presentQueue().familyIndex);
 
-	VkSwapchainCreateInfoKHR createInfo;
-	if (device->graphicsQueue().familyIndex != device->presentQueue().familyIndex) {
-		createInfo = {
-			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-			nullptr,
-			0,
-			instance->surface(),
-			surfaceCapabilities.minImageCount + 1,
-			format.format,
-			format.colorSpace,
-			_extent,
-			1,
-			surfaceCapabilities.supportedUsageFlags,
-			VK_SHARING_MODE_CONCURRENT,
-			2,
-			&temp,
-			surfaceCapabilities.currentTransform,
-			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-			presentMode,
-			VK_TRUE,
-			(_oldSwapchain != nullptr) ? _oldSwapchain->_swapchain : VK_NULL_HANDLE
-		};
-	}
-	else {
-		createInfo = {
-			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-			nullptr,
-			0,
-			instance->surface(),
-			surfaceCapabilities.minImageCount,
-			format.format,
-			format.colorSpace,
-			_extent,
-			1,
-			surfaceCapabilities.supportedUsageFlags,
-			VK_SHARING_MODE_EXCLUSIVE,
-			0,
-			0,
-			surfaceCapabilities.currentTransform,
-			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-			presentMode,
-			true,
-			(_oldSwapchain != nullptr) ? _oldSwapchain->_swapchain : VK_NULL_HANDLE
-		};
-	}
+	VkSwapchainCreateInfoKHR createInfo = {
+		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		nullptr,
+		0,
+		instance->surface(),
+		surfaceCapabilities.minImageCount + 1,
+		format.format,
+		format.colorSpace,
+		_extent,
+		1,
+		surfaceCapabilities.supportedUsageFlags,
+		(cond) ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE,
+		static_cast<uint32>((cond) ? 2 : 0),
+		(cond) ? &temp : 0,
+		surfaceCapabilities.currentTransform,
+		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		presentMode,
+		VK_TRUE,
+		(_oldSwapchain != nullptr) ? *_oldSwapchain : VK_NULL_HANDLE
+	};
 
 	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan swapchain");
 
-	_images.create(device, *this);
-	_depthBuffer.create(device, *this, cmdPool);
+	_images.create(device, this);
+	_depthBuffer.create(device, this, cmdPool);
 }
 
 } // namespace lyra

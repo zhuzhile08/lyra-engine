@@ -32,10 +32,16 @@ public:
 	VulkanCommandPool();
 
 	/**
-	 * @brief destroy the VulkanCommandBuffer object
-	 * @brief it works just like the destructor, but it can be called anywhere
+	* @brief destructor of the command pool
+	**/
+	virtual ~VulkanCommandPool() noexcept;
+
+	/**
+	 * @brief destroy the command pool
 	 */
 	void destroy() noexcept;
+
+	VulkanCommandPool operator=(const VulkanCommandPool&) = delete;
 
 	/**
 	 * @brief create a Vulkan command pool to allocate the command buffers
@@ -72,10 +78,16 @@ public:
 	VulkanCommandBuffer();
 
 	/**
-	 * @brief destroy the VulkanCommandBuffer object
-	 * @brief it works just like the destructor, but it can be called anywhere
+	* @brief destructor of the command buffer
+	**/
+	virtual ~VulkanCommandBuffer() noexcept;
+
+	/**
+	 * @brief destroy the command buffer
 	 */
 	void destroy() noexcept;
+
+	VulkanCommandBuffer operator=(const VulkanCommandBuffer&) = delete;
 
 	/**
 	 * @brief create the Vulkan command buffers

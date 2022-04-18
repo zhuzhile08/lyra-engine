@@ -35,6 +35,11 @@ public:
 		Builder();
 
 		/**
+		 * @brief destructor of the builder
+		 */
+		virtual ~Builder() noexcept;
+
+		/**
 		 * @brief add a binding to the vector of bindings
 		 *
 		 * @param binding at which index the shader expects the descriptor
@@ -50,9 +55,16 @@ public:
 	VulkanDescriptorSetLayout();
 
 	/**
+	 * @brief destructor of the descriptor set layout
+	 */
+	virtual ~VulkanDescriptorSetLayout() noexcept;
+
+	/**
 	 * @brief destroy the descriptor set layout
 	 */
 	void destroy() noexcept;
+
+	VulkanDescriptorSetLayout operator=(const VulkanDescriptorSetLayout&) = delete;
 
 	/**
 	 * @brief create the descriptor set layout
@@ -92,6 +104,12 @@ public:
 	 */
 	struct Builder {
 		Builder();
+
+		/**
+		 * @brief destructor of the builder
+		 */
+		virtual ~Builder() noexcept;
+
 		/**
 		 * @brief set a struct to define wwhat type and how many types of descriptors a set is going to contain
 		 *
@@ -121,9 +139,16 @@ public:
 	VulkanDescriptorPool();
 
 	/**
+	 * @brief destructor of the descriptor pool
+	 */
+	virtual ~VulkanDescriptorPool() noexcept;
+
+	/**
 	 * @brief destroy the descriptor pool
 	 */
 	void destroy() noexcept;
+
+	VulkanDescriptorPool operator=(const VulkanDescriptorPool&) = delete;
 
 	/**
 	 * @brief create a descriptor pool to allocate the descriptor sets
@@ -158,6 +183,11 @@ public:
 		Writer();
 
 		/**
+		 * @brief destructor of the wrter
+		 */
+		virtual ~Writer() noexcept;
+
+		/**
 		 * @brief add a setting for buffers
 		 *
 		 * @param bufferInfo information about the buffer
@@ -178,6 +208,8 @@ public:
 	};
 
 	VulkanDescriptor();
+
+	VulkanDescriptor operator=(const VulkanDescriptor&) = delete;
 
 	/**
 	 * @brief construct new Vulkan descriptors

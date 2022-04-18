@@ -29,9 +29,16 @@ public:
 	VulkanShader();
 
 	/**
-	 * @brief destroy the Shader
+	* @brief destructor of the shader
+	**/
+	virtual ~VulkanShader() noexcept;
+
+	/**
+	 * @brief destroy the shader
 	 */
 	void destroy() noexcept;
+
+	VulkanShader operator=(const VulkanShader&) = delete;
 
 	/**
 	 * @brief create a shader

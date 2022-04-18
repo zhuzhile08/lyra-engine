@@ -36,10 +36,20 @@ namespace lyra {
 class Context {
 public:
 	Context();
+
 	/**
-	 * @brief destroy the renderer
+	 * @brief destructor of the context
+	 */
+	virtual ~Context() noexcept;
+
+	/**
+	 * @brief destroy the context
 	 */
 	void destroy() noexcept;
+
+	Context(const Context&) = delete;
+	Context operator=(const Context&) = delete;
+
 	/**
 	 * @brief create the renderer
 	 *

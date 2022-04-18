@@ -4,7 +4,7 @@ namespace lyra {
 
 Context::Context() { }
 
-void Context::destroy() noexcept {
+Context::~Context() noexcept {
 	_device.wait();
 
 	_swapchain.destroy();
@@ -18,7 +18,13 @@ void Context::destroy() noexcept {
 	_instance.destroy();
 }
 
+void Context::destroy() noexcept {
+	this->~Context();
+}
+
 void Context::create(const Window* window) {
+	LOG_INFO("Creating context for application...");
+
 	this->window = window;
 
 	_instance.create(window);
@@ -27,7 +33,7 @@ void Context::create(const Window* window) {
 	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 	for (auto& cmdBuff : _commandBuffers) cmdBuff.create(&_device, &_commandPool);
 	_syncObjects.create(&_device);
-	_swapchain.create(&_device, &_instance, _commandPool, window);
+	_swapchain.create(&_device, &_instance, &_commandPool, window);
 
 	VulkanDescriptorSetLayout::Builder  layoutBuilder;
 	layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
@@ -39,16 +45,16 @@ void Context::create(const Window* window) {
 	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT);
 	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT);
 	_descriptorPool.create(&_device, poolBuilder);
+
+	LOG_INFO("Successfully created context for the application at: ", GET_ADDRESS(this), "!", END_L);
 }
 
 void Context::recreate_swapchain() {
-	VulkanSwapchain oldSwapchain = std::move(_swapchain);
+	VkSwapchainKHR oldSwapchain = std::move(_swapchain.swapchain());
 
 	_swapchain.destroy();
 
-	_swapchain.create(oldSwapchain, _commandPool);
-
-	oldSwapchain.destroy();
+	_swapchain.create(&oldSwapchain, &_commandPool);
 }
 
 void Context::add_to_render_queue(std::function<void()> &&function) {

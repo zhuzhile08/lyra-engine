@@ -5,10 +5,14 @@ namespace lyra {
 // command pool
 VulkanCommandPool::VulkanCommandPool() { }
 
-void VulkanCommandPool::destroy() noexcept {
+VulkanCommandPool::~VulkanCommandPool() {
 	vkDestroyCommandPool(device->device(), commandPool, nullptr);
 
 	LOG_INFO("Succesfully destroyed Vulkan command pool!");
+}
+
+void VulkanCommandPool::destroy() noexcept {
+	this->~VulkanCommandPool();
 }
 
 void VulkanCommandPool::create(const VulkanDevice* device) {
@@ -31,10 +35,14 @@ void VulkanCommandPool::create(const VulkanDevice* device) {
 // command buffer
 VulkanCommandBuffer::VulkanCommandBuffer() { }
 
-void VulkanCommandBuffer::destroy() noexcept {
+VulkanCommandBuffer::~VulkanCommandBuffer() {
 	vkFreeCommandBuffers(device->device(), commandPool->get(), 1, &commandBuffer);
 
 	LOG_INFO("Succesfully destroyed Vulkan command buffer!");
+}
+
+void VulkanCommandBuffer::destroy() noexcept {
+	this->~VulkanCommandBuffer();
 }
 
 void VulkanCommandBuffer::create(const VulkanDevice* device, const VulkanCommandPool* commandPool, const VkCommandBufferLevel level) {
@@ -112,9 +120,9 @@ void VulkanCommandBuffer::wait_queue(const VkQueue queue) const {
 void VulkanCommandBuffer::pipeline_barrier(
 	const VkPipelineStageFlags srcStageFlags,
 	const VkPipelineStageFlags dstStageFlags,
-	const VkMemoryBarrier *memory, 
-	const VkBufferMemoryBarrier *buffer, 
-	const VkImageMemoryBarrier *image, 
+	const VkMemoryBarrier* memory,
+	const VkBufferMemoryBarrier* buffer,
+	const VkImageMemoryBarrier* image,
 	const VkDependencyFlags dependency
 ) const {
 	vkCmdPipelineBarrier(
