@@ -32,8 +32,8 @@ int main() {
 	// camera.set_perspective(camera.aspect());
 
 	lyra::Mesh room;
-	room.bind_texture(texture);
-	room.bind_camera(camera);
+	room.bind_texture(&texture);
+	room.bind_camera(&camera);
 	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
 	room.bind(renderer);
 

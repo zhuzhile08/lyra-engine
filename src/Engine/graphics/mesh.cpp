@@ -57,7 +57,7 @@ Mesh::~Mesh() noexcept {
 }
 
 void Mesh::destroy() noexcept {
-	this->destroy();
+	this->~Mesh();
 }
 
 void Mesh::create(const Context* context, const non_access::LoadedModel loaded, uint16 index, noud::Node* parent, const std::string name) {
@@ -218,7 +218,7 @@ void Mesh::create_vertex_buffer() {
 	_vertexBuffer.create(&context->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
-	_vertexBuffer.copy(&context->commandPool(), stagingBuffer);
+	_vertexBuffer.copy(&context->commandPool(), &stagingBuffer);
 
 	// destroy the staging buffer
 	stagingBuffer.destroy();
@@ -235,7 +235,7 @@ void Mesh::create_index_buffer() {
 	_indexBuffer.create(&context->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
-	_indexBuffer.copy(&context->commandPool(), stagingBuffer);
+	_indexBuffer.copy(&context->commandPool(), &stagingBuffer);
 
 	// destroy the staging buffer
 	stagingBuffer.destroy();
