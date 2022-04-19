@@ -90,8 +90,8 @@ public:
 	 */
 	void create(
 		const VulkanDevice* device,
-		const VulkanFramebuffers framebuffer,
-		const VulkanDescriptorSetLayout descriptorSetLayout,
+		const VulkanFramebuffers* framebuffer,
+		const VulkanDescriptorSetLayout* descriptorSetLayout,
 		const std::vector<ShaderCreationInfo> shaderCreationInfos,
 		VkExtent2D size,
 		VkExtent2D area
@@ -132,13 +132,13 @@ private:
 	 * @param size size of which part the pipeline will draw to
 	 * @param area area of where the pipeline can draw to
 	 */
-	void create_pipeline(const VulkanFramebuffers framebuffer, const VulkanDescriptorSetLayout descriptorSetLayout, VkExtent2D size, VkExtent2D area);
+	void create_pipeline(const VulkanFramebuffers* framebuffer, const VulkanDescriptorSetLayout* descriptorSetLayout, VkExtent2D size, VkExtent2D area);
 	/**
 	 * @brief create the pipeline layout
 	 *
 	 * @param descriptor descriptors
 	 */
-	void create_layout(const VulkanDescriptorSetLayout descriptorSetLayout);
+	void create_layout(const VulkanDescriptorSetLayout* descriptorSetLayout);
 	/**
 	 * @brief create all the shaders
 	 * @brief minor caveat: since all the shaders are stored in a vector, you can only refer to them by index (as far as I know)

@@ -23,8 +23,8 @@ void Renderer::create(Context* context) {
 	_framebuffers.create(&context->_device, &context->_swapchain);
 	_pipeline.create(
 		&context->_device,
-		_framebuffers, 
-		context->_descriptorSetLayout, 
+		&_framebuffers, 
+		&context->_descriptorSetLayout, 
 		{ { "data/shader/vert.spv", "main", VK_SHADER_STAGE_VERTEX_BIT }, { "data/shader/frag.spv", "main", VK_SHADER_STAGE_FRAGMENT_BIT } }, 
 		context->_swapchain.extent(),
 		context->_swapchain.extent()

@@ -121,7 +121,7 @@ void VulkanImage::transition_layout(
 	const VkFormat format, 
 	const VkImageSubresourceRange subresourceRange
 ) {
-	this->device = nullptr;
+	this->device = device;
 
 	transition_layout(commandPool, oldLayout, newLayout, format, subresourceRange);
 }

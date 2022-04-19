@@ -18,8 +18,8 @@ void VulkanGraphicsPipeline::destroy() noexcept {
 
 void VulkanGraphicsPipeline::create(
 	const VulkanDevice* device,
-	const VulkanFramebuffers framebuffer, 
-	const VulkanDescriptorSetLayout descriptorSetLayout,
+	const VulkanFramebuffers* framebuffer, 
+	const VulkanDescriptorSetLayout* descriptorSetLayout,
 	const std::vector<ShaderCreationInfo> shaderCreationInfos,
 	VkExtent2D size,
     VkExtent2D area
@@ -37,7 +37,7 @@ void VulkanGraphicsPipeline::create(
 	LOG_INFO("Succesfully created Vulkan pipeline at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers framebuffer, const VulkanDescriptorSetLayout descriptorSetLayout, VkExtent2D size, VkExtent2D area) {
+void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers* framebuffer, const VulkanDescriptorSetLayout* descriptorSetLayout, VkExtent2D size, VkExtent2D area) {
     // add all the shader stage creation information into a vector
     std::vector <VkPipelineShaderStageCreateInfo>   shaderStages;
     shaderStages.reserve(_shaders.size());
@@ -195,7 +195,7 @@ void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers framebuffe
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
 		_pipelineLayout,
-		framebuffer.renderPass(),
+		framebuffer->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0
@@ -204,14 +204,14 @@ void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers framebuffe
 	if(vkCreateGraphicsPipelines(device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_graphicsPipeline) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan Pipeline!");
 }
 
-void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout descriptorSetLayout) {
+void VulkanGraphicsPipeline::create_layout(const VulkanDescriptorSetLayout* descriptorSetLayout) {
 	// create the pipeline layout
 	VkPipelineLayoutCreateInfo 				pipelineLayoutInfo {
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
 		1,
-		descriptorSetLayout.get_ptr(),
+		descriptorSetLayout->get_ptr(),
 		0,
 		nullptr
 	};

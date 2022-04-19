@@ -115,13 +115,13 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path);
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(&context->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
+	transition_layout(&context->device(), &context->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
 	copy_from_buffer(stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();
 
 	// create the image view
-	create_view(&context->device(), format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
+	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
 
 	// free the pixels of the image
 	stbi_image_free(imagePixelData);
