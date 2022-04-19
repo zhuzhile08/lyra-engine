@@ -4,11 +4,11 @@ namespace lyra {
 
 VulkanImage::VulkanImage() { }
 
-VulkanImage::~VulkanImage() {
+VulkanImage::~VulkanImage() noexcept {
 	vkDestroyImageView(device->device(), _view, nullptr);
 	vkDestroyImage(device->device(), _image, nullptr);
 
-	LOG_DEBUG(TAB, "Succesfully destroyed Vulkan images!");
+	LOG_DEBUG(TAB, "Succesfully destroyed Vulkan images!"); // this message suddenly comes up during the execution of the create_render_pass function and I have no idea why... Nothing seems wrong tho?
 }
 
 void VulkanImage::destroy() noexcept {

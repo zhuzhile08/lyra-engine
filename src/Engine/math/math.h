@@ -90,7 +90,7 @@ const float FPS();
  * 
  * @return float
  */
-const float deltaTime(double FPS);
+const float deltaTime();
 
 /**
  * @brief randomly generate a floating point number
@@ -100,6 +100,6 @@ const float deltaTime(double FPS);
  * 
  * @return float
  */
-float randFloat(const double x, const double y);
+float randFloat(const float x, const float y);
 
 } // namespace lyra
