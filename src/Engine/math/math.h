@@ -40,9 +40,10 @@ typedef int64_t int64;
  * @param a the first vector
  * @param b the second vector
  * @cond the placement of the vectors don't matter
+ * 
  * @return double 
  */
-double pyth(const glm::vec2 a, const glm::vec2 b);
+[[nodiscard]] float pyth(const glm::vec2 a, const glm::vec2 b);
 
 /**
  * @brief an implementation of pythagoras theorem, but in 3D
@@ -52,7 +53,7 @@ double pyth(const glm::vec2 a, const glm::vec2 b);
  * 
  * @return double 
  */
-double pyth3(const glm::vec3 a, const glm::vec3 b);
+[[nodiscard]] float pyth3(const glm::vec3 a, const glm::vec3 b);
 
 /**
  * @brief get the position on a line based on a normalized value
@@ -65,7 +66,7 @@ double pyth3(const glm::vec3 a, const glm::vec3 b);
  * 
  * @return Ty
 */
-template<class Ty> Ty point_on_line(Ty first, Ty second, float value);
+template<class Ty> [[nodiscard]] Ty point_on_line(Ty first, Ty second, float value);
 
 /**
  * @brief get a point on a bezier curve
@@ -77,20 +78,20 @@ template<class Ty> Ty point_on_line(Ty first, Ty second, float value);
  * 
  * @return Ty 
 */
-template<class Ty> Ty bezier(std::vector<Ty> points, float value);
+template<class Ty> [[nodiscard]] Ty bezier(std::vector<Ty> points, float value);
 
 /**
  * @brief calculate the deltatime from the current FPS
  *
  * @return float
  */
-const float FPS();
+[[nodiscard]] const float FPS();
 /**
  * @brief calculate the deltatime from the current FPS
  * 
  * @return float
  */
-const float deltaTime();
+[[nodiscard]] const float deltaTime();
 
 /**
  * @brief randomly generate a floating point number
@@ -100,6 +101,6 @@ const float deltaTime();
  * 
  * @return float
  */
-float randFloat(const float x, const float y);
+[[nodiscard]] float randFloat(const float x, const float y);
 
 } // namespace lyra

@@ -2,12 +2,12 @@
 
 namespace lyra {
 
-double pyth(const glm::vec2 a, const glm::vec2 b) {
+float pyth(const glm::vec2 a, const glm::vec2 b) {
 	double x = b.x - a.x, y = b.y - a.y;
 	return sqrt(x * x + y * y);
 }
 
-double pyth3(const glm::vec3 a, const glm::vec3 b) {
+float pyth3(const glm::vec3 a, const glm::vec3 b) {
 	double x = b.x - a.x, y = b.y - a.y, z = b.z - a.z;
 	return sqrt(x * x + y * y + z * z);
 }
