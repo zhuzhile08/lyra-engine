@@ -14,7 +14,7 @@ void Texture::destroy() noexcept {
 	this->~Texture();
 }
 
-void Texture::create(const Context* context, const str path, const VkFormat format, const int channelsToLoad) {
+void Texture::create(const Context* context, const string path, const VkFormat format, const int channelsToLoad) {
 	LOG_INFO("Creating Vulkan texture and image sampler... ");
 
 	this->context = context;
@@ -27,7 +27,7 @@ void Texture::create(const Context* context, const str path, const VkFormat form
 	LOG_INFO("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this), END_L);
 }
 
-void Texture::create(const str path, const VkFormat format, const int channelsToLoad) {
+void Texture::create(const string path, const VkFormat format, const int channelsToLoad) {
 	LOG_INFO("Recreating Vulkan texture and image sampler... ");
 
 	destroy();
@@ -38,7 +38,7 @@ void Texture::create(const str path, const VkFormat format, const int channelsTo
 	LOG_INFO("Successfully recreated Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this), END_L);
 }
 
-void Texture::load_image(const str path, const VkFormat format, int channelsToLoad) {
+void Texture::load_image(const string path, const VkFormat format, int channelsToLoad) {
 	// load the image
 	int width, height, channels;
 	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, channelsToLoad);

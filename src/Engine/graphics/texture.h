@@ -40,7 +40,7 @@ public:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void create(const Context* context, const str path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
+	void create(const Context* context, const string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
 	/**
 	 * @brief load a new texture into the image
 	 *
@@ -48,7 +48,7 @@ public:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void create(const str path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
+	void create(const string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -99,7 +99,7 @@ private:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void load_image(const str path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
+	void load_image(const string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
 
 	/**
 	 * @brief create the image sampler
