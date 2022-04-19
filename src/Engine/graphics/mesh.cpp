@@ -219,9 +219,6 @@ void Mesh::create_vertex_buffer() {
 
 	// copy the buffer
 	_vertexBuffer.copy(&context->commandPool(), &stagingBuffer);
-
-	// destroy the staging buffer
-	stagingBuffer.destroy();
 }
 
 void Mesh::create_index_buffer() {
@@ -236,9 +233,6 @@ void Mesh::create_index_buffer() {
 
 	// copy the buffer
 	_indexBuffer.copy(&context->commandPool(), &stagingBuffer);
-
-	// destroy the staging buffer
-	stagingBuffer.destroy();
 }
 
 } // namespace lyra

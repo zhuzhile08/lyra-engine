@@ -16,7 +16,7 @@
 #include <graphics/pipeline.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/descriptor.h>
-#include <graphics/framebuffer.h>
+#include <core/rendering/vulkan/framebuffer.h>
 #include <core/rendering/context.h>
 
 #include <core/logger.h>

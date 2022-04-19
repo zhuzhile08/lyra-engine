@@ -83,7 +83,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 
 	_width = width; _height = height;
 
-	LOG_DEBUG(TAB, "width: ", width, "height: ", height);
+	LOG_DEBUG(TAB, "width: ", width, " and height: ", height);
 
 	// calculate the mipmap levels of the image
 	_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
@@ -125,8 +125,6 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 
 	// free the pixels of the image
 	stbi_image_free(imagePixelData);
-	// destroy the staging buffer
-	stagingBuffer.destroy();
 }
 
 void Texture::create_sampler(VkFilter magnifiedTexel, VkFilter minimizedTexel, VkSamplerMipmapMode mipmapMode, VkSamplerAddressMode extendedTexels, VkBool32 anisotropy) {
@@ -237,7 +235,7 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.submit_queue(context->device().graphicsQueue().queue);
 	cmdBuff.wait_queue(context->device().graphicsQueue().queue);
 
-	LOG_DEBUG(TAB, "Created image mipmaps at: ", GET_ADDRESS(this));
+	LOG_DEBUG(TAB, "Created image mipmaps!");
 }
 
 } // namespace lyra

@@ -16,8 +16,8 @@
 #include <core/rendering/context.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <res/loaders/load_model.h>
-#include <graphics/vertex.h>
-#include <graphics/GPU_buffer.h>
+#include <core/rendering/vulkan/vertex.h>
+#include <core/rendering/vulkan/GPU_buffer.h>
 #include <graphics/renderer.h>
 #include <graphics/texture.h>
 #include <graphics/camera.h>

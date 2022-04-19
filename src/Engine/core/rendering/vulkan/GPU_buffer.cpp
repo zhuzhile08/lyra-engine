@@ -1,4 +1,4 @@
-#include <graphics/GPU_buffer.h>
+#include <core/rendering/vulkan/GPU_buffer.h>
 
 namespace lyra {
 
@@ -74,8 +74,6 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* commandPool, const VulkanGPU
 	// submit the commands
 	commandBuffer.submit_queue(device->graphicsQueue().queue);
 	commandBuffer.wait_queue(device->graphicsQueue().queue);
-
-	commandBuffer.destroy();		    // delete command buffer after copying
 
 	LOG_INFO("Succesfully copied Vulkan GPU buffer at ", GET_ADDRESS(&srcBuffer), " to ", GET_ADDRESS(this), "!", END_L);
 }

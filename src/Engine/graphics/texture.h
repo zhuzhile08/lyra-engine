@@ -7,7 +7,7 @@
 #include <core/rendering/vulkan/GPU_memory.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/context.h>
-#include <graphics/GPU_buffer.h>
+#include <core/rendering/vulkan/GPU_buffer.h>
 #include <graphics/renderer.h>
 
 #include <algorithm>

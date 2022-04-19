@@ -1,4 +1,4 @@
-#include <graphics/vertex.h>
+#include <core/rendering/vulkan/vertex.h>
 
 namespace lyra {
 

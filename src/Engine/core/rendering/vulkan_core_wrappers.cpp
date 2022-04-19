@@ -18,5 +18,8 @@
 #include <core/rendering/vulkan/swapchain.cpp>
 #include <core/rendering/vulkan/sync_objects.cpp>
 #include <core/rendering/vulkan/GPU_memory.cpp>
+#include <core/rendering/vulkan/GPU_buffer.cpp>
+#include <core/rendering/vulkan/vertex.cpp>
+#include <core/rendering/vulkan/framebuffer.cpp>
 #include <core/rendering/vulkan/vulkan_image.cpp>
 #include <core/rendering/vulkan/vulkan_shader.cpp>
