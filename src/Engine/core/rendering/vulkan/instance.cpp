@@ -26,9 +26,9 @@ void VulkanInstance::create(const Window* window) {
 	LOG_INFO("Succesfully created Vulkan instance at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanInstance::check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <str> requestedLayers) const {
+void VulkanInstance::check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <string> requestedLayers) const {
 	// go through every requested layers and see if they are available
-	for (str layer : requestedLayers) {
+	for (string layer : requestedLayers) {
 		bool found = false;
 		LOG_INFO("Available layers:");
 
@@ -60,7 +60,7 @@ void VulkanInstance::create_instance() {
 	uint32 SDLExtensionCount = 0;
 
 	if(!SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, nullptr)) LOG_EXEPTION("Failed to get number of Vulkan instance extensions");
-	str* SDLExtensions = new str [SDLExtensionCount];
+	string* SDLExtensions = new string [SDLExtensionCount];
 	if(!SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, SDLExtensions)) LOG_EXEPTION("Failed to get Vulkan instance extensions");
 
 	// define some info for the application that will be used in instance creation

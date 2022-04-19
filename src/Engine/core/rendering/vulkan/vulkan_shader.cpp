@@ -14,7 +14,7 @@ void VulkanShader::destroy() noexcept {
 	this->~VulkanShader();
 }
 
-void VulkanShader::create(const VulkanDevice* device, const std::string path, str entry, VkShaderStageFlagBits stageFlags) {
+void VulkanShader::create(const VulkanDevice* device, const string path, string entry, VkShaderStageFlagBits stageFlags) {
 	LOG_INFO("Loading and creating Vulkan shader...");
 
 	LOG_DEBUG(TAB, "Path: ", path);

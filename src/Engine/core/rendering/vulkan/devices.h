@@ -148,7 +148,7 @@ private:
 	 * @param extensions the available extensions
 	 * @param requestedExtensions the requested extensions
 	 */
-	void check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const;
+	void check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <string> requestedExtensions) const;
 
 	/**
 	 * @brief select a physical device from the available ones

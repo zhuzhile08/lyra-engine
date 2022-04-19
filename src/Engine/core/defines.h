@@ -24,7 +24,7 @@
 namespace lyra {
 
 // some other definitions
-typedef const char*         str;            // please don't look at this
+typedef const char*         string;            // please don't look at this
 #define ARR_SIZE(array)     sizeof(array)/sizeof(array[0])
 #define GET_ADDRESS(var)    (void*)var
 
@@ -37,8 +37,8 @@ typedef const char*         str;            // please don't look at this
 #define FULLSCREEN false
 
 // some engine specific definitions
-const std::vector<str>			requested_validation_layers{"VK_LAYER_KHRONOS_validation"};
-const std::vector<str>			requested_device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+const std::vector<string>			requested_validation_layers{"VK_LAYER_KHRONOS_validation"};
+const std::vector<string>			requested_device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 #define ENABLE_MULTI_SAMPLING   0
 #define ENABLE_COLOR_BLENDING   0
 #define CLEAR_COLOR             0.0f, 0.0f, 0.0f, 1.0f

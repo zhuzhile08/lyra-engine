@@ -26,9 +26,9 @@ void VulkanDevice::create(const VulkanInstance* instance) {
 	LOG_INFO("Succesfully created Vulkan device and allocated GPU at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <str> requestedExtensions) const {
+void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <string> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
-	for (str extension : requestedExtensions) {
+	for (string extension : requestedExtensions) {
 		bool found = false;
 		LOG_INFO("Available device extensions:");
 

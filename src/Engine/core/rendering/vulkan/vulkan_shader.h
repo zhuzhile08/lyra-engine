@@ -48,7 +48,7 @@ public:
 	 * @param entry name of the entrance point of the shader
 	 * @param stage type of the shader
 	 */
-	void create(const VulkanDevice* device, const std::string path, const str entry, VkShaderStageFlagBits stage);
+	void create(const VulkanDevice* device, const string path, const string entry, VkShaderStageFlagBits stage);
 
 	/**
 	 * @brief get the shader loading information
@@ -66,14 +66,14 @@ public:
 	/**
 	 * @brief get the entry point of the shader
 	 * 
-	 * @return const std::string
+	 * @return const string
 	*/
-	[[nodiscard]] const std::string entry() const noexcept { return _entry; }
+	[[nodiscard]] const string entry() const noexcept { return _entry; }
 
 private:
 	VkShaderModule _module = VK_NULL_HANDLE;
 	VkShaderStageFlagBits _stageFlags;
-	str _entry;
+	string _entry;
 
 	const VulkanDevice* device;
 };

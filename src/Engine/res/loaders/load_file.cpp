@@ -3,7 +3,7 @@
 namespace lyra {
 
 // load files in binary format in only read mode
-std::vector <char> read_binary(std::string path) {
+std::vector <char> read_binary(string path) {
 	std::ifstream file(path, std::ios::ate | std::ios::binary);
 
 	LOG_DEBUG(TAB, "Loaded file in binary format at path ", path);
@@ -23,7 +23,7 @@ std::vector <char> read_binary(std::string path) {
 	return shader;
 }
 
-std::vector <char> read_text(std::string path) {
+std::vector <char> read_text(string path) {
 	std::ifstream file(path, std::ios::ate);
 
 	LOG_DEBUG(TAB, "Loaded file in text format at path ", path);

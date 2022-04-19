@@ -23,9 +23,9 @@
 namespace lyra {
 
 // tab
-#define TAB     std::string("\t")
+#define TAB     string("\t")
 // end line
-#define END_L   std::string("\n")
+#define END_L   string("\n")
 
 // define which logs will be shown
 #define ENABLE_DEBUG_LOG  1
@@ -70,7 +70,7 @@ template<typename ... Args> inline void log_message(const LogLevel fatality, Arg
 
 template<typename ... Args> void log_message(const LogLevel fatality, Args... message) {
     // fatality of a log
-    std::string level[6] = {
+    string level[6] = {
         "[DEBUG]: ", 
         "[INFO]: ", 
         "[WARNING]: ", 
