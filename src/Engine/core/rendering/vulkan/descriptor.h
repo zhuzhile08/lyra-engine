@@ -219,7 +219,7 @@ public:
 	 * @param pool descriptor pool
 	 * @param writer data to be written into the descriptor
 	 */
-	void create(const VulkanDevice* device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer);
+	void create(const VulkanDevice* device, const VulkanDescriptorSetLayout* layout, const VulkanDescriptorPool* pool, Writer writer);
 
 	/**
 	 * @brief get the descriptor set

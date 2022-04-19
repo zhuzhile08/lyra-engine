@@ -21,6 +21,10 @@ void VulkanGPUBuffer::create(const VulkanDevice* device, VkDeviceSize size, VkBu
 
 	this->device = device;
 
+	LOG_DEBUG(TAB, "Size: ", size, " bytes (", size / 1000, " kilobytes)");
+	LOG_DEBUG(TAB, "Buffer usage flag: ", bufferUsage);
+	LOG_DEBUG(TAB, "Memory usage flag: ", memUsage);
+
 	// buffer creation info
 	VkBufferCreateInfo bufferInfo{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,

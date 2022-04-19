@@ -35,7 +35,7 @@ int main() {
 	room.bind_texture(&texture);
 	room.bind_camera(&camera);
 	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
-	room.bind(renderer);
+	room.bind(&renderer);
 
 	renderer.draw();
 
@@ -43,12 +43,6 @@ int main() {
 		camera.draw();
 		context.draw();
 	}
-
-	texture.destroy();
-	camera.destroy();
-	room.destroy();
-	renderer.destroy();
-	context.destroy();
 
 	return 0;
 }

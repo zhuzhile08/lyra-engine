@@ -61,7 +61,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const Context* context, const non_access::LoadedModel loaded, uint16 index = 0, noud::Node* parent = nullptr, const std::string name = "mesh");
+	void create(const Context* const context, const non_access::LoadedModel loaded, uint16 index = 0, noud::Node* parent = nullptr, const std::string name = "mesh");
 	/**
 	 * @brief construct a new mesh with a custom model
 	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
@@ -72,27 +72,27 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, noud::Node* parent = nullptr, const std::string name = "mesh");
+	void create(const Context* const context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, noud::Node* parent = nullptr, const std::string name = "mesh");
 
 	/**
 	 * @brief bind a texture to the model
 	 * 
 	 * @param texture the texture to bind
 	*/
-	void bind_texture(const Texture* texture);
+	void bind_texture(const Texture* const texture);
 	/**
 	 * @brief bind a camera to the model
 	 * 
 	 * @param camera the camera to bind
 	*/
-	void bind_camera(const Camera* camera);
+	void bind_camera(const Camera* const camera);
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
 	 *
 	 * @param renderer context to add the draw call to
 	 */
-	void bind(Renderer renderer) noexcept;
+	void bind(Renderer* const renderer) noexcept;
 
 	/**
 	 * @brief get the vertices

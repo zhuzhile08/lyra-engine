@@ -14,7 +14,7 @@ void Texture::destroy() noexcept {
 	this->~Texture();
 }
 
-void Texture::create(const Context* context, str path, VkFormat format, int channelsToLoad) {
+void Texture::create(const Context* context, const str path, const VkFormat format, const int channelsToLoad) {
 	LOG_INFO("Creating Vulkan texture and image sampler... ");
 
 	this->context = context;
@@ -27,7 +27,7 @@ void Texture::create(const Context* context, str path, VkFormat format, int chan
 	LOG_INFO("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this), END_L);
 }
 
-void Texture::create(str path, VkFormat format, int channelsToLoad) {
+void Texture::create(const str path, const VkFormat format, const int channelsToLoad) {
 	LOG_INFO("Recreating Vulkan texture and image sampler... ");
 
 	destroy();
@@ -38,44 +38,7 @@ void Texture::create(str path, VkFormat format, int channelsToLoad) {
 	LOG_INFO("Successfully recreated Vulkan texture with path: ", path, " with image sampler at: ", GET_ADDRESS(this), END_L);
 }
 
-const VkDescriptorImageInfo Texture::get_descriptor_image_info() const noexcept {
-	return {
-		_sampler,
-		_view,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	};
-}
-
-void Texture::copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent) {
-	// temporary command buffer for copying
-	VulkanCommandBuffer     cmdBuff;
-	cmdBuff.create(&context->device(), &context->commandPool());
-	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-	// copy image in buffer to the image
-	VkBufferImageCopy imageCopy {
-		0,
-		0,
-		0,
-		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
-		{0, 0, 0},
-		extent
-	};
-
-	vkCmdCopyBufferToImage(cmdBuff.get(), stagingBuffer.buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
-
-	// end recording
-	cmdBuff.end();
-
-	// submit queues after recording
-	cmdBuff.submit_queue(context->device().graphicsQueue().queue);
-	cmdBuff.wait_queue(context->device().graphicsQueue().queue);
-
-	LOG_DEBUG(TAB, "Copied image data from buffer to image at: ", GET_ADDRESS(this));
-}
-
-void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
+void Texture::load_image(const str path, const VkFormat format, int channelsToLoad) {
 	// load the image
 	int width, height, channels;
 	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, channelsToLoad);
@@ -116,7 +79,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(&context->device(), &context->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
-	copy_from_buffer(stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
+	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();
 
@@ -127,7 +90,7 @@ void Texture::load_image(str path, VkFormat format, int channelsToLoad) {
 	stbi_image_free(imagePixelData);
 }
 
-void Texture::create_sampler(VkFilter magnifiedTexel, VkFilter minimizedTexel, VkSamplerMipmapMode mipmapMode, VkSamplerAddressMode extendedTexels, VkBool32 anisotropy) {
+void Texture::create_sampler(const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode, const VkSamplerAddressMode extendedTexels, const VkBool32 anisotropy) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(context->device().physicalDevice(), &properties);
 
@@ -236,6 +199,43 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.wait_queue(context->device().graphicsQueue().queue);
 
 	LOG_DEBUG(TAB, "Created image mipmaps!");
+}
+
+void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent) {
+	// temporary command buffer for copying
+	VulkanCommandBuffer     cmdBuff;
+	cmdBuff.create(&context->device(), &context->commandPool());
+	// begin recording
+	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	// copy image in buffer to the image
+	VkBufferImageCopy imageCopy{
+		0,
+		0,
+		0,
+		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+		{0, 0, 0},
+		extent
+	};
+
+	vkCmdCopyBufferToImage(cmdBuff.get(), stagingBuffer->buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+
+	// end recording
+	cmdBuff.end();
+
+	// submit queues after recording
+	cmdBuff.submit_queue(context->device().graphicsQueue().queue);
+	cmdBuff.wait_queue(context->device().graphicsQueue().queue);
+
+	LOG_DEBUG(TAB, "Copied image data from buffer to image at: ", GET_ADDRESS(this));
+}
+
+const VkDescriptorImageInfo Texture::get_descriptor_image_info() const noexcept {
+	return {
+		_sampler,
+		_view,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	};
 }
 
 } // namespace lyra

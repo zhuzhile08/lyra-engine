@@ -146,16 +146,16 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo *imag
 // descriptors
 VulkanDescriptor::VulkanDescriptor() { }
 
-void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptorSetLayout layout, const VulkanDescriptorPool pool, Writer writer) {
+void VulkanDescriptor::create(const VulkanDevice* device, const VulkanDescriptorSetLayout* layout, const VulkanDescriptorPool* pool, Writer writer) {
 	LOG_INFO("Creating Vulkan descriptor sets...");
 
 	// create the descriptor set
 	VkDescriptorSetAllocateInfo allocInfo {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 		nullptr,
-		pool.get(),
+		pool->get(),
 		1,
-		layout.get_ptr()
+		layout->get_ptr()
 	};
 
 	if (vkAllocateDescriptorSets(device->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) LOG_EXEPTION("Failed to allocate descriptor sets");

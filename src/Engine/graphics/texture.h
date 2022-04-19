@@ -40,7 +40,7 @@ public:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void create(const Context* context, str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+	void create(const Context* context, const str path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
 	/**
 	 * @brief load a new texture into the image
 	 *
@@ -48,7 +48,7 @@ public:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void create(str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+	void create(const str path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -90,7 +90,7 @@ private:
 	 * @param stagingBuffer buffer
 	 * @param extent size of the image
 	 */
-	void copy_from_buffer(VulkanGPUBuffer stagingBuffer, VkExtent3D extent);
+	void copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent);
 
 	/**
 	 * load a image from a path
@@ -99,7 +99,7 @@ private:
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
-	void load_image(str path, VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, int channelsToLoad = STBI_rgb_alpha);
+	void load_image(const str path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
 
 	/**
 	 * @brief create the image sampler
@@ -111,11 +111,11 @@ private:
 	 * @param anistropy how further distances are filtered
 	 */
 	void create_sampler(
-		VkFilter magnifiedTexel = VK_FILTER_LINEAR,
-		VkFilter minimizedTexel = VK_FILTER_LINEAR,
-		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		VkSamplerAddressMode extendedTexels = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-		VkBool32 anisotropy = VK_TRUE
+		const VkFilter magnifiedTexel = VK_FILTER_LINEAR,
+		const VkFilter minimizedTexel = VK_FILTER_LINEAR,
+		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		const VkSamplerAddressMode extendedTexels = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		const VkBool32 anisotropy = VK_TRUE
 	);
 
 	/**

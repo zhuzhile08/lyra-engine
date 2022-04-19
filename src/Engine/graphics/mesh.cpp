@@ -71,7 +71,8 @@ void Mesh::create(const Context* context, const non_access::LoadedModel loaded, 
 
 	create_vertex_buffer();
 	create_index_buffer();
-	_descriptor.create(&context->device(), context->descriptorSetLayout(), context->descriptorPool(), _writer);
+
+	_descriptor.create(&context->device(), &context->descriptorSetLayout(), &context->descriptorPool(), _writer);
 
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
@@ -85,21 +86,22 @@ void Mesh::create(const Context* context, const std::vector <Vertex> vertices, c
 
 	create_vertex_buffer();
 	create_index_buffer();
-	_descriptor.create(&context->device(), context->descriptorSetLayout(), context->descriptorPool(), _writer);
+
+	_descriptor.create(&context->device(), &context->descriptorSetLayout(), &context->descriptorPool(), _writer);
 
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void Mesh::bind_texture(const Texture* texture) {
+void Mesh::bind_texture(const Texture* const texture) {
 	_writer.add_image_write(new VkDescriptorImageInfo(texture->get_descriptor_image_info()));
 }
 
-void Mesh::bind_camera(const Camera* camera) {
+void Mesh::bind_camera(const Camera* const camera) {
 	for (auto& buffer : camera->buffers()) _writer.add_buffer_write(new VkDescriptorBufferInfo(buffer.get_descriptor_buffer_info()), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 }
 
-void Mesh::bind(Renderer renderer) noexcept {
-	renderer._draw_queue.add([&]() { renderer.bind_descriptor(_descriptor); renderer.bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); renderer.draw_model(static_cast<uint32>(_indices.size())); });
+void Mesh::bind(Renderer* const renderer) noexcept {
+	renderer->_draw_queue.add([&]() { renderer->bind_descriptor(_descriptor); renderer->bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); renderer->draw_model(static_cast<uint32>(_indices.size())); });
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {

@@ -67,6 +67,18 @@ public:
 	 * @return const CallQueue
 	*/
 	const CallQueue draw_queue() const noexcept { return _draw_queue; }
+	/**
+	 * @brief get the framebuffers
+	 * 
+	 * @return const VulkanFramebuffers&
+	*/
+	const VulkanFramebuffers& framebuffers() const noexcept { return _framebuffers; }
+	/**
+	 * @brief get the pipeline
+	 * 
+	 * @return const VulkanGraphicsPipeline&
+	*/
+	const VulkanGraphicsPipeline& pipeline() const noexcept { return _pipeline; }
 
 private:
 	VulkanFramebuffers _framebuffers;
@@ -125,7 +137,6 @@ private:
 	void record_command_buffers();
 
 	friend class Mesh;
-	friend class Texture;
 };
 
 }
