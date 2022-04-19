@@ -76,15 +76,15 @@ public:
 	/**
 	 * @brief get the descriptor set layout
 	 *
-	 * @return VkDescriptorSetLayout
+	 * @return const VkDescriptorSetLayout
 	 */
-	VkDescriptorSetLayout get() const noexcept { return _descriptorSetLayout; }
+	[[nodiscard]] const VkDescriptorSetLayout get() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor set layout as pointers
 	 *
-	 * @return const VkDescriptorSetLayout
+	 * @return const VkDescriptorSetLayout*
 	 */
-	const VkDescriptorSetLayout* get_ptr() const noexcept { return &_descriptorSetLayout; }
+	[[nodiscard]] const VkDescriptorSetLayout* get_ptr() const noexcept { return &_descriptorSetLayout; }
 
 private:
 	VkDescriptorSetLayout _descriptorSetLayout = VK_NULL_HANDLE;
@@ -163,7 +163,7 @@ public:
 	 *
 	 * @return const VkDescriptorPool
 	 */
-	const VkDescriptorPool get() const noexcept { return _descriptorPool; }
+	[[nodiscard]] const VkDescriptorPool get() const noexcept { return _descriptorPool; }
 
 private:
 	VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
@@ -226,14 +226,14 @@ public:
 	 *
 	 * @return const VkDescriptorSet
 	 */
-	const VkDescriptorSet get() const noexcept { return _descriptorSet; }
+	[[nodiscard]] const VkDescriptorSet get() const noexcept { return _descriptorSet; }
 
 	/**
 	 * @brief get the descriptor set
 	 *
 	 * @return const VkDescriptorSet*
 	 */
-	const VkDescriptorSet* get_ptr() const noexcept { return &_descriptorSet; }
+	[[nodiscard]] const VkDescriptorSet* get_ptr() const noexcept { return &_descriptorSet; }
 
 private:
 	VkDescriptorSet _descriptorSet = VK_NULL_HANDLE;

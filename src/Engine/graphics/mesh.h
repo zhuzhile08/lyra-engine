@@ -99,25 +99,25 @@ public:
 	 * 
 	 * @return const std::vector <Vertex>
 	*/
-	const std::vector <Vertex> vertices() const noexcept { return _vertices; }
+	[[nodiscard]] const std::vector <Vertex> vertices() const noexcept { return _vertices; }
 	/**
 	 * @brief get the indices
 	 *
 	 * @return const std::vector <uint16>
 	*/
-	const std::vector <uint16> indices() const noexcept { return _indices; }
+	[[nodiscard]] const std::vector <uint16> indices() const noexcept { return _indices; }
 	/**
 	 * @brief get the vertex buffer
 	 * 
 	 * @return const VulkanGPUBuffer
 	*/
-	const VulkanGPUBuffer vertexBuffer() const noexcept { return _vertexBuffer; }
+	[[nodiscard]] const VulkanGPUBuffer& vertexBuffer() const noexcept { return _vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 * 
 	 * @return const VulkanGPUBuffer 
 	*/
-	const VulkanGPUBuffer indexBuffer() const noexcept { return _indexBuffer; }
+	[[nodiscard]] const VulkanGPUBuffer& indexBuffer() const noexcept { return _indexBuffer; }
 
 private:
 	std::vector <Vertex> _vertices;

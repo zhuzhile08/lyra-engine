@@ -102,19 +102,19 @@ public:
 	 * 
 	 * @return const VkPipeline
 	*/
-	const VkPipeline graphicsPipeline() const noexcept { return _graphicsPipeline; }
+	[[nodiscard]] const VkPipeline graphicsPipeline() const noexcept { return _graphicsPipeline; }
 	/**
 	 * @brief get the pipeline layout
 	 * 
 	 * @return const VkPipelineLayout
 	*/
-	const VkPipelineLayout pipelineLayout() const noexcept { return _pipelineLayout; }
+	[[nodiscard]] const VkPipelineLayout pipelineLayout() const noexcept { return _pipelineLayout; }
 	/**
 	 * @brief get the shaders
 	 * 
 	 * @return const std::vector<VulkanShader>
 	*/
-	const std::vector<VulkanShader> shaders() const noexcept { return _shaders; }
+	[[nodiscard]] const std::vector<VulkanShader> shaders() const noexcept { return _shaders; }
 
 private:
 	VkPipeline _graphicsPipeline = VK_NULL_HANDLE;

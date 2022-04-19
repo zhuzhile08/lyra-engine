@@ -67,19 +67,19 @@ public:
 	 *
 	 * @return const std::vector <VkSemaphore>
 	*/
-	const std::vector <VkSemaphore> imageAvailableSemaphores() const noexcept { return _imageAvailableSemaphores; }
+	[[nodiscard]] const std::vector <VkSemaphore> imageAvailableSemaphores() const noexcept { return _imageAvailableSemaphores; }
 	/**
 	 * @brief get the render finished semaphores
 	 *
 	 * @return const std::vector <VkSemaphore>
 	*/
-	const std::vector <VkSemaphore> renderFinishedSemaphores() const noexcept { return _renderFinishedSemaphores; }
+	[[nodiscard]] const std::vector <VkSemaphore> renderFinishedSemaphores() const noexcept { return _renderFinishedSemaphores; }
 	/**
 	 * @brief get the in flight fences
 	 *
 	 * @return const std::vector <VkFence>
 	*/
-	const std::vector <VkFence> inFlightFences() const noexcept { return _inFlightFences; }
+	[[nodiscard]] const std::vector <VkFence> inFlightFences() const noexcept { return _inFlightFences; }
 
 private:
 	std::vector <VkSemaphore> _imageAvailableSemaphores;

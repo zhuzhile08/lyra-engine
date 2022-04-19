@@ -39,6 +39,11 @@ private:
 		VulkanSwapchainImages();
 
 		/**
+		 * @brief destructor of the swapchain images
+		 */
+		virtual ~VulkanSwapchainImages() noexcept;
+
+		/**
 		 * @brief destroy the swapchain images
 		 */
 		void destroy() noexcept;
@@ -66,6 +71,11 @@ private:
 	struct VulkanDepthBuffer : VulkanImage, VulkanGPUMemory {
 	public:
 		VulkanDepthBuffer();
+
+		/**
+		 * @brief destructor of the depth buffer
+		 */
+		virtual ~VulkanDepthBuffer() noexcept;
 
 		/**
 		 * @brief destroy the depth buffer
@@ -144,13 +154,13 @@ public:
 	 *
 	 * @return const VulkanSwapchainImages
 	*/
-	[[nodiscard]] const VulkanSwapchainImages images() const noexcept { return _images; }
+	[[nodiscard]] const VulkanSwapchainImages& images() const noexcept { return _images; }
 	/**
 	 * @brief get the depth buffer
 	 *
 	 * @return const VulkanDepthBuffer
 	*/
-	[[nodiscard]] const VulkanDepthBuffer depthBuffer() const noexcept { return _depthBuffer; }
+	[[nodiscard]] const VulkanDepthBuffer& depthBuffer() const noexcept { return _depthBuffer; }
 
 private:
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;

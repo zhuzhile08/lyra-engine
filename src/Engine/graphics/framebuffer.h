@@ -58,20 +58,20 @@ public:
 	 * 
 	 * @return const VkRenderPassBeginInfo
 	 */
-	const VkRenderPassBeginInfo get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept;
+	[[nodiscard]] const VkRenderPassBeginInfo get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept;
 
 	/**
 	 * @brief get the render pass
 	 * 
 	 * @return const VkRenderPass
 	*/
-	const VkRenderPass renderPass() const noexcept { return _renderPass; }
+	[[nodiscard]] const VkRenderPass renderPass() const noexcept { return _renderPass; }
 	/**
 	 * @brief get the framebuffers
 	 * 
 	 * @return const std::vector <VkFramebuffer>
 	*/
-	const std::vector <VkFramebuffer> framebuffers() const noexcept { return _framebuffers; }
+	[[nodiscard]] const std::vector <VkFramebuffer> framebuffers() const noexcept { return _framebuffers; }
 
 private:
 	VkRenderPass _renderPass = VK_NULL_HANDLE;

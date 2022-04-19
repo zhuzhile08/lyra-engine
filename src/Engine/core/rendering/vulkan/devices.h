@@ -83,31 +83,31 @@ public:
 	 *
 	 * @return VkPhysicalDevice
 	 */
-	const VkPhysicalDevice physicalDevice() const noexcept { return _physicalDevice;  }
+	[[nodiscard]] const VkPhysicalDevice physicalDevice() const noexcept { return _physicalDevice;  }
 	/**
 	 * @brief get the logical device
 	 * 
 	 * @return const VkLogicalDevice
 	 */
-	const VkDevice device() const noexcept { return _device; }
+	[[nodiscard]] const VkDevice device() const noexcept { return _device; }
 	/**
 	 * @brief get the graphics queue
 	 * 
 	 * @return const VulkanQueueFamily
 	 */
-	const VulkanQueueFamily graphicsQueue() const noexcept { return _graphicsQueue; }
+	[[nodiscard]] const VulkanQueueFamily graphicsQueue() const noexcept { return _graphicsQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
 	 * @return const VulkanQueueFamily
 	 */
-	const VulkanQueueFamily presentQueue() const noexcept { return _presentQueue; }
+	[[nodiscard]] const VulkanQueueFamily presentQueue() const noexcept { return _presentQueue; }
 	/**
 	 * @brief get the VMA memory allocator
 	 *
 	 * @return const VmaAllocator
 	 */
-	const VmaAllocator allocator() const noexcept { return _allocator; }
+	[[nodiscard]] const VmaAllocator allocator() const noexcept { return _allocator; }
 
 private:
 	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;

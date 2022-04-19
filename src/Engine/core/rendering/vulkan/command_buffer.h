@@ -55,13 +55,13 @@ public:
 	 *
 	 * @return const VkCommandPool
 	 */
-	const VkCommandPool get() const noexcept { return commandPool; }
+	[[nodiscard]] const VkCommandPool get() const noexcept { return commandPool; }
 	/**
 	 * @brief get the command pool as a pointer
 	 *
 	 * @return VkCommandPool
 	 */
-	const VkCommandPool* get_ptr() const noexcept { return &commandPool; }
+	[[nodiscard]] const VkCommandPool* get_ptr() const noexcept { return &commandPool; }
 
 private:
 	VkCommandPool commandPool = VK_NULL_HANDLE;
@@ -153,14 +153,14 @@ public:
 	 *
 	 * @return const VkCommandBuffer
 	 */
-	const VkCommandBuffer get() const noexcept { return commandBuffer; }
+	[[nodiscard]] const VkCommandBuffer get() const noexcept { return commandBuffer; }
 
 	/**
 	 * @brief get the command buffer as a pointer
 	 *
 	 * @return const VkCommandBuffer*
 	 */
-	const VkCommandBuffer* get_ptr() const noexcept { return &commandBuffer; }
+	[[nodiscard]] const VkCommandBuffer* get_ptr() const noexcept { return &commandBuffer; }
 
 private:
 	VkCommandBuffer commandBuffer = VK_NULL_HANDLE;

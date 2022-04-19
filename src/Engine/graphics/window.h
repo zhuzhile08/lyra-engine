@@ -71,7 +71,7 @@ public:
 	 *
 	 * @return SDL_Window*
 	 */
-	SDL_Window* get() const noexcept;
+	[[nodiscard]] SDL_Window* get() const noexcept;
 
 private:
 	SDL_Window* _window;

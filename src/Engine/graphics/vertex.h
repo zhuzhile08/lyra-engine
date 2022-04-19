@@ -42,14 +42,14 @@ struct              Vertex {
 	 *
 	 * @return VkVertexInputBindingDescription
 	 */
-	static const VkVertexInputBindingDescription get_binding_description() noexcept;
+	[[nodiscard]] static const VkVertexInputBindingDescription get_binding_description() noexcept;
 
 	/**
 	 * @brief returns a static vertex input attribute
 	 *
 	 * @return std::array<VkVertexInputAttributeDescription, 4>
 	 */
-	static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
+	[[nodiscard]] static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
 };
 
 } // namespace lyra

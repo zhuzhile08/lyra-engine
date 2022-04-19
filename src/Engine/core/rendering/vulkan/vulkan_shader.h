@@ -55,20 +55,20 @@ public:
 	 *
 	 * @return const VkPipelineShaderStageCreateInfo
 	*/
-	const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept;
+	[[nodiscard]] const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept;
 
 	/**
 	 * @brief get the shader module
 	 * 
 	 * @return const VkShaderModule
 	*/
-	const VkShaderModule module() const noexcept { return _module; }
+	[[nodiscard]] const VkShaderModule module() const noexcept { return _module; }
 	/**
 	 * @brief get the entry point of the shader
 	 * 
 	 * @return const std::string
 	*/
-	const std::string entry() const noexcept { return _entry; }
+	[[nodiscard]] const std::string entry() const noexcept { return _entry; }
 
 private:
 	VkShaderModule _module = VK_NULL_HANDLE;

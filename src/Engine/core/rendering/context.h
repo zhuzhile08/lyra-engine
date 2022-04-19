@@ -81,55 +81,55 @@ public:
 	 * 
 	 * @return const VulkanDevice
 	*/
-	const VulkanDevice device() const noexcept { return _device; }
+	[[nodiscard]] const VulkanDevice& device() const noexcept { return _device; }
 	/**
 	 * @brief get the command pool
 	 * 
 	 * @return const VulkanCommandPool
 	*/
-	const VulkanCommandPool commandPool() const noexcept { return _commandPool; }
+	[[nodiscard]] const VulkanCommandPool& commandPool() const noexcept { return _commandPool; }
 	/**
 	 * @brief get the command buffers
 	 *
 	 * @return const std::vector<VulkanCommandBuffer>
 	*/
-	const std::vector<VulkanCommandBuffer> commandBuffers() const noexcept { return _commandBuffers; }
+	[[nodiscard]] const std::vector<VulkanCommandBuffer>& commandBuffers() const noexcept { return _commandBuffers; }
 	/**
 	 * @brief get the swapchain
 	 * 
 	 * @return const VulkanSwapchain
 	*/
-	const VulkanSwapchain swapchain() const noexcept { return _swapchain; }
+	[[nodiscard]] const VulkanSwapchain& swapchain() const noexcept { return _swapchain; }
 	/**
 	 * @brief get the descriptor set layout
 	 * 
 	 * @return const VulkanDescriptorSetLayout
 	*/
-	const VulkanDescriptorSetLayout descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
+	[[nodiscard]] const VulkanDescriptorSetLayout& descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 * 
 	 * @return const VulkanDescriptorPool
 	*/
-	const VulkanDescriptorPool descriptorPool() const noexcept { return _descriptorPool; }
+	[[nodiscard]] const VulkanDescriptorPool& descriptorPool() const noexcept { return _descriptorPool; }
 	/**
 	 * @brief get the queue with the draw calls
 	 * 
 	 * @return const CallQueue
 	*/
-	const CallQueue renderQueue() const noexcept { return _renderQueue; }
+	[[nodiscard]] const CallQueue& renderQueue() const noexcept { return _renderQueue; }
 	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
 	*/
-	const uint8 currentFrame() const noexcept { return _currentFrame; }
+	[[nodiscard]] const uint8 currentFrame() const noexcept { return _currentFrame; }
 	/**
 	 * @brief get the image index
 	 * 
 	 * @return const uint32
 	*/
-	const uint32 imageIndex() const noexcept { return _imageIndex; }
+	[[nodiscard]] const uint32 imageIndex() const noexcept { return _imageIndex; }
 
 private:
 	VulkanInstance _instance;

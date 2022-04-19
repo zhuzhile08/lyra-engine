@@ -131,7 +131,7 @@ public:
 	 * 
 	 * @return const CallQueue
 	*/
-	[[nodiscard]] const CallQueue updateQueue() const noexcept { return _updateQueue; }
+	[[nodiscard]] const CallQueue& updateQueue() const noexcept { return _updateQueue; }
 	/**
 	 * @brief get the position of the camera
 	 * 
