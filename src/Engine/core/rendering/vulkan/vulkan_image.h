@@ -99,6 +99,29 @@ struct VulkanImage {
 	);
 
 	/**
+	 * @brief return a memory barrier for this image
+	 *
+	 * @param srcAccessMask the original accessability for the image
+	 * @param dstAccessMask the new accessability to transition to
+	 * @param srcLayout the original layout of the image
+	 * @param dstLayout the layout to transition to
+	 * @param srcQueueFamily the original queue family of the image
+	 * @param dstQueueFamily the queue family to transfer ownership to
+	 * @param subresourceRange some data about the image
+	 *
+	 * @return const VkImageMemoryBarrier
+	*/
+	[[nodiscard]] const VkImageMemoryBarrier get_image_memory_barrier(
+		const VkAccessFlags srcAccessMask,
+		const VkAccessFlags dstAccessMask,
+		const VkImageLayout srcLayout,
+		const VkImageLayout dstLayout,
+		const VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
+		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept;
+
+	/**
 	 * @brief transition the image layout to an another one
 	 *
 	 * @param device device, if not already defined
@@ -133,29 +156,6 @@ struct VulkanImage {
 		const VkFormat format,
 		const VkImageSubresourceRange subresourceRange
 	) const;
-
-	/**
-	 * @brief return a memory barrier for this image
-	 * 
-	 * @param srcAccessMask the original accessability for the image
-	 * @param dstAccessMask the new accessability to transition to
-	 * @param srcLayout the original layout of the image
-	 * @param dstLayout the layout to transition to
-	 * @param srcQueueFamily the original queue family of the image
-	 * @param dstQueueFamily the queue family to transfer ownership to
-	 * @param subresourceRange some data about the image
-	 * 
-	 * @return const VkImageMemoryBarrier
-	*/
-	[[nodiscard]] const VkImageMemoryBarrier get_image_memory_barrier(
-		const VkAccessFlags srcAccessMask,
-		const VkAccessFlags dstAccessMask,
-		const VkImageLayout srcLayout,
-		const VkImageLayout dstLayout,
-		const VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
-		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
-	) const noexcept;
 
 	VkImage _image = VK_NULL_HANDLE;
 	VkImageView _view = VK_NULL_HANDLE;
