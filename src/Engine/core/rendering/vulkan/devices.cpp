@@ -195,19 +195,4 @@ void VulkanDevice::wait() const {
 	vkDeviceWaitIdle(_device);
 }
 
-uint32 VulkanDevice::find_memory_type(const uint32 typeFilter, const VkMemoryPropertyFlags properties) const {
-	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(_physicalDevice, &memProperties);
-
-	for (uint32 i = 0; i < memProperties.memoryTypeCount; i++) {
-		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-			return i;
-			return true;
-		}
-	}
-
-	LOG_EXEPTION("Failed to find suitable memory type!");
-	return INT32_MAX;
-}
-
 } // namespace lyra
