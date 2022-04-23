@@ -10,6 +10,7 @@
 #include <graphics/texture.h>
 #include <init/init_SDL.h>
 #include <math/math.h>
+#include <core/gui_context.h>
 #include <glm.hpp>
 
 int main() {
@@ -22,18 +23,21 @@ int main() {
 	lyra::Renderer renderer;
 	renderer.create(&context);
 
+	lyra::gui::GUIContext guiContext;
+	guiContext.create(&context, &renderer, &window);
+
 	lyra::Texture texture;
 	texture.create(&context, "data/img/viking_room.png");
 
 	lyra::Camera camera;
 	camera.create(&context);
 	camera.set_rotation(90.0f, { 0.0f, 0.0f, 1.0f });
-	// camera.look_at({ 0.0f, 0.0f, 0.0f });
-	// camera.set_perspective(camera.aspect());
+	camera.look_at({ 0.0f, 0.0f, 0.0f });
+	camera.set_perspective(camera.aspect());
 
 	lyra::Mesh room;
-	room.bind_texture(&texture);
 	room.bind_camera(&camera);
+	room.bind_texture(&texture);
 	room.create(&context, lyra::load_model("data/model/viking_room.obj"));
 	room.bind(&renderer);
 
