@@ -47,8 +47,8 @@ public:
 	 */
 	void destroy() noexcept;
 
-	Window(const Window&) = delete;
-	Window operator=(const Window&) = delete;
+	Window(const Window&) noexcept = delete;
+	Window operator=(const Window&) const noexcept = delete;
 
 	/**
 	 * @brief get the events
