@@ -61,7 +61,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const Context* const context, const non_access::LoadedModel loaded, uint16 index = 0, noud::Node* parent = nullptr, const std::string name = "mesh");
+	void create(const Context* const context, const non_access::LoadedModel loaded, const uint16 index = 0, const noud::Node* const  parent = nullptr, const string name = "mesh");
 	/**
 	 * @brief construct a new mesh with a custom model
 	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
@@ -72,7 +72,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const Context* const context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, noud::Node* parent = nullptr, const std::string name = "mesh");
+	void create(const Context* const context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent = nullptr, const string name = "mesh");
 
 	/**
 	 * @brief bind a texture to the model
@@ -109,13 +109,13 @@ public:
 	/**
 	 * @brief get the vertex buffer
 	 * 
-	 * @return const VulkanGPUBuffer
+	 * @return const lyra::VulkanGPUBuffer
 	*/
 	[[nodiscard]] const VulkanGPUBuffer& vertexBuffer() const noexcept { return _vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 * 
-	 * @return const VulkanGPUBuffer 
+	 * @return const lyra::VulkanGPUBuffer 
 	*/
 	[[nodiscard]] const VulkanGPUBuffer& indexBuffer() const noexcept { return _indexBuffer; }
 

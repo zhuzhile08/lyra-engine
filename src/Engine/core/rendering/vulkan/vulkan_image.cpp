@@ -65,7 +65,7 @@ void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRan
 	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!");
 }
 
-void VulkanImage::create_view(const VulkanDevice* device, const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
+void VulkanImage::create_view(const VulkanDevice* const device, const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
 	this->device = device;
 
 	create_view(format, subresourceRange, viewType, colorComponents);
@@ -114,8 +114,8 @@ void VulkanImage::transition_layout(
 }
 
 void VulkanImage::transition_layout(
-	const VulkanDevice* device,
-	const VulkanCommandPool* commandPool,
+	const VulkanDevice* const device,
+	const VulkanCommandPool* const commandPool,
 	const VkImageLayout oldLayout, 
 	const VkImageLayout newLayout, 
 	const VkFormat format, 
@@ -173,7 +173,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 	return VK_FORMAT_MAX_ENUM;
 }
 
-const VkFormat VulkanImage::get_best_format(const VulkanDevice* device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) {
+const VkFormat VulkanImage::get_best_format(const VulkanDevice* const device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) {
 	this->device = device;
 
 	return get_best_format(candidates, features, tiling);

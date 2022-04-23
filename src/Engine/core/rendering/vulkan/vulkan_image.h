@@ -39,7 +39,7 @@ struct VulkanImage {
 	 */
 	void destroy() noexcept;
 
-	VulkanImage operator=(const VulkanImage&) = delete;
+	VulkanImage operator=(const VulkanImage&) const noexcept = delete;
 
 	/**
 	 * @brief create the image and image view
@@ -91,7 +91,7 @@ struct VulkanImage {
 	 * @param colorComponents color modulation of the image
 	 */
 	void create_view(
-		const VulkanDevice* device,
+		const VulkanDevice* const device,
 		const VkFormat format,
 		const VkImageSubresourceRange subresourceRange,
 		const VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
@@ -132,8 +132,8 @@ struct VulkanImage {
 	 * @param aspect purpose of the image
 	*/
 	void transition_layout(
-		const VulkanDevice* device,
-		const VulkanCommandPool* commandPool,
+		const VulkanDevice* const device,
+		const VulkanCommandPool* const commandPool,
 		const VkImageLayout oldLayout,
 		const VkImageLayout newLayout,
 		const VkFormat format,
@@ -150,7 +150,7 @@ struct VulkanImage {
 	 * @param aspect purpose of the image
 	*/
 	void transition_layout(
-		const VulkanCommandPool* commandPool,
+		const VulkanCommandPool* const commandPool,
 		const VkImageLayout oldLayout,
 		const VkImageLayout newLayout,
 		const VkFormat format,
@@ -186,7 +186,7 @@ protected:
 	 *
 	 * @return const VkFormat
 	*/
-	[[nodiscard]] const VkFormat get_best_format(const VulkanDevice* device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM);
+	[[nodiscard]] const VkFormat get_best_format(const VulkanDevice* const device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM);
 };
 
 } // namespace lyra

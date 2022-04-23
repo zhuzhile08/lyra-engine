@@ -4,7 +4,7 @@ namespace lyra {
 
 VulkanGPUMemory::VulkanGPUMemory() { }
 
-const VmaAllocationCreateInfo VulkanGPUMemory::get_alloc_create_info(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags) const noexcept {
+const VmaAllocationCreateInfo VulkanGPUMemory::get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags) const noexcept {
 	return {
 		0,
 		usage,

@@ -60,7 +60,7 @@ void Mesh::destroy() noexcept {
 	this->~Mesh();
 }
 
-void Mesh::create(const Context* context, const non_access::LoadedModel loaded, uint16 index, noud::Node* parent, const std::string name) {
+void Mesh::create(const Context* const context, const non_access::LoadedModel loaded, const uint16 index, const noud::Node* const parent, const string name) {
 	LOG_INFO("Creating Mesh... ");
 
 	(parent, name);
@@ -77,7 +77,7 @@ void Mesh::create(const Context* context, const non_access::LoadedModel loaded, 
 	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void Mesh::create(const Context* context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, noud::Node* parent, const std::string name) {
+void Mesh::create(const Context* const context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent, const string name) {
 	(parent, name);
 
 	this->context = context;
@@ -101,10 +101,10 @@ void Mesh::bind_camera(const Camera* const camera) {
 }
 
 void Mesh::bind(Renderer* const renderer) noexcept {
-	renderer->_draw_queue.add([&]() { renderer->bind_descriptor(_descriptor); renderer->bind_model(_vertexBuffer.buffer(), _indexBuffer.buffer()); renderer->draw_model(static_cast<uint32>(_indices.size())); });
+	renderer->_draw_queue.add([&]() { renderer->bind_model(&_vertexBuffer, &_indexBuffer); renderer->bind_descriptor(&_descriptor); renderer->draw_model(static_cast<uint32>(_indices.size())); });
 }
 
-void Mesh::create_mesh(const non_access::LoadedModel loaded, uint16 index) {
+void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on
 	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this
 
@@ -231,7 +231,7 @@ void Mesh::create_index_buffer() {
 	stagingBuffer.copy_data(_indices.data());
 
 	// create the vertex buffer
-	_indexBuffer.create(&context->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_indexBuffer.create(&context->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
 	_indexBuffer.copy(&context->commandPool(), &stagingBuffer);

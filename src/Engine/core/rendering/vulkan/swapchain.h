@@ -48,7 +48,7 @@ private:
 		 */
 		void destroy() noexcept;
 
-		VulkanSwapchainImages operator=(const VulkanSwapchainImages&) = delete;
+		VulkanSwapchainImages operator=(const VulkanSwapchainImages&) const noexcept = delete;
 
 		/**
 		 * @brief create the image views
@@ -56,7 +56,7 @@ private:
 		 * @param device device
 		 * @param swapchain swapchain
 		 */
-		void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
+		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain);
 
 		std::vector<VkImage> _images;
 		std::vector<VkImageView> _views;
@@ -82,7 +82,7 @@ private:
 		 */
 		void destroy() noexcept;
 
-		VulkanDepthBuffer operator=(const VulkanDepthBuffer&) = delete;
+		VulkanDepthBuffer operator=(const VulkanDepthBuffer&) const noexcept = delete;
 
 		/**
 		 * @brief create the image, view and allocate the memory
@@ -91,7 +91,7 @@ private:
 		 * @param swapchain swapchain
 		 * @param cmdPool command pool
 		 */
-		void create(const VulkanDevice* device, const VulkanSwapchain* swapchain, const VulkanCommandPool* cmdPool);
+		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanCommandPool* const cmdPool);
 
 		VkFormat _format;
 
@@ -112,7 +112,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanSwapchain operator=(const VulkanSwapchain&) = delete;
+	VulkanSwapchain operator=(const VulkanSwapchain&) const noexcept = delete;
 
 	/**
 	 * @brief create the swapchain
@@ -122,14 +122,14 @@ public:
 	 * @param instance instance
 	 * @param window window
 	 */
-	void create(const VulkanDevice* device, const VulkanInstance* instance, const VulkanCommandPool* cmdPool, const Window* window);
+	void create(const VulkanDevice* const device, const VulkanInstance* const instance, const VulkanCommandPool* const cmdPool, const Window* const window);
 
 	/**
 	 * @brief create the swapchain
 	 *
 	 * @param oldSwapchain the old swapchain
 	 */
-	void create(VkSwapchainKHR* oldSwapchain, const VulkanCommandPool* cmdPool);
+	void create(VkSwapchainKHR* const oldSwapchain, const VulkanCommandPool* const cmdPool);
 
 	/**
 	 * @brief get the swapchain
@@ -152,13 +152,13 @@ public:
 	/**
 	 * @brief get the swapchain images
 	 *
-	 * @return const VulkanSwapchainImages
+	 * @return const lyra::VulkanSwapchainImages
 	*/
 	[[nodiscard]] const VulkanSwapchainImages& images() const noexcept { return _images; }
 	/**
 	 * @brief get the depth buffer
 	 *
-	 * @return const VulkanDepthBuffer
+	 * @return const lyra::VulkanDepthBuffer
 	*/
 	[[nodiscard]] const VulkanDepthBuffer& depthBuffer() const noexcept { return _depthBuffer; }
 
@@ -180,13 +180,13 @@ private:
 	 *
 	 * @param cmdPool command pool
 	 */
-	void create_swapchain(const VulkanCommandPool* cmdPool);
+	void create_swapchain(const VulkanCommandPool* const cmdPool);
 	/**
 	 * @brief create a extent of the swapchain
 	 *
 	 * @param surfaceCapabilities capabilities of the swapchain
 	 */
-	void create_swapchain_extent(const VkSurfaceCapabilitiesKHR* surfaceCapabilities);
+	void create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities);
 };
 
 } // namespace lyra

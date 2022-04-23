@@ -41,14 +41,14 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanCommandPool operator=(const VulkanCommandPool&) = delete;
+	VulkanCommandPool operator=(const VulkanCommandPool&) const noexcept = delete;
 
 	/**
 	 * @brief create a Vulkan command pool to allocate the command buffers
 	 *
 	 * @param device device
 	 */
-	void create(const VulkanDevice* device);
+	void create(const VulkanDevice* const device);
 
 	/**
 	 * @brief get the command pool
@@ -61,7 +61,7 @@ public:
 	 *
 	 * @return VkCommandPool
 	 */
-	[[nodiscard]] const VkCommandPool* get_ptr() const noexcept { return &commandPool; }
+	[[nodiscard]] const VkCommandPool* const get_ptr() const noexcept { return &commandPool; }
 
 private:
 	VkCommandPool commandPool = VK_NULL_HANDLE;
@@ -87,7 +87,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanCommandBuffer operator=(const VulkanCommandBuffer&) = delete;
+	VulkanCommandBuffer operator=(const VulkanCommandBuffer&) const noexcept = delete;
 
 	/**
 	 * @brief create the Vulkan command buffers
@@ -96,7 +96,7 @@ public:
 	 * @param commandPool command pool
 	 * @param level level of the command buffer
 	 */
-	void create(const VulkanDevice* device, const VulkanCommandPool* commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	void create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 	/**
 	 * @brief begin recording a commandBuffer
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @flags additional flags
 	 */
-	void reset(VkCommandBufferResetFlags flags = 0) const;
+	void reset(const VkCommandBufferResetFlags flags = 0) const;
 
 	/**
 	 * @brief submit a Vulkan queue after command queue recording. DO NOT confuse with the submit function in the renderer class. This is ONLY for small, local submits for one time commands
@@ -142,9 +142,9 @@ public:
 	void pipeline_barrier(
 		const VkPipelineStageFlags srcStageFlags, 
 		const VkPipelineStageFlags dstStageFlags,
-		const VkMemoryBarrier *memory = nullptr, 
-		const VkBufferMemoryBarrier *buffer = nullptr, 
-		const VkImageMemoryBarrier *image = nullptr,
+		const VkMemoryBarrier* const memory = nullptr,
+		const VkBufferMemoryBarrier* const buffer = nullptr,
+		const VkImageMemoryBarrier* const image = nullptr,
 		const VkDependencyFlags dependency = 0
 	) const;
 
@@ -160,7 +160,7 @@ public:
 	 *
 	 * @return const VkCommandBuffer*
 	 */
-	[[nodiscard]] const VkCommandBuffer* get_ptr() const noexcept { return &commandBuffer; }
+	[[nodiscard]] const VkCommandBuffer* const get_ptr() const noexcept { return &commandBuffer; }
 
 private:
 	VkCommandBuffer commandBuffer = VK_NULL_HANDLE;

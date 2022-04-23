@@ -23,7 +23,7 @@ namespace lyra {
 struct VulkanGPUMemory {
 	VulkanGPUMemory();
 
-	VulkanGPUMemory operator=(const VulkanGPUMemory&) = delete;
+	VulkanGPUMemory operator=(const VulkanGPUMemory&) const noexcept = delete;
 
 	/**
 	 * @brief get the creation information of the allocation
@@ -33,7 +33,7 @@ struct VulkanGPUMemory {
 	 * 
 	 * @return const VmaAllocationCreateInfo
 	 */
-	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) const noexcept;
+	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) const noexcept;
 
 	VmaAllocation _memory = VK_NULL_HANDLE;
 };

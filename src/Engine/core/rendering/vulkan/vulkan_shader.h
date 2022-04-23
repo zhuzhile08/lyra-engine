@@ -38,7 +38,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanShader operator=(const VulkanShader&) = delete;
+	VulkanShader operator=(const VulkanShader&) const noexcept = delete;
 
 	/**
 	 * @brief create a shader
@@ -48,7 +48,7 @@ public:
 	 * @param entry name of the entrance point of the shader
 	 * @param stage type of the shader
 	 */
-	void create(const VulkanDevice* device, const string path, const string entry, VkShaderStageFlagBits stage);
+	void create(const VulkanDevice* const device, const string path, const string entry, VkShaderStageFlagBits stage);
 
 	/**
 	 * @brief get the shader loading information

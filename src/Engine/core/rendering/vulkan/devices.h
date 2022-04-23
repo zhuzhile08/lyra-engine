@@ -72,14 +72,14 @@ public:
 	 * @param ⠀⠀⠀⡟⡾⣿⢿⢿⢵⣽⣾⣼⣘⢸⢸⣞⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	 * @param⠀⠀⠀⠀⠁⠇⠡⠩⡫⢿⣝⡻⡮⣒⢽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	 */
-	VulkanDevice operator=(const VulkanDevice&) = delete;
+	VulkanDevice operator=(const VulkanDevice&) const noexcept = delete;
 
 	/**
 	 * @brief create the devices
 	 *
 	 * @param instance instance
 	 */
-	void create(const VulkanInstance* instance);
+	void create(const VulkanInstance* const instance);
 
 	/**
 	 * @brief wait for the logical device to finish with whatever operations are still going on
@@ -101,13 +101,13 @@ public:
 	/**
 	 * @brief get the graphics queue
 	 * 
-	 * @return const VulkanQueueFamily
+	 * @return const lyra::VulkanQueueFamily
 	 */
 	[[nodiscard]] const VulkanQueueFamily graphicsQueue() const noexcept { return _graphicsQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
-	 * @return const VulkanQueueFamily
+	 * @return const lyra::VulkanQueueFamily
 	 */
 	[[nodiscard]] const VulkanQueueFamily presentQueue() const noexcept { return _presentQueue; }
 	/**
@@ -135,13 +135,13 @@ private:
 	 * @param device device to find the family index of the queue of
 	 * @return VulkanQueueFamily
 	 */
-	void find_family_index(VulkanQueueFamily* queue, const VkPhysicalDevice device) noexcept;
+	void find_family_index(VulkanQueueFamily* const queue, const VkPhysicalDevice device) noexcept;
 	/**
 	 * @brief create a Vulkan queue
 	 *
 	 * @return VulkanQueueFamily
 	 */
-	void create_queue(VulkanQueueFamily* queue) noexcept;
+	void create_queue(VulkanQueueFamily* const queue) noexcept;
 
 	/**
 	 * @brief rate a physical device by its features
@@ -149,7 +149,7 @@ private:
 	 * @param device the device to rate
 	 * @param map a map containing all the physical devices and their scores
 	 */
-	void rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice>& map);
+	void rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> map);
 	/**
 	 * @brief check requested Vulkan device extensions
 	 *

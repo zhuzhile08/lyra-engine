@@ -19,7 +19,7 @@ void VulkanSwapchain::VulkanSwapchainImages::destroy() noexcept {
 	this->~VulkanSwapchainImages();
 }
 
-void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, const VulkanSwapchain* swapchain) {
+void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain) {
 	LOG_INFO("Creating Vulkan swapchain images...");
 
 	this->device = device;
@@ -32,7 +32,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* device, 
 
 	// I hate... HATE this bro why C++
 	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
-	for (int i = 0; i < imageCount; i++) {
+	for (uint32 i = 0; i < imageCount; i++) {
 		// image view creation info
 		VkImageViewCreateInfo createInfo{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -65,7 +65,7 @@ void VulkanSwapchain::VulkanDepthBuffer::destroy() noexcept {
 	this->~VulkanDepthBuffer();
 }
 
-void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, const VulkanSwapchain* swapchain, const VulkanCommandPool* cmdPool) {
+void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanCommandPool* const cmdPool) {
 	LOG_INFO("Creating Vulkan depth buffer...");
 
 	this->device = device;
@@ -98,9 +98,6 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* device, cons
 VulkanSwapchain::VulkanSwapchain() { }
 
 VulkanSwapchain::~VulkanSwapchain() noexcept {
-	_images.~VulkanSwapchainImages();
-	_depthBuffer.destroy();
-
 	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
 
 	delete _oldSwapchain;
@@ -112,7 +109,7 @@ void VulkanSwapchain::destroy() noexcept {
 	this->~VulkanSwapchain();
 }
 
-void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* instance, const VulkanCommandPool* cmdPool, const Window* window) {
+void VulkanSwapchain::create(const VulkanDevice* const device, const VulkanInstance* const instance, const VulkanCommandPool* const cmdPool, const Window* const window) {
 	LOG_INFO("Creating Vulkan swapchain...");
 
 	this->device = device;
@@ -123,15 +120,15 @@ void VulkanSwapchain::create(const VulkanDevice* device, const VulkanInstance* i
 	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanSwapchain::create(VkSwapchainKHR* oldSwapchain, const VulkanCommandPool* cmdPool) {
+void VulkanSwapchain::create(VkSwapchainKHR* const oldSwapchain, const VulkanCommandPool* const cmdPool) {
 	_oldSwapchain = oldSwapchain;
 	create(device, instance, cmdPool, window);
 
 	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L);
 }
 
-void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR* surfaceCapabilities) {
-	if (surfaceCapabilities->currentExtent.width == UINT32_MAX) {           // if something is wrong, fix the extent
+void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities) {
+	if (surfaceCapabilities.currentExtent.width == UINT32_MAX) {           // if something is wrong, fix the extent
 		LOG_WARNING("Couldn't get Vulkan swapchain capabilities' width");
 		int width, height;
 		SDL_GL_GetDrawableSize(window->get(), &width, &height);
@@ -155,17 +152,17 @@ void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR* su
 			}
 		};
 
-		newExtent.width = clamp(newExtent.width, surfaceCapabilities->minImageExtent.width, surfaceCapabilities->maxImageExtent.width);
-		newExtent.height = clamp(newExtent.height, surfaceCapabilities->minImageExtent.height, surfaceCapabilities->maxImageExtent.height);
+		newExtent.width = clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+		newExtent.height = clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
 
 		_extent = newExtent;
 	}
 	else {                                                                // in this case, the extent is fine
-		_extent = surfaceCapabilities->currentExtent;
+		_extent = surfaceCapabilities.currentExtent;
 	}
 }
 
-void VulkanSwapchain::create_swapchain(const VulkanCommandPool* cmdPool) {
+void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
 	// query some details
 	uint32 availableFormatCount = 0;    	   // formats
 	VkSurfaceFormatKHR format = { };
@@ -234,7 +231,7 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool* cmdPool) {
 	LOG_DEBUG(TAB, "width is ", WIDTH, " and the height is ", HEIGHT);
 
 	// create the extent
-	create_swapchain_extent(&surfaceCapabilities);
+	create_swapchain_extent(surfaceCapabilities);
 
 	// create the swapchain
 	auto temp = device->graphicsQueue().familyIndex;

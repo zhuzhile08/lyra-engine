@@ -41,14 +41,14 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanGPUBuffer operator=(const VulkanGPUBuffer&) = delete;
+	VulkanGPUBuffer operator=(const VulkanGPUBuffer&) const noexcept = delete;
 
 	/**
 	 * @brief create the buffer
 	 *
 	 * @param device device
 	 */
-	void create(const VulkanDevice* device, VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
+	void create(const VulkanDevice* const device, const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
 
 	/**
 	 * @brief copy a buffer to another
@@ -58,14 +58,15 @@ public:
 	 * @param srcBuffer the buffer to copy
 	 * @param size the size of the buffer
 	 */
-	void copy(const VulkanCommandPool* commandPool, const VulkanGPUBuffer* srcBuffer);
+	void copy(const VulkanCommandPool* const commandPool, const VulkanGPUBuffer* const srcBuffer);
 
 	/**
 	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
 	 *
 	 * @param src data to copy into the buffer
+	 * @param copySize size of the data to copy, default is the size of the buffer memory
 	 */
-	void copy_data(const void* src);
+	void copy_data(const void* const src, const size_t copySize = 0);
 
 	/**
 	 * @brief get the information in a buffer for descriptor sets
@@ -83,7 +84,7 @@ public:
 	 *
 	 * @return const VkBufferMemoryBarrier*
 	*/
-	[[nodiscard]] const VkBufferMemoryBarrier* get_buffer_memory_barrier(
+	[[nodiscard]] const VkBufferMemoryBarrier get_buffer_memory_barrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
 		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,

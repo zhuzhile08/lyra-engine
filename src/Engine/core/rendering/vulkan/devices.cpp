@@ -15,7 +15,7 @@ void VulkanDevice::destroy() noexcept {
 	this->~VulkanDevice();
 }
 
-void VulkanDevice::create(const VulkanInstance* instance) {
+void VulkanDevice::create(const VulkanInstance* const instance) {
 	LOG_INFO("Creating Vulkan device...");
 
 	this->instance = instance;
@@ -46,7 +46,7 @@ void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProp
 	}
 }
 
-void VulkanDevice::find_family_index(VulkanQueueFamily* queue, const VkPhysicalDevice device) noexcept {
+void VulkanDevice::find_family_index(VulkanQueueFamily* const queue, const VkPhysicalDevice device) noexcept {
 	uint32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -63,7 +63,7 @@ void VulkanDevice::find_family_index(VulkanQueueFamily* queue, const VkPhysicalD
 	}
 }
 
-void VulkanDevice::create_queue(VulkanQueueFamily* queue) noexcept {
+void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
 	vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
 }
 
@@ -91,7 +91,7 @@ void VulkanDevice::pick_physical_device() {
 	_physicalDevice = possibleDevices.begin()->second;
 }
 
-void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice>& map) {
+void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> map) {
 	// get the available extensions
 	uint32 availableExtensionCount = 0;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, nullptr);
@@ -144,10 +144,10 @@ void VulkanDevice::create_logical_device() {
 
 	// some info for device creation
 
-	VkPhysicalDeviceFeatures deviceFeatures{};
+	VkPhysicalDeviceFeatures deviceFeatures {};
 	deviceFeatures.samplerAnisotropy = VK_TRUE;
 
-	VkDeviceCreateInfo                         createInfo{
+	VkDeviceCreateInfo createInfo {
 		VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
 		nullptr,
 		0,
@@ -174,7 +174,7 @@ void VulkanDevice::create_logical_device() {
 
 void VulkanDevice::create_allocator() {
 	// creation info
-	VmaAllocatorCreateInfo createInfo = {
+	VmaAllocatorCreateInfo createInfo {
 		0,
 		_physicalDevice,
 		_device,

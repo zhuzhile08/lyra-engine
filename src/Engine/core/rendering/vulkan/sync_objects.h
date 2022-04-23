@@ -40,14 +40,14 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanSyncObjects operator=(const VulkanSyncObjects&) = delete;
+	VulkanSyncObjects operator=(const VulkanSyncObjects&) const noexcept = delete;
 
 	/**
 	 * @brief create the syncronisation objects
 	 *
 	 * @param device device
 	 */
-	void create(const VulkanDevice* device);
+	void create(const VulkanDevice* const  device);
 
 	/**
 	 * @brief wait for Vulkan fences

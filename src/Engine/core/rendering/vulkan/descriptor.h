@@ -64,7 +64,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanDescriptorSetLayout operator=(const VulkanDescriptorSetLayout&) = delete;
+	VulkanDescriptorSetLayout operator=(const VulkanDescriptorSetLayout&) const noexcept = delete;
 
 	/**
 	 * @brief create the descriptor set layout
@@ -147,7 +147,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanDescriptorPool operator=(const VulkanDescriptorPool&) = delete;
+	VulkanDescriptorPool operator=(const VulkanDescriptorPool&) const noexcept = delete;
 
 	/**
 	 * @brief create a descriptor pool to allocate the descriptor sets
@@ -208,7 +208,7 @@ public:
 
 	VulkanDescriptor();
 
-	VulkanDescriptor operator=(const VulkanDescriptor&) = delete;
+	VulkanDescriptor operator=(const VulkanDescriptor&) const noexcept = delete;
 
 	/**
 	 * @brief construct new Vulkan descriptors

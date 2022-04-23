@@ -15,7 +15,7 @@ void VulkanInstance::destroy() noexcept {
 	this->~VulkanInstance();
 }
 
-void VulkanInstance::create(const Window* window) {
+void VulkanInstance::create(const Window* const window) {
 	LOG_INFO("Creating Vulkan instance...");
 
 	this->window = window;

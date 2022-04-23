@@ -38,14 +38,14 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanInstance operator=(const VulkanInstance&) = delete;
+	VulkanInstance operator=(const VulkanInstance&) const noexcept = delete;
 
 	/**
 	 * @brief create the instance and surface
 	 *
 	 * @param window window
 	 */
-	void create(const Window* window);
+	void create(const Window* const window);
 
 	/**
 	 * @brief get the Vulkan instance

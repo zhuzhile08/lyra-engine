@@ -41,7 +41,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanFramebuffers operator=(const VulkanFramebuffers&) = delete;
+	VulkanFramebuffers operator=(const VulkanFramebuffers&) const noexcept = delete;
 
 	/**
 	 * @brief create the frame buffers and render pass
@@ -49,7 +49,7 @@ public:
 	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void create(const VulkanDevice* device, const VulkanSwapchain* swapchain);
+	void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain);
 
 	/**
 	 * @brief get the begin information to begin a render pass
@@ -58,7 +58,7 @@ public:
 	 * 
 	 * @return const VkRenderPassBeginInfo
 	 */
-	[[nodiscard]] const VkRenderPassBeginInfo get_begin_info(const int index, std::array<VkClearValue, 2> clear) const noexcept;
+	[[nodiscard]] const VkRenderPassBeginInfo get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept;
 
 	/**
 	 * @brief get the render pass

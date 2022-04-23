@@ -19,7 +19,7 @@ void VulkanSyncObjects::destroy() noexcept {
 	this->~VulkanSyncObjects();
 }
 
-void VulkanSyncObjects::create(const VulkanDevice* device) {
+void VulkanSyncObjects::create(const VulkanDevice* const  device) {
 	LOG_INFO("Creating Vulkan synchronisation objects...");
 
 	this->device = device;

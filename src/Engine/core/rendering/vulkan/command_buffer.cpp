@@ -15,7 +15,7 @@ void VulkanCommandPool::destroy() noexcept {
 	this->~VulkanCommandPool();
 }
 
-void VulkanCommandPool::create(const VulkanDevice* device) {
+void VulkanCommandPool::create(const VulkanDevice* const device) {
 	LOG_INFO("Creating Vulkan command pool...");
 
 	this->device = device;
@@ -45,7 +45,7 @@ void VulkanCommandBuffer::destroy() noexcept {
 	this->~VulkanCommandBuffer();
 }
 
-void VulkanCommandBuffer::create(const VulkanDevice* device, const VulkanCommandPool* commandPool, const VkCommandBufferLevel level) {
+void VulkanCommandBuffer::create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level) {
 	LOG_INFO("Creating Vulkan command buffer...");
 
 	this->commandPool = commandPool;
@@ -87,7 +87,7 @@ void VulkanCommandBuffer::end() const {
 	LOG_DEBUG(TAB, "End recording command buffer at: ", GET_ADDRESS(this));
 }
 
-void VulkanCommandBuffer::reset(VkCommandBufferResetFlags flags) const {
+void VulkanCommandBuffer::reset(const VkCommandBufferResetFlags flags) const {
 	if (vkResetCommandBuffer(commandBuffer, flags) != VK_SUCCESS) LOG_EXEPTION("Failed to reset command buffer!");
 
 	LOG_DEBUG(TAB, "Reset command buffer at: ", GET_ADDRESS(this));
@@ -120,9 +120,9 @@ void VulkanCommandBuffer::wait_queue(const VkQueue queue) const {
 void VulkanCommandBuffer::pipeline_barrier(
 	const VkPipelineStageFlags srcStageFlags,
 	const VkPipelineStageFlags dstStageFlags,
-	const VkMemoryBarrier* memory,
-	const VkBufferMemoryBarrier* buffer,
-	const VkImageMemoryBarrier* image,
+	const VkMemoryBarrier* const memory,
+	const VkBufferMemoryBarrier* const buffer,
+	const VkImageMemoryBarrier* const image,
 	const VkDependencyFlags dependency
 ) const {
 	vkCmdPipelineBarrier(
