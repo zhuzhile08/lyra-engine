@@ -72,7 +72,7 @@ public:
 	 * @param device device
 	 * @param builder the builder containing all the creation data
 	 */
-	void create(const VulkanDevice* device, const Builder builder);
+	void create(const VulkanDevice* const device, const Builder builder);
 	/**
 	 * @brief get the descriptor set layout
 	 *
@@ -113,10 +113,9 @@ public:
 		/**
 		 * @brief set a struct to define wwhat type and how many types of descriptors a set is going to contain
 		 *
-		 * @param type type of descriptor
-		 * @param count number of descriptors
+		 * @param sizes all the sizes and types of descriptors contained inside of a pair inside of an vector. Pair consists of a const VKDescriptorType and a const uint32
 		 */
-		void add_pool_sizes(const VkDescriptorType type, const uint32 count) noexcept;
+		void add_pool_sizes(std::vector<std::pair<const VkDescriptorType, const uint32>> sizes) noexcept;
 		/**
 		 * @brief set the number of maximum possible allocatable sets
 		 *
@@ -156,7 +155,7 @@ public:
 	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void create(const VulkanDevice* device, const Builder builder);
+	void create(const VulkanDevice* const device, const Builder builder);
 
 	/**
 	 * @brief get the descriptor pool
@@ -194,7 +193,7 @@ public:
 		 * @param binding at which position it will be entered into the shader
 		 * @param type type of the descriptor set
 		 */
-		void add_buffer_write(const VkDescriptorBufferInfo *bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) noexcept;
+		void add_buffer_write(const VkDescriptorBufferInfo* const bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) noexcept;
 		/**
 		 * @brief add a setting for images
 		 *
@@ -202,7 +201,7 @@ public:
 		 * @param binding at which position it will be entered into the shader
 		 * @param type type of the descriptor set
 		 */
-		void add_image_write(const VkDescriptorImageInfo *imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
+		void add_image_write(const VkDescriptorImageInfo* const imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
 
 		std::vector<VkWriteDescriptorSet> writes;
 	};
@@ -219,7 +218,7 @@ public:
 	 * @param pool descriptor pool
 	 * @param writer data to be written into the descriptor
 	 */
-	void create(const VulkanDevice* device, const VulkanDescriptorSetLayout* layout, const VulkanDescriptorPool* pool, Writer writer);
+	void create(const VulkanDevice* const device, const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer);
 
 	/**
 	 * @brief get the descriptor set
