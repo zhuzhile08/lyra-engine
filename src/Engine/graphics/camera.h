@@ -40,7 +40,6 @@ public:
 	struct CameraData {
 		CameraData();
 
-		glm::mat4 model;
 		glm::mat4 view;
 		glm::mat4 proj;
 	};
@@ -57,7 +56,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	Camera operator=(const Camera&) = delete;
+	Camera operator=(const Camera&) const noexcept = delete;
 
 	/**
 	 * @brief create the camera
@@ -133,12 +132,6 @@ public:
 	*/
 	[[nodiscard]] const CallQueue& updateQueue() const noexcept { return _updateQueue; }
 	/**
-	 * @brief get the position of the camera
-	 * 
-	 * @return const glm::vec3
-	*/
-	[[nodiscard]] const glm::vec3 position() const noexcept { return _position; }
-	/**
 	 * @brief get the aspect ratio of the camera
 	 * 
 	 * @return const float
@@ -150,8 +143,8 @@ private:
 	CameraData _data;
 	CallQueue _updateQueue;
 
-	glm::vec3 _position = glm::vec3(2.0f);
-	float _aspect;
+	
+	float _aspect = 0;
 
 	const Context* context;
 };

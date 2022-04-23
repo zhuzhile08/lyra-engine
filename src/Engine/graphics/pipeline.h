@@ -57,8 +57,8 @@ private:
 	 * @brief struct holding creation information for a shader
 	 */
 	struct ShaderCreationInfo {
-		str path;
-		str entry;
+		string path;
+		string entry;
 		VkShaderStageFlagBits flag;
 	};
 
@@ -75,7 +75,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	VulkanGraphicsPipeline operator=(const VulkanGraphicsPipeline&) = delete;
+	VulkanGraphicsPipeline operator=(const VulkanGraphicsPipeline&) const noexcept = delete;
 
 	/**
 	 * @brief create a new graphics pipeline
