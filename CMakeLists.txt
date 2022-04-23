@@ -14,9 +14,7 @@ set(GLM_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
-set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
-set(ENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/Engine)
-set(GUI_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/GUI)
+set(Engine_include_dir ${CMAKE_SOURCE_DIR}/src/Engine)
 
 # find path to libraries
 find_package(SDL2 REQUIRED)
@@ -25,7 +23,6 @@ find_package(GLM REQUIRED)
 find_package(STB REQUIRED)
 find_package(VMA REQUIRED)
 find_package(TOL REQUIRED)
-find_package(IMGUI REQUIRED)
 find_package(Vulkan REQUIRED)
 
 # shaders
@@ -34,29 +31,11 @@ add_custom_target(build_shaders ALL
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
-include_directories(
- ${SDL2_INCLUDE_DIRS} 
- ${NOUD_INCLUDE_DIRS} 
- ${GLM_INCLUDE_DIRS} 
- ${Vulkan_INCLUDE_DIRS} 
- ${ENGINE_INCLUDE_DIR}
- ${GUI_INCLUDE_DIR}
- ${STB_INCLUDE_DIRS} 
- ${VMA_INCLUDE_DIRS} 
- ${TOL_INCLUDE_DIRS} 
- ${IMGUI_INCLUDE_DIRS}
-)
+include_directories(${SDL2_INCLUDE_DIRS} ${NOUD_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${Vulkan_INCLUDE_DIRS} ${Engine_include_dir} ${STB_INCLUDE_DIRS} ${VMA_INCLUDE_DIRS} ${TOL_INCLUDE_DIRS})
 
 add_executable(LyraEngine 
- "include/imgui/imgui.cpp"          # imgui
- "include/imgui/imgui_demo.cpp"
- "include/imgui/imgui_draw.cpp"
- "include/imgui/imgui_tables.cpp"
- "include/imgui/imgui_widgets.cpp"
- "include/imgui/backends/imgui_impl_vulkan.cpp"
- "include/imgui/backends/imgui_impl_sdl.cpp"
- "include/NOUD/noud.cpp"            # noud
- "src/Engine/init/init_SDL.cpp"     # engine
+ "include/NOUD/noud.cpp"
+ "src/Engine/init/init_SDL.cpp"
  "src/Engine/init/single_header_init.cpp"
  "src/Engine/math/math.cpp"
  "src/Engine/graphics/camera.cpp"
@@ -69,8 +48,7 @@ add_executable(LyraEngine
  "src/Engine/core/rendering/context.cpp"
  "src/Engine/core/rendering/vulkan_core_wrappers.cpp"
  "src/Engine/res/loaders.cpp"
- "src/main.cpp"
- "src/GUI/core/gui_context.cpp"     # engine GUI
+ "src/GUI/main.cpp"
 )
 
 add_dependencies(LyraEngine build_shaders)

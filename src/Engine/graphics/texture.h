@@ -30,7 +30,7 @@ public:
 	 */
 	void destroy() noexcept;
 
-	Texture operator=(const Texture&) const noexcept = delete;
+	Texture operator=(const Texture&) = delete;
 
 	/**
 	 * @brief create the texture and the sampler
@@ -60,7 +60,7 @@ public:
 	/**
 	 * @brief get the image
 	 * 
-	 * @return const lyra::VulkanImage
+	 * @return const VulkanImage
 	*/
 	[[nodiscard]] const VkImageView view() const noexcept { return _view; }
 	/**
