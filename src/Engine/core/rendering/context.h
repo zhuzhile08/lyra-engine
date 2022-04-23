@@ -47,15 +47,15 @@ public:
 	 */
 	void destroy() noexcept;
 
-	Context(const Context&) = delete;
-	Context operator=(const Context&) = delete;
+	Context(const Context&) noexcept = delete;
+	Context operator=(const Context&) const noexcept = delete;
 
 	/**
 	 * @brief create the renderer
 	 *
 	 * @param window the window
 	 */
-	void create(const Window* window);
+	void create(const Window* const window);
 
 	/**
 	 * @brief wait for queue to finish submitting
@@ -77,15 +77,21 @@ public:
 	void draw();
 
 	/**
+	 * @brief get the instance
+	 *
+	 * @return const lyra::VulkanInstance&
+	*/
+	[[nodiscard]] const VulkanInstance& instance() const noexcept { return _instance; }
+	/**
 	 * @brief get the device
 	 * 
-	 * @return const VulkanDevice
+	 * @return const lyra::VulkanDevice&
 	*/
 	[[nodiscard]] const VulkanDevice& device() const noexcept { return _device; }
 	/**
 	 * @brief get the command pool
 	 * 
-	 * @return const VulkanCommandPool
+	 * @return const lyra::VulkanCommandPool&
 	*/
 	[[nodiscard]] const VulkanCommandPool& commandPool() const noexcept { return _commandPool; }
 	/**
@@ -93,29 +99,29 @@ public:
 	 *
 	 * @return const std::vector<VulkanCommandBuffer>
 	*/
-	[[nodiscard]] const std::vector<VulkanCommandBuffer>& commandBuffers() const noexcept { return _commandBuffers; }
+	[[nodiscard]] const std::vector<VulkanCommandBuffer> commandBuffers() const noexcept { return _commandBuffers; }
 	/**
 	 * @brief get the swapchain
 	 * 
-	 * @return const VulkanSwapchain
+	 * @return const lyra::VulkanSwapchain&
 	*/
 	[[nodiscard]] const VulkanSwapchain& swapchain() const noexcept { return _swapchain; }
 	/**
 	 * @brief get the descriptor set layout
 	 * 
-	 * @return const VulkanDescriptorSetLayout
+	 * @return const lyra::VulkanDescriptorSetLayout
 	*/
 	[[nodiscard]] const VulkanDescriptorSetLayout& descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 * 
-	 * @return const VulkanDescriptorPool
+	 * @return const lyra::VulkanDescriptorPool&
 	*/
 	[[nodiscard]] const VulkanDescriptorPool& descriptorPool() const noexcept { return _descriptorPool; }
 	/**
 	 * @brief get the queue with the draw calls
 	 * 
-	 * @return const CallQueue
+	 * @return const CallQueue&
 	*/
 	[[nodiscard]] const CallQueue& renderQueue() const noexcept { return _renderQueue; }
 	/**
@@ -168,8 +174,6 @@ private:
 	 * @brief update the frame count
 	 */
 	void update_frame_count() noexcept;
-
-	friend class Renderer;
 };
 
 } // namespace Vulkan

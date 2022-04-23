@@ -7,22 +7,14 @@ Context::Context() { }
 Context::~Context() noexcept {
 	_device.wait();
 
-	_swapchain.destroy();
-
-	_descriptorPool.destroy();
-	_descriptorSetLayout.destroy();
-	_syncObjects.destroy();
-	for (auto& commandBuffer : _commandBuffers) commandBuffer.destroy();
-	_commandPool.destroy();
-	_device.destroy();
-	_instance.destroy();
+	LOG_INFO("Successfully destroyed application context!");
 }
 
 void Context::destroy() noexcept {
 	this->~Context();
 }
 
-void Context::create(const Window* window) {
+void Context::create(const Window* const window) {
 	LOG_INFO("Creating context for application...");
 
 	this->window = window;
@@ -42,8 +34,7 @@ void Context::create(const Window* window) {
 
 	VulkanDescriptorPool::Builder       poolBuilder;
 	poolBuilder.set_max_sets(21);   // 9 + 10 is 21, of course, what else whould it be, 19?
-	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT);
-	poolBuilder.add_pool_sizes(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT);
+	poolBuilder.add_pool_sizes({ { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT }, { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT } });
 	_descriptorPool.create(&_device, poolBuilder);
 
 	LOG_INFO("Successfully created context for the application at: ", GET_ADDRESS(this), "!", END_L);

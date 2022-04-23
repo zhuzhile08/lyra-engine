@@ -17,6 +17,7 @@
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/framebuffer.h>
+#include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
 
 #include <core/logger.h>
@@ -45,14 +46,14 @@ public:
 	 */
 	void destroy() noexcept;
 
-	Renderer operator=(const Renderer&) = delete;
+	Renderer operator=(const Renderer&) const noexcept = delete;
 
 	/**
 	 * @brief create the renderer
 	 *
 	 * @param context the context
 	 */
-	void create(Context* context);
+	void create(Context* const context);
 
 	/**
 	 * @brief bind the functions for resetting and finish recording the command buffers
@@ -70,13 +71,13 @@ public:
 	/**
 	 * @brief get the framebuffers
 	 * 
-	 * @return const VulkanFramebuffers&
+	 * @return const lyra::VulkanFramebuffers&
 	*/
 	const VulkanFramebuffers& framebuffers() const noexcept { return _framebuffers; }
 	/**
 	 * @brief get the pipeline
 	 * 
-	 * @return const VulkanGraphicsPipeline&
+	 * @return const lyra::VulkanGraphicsPipeline&
 	*/
 	const VulkanGraphicsPipeline& pipeline() const noexcept { return _pipeline; }
 
@@ -96,7 +97,7 @@ private:
 	 * @param descriptor descriptor
 	 * @param pipelineLayout pipeline layout
 	 */
-	void bind_descriptor(const VulkanDescriptor descriptor) const noexcept;
+	void bind_descriptor(const VulkanDescriptor* descriptor) const noexcept;
 
 	void push_constants() const noexcept;
 	/**
@@ -120,14 +121,12 @@ private:
 	 *
 	 * @param vertexBuffer vertex buffer of the model
 	 * @param indexBuffer index buffer of the model
-	 * @param cmdBuffIndex index of the command buffer to bind the model
 	 */
-	void bind_model(const VkBuffer vertexBuffer, const VkBuffer indexBuffer) const noexcept;
+	void bind_model(const VulkanGPUBuffer* vertexBuffer, const VulkanGPUBuffer* indexBuffer) const noexcept;
 	/**
 	 * @brief draw a model
 	 *
 	 * @param size size of the index buffer
-	 * @param cmdBuffIndex index of the command buffer to draw the model
 	 */
 	void draw_model(const uint32 size) const noexcept;
 
