@@ -19,18 +19,31 @@ namespace lyra {
 /**
  * @brief basic ANSI fonts
  */
-typedef enum Font {
+enum class Font : int {
     NON = 0,
     BLD = 1,
     DIM = 2,
     ITC = 3,
     UNL = 4
-} Font;
+};
+
+/**
+ * @brief cast a ANSI font code to a integer
+ * 
+ * @param font the font code
+ * 
+ * @return int
+*/
+inline int font_cast(Font font);
+
+inline int font_cast(Font font) {
+    return static_cast<int>(font);
+}
 
 /**
  * @brief basic ANSI colors
  */
-typedef enum Color {
+enum class Color : int {
     BLK = 30,
     RED = 31,
     GRN = 32,
@@ -47,7 +60,20 @@ typedef enum Color {
     B_MAG = 95,
     B_CYN = 96,
     DEF = 0
-} Color;
+};
+
+/**
+ * @brief cast a ANSI font code to a integer
+ *
+ * @param font the font code
+ *
+ * @return int
+*/
+inline int color_cast(Color color);
+
+inline int color_cast(Color color) {
+    return static_cast<int>(color);
+}
 
 /**
  * @brief generate a ANSI color code with a font and color
@@ -58,9 +84,13 @@ typedef enum Color {
 inline void ANSI(Font font, Color color);
 
 void ANSI(Font font, Color color) {
-    std::cout << "\033[" << font << ";" << color << "m";
+    std::cout << "\033[" << font_cast(font) << ";" << color_cast(color) << "m";
 }
 
-#define SET_COLOR_DEFAULT ANSI(NON, DEF);
+inline void set_color_default();
+
+void set_color_default() {
+    ANSI(Font::NON, Color::DEF);
+}
 
 } // namespace lyra

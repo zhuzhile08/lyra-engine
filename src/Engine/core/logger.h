@@ -23,9 +23,9 @@
 namespace lyra {
 
 // tab
-#define TAB     string("\t")
+#define TAB     std::string("\t")
 // end line
-#define END_L   string("\n")
+#define END_L   std::string("\n")
 
 // define which logs will be shown
 #define ENABLE_DEBUG_LOG  1
@@ -43,14 +43,14 @@ namespace lyra {
 /**
  * @brief fatality level of a message
  */
-typedef enum LogLevel {
+enum class LogLevel : int {
 	LEVEL_DEBUG = 0,
 	LEVEL_INFO = 1,
 	LEVEL_WARNING = 2,
 	LEVEL_ERROR = 3,
 	LEVEL_FATAL = 4,
 	LEVEL_NONE = 5
-} LogLevel;
+};
 
 inline void log_message();
 
@@ -70,7 +70,7 @@ template<typename ... Args> inline void log_message(const LogLevel fatality, Arg
 
 template<typename ... Args> void log_message(const LogLevel fatality, Args... message) {
     // fatality of a log
-    string level[6] = {
+    std::string level[6] = {
         "[DEBUG]: ", 
         "[INFO]: ", 
         "[WARNING]: ", 
@@ -80,20 +80,20 @@ template<typename ... Args> void log_message(const LogLevel fatality, Args... me
     };
 
     switch(fatality) {
-        case(LEVEL_DEBUG)   : ANSI(NON, GRY); break;
-        case(LEVEL_INFO)    : ANSI(NON, GRN); break;
-        case(LEVEL_WARNING) : ANSI(NON, YEL); break;
-        case(LEVEL_ERROR)   : ANSI(NON, RED); break;
-        case(LEVEL_FATAL)   : ANSI(BLD, RED); break;
+    case(LogLevel::LEVEL_DEBUG)   : ANSI(Font::NON, Color::GRY); break;
+    case(LogLevel::LEVEL_INFO)    : ANSI(Font::NON, Color::GRN); break;
+    case(LogLevel::LEVEL_WARNING) : ANSI(Font::NON, Color::YEL); break;
+    case(LogLevel::LEVEL_ERROR)   : ANSI(Font::NON, Color::RED); break;
+    case(LogLevel::LEVEL_FATAL)   : ANSI(Font::BLD, Color::RED); break;
     }
 
     // print the fatality
-    std::cout << level[fatality];
+    std::cout << level[static_cast<int>(fatality)];
     // print the message
-	(fatality == LEVEL_FATAL) ? ((std::cerr << std::forward<Args>(message)), ...) : ((std::cout << std::forward<Args>(message)), ...);
+	(fatality == LogLevel::LEVEL_FATAL) ? ((std::cerr << std::forward<Args>(message)), ...) : ((std::cout << std::forward<Args>(message)), ...);
     // reset colors and make a new linje
     std::cout << END_L;
-    SET_COLOR_DEFAULT
+    set_color_default();
 }
 
 /**
@@ -102,30 +102,30 @@ template<typename ... Args> void log_message(const LogLevel fatality, Args... me
 inline void clear_terminal_buffer();
 
 void clear_terminal_buffer() {
-    SET_COLOR_DEFAULT
+    set_color_default();
     std::cout << std::endl;
 }
 
 // debug functions
-#define TEST_REACHED 			log_message(LEVEL_DEBUG, "reached")
+#define TEST_REACHED 			log_message(LogLevel::LEVEL_DEBUG, "reached")
 
-#define LOG_ERROR(msg, ...) 	log_message(LEVEL_ERROR, msg, ##__VA_ARGS__)
-#define LOG_EXEPTION(msg, ...) 	log_message(LEVEL_FATAL, msg, ##__VA_ARGS__)
+#define LOG_ERROR(msg, ...) 	log_message(LogLevel::LEVEL_ERROR, msg, ##__VA_ARGS__)
+#define LOG_EXEPTION(msg, ...) 	log_message(LogLevel::LEVEL_FATAL, msg, ##__VA_ARGS__)
 
 #if ENABLE_WARN_LOG == 1
-#define LOG_WARNING(msg, ...) 	log_message(LEVEL_WARNING, msg, ##__VA_ARGS__)
+#define LOG_WARNING(msg, ...) 	log_message(LogLevel::LEVEL_WARNING, msg, ##__VA_ARGS__)
 #endif
 
 #if ENABLE_INFO_LOG == 1
-#define LOG_INFO(msg, ...) 		log_message(LEVEL_INFO, msg, ##__VA_ARGS__)
+#define LOG_INFO(msg, ...) 		log_message(LogLevel::LEVEL_INFO, msg, ##__VA_ARGS__)
 #endif
 
 #if ENABLE_DEBUG_LOG == 1
-#define LOG_DEBUG(msg, ...) 	log_message(LEVEL_DEBUG, msg, ##__VA_ARGS__)
+#define LOG_DEBUG(msg, ...) 	log_message(LogLevel::LEVEL_DEBUG, msg, ##__VA_ARGS__)
 #endif
 
 #if ENABLE_INFO_LOG == 1
-#define LOG_INFO(msg, ...) 	log_message(LEVEL_INFO, msg, ##__VA_ARGS__)
+#define LOG_INFO(msg, ...) 	log_message(LogLevel::LEVEL_INFO, msg, ##__VA_ARGS__)
 #endif
 
 };
