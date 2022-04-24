@@ -149,7 +149,7 @@ private:
 	 * @param device the device to rate
 	 * @param map a map containing all the physical devices and their scores
 	 */
-	void rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> map);
+	void rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice>& map);
 	/**
 	 * @brief check requested Vulkan device extensions
 	 *

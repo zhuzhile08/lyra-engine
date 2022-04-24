@@ -91,7 +91,7 @@ void VulkanDevice::pick_physical_device() {
 	_physicalDevice = possibleDevices.begin()->second;
 }
 
-void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice> map) {
+void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice>& map) {
 	// get the available extensions
 	uint32 availableExtensionCount = 0;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, nullptr);
