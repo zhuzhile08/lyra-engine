@@ -16,7 +16,7 @@
 
 #include <SDL.h>
 #include <SDL_vulkan.h>
-#include <graphics/window.h>
+#include <core/rendering/window.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {

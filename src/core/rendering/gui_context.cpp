@@ -1,4 +1,4 @@
-#include <core/gui_context.h>
+#include <core/rendering/gui_context.h>
 
 namespace lyra {
 

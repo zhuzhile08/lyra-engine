@@ -3,14 +3,14 @@
 
 #include <core/logger.h>
 #include <core/queue_types.h>
-#include <graphics/window.h>
+#include <core/rendering/window.h>
 #include <core/rendering/context.h>
 #include <graphics/renderer.h>
 #include <graphics/mesh.h>
 #include <graphics/texture.h>
 #include <init/init_SDL.h>
 #include <math/math.h>
-#include <core/gui_context.h>
+#include <core/rendering/gui_context.h>
 #include <glm.hpp>
 
 int main() {

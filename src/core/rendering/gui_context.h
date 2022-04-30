@@ -12,7 +12,7 @@
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/context.h>
 #include <graphics/renderer.h>
-#include <graphics/window.h>
+#include <core/rendering/window.h>
 
 namespace lyra {
 

@@ -1,4 +1,4 @@
-#include <graphics/window.h>
+#include <core/rendering/window.h>
 
 namespace lyra {
 
