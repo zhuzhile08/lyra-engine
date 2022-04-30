@@ -15,8 +15,7 @@ set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
-set(ENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/Engine)
-set(GUI_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/GUI)
+set(ENGINE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/src/)
 
 # find path to libraries
 find_package(SDL2 REQUIRED)
@@ -56,22 +55,22 @@ add_executable(LyraEngine
  "include/imgui/backends/imgui_impl_vulkan.cpp"
  "include/imgui/backends/imgui_impl_sdl.cpp"
  "include/NOUD/noud.cpp"            # noud
- "src/Engine/init/init_SDL.cpp"     # engine
- "src/Engine/init/single_header_init.cpp"
- "src/Engine/math/math.cpp"
- "src/Engine/graphics/camera.cpp"
- "src/Engine/graphics/window.cpp"
- "src/Engine/graphics/renderer.cpp"
- "src/Engine/graphics/pipeline.cpp"
- "src/Engine/graphics/mesh.cpp"
- "src/Engine/graphics/texture.cpp"
- "src/Engine/core/queue_types.cpp"
- "src/Engine/core/rendering/context.cpp"
- "src/Engine/core/rendering/vulkan_core_wrappers.cpp"
- "src/Engine/res/loaders.cpp"
+ "src/init/init_SDL.cpp"     # engine
+ "src/init/single_header_init.cpp"
+ "src/math/math.cpp"
+ "src/graphics/camera.cpp"
+ "src/graphics/window.cpp"
+ "src/graphics/renderer.cpp"
+ "src/graphics/pipeline.cpp"
+ "src/graphics/mesh.cpp"
+ "src/graphics/texture.cpp"
+ "src/core/queue_types.cpp"
+ "src/core/rendering/context.cpp"
+ "src/core/rendering/vulkan_core_wrappers.cpp"
+ "src/res/loaders.cpp"
  "src/main.cpp"
- "src/GUI/core/gui_context.cpp"     # engine GUI
-)
+ "src/core/gui_context.cpp"     # engine GUI
+ "src/components/physics/transform.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 

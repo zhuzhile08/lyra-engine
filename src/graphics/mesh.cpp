@@ -94,10 +94,20 @@ void Mesh::create(const Context* const context, const std::vector <Vertex> verti
 
 void Mesh::bind_texture(const Texture* const texture) {
 	_writer.add_image_write(new VkDescriptorImageInfo(texture->get_descriptor_image_info()));
+
+	LOG_DEBUG(TAB, "Successfully bound texture to model at: ", GET_ADDRESS(this), END_L);
 }
 
 void Mesh::bind_camera(const Camera* const camera) {
-	for (auto& buffer : camera->buffers()) _writer.add_buffer_write(new VkDescriptorBufferInfo(buffer.get_descriptor_buffer_info()), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+	/*
+	const VulkanGPUBuffer* buffer;
+	for (uint32 i = 0; i < camera->buffers().size(); i++) {
+		buffer = &camera->buffers().at(i);
+		_writer.add_buffer_write(new VkDescriptorBufferInfo(buffer->get_descriptor_buffer_info()), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+	}
+	*/
+
+	LOG_DEBUG(TAB, "Successfully bound camera to model at: ", GET_ADDRESS(this), END_L);
 }
 
 void Mesh::bind(Renderer* const renderer) noexcept {
