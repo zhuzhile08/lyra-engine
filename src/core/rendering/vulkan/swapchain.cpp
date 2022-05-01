@@ -49,7 +49,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* const de
 		if (vkCreateImageView(device->device(), &createInfo, nullptr, &_views.at(i)) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views");
 	}
 
-	LOG_INFO("Succesfully created Vulkan swapchain images at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan swapchain images at ", get_address(this), "!", END_L);
 }
 
 // depth buffer
@@ -91,7 +91,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device
 	// transition the image layout
 	transition_layout(cmdPool, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
-	LOG_INFO("Succesfully created Vulkan depth buffer at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan depth buffer at ", get_address(this), "!", END_L);
 }
 
 // swap chain
@@ -117,14 +117,14 @@ void VulkanSwapchain::create(const VulkanDevice* const device, const VulkanInsta
 	this->window = window;
 	create_swapchain(cmdPool);
 
-	LOG_INFO("Succesfully created Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan swapchain at ", get_address(this), "!", END_L);
 }
 
 void VulkanSwapchain::create(VkSwapchainKHR* const oldSwapchain, const VulkanCommandPool* const cmdPool) {
 	_oldSwapchain = oldSwapchain;
 	create(device, instance, cmdPool, window);
 
-	LOG_INFO("Succesfully recreated Vulkan swapchain at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully recreated Vulkan swapchain at ", get_address(this), "!", END_L);
 }
 
 void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities) {

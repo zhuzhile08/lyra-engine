@@ -23,7 +23,7 @@ void VulkanDevice::create(const VulkanInstance* const instance) {
 	create_logical_device();
 	create_allocator();
 
-	LOG_INFO("Succesfully created Vulkan device and allocated GPU at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan device and allocated GPU at ", get_address(this), "!", END_L);
 }
 
 void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <string> requestedExtensions) const {

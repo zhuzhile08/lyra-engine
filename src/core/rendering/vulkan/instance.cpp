@@ -23,7 +23,7 @@ void VulkanInstance::create(const Window* const window) {
 	create_instance();
 	create_window_surface();
 
-	LOG_INFO("Succesfully created Vulkan instance at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan instance at ", get_address(this), "!", END_L);
 }
 
 void VulkanInstance::check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <string> requestedLayers) const {

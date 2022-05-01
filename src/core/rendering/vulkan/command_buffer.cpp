@@ -29,7 +29,7 @@ void VulkanCommandPool::create(const VulkanDevice* const device) {
 
 	if (vkCreateCommandPool(device->device(), &createInfo, nullptr, &commandPool) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan command pool");
 
-	LOG_INFO("Succesfully created Vulkan command pool at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan command pool at ", get_address(this), "!", END_L);
 }
 
 // command buffer
@@ -63,7 +63,7 @@ void VulkanCommandBuffer::create(const VulkanDevice* const device, const VulkanC
 	// create the command buffers
 	if (vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan command buffer!");
 
-	LOG_INFO("Succesfully created Vulkan command buffer at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan command buffer at ", get_address(this), "!", END_L);
 }
 
 void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags usage) const {
@@ -78,19 +78,19 @@ void VulkanCommandBuffer::begin(const VkCommandBufferUsageFlags usage) const {
 	// start recording
 	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) LOG_EXEPTION("Failed to start recording Vulkan command buffer!");
 
-	LOG_DEBUG(TAB, "Began recording command buffer at: ", GET_ADDRESS(this));
+	LOG_DEBUG(TAB, "Began recording command buffer at: ", get_address(this));
 }
 
 void VulkanCommandBuffer::end() const {
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) LOG_EXEPTION("Failed to stop recording command buffer!");
 
-	LOG_DEBUG(TAB, "End recording command buffer at: ", GET_ADDRESS(this));
+	LOG_DEBUG(TAB, "End recording command buffer at: ", get_address(this));
 }
 
 void VulkanCommandBuffer::reset(const VkCommandBufferResetFlags flags) const {
 	if (vkResetCommandBuffer(commandBuffer, flags) != VK_SUCCESS) LOG_EXEPTION("Failed to reset command buffer!");
 
-	LOG_DEBUG(TAB, "Reset command buffer at: ", GET_ADDRESS(this));
+	LOG_DEBUG(TAB, "Reset command buffer at: ", get_address(this));
 }
 
 void VulkanCommandBuffer::submit_queue(const VkQueue queue) const {
@@ -110,7 +110,7 @@ void VulkanCommandBuffer::submit_queue(const VkQueue queue) const {
 	// submit the queue
 	if (vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
 
-	LOG_DEBUG(TAB, "Submitted command buffer at: ", GET_ADDRESS(this));
+	LOG_DEBUG(TAB, "Submitted command buffer at: ", get_address(this));
 }
 
 void VulkanCommandBuffer::wait_queue(const VkQueue queue) const {
@@ -138,7 +138,7 @@ void VulkanCommandBuffer::pipeline_barrier(
 		image
 	);
 
-	LOG_DEBUG(TAB, "Setup a pipeline barrier with the command buffer at: ", GET_ADDRESS(this));
+	LOG_DEBUG(TAB, "Setup a pipeline barrier with the command buffer at: ", get_address(this));
 }
 
 } // namespace lyra

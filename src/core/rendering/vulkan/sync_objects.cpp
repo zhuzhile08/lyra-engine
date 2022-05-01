@@ -42,7 +42,7 @@ void VulkanSyncObjects::create(const VulkanDevice* const  device) {
 			LOG_EXEPTION("Failed to create Vulkan Synchronisation Objects");
 	}
 
-	LOG_INFO("Succesfully created Vulkan synchronisation objects at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan synchronisation objects at ", get_address(this), "!", END_L);
 }
 
 void VulkanSyncObjects::wait(const uint32 fenceIndex) const {

@@ -39,7 +39,7 @@ void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize cons
 
 	if (vmaCreateBuffer(device->allocator(), &bufferInfo, &get_alloc_create_info(memUsage), &_buffer, &_memory, nullptr) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan GPU memory buffer!");
 
-	LOG_INFO("Succesfully created Vulkan GPU buffer at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan GPU buffer at ", get_address(this), "!", END_L);
 }
 
 void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const VulkanGPUBuffer* const srcBuffer) {
@@ -64,12 +64,12 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const Vul
 	commandBuffer.submit_queue(device->graphicsQueue().queue);
 	commandBuffer.wait_queue(device->graphicsQueue().queue);
 
-	LOG_INFO("Succesfully copied Vulkan GPU buffer at ", GET_ADDRESS(&srcBuffer), " to ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", END_L);
 }
 
 void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
 	void* data;
-	if (vmaMapMemory(device->allocator(), _memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", GET_ADDRESS(_memory), "!");
+	if (vmaMapMemory(device->allocator(), _memory, &data) != VK_SUCCESS) LOG_EXEPTION("Failed to map buffer memory at ", get_address(_memory), "!");
 		memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
 	vmaUnmapMemory(device->allocator(), _memory);
 }

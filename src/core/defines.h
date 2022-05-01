@@ -2,10 +2,7 @@
  * @file defines.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief macros and settings
- * @brief mathematical definitions for numbers and fixed width integers
- * @brief miscelanious definitions
- * @brief engine and window settings
+ * @brief miscelanious functions
  * 
  * @date 2022-02-03
  * 
@@ -15,36 +12,50 @@
 
 #pragma once
 
-#include <cstdint>
-#include <chrono>
+#include <math/math.h>
+
+#include <sstream>
 #include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
+#include <string>
 
 namespace lyra {
 
 // some other definitions
-typedef const char*         string;            // please don't look at this
-#define ARR_SIZE(array)     sizeof(array)/sizeof(array[0])
-#define GET_ADDRESS(var)    (void*)var
+typedef const char* string;            // please don't look at this
 
-// define window settings
-#define WIDTH 690
-#define HEIGHT 420
-#define FOV 60
-#define TITLE "Game"
-#define RESIZEABLE true
-#define FULLSCREEN false
+/**
+ * @brief get the size of an array
+ * 
+ * @tparam _Ty type of array
+ * @param array the array
+ * 
+ * @return uint32_t
+*/
+template<typename _Ty> [[nodiscard]] inline uint32 arr_size(const _Ty* array); 
 
-// some engine specific definitions
-const std::vector<string>			requested_validation_layers{"VK_LAYER_KHRONOS_validation"};
-const std::vector<string>			requested_device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-#define ENABLE_MULTI_SAMPLING   0
-#define ENABLE_COLOR_BLENDING   0
-#define CLEAR_COLOR             0.0f, 0.0f, 0.0f, 1.0f
-#define USING_GUI               0
-#define DOUBLE_BUFFERING        0
-#define MAX_FRAMES_IN_FLIGHT    2
-#define POLYGON_MODE            VK_POLYGON_MODE_FILL
+template<typename _Ty> uint32 arr_size(const _Ty* array) {
+	return sizeof(array) / sizeof(array[0]);
+}
+
+/**
+ * @brief get the address of a pointer
+ * 
+ * @tparam _Ty type of pointer
+ * @param type the pointer
+ * 
+ * @return std::string
+*/
+template<typename _Ty> [[nodiscard]] inline std::string get_address(const _Ty type);
+
+template<typename _Ty> std::string get_address(const _Ty type) {
+	const void* address = static_cast<const void*>(type);
+
+	std::stringstream ss; // black magic
+	ss << address;
+
+	return std::string("0x") + ss.str();
+}
 
 } // namespace lyra

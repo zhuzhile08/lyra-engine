@@ -40,7 +40,7 @@ void VulkanShader::create(const VulkanDevice* const device, const string path, s
 
 	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) LOG_EXEPTION("Failed to create a Vulkan shader module");
 
-	LOG_INFO(TAB, "Successfully created Vulkan shader from at: ", GET_ADDRESS(this), "!");
+	LOG_INFO(TAB, "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }
 
 const VkPipelineShaderStageCreateInfo VulkanShader::get_stage_create_info() const noexcept {

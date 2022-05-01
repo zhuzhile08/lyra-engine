@@ -37,7 +37,7 @@ void Context::create(const Window* const window) {
 	poolBuilder.add_pool_sizes({ { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT }, { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT } });
 	_descriptorPool.create(&_device, poolBuilder);
 
-	LOG_INFO("Successfully created context for the application at: ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Successfully created context for the application at: ", get_address(this), "!", END_L);
 }
 
 void Context::recreate_swapchain() {

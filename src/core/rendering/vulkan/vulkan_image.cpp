@@ -62,7 +62,7 @@ void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRan
 	// create the view
 	if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views");
 
-	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", GET_ADDRESS(this), "!");
+	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", get_address(this), "!");
 }
 
 void VulkanImage::create_view(const VulkanDevice* const device, const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
@@ -101,7 +101,7 @@ void VulkanImage::transition_layout(
 		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", GET_ADDRESS(this));
+	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
 	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
@@ -158,7 +158,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 		LOG_WARNING("Defined 2 seperate tiling modes whilst finding the best format for a image: ", _tiling, " and ", tiling, "! Automatically set to the first mode!");
 		tiling_ = _tiling;
 	}
-	else LOG_EXEPTION("No tiling mode was defined whilst attempting to find the best format for image: ", GET_ADDRESS(this), "!");
+	else LOG_EXEPTION("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
 
 	for (const auto& format : candidates) {
 		VkFormatProperties props;
@@ -168,7 +168,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return format;
 	}
 
-	LOG_EXEPTION("Failed to find supported format out of user-defined formats for image at: ", GET_ADDRESS(this), "!");
+	LOG_EXEPTION("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
 
 	return VK_FORMAT_MAX_ENUM;
 }

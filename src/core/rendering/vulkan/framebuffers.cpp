@@ -1,4 +1,4 @@
-#include <core/rendering/vulkan/framebuffer.h>
+#include <core/rendering/vulkan/framebuffers.h>
 
 namespace lyra {
 
@@ -24,7 +24,7 @@ void VulkanFramebuffers::create(const VulkanDevice* const device, const VulkanSw
 	create_render_pass();
 	create_frame_buffers();
 
-	LOG_INFO("Succesfully created Vulkan framebuffers and render pass at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan framebuffers and render pass at ", get_address(this), "!", END_L);
 }
 
 void VulkanFramebuffers::create_render_pass() {
@@ -44,7 +44,7 @@ void VulkanFramebuffers::create_render_pass() {
 	// depth buffers
 	VkAttachmentDescription	depthBufferAttachmentDescriptions { // first error, depth buffer gets destroyed here
 		0,
-		swapchain->depthBuffer()._format,
+		swapchain->depthBuffer()->_format,
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
@@ -106,12 +106,12 @@ void VulkanFramebuffers::create_render_pass() {
 }
 
 void VulkanFramebuffers::create_frame_buffers() {
-	_framebuffers.resize(swapchain->images()._images.size());
+	_framebuffers.resize(swapchain->images()->_images.size());
 
-	for (int i = 0; i < swapchain->images()._images.size(); i++) {
+	for (int i = 0; i < swapchain->images()->_images.size(); i++) {
 		std::array<VkImageView, 2> attachments = {
-			swapchain->images()._views.at(i), // the swapchain images are destroyed here... multiple times
-			swapchain->depthBuffer()._view
+			swapchain->images()->_views.at(i), // the swapchain images are destroyed here... multiple times
+			swapchain->depthBuffer()->_view
 		};
 
 		// create the frame buffers
