@@ -12,6 +12,7 @@
 #pragma once
 
 #include <core/defines.h>
+#include <core/logger.h>
 #include <core/queue_types.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/descriptor.h>
@@ -20,8 +21,6 @@
 #include <core/rendering/vulkan/instance.h>
 #include <core/rendering/vulkan/swapchain.h>
 #include <core/rendering/window.h>
-
-#include <core/logger.h>
 
 #include <vector>
 
@@ -79,21 +78,21 @@ public:
 	/**
 	 * @brief get the instance
 	 *
-	 * @return const lyra::VulkanInstance&
+	 * @return const lyra::VulkanInstance*
 	*/
-	[[nodiscard]] const VulkanInstance& instance() const noexcept { return _instance; }
+	[[nodiscard]] const VulkanInstance* instance() const noexcept { return &_instance; }
 	/**
 	 * @brief get the device
 	 * 
-	 * @return const lyra::VulkanDevice&
+	 * @return const lyra::VulkanDevice*
 	*/
-	[[nodiscard]] const VulkanDevice& device() const noexcept { return _device; }
+	[[nodiscard]] const VulkanDevice* device() const noexcept { return &_device; }
 	/**
 	 * @brief get the command pool
 	 * 
-	 * @return const lyra::VulkanCommandPool&
+	 * @return const lyra::VulkanCommandPool*
 	*/
-	[[nodiscard]] const VulkanCommandPool& commandPool() const noexcept { return _commandPool; }
+	[[nodiscard]] const VulkanCommandPool* commandPool() const noexcept { return &_commandPool; }
 	/**
 	 * @brief get the command buffers
 	 *
@@ -103,27 +102,27 @@ public:
 	/**
 	 * @brief get the swapchain
 	 * 
-	 * @return const lyra::VulkanSwapchain&
+	 * @return const lyra::VulkanSwapchain*
 	*/
-	[[nodiscard]] const VulkanSwapchain& swapchain() const noexcept { return _swapchain; }
+	[[nodiscard]] const VulkanSwapchain* swapchain() const noexcept { return &_swapchain; }
 	/**
 	 * @brief get the descriptor set layout
 	 * 
-	 * @return const lyra::VulkanDescriptorSetLayout
+	 * @return const lyra::VulkanDescriptorSetLayout*
 	*/
-	[[nodiscard]] const VulkanDescriptorSetLayout& descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
+	[[nodiscard]] const VulkanDescriptorSetLayout* descriptorSetLayout() const noexcept { return &_descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 * 
-	 * @return const lyra::VulkanDescriptorPool&
+	 * @return const lyra::VulkanDescriptorPool*
 	*/
-	[[nodiscard]] const VulkanDescriptorPool& descriptorPool() const noexcept { return _descriptorPool; }
+	[[nodiscard]] const VulkanDescriptorPool* descriptorPool() const noexcept { return &_descriptorPool; }
 	/**
 	 * @brief get the queue with the draw calls
 	 * 
-	 * @return const CallQueue&
+	 * @return const CallQueue*
 	*/
-	[[nodiscard]] const CallQueue& renderQueue() const noexcept { return _renderQueue; }
+	[[nodiscard]] const CallQueue* renderQueue() const noexcept { return &_renderQueue; }
 	/**
 	 * @brief get the current frame count
 	 * 

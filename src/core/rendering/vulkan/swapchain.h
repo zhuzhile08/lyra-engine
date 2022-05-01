@@ -154,13 +154,13 @@ public:
 	 *
 	 * @return const lyra::VulkanSwapchainImages
 	*/
-	[[nodiscard]] const VulkanSwapchainImages& images() const noexcept { return _images; }
+	[[nodiscard]] const VulkanSwapchainImages* images() const noexcept { return &_images; }
 	/**
 	 * @brief get the depth buffer
 	 *
 	 * @return const lyra::VulkanDepthBuffer
 	*/
-	[[nodiscard]] const VulkanDepthBuffer& depthBuffer() const noexcept { return _depthBuffer; }
+	[[nodiscard]] const VulkanDepthBuffer* depthBuffer() const noexcept { return &_depthBuffer; }
 
 private:
 	VkSwapchainKHR _swapchain = VK_NULL_HANDLE;
