@@ -9,7 +9,7 @@ Application::~Application() {
 	quit_SDL();
 }
 
-void Application::create(InitInfo info) noexcept {
+void Application::init(InitInfo info) noexcept {
 	init_SDL();
 
 	_window.create(info.width, info.height, info.resizable, info.fullscreen, info.title);

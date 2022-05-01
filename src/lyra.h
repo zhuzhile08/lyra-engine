@@ -47,11 +47,11 @@ public: // behold, peasant, my superior "singleton" architecture
 	Application operator=(const Application&) const noexcept = delete;
 
 	/**
-	 * @brief construct a new window object
+	 * @brief initialize a new application
 	 *
 	 * @param InitInfo initalization information
 	*/
-	static void create(InitInfo info) noexcept;
+	static void init(InitInfo info) noexcept;
 
 	/**
 	 * @brief get the window

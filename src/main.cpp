@@ -15,7 +15,7 @@ int main() {
 		690,
 		420,
 	};
-	lyra::Application::create(initInfo);
+	lyra::Application::init(initInfo);
 
 	lyra::Renderer renderer;
 
