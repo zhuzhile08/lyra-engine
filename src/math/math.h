@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <math.h>
 #include <chrono>
 #include <glm.hpp>
 

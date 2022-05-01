@@ -34,7 +34,7 @@ void VulkanGraphicsPipeline::create(
 
 	create_pipeline(framebuffer, descriptorSetLayout, size, area);
 
-	LOG_INFO("Succesfully created Vulkan pipeline at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created Vulkan pipeline at ", get_address(this), "!", END_L);
 }
 
 void VulkanGraphicsPipeline::create_pipeline(const VulkanFramebuffers* framebuffer, const VulkanDescriptorSetLayout* descriptorSetLayout, VkExtent2D size, VkExtent2D area) {
@@ -224,11 +224,11 @@ void VulkanGraphicsPipeline::create_shaders(std::vector<ShaderCreationInfo> shad
 
 	for (int index = 0; index < shaderCreationInfos.size(); index++) {
 		_shaders.at(index).create(device, shaderCreationInfos[index].path, shaderCreationInfos[index].entry, shaderCreationInfos[index].flag);
-		LOG_INFO("Succesfully created Vulkan shader at: ", GET_ADDRESS(&_shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!");
+		LOG_INFO("Succesfully created Vulkan shader at: ", get_address(&_shaders[index]), " with flag: ", shaderCreationInfos[index].flag, "!");
 	}
 
 	if (shaderCreationInfos.size() != _shaders.size()) {
-		LOG_WARNING("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", GET_ADDRESS(this), "!");
+		LOG_WARNING("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", get_address(this), "!");
 	}
 }
 

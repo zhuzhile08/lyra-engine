@@ -11,16 +11,17 @@
 
 #pragma once
 
+#include <lyra.h>
 #include <core/defines.h>
+#include <core/logger.h>
 #include <core/queue_types.h>
-#include <graphics/pipeline.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/vulkan/framebuffer.h>
+#include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
+#include <graphics/pipeline.h>
 
-#include <core/logger.h>
 #include <vector>
 
 #include <noud.h>
@@ -49,13 +50,6 @@ public:
 	Renderer operator=(const Renderer&) const noexcept = delete;
 
 	/**
-	 * @brief create the renderer
-	 *
-	 * @param context the context
-	 */
-	void create(Context* const context);
-
-	/**
 	 * @brief bind the functions for resetting and finish recording the command buffers
 	 *
 	 * @param context the context
@@ -67,19 +61,19 @@ public:
 	 * 
 	 * @return const CallQueue
 	*/
-	const CallQueue draw_queue() const noexcept { return _draw_queue; }
+	const CallQueue* draw_queue() const noexcept { return& _draw_queue; }
 	/**
 	 * @brief get the framebuffers
 	 * 
-	 * @return const lyra::VulkanFramebuffers&
+	 * @return const lyra::VulkanFramebuffers*
 	*/
-	const VulkanFramebuffers& framebuffers() const noexcept { return _framebuffers; }
+	const VulkanFramebuffers* framebuffers() const noexcept { return &_framebuffers; }
 	/**
 	 * @brief get the pipeline
 	 * 
-	 * @return const lyra::VulkanGraphicsPipeline&
+	 * @return const lyra::VulkanGraphicsPipeline*
 	*/
-	const VulkanGraphicsPipeline& pipeline() const noexcept { return _pipeline; }
+	const VulkanGraphicsPipeline* pipeline() const noexcept { return &_pipeline; }
 
 private:
 	VulkanFramebuffers _framebuffers;
@@ -88,8 +82,6 @@ private:
 	CallQueue _draw_queue;
 
 	bool _drawing = true;
-
-	Context* context;
 
 	/**
 	 * @brief bind a descriptor set

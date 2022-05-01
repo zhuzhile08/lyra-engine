@@ -1,13 +1,12 @@
 #pragma once
 
+#include <lyra.h>
 #include <core/defines.h>
 #include <core/logger.h>
-#include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/vulkan/vulkan_image.h>
 #include <core/rendering/vulkan/GPU_memory.h>
-#include <core/rendering/vulkan/command_buffer.h>
-#include <core/rendering/context.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
+#include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/vulkan/vulkan_image.h>
 #include <graphics/renderer.h>
 
 #include <algorithm>
@@ -35,16 +34,7 @@ public:
 	/**
 	 * @brief create the texture and the sampler
 	 *
-	 * @param context context
 	 * @param path path of the image
-	 * @param format format of the image
-	 * @param channelsToLoad what channels to load
-	 */
-	void create(const Context* context, const string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
-	/**
-	 * @brief load a new texture into the image
-	 *
-	 * @param path path of the new image
 	 * @param format format of the image
 	 * @param channelsToLoad what channels to load
 	 */
@@ -81,8 +71,6 @@ private:
 	uint32 _width;
 	uint32 _height;
 	uint32 _mipmap;
-
-	const Context* context;
 
 	/**
 	 * @brief copy raw image data from a buffer into the image

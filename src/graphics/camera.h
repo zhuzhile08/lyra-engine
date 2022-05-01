@@ -14,11 +14,8 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#include <lyra.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/swapchain.h>
-#include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/context.h>
 #include <core/logger.h>
 #include <core/defines.h>
 #include <core/queue_types.h>
@@ -44,6 +41,9 @@ public:
 		glm::mat4 proj;
 	};
 
+	/**
+	 * @brief construct a new camera
+	*/
 	Camera();
 
 	/**
@@ -57,13 +57,6 @@ public:
 	void destroy() noexcept;
 
 	Camera operator=(const Camera&) const noexcept = delete;
-
-	/**
-	 * @brief create the camera
-	 *
-	 * @param context context
-	 */
-	void create(const Context* context);
 
 	/**
 	 * @brief rotate the camera around an certain axis
@@ -142,11 +135,8 @@ private:
 	std::vector<VulkanGPUBuffer> _buffers;
 	CameraData _data;
 	CallQueue _updateQueue;
-
 	
 	float _aspect = 0;
-
-	const Context* context;
 };
 
 } // namespace lyra

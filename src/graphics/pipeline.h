@@ -17,7 +17,7 @@
 #include <core/rendering/vulkan/swapchain.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/vulkan/framebuffer.h>
+#include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/rendering/vulkan/vertex.h>
 #include <core/logger.h>

@@ -35,7 +35,7 @@ public:
 	/**
 	 * @brief construct a new window
 	 */
-	Window();
+	Window() noexcept;
 
 	/**
 	* @brief destructor of the window
@@ -49,6 +49,17 @@ public:
 
 	Window(const Window&) noexcept = delete;
 	Window operator=(const Window&) const noexcept = delete;
+
+	/**
+	 * @brief construct a new window object
+	 *
+	 * @param width width of the window
+	 * @param height height of the window
+	 * @param resizable is window is resizeable
+	 * @param fullscreen is window fullscreen
+	 * @param title title of the window
+	*/
+	void create(uint32 width, uint32 height, bool resizable, bool fullscreen, const char* title);
 
 	/**
 	 * @brief get the events
@@ -71,17 +82,17 @@ public:
 	 *
 	 * @return SDL_Window*
 	 */
-	[[nodiscard]] SDL_Window* get() const noexcept;
+	[[nodiscard]] SDL_Window* get() const noexcept { return _window; };
 
 private:
 	SDL_Window* _window;
 	SDL_Event _event;
 
-	int width = WIDTH;
-	int height = HEIGHT;
-	bool resizable = RESIZEABLE;
-	bool fullscreen = FULLSCREEN;
-	const char* title = TITLE;
+	uint32 _width = 0;
+	uint32 _height = 0;
+	bool _resizable = false;
+	bool _fullscreen = false;
+	const char* _title = "Game";
 };
 
 } // namespace lyra

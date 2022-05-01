@@ -10,8 +10,8 @@
 #include <core/queue_types.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/context.h>
-#include <graphics/renderer.h>
 #include <core/rendering/window.h>
 
 namespace lyra {
@@ -39,7 +39,7 @@ public:
 	 * @param context vulkan application context
 	 * @param window window
 	*/
-	void create(const lyra::Context* const context, const lyra::Renderer* const renderer, const lyra::Window* const window);
+	void create(lyra::Context* const context, const lyra::Window* const window);
 
 	/**
 	 * @brief add a draw call to the drawing queue
@@ -54,14 +54,21 @@ public:
 	void draw();
 
 	/**
-	 * @brief get the descriptor pool local to the GUI part of the library
+	 * @brief get the descriptor pool local to the GUI context
 	 * 
-	 * @return const lyra::VulkanDescriptorPool
+	 * @return const lyra::VulkanDescriptorPool* const
 	*/
-	const VulkanDescriptorPool descriptorPool() const noexcept { return _descriptorPool; };
+	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return &_descriptorPool; };
+	/**
+	 * @brief get the renderer local to the GUI context
+	 *
+	 * @return const lyra::Framebuffers* const
+	*/
+	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; };
 
 private:
 	VulkanDescriptorPool _descriptorPool;
+	VulkanFramebuffers _framebuffers;
 	CallQueue _drawQueue;
 
 	const Context* context;

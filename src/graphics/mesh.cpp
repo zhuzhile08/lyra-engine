@@ -60,42 +60,39 @@ void Mesh::destroy() noexcept {
 	this->~Mesh();
 }
 
-void Mesh::create(const Context* const context, const non_access::LoadedModel loaded, const uint16 index, const noud::Node* const parent, const string name) {
+void Mesh::create(const string path, const uint16 index, const noud::Node* const parent, const string name) {
 	LOG_INFO("Creating Mesh... ");
 
 	(parent, name);
 
-	this->context = context;
-
-	create_mesh(loaded, index);
+	create_mesh(load_model(path), index);
 
 	create_vertex_buffer();
 	create_index_buffer();
 
-	_descriptor.create(&context->device(), &context->descriptorSetLayout(), &context->descriptorPool(), _writer);
+	_descriptor.create(Application::context()->device(), Application::context()->descriptorSetLayout(), Application::context()->descriptorPool(), _writer);
 
-	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created mesh at ", get_address(this), "!", END_L);
 }
 
-void Mesh::create(const Context* const context, const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent, const string name) {
+void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent, const string name) {
 	(parent, name);
 
-	this->context = context;
 	_vertices = vertices;
 	_indices = indices;
 
 	create_vertex_buffer();
 	create_index_buffer();
 
-	_descriptor.create(&context->device(), &context->descriptorSetLayout(), &context->descriptorPool(), _writer);
+	_descriptor.create(Application::context()->device(), Application::context()->descriptorSetLayout(), Application::context()->descriptorPool(), _writer);
 
-	LOG_INFO("Succesfully created mesh at ", GET_ADDRESS(this), "!", END_L);
+	LOG_INFO("Succesfully created mesh at ", get_address(this), "!", END_L);
 }
 
 void Mesh::bind_texture(const Texture* const texture) {
 	_writer.add_image_write(new VkDescriptorImageInfo(texture->get_descriptor_image_info()));
 
-	LOG_DEBUG(TAB, "Successfully bound texture to model at: ", GET_ADDRESS(this), END_L);
+	LOG_DEBUG(TAB, "Successfully bound texture to model at: ", get_address(this), END_L);
 }
 
 void Mesh::bind_camera(const Camera* const camera) {
@@ -107,7 +104,7 @@ void Mesh::bind_camera(const Camera* const camera) {
 	}
 	*/
 
-	LOG_DEBUG(TAB, "Successfully bound camera to model at: ", GET_ADDRESS(this), END_L);
+	LOG_DEBUG(TAB, "Successfully bound camera to model at: ", get_address(this), END_L);
 }
 
 void Mesh::bind(Renderer* const renderer) noexcept {
@@ -222,29 +219,29 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index)
 void Mesh::create_vertex_buffer() {
 	// create the staging buffer
 	VulkanGPUBuffer stagingBuffer;
-	stagingBuffer.create(&context->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	stagingBuffer.create(Application::context()->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	stagingBuffer.copy_data(_vertices.data());
 
 	// create the vertex buffer
-	_vertexBuffer.create(&context->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_vertexBuffer.create(Application::context()->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
-	_vertexBuffer.copy(&context->commandPool(), &stagingBuffer);
+	_vertexBuffer.copy(Application::context()->commandPool(), &stagingBuffer);
 }
 
 void Mesh::create_index_buffer() {
 	// create the staging buffer
 	VulkanGPUBuffer stagingBuffer;
-	stagingBuffer.create(&context->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	stagingBuffer.create(Application::context()->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	stagingBuffer.copy_data(_indices.data());
 
 	// create the vertex buffer
-	_indexBuffer.create(&context->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_indexBuffer.create(Application::context()->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// copy the buffer
-	_indexBuffer.copy(&context->commandPool(), &stagingBuffer);
+	_indexBuffer.copy(Application::context()->commandPool(), &stagingBuffer);
 }
 
 } // namespace lyra

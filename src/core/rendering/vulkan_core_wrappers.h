@@ -20,6 +20,6 @@
 #include <core/rendering/vulkan/GPU_memory.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/vulkan/vertex.h>
-#include <core/rendering/vulkan/framebuffer.h>
+#include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/vulkan_image.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
