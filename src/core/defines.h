@@ -22,9 +22,6 @@
 
 namespace lyra {
 
-// some other definitions
-typedef const char* string;            // please don't look at this
-
 /**
  * @brief get the size of an array
  * 
@@ -45,7 +42,7 @@ template<typename _Ty> uint32 arr_size(const _Ty* array) {
  * @tparam _Ty type of pointer
  * @param type the pointer
  * 
- * @return std::string
+ * @return std::string 
 */
 template<typename _Ty> [[nodiscard]] inline std::string get_address(const _Ty type);
 
@@ -55,7 +52,7 @@ template<typename _Ty> std::string get_address(const _Ty type) {
 	std::stringstream ss; // black magic
 	ss << address;
 
-	return std::string("0x") + ss.str();
+	return std::string ("0x") + ss.str();
 }
 
 } // namespace lyra
