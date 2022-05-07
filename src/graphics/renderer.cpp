@@ -3,7 +3,7 @@
 namespace lyra {
 
 Renderer::Renderer() {
-	LOG_INFO("Creating Renderer...");
+	Logger::log_info("Creating Renderer...");
 
 	_framebuffers.create(Application::context()->device(), Application::context()->swapchain());
 	_pipeline.create(
@@ -15,11 +15,11 @@ Renderer::Renderer() {
 		Application::context()->swapchain()->extent()
 	);
 
-	LOG_INFO("Successfully created Renderer at: ", get_address(this), "!");
+	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
 }
 
 Renderer::~Renderer() noexcept {
-	LOG_INFO("Successfully destroyed a renderer!");
+	Logger::log_info("Successfully destroyed a renderer!");
 }
 
 void Renderer::destroy() noexcept {

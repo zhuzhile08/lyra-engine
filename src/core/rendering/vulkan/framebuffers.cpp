@@ -8,7 +8,7 @@ VulkanFramebuffers::~VulkanFramebuffers() noexcept {
 	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
 	vkDestroyRenderPass(device->device(), _renderPass, nullptr);
 
-	LOG_INFO("Succesfully destroyed Vulkan frame buffer!");
+	Logger::log_info("Succesfully destroyed Vulkan frame buffer!");
 }
 
 void VulkanFramebuffers::destroy() noexcept {
@@ -16,7 +16,7 @@ void VulkanFramebuffers::destroy() noexcept {
 }
 
 void VulkanFramebuffers::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain) {
-	LOG_INFO("Creating Vulkan framebuffers and render pass...");
+	Logger::log_info("Creating Vulkan framebuffers and render pass...");
 
 	this->device = device;
 	this->swapchain = swapchain;
@@ -24,7 +24,7 @@ void VulkanFramebuffers::create(const VulkanDevice* const device, const VulkanSw
 	create_render_pass();
 	create_frame_buffers();
 
-	LOG_INFO("Succesfully created Vulkan framebuffers and render pass at ", get_address(this), "!", END_L);
+	Logger::log_info("Succesfully created Vulkan framebuffers and render pass at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanFramebuffers::create_render_pass() {
@@ -102,7 +102,7 @@ void VulkanFramebuffers::create_render_pass() {
 		&dependencies
 	};
 
-	if (vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass)) LOG_EXEPTION("Failed to create Vulkan render pass!");
+	if (vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass)) Logger::log_exception("Failed to create Vulkan render pass!");
 }
 
 void VulkanFramebuffers::create_frame_buffers() {
@@ -127,7 +127,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 			1
 		};
 
-		if (vkCreateFramebuffer(device->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) != VK_SUCCESS) LOG_EXEPTION("Failed to create a framebuffer!");
+		if (vkCreateFramebuffer(device->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) != VK_SUCCESS) Logger::log_exception("Failed to create a framebuffer!");
 	}
 }
 

@@ -7,7 +7,7 @@ Context::Context() { }
 Context::~Context() noexcept {
 	_device.wait();
 
-	LOG_INFO("Successfully destroyed application context!");
+	Logger::log_info("Successfully destroyed application context!");
 }
 
 void Context::destroy() noexcept {
@@ -15,14 +15,14 @@ void Context::destroy() noexcept {
 }
 
 void Context::create(const Window* const window) {
-	LOG_INFO("Creating context for application...");
+	Logger::log_info("Creating context for application...");
 
 	this->window = window;
 
 	_instance.create(window);
 	_device.create(&_instance);
 	_commandPool.create(&_device);
-	_commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	_commandBuffers.resize(Settings::Rendering::maxFramesInFlight);
 	for (auto& cmdBuff : _commandBuffers) cmdBuff.create(&_device, &_commandPool);
 	_syncObjects.create(&_device);
 	_swapchain.create(&_device, &_instance, &_commandPool, window);
@@ -34,10 +34,10 @@ void Context::create(const Window* const window) {
 
 	VulkanDescriptorPool::Builder       poolBuilder;
 	poolBuilder.set_max_sets(21);   // 9 + 10 is 21, of course, what else whould it be, 19?
-	poolBuilder.add_pool_sizes({ { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT }, { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT } });
+	poolBuilder.add_pool_sizes({ { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight }, { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight } });
 	_descriptorPool.create(&_device, poolBuilder);
 
-	LOG_INFO("Successfully created context for the application at: ", get_address(this), "!", END_L);
+	Logger::log_info("Successfully created context for the application at: ", get_address(this), "!", Logger::end_l());
 }
 
 void Context::recreate_swapchain() {
@@ -67,7 +67,7 @@ void Context::draw() {
 		recreate_swapchain();
 		return;
 	}
-	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) LOG_EXEPTION("Failed to get the next Vulkan image layer to blit on!");
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) Logger::log_exception("Failed to get the next Vulkan image layer to blit on!");
 
 	// begin recording the command buffer
 	_commandBuffers[currentFrame()].begin(0);
@@ -104,7 +104,7 @@ void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 	};
 
 	// submit the queue
-	if (vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences()[_currentFrame]) != VK_SUCCESS) LOG_EXEPTION("Failed to submit Vulkan queue!");
+	if (vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences()[_currentFrame]) != VK_SUCCESS) Logger::log_exception("Failed to submit Vulkan queue!");
 }
 
 void Context::present_device_queue() {
@@ -127,16 +127,16 @@ void Context::present_device_queue() {
 		recreate_swapchain();
 	}
 	else if (result != VK_SUCCESS) {
-		LOG_EXEPTION("Failed to present swapchain image!");
+		Logger::log_exception("Failed to present swapchain image!");
 	}
 }
 
 void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-	if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) LOG_EXEPTION("Failed to wait for device queue!");
+	if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) Logger::log_exception("Failed to wait for device queue!");
 }
 
 void Context::update_frame_count() noexcept {
-	_currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+	_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
 }
 
 } // namespace lyra

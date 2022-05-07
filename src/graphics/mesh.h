@@ -59,7 +59,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const string path, const uint16 index = 0, const noud::Node* const parent = nullptr, const string name = "mesh");
+	void create(const std::string path, const uint16 index = 0, const noud::Node* const parent = nullptr, const std::string name = "mesh");
 	/**
 	 * @brief construct a new mesh with a custom model
 	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
@@ -69,7 +69,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const parent = nullptr, const string name = "mesh");
+	void create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const parent = nullptr, const std::string name = "mesh");
 
 	/**
 	 * @brief bind a texture to the model

@@ -7,7 +7,7 @@ Window::Window() noexcept { }
 Window::~Window() noexcept {
 	SDL_DestroyWindow(_window);
 
-	LOG_INFO("Successfully destroyed SDL window!", TAB);
+	Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
 }
 
 void Window::destroy() noexcept {
@@ -15,7 +15,7 @@ void Window::destroy() noexcept {
 }
 
 void Window::create(uint32 width, uint32 height, bool resizable, bool fullscreen, const char* title) {
-	LOG_INFO("Creating SDL window...");
+	Logger::log_info("Creating SDL window...");
 
 	_width = width;
 	_height = height;
@@ -31,10 +31,10 @@ void Window::create(uint32 width, uint32 height, bool resizable, bool fullscreen
 	_window = SDL_CreateWindow(_title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _width, _height, flags);
 
 	if (!_window) {
-		LOG_EXEPTION("Failed to create SDL window with error: ", SDL_GetError());
+		Logger::log_exception("Failed to create SDL window with error: ", SDL_GetError());
 	}
 
-	LOG_INFO("Successfully created window at: ", get_address(this), "!", END_L);
+	Logger::log_info("Successfully created window at: ", get_address(this), "!", Logger::end_l());
 }
 
 void Window::events() noexcept {

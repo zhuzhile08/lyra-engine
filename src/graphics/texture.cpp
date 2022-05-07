@@ -7,38 +7,38 @@ Texture::Texture() { }
 Texture::~Texture() noexcept {
 	vkDestroySampler(Application::context()->device()->device(), _sampler, nullptr);
 
-	LOG_INFO("Successfully destroyed Texture!");
+	Logger::log_info("Successfully destroyed Texture!");
 }
 
 void Texture::destroy() noexcept {
 	this->~Texture();
 }
 
-void Texture::create(const string path, const VkFormat format, const int channelsToLoad) {
-	LOG_INFO("Creating Vulkan texture and image sampler... ");
+void Texture::create(const std::string path, const VkFormat format, const int channelsToLoad) {
+	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
-	LOG_DEBUG(TAB, "path: ", path);
+	Logger::log_debug(Logger::tab(), "path: ", path);
 
 	load_image(path, format, channelsToLoad);
 	create_sampler();
 
-	LOG_INFO("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", get_address(this), END_L);
+	Logger::log_info("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", get_address(this), Logger::end_l());
 }
 
-void Texture::load_image(const string path, const VkFormat format, int channelsToLoad) {
+void Texture::load_image(const std::string path, const VkFormat format, int channelsToLoad) {
 	// load the image
 	int width, height, channels;
-	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, channelsToLoad);
-	if (imagePixelData == nullptr) LOG_ERROR("Failed to load image from path: ", path, " at: ", get_address(this), "!");
+	stbi_uc* imagePixelData = stbi_load(path.c_str(), &width, &height, &channels, channelsToLoad);
+	if (imagePixelData == nullptr) Logger::log_error("Failed to load image from path: ", path, " at: ", get_address(this), "!");
 
 	_width = width; _height = height;
 
-	LOG_DEBUG(TAB, "width: ", width, " and height: ", height);
+	Logger::log_debug(Logger::tab(), "width: ", width, " and height: ", height);
 
 	// calculate the mipmap levels of the image
 	_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
 
-	LOG_DEBUG(TAB, "midmapping levels: ", _mipmap);
+	Logger::log_debug(Logger::tab(), "midmapping levels: ", _mipmap);
 
 	// create a staging buffer
 	VulkanGPUBuffer stagingBuffer;
@@ -62,7 +62,7 @@ void Texture::load_image(const string path, const VkFormat format, int channelsT
 		& _image, 
 		& _memory, 
 		nullptr
-	) != VK_SUCCESS) LOG_ERROR("Failed to load image from path: ", path);
+	) != VK_SUCCESS) Logger::log_error("Failed to load image from path: ", path);
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(Application::context()->device(), Application::context()->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
@@ -102,16 +102,16 @@ void Texture::create_sampler(const VkFilter magnifiedTexel, const VkFilter minim
 		VK_FALSE
 	};
 
-	if (vkCreateSampler(Application::context()->device()->device(), &samplerInfo, nullptr, &_sampler) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image sampler!");
+	if (vkCreateSampler(Application::context()->device()->device(), &samplerInfo, nullptr, &_sampler) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan image sampler!");
 
-	LOG_DEBUG(TAB, "Created image sampler at: ", get_address(this));
+	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }
 
 void Texture::generate_mipmaps() const {
 	// check if image supports linear filtering
 	VkFormatProperties formatProperties;
 	vkGetPhysicalDeviceFormatProperties(Application::context()->device()->physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
-	if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) LOG_EXEPTION("Image does not support linear filtering with its current format!", END_L);
+	if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) Logger::log_exception("Image does not support linear filtering with its current format!", Logger::end_l());
 
 	// temporary command buffer for generating midmaps
 	VulkanCommandBuffer     cmdBuff;
@@ -185,7 +185,7 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.submit_queue(Application::context()->device()->graphicsQueue().queue);
 	cmdBuff.wait_queue(Application::context()->device()->graphicsQueue().queue);
 
-	LOG_DEBUG(TAB, "Created image mipmaps!");
+	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
 }
 
 void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent) {
@@ -214,7 +214,7 @@ void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExt
 	cmdBuff.submit_queue(Application::context()->device()->graphicsQueue().queue);
 	cmdBuff.wait_queue(Application::context()->device()->graphicsQueue().queue);
 
-	LOG_DEBUG(TAB, "Copied image data from buffer to image at: ", get_address(this));
+	Logger::log_debug(Logger::tab(), "Copied image data from buffer to image at: ", get_address(this));
 }
 
 const VkDescriptorImageInfo Texture::get_descriptor_image_info() const noexcept {

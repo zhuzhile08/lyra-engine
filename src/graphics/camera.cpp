@@ -5,20 +5,20 @@ namespace lyra {
 Camera::CameraData::CameraData() : view(glm::mat4(1.0f)), proj(glm::mat4(1.0f)) { }
 
 Camera::Camera() {
-	LOG_INFO("Creating Camera... ");
+	Logger::log_info("Creating Camera... ");
 
 	// create the buffers
-	_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+	_buffers.resize(Settings::Rendering::maxFramesInFlight);
 
 	for (auto& buffer : _buffers) buffer.create(Application::context()->device(), sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	_aspect = Application::context()->swapchain()->extent().width / (float)Application::context()->swapchain()->extent().height;
 
-	LOG_INFO("Succesfully created Camera at ", get_address(this), "!", END_L);
+	Logger::log_info("Succesfully created Camera at ", get_address(this), "!", Logger::end_l());
 }
 
 Camera::~Camera() noexcept {
-	LOG_INFO("Succesfully destroyed Vulkan uniform buffers!");
+	Logger::log_info("Succesfully destroyed Vulkan uniform buffers!");
 }
 
 void Camera::destroy() noexcept {

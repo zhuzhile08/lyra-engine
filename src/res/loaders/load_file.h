@@ -9,8 +9,8 @@
 
 namespace lyra {
 
-std::vector <char> read_binary(string path);
+std::vector <char> read_binary(std::string path);
 
-std::vector <char> read_text(string path);
+std::vector <char> read_text(std::string path);
 
 }

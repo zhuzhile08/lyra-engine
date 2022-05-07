@@ -72,7 +72,7 @@ private:
 	 * @param layers the available validation layers
 	 * @param requestedLayers the requested validation layers
 	 */
-	void check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <string> requestedLayers) const;
+	void check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <const char*> requestedLayers) const;
 	/**
 	 * @brief create a Vulkan instance
 	 *

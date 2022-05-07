@@ -99,7 +99,7 @@ public:
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	 */
-	void set_perspective(const float aspect, const float fov = FOV, const float near = 0.1f, const float far = 10.0f) noexcept;
+	void set_perspective(const float aspect, const float fov = Settings::Rendering::fov, const float near = 0.1f, const float far = 10.0f) noexcept;
 
 	/**
 	 * @brief temporary draw function

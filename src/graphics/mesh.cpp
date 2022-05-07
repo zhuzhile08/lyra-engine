@@ -53,15 +53,15 @@ Mesh::~Mesh() noexcept {
 	_vertexBuffer.destroy();
 	_indexBuffer.destroy();
 
-	LOG_INFO("Succesfully destroyed mesh!");
+	Logger::log_info("Succesfully destroyed mesh!");
 }
 
 void Mesh::destroy() noexcept {
 	this->~Mesh();
 }
 
-void Mesh::create(const string path, const uint16 index, const noud::Node* const parent, const string name) {
-	LOG_INFO("Creating Mesh... ");
+void Mesh::create(const std::string path, const uint16 index, const noud::Node* const parent, const std::string name) {
+	Logger::log_info("Creating Mesh... ");
 
 	(parent, name);
 
@@ -72,10 +72,10 @@ void Mesh::create(const string path, const uint16 index, const noud::Node* const
 
 	_descriptor.create(Application::context()->device(), Application::context()->descriptorSetLayout(), Application::context()->descriptorPool(), _writer);
 
-	LOG_INFO("Succesfully created mesh at ", get_address(this), "!", END_L);
+	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent, const string name) {
+void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent, const std::string name) {
 	(parent, name);
 
 	_vertices = vertices;
@@ -86,13 +86,13 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint16
 
 	_descriptor.create(Application::context()->device(), Application::context()->descriptorSetLayout(), Application::context()->descriptorPool(), _writer);
 
-	LOG_INFO("Succesfully created mesh at ", get_address(this), "!", END_L);
+	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
 void Mesh::bind_texture(const Texture* const texture) {
 	_writer.add_image_write(new VkDescriptorImageInfo(texture->get_descriptor_image_info()));
 
-	LOG_DEBUG(TAB, "Successfully bound texture to model at: ", get_address(this), END_L);
+	Logger::log_debug(Logger::tab(), "Successfully bound texture to model at: ", get_address(this), Logger::end_l());
 }
 
 void Mesh::bind_camera(const Camera* const camera) {
@@ -104,7 +104,7 @@ void Mesh::bind_camera(const Camera* const camera) {
 	}
 	*/
 
-	LOG_DEBUG(TAB, "Successfully bound camera to model at: ", get_address(this), END_L);
+	Logger::log_debug(Logger::tab(), "Successfully bound camera to model at: ", get_address(this), Logger::end_l());
 }
 
 void Mesh::bind(Renderer* const renderer) noexcept {

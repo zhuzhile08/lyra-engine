@@ -7,19 +7,19 @@ VulkanShader::VulkanShader() { }
 VulkanShader::~VulkanShader() {
 	vkDestroyShaderModule(device->device(), _module, nullptr);
 
-	LOG_INFO("Destroyed loaded Vulkan shader!");
+	Logger::log_info("Destroyed loaded Vulkan shader!");
 }
 
 void VulkanShader::destroy() noexcept {
 	this->~VulkanShader();
 }
 
-void VulkanShader::create(const VulkanDevice* const device, const string path, string entry, VkShaderStageFlagBits stageFlags) {
-	LOG_INFO("Loading and creating Vulkan shader...");
+void VulkanShader::create(const VulkanDevice* const device, const std::string path, std::string entry, VkShaderStageFlagBits stageFlags) {
+	Logger::log_info("Loading and creating Vulkan shader...");
 
-	LOG_DEBUG(TAB, "Path: ", path);
-	LOG_DEBUG(TAB, "Entry point: ", entry);
-	LOG_DEBUG(TAB, "Type of shader(VkShaderStageFlagBits): ", stageFlags);
+	Logger::log_debug(Logger::tab(), "Path: ", path);
+	Logger::log_debug(Logger::tab(), "Entry point: ", entry);
+	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", stageFlags);
 
 	this->device = device;
 
@@ -38,9 +38,9 @@ void VulkanShader::create(const VulkanDevice* const device, const string path, s
 		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) LOG_EXEPTION("Failed to create a Vulkan shader module");
+	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) Logger::log_exception("Failed to create a Vulkan shader module");
 
-	LOG_INFO(TAB, "Successfully created Vulkan shader from at: ", get_address(this), "!");
+	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }
 
 const VkPipelineShaderStageCreateInfo VulkanShader::get_stage_create_info() const noexcept {
@@ -50,7 +50,7 @@ const VkPipelineShaderStageCreateInfo VulkanShader::get_stage_create_info() cons
 		0,
 		_stageFlags,
 		_module,
-		_entry,
+		_entry.c_str(),
 		nullptr
 	};
 }

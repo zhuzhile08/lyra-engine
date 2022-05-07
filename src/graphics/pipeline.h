@@ -57,8 +57,8 @@ private:
 	 * @brief struct holding creation information for a shader
 	 */
 	struct ShaderCreationInfo {
-		string path;
-		string entry;
+		std::string path;
+		std::string entry;
 		VkShaderStageFlagBits flag;
 	};
 
@@ -83,10 +83,10 @@ public:
 	 * @param device device
 	 * @param framebuffer framebuffer
 	 * @param descriptorSetLayout descriptor set layout
-	 * @param shaderCount number of shaders
 	 * @param shaderCreationInfos creation information of the shaders
 	 * @param size size of which part the pipeline will draw to
 	 * @param area area of where the pipeline can draw to
+	 * @param polyMode how the polygons will be filled
 	 */
 	void create(
 		const VulkanDevice* device,
@@ -94,7 +94,8 @@ public:
 		const VulkanDescriptorSetLayout* descriptorSetLayout,
 		const std::vector<ShaderCreationInfo> shaderCreationInfos,
 		VkExtent2D size,
-		VkExtent2D area
+		VkExtent2D area, 
+		VkPolygonMode polyMode = VK_POLYGON_MODE_FILL
 	);
 
 	/**
@@ -131,8 +132,9 @@ private:
 	 * @param descriptor descriptors
 	 * @param size size of which part the pipeline will draw to
 	 * @param area area of where the pipeline can draw to
+	 * @param polyMode how the polygons will be filled
 	 */
-	void create_pipeline(const VulkanFramebuffers* framebuffer, const VulkanDescriptorSetLayout* descriptorSetLayout, VkExtent2D size, VkExtent2D area);
+	void create_pipeline(const VulkanFramebuffers* framebuffer, const VulkanDescriptorSetLayout* descriptorSetLayout, VkExtent2D size, VkExtent2D area, VkPolygonMode polyMode);
 	/**
 	 * @brief create the pipeline layout
 	 *

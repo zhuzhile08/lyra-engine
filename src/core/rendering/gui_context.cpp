@@ -9,7 +9,7 @@ GUIContext::GUIContext() { }
 GUIContext::~GUIContext() {
 	ImGui_ImplVulkan_Shutdown();
 
-	lyra::LOG_INFO("Successfully destroyed GUI context!");
+	lyra::Logger::log_info("Successfully destroyed GUI context!");
 }
 
 void GUIContext::destroy() {
@@ -17,7 +17,7 @@ void GUIContext::destroy() {
 }
 
 void GUIContext::create(lyra::Context* const context, const lyra::Window* const window) {
-	LOG_INFO("Creating context for the GUI... ");
+	Logger::log_info("Creating context for the GUI... ");
 
 	this->context = context;
 	this->window = window;
@@ -81,7 +81,7 @@ void GUIContext::create(lyra::Context* const context, const lyra::Window* const 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-	LOG_INFO("Successfully created a GUI context at: ", get_address(this));
+	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
 
 void GUIContext::add_draw_call(std::function<void()>&& func) {

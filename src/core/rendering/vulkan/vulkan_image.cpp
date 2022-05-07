@@ -8,7 +8,7 @@ VulkanImage::~VulkanImage() noexcept {
 	vkDestroyImageView(device->device(), _view, nullptr);
 	vkDestroyImage(device->device(), _image, nullptr);
 
-	LOG_DEBUG(TAB, "Succesfully destroyed Vulkan images!"); // this message suddenly comes up during the execution of the create_render_pass function and I have no idea why... Nothing seems wrong tho?
+	Logger::log_debug(Logger::tab(), "Succesfully destroyed Vulkan images!"); // this message suddenly comes up during the execution of the create_render_pass function and I have no idea why... Nothing seems wrong tho?
 }
 
 void VulkanImage::destroy() noexcept {
@@ -60,9 +60,9 @@ void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRan
 	};
 
 	// create the view
-	if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) LOG_EXEPTION("Failed to create Vulkan image views");
+	if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan image views");
 
-	LOG_DEBUG(TAB, "Succesfully created Vulkan image view at ", get_address(this), "!");
+	Logger::log_debug(Logger::tab(), "Succesfully created Vulkan image view at ", get_address(this), "!");
 }
 
 void VulkanImage::create_view(const VulkanDevice* const device, const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
@@ -101,7 +101,7 @@ void VulkanImage::transition_layout(
 		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else LOG_EXEPTION("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
+	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
 	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
@@ -155,10 +155,10 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 	if (_tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = tiling;
 	else if (tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = _tiling;
 	else if (tiling != VK_IMAGE_TILING_MAX_ENUM && tiling_ != VK_IMAGE_TILING_MAX_ENUM) {
-		LOG_WARNING("Defined 2 seperate tiling modes whilst finding the best format for a image: ", _tiling, " and ", tiling, "! Automatically set to the first mode!");
+		Logger::log_warning("Defined 2 seperate tiling modes whilst finding the best format for a image: ", _tiling, " and ", tiling, "! Automatically set to the first mode!");
 		tiling_ = _tiling;
 	}
-	else LOG_EXEPTION("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
+	else Logger::log_exception("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
 
 	for (const auto& format : candidates) {
 		VkFormatProperties props;
@@ -168,7 +168,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return format;
 	}
 
-	LOG_EXEPTION("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
+	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
 
 	return VK_FORMAT_MAX_ENUM;
 }
