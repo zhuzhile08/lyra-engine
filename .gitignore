@@ -35,3 +35,6 @@
 include/
 out/
 .vs/
+
+# files
+CMakeSettings.json
