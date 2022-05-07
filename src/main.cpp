@@ -11,11 +11,7 @@
 #include <glm.hpp>
 
 int main() {
-	lyra::InitInfo initInfo{
-		690,
-		420,
-	};
-	lyra::Application::init(initInfo);
+	lyra::Application::init();
 
 	lyra::Renderer renderer;
 
@@ -37,7 +33,7 @@ int main() {
 
 	while (true) {
 		camera.draw();
-		lyra::Application::context()->draw();
+		lyra::Application::draw();
 	}
 
 	return 0;

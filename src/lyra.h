@@ -23,19 +23,7 @@
 
 namespace lyra {
 
-struct InitInfo {
-	const uint32 width; // width of the window
-	const uint32 height; // height of the window
-	const char* title = "Game"; // title of the window
-	const bool gui = true; // window gui
-	const bool resizable = false; // window resizable
-	const bool fullscreen = false; // window fullscreen
-	const std::vector<string> reqValidLayers{ "VK_LAYER_KHRONOS_validation" }; // requested Vulkan validation layers
-	const std::vector<string> reqDevExt{ VK_KHR_SWAPCHAIN_EXTENSION_NAME }; // requested Vulkan device extensions
-	const uint8 framesInFlight = 2; // number of frames(images)
-};
-
-// wrapper around a every basic component of an application
+// @brief wrapper around a every basic component of an application
 class Application {
 public: // behold, peasant, my superior "singleton" architecture
 	/**
@@ -43,15 +31,19 @@ public: // behold, peasant, my superior "singleton" architecture
 	**/
 	virtual ~Application() noexcept;
 
+	Application() noexcept = delete;
 	Application(const Application&) noexcept = delete;
 	Application operator=(const Application&) const noexcept = delete;
 
 	/**
 	 * @brief initialize a new application
-	 *
-	 * @param InitInfo initalization information
 	*/
-	static void init(InitInfo info) noexcept;
+	static void init() noexcept;
+
+	/**
+	 * @brief draw the current frame
+	*/
+	static void draw();
 
 	/**
 	 * @brief get the window
@@ -71,19 +63,20 @@ public: // behold, peasant, my superior "singleton" architecture
 	 * @return static const lyra::gui::GUIContext* const
 	 */
 	[[nodiscard]] static const gui::GUIContext* const guiContext() noexcept { 
+		/**
 		if (_guiContext.has_value() == true) return &_guiContext.value(); // check if the context has a value or not
 		else {
-			LOG_EXEPTION("Current application does not have a context for a ImGui based GUI");
+			Logger::log_exception("Current application does not have a context for a ImGui based GUI");
 			return nullptr;
 		}
+		**/
+		return &_guiContext;
 	};
 
 private:
-	Application() noexcept;
-
 	static Window _window;
 	static Context _context;
-	static std::optional<gui::GUIContext> _guiContext;
+	static gui::GUIContext _guiContext; /// @todo make this an std::optional
 };
 
 } // namespace lyra
