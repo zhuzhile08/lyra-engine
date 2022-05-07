@@ -47,19 +47,21 @@ include_directories(
 )
 
 add_executable(LyraEngine 
- "include/imgui/imgui.cpp"              # imgui
+ "include/imgui/imgui.cpp"                  # imgui
  "include/imgui/imgui_demo.cpp"
  "include/imgui/imgui_draw.cpp"
  "include/imgui/imgui_tables.cpp"
  "include/imgui/imgui_widgets.cpp"
  "include/imgui/backends/imgui_impl_vulkan.cpp"
  "include/imgui/backends/imgui_impl_sdl.cpp"
- "include/NOUD/noud.cpp"                # noud
- "src/init/init_SDL.cpp"                # engine
+ "include/NOUD/noud.cpp"                    # noud
+ "src/init/init_SDL.cpp"                    # engine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
  "src/graphics/camera.cpp"
  "src/core/rendering/window.cpp"
+ "src/core/rendering/gui_context.cpp"       # engine GUI
+ "src/components/physics/transform.cpp" 
  "src/graphics/renderer.cpp"
  "src/graphics/pipeline.cpp"
  "src/graphics/mesh.cpp"
@@ -69,10 +71,9 @@ add_executable(LyraEngine
  "src/core/rendering/vulkan_core_wrappers.cpp"
  "src/res/loaders.cpp"
  "src/main.cpp"
- "src/core/rendering/gui_context.cpp"     # engine GUI
- "src/components/physics/transform.cpp" 
  "src/lyra.cpp"
-)
+ "src/core/settings.cpp"
+ )
 
 add_dependencies(LyraEngine build_shaders)
 
