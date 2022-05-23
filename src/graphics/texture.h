@@ -15,10 +15,73 @@
 
 namespace lyra {
 
+// Textures and images
 class Texture : private VulkanImage, private VulkanGPUMemory {
 public:
-	struct CreateInfo {
+	// type of the image
+	enum class Type : int {
+		// use the image as a texture/sprite
+		TYPE_TEXTURE = 0,
+		// use the image as a normal map
+		TYPE_NORMAL_MAP = 1,
+		// use the image as a lightmap
+		TYPE_LIGHTMAP = 2,
+		// load the image as a directional lightmap
+		TYPE_DIRECTIONAL_LIGHTMAP = 3,
+		// load the image as a shadow mask
+		TYPE_SHADOW_MASK = 4
+	};
 
+	// how to treat the alpha value of the image
+	enum class Alpha : int {
+		ALPHA_TRANSPARENT = 1,
+		ALPHA_BLACK = 3,
+		ALPHA_WHITE = 5
+	};
+
+	// how the UVs should read the image
+	enum class Dimension : int {
+		// one dimensional image
+		DIMENSION_1D = 0,
+		// two dimensional image
+		DIMENSION_2D = 1,
+		// three dimensional image
+		DIMENSION_3D = 2
+	};
+
+	// how to wrap the image if the UVs exceeds the border of the image
+	enum class Wrap : int {
+		// repeat the image
+		WRAP_REPEAT = 0,
+		// repeat the image whilst mirroring it
+		WRAP_MIRROR = 1,
+		// don't wrap or clamp the image at all
+		WRAP_ONCE = 2,
+		// clamp the image to the border
+		WRAP_CLAMP = 3,
+	};
+
+	// anistropic filtering
+	enum class Anistropy : unsigned int {
+		// enable anistropic filtering
+		ANISTROPY_DISABLE = 0U,
+		// disable anistropic filtering
+		ANISTROPY_ENABLE = 1U
+	};
+
+	struct CreateInfo {
+		// path of image
+		const std::string path;
+		// type of the image
+		const Type type = Type::TYPE_TEXTURE;
+		// how to treat the alpha value of the image
+		const Alpha alpha = Alpha::ALPHA_BLACK;
+		// how the UVs should read the image
+		const Dimension dimension = Dimension::DIMENSION_2D;
+		// how to wrap the image if the UVs exceeds the border of the image
+		const Wrap wrap = Wrap::WRAP_REPEAT;
+		// anistropic filtering
+		const Anistropy anistropy = Anistropy::ANISTROPY_ENABLE;
 	};
 
 	Texture();
@@ -38,11 +101,10 @@ public:
 	/**
 	 * @brief create the texture and the sampler
 	 *
-	 * @param path path of the image
+	 * @param info creation information
 	 * @param format format of the image
-	 * @param channelsToLoad what channels to load
 	 */
-	void create(const std::string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
+	void create(const CreateInfo info, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -70,11 +132,14 @@ public:
 	*/
 	[[nodiscard]] const VmaAllocation memory() const noexcept { return _memory; }
 
+	[[nodiscard]] const std::string get_path() const noexcept { return _path; }
+
 private:
 	VkSampler _sampler = VK_NULL_HANDLE;
 	uint32 _width;
 	uint32 _height;
 	uint32 _mipmap;
+	std::string _path;
 
 	/**
 	 * @brief copy raw image data from a buffer into the image
@@ -87,27 +152,24 @@ private:
 	/**
 	 * load a image from a path
 	 *
-	 * @param path path of the new image
+	 * @param info creation information
 	 * @param format format of the image
-	 * @param channelsToLoad what channels to load
 	 */
-	void load_image(const std::string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB, const int channelsToLoad = STBI_rgb_alpha);
+	void load_image(const CreateInfo info, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief create the image sampler
 	 *
+	 * @param extendedTexels how to render the image if the surface is bigger than the image
 	 * @param magnifiedTexel how to filter the image if a pixel is smaller than a texel
 	 * @param minimizedTexel how to filter the image if a pixel is bigger than a texel
 	 * @param mipmapMode the mode of midmapping
-	 * @param extendedTexels how to render the image if the surface is bigger than the image
-	 * @param anistropy how further distances are filtered
 	 */
 	void create_sampler(
+		const CreateInfo info,
 		const VkFilter magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter minimizedTexel = VK_FILTER_LINEAR,
-		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		const VkSamplerAddressMode extendedTexels = VK_SAMPLER_ADDRESS_MODE_REPEAT,
-		const VkBool32 anisotropy = VK_TRUE
+		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
 	);
 
 	/**

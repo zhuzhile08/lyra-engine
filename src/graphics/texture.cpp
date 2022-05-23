@@ -14,25 +14,25 @@ void Texture::destroy() noexcept {
 	this->~Texture();
 }
 
-void Texture::create(const std::string path, const VkFormat format, const int channelsToLoad) {
+void Texture::create(const CreateInfo info, const VkFormat format) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
-	Logger::log_debug(Logger::tab(), "path: ", path);
+	load_image(info, format);
+	create_sampler(info);
 
-	load_image(path, format, channelsToLoad);
-	create_sampler();
-
-	Logger::log_info("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", get_address(this), Logger::end_l());
+	Logger::log_info("Successfully created Vulkan texture with path: ", info.path, " with image sampler at: ", get_address(this), Logger::end_l());
 }
 
-void Texture::load_image(const std::string path, const VkFormat format, int channelsToLoad) {
+void Texture::load_image(const CreateInfo info, const VkFormat format) {
 	// load the image
 	int width, height, channels;
-	stbi_uc* imagePixelData = stbi_load(path.c_str(), &width, &height, &channels, channelsToLoad);
-	if (imagePixelData == nullptr) Logger::log_error("Failed to load image from path: ", path, " at: ", get_address(this), "!");
+	stbi_uc* imagePixelData = stbi_load(info.path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+	if (imagePixelData == nullptr) Logger::log_error("Failed to load image from path: ", info.path, " at: ", get_address(this), "!");
 
 	_width = width; _height = height;
+	_path = info.path;
 
+	Logger::log_debug(Logger::tab(), "path: ", info.path);
 	Logger::log_debug(Logger::tab(), "width: ", width, " and height: ", height);
 
 	// calculate the mipmap levels of the image
@@ -56,13 +56,14 @@ void Texture::load_image(const std::string path, const VkFormat format, int chan
 			format, 
 			{ static_cast<uint32>(width), static_cast<uint32>(height), 1 },
 			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-			_mipmap
+			_mipmap,
+			static_cast<VkImageType>(info.dimension)
 		),
 		&get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
 		& _image, 
 		& _memory, 
 		nullptr
-	) != VK_SUCCESS) Logger::log_error("Failed to load image from path: ", path);
+	) != VK_SUCCESS) Logger::log_error("Failed to load image from path: ", info.path);
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(Application::context()->device(), Application::context()->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
@@ -71,13 +72,13 @@ void Texture::load_image(const std::string path, const VkFormat format, int chan
 	generate_mipmaps();
 
 	// create the image view
-	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
+	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 }, static_cast<VkImageViewType>(info.dimension));
 
 	// free the pixels of the image
 	stbi_image_free(imagePixelData);
 }
 
-void Texture::create_sampler(const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode, const VkSamplerAddressMode extendedTexels, const VkBool32 anisotropy) {
+void Texture::create_sampler(const CreateInfo info, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::context()->device()->physicalDevice(), &properties);
 
@@ -88,17 +89,17 @@ void Texture::create_sampler(const VkFilter magnifiedTexel, const VkFilter minim
 		magnifiedTexel,
 		minimizedTexel,
 		mipmapMode,
-		extendedTexels,
-		extendedTexels,
-		extendedTexels,
+		static_cast<VkSamplerAddressMode>(info.wrap),
+		static_cast<VkSamplerAddressMode>(info.wrap),
+		static_cast<VkSamplerAddressMode>(info.wrap),
 		0.0f,
-		anisotropy,
+		static_cast<uint32>(info.anistropy),
 		properties.limits.maxSamplerAnisotropy,
 		VK_FALSE,
 		VK_COMPARE_OP_NEVER,
 		0.0f,
 		static_cast<float>(_mipmap),
-		VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		static_cast<VkBorderColor>(info.alpha),
 		VK_FALSE
 	};
 
