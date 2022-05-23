@@ -5,7 +5,7 @@
 #include <core/logger.h>
 #include <core/queue_types.h>
 #include <graphics/renderer.h>
-#include <graphics/mesh.h>
+#include <components/mesh/mesh.h>
 #include <graphics/texture.h>
 #include <math/math.h>
 #include <glm.hpp>
@@ -16,7 +16,7 @@ int main() {
 	lyra::Renderer renderer;
 
 	lyra::Texture texture;
-	texture.create("data/img/viking_room.png");
+	texture.create({ "data/img/viking_room.png" });
 
 	lyra::Camera camera;
 	camera.set_rotation(90.0f, { 0.0f, 0.0f, 1.0f });

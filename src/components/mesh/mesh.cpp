@@ -1,4 +1,4 @@
-#include <graphics/mesh.h>
+#include <components/mesh/mesh.h>
 
 namespace lyra {
 
