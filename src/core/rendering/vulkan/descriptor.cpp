@@ -9,10 +9,10 @@ VulkanDescriptorSetLayout::Builder::~Builder() {
 	bindings.clear();
 }
 
-void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count) noexcept {
+void VulkanDescriptorSetLayout::Builder::add_binding(const uint32 binding, const Type type, const VkShaderStageFlags stage, const uint32 count) noexcept {
 	bindings.push_back({
 		binding,
-		type,
+		static_cast<VkDescriptorType>(type),
 		count,
 		stage,
 		nullptr
@@ -58,10 +58,10 @@ VulkanDescriptorPool::Builder::~Builder() {
 	poolSizes.clear();
 }
 
-void VulkanDescriptorPool::Builder::add_pool_sizes(std::vector<std::pair<const VkDescriptorType, const uint32>> sizes) noexcept {
+void VulkanDescriptorPool::Builder::add_pool_sizes(std::vector<std::pair<const Type, const uint32>> sizes) noexcept {
 	for (const auto& [type, size] : sizes) {
 		poolSizes.push_back({
-			type,
+			static_cast<VkDescriptorType>(type),
 			size
 		});
 	}
@@ -115,7 +115,7 @@ VulkanDescriptor::Writer::~Writer() {
 	writes.clear();
 }
 
-void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo* const bufferInfo, const uint16 binding, const VkDescriptorType type) noexcept {
+void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo* const bufferInfo, const uint16 binding, const Type type) noexcept {
 	writes.push_back({
 		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		nullptr,
@@ -123,14 +123,14 @@ void VulkanDescriptor::Writer::add_buffer_write(const VkDescriptorBufferInfo* co
 		binding,
 		0,
 		1,
-		type,
+		static_cast<VkDescriptorType>(type),
 		nullptr,
 		bufferInfo,
 		nullptr
 	});
 }
 
-void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo* const imageInfo, const uint16 binding, const VkDescriptorType type) noexcept {
+void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo* const imageInfo, const uint16 binding, const Type type) noexcept {
 	writes.push_back({
 		VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 		nullptr,
@@ -138,7 +138,7 @@ void VulkanDescriptor::Writer::add_image_write(const VkDescriptorImageInfo* cons
 		binding,
 		0,
 		1,
-		type,
+		static_cast<VkDescriptorType>(type),
 		imageInfo,
 		nullptr,
 		nullptr

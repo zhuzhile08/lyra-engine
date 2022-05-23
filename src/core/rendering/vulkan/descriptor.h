@@ -28,6 +28,36 @@ namespace lyra {
  */
 class VulkanDescriptorSetLayout {
 public:
+	// descriptor types
+	enum class Type {
+		// sampler
+		TYPE_SAMPLER = 0,
+		// image sampler
+		TYPE_IMAGE_SAMPLER = 1,
+		// sampled image
+		TYPE_SAMPLED_IMAGE = 2,
+		// image used for storage
+		TYPE_STORAGE_IMAGE = 3,
+		// texel uniform buffer
+		TYPE_UNIFORM_TEXEL_BUFFER = 4,
+		// texel storage buffer
+		TYPE_STORAGE_TEXEL_BUFFER = 5,
+		// uniform buffer
+		TYPE_UNIFORM_BUFFER = 6,
+		// storage buffer
+		TYPE_STORAGE_BUFFER = 7,
+		// dynamic uniform buffer
+		TYPE_UNIFORM_BUFFER_DYNAMIC = 8,
+		// dynamic storage buffer
+		TYPE_STORAGE_BUFFER_DYNAMIC = 9,
+		// image
+		TYPE_INPUT_ATTACHMENT = 10,
+		// uniform buffer, but inline
+		TYPE_INLINE_UNIFORM_BLOCK = 1000138000,
+		// mutables
+		TYPE_MUTABLE_VALVE = 1000351000,
+	};
+
 	/**
 	 * @brief a builder to make the creation of the descriptor layout easier
 	 */
@@ -47,7 +77,7 @@ public:
 		 * @param stage which shader can access the descriptor
 		 * @param count numbers of descriptors in the binding
 		 */
-		void add_binding(const uint32 binding, const VkDescriptorType type, const VkShaderStageFlags stage, const uint32 count = 1) noexcept;
+		void add_binding(const uint32 binding, const Type type, const VkShaderStageFlags stage, const uint32 count = 1) noexcept;
 
 		std::vector<VkDescriptorSetLayoutBinding> bindings;
 	};
@@ -99,6 +129,36 @@ private:
  */
 class VulkanDescriptorPool {
 public:
+	// descriptor types
+	enum class Type {
+		// sampler
+		TYPE_SAMPLER = 0,
+		// image sampler
+		TYPE_IMAGE_SAMPLER = 1,
+		// sampled image
+		TYPE_SAMPLED_IMAGE = 2,
+		// image used for storage
+		TYPE_STORAGE_IMAGE = 3,
+		// texel uniform buffer
+		TYPE_UNIFORM_TEXEL_BUFFER = 4,
+		// texel storage buffer
+		TYPE_STORAGE_TEXEL_BUFFER = 5,
+		// uniform buffer
+		TYPE_UNIFORM_BUFFER = 6,
+		// storage buffer
+		TYPE_STORAGE_BUFFER = 7,
+		// dynamic uniform buffer
+		TYPE_UNIFORM_BUFFER_DYNAMIC = 8,
+		// dynamic storage buffer
+		TYPE_STORAGE_BUFFER_DYNAMIC = 9,
+		// image
+		TYPE_INPUT_ATTACHMENT = 10,
+		// uniform buffer, but inline
+		TYPE_INLINE_UNIFORM_BLOCK = 1000138000,
+		// mutables
+		TYPE_MUTABLE_VALVE = 1000351000,
+	};
+
 	/**
 	 * @brief a builder to make the creation of the descriptor pool easier
 	 */
@@ -115,7 +175,7 @@ public:
 		 *
 		 * @param sizes all the sizes and types of descriptors contained inside of a pair inside of an vector. Pair consists of a const VKDescriptorType and a const uint32
 		 */
-		void add_pool_sizes(std::vector<std::pair<const VkDescriptorType, const uint32>> sizes) noexcept;
+		void add_pool_sizes(std::vector<std::pair<const Type, const uint32>> sizes) noexcept;
 		/**
 		 * @brief set the number of maximum possible allocatable sets
 		 *
@@ -175,6 +235,36 @@ private:
  */
 class VulkanDescriptor {
 public:
+	// descriptor types
+	enum class Type {
+		// sampler
+		TYPE_SAMPLER = 0,
+		// image sampler
+		TYPE_IMAGE_SAMPLER = 1,
+		// sampled image
+		TYPE_SAMPLED_IMAGE = 2,
+		// image used for storage
+		TYPE_STORAGE_IMAGE = 3,
+		// texel uniform buffer
+		TYPE_UNIFORM_TEXEL_BUFFER = 4,
+		// texel storage buffer
+		TYPE_STORAGE_TEXEL_BUFFER = 5,
+		// uniform buffer
+		TYPE_UNIFORM_BUFFER = 6,
+		// storage buffer
+		TYPE_STORAGE_BUFFER = 7,
+		// dynamic uniform buffer
+		TYPE_UNIFORM_BUFFER_DYNAMIC = 8,
+		// dynamic storage buffer
+		TYPE_STORAGE_BUFFER_DYNAMIC = 9,
+		// image
+		TYPE_INPUT_ATTACHMENT = 10,
+		// uniform buffer, but inline
+		TYPE_INLINE_UNIFORM_BLOCK = 1000138000,
+		// mutables
+		TYPE_MUTABLE_VALVE = 1000351000,
+	}; // yeah, go ahead and complain about this terrible architecture, I'll wait
+
 	/**
 	 * @brief struct to configure what will be written into the descriptor sets
 	 */
@@ -193,7 +283,7 @@ public:
 		 * @param binding at which position it will be entered into the shader
 		 * @param type type of the descriptor set
 		 */
-		void add_buffer_write(const VkDescriptorBufferInfo* const bufferInfo, const uint16 binding = 0, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) noexcept;
+		void add_buffer_write(const VkDescriptorBufferInfo* const bufferInfo, const uint16 binding = 0, const Type type = Type::TYPE_STORAGE_BUFFER) noexcept;
 		/**
 		 * @brief add a setting for images
 		 *
@@ -201,7 +291,7 @@ public:
 		 * @param binding at which position it will be entered into the shader
 		 * @param type type of the descriptor set
 		 */
-		void add_image_write(const VkDescriptorImageInfo* const imageInfo, const uint16 binding = 1, const VkDescriptorType type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) noexcept;
+		void add_image_write(const VkDescriptorImageInfo* const imageInfo, const uint16 binding = 1, const Type type = Type::TYPE_IMAGE_SAMPLER) noexcept;
 
 		std::vector<VkWriteDescriptorSet> writes;
 	};
