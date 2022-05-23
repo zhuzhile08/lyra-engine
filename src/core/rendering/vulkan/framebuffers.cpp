@@ -110,7 +110,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 
 	for (int i = 0; i < swapchain->images()->_images.size(); i++) {
 		std::array<VkImageView, 2> attachments = {
-			swapchain->images()->_views.at(i), // the swapchain images are destroyed here... multiple times
+			swapchain->images()->_views.at(i),
 			swapchain->depthBuffer()->_view
 		};
 
