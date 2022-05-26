@@ -7,12 +7,12 @@ Renderer::Renderer() {
 
 	_framebuffers.create(Application::context()->device(), Application::context()->swapchain());
 	_pipeline.create(
-		Application::context()->device(),
-		&_framebuffers,
-		Application::context()->descriptorSetLayout(),
-		{ { "data/shader/vert.spv", "main", VK_SHADER_STAGE_VERTEX_BIT }, { "data/shader/frag.spv", "main", VK_SHADER_STAGE_FRAGMENT_BIT } },
-		Application::context()->swapchain()->extent(),
-		Application::context()->swapchain()->extent()
+		{
+			&_framebuffers,
+			{ { VulkanShader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" }, { VulkanShader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" } },
+			Application::context()->swapchain()->extent(),
+			Application::context()->swapchain()->extent()
+		}
 	);
 
 	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
@@ -42,7 +42,7 @@ void Renderer::draw() noexcept {
 }
 
 void Renderer::bind_descriptor(const VulkanDescriptor* descriptor) const noexcept {
-	vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline.pipelineLayout(), 0, 1, descriptor->get_ptr(), 0, nullptr);
+	vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline.layout(), 0, 1, descriptor->get_ptr(), 0, nullptr);
 }
 
 void Renderer::begin_render_pass() const noexcept {
@@ -58,7 +58,7 @@ void Renderer::end_render_pass() const noexcept {
 }
 
 void Renderer::bind_pipeline() const noexcept {
-	vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline.graphicsPipeline());
+	vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline.pipeline());
 }
 
 void Renderer::bind_model(const VulkanGPUBuffer* vertexBuffer, const VulkanGPUBuffer* indexBuffer) const noexcept {

@@ -31,7 +31,7 @@ namespace lyra {
 /**
  * @brief wrapper around the Vulkan graphics pipeline
  */
-class GraphicsPipeline : VulkanPipeline {
+class GraphicsPipeline : public VulkanPipeline {
 private:
 	/**
 	 * @brief creation information of a pipeline
@@ -109,16 +109,16 @@ public:
 		const VulkanFramebuffers* framebuffer;
 		// shader creation information
 		const std::vector<ShaderCreationInfo> shaderCreationInfos;
+		// draw size
+		const VkExtent2D size;
+		// draw area
+		const VkExtent2D area;
 		// enable color blending
 		const ColorBlending colorBlending;
 		// enable tessellation
 		const Tessellation tessellation;
 		// enable multisampling
 		const Multisampling multisampling;
-		// draw size
-		const VkExtent2D size;
-		// draw area
-		const VkExtent2D area;
 		// polygon rendering mode
 		const RenderMode renderMode = RenderMode::MODE_FILL;
 		// culling mode

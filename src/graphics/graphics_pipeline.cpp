@@ -2,8 +2,6 @@
 
 namespace lyra {
 
-GraphicsPipeline::GraphicsPipeline() { }
-
 void GraphicsPipeline::create(const CreateInfo info) {
 	Logger::log_info("Creating Vulkan graphics pipeline...");
 

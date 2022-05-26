@@ -5,14 +5,14 @@
 namespace lyra {
 
 struct Settings {
-	// @brief debug mode enum
+	// debug mode enum
 	enum class DebugMode : int {
-		MODE_DEBUG = 0x00000001,
-		MODE_RELEASE = 0x00000002,
+		MODE_DEBUG = 1,
+		MODE_RELEASE = 2,
 	};
 
-	// @brief disable logging enum
-	enum class DisableLog : int {
+	// disable logging enum
+	enum class DisableLog {
 		DISABLE_NONE = 0x00000001,
 		DISABLE_DEBUG = 0x00000002,
 		DISABLE_INFO = 0x00000004,
@@ -20,7 +20,11 @@ struct Settings {
 		DISABLE_ERROR = 0x00000010,
 		DISABLE_EXCEPTION = 0x00000020,
 		DISABLE_ALL = 0x00000040
+	};
 
+	enum class PolygonFrontFace : int {
+		FRONT_FACE_COUNTER_CLOCKWISE = 0,
+		FRONT_FACE_CLOCKWISE = 1
 	};
 
 	struct Application {
@@ -47,6 +51,8 @@ struct Settings {
 	struct Rendering {
 		static constexpr uint8 maxFramesInFlight = 2;
 		static constexpr uint16 fov = 90;
+		static constexpr PolygonFrontFace polygonFrontFace = PolygonFrontFace::FRONT_FACE_CLOCKWISE;
+
 	private:
 		Rendering() noexcept = delete;
 	};

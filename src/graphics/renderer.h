@@ -20,7 +20,7 @@
 #include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
-#include <graphics/pipeline.h>
+#include <graphics/graphics_pipeline.h>
 
 #include <vector>
 
@@ -71,13 +71,13 @@ public:
 	/**
 	 * @brief get the pipeline
 	 * 
-	 * @return const lyra::VulkanGraphicsPipeline*
+	 * @return const lyra::GraphicsPipeline*
 	*/
-	const VulkanGraphicsPipeline* pipeline() const noexcept { return &_pipeline; }
+	const GraphicsPipeline* pipeline() const noexcept { return &_pipeline; }
 
 private:
 	VulkanFramebuffers _framebuffers;
-	VulkanGraphicsPipeline _pipeline;
+	GraphicsPipeline _pipeline;
 
 	CallQueue _draw_queue;
 
