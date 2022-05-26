@@ -72,7 +72,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 			VK_FALSE,
 			VK_FALSE,
 			static_cast<VkPolygonMode>(info.renderMode),
-			static_cast<VkCullModeFlagBits>(info.culling),
+			static_cast<VkCullModeFlags>(info.culling),
 			static_cast<VkFrontFace>(Settings::Rendering::polygonFrontFace),
 			VK_FALSE,
 			0.0f,
