@@ -52,13 +52,13 @@ public:
 	 * 
 	 * @return const VkInstance
 	 */
-	[[nodiscard]] const VkInstance instance() const noexcept { return _instance; }
+	[[nodiscard]] const VkInstance& instance() const noexcept { return _instance; }
 	/**
 	 * @brief get the Vulkan surface
 	 *
 	 * @return const VkSurfaceKHR
 	 */
-	[[nodiscard]] const VkSurfaceKHR surface() const noexcept { return _surface; }
+	[[nodiscard]] const VkSurfaceKHR& surface() const noexcept { return _surface; }
 
 private:
 	VkInstance _instance = VK_NULL_HANDLE;
