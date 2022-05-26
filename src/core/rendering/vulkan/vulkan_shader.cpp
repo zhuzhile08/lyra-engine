@@ -14,17 +14,17 @@ void VulkanShader::destroy() noexcept {
 	this->~VulkanShader();
 }
 
-void VulkanShader::create(const VulkanDevice* const device, const std::string path, std::string entry, VkShaderStageFlagBits stageFlags) {
+void VulkanShader::create(const VulkanDevice* const device, const std::string path, std::string entry, Type type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);
 	Logger::log_debug(Logger::tab(), "Entry point: ", entry);
-	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", stageFlags);
+	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", type);
 
 	this->device = device;
 
 	_entry = entry;
-	_stageFlags = stageFlags;
+	_type = type;
 
 	// load the shader
 	auto shaderSrc = read_binary(path);
@@ -41,18 +41,6 @@ void VulkanShader::create(const VulkanDevice* const device, const std::string pa
 	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) Logger::log_exception("Failed to create a Vulkan shader module");
 
 	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
-}
-
-const VkPipelineShaderStageCreateInfo VulkanShader::get_stage_create_info() const noexcept {
-	return {
-		VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-		nullptr,
-		0,
-		_stageFlags,
-		_module,
-		_entry.c_str(),
-		nullptr
-	};
 }
 
 } // namespace lyra
