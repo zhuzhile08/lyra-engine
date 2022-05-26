@@ -58,13 +58,13 @@ add_executable(LyraEngine
  "src/init/init_SDL.cpp"                    # engine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
- "src/graphics/camera.cpp"
+ "src/components/graphics/camera.cpp"
  "src/core/rendering/window.cpp"
  "src/core/rendering/gui_context.cpp"       # engine GUI
  "src/components/physics/transform.cpp" 
  "src/graphics/renderer.cpp"
- "src/graphics/pipeline.cpp"
- "src/graphics/mesh.cpp"
+ "src/graphics/graphics_pipeline.cpp"
+ "src/components/mesh/mesh.cpp"
  "src/graphics/texture.cpp"
  "src/core/queue_types.cpp"
  "src/core/rendering/context.cpp"
@@ -73,7 +73,7 @@ add_executable(LyraEngine
  "src/main.cpp"
  "src/lyra.cpp"
  "src/core/settings.cpp"
- )
+  "src/components/graphics/material.cpp" "src/components/graphics/material_system.cpp" )
 
 add_dependencies(LyraEngine build_shaders)
 
