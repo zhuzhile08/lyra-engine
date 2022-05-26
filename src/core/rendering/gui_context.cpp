@@ -27,17 +27,17 @@ void GUIContext::create(lyra::Context* const context, const lyra::Window* const 
 	// information about the descriptor pool
 	VulkanDescriptorPool::Builder builder;
 	builder.add_pool_sizes({
-		{ VulkanDescriptorPool::Type::TYPE_SAMPLER, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_IMAGE_SAMPLER, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_SAMPLED_IMAGE, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_STORAGE_IMAGE, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_UNIFORM_BUFFER, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_STORAGE_BUFFER, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ VulkanDescriptorPool::Type::TYPE_INPUT_ATTACHMENT, 1000 }
+		{ VulkanDescriptor::Type::TYPE_SAMPLER, 1000 },
+		{ VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1000 },
+		{ VulkanDescriptor::Type::TYPE_SAMPLED_IMAGE, 1000 },
+		{ VulkanDescriptor::Type::TYPE_STORAGE_IMAGE, 1000 },
+		{ VulkanDescriptor::Type::TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VulkanDescriptor::Type::TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, 1000 },
+		{ VulkanDescriptor::Type::TYPE_STORAGE_BUFFER, 1000 },
+		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VulkanDescriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ VulkanDescriptor::Type::TYPE_INPUT_ATTACHMENT, 1000 }
 	});
 	builder.set_max_sets(1000); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
