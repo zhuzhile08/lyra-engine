@@ -1,0 +1,150 @@
+/*************************
+ * @file pipeline.h
+ * @author Zhile Zhu (zhuzhile08@gmail.com)
+ *
+ * @brief wrapper around the Vulkan graphics pipeline
+ * @brief loads shaders and processes the vertices passing through
+ *
+ * @date 2022-02-05
+ *
+ * @copyright Copyright (c) 2022
+ *************************/
+
+#pragma once
+
+#include <core/defines.h>
+#include <res/loaders/load_file.h>
+#include <core/rendering/vulkan/vulkan_pipeline.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/vulkan/framebuffers.h>
+#include <core/rendering/vulkan/vulkan_shader.h>
+#include <core/rendering/vulkan/vertex.h>
+#include <core/logger.h>
+#include <lyra.h>
+
+#include <vector>
+
+#include <vulkan/vulkan.h>
+
+namespace lyra {
+
+/**
+ * @brief wrapper around the Vulkan graphics pipeline
+ */
+class GraphicsPipeline : VulkanPipeline {
+private:
+	/**
+	 * @brief creation information of a pipeline
+	 */
+	struct GraphicsPipelineCreateInfo {
+		std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
+		VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+		VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+		VkPipelineTessellationStateCreateInfo tesselation;
+		VkViewport viewport;
+		VkRect2D scissor;
+		VkPipelineViewportStateCreateInfo viewportState;
+		VkPipelineRasterizationStateCreateInfo rasterizer;
+		VkPipelineMultisampleStateCreateInfo multisampling;
+		VkPipelineDepthStencilStateCreateInfo depthStencilState;
+		VkPipelineColorBlendAttachmentState colorBlendAttachment;
+		VkPipelineColorBlendStateCreateInfo colorBlending;
+		std::vector <VkDynamicState> dynamicStates;
+		VkPipelineDynamicStateCreateInfo dynamicState;
+	};
+
+public:
+	// color blending mode
+	enum class ColorBlending {
+		// enable color blending
+		BLEND_ENABLE = 1U,
+		// disable color blending
+		BLEND_DISABLE = 0U
+	};
+
+	// color blending for the brits out there
+	typedef ColorBlending Colourblending;
+
+	// tessellation mode
+	enum class Tessellation {
+		// enable tessellation
+		TESSELLATION_ENABLE = 1U,
+		// disable tessellation
+		TESSELLATION_DISABLE = 0U
+	};
+
+	// multismpling mode
+	enum class Multisampling {
+		// enable multisampling
+		MULTISAMPLING_ENABLE = 1U,
+		// disable multisampling
+		MULTISAMPLING_DISABLE = 0U
+	};
+
+	// polygon rendering mode
+	enum class RenderMode : int {
+		// fill polygons
+		MODE_FILL = 0,
+		// draw lines
+		MODE_LINE = 1,
+		// draw points
+		MODE_POINT = 2
+	};
+
+	// culling mode 
+	enum class Culling : int {
+		// no culling
+		CULLING_NONE = 0,
+		// cull front face
+		CULLING_FRONT = 1,
+		// cull back face
+		CULLING_BACK = 2,
+		// cull all faces
+		CULLING_ALL = 3
+	};
+
+	// creation information
+	struct CreateInfo {
+		// framebuffer of the pipeline
+		const VulkanFramebuffers* framebuffer;
+		// shader creation information
+		const std::vector<ShaderCreationInfo> shaderCreationInfos;
+		// enable color blending
+		const ColorBlending colorBlending;
+		// enable tessellation
+		const Tessellation tessellation;
+		// enable multisampling
+		const Multisampling multisampling;
+		// draw size
+		const VkExtent2D size;
+		// draw area
+		const VkExtent2D area;
+		// polygon rendering mode
+		const RenderMode renderMode = RenderMode::MODE_FILL;
+		// culling mode
+		const Culling culling = Culling::CULLING_BACK;
+	};
+
+	GraphicsPipeline() { }
+
+	/**
+	 * @brief create a new graphics pipeline
+	 *
+	 * @param info creation information
+	 */
+	void create(const CreateInfo info);
+
+private:
+	/**
+	 * @brief create the graphics pipeline
+	 *
+	 * @param info creation information
+	 */
+	void create_pipeline(const CreateInfo info);
+	/**
+	 * @brief create the pipeline layout
+	 */
+	void create_layout();
+};
+
+} // namespace lyra
