@@ -42,7 +42,7 @@ protected:
 	};
 
 public:
-	VulkanPipeline();
+	VulkanPipeline() { };
 
 	/**
 	 * @brief destructor of the pipeline
