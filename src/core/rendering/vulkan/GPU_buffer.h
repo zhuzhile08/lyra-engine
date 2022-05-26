@@ -34,12 +34,18 @@ public:
 	/**
 	 * @brief destructor of the buffer
 	 */
-	virtual ~VulkanGPUBuffer() noexcept;
+	virtual ~VulkanGPUBuffer() noexcept {
+		vmaDestroyBuffer(device->allocator(), _buffer, _memory);
+
+		Logger::log_info("Succesfully destroyed Vulkan GPU buffer!");
+	}
 
 	/**
 	 * @brief destroy the buffer
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~VulkanGPUBuffer();
+	}
 
 	VulkanGPUBuffer operator=(const VulkanGPUBuffer&) const noexcept = delete;
 
@@ -66,14 +72,23 @@ public:
 	 * @param src data to copy into the buffer
 	 * @param copySize size of the data to copy, default is the size of the buffer memory
 	 */
-	void copy_data(const void* const src, const size_t copySize = 0);
+	void copy_data(const void* const src, const size_t copySize = 0) {
+		void* data;
+		if (vmaMapMemory(device->allocator(), _memory, &data) != VK_SUCCESS) Logger::log_exception("Failed to map buffer memory at ", get_address(_memory), "!");
+		memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
+		vmaUnmapMemory(device->allocator(), _memory);
+	}
 
 	/**
 	 * @brief get the information in a buffer for descriptor sets
 	 * 
 	 * @return const VkDescriptorBufferInfo
 	*/
-	[[nodiscard]] const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept;
+	[[nodiscard]] const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
+		return {
+			_buffer, 0, _size
+		};
+	}
 	/**
 	 * @brief return a memory barrier for this buffer
 	 *
@@ -89,26 +104,38 @@ public:
 		const VkAccessFlags dstAccessMask,
 		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
 		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
-	) const noexcept;
+	) const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+			nullptr,
+			srcAccessMask,
+			dstAccessMask,
+			srcQueueFamily,
+			dstQueueFamily,
+			_buffer,
+			0,
+			_size
+		};
+	}
 
 	/**
 	 * @brief get the buffer
 	 * 
-	 * @return const VkBuffer 
+	 * @return const VkBuffer&
 	*/
-	[[nodiscard]] const VkBuffer buffer() const noexcept { return _buffer; }
+	[[nodiscard]] const VkBuffer& buffer() const noexcept { return _buffer; }
 	/**
 	 * @brief get the memory
 	 * 
-	 * @return const VmaAllocation
+	 * @return const VmaAllocation&
 	*/
-	[[nodiscard]] const VmaAllocation memory() const noexcept { return _memory; };
+	[[nodiscard]] const VmaAllocation& memory() const noexcept { return _memory; };
 	/**
 	 * @brief get the size of the buffer
 	 * 
-	 * @return const VkDeviceSize
+	 * @return const VkDeviceSize&
 	*/
-	[[nodiscard]] const VkDeviceSize size() const noexcept { return _size; };
+	[[nodiscard]] const VkDeviceSize& size() const noexcept { return _size; };
 
 private:
 	VkBuffer _buffer = VK_NULL_HANDLE;

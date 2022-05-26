@@ -34,12 +34,19 @@ public:
 	/**
 	 * @brief destructor of the framebuffers
 	 */
-	virtual ~VulkanFramebuffers() noexcept;
+	~VulkanFramebuffers() noexcept {
+		for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
+		vkDestroyRenderPass(device->device(), _renderPass, nullptr);
+
+		Logger::log_info("Succesfully destroyed Vulkan frame buffer!");
+	}
 
 	/**
 	 * @brief destroy the framebuffers
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~VulkanFramebuffers();
+	}
 
 	VulkanFramebuffers operator=(const VulkanFramebuffers&) const noexcept = delete;
 
@@ -57,22 +64,35 @@ public:
 	 * @param index index of framebuffer
 	 * @param clear clear color
 	 * 
-	 * @return const VkRenderPassBeginInfo
+	 * @return const VkRenderPassBeginInfo&
 	 */
-	[[nodiscard]] const VkRenderPassBeginInfo get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept;
+	[[nodiscard]] const VkRenderPassBeginInfo& get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+			nullptr,
+			_renderPass,
+			_framebuffers.at(index),
+			{	// rendering area
+				{ 0, 0 },
+				swapchain->extent()
+			},
+			static_cast<uint32>(clear.size()),
+			clear.data()
+		};
+	}
 
 	/**
 	 * @brief get the render pass
 	 * 
-	 * @return const VkRenderPass
+	 * @return const VkRenderPass&
 	*/
-	[[nodiscard]] const VkRenderPass renderPass() const noexcept { return _renderPass; }
+	[[nodiscard]] const VkRenderPass& renderPass() const noexcept { return _renderPass; }
 	/**
 	 * @brief get the framebuffers
 	 * 
-	 * @return const std::vector <VkFramebuffer>
+	 * @return const std::vector <VkFramebuffer>&
 	*/
-	[[nodiscard]] const std::vector <VkFramebuffer> framebuffers() const noexcept { return _framebuffers; }
+	[[nodiscard]] const std::vector <VkFramebuffer>& framebuffers() const noexcept { return _framebuffers; }
 
 private:
 	VkRenderPass _renderPass = VK_NULL_HANDLE;

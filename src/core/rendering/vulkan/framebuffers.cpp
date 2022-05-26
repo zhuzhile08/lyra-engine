@@ -4,17 +4,6 @@ namespace lyra {
 
 VulkanFramebuffers::VulkanFramebuffers() { }
 
-VulkanFramebuffers::~VulkanFramebuffers() noexcept {
-	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
-	vkDestroyRenderPass(device->device(), _renderPass, nullptr);
-
-	Logger::log_info("Succesfully destroyed Vulkan frame buffer!");
-}
-
-void VulkanFramebuffers::destroy() noexcept {
-	this->~VulkanFramebuffers();
-}
-
 void VulkanFramebuffers::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain) {
 	Logger::log_info("Creating Vulkan framebuffers and render pass...");
 
@@ -129,21 +118,6 @@ void VulkanFramebuffers::create_frame_buffers() {
 
 		if (vkCreateFramebuffer(device->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) != VK_SUCCESS) Logger::log_exception("Failed to create a framebuffer!");
 	}
-}
-
-const VkRenderPassBeginInfo VulkanFramebuffers::get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept {
-	return {
-		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		nullptr,
-		_renderPass,
-		_framebuffers.at(index),
-		{	// rendering area
-			{ 0, 0 },
-			swapchain->extent()
-		},
-		static_cast<uint32>(clear.size()),
-		clear.data()
-	};
 }
 
 } // namespace lyra

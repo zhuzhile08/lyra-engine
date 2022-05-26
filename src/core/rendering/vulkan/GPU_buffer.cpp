@@ -4,16 +4,6 @@ namespace lyra {
 
 VulkanGPUBuffer::VulkanGPUBuffer() {}
 
-VulkanGPUBuffer::~VulkanGPUBuffer() noexcept {
-	vmaDestroyBuffer(device->allocator(), _buffer, _memory);
-
-	Logger::log_info("Succesfully destroyed Vulkan GPU buffer!");
-}
-
-void VulkanGPUBuffer::destroy() noexcept {
-	this->~VulkanGPUBuffer();
-}
-
 void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) {
 	Logger::log_info("Creating Vulkan GPU memory buffer...");
 
@@ -65,38 +55,6 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const Vul
 	commandBuffer.wait_queue(device->graphicsQueue().queue);
 
 	Logger::log_info("Succesfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
-}
-
-void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
-	void* data;
-	if (vmaMapMemory(device->allocator(), _memory, &data) != VK_SUCCESS) Logger::log_exception("Failed to map buffer memory at ", get_address(_memory), "!");
-		memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
-	vmaUnmapMemory(device->allocator(), _memory);
-}
-
-const VkBufferMemoryBarrier VulkanGPUBuffer::get_buffer_memory_barrier(
-	const VkAccessFlags srcAccessMask,
-	const VkAccessFlags dstAccessMask,
-	const uint32_t srcQueueFamily,
-	const uint32_t dstQueueFamily
-) const noexcept {
-	return {
-		VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-		nullptr,
-		srcAccessMask,
-		dstAccessMask,
-		srcQueueFamily,
-		dstQueueFamily,
-		_buffer,
-		0,
-		_size
-	};
-}
-
-const VkDescriptorBufferInfo VulkanGPUBuffer::get_descriptor_buffer_info() const noexcept {
-	return {
-		_buffer, 0, _size
-	};
 }
 
 } // namespace lyra
