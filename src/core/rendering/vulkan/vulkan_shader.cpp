@@ -19,7 +19,7 @@ void VulkanShader::create(const VulkanDevice* const device, const std::string pa
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);
 	Logger::log_debug(Logger::tab(), "Entry point: ", entry);
-	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", type);
+	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", static_cast<int>(type));
 
 	this->device = device;
 

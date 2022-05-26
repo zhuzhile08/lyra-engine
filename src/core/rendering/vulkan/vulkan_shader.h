@@ -27,7 +27,7 @@ namespace lyra {
 class VulkanShader {
 public:
 	// types of shaders
-	enum class Type {
+	enum Type : int {
 		// vertex shader
 		TYPE_VERTEX = 0x00000001,
 		// tessellation control shader
@@ -91,7 +91,7 @@ public:
 	 *
 	 * @return const VkPipelineShaderStageCreateInfo
 	*/
-	[[nodiscard]] const VkPipelineShaderStageCreateInfo& get_stage_create_info() const noexcept {
+	[[nodiscard]] const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
@@ -106,7 +106,7 @@ public:
 	/**
 	 * @brief get the shader module
 	 * 
-	 * @return const VkShaderModule
+	 * @return const VkShaderModule&
 	*/
 	[[nodiscard]] const VkShaderModule& module() const noexcept { return _module; }
 	/**
@@ -114,7 +114,7 @@ public:
 	 * 
 	 * @return const string
 	*/
-	[[nodiscard]] const std::string& entry() const noexcept { return _entry; }
+	[[nodiscard]] const std::string entry() const noexcept { return _entry; }
 
 private:
 	VkShaderModule _module = VK_NULL_HANDLE;

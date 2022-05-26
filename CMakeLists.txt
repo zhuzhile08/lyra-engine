@@ -73,7 +73,8 @@ add_executable(LyraEngine
  "src/main.cpp"
  "src/lyra.cpp"
  "src/core/settings.cpp"
-  "src/components/graphics/material.cpp" "src/components/graphics/material_system.cpp" )
+  #"src/components/graphics/material.cpp" #"src/components/graphics/material_system.cpp"
+)
 
 add_dependencies(LyraEngine build_shaders)
 

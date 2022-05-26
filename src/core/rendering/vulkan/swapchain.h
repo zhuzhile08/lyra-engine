@@ -134,31 +134,31 @@ public:
 	/**
 	 * @brief get the swapchain
 	 *
-	 * @return const VkSwapchainKHR
+	 * @return const VkSwapchainKHR&
 	*/
 	[[nodiscard]] const VkSwapchainKHR& swapchain() const noexcept { return _swapchain; }
 	/**
 	 * @brief get the format
 	 *
-	 * @return const VkFormat
+	 * @return const VkFormat&
 	*/
 	[[nodiscard]] const VkFormat& format() const noexcept { return _format; }
 	/**
 	 * @brief get the extent
 	 *
-	 * @return const VkExtent2D
+	 * @return const VkExtent2D&
 	*/
 	[[nodiscard]] const VkExtent2D& extent() const noexcept { return _extent; }
 	/**
 	 * @brief get the swapchain images
 	 *
-	 * @return const lyra::VulkanSwapchainImages
+	 * @return const lyra::VulkanSwapchainImages*
 	*/
 	[[nodiscard]] const VulkanSwapchainImages* images() const noexcept { return &_images; }
 	/**
 	 * @brief get the depth buffer
 	 *
-	 * @return const lyra::VulkanDepthBuffer
+	 * @return const lyra::VulkanDepthBuffer*
 	*/
 	[[nodiscard]] const VulkanDepthBuffer* depthBuffer() const noexcept { return &_depthBuffer; }
 

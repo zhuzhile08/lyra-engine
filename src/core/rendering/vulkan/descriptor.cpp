@@ -2,10 +2,6 @@
 
 namespace lyra {
 
-void VulkanDescriptorSetLayout::destroy() noexcept {
-	this->~VulkanDescriptorSetLayout();
-}
-
 void VulkanDescriptorSetLayout::create(const VulkanDevice* const device, const Builder builder) {
 	Logger::log_info("Creating Vulkan descriptor set layout...");
 

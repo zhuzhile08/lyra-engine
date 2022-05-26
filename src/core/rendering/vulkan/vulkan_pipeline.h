@@ -63,11 +63,6 @@ public:
 	VulkanPipeline operator=(const VulkanPipeline&) const noexcept = delete;
 
 	/**
-	 * @brief create a new graphics pipeline
-	 */
-	virtual void create();
-
-	/**
 	 * @brief bind the pipeline
 	 * 
 	 * @param buffer command buffer to bind with
@@ -106,15 +101,6 @@ protected:
 	VkPipelineBindPoint _bindPoint;
 
 	std::vector<VulkanShader> _shaders;
-
-	/**
-	 * @brief create the graphics pipeline
-	 */
-	virtual void create_pipeline();
-	/**
-	 * @brief create the pipeline layout
-	 */
-	virtual void create_layout();
 
 	/**
 	 * @brief create all the shaders

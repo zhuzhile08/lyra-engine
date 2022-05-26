@@ -62,23 +62,23 @@ public:
 		std::vector<VkDescriptorSetLayoutBinding> bindings;
 	};
 
-	VulkanDescriptorSetLayout() {
+	VulkanDescriptorSetLayout() { }
+
+	/**
+	 * @brief destructor of the descriptor set layout
+	 */
+	~VulkanDescriptorSetLayout() noexcept {
 		vkDestroyDescriptorSetLayout(device->device(), _descriptorSetLayout, nullptr);
 
 		Logger::log_info("Succesfully destroyed Vulkan descriptor set layout!");
 	}
 
 	/**
-	 * @brief destructor of the descriptor set layout
-	 */
-	~VulkanDescriptorSetLayout() noexcept {
-		this->~VulkanDescriptorSetLayout();
-	}
-
-	/**
 	 * @brief destroy the descriptor set layout
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~VulkanDescriptorSetLayout();
+	}
 
 	VulkanDescriptorSetLayout operator=(const VulkanDescriptorSetLayout&) const noexcept = delete;
 

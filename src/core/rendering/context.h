@@ -96,9 +96,9 @@ public:
 	/**
 	 * @brief get the command buffers
 	 *
-	 * @return const std::vector<VulkanCommandBuffer>
+	 * @return const std::vector<VulkanCommandBuffer>&
 	*/
-	[[nodiscard]] const std::vector<VulkanCommandBuffer> commandBuffers() const noexcept { return _commandBuffers; }
+	[[nodiscard]] const std::vector<VulkanCommandBuffer>& commandBuffers() const noexcept { return _commandBuffers; }
 	/**
 	 * @brief get the swapchain
 	 * 

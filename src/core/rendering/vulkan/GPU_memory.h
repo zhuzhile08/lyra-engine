@@ -21,7 +21,7 @@ namespace lyra {
  * @brief wrapper around the VMA GPU allocations
  */
 struct VulkanGPUMemory {
-	VulkanGPUMemory();
+	VulkanGPUMemory() { };
 
 	VulkanGPUMemory operator=(const VulkanGPUMemory&) const noexcept = delete;
 

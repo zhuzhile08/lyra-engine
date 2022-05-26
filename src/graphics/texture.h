@@ -116,21 +116,21 @@ public:
 	/**
 	 * @brief get the image
 	 * 
-	 * @return const lyra::VulkanImage
+	 * @return const lyra::VulkanImage&
 	*/
-	[[nodiscard]] const VkImageView view() const noexcept { return _view; }
+	[[nodiscard]] const VkImageView& view() const noexcept { return _view; }
 	/**
 	 * @brief get the sampler
 	 * 
-	 * @return const VkSampler
+	 * @return const VkSampler&
 	*/
-	[[nodiscard]] const VkSampler sampler() const noexcept { return _sampler; }
+	[[nodiscard]] const VkSampler& sampler() const noexcept { return _sampler; }
 	/**
 	 * @brief get the memory
 	 * 
-	 * @return const VmaAllocation
+	 * @return const VmaAllocation&
 	*/
-	[[nodiscard]] const VmaAllocation memory() const noexcept { return _memory; }
+	[[nodiscard]] const VmaAllocation& memory() const noexcept { return _memory; }
 
 	[[nodiscard]] const std::string get_path() const noexcept { return _path; }
 

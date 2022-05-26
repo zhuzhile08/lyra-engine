@@ -50,13 +50,13 @@ public:
 	/**
 	 * @brief get the Vulkan instance
 	 * 
-	 * @return const VkInstance
+	 * @return const VkInstance&
 	 */
 	[[nodiscard]] const VkInstance& instance() const noexcept { return _instance; }
 	/**
 	 * @brief get the Vulkan surface
 	 *
-	 * @return const VkSurfaceKHR
+	 * @return const VkSurfaceKHR&
 	 */
 	[[nodiscard]] const VkSurfaceKHR& surface() const noexcept { return _surface; }
 

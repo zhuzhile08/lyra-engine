@@ -64,9 +64,9 @@ public:
 	 * @param index index of framebuffer
 	 * @param clear clear color
 	 * 
-	 * @return const VkRenderPassBeginInfo&
+	 * @return const VkRenderPassBeginInfo
 	 */
-	[[nodiscard]] const VkRenderPassBeginInfo& get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept {
+	[[nodiscard]] const VkRenderPassBeginInfo get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 			nullptr,
