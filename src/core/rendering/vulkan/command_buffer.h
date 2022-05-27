@@ -13,12 +13,8 @@
 
 #include <core/defines.h>
 #include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/command_buffer.h>
 #include <core/logger.h>
 
-#include <array>
-#include <SDL.h>
-#include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
