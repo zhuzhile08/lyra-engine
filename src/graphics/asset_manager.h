@@ -43,33 +43,33 @@ public:
 
 	/**
 	 * @brief add textures to the asset manager
-	 * 
+	 *
 	 * @param textures textures to add
 	*/
 	void add_textures(const std::initializer_list<const Texture*> textures) {
-		_textures.insert(textures.end(), textures);
+		_textures.insert(_textures.end(), textures);
 
 		Logger::log_info("Inserted ", textures.size(), " textures into the asset manager at: ", get_address(this));
 	}
 	/**
 	 * @brief add pipelines to the asset manager
-	 * 
+	 *
 	 * @param pipelines pipelines to add
 	*/
 	void add_pipelines(const std::initializer_list<const GraphicsPipeline*> pipelines) {
-		_pipelines.insert(pipelines.end(), pipelines);
+		_pipelines.insert(_pipelines.end(), pipelines);
 
 		Logger::log_info("Inserted ", pipelines.size(), " graphics pipelines into the asset manager at: ", get_address(this));
 	}
 
 	/**
 	 * @brief get a texture by index
-	 * 
+	 *
 	 * @param index index value used by the image
-	 * 
+	 *
 	 * @return const Texture* const
 	*/
-	[nodiscard] const Texture* const texture(int index) { return _textures.at(index); }
+	[[nodiscard]] const Texture* const texture(int index) const { return _textures.at(index); }
 	/**
 	 * @brief get a image by index
 	 *
@@ -77,12 +77,12 @@ public:
 	 *
 	 * @return const GraphicsPipeline* const
 	*/
-	[nodiscard] const GraphicsPipeline* const pipeline(int index) { return _pipelines.at(index); }
+	[[nodiscard]] const GraphicsPipeline* const pipeline(int index) const { return _pipelines.at(index); }
 
 private:
 	std::vector<const Texture*> _textures;
 	std::vector<const GraphicsPipeline*> _pipelines;
-}
+};
 
 /************************
 * Asset System usage guide

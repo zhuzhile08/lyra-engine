@@ -13,7 +13,6 @@
 #pragma once
 
 #include <core/defines.h>
-#include <core/rendering/vulkan/descriptor.h>
 #include <res/loaders/load_model.h>
 #include <core/rendering/vulkan/vertex.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
@@ -72,30 +71,20 @@ public:
 	void create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const parent = nullptr, const std::string name = "mesh");
 
 	/**
-	 * @brief bind a texture to the model
-	 * 
-	 * @param texture the texture to bind
-	*/
-	void bind_texture(const Texture* const texture);
-	/**
-	 * @brief bind a camera to the model
-	 * 
-	 * @param camera the camera to bind
-	*/
-	void bind_camera(const Camera* const camera);
-
-	/**
 	 * add the mesh and its buffers to the renderer draw queue
 	 *
 	 * @param renderer context to add the draw call to
 	 */
 	void bind(Renderer* const renderer) noexcept {
-		renderer->_draw_queue.add([&]() {
-			vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), 0);
+		renderer->add_to_draw_queue([&]() {
+			VkDeviceSize size[] = { 0 };
+			vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), size);
 			vkCmdBindIndexBuffer(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
 
 			vkCmdDrawIndexed(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), static_cast<uint32>(_indices.size()), 1, 0, 0, 0); 
 		});
+
+		// std::abort();
 	}
 
 	/**
@@ -113,15 +102,15 @@ public:
 	/**
 	 * @brief get the vertex buffer
 	 * 
-	 * @return const lyra::VulkanGPUBuffer
+	 * @return const lyra::VulkanGPUBuffer* const
 	*/
-	[[nodiscard]] const VulkanGPUBuffer& vertexBuffer() const noexcept { return _vertexBuffer; }
+	[[nodiscard]] const VulkanGPUBuffer* const vertexBuffer() const noexcept { return &_vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 * 
-	 * @return const lyra::VulkanGPUBuffer 
+	 * @return const lyra::VulkanGPUBuffer* const
 	*/
-	[[nodiscard]] const VulkanGPUBuffer& indexBuffer() const noexcept { return _indexBuffer; }
+	[[nodiscard]] const VulkanGPUBuffer* const indexBuffer() const noexcept { return &_indexBuffer; }
 
 private:
 	std::vector <Vertex> _vertices;
@@ -129,11 +118,6 @@ private:
 
 	VulkanGPUBuffer _vertexBuffer;
 	VulkanGPUBuffer _indexBuffer;
-	VulkanDescriptor _descriptor;
-
-	VulkanDescriptor::Writer _writer;
-
-	const Context* context;
 
 	/**
 	 * @brief create a mesh from a already loaded .obj file

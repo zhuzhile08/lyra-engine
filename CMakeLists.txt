@@ -66,14 +66,12 @@ add_executable(LyraEngine
  "src/graphics/graphics_pipeline.cpp"
  "src/components/mesh/mesh.cpp"
  "src/graphics/texture.cpp"
- "src/core/queue_types.cpp"
  "src/core/rendering/context.cpp"
  "src/core/rendering/vulkan_core_wrappers.cpp"
  "src/res/loaders.cpp"
  "src/main.cpp"
  "src/lyra.cpp"
  "src/core/settings.cpp"
-  #"src/components/graphics/material.cpp" #"src/components/graphics/material_system.cpp"
  )
 
 add_dependencies(LyraEngine build_shaders)

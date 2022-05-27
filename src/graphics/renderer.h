@@ -20,7 +20,6 @@
 #include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
-#include <graphics/graphics_pipeline.h>
 
 #include <vector>
 
@@ -56,29 +55,31 @@ public:
 	void draw() noexcept;
 
 	/**
+	 * @brief add a function to the draw queue
+	 * 
+	 * @param function functio to add
+	*/
+	void add_to_draw_queue(std::function<void()>&& function) {
+		_drawQueue.add(std::move(function));
+	}
+
+	/**
 	 * @brief get the draw queue
 	 * 
-	 * @return const CallQueue
+	 * @return lyra::CallQueue* const
 	*/
-	const CallQueue* draw_queue() const noexcept { return& _draw_queue; }
+	const CallQueue* const drawQueue() const noexcept { return &_drawQueue; }
 	/**
 	 * @brief get the framebuffers
 	 * 
-	 * @return const lyra::VulkanFramebuffers*
+	 * @return const lyra::VulkanFramebuffers* const
 	*/
-	const VulkanFramebuffers* framebuffers() const noexcept { return &_framebuffers; }
-	/**
-	 * @brief get the pipeline
-	 * 
-	 * @return const lyra::GraphicsPipeline*
-	*/
-	const GraphicsPipeline* pipeline() const noexcept { return &_pipeline; }
+	const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
 
 private:
 	VulkanFramebuffers _framebuffers;
-	GraphicsPipeline _pipeline;
 
-	CallQueue _draw_queue;
+	CallQueue _drawQueue;
 
 	bool _drawing = true;
 
@@ -86,8 +87,6 @@ private:
 	 * @brief record all the commands
 	 */
 	void record_command_buffers();
-
-	friend class Mesh;
 };
 
 }

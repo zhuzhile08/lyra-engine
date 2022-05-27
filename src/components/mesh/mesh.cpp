@@ -70,8 +70,6 @@ void Mesh::create(const std::string path, const uint16 index, const noud::Node* 
 	create_vertex_buffer();
 	create_index_buffer();
 
-	_descriptor.create(Application::context()->device(), Application::context()->descriptorSetLayout(), Application::context()->descriptorPool(), _writer);
-
 	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
@@ -84,27 +82,7 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint16
 	create_vertex_buffer();
 	create_index_buffer();
 
-	_descriptor.create(Application::context()->device(), Application::context()->descriptorSetLayout(), Application::context()->descriptorPool(), _writer);
-
 	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
-}
-
-void Mesh::bind_texture(const Texture* const texture) {
-	_writer.add_image_write(new VkDescriptorImageInfo(texture->get_descriptor_image_info()));
-
-	Logger::log_debug(Logger::tab(), "Successfully bound texture to model at: ", get_address(this), Logger::end_l());
-}
-
-void Mesh::bind_camera(const Camera* const camera) {
-	/*
-	const VulkanGPUBuffer* buffer;
-	for (uint32 i = 0; i < camera->buffers().size(); i++) {
-		buffer = &camera->buffers().at(i);
-		_writer.add_buffer_write(new VkDescriptorBufferInfo(buffer->get_descriptor_buffer_info()), 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-	}
-	*/
-
-	Logger::log_debug(Logger::tab(), "Successfully bound camera to model at: ", get_address(this), Logger::end_l());
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {
