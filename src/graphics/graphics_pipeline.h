@@ -1,5 +1,5 @@
 /*************************
- * @file pipeline.h
+ * @file graphics_pipeline.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief wrapper around the Vulkan graphics pipeline
@@ -109,6 +109,10 @@ public:
 		const VulkanFramebuffers* framebuffer;
 		// shader creation information
 		const std::vector<ShaderCreationInfo> shaderCreationInfos;
+		// descriptor set layout creation information
+		const VulkanDescriptorSetLayout::Builder layoutBuilder;
+		// descriptor pool creation information
+		const VulkanDescriptorPool::Builder poolBuilder;
 		// draw size
 		const VkExtent2D size;
 		// draw area
@@ -141,10 +145,6 @@ private:
 	 * @param info creation information
 	 */
 	void create_pipeline(const CreateInfo info);
-	/**
-	 * @brief create the pipeline layout
-	 */
-	void create_layout();
 };
 
 } // namespace lyra

@@ -15,6 +15,7 @@
 #include <res/loaders/load_file.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/vulkan/descriptor.h>
 #include <core/logger.h>
 #include <lyra.h>
 
@@ -54,7 +55,6 @@ public:
 
 		Logger::log_info("Succesfully destroyed Vulkan pipeline!");
 	}
-
 	/**
 	 * @brief destroy the pipeline
 	 */
@@ -64,11 +64,23 @@ public:
 
 	/**
 	 * @brief bind the pipeline
-	 * 
-	 * @param buffer command buffer to bind with
 	*/
-	void bind(const VulkanCommandBuffer* const buffer) { vkCmdBindPipeline(buffer->get(), _bindPoint, _pipeline); }
+	void bind() const noexcept { 
+		vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _bindPoint, _pipeline); 
+	}
 
+	/**
+	 * @brief get the descriptor set layout
+	 *
+	 * @return const lyra::VulkanDescriptorSetLayout*
+	*/
+	[[nodiscard]] const VulkanDescriptorSetLayout* const descriptorSetLayout() const noexcept { return &_descriptorSetLayout; }
+	/**
+	 * @brief get the descriptor pool
+	 *
+	 * @return const lyra::VulkanDescriptorPool*
+	*/
+	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return &_descriptorPool; }
 	/**
 	 * @brief get the pipeline
 	 *
@@ -97,10 +109,31 @@ public:
 protected:
 	VkPipeline _pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout _layout = VK_NULL_HANDLE;
+	VulkanDescriptorSetLayout _descriptorSetLayout;
+	VulkanDescriptorPool _descriptorPool;
 
 	VkPipelineBindPoint _bindPoint;
 
 	std::vector<VulkanShader> _shaders;
+
+	/**
+	 * @brief create the pipeline layout
+	 */
+	void create_layout() {
+		// create the pipeline layout
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{
+			VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+			nullptr,
+			0,
+			1,
+			_descriptorSetLayout.get_ptr(),
+			0,    /// @todo push constants
+			nullptr
+		};
+
+		if (vkCreatePipelineLayout(Application::context()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
+			Logger::log_exception("Failed to create Vulkan graphics pipeline layout!");
+	}
 
 	/**
 	 * @brief create all the shaders
@@ -116,6 +149,17 @@ protected:
 			_shaders.at(index).create(Application::context()->device(), shaderCreationInfos.at(index).path, shaderCreationInfos.at(index).entry, shaderCreationInfos.at(index).type);
 			Logger::log_info("Succesfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", shaderCreationInfos.at(index).type, "!");
 		}
+	}
+
+	/**
+	 * @brief create stuff related to descriptors
+	 * 
+	 * @param layoutBuilder builder for the descriptor set layout
+	 * @param poolBuilder builder for the descriptor pool
+	*/
+	void create_descriptor_stuff(VulkanDescriptorSetLayout::Builder layoutBuilder, VulkanDescriptorPool::Builder poolBuilder) {
+		_descriptorSetLayout.create(layoutBuilder);
+		_descriptorPool.create(poolBuilder);
 	}
 };
 

@@ -12,6 +12,9 @@ void GraphicsPipeline::create(const CreateInfo info) {
 
 	create_shaders(info.shaderCreationInfos);
 
+	// yes, I know, very good naming
+	create_descriptor_stuff(info.layoutBuilder, info.poolBuilder);
+
 	create_pipeline(info);
 
 	Logger::log_info("Succesfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
@@ -166,22 +169,8 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 		0
 	};
 
-	if(vkCreateGraphicsPipelines(Application::context()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan Pipeline!");
-}
-
-void GraphicsPipeline::create_layout() {
-	// create the pipeline layout
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo {
-		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		nullptr,
-		0,
-		1,
-		Application::context()->descriptorSetLayout()->get_ptr(),
-		0,    /// @todo push constants
-		nullptr
-	};
-
-	if(vkCreatePipelineLayout(Application::context()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan graphics pipeline layout!");
+	if(vkCreateGraphicsPipelines(Application::context()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS) 
+		Logger::log_exception("Failed to create Vulkan Pipeline!");
 }
 
 } // namespace lyra
