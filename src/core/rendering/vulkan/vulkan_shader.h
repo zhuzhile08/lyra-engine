@@ -16,8 +16,6 @@
 #include <core/rendering/vulkan/devices.h>
 #include <core/logger.h>
 
-#include <vector>
-
 #include <vulkan/vulkan.h>
 
 namespace lyra {
