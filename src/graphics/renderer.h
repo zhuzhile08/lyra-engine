@@ -30,8 +30,7 @@
 namespace lyra {
 
 /**
- * @brief a vulkan context with basic features
- * @todo maybe abstract vma memory allocation?
+ * @brief a vulkan renderer with some basic features
  */
 class Renderer {
 public:
@@ -82,14 +81,6 @@ private:
 	CallQueue _draw_queue;
 
 	bool _drawing = true;
-
-	/**
-	 * @brief bind a descriptor set
-	 *
-	 * @param descriptor descriptor
-	 * @param pipelineLayout pipeline layout
-	 */
-	void bind_descriptor(const VulkanDescriptor* descriptor) const noexcept;
 
 	/**
 	 * @brief record all the commands

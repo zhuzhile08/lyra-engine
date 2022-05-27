@@ -69,6 +69,10 @@ public:
 		vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _bindPoint, _pipeline); 
 	}
 
+	void bind_descriptor(const VulkanDescriptor* const descriptor) const noexcept {
+		vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _layout, 0, 1, descriptor->get_ptr(), 0, nullptr);
+	}
+
 	/**
 	 * @brief get the descriptor set layout
 	 *

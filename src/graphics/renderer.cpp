@@ -57,8 +57,4 @@ void Renderer::draw() noexcept {
 	Application::context()->add_to_render_queue([&]() { record_command_buffers(); }); // this is what I call "spicy" architecture
 }
 
-void Renderer::bind_descriptor(const VulkanDescriptor* descriptor) const noexcept {
-	vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), VK_PIPELINE_BIND_POINT_GRAPHICS, _pipeline.layout(), 0, 1, descriptor->get_ptr(), 0, nullptr);
-}
-
 } // namespace lyra
