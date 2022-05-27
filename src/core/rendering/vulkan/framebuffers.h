@@ -62,9 +62,8 @@ public:
 	*/
 	void begin() const noexcept {
 		VkClearValue clear[2] {};
-		clear[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clear[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 		clear[1].depthStencil = { 1.0f, 0 };
-
 		VkRenderPassBeginInfo beginInfo[]{
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 			nullptr,
@@ -74,7 +73,7 @@ public:
 				{ 0, 0 },
 				swapchain->extent()
 			},
-			arr_size(clear),
+			2, // hard coded
 			clear
 		};
 

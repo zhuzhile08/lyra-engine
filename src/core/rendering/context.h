@@ -38,12 +38,18 @@ public:
 	/**
 	 * @brief destructor of the context
 	 */
-	virtual ~Context() noexcept;
+	~Context() noexcept {
+		_device.wait();
+
+		Logger::log_info("Successfully destroyed application context!");
+	}
 
 	/**
 	 * @brief destroy the context
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~Context();
+	}
 
 	Context(const Context&) noexcept = delete;
 	Context operator=(const Context&) const noexcept = delete;
@@ -60,14 +66,18 @@ public:
 	 *
 	 * @param queue queue to wait for
 	 */
-	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
+	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
+		if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) Logger::log_exception("Failed to wait for device queue!");
+	}
 
 	/**
 	 * @brief add a function to the rendering queue
 	 * 
 	 * @param function the function
 	*/
-	void add_to_render_queue(std::function<void()>&& function);
+	void add_to_render_queue(std::function<void()>&& function) {
+		_renderQueue.add(std::move(function));
+	}
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -141,7 +151,13 @@ private:
 	/**
 	 * @brief recreate the swapchain and related stuff in case of some events
 	 */
-	void recreate_swapchain();
+	void recreate_swapchain() {
+		VkSwapchainKHR oldSwapchain = std::move(_swapchain.swapchain());
+
+		_swapchain.destroy();
+
+		_swapchain.create(&oldSwapchain, &_commandPool);
+	}
 
 	/**
 	 * @brief present all the recorded commands
@@ -157,7 +173,9 @@ private:
 	/**
 	 * @brief update the frame count
 	 */
-	void update_frame_count() noexcept;
+	void update_frame_count() noexcept {
+		_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
+	}
 };
 
 } // namespace Vulkan

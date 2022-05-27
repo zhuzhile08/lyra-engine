@@ -4,16 +4,6 @@ namespace lyra {
 
 Context::Context() { }
 
-Context::~Context() noexcept {
-	_device.wait();
-
-	Logger::log_info("Successfully destroyed application context!");
-}
-
-void Context::destroy() noexcept {
-	this->~Context();
-}
-
 void Context::create(const Window* const window) {
 	Logger::log_info("Creating context for application...");
 
@@ -28,18 +18,6 @@ void Context::create(const Window* const window) {
 	_swapchain.create(&_device, &_instance, &_commandPool, window);
 
 	Logger::log_info("Successfully created context for the application at: ", get_address(this), "!", Logger::end_l());
-}
-
-void Context::recreate_swapchain() {
-	VkSwapchainKHR oldSwapchain = std::move(_swapchain.swapchain());
-
-	_swapchain.destroy();
-
-	_swapchain.create(&oldSwapchain, &_commandPool);
-}
-
-void Context::add_to_render_queue(std::function<void()> &&function) {
-	_renderQueue.add(std::move(function));
 }
 
 void Context::draw() {
@@ -119,14 +97,6 @@ void Context::present_device_queue() {
 	else if (result != VK_SUCCESS) {
 		Logger::log_exception("Failed to present swapchain image!");
 	}
-}
-
-void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-	if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) Logger::log_exception("Failed to wait for device queue!");
-}
-
-void Context::update_frame_count() noexcept {
-	_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
 }
 
 } // namespace lyra

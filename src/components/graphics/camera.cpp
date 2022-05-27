@@ -17,48 +17,4 @@ Camera::Camera() {
 	Logger::log_info("Succesfully created Camera at ", get_address(this), "!", Logger::end_l());
 }
 
-Camera::~Camera() noexcept {
-	Logger::log_info("Succesfully destroyed Vulkan uniform buffers!");
-}
-
-void Camera::destroy() noexcept {
-	this->~Camera();
-}
-
-void Camera::rotate(const float deg, const glm::vec3 axis) noexcept {
-	_updateQueue.add([&]() { _data.view += glm::rotate(glm::mat4(1.0f), FPS() * glm::radians(deg), axis); });
-}
-
-void Camera::set_rotation(const float deg, const glm::vec3 axis) noexcept {
-	_updateQueue.add([&]() { _data.view = glm::rotate(glm::mat4(1.0f), FPS() * glm::radians(deg), axis); });
-}
-
-void Camera::move(const glm::vec3 pos) noexcept {
-	_updateQueue.add([&]() { 
-		_data.view += glm::translate(glm::mat4(1.0f), pos); 
-	});
-}
-
-void Camera::set_position(const glm::vec3 pos) noexcept {
-	_updateQueue.add([&]() {
-		_data.view = glm::translate(glm::mat4(1.0f), pos);
-	});
-}
-
-void Camera::set_perspective(const float aspect, const float fov, const float near, const float far) noexcept {
-	_updateQueue.add([&]() { _data.proj = glm::perspective(glm::radians(fov), aspect, near, far); });
-}
-
-void Camera::look_at(const glm::vec3 target, const glm::vec3 up) noexcept {
-	_updateQueue.add([&]() { _data.view = glm::lookAt({ 2.0f, 2.0f, 2.0f }, target, up); });
-}
-
-void Camera::draw() {
-	_updateQueue.flush();
-
-	_buffers[Application::context()->currentFrame()].copy_data(&_data);
-
-	_data = CameraData();
-}
-
 } // namespace lyra

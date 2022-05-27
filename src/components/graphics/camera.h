@@ -47,14 +47,11 @@ public:
 	Camera();
 
 	/**
-	 * @brief destructor of the camera
-	 */
-	virtual ~Camera() noexcept;
-
-	/**
 	 * @brief destroy the camera
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~Camera();
+	}
 
 	Camera operator=(const Camera&) const noexcept = delete;
 
@@ -64,33 +61,48 @@ public:
 	 * @param deg degrees of rotation in degrees
 	 * @param axis axis to rotate around
 	 */
-	void rotate(const float deg, const glm::vec3 axis) noexcept;
+	void rotate(const float deg, const glm::vec3 axis) noexcept {
+		_updateQueue.add([&]() { _data.view += glm::rotate(glm::mat4(1.0f), FPS() * glm::radians(deg), axis); });
+	}
+
 	/**
 	 * @brief set the rotation of the camera around an axis
 	 *
 	 * @param deg degrees of rotation in degrees
 	 * @param axis axis to set the rotation of
 	 */
-	void set_rotation(const float deg, const glm::vec3 axis) noexcept;
+	void set_rotation(const float deg, const glm::vec3 axis) noexcept {
+		_updateQueue.add([&]() { _data.view = glm::rotate(glm::mat4(1.0f), FPS() * glm::radians(deg), axis); });
+	}
 	/**
 	 * @brief move the camera by a certain amount
 	 *
 	 * @param pos amount to move the camera
 	 */
-	void move(const glm::vec3 pos) noexcept;
+	void move(const glm::vec3 pos) noexcept {
+		_updateQueue.add([&]() {
+			_data.view += glm::translate(glm::mat4(1.0f), pos);
+		});
+	}
 	/**
 	 * @brief set the position of the camera
 	 *
 	 * @param pos position to set to
 	 */
-	void set_position(const glm::vec3 pos) noexcept;
+	void set_position(const glm::vec3 pos) noexcept {
+		_updateQueue.add([&]() {
+			_data.view = glm::translate(glm::mat4(1.0f), pos);
+		});
+	}
 	/**
 	 * @brief make the camera look at a position
 	 *
 	 * @param target target to look at
 	 * @param up normalized camera direction
 	 */
-	void look_at(const glm::vec3 target, const glm::vec3 up = { 0.0f, 0.0f, 0.1f }) noexcept;
+	void look_at(const glm::vec3 target, const glm::vec3 up = { 0.0f, 0.0f, 0.1f }) noexcept {
+		_updateQueue.add([&]() { _data.view = glm::lookAt({ 2.0f, 2.0f, 2.0f }, target, up); });
+	}
 	/**
 	 * @brief set the perspective of the camera
 	 *
@@ -99,19 +111,27 @@ public:
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	 */
-	void set_perspective(const float aspect, const float fov = Settings::Rendering::fov, const float near = 0.1f, const float far = 10.0f) noexcept;
+	void set_perspective(const float aspect, const float fov = Settings::Rendering::fov, const float near = 0.1f, const float far = 10.0f) noexcept {
+		_updateQueue.add([&]() { _data.proj = glm::perspective(glm::radians(fov), aspect, near, far); });
+	}
 
 	/**
 	 * @brief temporary draw function
 	*/
-	void draw();
+	void draw() {
+		_updateQueue.flush();
+
+		_buffers[Application::context()->currentFrame()].copy_data(&_data);
+
+		_data = CameraData();
+	}
 
 	/**
 	 * @brief get the GPU memory buffers
 	 * 
-	 * @return const std::vector<VulkanGPUBuffer>
+	 * @return const std::vector<VulkanGPUBuffer>&
 	*/
-	[[nodiscard]] const std::vector<VulkanGPUBuffer> buffers() const noexcept { return _buffers; }
+	[[nodiscard]] const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
 	/**
 	 * @brief get the camera data of the camera
 	 * 
