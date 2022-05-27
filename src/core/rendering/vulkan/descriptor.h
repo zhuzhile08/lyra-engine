@@ -13,6 +13,7 @@
 
 #include <core/defines.h>
 #include <core/logger.h>
+#include <core/rendering/vulkan/vulkan_shader.h>
 #include <lyra.h>
 
 #include <vector>
@@ -46,17 +47,19 @@ public:
 		 *
 		 * @param binding at which index the shader expects the descriptor
 		 * @param type type of descriptor that will be used
-		 * @param stage which shader can access the descriptor
+		 * @param shaderType which type of shader the descripter will bind to
 		 * @param count numbers of descriptors in the binding
 		 */
-		void add_binding(const uint32 binding, const int type, const VkShaderStageFlags stage, const uint32 count = 1) noexcept {
-			bindings.push_back({
-				binding,
-				static_cast<VkDescriptorType>(type),
-				count,
-				stage,
-				nullptr
+		void add_binding(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32>> new_bindings) noexcept {
+			for (const auto& [binding, type, shaderType, count] : new_bindings) {
+				bindings.push_back({
+					binding,
+					static_cast<VkDescriptorType>(type),
+					count,
+					static_cast<VkShaderStageFlags>(shaderType),
+					nullptr
 				});
+			}
 		}
 
 		std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -128,7 +131,7 @@ public:
 		/**
 		 * @brief set a struct to define wwhat type and how many types of descriptors a set is going to contain
 		 *
-		 * @param sizes all the sizes and types of descriptors contained inside of a pair inside of an vector. Pair consists of a const VKDescriptorType and a const uint32
+		 * @param sizes all the sizes and types of descriptors contained inside of a pair inside of an vector. Pair consists of the type of the descriptor and the number of descriptors for that type
 		 */
 		void add_pool_sizes(std::vector<std::pair<const int, const uint32>> sizes) noexcept {
 			for (const auto& [type, size] : sizes) {

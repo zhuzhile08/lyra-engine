@@ -90,12 +90,6 @@ private:
 	 * @param pipelineLayout pipeline layout
 	 */
 	void bind_descriptor(const VulkanDescriptor* descriptor) const noexcept;
-	/**
-	 * @brief bind the graphics pipeline
-	 *
-	 * @param pipeline pipeline
-	 */
-	void bind_pipeline() const noexcept;
 
 	/**
 	 * @brief record all the commands
