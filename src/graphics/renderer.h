@@ -90,37 +90,12 @@ private:
 	 * @param pipelineLayout pipeline layout
 	 */
 	void bind_descriptor(const VulkanDescriptor* descriptor) const noexcept;
-
-	void push_constants() const noexcept;
-	/**
-	 * @brief begin render passes
-	 */
-	void begin_render_pass() const noexcept;
-	/**
-	 * @brief end render passes
-	 *
-	 * @param framebuffers frame buffer
-	 */
-	void end_render_pass() const noexcept;
 	/**
 	 * @brief bind the graphics pipeline
 	 *
 	 * @param pipeline pipeline
 	 */
 	void bind_pipeline() const noexcept;
-	/**
-	 * @brief bind a model
-	 *
-	 * @param vertexBuffer vertex buffer of the model
-	 * @param indexBuffer index buffer of the model
-	 */
-	void bind_model(const VulkanGPUBuffer* vertexBuffer, const VulkanGPUBuffer* indexBuffer) const noexcept;
-	/**
-	 * @brief draw a model
-	 *
-	 * @param size size of the index buffer
-	 */
-	void draw_model(const uint32 size) const noexcept;
 
 	/**
 	 * @brief record all the commands

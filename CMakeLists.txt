@@ -60,7 +60,7 @@ add_executable(LyraEngine
  "src/math/math.cpp"
  "src/components/graphics/camera.cpp"
  "src/core/rendering/window.cpp"
- "src/core/rendering/gui_context.cpp"       # engine GUI
+ #"src/core/rendering/gui_context.cpp"       # engine GUI
  "src/components/physics/transform.cpp" 
  "src/graphics/renderer.cpp"
  "src/graphics/graphics_pipeline.cpp"
@@ -74,7 +74,7 @@ add_executable(LyraEngine
  "src/lyra.cpp"
  "src/core/settings.cpp"
   #"src/components/graphics/material.cpp" #"src/components/graphics/material_system.cpp"
-)
+ )
 
 add_dependencies(LyraEngine build_shaders)
 

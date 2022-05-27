@@ -15,7 +15,6 @@
 #include <core/logger.h>
 #include <core/queue_types.h>
 #include <core/rendering/vulkan/command_buffer.h>
-#include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/sync_objects.h>
 #include <core/rendering/vulkan/instance.h>
@@ -106,18 +105,6 @@ public:
 	*/
 	[[nodiscard]] const VulkanSwapchain* swapchain() const noexcept { return &_swapchain; }
 	/**
-	 * @brief get the descriptor set layout
-	 * 
-	 * @return const lyra::VulkanDescriptorSetLayout*
-	*/
-	[[nodiscard]] const VulkanDescriptorSetLayout* descriptorSetLayout() const noexcept { return &_descriptorSetLayout; }
-	/**
-	 * @brief get the descriptor pool
-	 * 
-	 * @return const lyra::VulkanDescriptorPool*
-	*/
-	[[nodiscard]] const VulkanDescriptorPool* descriptorPool() const noexcept { return &_descriptorPool; }
-	/**
 	 * @brief get the queue with the draw calls
 	 * 
 	 * @return const CallQueue*
@@ -143,8 +130,6 @@ private:
 	std::vector<VulkanCommandBuffer> _commandBuffers;
 	VulkanSyncObjects _syncObjects;
 	VulkanSwapchain _swapchain;
-	VulkanDescriptorSetLayout _descriptorSetLayout;
-	VulkanDescriptorPool _descriptorPool;
 
 	CallQueue _renderQueue;
 

@@ -27,16 +27,6 @@ void Context::create(const Window* const window) {
 	_syncObjects.create(&_device);
 	_swapchain.create(&_device, &_instance, &_commandPool, window);
 
-	VulkanDescriptorSetLayout::Builder  layoutBuilder;
-	layoutBuilder.add_binding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-	layoutBuilder.add_binding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
-	_descriptorSetLayout.create(&_device, layoutBuilder);
-
-	VulkanDescriptorPool::Builder       poolBuilder;
-	poolBuilder.set_max_sets(21);   // 9 + 10 is 21, of course, what else whould it be, 19?
-	poolBuilder.add_pool_sizes({ { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight }, { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight } });
-	_descriptorPool.create(&_device, poolBuilder);
-
 	Logger::log_info("Successfully created context for the application at: ", get_address(this), "!", Logger::end_l());
 }
 

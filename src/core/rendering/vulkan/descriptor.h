@@ -12,8 +12,8 @@
 #pragma once
 
 #include <core/defines.h>
-#include <core/rendering/vulkan/swapchain.h>
 #include <core/logger.h>
+#include <lyra.h>
 
 #include <vector>
 
@@ -68,7 +68,7 @@ public:
 	 * @brief destructor of the descriptor set layout
 	 */
 	~VulkanDescriptorSetLayout() noexcept {
-		vkDestroyDescriptorSetLayout(device->device(), _descriptorSetLayout, nullptr);
+		vkDestroyDescriptorSetLayout(Application::context()->device()->device(), _descriptorSetLayout, nullptr);
 
 		Logger::log_info("Succesfully destroyed Vulkan descriptor set layout!");
 	}
@@ -85,10 +85,9 @@ public:
 	/**
 	 * @brief create the descriptor set layout
 	 *
-	 * @param device device
 	 * @param builder the builder containing all the creation data
 	 */
-	void create(const VulkanDevice* const device, const Builder builder);
+	void create(const Builder builder);
 	/**
 	 * @brief get the descriptor set layout
 	 *
@@ -104,8 +103,6 @@ public:
 
 private:
 	VkDescriptorSetLayout _descriptorSetLayout = VK_NULL_HANDLE;
-
-	const VulkanDevice* device;
 };
 
 /**
@@ -169,7 +166,7 @@ public:
 	 * @brief destructor of the descriptor pool
 	 */
 	~VulkanDescriptorPool() noexcept {
-		vkDestroyDescriptorPool(device->device(), _descriptorPool, nullptr);
+		vkDestroyDescriptorPool(Application::context()->device()->device(), _descriptorPool, nullptr);
 
 		Logger::log_info("Succesfully destroyed Vulkan descriptor pool!");
 	}
@@ -186,10 +183,9 @@ public:
 	/**
 	 * @brief create a descriptor pool to allocate the descriptor sets
 	 *
-	 * @param device device
 	 * @param swapchain swapchain
 	 */
-	void create(const VulkanDevice* const device, const Builder builder);
+	void create(const Builder builder);
 
 	/**
 	 * @brief get the descriptor pool
@@ -200,8 +196,6 @@ public:
 
 private:
 	VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
-
-	const VulkanDevice* device;
 };
 
 /**
@@ -305,12 +299,11 @@ public:
 	/**
 	 * @brief construct new Vulkan descriptors
 	 *
-	 * @param device the device
 	 * @param layout descriptor set layout
 	 * @param pool descriptor pool
 	 * @param writer data to be written into the descriptor
 	 */
-	void create(const VulkanDevice* const device, const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer);
+	void create(const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer);
 
 	/**
 	 * @brief get the descriptor set

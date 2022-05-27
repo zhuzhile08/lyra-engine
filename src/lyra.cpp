@@ -11,7 +11,7 @@ void Application::init() noexcept {
 
 	_window.create(Settings::Window::width, Settings::Window::height, Settings::Window::resizable, Settings::Window::fullscreen, Settings::Window::title);
 	_context.create(&_window);
-	_guiContext.create(&_context, &_window);
+	//_guiContext.create(&_context, &_window);
 }
 
 void Application::draw() {
@@ -20,6 +20,6 @@ void Application::draw() {
 
 Window Application::_window;
 Context Application::_context;
-gui::GUIContext Application::_guiContext;
+//gui::GUIContext Application::_guiContext;
 
 } // namespace lyra

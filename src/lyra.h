@@ -17,7 +17,7 @@
 #include <init/init_SDL.h>
 #include <core/rendering/window.h>
 #include <core/rendering/context.h>
-#include <core/rendering/gui_context.h>
+//#include <core/rendering/gui_context.h>
 #include <core/logger.h>
 #include <core/defines.h>
 
@@ -62,7 +62,7 @@ public: // behold, peasant, my superior "singleton" architecture
 	 *
 	 * @return static const lyra::gui::GUIContext* const
 	 */
-	[[nodiscard]] static const gui::GUIContext* const guiContext() noexcept { 
+	//[[nodiscard]] static const gui::GUIContext* const guiContext() noexcept { 
 		/**
 		if (_guiContext.has_value() == true) return &_guiContext.value(); // check if the context has a value or not
 		else {
@@ -70,13 +70,13 @@ public: // behold, peasant, my superior "singleton" architecture
 			return nullptr;
 		}
 		**/
-		return &_guiContext;
-	};
+		//return &_guiContext;
+	//};
 
 private:
 	static Window _window;
 	static Context _context;
-	static gui::GUIContext _guiContext; /// @todo make this an std::optional
+	//static gui::GUIContext _guiContext; /// @todo make this an std::optional
 };
 
 } // namespace lyra
