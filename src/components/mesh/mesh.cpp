@@ -107,10 +107,6 @@ void Mesh::bind_camera(const Camera* const camera) {
 	Logger::log_debug(Logger::tab(), "Successfully bound camera to model at: ", get_address(this), Logger::end_l());
 }
 
-void Mesh::bind(Renderer* const renderer) noexcept {
-	renderer->_draw_queue.add([&]() { renderer->bind_model(&_vertexBuffer, &_indexBuffer); renderer->bind_descriptor(&_descriptor); renderer->draw_model(static_cast<uint32>(_indices.size())); });
-}
-
 void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on
 	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this

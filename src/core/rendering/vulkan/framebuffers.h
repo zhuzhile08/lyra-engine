@@ -12,9 +12,8 @@
 #pragma once
 
 #include <core/defines.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/swapchain.h>
 #include <core/logger.h>
+#include <lyra.h>
 
 #include <array>
 #include <vector>
@@ -59,26 +58,33 @@ public:
 	void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain);
 
 	/**
-	 * @brief get the begin information to begin a render pass
-	 *
-	 * @param index index of framebuffer
-	 * @param clear clear color
-	 * 
-	 * @return const VkRenderPassBeginInfo
-	 */
-	[[nodiscard]] const VkRenderPassBeginInfo get_begin_info(const int index, const std::array<VkClearValue, 2> clear) const noexcept {
-		return {
+	 * @brief begin render pass
+	*/
+	void begin() const noexcept {
+		VkClearValue clear[2] {};
+		clear[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+		clear[1].depthStencil = { 1.0f, 0 };
+
+		VkRenderPassBeginInfo beginInfo[]{
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 			nullptr,
 			_renderPass,
-			_framebuffers.at(index),
+			_framebuffers.at(Application::context()->imageIndex()),
 			{	// rendering area
 				{ 0, 0 },
 				swapchain->extent()
 			},
-			static_cast<uint32>(clear.size()),
-			clear.data()
+			arr_size(clear),
+			clear
 		};
+
+		vkCmdBeginRenderPass(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	}
+	/**
+	 * @brief end render pass
+	*/
+	void end() const noexcept {
+		vkCmdEndRenderPass(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get());
 	}
 
 	/**

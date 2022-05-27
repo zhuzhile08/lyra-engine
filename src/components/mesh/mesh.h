@@ -89,7 +89,14 @@ public:
 	 *
 	 * @param renderer context to add the draw call to
 	 */
-	void bind(Renderer* const renderer) noexcept;
+	void bind(Renderer* const renderer) noexcept {
+		renderer->_draw_queue.add([&]() {
+			vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), 0);
+			vkCmdBindIndexBuffer(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
+
+			vkCmdDrawIndexed(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), static_cast<uint32>(_indices.size()), 1, 0, 0, 0); 
+		});
+	}
 
 	/**
 	 * @brief get the vertices
