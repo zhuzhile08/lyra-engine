@@ -93,15 +93,15 @@ public:
 	};
 
 	// culling mode 
-	enum class Culling : int {
+	enum class Culling {
 		// no culling
-		CULLING_NONE = 0,
+		CULLING_NONE = 0x00000000,
 		// cull front face
-		CULLING_FRONT = 1,
+		CULLING_FRONT = 0x00000001,
 		// cull back face
-		CULLING_BACK = 2,
+		CULLING_BACK = 0x00000002,
 		// cull all faces
-		CULLING_ALL = 3
+		CULLING_ALL = 0x00000003
 	};
 
 	// creation information

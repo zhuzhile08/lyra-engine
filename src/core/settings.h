@@ -50,7 +50,7 @@ struct Settings {
 
 	struct Rendering {
 		static constexpr uint8 maxFramesInFlight = 2;
-		static constexpr uint16 fov = 90;
+		static constexpr float fov = 70.f;
 		static constexpr PolygonFrontFace polygonFrontFace = PolygonFrontFace::FRONT_FACE_CLOCKWISE;
 
 	private:
