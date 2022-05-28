@@ -8,7 +8,7 @@ VulkanInstance::~VulkanInstance() noexcept {
 	vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	vkDestroyInstance(_instance, nullptr);
 
-	Logger::log_info("Succesfully destroyed Vulkan instance!");
+	Logger::log_info("Successfully destroyed Vulkan instance!");
 }
 
 void VulkanInstance::destroy() noexcept {
@@ -23,7 +23,7 @@ void VulkanInstance::create(const Window* const window) {
 	create_instance();
 	create_window_surface();
 
-	Logger::log_info("Succesfully created Vulkan instance at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan instance at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanInstance::check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <const char*> requestedLayers) const {
