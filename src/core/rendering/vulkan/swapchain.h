@@ -110,8 +110,7 @@ public:
 	 */
 	virtual ~VulkanSwapchain() noexcept {
 		vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
-
-		delete _oldSwapchain;
+		if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
 
 		Logger::log_info("Successfully destroyed Vulkan swapchain!");
 	}
@@ -137,10 +136,8 @@ public:
 
 	/**
 	 * @brief create the swapchain
-	 *
-	 * @param oldSwapchain the old swapchain
 	 */
-	void create(VkSwapchainKHR* const oldSwapchain, const VulkanCommandPool* const cmdPool);
+	void recreate();
 
 	/**
 	 * @brief get the swapchain
@@ -184,6 +181,7 @@ private:
 
 	const VulkanDevice* device;
 	const VulkanInstance* instance;
+	const VulkanCommandPool* cmdPool;
 	const Window* window;
 
 	/**

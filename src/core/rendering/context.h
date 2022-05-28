@@ -149,17 +149,6 @@ private:
 	const Window* window;
 
 	/**
-	 * @brief recreate the swapchain and related stuff in case of some events
-	 */
-	void recreate_swapchain() {
-		VkSwapchainKHR oldSwapchain = std::move(_swapchain.swapchain());
-
-		_swapchain.destroy();
-
-		_swapchain.create(&oldSwapchain, &_commandPool);
-	}
-
-	/**
 	 * @brief present all the recorded commands
 	 */
 	void present_device_queue();

@@ -32,7 +32,7 @@ void Context::draw() {
 	VkResult result = vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores()[_currentFrame], VK_NULL_HANDLE, &_imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-		recreate_swapchain();
+		_swapchain.recreate();
 		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) Logger::log_exception("Failed to get the next Vulkan image layer to blit on!");
@@ -92,7 +92,7 @@ void Context::present_device_queue() {
 	VkResult result = vkQueuePresentKHR(_device.presentQueue().queue, &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-		recreate_swapchain();
+		_swapchain.recreate();
 	}
 	else if (result != VK_SUCCESS) {
 		Logger::log_exception("Failed to present swapchain image!");

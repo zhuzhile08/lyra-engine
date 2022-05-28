@@ -78,8 +78,21 @@ void VulkanSwapchain::create(const VulkanDevice* const device, const VulkanInsta
 	Logger::log_info("Successfully created Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
 
-void VulkanSwapchain::create(VkSwapchainKHR* const oldSwapchain, const VulkanCommandPool* const cmdPool) {
-	_oldSwapchain = oldSwapchain;
+void VulkanSwapchain::recreate() {
+	// wait until all commands are done executing
+	vkDeviceWaitIdle(device->device());
+
+	// destroy the images and depth buffer
+	_images.destroy();
+	_depthBuffer.destroy();
+
+	// destroy the previous old swapchain
+	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
+
+	// assign the old swapchain to the current swapchain
+	_oldSwapchain = &_swapchain;
+
+	// recreate the swapchain
 	create(device, instance, cmdPool, window);
 
 	Logger::log_info("Successfully recreated Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
