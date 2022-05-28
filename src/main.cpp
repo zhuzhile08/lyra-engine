@@ -1,5 +1,4 @@
 #define SDL_MAIN_HANDLED
-#define GLM_FORCE_RADIANS
 
 #include <lyra.h>
 #include <core/logger.h>
@@ -12,6 +11,10 @@
 #include <graphics/texture.h>
 #include <math/math.h>
 #include <glm.hpp>
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 int main() {
 	// init application
@@ -58,9 +61,8 @@ int main() {
 
 	// camera
 	lyra::Camera camera;
-	camera.set_rotation(90.0f, { 0.0f, 0.0f, 1.0f });
-	camera.look_at({ 0.0f, 0.0f, 0.0f });
-	camera.set_perspective(camera.aspect());
+	camera.set_position({ 0.f,-6.f,-10.f });
+	camera.set_perspective();
 
 	lyra::VulkanDescriptor::Writer writer;
 	writer.add_buffer_write(&camera.buffers().at(0).get_descriptor_buffer_info(), 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER); 
@@ -79,10 +81,9 @@ int main() {
 
 	renderer.draw();
 
-	while (true) {
-		camera.draw();
-		lyra::Application::draw();
-	}
+	lyra::Application::draw();
+
+	_CrtDumpMemoryLeaks();
 
 	return 0;
 }

@@ -15,7 +15,12 @@ void Application::init() noexcept {
 }
 
 void Application::draw() {
-	_context.draw();
+	while (_window.running()) {
+		_window.events();
+		_context.draw();
+	}
+
+	_context.device()->wait();
 }
 
 Window Application::_window;

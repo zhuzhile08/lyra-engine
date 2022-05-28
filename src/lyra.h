@@ -29,7 +29,7 @@ public: // behold, peasant, my superior "singleton" architecture
 	/**
 	 * @brief destructor of the window
 	**/
-	virtual ~Application() noexcept;
+	~Application() noexcept;
 
 	Application() noexcept = delete;
 	Application(const Application&) noexcept = delete;
