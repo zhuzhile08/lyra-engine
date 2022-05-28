@@ -49,8 +49,9 @@ public:
 	*/
 	void bind(Renderer* const renderer) const {
 		renderer->add_to_draw_queue([&]() {
-			manager->pipeline(_pipelineID)->bind();
-			manager->pipeline(_pipelineID)->bind_descriptor(&_descriptor);
+			vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), manager->pipeline(_pipelineID)->bindPoint(), manager->pipeline(_pipelineID)->pipeline());
+			vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), manager->pipeline(_pipelineID)->bindPoint(),
+				manager->pipeline(_pipelineID)->layout(), 0, 1, _descriptor.get_ptr(), 0, nullptr);
 		});
 	}
 

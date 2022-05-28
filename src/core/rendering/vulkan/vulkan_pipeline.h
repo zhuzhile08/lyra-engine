@@ -63,17 +63,6 @@ public:
 	VulkanPipeline operator=(const VulkanPipeline&) const noexcept = delete;
 
 	/**
-	 * @brief bind the pipeline
-	*/
-	void bind() const noexcept { 
-		vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _bindPoint, _pipeline); 
-	}
-
-	void bind_descriptor(const VulkanDescriptor* const descriptor) const noexcept {
-		vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _bindPoint, _layout, 0, 1, descriptor->get_ptr(), 0, nullptr);
-	}
-
-	/**
 	 * @brief get the descriptor set layout
 	 *
 	 * @return const lyra::VulkanDescriptorSetLayout*
