@@ -24,7 +24,7 @@ namespace lyra {
 struct VulkanGPUMemory {
 	VulkanGPUMemory() { };
 
-	~VulkanGPUMemory() {
+	virtual ~VulkanGPUMemory() {
 		vmaFreeMemory(device->allocator(), _memory);
 
 		Logger::log_debug(Logger::tab(), "Successfully destroyed VMA Memory!");

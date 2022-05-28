@@ -5,8 +5,8 @@ namespace lyra {
 VulkanDevice::VulkanDevice() {}
 
 VulkanDevice::~VulkanDevice() {
-	vkDestroyDevice(_device, nullptr);
 	vmaDestroyAllocator(_allocator);
+	vkDestroyDevice(_device, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan device!");
 }
