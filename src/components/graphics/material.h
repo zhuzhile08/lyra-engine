@@ -39,7 +39,7 @@ public:
 		_descriptor.create(manager->pipeline(piplID)->descriptorSetLayout(), manager->pipeline(piplID)->descriptorPool(), writer);
 
 		Logger::log_info("Successfully created material with asset manager at address: ", get_address(manager), 
-			", an texture ID of: ", _textureID, " and an pipeline ID of: ", _pipelineID, "with address:", get_address(this));
+			", a texture ID of: ", _textureID, " and a pipeline ID of: ", _pipelineID, " with address:", get_address(this));
 	}
 
 	/**

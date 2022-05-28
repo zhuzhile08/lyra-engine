@@ -20,7 +20,7 @@ void VulkanCommandPool::create(const VulkanDevice* const device) {
 
 	if (vkCreateCommandPool(device->device(), &createInfo, nullptr, &commandPool) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan command pool");
 
-	Logger::log_info("Succesfully created Vulkan command pool at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan command pool at ", get_address(this), "!", Logger::end_l());
 }
 
 // command buffer
@@ -44,7 +44,7 @@ void VulkanCommandBuffer::create(const VulkanDevice* const device, const VulkanC
 	// create the command buffers
 	if (vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan command buffer!");
 
-	Logger::log_info("Succesfully created Vulkan command buffer at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan command buffer at ", get_address(this), "!", Logger::end_l());
 }
 
 } // namespace lyra

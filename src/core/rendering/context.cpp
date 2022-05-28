@@ -46,7 +46,7 @@ void Context::draw() {
 	// end recording the command buffer
 	_commandBuffers[currentFrame()].end();
 
-	// signal the synchronisation objects to wait until drawing is finished
+	// signal the synchronization objects to wait until drawing is finished
 	submit_device_queue(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 	// executing all recorded commands and render the image onto the window
 	present_device_queue();

@@ -17,7 +17,7 @@ void VulkanDescriptorSetLayout::create(const Builder builder) {
 	if (vkCreateDescriptorSetLayout(Application::context()->device()->device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) 
 		Logger::log_exception("Failed to create descriptor set layout");
 
-	Logger::log_info("Succesfully created Vulkan descriptor set layout at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan descriptor set layout at ", get_address(this), "!", Logger::end_l());
 }
 
 // descriptor pool
@@ -39,7 +39,7 @@ void VulkanDescriptorPool::create(const Builder builder) {
 	if (vkCreateDescriptorPool(Application::context()->device()->device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) 
 		Logger::log_exception("Failed to create descriptor pool");
 
-	Logger::log_info("Succesfully created Vulkan descriptor pool at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan descriptor pool at ", get_address(this), "!", Logger::end_l());
 }
 
 // descriptors
@@ -63,7 +63,7 @@ void VulkanDescriptor::create(const VulkanDescriptorSetLayout* const layout, con
 
 	vkUpdateDescriptorSets(Application::context()->device()->device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
 
-	Logger::log_info("Succesfully created Vulkan descriptor at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan descriptor at ", get_address(this), "!", Logger::end_l());
 }
 
 } // namespace lyra

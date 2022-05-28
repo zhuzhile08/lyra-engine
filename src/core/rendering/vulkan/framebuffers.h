@@ -37,7 +37,7 @@ public:
 		for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(device->device(), framebuffer, nullptr);
 		vkDestroyRenderPass(device->device(), _renderPass, nullptr);
 
-		Logger::log_info("Succesfully destroyed Vulkan frame buffer!");
+		Logger::log_info("Successfully destroyed Vulkan frame buffer!");
 	}
 
 	/**

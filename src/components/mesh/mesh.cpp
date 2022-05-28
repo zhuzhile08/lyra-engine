@@ -49,13 +49,6 @@ std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_des
 
 Mesh::Mesh() { }
 
-Mesh::~Mesh() noexcept {
-	_vertexBuffer.destroy();
-	_indexBuffer.destroy();
-
-	Logger::log_info("Succesfully destroyed mesh!");
-}
-
 void Mesh::destroy() noexcept {
 	this->~Mesh();
 }
@@ -70,7 +63,7 @@ void Mesh::create(const std::string path, const uint16 index, const noud::Node* 
 	create_vertex_buffer();
 	create_index_buffer();
 
-	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
 void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const  parent, const std::string name) {
@@ -82,7 +75,7 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32
 	create_vertex_buffer();
 	create_index_buffer();
 
-	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {

@@ -13,7 +13,7 @@ void VulkanFramebuffers::create(const VulkanDevice* const device, const VulkanSw
 	create_render_pass();
 	create_frame_buffers();
 
-	Logger::log_info("Succesfully created Vulkan framebuffers and render pass at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan framebuffers and render pass at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanFramebuffers::create_render_pass() {

@@ -24,19 +24,19 @@
 namespace lyra {
 
 /**
- * @brief semaphores and fences for frame CPU and GPU synchronisation
+ * @brief semaphores and fences for frame CPU and GPU synchronization
  */
 class VulkanSyncObjects {
 public:
 	VulkanSyncObjects();
 
 	/**
-	* @brief destructor of the synchronisation objects
+	* @brief destructor of the synchronization objects
 	**/
 	virtual ~VulkanSyncObjects() noexcept;
 
 	/**
-	 * @brief destroy the synchronisation objects
+	 * @brief destroy the synchronization objects
 	 */
 	void destroy() noexcept;
 

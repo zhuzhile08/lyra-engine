@@ -8,7 +8,7 @@ VulkanDevice::~VulkanDevice() {
 	vkDestroyDevice(_device, nullptr);
 	vmaDestroyAllocator(_allocator);
 
-	Logger::log_info("Succesfully destroyed Vulkan device!");
+	Logger::log_info("Successfully destroyed Vulkan device!");
 }
 
 void VulkanDevice::destroy() noexcept {
@@ -23,7 +23,7 @@ void VulkanDevice::create(const VulkanInstance* const instance) {
 	create_logical_device();
 	create_allocator();
 
-	Logger::log_info("Succesfully created Vulkan device and allocated GPU at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan device and allocated GPU at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {

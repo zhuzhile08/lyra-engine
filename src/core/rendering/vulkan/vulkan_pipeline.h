@@ -53,7 +53,7 @@ public:
 		vkDestroyPipelineLayout(Application::context()->device()->device(), _layout, nullptr);
 		_shaders.clear();
 
-		Logger::log_info("Succesfully destroyed Vulkan pipeline!");
+		Logger::log_info("Successfully destroyed Vulkan pipeline!");
 	}
 	/**
 	 * @brief destroy the pipeline
@@ -140,7 +140,7 @@ protected:
 
 		for (int index = 0; index < shaderCreationInfos.size(); index++) {
 			_shaders.at(index).create(Application::context()->device(), shaderCreationInfos.at(index).path, shaderCreationInfos.at(index).entry, shaderCreationInfos.at(index).type);
-			Logger::log_info("Succesfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", shaderCreationInfos.at(index).type, "!");
+			Logger::log_info("Successfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", shaderCreationInfos.at(index).type, "!");
 		}
 	}
 

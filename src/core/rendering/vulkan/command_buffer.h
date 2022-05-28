@@ -33,7 +33,7 @@ public:
 	virtual ~VulkanCommandPool() noexcept {
 		vkDestroyCommandPool(device->device(), commandPool, nullptr);
 
-		Logger::log_info("Succesfully destroyed Vulkan command pool!");
+		Logger::log_info("Successfully destroyed Vulkan command pool!");
 	}
 
 	/**
@@ -85,7 +85,7 @@ public:
 	virtual ~VulkanCommandBuffer() noexcept {
 		vkFreeCommandBuffers(device->device(), commandPool->get(), 1, &commandBuffer);
 
-		Logger::log_info("Succesfully destroyed Vulkan command buffer!");
+		Logger::log_info("Successfully destroyed Vulkan command buffer!");
 	}
 
 	/**
@@ -203,7 +203,7 @@ public:
 			image
 		);
 
-		Logger::log_debug(Logger::tab(), "Setup a pipeline barrier with the command buffer at: ", get_address(this));
+		Logger::log_debug(Logger::tab(), "Set up a pipeline barrier with the command buffer at: ", get_address(this));
 	}
 
 	/**

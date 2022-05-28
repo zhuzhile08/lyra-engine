@@ -22,8 +22,6 @@
 
 #include <noud.h>
 
-#define GLM_FORCE_RADIANS
-
 #include <vector>
 #include <array>
 #include <glm.hpp>
@@ -37,11 +35,6 @@ namespace lyra {
 class Mesh : noud::Node {
 public:
 	Mesh();
-
-	/**
-	 * @brief destructor of the mesh
-	 */
-	virtual ~Mesh() noexcept;
 
 	/**
 	 * @brief destroy the mesh

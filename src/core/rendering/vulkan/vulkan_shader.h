@@ -65,12 +65,18 @@ public:
 	/**
 	* @brief destructor of the shader
 	**/
-	virtual ~VulkanShader() noexcept;
+	virtual ~VulkanShader() noexcept {
+		vkDestroyShaderModule(device->device(), _module, nullptr);
+
+		Logger::log_info("Successfully destroyed loaded Vulkan shader!");
+	}
 
 	/**
 	 * @brief destroy the shader
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~VulkanShader();
+	}
 
 	VulkanShader operator=(const VulkanShader&) const noexcept = delete;
 

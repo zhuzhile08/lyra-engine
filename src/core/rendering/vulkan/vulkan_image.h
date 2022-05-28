@@ -36,7 +36,7 @@ struct VulkanImage {
 		vkDestroyImageView(device->device(), _view, nullptr);
 		vkDestroyImage(device->device(), _image, nullptr);
 
-		Logger::log_debug(Logger::tab(), "Succesfully destroyed Vulkan images!"); // this message suddenly comes up during the execution of the create_render_pass function and I have no idea why... Nothing seems wrong tho?
+		Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
 	}
 
 	/**
@@ -97,7 +97,7 @@ struct VulkanImage {
 	 * @brief create the image view only
 	 *
 	 * @param format format of the image
-	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
+	 * @param subresourceRange describe what the purpose of the image is and other stuff like mipmapping
 	 * @param viewType how and in which dimension to treat the image
 	 * @param colorComponents color modulation of the image
 	 */
@@ -122,7 +122,7 @@ struct VulkanImage {
 		// create the view
 		if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan image views");
 
-		Logger::log_debug(Logger::tab(), "Succesfully created Vulkan image view at ", get_address(this), "!");
+		Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 	}
 
 	/**
@@ -130,7 +130,7 @@ struct VulkanImage {
 	 *
 	 * @param device device, if not already defined
 	 * @param format format of the image
-	 * @param subresourceRange describe what the purpose of the image is and other stuff like midmapping
+	 * @param subresourceRange describe what the purpose of the image is and other stuff like mipmapping
 	 * @param viewType how and in which dimension to treat the image
 	 * @param colorComponents color modulation of the image
 	 */

@@ -11,8 +11,6 @@
 
 #pragma once
 
-#define GLM_FORCE_RADIANS
-
 #include <vector>
 #include <array>
 #include <glm.hpp>

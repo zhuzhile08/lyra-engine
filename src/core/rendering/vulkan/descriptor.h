@@ -73,7 +73,7 @@ public:
 	~VulkanDescriptorSetLayout() noexcept {
 		vkDestroyDescriptorSetLayout(Application::context()->device()->device(), _descriptorSetLayout, nullptr);
 
-		Logger::log_info("Succesfully destroyed Vulkan descriptor set layout!");
+		Logger::log_info("Successfully destroyed Vulkan descriptor set layout!");
 	}
 
 	/**
@@ -171,7 +171,7 @@ public:
 	~VulkanDescriptorPool() noexcept {
 		vkDestroyDescriptorPool(Application::context()->device()->device(), _descriptorPool, nullptr);
 
-		Logger::log_info("Succesfully destroyed Vulkan descriptor pool!");
+		Logger::log_info("Successfully destroyed Vulkan descriptor pool!");
 	}
 
 	/**

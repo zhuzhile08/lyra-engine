@@ -17,7 +17,7 @@ void GraphicsPipeline::create(const CreateInfo info) {
 
 	create_pipeline(info);
 
-	Logger::log_info("Succesfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
 }
 
 void GraphicsPipeline::create_pipeline(const CreateInfo info) {

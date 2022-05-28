@@ -4,16 +4,6 @@ namespace lyra {
 
 VulkanShader::VulkanShader() { }
 
-VulkanShader::~VulkanShader() {
-	vkDestroyShaderModule(device->device(), _module, nullptr);
-
-	Logger::log_info("Destroyed loaded Vulkan shader!");
-}
-
-void VulkanShader::destroy() noexcept {
-	this->~VulkanShader();
-}
-
 void VulkanShader::create(const VulkanDevice* const device, const std::string path, std::string entry, Type type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
 

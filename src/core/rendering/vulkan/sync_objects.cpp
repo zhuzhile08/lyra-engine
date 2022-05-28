@@ -6,13 +6,13 @@ namespace lyra {
 VulkanSyncObjects::VulkanSyncObjects() {}
 
 VulkanSyncObjects::~VulkanSyncObjects() {
-	for (int i = 0; i <= _imageAvailableSemaphores.size(); i++) {
+	for (int i = 0; i < _imageAvailableSemaphores.size(); i++) {
 		vkDestroySemaphore(device->device(), _renderFinishedSemaphores.at(i), nullptr);
 		vkDestroySemaphore(device->device(), _imageAvailableSemaphores.at(i), nullptr);
 		vkDestroyFence(device->device(), _inFlightFences.at(i), nullptr);
 	}
 
-	Logger::log_info("Succesfully destroyed Vulkan synchronisation objects!");
+	Logger::log_info("Successfully destroyed Vulkan synchronization objects!");
 }
 
 void VulkanSyncObjects::destroy() noexcept {
@@ -20,7 +20,7 @@ void VulkanSyncObjects::destroy() noexcept {
 }
 
 void VulkanSyncObjects::create(const VulkanDevice* const  device) {
-	Logger::log_info("Creating Vulkan synchronisation objects...");
+	Logger::log_info("Creating Vulkan synchronization objects...");
 
 	this->device = device;
 
@@ -39,10 +39,10 @@ void VulkanSyncObjects::create(const VulkanDevice* const  device) {
 		if (vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores.at(i)) != VK_SUCCESS
 			|| vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores.at(i)) != VK_SUCCESS
 			|| vkCreateFence(device->device(), &fenceInfo, nullptr, &_inFlightFences.at(i)) != VK_SUCCESS)
-			Logger::log_exception("Failed to create Vulkan Synchronisation Objects");
+			Logger::log_exception("Failed to create Vulkan Synchronization Objects");
 	}
 
-	Logger::log_info("Succesfully created Vulkan synchronisation objects at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan synchronization objects at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanSyncObjects::wait(const uint32 fenceIndex) const {
