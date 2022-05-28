@@ -130,9 +130,9 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 				0.0f, 0.0f, 0.0f, 0.0f
 			}
 		},
-		{
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR
+		{ 
+			// VK_DYNAMIC_STATE_VIEWPORT,
+			// VK_DYNAMIC_STATE_SCISSOR
 		},
 		{
 			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
@@ -163,7 +163,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
 		_layout,
-		info.framebuffer->renderPass(),
+		info.renderer->framebuffers()->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0

@@ -23,7 +23,7 @@ void Renderer::record_command_buffers() {
 	_framebuffers.begin();
 
 	_drawQueue.flush();
-
+	
 	_framebuffers.end();
 }
 

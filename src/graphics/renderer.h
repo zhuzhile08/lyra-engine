@@ -68,17 +68,16 @@ public:
 	 * 
 	 * @return lyra::CallQueue* const
 	*/
-	const CallQueue* const drawQueue() const noexcept { return &_drawQueue; }
+	[[nodiscard]] const CallQueue* const drawQueue() const noexcept { return &_drawQueue; }
 	/**
 	 * @brief get the framebuffers
 	 * 
 	 * @return const lyra::VulkanFramebuffers* const
 	*/
-	const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
+	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
 
 private:
 	VulkanFramebuffers _framebuffers;
-
 	CallQueue _drawQueue;
 
 	bool _drawing = true;

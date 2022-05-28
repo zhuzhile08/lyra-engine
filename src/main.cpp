@@ -43,7 +43,7 @@ int main() {
 	});
 
 	graphicsPipeline.create({
-		renderer.framebuffers(),
+		&renderer,
 		{ { lyra::VulkanShader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" }, 
 		{ lyra::VulkanShader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" } },
 		layoutBuilder,
