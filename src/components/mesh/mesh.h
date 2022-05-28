@@ -68,7 +68,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const parent = nullptr, const std::string name = "mesh");
+	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const parent = nullptr, const std::string name = "mesh");
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
@@ -83,8 +83,6 @@ public:
 
 			vkCmdDrawIndexed(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), static_cast<uint32>(_indices.size()), 1, 0, 0, 0); 
 		});
-
-		// std::abort();
 	}
 
 	/**
@@ -98,7 +96,7 @@ public:
 	 *
 	 * @return const std::vector <uint16>
 	*/
-	[[nodiscard]] const std::vector <uint16> indices() const noexcept { return _indices; }
+	[[nodiscard]] const std::vector <uint32> indices() const noexcept { return _indices; }
 	/**
 	 * @brief get the vertex buffer
 	 * 
@@ -114,7 +112,7 @@ public:
 
 private:
 	std::vector <Vertex> _vertices;
-	std::vector <uint16> _indices;
+	std::vector <uint32> _indices;
 
 	VulkanGPUBuffer _vertexBuffer;
 	VulkanGPUBuffer _indexBuffer;

@@ -73,7 +73,7 @@ void Mesh::create(const std::string path, const uint16 index, const noud::Node* 
 	Logger::log_info("Succesfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint16> indices, const noud::Node* const  parent, const std::string name) {
+void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const  parent, const std::string name) {
 	(parent, name);
 
 	_vertices = vertices;

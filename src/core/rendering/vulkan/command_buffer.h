@@ -122,16 +122,12 @@ public:
 
 		// start recording
 		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) Logger::log_exception("Failed to start recording Vulkan command buffer!");
-
-		Logger::log_debug(Logger::tab(), "Began recording command buffer at: ", get_address(this));
 	}
 	/**
 	 * @brief end recording a commandBuffer
 	 */
 	void end() const {
 		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) Logger::log_exception("Failed to stop recording command buffer!");
-
-		Logger::log_debug(Logger::tab(), "End recording command buffer at: ", get_address(this));
 	}
 	/**
 	 * reset the command buffer after everything has been recorded
