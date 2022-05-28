@@ -84,17 +84,23 @@ public:
 		const Anistropy anistropy = Anistropy::ANISTROPY_ENABLE;
 	};
 
-	Texture();
+	Texture() { }
 
 	/**
 	 * @brief destructor of the texture
 	 */
-	virtual ~Texture() noexcept;
+	virtual ~Texture() noexcept {
+		vkDestroySampler(Application::context()->device()->device(), _sampler, nullptr);
+
+		Logger::log_info("Successfully destroyed Texture!");
+	}
 
 	/**
 	 * @brief destroy the texture
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~Texture();
+	}
 
 	Texture operator=(const Texture&) const noexcept = delete;
 
@@ -163,7 +169,7 @@ private:
 	 * @param extendedTexels how to render the image if the surface is bigger than the image
 	 * @param magnifiedTexel how to filter the image if a pixel is smaller than a texel
 	 * @param minimizedTexel how to filter the image if a pixel is bigger than a texel
-	 * @param mipmapMode the mode of midmapping
+	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
 		const CreateInfo info,

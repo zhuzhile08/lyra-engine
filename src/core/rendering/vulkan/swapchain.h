@@ -36,17 +36,23 @@ private:
 	 */
 	struct VulkanSwapchainImages {
 	public:
-		VulkanSwapchainImages();
+		VulkanSwapchainImages() { }
 
 		/**
 		 * @brief destructor of the swapchain images
 		 */
-		virtual ~VulkanSwapchainImages() noexcept;
+		virtual ~VulkanSwapchainImages() noexcept {
+			for (auto& view : _views) vkDestroyImageView(device->device(), view, nullptr);
+
+			Logger::log_info("Successfully destroyed Vulkan swapchain images!");
+		}
 
 		/**
 		 * @brief destroy the swapchain images
 		 */
-		void destroy() noexcept;
+		void destroy() noexcept {
+			this->~VulkanSwapchainImages();
+		}
 
 		VulkanSwapchainImages operator=(const VulkanSwapchainImages&) const noexcept = delete;
 
@@ -70,17 +76,14 @@ private:
 	 */
 	struct VulkanDepthBuffer : VulkanImage, VulkanGPUMemory {
 	public:
-		VulkanDepthBuffer();
-
-		/**
-		 * @brief destructor of the depth buffer
-		 */
-		virtual ~VulkanDepthBuffer() noexcept;
+		VulkanDepthBuffer() { }
 
 		/**
 		 * @brief destroy the depth buffer
 		 */
-		void destroy() noexcept;
+		void destroy() noexcept {
+			this->~VulkanDepthBuffer();
+		}
 
 		VulkanDepthBuffer operator=(const VulkanDepthBuffer&) const noexcept = delete;
 
@@ -100,17 +103,25 @@ private:
 	};
 
 public:
-	VulkanSwapchain();
+	VulkanSwapchain() { }
 
 	/**
 	 * @brief destructor of the swapchain
 	 */
-	virtual ~VulkanSwapchain() noexcept;
+	virtual ~VulkanSwapchain() noexcept {
+		vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
+
+		delete _oldSwapchain;
+
+		Logger::log_info("Successfully destroyed Vulkan swapchain!");
+	}
 
 	/**
 	 * @brief destroy the swapchain
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~VulkanSwapchain();
+	}
 
 	VulkanSwapchain operator=(const VulkanSwapchain&) const noexcept = delete;
 

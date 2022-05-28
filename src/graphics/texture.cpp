@@ -2,18 +2,6 @@
 
 namespace lyra {
 
-Texture::Texture() { }
-
-Texture::~Texture() noexcept {
-	vkDestroySampler(Application::context()->device()->device(), _sampler, nullptr);
-
-	Logger::log_info("Successfully destroyed Texture!");
-}
-
-void Texture::destroy() noexcept {
-	this->~Texture();
-}
-
 void Texture::create(const CreateInfo info, const VkFormat format) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
@@ -38,7 +26,7 @@ void Texture::load_image(const CreateInfo info, const VkFormat format) {
 	// calculate the mipmap levels of the image
 	_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
 
-	Logger::log_debug(Logger::tab(), "midmapping levels: ", _mipmap);
+	Logger::log_debug(Logger::tab(), "mipmapping levels: ", _mipmap);
 
 	// create a staging buffer
 	VulkanGPUBuffer stagingBuffer;
@@ -59,7 +47,7 @@ void Texture::load_image(const CreateInfo info, const VkFormat format) {
 			_mipmap,
 			static_cast<VkImageType>(info.dimension)
 		),
-		&get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
+		&get_alloc_create_info(Application::context()->device(), VMA_MEMORY_USAGE_GPU_ONLY),
 		& _image, 
 		& _memory, 
 		nullptr
