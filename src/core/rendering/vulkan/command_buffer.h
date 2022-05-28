@@ -136,8 +136,6 @@ public:
 	 */
 	void reset(const VkCommandBufferResetFlags flags = 0) const {
 		if (vkResetCommandBuffer(commandBuffer, flags) != VK_SUCCESS) Logger::log_exception("Failed to reset command buffer!");
-
-		Logger::log_debug(Logger::tab(), "Reset command buffer at: ", get_address(this));
 	}
 
 	/**
