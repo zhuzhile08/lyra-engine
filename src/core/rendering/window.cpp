@@ -38,8 +38,11 @@ void Window::create(uint32 width, uint32 height, bool resizable, bool fullscreen
 }
 
 void Window::events() noexcept {
-	while (SDL_PollEvent(&_event)) {
-		/// @todo
+	if (SDL_PollEvent(&_event)) {
+		if (_event.type == SDL_QUIT)
+		{
+			_running = false;
+		}
 		
 	}
 }

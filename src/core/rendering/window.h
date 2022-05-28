@@ -83,6 +83,12 @@ public:
 	 * @return SDL_Window*
 	 */
 	[[nodiscard]] SDL_Window* get() const noexcept { return _window; };
+	/**
+	* @brief get if window is still running
+	* 
+	* @return const bool
+	**/
+	[[nodiscard]] const bool running() const noexcept { return _running; }
 
 private:
 	SDL_Window* _window;
@@ -92,6 +98,7 @@ private:
 	uint32 _height = 0;
 	bool _resizable = false;
 	bool _fullscreen = false;
+	bool _running = true;
 	const char* _title = "Game";
 };
 
