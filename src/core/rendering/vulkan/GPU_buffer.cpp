@@ -27,9 +27,10 @@ void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize cons
 		0
 	};
 
-	if (vmaCreateBuffer(device->allocator(), &bufferInfo, &get_alloc_create_info(memUsage), &_buffer, &_memory, nullptr) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan GPU memory buffer!");
+	if (vmaCreateBuffer(device->allocator(), &bufferInfo, &get_alloc_create_info(Application::context()->device(), memUsage), &_buffer, &_memory, nullptr) != VK_SUCCESS) 
+		Logger::log_exception("Failed to create Vulkan GPU memory buffer!");
 
-	Logger::log_info("Succesfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const VulkanGPUBuffer* const srcBuffer) {
@@ -54,7 +55,7 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const Vul
 	commandBuffer.submit_queue(device->graphicsQueue().queue);
 	commandBuffer.wait_queue(device->graphicsQueue().queue);
 
-	Logger::log_info("Succesfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
 }
 
 } // namespace lyra

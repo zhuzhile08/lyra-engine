@@ -35,9 +35,9 @@ public:
 	 * @brief destructor of the buffer
 	 */
 	virtual ~VulkanGPUBuffer() noexcept {
-		vmaDestroyBuffer(device->allocator(), _buffer, _memory);
+		vkDestroyBuffer(device->device(), _buffer, nullptr);
 
-		Logger::log_info("Succesfully destroyed Vulkan GPU buffer!");
+		Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
 	}
 
 	/**
