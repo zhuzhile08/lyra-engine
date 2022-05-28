@@ -137,8 +137,12 @@ public:
 	 * @return const VmaAllocation&
 	*/
 	[[nodiscard]] const VmaAllocation& memory() const noexcept { return _memory; }
-
-	[[nodiscard]] const std::string get_path() const noexcept { return _path; }
+	/**
+	* @brief get the path of the image
+	* 
+	* @return const std::string
+	**/
+	[[nodiscard]] const std::string path() const noexcept { return _path; }
 
 private:
 	VkSampler _sampler = VK_NULL_HANDLE;
