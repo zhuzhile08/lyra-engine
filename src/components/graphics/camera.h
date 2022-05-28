@@ -11,7 +11,6 @@
 
 #pragma once
 
-#define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <lyra.h>
@@ -62,7 +61,7 @@ public:
 	 * @param axis axis to rotate around
 	 */
 	void rotate(const float deg, const glm::vec3 axis) noexcept {
-		_updateQueue.add([&]() { _data.view += glm::rotate(glm::mat4(1.0f), FPS() * glm::radians(deg), axis); });
+		_updateQueue.add([&]() { _data.view += glm::rotate(glm::mat4(1.0f), FPS() * deg, axis); });
 	}
 
 	/**
@@ -72,7 +71,7 @@ public:
 	 * @param axis axis to set the rotation of
 	 */
 	void set_rotation(const float deg, const glm::vec3 axis) noexcept {
-		_updateQueue.add([&]() { _data.view = glm::rotate(glm::mat4(1.0f), FPS() * glm::radians(deg), axis); });
+		_updateQueue.add([&]() { _data.view = glm::rotate(glm::mat4(1.0f), FPS() * deg, axis); });
 	}
 	/**
 	 * @brief move the camera by a certain amount
@@ -106,24 +105,26 @@ public:
 	/**
 	 * @brief set the perspective of the camera
 	 *
-	 * @param swapchain swapchain
 	 * @param fov field of view
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	 */
-	void set_perspective(const float aspect, const float fov = Settings::Rendering::fov, const float near = 0.1f, const float far = 10.0f) noexcept {
-		_updateQueue.add([&]() { _data.proj = glm::perspective(glm::radians(fov), aspect, near, far); });
+	void set_perspective(const float fov = Settings::Rendering::fov, const float near = 0.1f, const float far = 200.0f) noexcept {
+		_updateQueue.add([&]() { _data.proj = glm::perspective(Settings::Rendering::fov, _aspect, 0.1f, 200.0f); _data.proj[1][1] *= -1; });
 	}
 
 	/**
 	 * @brief temporary draw function
 	*/
 	void draw() {
-		_updateQueue.flush();
+		CameraData dat {};
+		dat.view = glm::translate(glm::mat4(1.0f), { 0.f,-6.f,-10.f });
+		dat.proj = glm::perspective(Settings::Rendering::fov, _aspect, 0.1f, 200.0f); 
+		dat.proj[1][1] *= -1;
 
-		_buffers[Application::context()->currentFrame()].copy_data(&_data);
+		_buffers[Application::context()->currentFrame()].copy_data(&dat);
 
-		_data = CameraData();
+		_data = dat;
 	}
 
 	/**

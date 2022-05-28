@@ -14,7 +14,7 @@ Camera::Camera() {
 
 	_aspect = Application::context()->swapchain()->extent().width / (float)Application::context()->swapchain()->extent().height;
 
-	Logger::log_info("Succesfully created Camera at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
 }
 
 } // namespace lyra
