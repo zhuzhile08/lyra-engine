@@ -18,17 +18,14 @@ void Renderer::destroy() noexcept {
 	this->~Renderer();
 }
 
-void Renderer::record_command_buffers() {
+void Renderer::record_command_buffers() const {
 	// look at how D Y N A M I C this is
+
 	_framebuffers.begin();
 
 	_drawQueue.flush();
 	
 	_framebuffers.end();
-}
-
-void Renderer::draw() noexcept {
-	Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
 }
 
 } // namespace lyra

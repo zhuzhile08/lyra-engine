@@ -78,6 +78,14 @@ public:
 	void add_to_render_queue(std::function<void()>&& function) {
 		_renderQueue.add(std::move(function));
 	}
+	/**
+	 * @brief add a function to the update queue
+	 *
+	 * @param function the function
+	*/
+	void add_to_update_queue(std::function<void()>&& function) {
+		_renderQueue.add(std::move(function));
+	}
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -121,6 +129,12 @@ public:
 	*/
 	[[nodiscard]] const CallQueue* renderQueue() const noexcept { return &_renderQueue; }
 	/**
+	 * @brief get the queue with the update functions
+	 *
+	 * @return const CallQueue*
+	*/
+	[[nodiscard]] const CallQueue* updateQueue() const noexcept { return &_updateQueue; }
+	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
@@ -141,6 +155,7 @@ private:
 	VulkanSyncObjects _syncObjects;
 	VulkanSwapchain _swapchain;
 
+	CallQueue _updateQueue;
 	CallQueue _renderQueue;
 
 	uint8 _currentFrame = 0;
@@ -165,6 +180,8 @@ private:
 	void update_frame_count() noexcept {
 		_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
 	}
+
+	void update() const { _updateQueue.flush(); }
 };
 
 } // namespace Vulkan

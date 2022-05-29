@@ -20,6 +20,7 @@
 #include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
+#include <graphics/camera.h>
 
 #include <vector>
 
@@ -49,10 +50,11 @@ public:
 
 	/**
 	 * @brief bind the functions for resetting and finish recording the command buffers
-	 *
-	 * @param context the context
 	 */
-	void draw() noexcept;
+	void bind() noexcept {
+		Application::context()->add_to_update_queue([&]() { _camera.draw(); _updateQueue.flush(); });
+		Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
+	}
 
 	/**
 	 * @brief add a function to the draw queue
@@ -61,6 +63,15 @@ public:
 	*/
 	void add_to_draw_queue(std::function<void()>&& function) {
 		_drawQueue.add(std::move(function));
+	}
+
+	/**
+	 * @brief add a function to the draw queue
+	 *
+	 * @param function functio to add
+	*/
+	void add_to_update_queue(std::function<void()>&& function) {
+		_updateQueue.add(std::move(function));
 	}
 
 	/**
@@ -75,17 +86,27 @@ public:
 	 * @return const lyra::VulkanFramebuffers* const
 	*/
 	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
+	
+	/**
+	 * @brief get the camera
+	 * 
+	 * @return Camera* const
+	*/
+	[[nodiscard]] Camera* const camera() noexcept { return &_camera; }
 
 private:
 	VulkanFramebuffers _framebuffers;
+	Camera _camera;
+
 	CallQueue _drawQueue;
+	CallQueue _updateQueue;
 
 	bool _drawing = true;
 
 	/**
 	 * @brief record all the commands
 	 */
-	void record_command_buffers();
+	void record_command_buffers() const;
 };
 
 }

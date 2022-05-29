@@ -22,6 +22,8 @@ int main() {
 
 	// renderer
 	lyra::Renderer renderer;
+	renderer.camera()->set_position({ 10.f, 0.f, 0.f });
+	renderer.camera()->look_at({ 0.0f, 0.0f, 0.0f });
 
 	// asset manager
 	lyra::AssetManager manager;
@@ -59,14 +61,9 @@ int main() {
 	manager.add_pipelines({ &graphicsPipeline });
 	manager.add_textures({ &texture });
 
-	// camera
-	lyra::Camera camera;
-	camera.set_position({ 0.f,-6.f,-10.f });
-	camera.set_perspective();
-
 	lyra::VulkanDescriptor::Writer writer;
-	writer.add_buffer_write(&camera.buffers().at(0).get_descriptor_buffer_info(), 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER); 
-	writer.add_buffer_write(&camera.buffers().at(1).get_descriptor_buffer_info(), 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER);
+	writer.add_buffer_write(&renderer.camera()->buffers().at(0).get_descriptor_buffer_info(), 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER); // kinda bloated, ngl
+	writer.add_buffer_write(&renderer.camera()->buffers().at(1).get_descriptor_buffer_info(), 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER);
 	writer.add_image_write(&texture.get_descriptor_image_info());
 
 	// manager
@@ -75,11 +72,11 @@ int main() {
 
 	lyra::Mesh room;
 	room.create("data/model/viking_room.obj");
-
+	
 	material.bind(&renderer);
 	room.bind(&renderer);
 
-	renderer.draw();
+	renderer.bind();
 
 	lyra::Application::draw();
 
