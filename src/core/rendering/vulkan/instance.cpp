@@ -71,7 +71,7 @@ void VulkanInstance::create_instance() {
 		VK_MAKE_VERSION(0, 0, 1),
 		Settings::Window::title,
 		VK_MAKE_VERSION(0, 0, 1),
-		VK_API_VERSION_1_2
+		VK_API_VERSION_1_3
 	};
 
 	// defining some instance info
