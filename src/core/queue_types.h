@@ -34,7 +34,7 @@ public:
 	/**
 	 * @brief flush the queue whilst calling all the functions
 	 */
-	void flush() {
+	void flush() const {
 		for (auto func = queue.begin(); func != queue.end(); func++) (*func)();
 	}
 
