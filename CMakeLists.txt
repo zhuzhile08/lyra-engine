@@ -58,7 +58,7 @@ add_executable(LyraEngine
  "src/init/init_SDL.cpp"                    # engine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
- "src/components/graphics/camera.cpp"
+ "src/graphics/camera.cpp"
  "src/core/rendering/window.cpp"
  #"src/core/rendering/gui_context.cpp"       # engine GUI
  "src/components/physics/transform.cpp" 
