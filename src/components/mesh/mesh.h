@@ -18,7 +18,7 @@
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <graphics/renderer.h>
 #include <graphics/texture.h>
-#include <components/graphics/camera.h>
+#include <graphics/camera.h>
 
 #include <noud.h>
 
