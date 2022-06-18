@@ -73,6 +73,50 @@ private:
 	};
 
 	/**
+	 * @brief Vulkan multisampling/antialiasing
+	*/
+	struct VulkanColorResources : VulkanImage, VulkanGPUMemory {
+	public:
+		VulkanColorResources() { }
+
+		/**
+		 * @brief destroy the depth buffer
+		 */
+		void destroy() noexcept {
+			this->~VulkanColorResources();
+		}
+
+		VulkanColorResources operator=(const VulkanColorResources&) const noexcept = delete;
+
+		/**
+		 * @brief create the image, view and allocate the memory
+		 *
+		 * @param device device
+		 * @param swapchain swapchain
+		 */
+		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain);
+
+		/**
+		 * @brief get the maximum amout of samples
+		 *
+		 * @return const VkSampleCountFlagBits
+		 */
+		[[nodiscard]] const VkSampleCountFlagBits maxSamples() const noexcept { return _maxSamples; }
+
+	private:
+		const VulkanDevice* device;
+
+		VkSampleCountFlagBits _maxSamples = VK_SAMPLE_COUNT_1_BIT;
+
+		/**
+		 * @brief return the maximum samples per pixel
+		 *
+		 * @return const VkSampleCountFlagBits
+		*/
+		const VkSampleCountFlagBits getMaxSamples() const noexcept;
+	};
+
+	/**
 	 * @brief wrapper around depth buffers
 	 */
 	struct VulkanDepthBuffer : VulkanImage, VulkanGPUMemory {
@@ -93,9 +137,10 @@ private:
 		 *
 		 * @param device device
 		 * @param swapchain swapchain
+		 * @param multisampling multisampling
 		 * @param cmdPool command pool
 		 */
-		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanCommandPool* const cmdPool);
+		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanColorResources* const multisampling, const VulkanCommandPool* const cmdPool);
 
 		VkFormat _format;
 
@@ -165,6 +210,12 @@ public:
 	*/
 	[[nodiscard]] const VulkanSwapchainImages* images() const noexcept { return &_images; }
 	/**
+	 * @brief get the color resources
+	 *
+	 * @return const lyra::VulkanColorResources*
+	*/
+	[[nodiscard]] const VulkanColorResources* colorResources() const noexcept { return &_colorResources; }
+	/**
 	 * @brief get the depth buffer
 	 *
 	 * @return const lyra::VulkanDepthBuffer*
@@ -176,6 +227,7 @@ private:
 	VkFormat _format;
 	VkExtent2D _extent;
 	VulkanSwapchainImages _images;
+	VulkanColorResources _colorResources;
 	VulkanDepthBuffer _depthBuffer;
 
 	VkSwapchainKHR* _oldSwapchain = nullptr;

@@ -18,29 +18,42 @@ void VulkanFramebuffers::create(const VulkanDevice* const device, const VulkanSw
 
 void VulkanFramebuffers::create_render_pass() {
 	// define what to do with an image during rendering
-	VkAttachmentDescription imageAttachmentDescriptions {
+	VkAttachmentDescription colorAttachmentDescriptions {
 		0,
 		swapchain->format(),
-		VK_SAMPLE_COUNT_1_BIT,
+		swapchain->colorResources()->maxSamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 	};
 
 	// depth buffers
-	VkAttachmentDescription	depthBufferAttachmentDescriptions { // first error, depth buffer gets destroyed here
+	VkAttachmentDescription	depthBufferAttachmentDescriptions {
 		0,
 		swapchain->depthBuffer()->_format,
-		VK_SAMPLE_COUNT_1_BIT,
+		swapchain->colorResources()->maxSamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_IMAGE_LAYOUT_UNDEFINED,
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+	};
+
+	// "finalise" the image to render
+	VkAttachmentDescription colorAttachmentFinalDescriptions { // Nanashi became Dagdas personal game engine programmer
+		0,
+		swapchain->format(),
+		VK_SAMPLE_COUNT_1_BIT,
+		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_STORE,
+		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 	};
 
 	VkAttachmentReference colorAttachmentReferences {
@@ -53,7 +66,12 @@ void VulkanFramebuffers::create_render_pass() {
 		VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 	};
 
-	std::vector<VkAttachmentDescription> attachments = { imageAttachmentDescriptions, depthBufferAttachmentDescriptions };
+	VkAttachmentReference colorAttachmentFinalReferences{
+		2,
+		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+	};
+
+	std::vector<VkAttachmentDescription> attachments = { colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions };
 
 	VkSubpassDescription subpassDescriptions {
 		0,
@@ -62,7 +80,7 @@ void VulkanFramebuffers::create_render_pass() {
 		nullptr,
 		1,
 		&colorAttachmentReferences,
-		nullptr,
+		&colorAttachmentFinalReferences,
 		&depthBufferAttachmentReferences,
 		0,
 		nullptr
@@ -98,9 +116,10 @@ void VulkanFramebuffers::create_frame_buffers() {
 	_framebuffers.resize(swapchain->images()->_images.size());
 
 	for (int i = 0; i < swapchain->images()->_images.size(); i++) {
-		std::array<VkImageView, 2> attachments = {
-			swapchain->images()->_views.at(i),
-			swapchain->depthBuffer()->_view
+		std::array<VkImageView, 3> attachments = {	
+			swapchain->colorResources()->_view,
+			swapchain->depthBuffer()->_view,
+			swapchain->images()->_views.at(i)
 		};
 
 		// create the frame buffers

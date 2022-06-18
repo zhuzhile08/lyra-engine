@@ -36,8 +36,56 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* const de
 	Logger::log_info("Successfully created Vulkan swapchain images at ", get_address(this), "!", Logger::end_l());
 }
 
+// color resources
+void VulkanSwapchain::VulkanColorResources::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain) {
+	Logger::log_info("Creating Vulkan color resources...");
+
+	this->device = device;
+
+	VkFormat colorFormat = swapchain->format();
+
+	_maxSamples = getMaxSamples();
+
+	// create memory and image
+	if (vmaCreateImage(device->allocator(),
+		&get_image_create_info(
+			colorFormat,
+			{ swapchain->extent().width, swapchain->extent().height, 1 },
+			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+			1,
+			VK_IMAGE_TYPE_2D,
+			1,
+			_maxSamples
+		),
+		&get_alloc_create_info(device, VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		&_image,
+		&_memory,
+		nullptr
+	) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan color resources!");
+
+	// create the image view
+	create_view(device, colorFormat, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+
+	Logger::log_info("Successfully created Vulkan color resources at ", get_address(this), "!", Logger::end_l());
+}
+
+const VkSampleCountFlagBits VulkanSwapchain::VulkanColorResources::getMaxSamples() const noexcept {
+	VkPhysicalDeviceProperties physicalDeviceProperties;
+	vkGetPhysicalDeviceProperties(device->physicalDevice(), &physicalDeviceProperties);
+
+	VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
+	if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
+	if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
+	if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
+	if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
+	if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+
+	return VK_SAMPLE_COUNT_1_BIT;
+}
+
 // depth buffer
-void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanCommandPool* const cmdPool) {
+void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanColorResources* const multisampling, const VulkanCommandPool* const cmdPool) {
 	Logger::log_info("Creating Vulkan depth buffer...");
 
 	this->device = device;
@@ -49,7 +97,11 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device
 		&get_image_create_info(
 			_format,
 			{ swapchain->extent().width, swapchain->extent().height, 1 },
-			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+			1,
+			VK_IMAGE_TYPE_2D,
+			1,
+			multisampling->maxSamples()
 		),
 		&get_alloc_create_info(Application::context()->device(), VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 		&_image,
@@ -221,7 +273,8 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
 	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan swapchain");
 
 	_images.create(device, this);
-	_depthBuffer.create(device, this, cmdPool);
+	_colorResources.create(device, this);
+	_depthBuffer.create(device, this, &_colorResources, cmdPool);
 }
 
 } // namespace lyra

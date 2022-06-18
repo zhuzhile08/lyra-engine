@@ -87,9 +87,9 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			VK_SAMPLE_COUNT_1_BIT,
-			VK_FALSE,				// currently set to false
-			0,
+			Application::context()->swapchain()->colorResources()->maxSamples(),
+			VK_TRUE,				// currently set to false
+			0.2f,
 			nullptr,
 			VK_FALSE,
 			VK_FALSE
