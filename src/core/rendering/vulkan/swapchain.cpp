@@ -131,11 +131,10 @@ const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
 			_format = availableFormat.format;
 			return availableFormat;
 		}
-		else {
-			_format = availableFormats[0].format;
-			return availableFormats[0];
-		}
 	}
+
+	_format = availableFormats[0].format;
+	return availableFormats[0];
 }
 
 const VkPresentModeKHR VulkanSwapchain::get_optimal_present_mode() {
@@ -152,10 +151,9 @@ const VkPresentModeKHR VulkanSwapchain::get_optimal_present_mode() {
 			return mode;
 			break;
 		}
-		else {
-			return VK_PRESENT_MODE_FIFO_KHR;
-		}
 	}
+
+	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
 void VulkanSwapchain::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabilities) const {
