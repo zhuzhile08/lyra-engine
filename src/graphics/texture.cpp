@@ -179,7 +179,7 @@ void Texture::generate_mipmaps() const {
 
 void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent) {
 	// temporary command buffer for copying
-	VulkanCommandBuffer     cmdBuff;
+	VulkanCommandBuffer cmdBuff;
 	cmdBuff.create(Application::context()->device(), Application::context()->commandPool());
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
