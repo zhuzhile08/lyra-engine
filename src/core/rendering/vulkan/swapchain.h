@@ -20,6 +20,7 @@
 #include <core/logger.h>
 
 #include <vector>
+#include <algorithm>
 
 #include <SDL.h>
 #include <vulkan/vulkan.h>
@@ -183,6 +184,25 @@ private:
 	const VulkanInstance* instance;
 	const VulkanCommandPool* cmdPool;
 	const Window* window;
+
+	/**
+	 * @brief get the optimal format for the swapchain
+	 * 
+	 * @return const VkSurfaceFormatKHR
+	*/
+	[[nodiscard]] const VkSurfaceFormatKHR get_optimal_format();
+	/**
+	 * @brief get the optimal presentation mode for the swapchain
+	 *
+	 * @return const VkPresentModeKHR
+	*/
+	[[nodiscard]] const VkPresentModeKHR get_optimal_present_mode();
+	/**
+	 * @brief check the correctness of the suface capabilities of the swapchain
+	 *
+	 * @param surfaceCapabilities the surface settings/capabilities to check
+	*/
+	void check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabilities) const;
 
 	/**
 	 * @brief create the swapchain

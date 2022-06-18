@@ -55,7 +55,7 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const Vul
 	commandBuffer.submit_queue(device->graphicsQueue().queue);
 	commandBuffer.wait_queue(device->graphicsQueue().queue);
 
-	Logger::log_info("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
+	Logger::log_debug("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
 }
 
 } // namespace lyra

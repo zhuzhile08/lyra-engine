@@ -14,7 +14,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* const de
 	_images.resize(imageCount); _views.resize(imageCount);
 	vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, _images.data());
 
-	// I hate... HATE this bro why C++
+	// I hate this bro why C++
 	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
 	for (uint32 i = 0; i < imageCount; i++) {
 		// image view creation info
@@ -109,79 +109,56 @@ void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR sur
 			static_cast<uint32>(height)
 		};
 
-		auto clamp = [&](int a, int min, int max) {
-			if (a <= min) {
-				return min;
-			}
-			else {
-				if (a >= max) {
-					return max;
-				}
-				else {
-					return a;
-				}
-			}
-		};
-
-		newExtent.width = clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-		newExtent.height = clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+		newExtent.width = std::clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+		newExtent.height = std::clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
 
 		_extent = newExtent;
-	}
-	else {                                                                // in this case, the extent is fine
+	} else {                                                                // in this case, the extent is fine
 		_extent = surfaceCapabilities.currentExtent;
 	}
 }
 
-void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
-	// query some details
-	uint32 availableFormatCount = 0;    	   // formats
-	VkSurfaceFormatKHR format = { };
-	uint32 availablePresentModeCount = 0;      // presentation modes
-	VkPresentModeKHR presentMode = { };
-
+const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
+	uint32 availableFormatCount = 0;
 	if (vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, nullptr) != VK_SUCCESS)
 		Logger::log_exception("Failed to get available swapchain surface modes");
-	if (vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr) != VK_SUCCESS)
-		Logger::log_exception("Failed to get available swapchain present modes");
 
 	// check the formats
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, availableFormats.data());
 	for (auto& availableFormat : availableFormats) {
 		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-			format = availableFormat;
-			break;
+			_format = availableFormat.format;
+			return availableFormat;
 		}
 		else {
-			format = availableFormats[0];
+			_format = availableFormats[0].format;
+			return availableFormats[0];
 		}
 	}
+}
 
-	Logger::log_debug(Logger::tab(), "Swapchain configurations are: ");
+const VkPresentModeKHR VulkanSwapchain::get_optimal_present_mode() {
+	uint32 availablePresentModeCount = 0;
 
-	_format = format.format;
-
-	Logger::log_debug(Logger::tab(), "format is ", _format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ");");
+	if (vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr) != VK_SUCCESS)
+		Logger::log_exception("Failed to get available swapchain present modes");
 
 	// check the presentation modes
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, availablePresentModes.data());
 	for (const auto& mode : availablePresentModes) {
 		if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
-			presentMode = mode;
+			return mode;
 			break;
 		}
 		else {
-			presentMode = VK_PRESENT_MODE_FIFO_KHR;
+			return VK_PRESENT_MODE_FIFO_KHR;
 		}
 	}
+}
 
-	Logger::log_debug(Logger::tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ");");
-
-	// set the surface capabilities if something went wrong
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;
-
+void VulkanSwapchain::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabilities) const {
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->physicalDevice(), instance->surface(), &surfaceCapabilities);
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
@@ -198,15 +175,29 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
 	} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
 		surfaceCapabilities.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 	}
+}
 
+void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
+	Logger::log_debug(Logger::tab(), "Swapchain configurations are: ");
+
+	// get the optimal format
+	VkSurfaceFormatKHR format = get_optimal_format();
+	Logger::log_debug(Logger::tab(), "format is ", _format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ");");
+	
+	VkPresentModeKHR presentMode = get_optimal_present_mode();
+	Logger::log_debug(Logger::tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ");");
+
+	// set the surface capabilities if something went wrong
+	VkSurfaceCapabilitiesKHR surfaceCapabilities;
+	check_surface_capabilities(surfaceCapabilities);
 	Logger::log_debug(Logger::tab(), "width is ", Settings::Window::width, " and the height is ", Settings::Window::height);
 
 	// create the extent
 	create_swapchain_extent(surfaceCapabilities);
 
 	// create the swapchain
-	auto temp = device->graphicsQueue().familyIndex;
-	auto cond = (device->graphicsQueue().familyIndex != device->presentQueue().familyIndex);
+	const auto temp = device->graphicsQueue().familyIndex;
+	const auto cond = (device->graphicsQueue().familyIndex != device->presentQueue().familyIndex);
 
 	VkSwapchainCreateInfoKHR createInfo = {
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
