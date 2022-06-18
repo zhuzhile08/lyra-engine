@@ -93,6 +93,11 @@ public:
 	void draw();
 
 	/**
+	 * @brief update all the members
+	*/
+	void update() const { _updateQueue.flush(); }
+
+	/**
 	 * @brief get the instance
 	 *
 	 * @return const lyra::VulkanInstance*
@@ -180,8 +185,6 @@ private:
 	void update_frame_count() noexcept {
 		_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
 	}
-
-	void update() const { _updateQueue.flush(); }
 };
 
 } // namespace Vulkan
