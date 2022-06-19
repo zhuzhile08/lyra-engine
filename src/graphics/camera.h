@@ -36,13 +36,9 @@ public:
 	struct CameraData {
 		CameraData() { }
 
-		glm::vec3 rotation = glm::vec3(1.0f);
-		glm::vec3 position = glm::vec3(1.0f);
-		float fov = Settings::Rendering::fov; 
-		float width = Settings::Window::width; 
-		float height = Settings::Window::height; 
-		float near = 0.1f; 
-		float far = 200.f;
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 proj;
 	};
 
 	/**
@@ -62,41 +58,13 @@ public:
 	/**
 	 * @brief set the perspective of the camera
 	 * 
-	 * @param fov FOV
-	 * @param width screen width
-	 * @param height screen height
+	 * @param fov field of view
+	 * @param width width of the camera
+	 * @param height height of the camera
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	*/
-	void set_perspective(float fov = Settings::Rendering::fov, float width = Settings::Window::width, float height = Settings::Window::height, float near = 0.1f, float far = 200.f) noexcept;
-	/**
-	 * @brief set the rotation of the camera around an axis
-	 *
-	 * @param deg degrees of rotation in degrees
-	 * @param axis axis to set the rotation of
-	 */
-	void set_rotation(const float angle, glm::vec3 up = { 0.0f, 0.0f, 0.1f }) noexcept {
-		_updateQueue.add([&]() {
-			_data.rotation = up * angle;
-		});
-	}
-	/**
-	 * @brief move the camera by a certain amount
-	 *
-	 * @param pos amount to move the camera
-	 */
-	void set_position(const glm::vec3 pos) noexcept {
-		_updateQueue.add([&]() {
-			_data.position = pos;
-		});
-	}
-
-	/**
-	 * @brief look at a position from the camera's current position
-	 * 
-	 * @param center place to look at
-	*/
-	void look_at(const glm::vec3 center) noexcept;
+	void set_perspective(float fov = 45.0f, float width = Settings::Window::width, float height = Settings::Window::height, float near = 0.1f, float far = 20.0f) noexcept;
 
 	/**
 	 * @brief temporary draw function
@@ -116,16 +84,40 @@ public:
 	*/
 	[[nodiscard]] const CameraData data() const noexcept { return _data; }
 	/**
-	 * @brief get the queue with the update commands
-	 * 
-	 * @return const CallQueue
+	 * @brief get the field of view of the camera
+	 *
+	 * @return const float
 	*/
-	[[nodiscard]] const CallQueue& updateQueue() const noexcept { return _updateQueue; }
+	[[nodiscard]] const float fov() const noexcept { return _fov; }
+	/**
+	 * @brief get the width of the camera
+	 *
+	 * @return const float
+	*/
+	[[nodiscard]] const float width() const noexcept { return _width; }
+	/**
+	 * @brief get the height of the camera
+	 *
+	 * @return const float
+	*/
+	[[nodiscard]] const float height() const noexcept { return _height; }
+	/**
+	 * @brief get the near clipping plane of the camera
+	 *
+	 * @return const float
+	*/
+	[[nodiscard]] const float near() const noexcept { return _near; }
+	/**
+	 * @brief get the far clipping plane of the camera
+	 *
+	 * @return const float
+	*/
+	[[nodiscard]] const float far() const noexcept { return _far; }
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
 	CameraData _data;
-	CallQueue _updateQueue;
+	float _fov = 45.0f, _width = Settings::Window::width, _height = Settings::Window::height, _near = 0.1f, _far = 20.0f;
 };
 
 } // namespace lyra

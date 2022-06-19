@@ -14,26 +14,16 @@ Camera::Camera() {
 }
 
 void Camera::set_perspective(float fov, float width, float height, float near, float far) noexcept {
-	_updateQueue.add([&]() {
-		_data.fov = fov;
-		_data.width = width;
-		_data.height = height;
-		_data.near = near;
-		_data.far = far;
-	});
-}
-
-void Camera::look_at(const glm::vec3 center) noexcept {
-	_updateQueue.add([&]() {
-		const glm::vec3 distance = _data.position - center;
-		_data.rotation.z = 0;
-		_data.rotation.y = 0;
-		_data.rotation.x = 0;
-	});
+	_fov = fov;
+	_width = width;
+	_height = height;
+	_near = near;
+	_far = far;
 }
 
 void Camera::draw() {
-	_updateQueue.flush();
+	_data.proj = glm::perspective(glm::radians(_fov), _width / _height, _near, _far);
+	_data.proj[1][1] *= -1;
 
 	_buffers[Application::context()->currentFrame()].copy_data(&_data);
 
