@@ -85,7 +85,7 @@ private:
 };
 
 /************************
-* Asset System usage guide
+* Material System usage guide
 * 
 * since specifying the index is a huge pain, I would recommend using a following scema:
 * 
