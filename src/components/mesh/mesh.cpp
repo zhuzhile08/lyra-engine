@@ -2,51 +2,6 @@
 
 namespace lyra {
 
-/*
-* still looking to somehow implement it in this folder, not in a different one
-* 
-Mesh::Vertex::Vertex() { }
-
-Mesh::Vertex::Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color) : pos(pos), normal(normal), color(color), uv(uv) { }
-
-VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() noexcept {
-	return {
-		0,
-		sizeof(Vertex),
-		VK_VERTEX_INPUT_RATE_VERTEX
-	};
-}
-
-std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() noexcept {
-	return {
-		{{
-			0,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, pos)
-		},
-		{
-			1,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, normal)
-		},
-		{
-			2,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, color)
-		},
-		{
-			3,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, uv)
-		}}
-	};
-}
-*/
-
 Mesh::Mesh() { }
 
 void Mesh::destroy() noexcept {

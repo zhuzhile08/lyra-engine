@@ -13,7 +13,6 @@
 #pragma once
 
 #include <core/defines.h>
-#include <res/loaders/load_file.h>
 #include <core/rendering/vulkan/vulkan_pipeline.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/framebuffers.h>
