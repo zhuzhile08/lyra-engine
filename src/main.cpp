@@ -9,8 +9,6 @@
 #include <graphics/material_manager.h>
 #include <components/mesh/mesh.h>
 #include <graphics/texture.h>
-#include <math/math.h>
-#include <glm.hpp>
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
