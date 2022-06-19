@@ -52,7 +52,7 @@ public:
 	 * @brief bind the functions for resetting and finish recording the command buffers
 	 */
 	void bind() noexcept {
-		Application::context()->add_to_update_queue([&]() { _camera.draw(); _updateQueue.flush(); });
+		Application::context()->add_to_update_queue([&]() { _updateQueue.flush(); _camera.draw(); });
 		Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
 	}
 
