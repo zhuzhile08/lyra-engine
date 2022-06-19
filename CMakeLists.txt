@@ -46,7 +46,9 @@ include_directories(
  ${IMGUI_INCLUDE_DIRS}
 )
 
-add_executable(LyraEngine 
+# building the library
+
+add_library(LyraEngine
  "include/imgui/imgui.cpp"                  # imgui
  "include/imgui/imgui_demo.cpp"
  "include/imgui/imgui_draw.cpp"
@@ -70,14 +72,20 @@ add_executable(LyraEngine
  "src/core/rendering/context.cpp"
  "src/core/rendering/vulkan_core_wrappers.cpp"
  "src/res/loaders.cpp"
- "src/main.cpp"
  "src/lyra.cpp"
  "src/core/settings.cpp"
- "src/graphics/asset_manager.cpp" "src/core/logger.cpp")
+ "src/graphics/asset_manager.cpp" "src/core/logger.cpp"
+)
 
 add_dependencies(LyraEngine build_shaders)
 
 target_link_libraries(LyraEngine ${SDL2_LIBRARIES} Vulkan::Vulkan)
+
+add_executable(Game
+ "src/main.cpp"
+)
+
+target_link_libraries(Game LyraEngine)
 
 target_precompile_headers(LyraEngine
 PRIVATE
