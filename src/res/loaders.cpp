@@ -11,6 +11,6 @@
 
 #pragma once
 
-#include <res/loaders/load_file.cpp>
+#include <res/loaders/load_shader.cpp>
 #include <res/loaders/load_font.cpp>
 #include <res/loaders/load_model.cpp>
