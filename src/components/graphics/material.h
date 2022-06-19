@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <graphics/asset_manager.h>
+#include <graphics/material_manager.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <graphics/renderer.h>
 #include <lyra.h>
@@ -29,7 +29,7 @@ public:
 	 * @param texID texture ID
 	 * @param piplID pipeline ID
 	*/
-	void create(const AssetManager* manager, const uint32 texID, const uint32 piplID, const VulkanDescriptor::Writer writer) {
+	void create(const MaterialManager* manager, const uint32 texID, const uint32 piplID, const VulkanDescriptor::Writer writer) {
 		Logger::log_info("Creating material...");
 
 		this->manager = manager;
@@ -78,7 +78,7 @@ private:
 	uint32 _textureID, _pipelineID;
 	VulkanDescriptor _descriptor;
 
-	const AssetManager* manager;
+	const MaterialManager* manager;
 };
 
 } // namespace lyra

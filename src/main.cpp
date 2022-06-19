@@ -6,7 +6,7 @@
 #include <components/graphics/material.h>
 #include <core/queue_types.h>
 #include <graphics/renderer.h>
-#include <graphics/asset_manager.h>
+#include <graphics/material_manager.h>
 #include <components/mesh/mesh.h>
 #include <graphics/texture.h>
 #include <math/math.h>
@@ -22,11 +22,10 @@ int main() {
 
 	// renderer
 	lyra::Renderer renderer;
-	renderer.camera()->set_position({ 10.f, 0.f, 0.f });
-	renderer.camera()->look_at({ 0.0f, 0.0f, 0.0f });
+	renderer.camera()->set_perspective();
 
 	// asset manager
-	lyra::AssetManager manager;
+	lyra::MaterialManager manager;
 
 	// texture
 	lyra::Texture texture;

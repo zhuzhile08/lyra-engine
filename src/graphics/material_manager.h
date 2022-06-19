@@ -1,5 +1,5 @@
 /*************************
- * @file asset_manager.h
+ * @file material_manager.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief an asset manager
@@ -21,14 +21,14 @@
 namespace lyra {
 
 // manager for assets
-class AssetManager {
+class MaterialManager {
 public:
-	AssetManager() { }
+	MaterialManager() { }
 
 	/**
 	* @brief destroy the asset manager and all its contents
 	**/
-	~AssetManager() {
+	~MaterialManager() {
 		_textures.clear();
 		_pipelines.clear();
 
@@ -38,7 +38,7 @@ public:
 	 * @brief manually destroy the asset manager and all its contents
 	*/
 	void destroy() {
-		this->~AssetManager();
+		this->~MaterialManager();
 	}
 
 	/**
@@ -89,7 +89,7 @@ private:
 * 
 * since specifying the index is a huge pain, I would recommend using a following scema:
 * 
-* lyra::AssetManager manager1;
+* lyra::MaterialManager manager1;
 * 
 * enum Manager1TextureID : int {
 *	ID_GRASS_TEXTURE,
