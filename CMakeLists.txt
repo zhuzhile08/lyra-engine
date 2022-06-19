@@ -73,7 +73,7 @@ add_executable(LyraEngine
  "src/main.cpp"
  "src/lyra.cpp"
  "src/core/settings.cpp"
- )
+ "src/graphics/asset_manager.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 
