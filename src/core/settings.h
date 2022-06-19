@@ -83,4 +83,6 @@ struct Settings {
 	Settings() noexcept = delete;
 };
 
+#define LOG_FILE
+
 } // namespace lyra

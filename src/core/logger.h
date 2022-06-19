@@ -16,6 +16,7 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <utility>
 #include <core/defines.h>
 #include <core/settings.h>
@@ -91,6 +92,9 @@ public:
 	template<typename ... Args> static void log(Args... message) {
 		// print the message
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
+#ifdef LOG_FILE
+		(_logFile << ... << std::forward<Args>(message)) << end_l();
+#endif
 	}
 
 	/**
@@ -105,6 +109,10 @@ public:
 		// print the message
 		std::cout << "[DEBUG]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
+#ifdef LOG_FILE
+		_logFile << "[DEBUG]: ";
+		(_logFile << ... << std::forward<Args>(message)) << end_l();
+#endif
 		// reset color
 		set_color_default();
 	}
@@ -121,6 +129,10 @@ public:
 		// print the message
 		std::cout << "[INFO]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
+#ifdef LOG_FILE
+		_logFile << "[INFO]: ";
+		(_logFile << ... << std::forward<Args>(message)) << end_l();
+#endif
 		// reset color
 		set_color_default();
 	}
@@ -137,6 +149,10 @@ public:
 		// print the message
 		std::cout << "[WARNING]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
+#ifdef LOG_FILE
+		_logFile << "[WARNING]: ";
+		(_logFile << ... << std::forward<Args>(message)) << end_l();
+#endif
 		// reset color
 		set_color_default();
 	}
@@ -153,6 +169,10 @@ public:
 		// print the message
 		std::cout << "[ERROR]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
+#ifdef LOG_FILE
+		_logFile << "[ERROR]: ";
+		(_logFile << ... << std::forward<Args>(message)) << end_l();
+#endif
 		// reset color
 		set_color_default();
 	}
@@ -169,6 +189,10 @@ public:
 		// print the message
 		std::cout << "[EXCEPTION]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
+#ifdef LOG_FILE
+		_logFile << "[EXCEPTION]: ";
+		(_logFile << ... << std::forward<Args>(message)) << end_l();
+#endif
 		// abourt the program
 		std::abort();
 		// reset color
@@ -183,7 +207,16 @@ public:
 		std::cout << std::endl;
 	}
 
-	Logger() noexcept = delete;
+	~Logger() noexcept {
+		_logFile.close();
+	}
+
+private:
+	static std::ofstream _logFile;
+
+	Logger() {
+		_logFile.open("data/log/log.txt", std::ofstream::out | std::ofstream::trunc); // because I kinda can't use the logger functionality in here, you just have to hope that this doesn't throw an error
+	}
 };
 
 } // namespace lyra
