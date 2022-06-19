@@ -22,7 +22,6 @@ int main() {
 
 	// renderer
 	lyra::Renderer renderer;
-	renderer.camera()->set_perspective();
 
 	// asset manager
 	lyra::MaterialManager manager;
