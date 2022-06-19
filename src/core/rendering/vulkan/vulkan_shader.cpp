@@ -17,7 +17,7 @@ void VulkanShader::create(const VulkanDevice* const device, const std::string pa
 	_type = type;
 
 	// load the shader
-	auto shaderSrc = read_binary(path);
+	auto shaderSrc = read_shader_binary(path);
 
 	// create the shader
 	VkShaderModuleCreateInfo createInfo{
