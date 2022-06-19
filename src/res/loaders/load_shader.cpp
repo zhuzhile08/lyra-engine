@@ -1,4 +1,4 @@
-#include <res/loaders/load_file.h>
+#include <res/loaders/load_shader.h>
 
 namespace lyra {
 

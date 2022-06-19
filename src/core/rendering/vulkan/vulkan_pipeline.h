@@ -12,7 +12,7 @@
 #pragma once
 
 #include <core/defines.h>
-#include <res/loaders/load_file.h>
+#include <res/loaders/load_shader.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/descriptor.h>
