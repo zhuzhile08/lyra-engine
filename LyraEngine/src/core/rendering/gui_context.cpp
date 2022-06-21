@@ -4,25 +4,10 @@ namespace lyra {
 
 namespace gui {
 
-GUIContext::GUIContext() { }
-
-GUIContext::~GUIContext() {
-	ImGui_ImplVulkan_Shutdown();
-
-	lyra::Logger::log_info("Successfully destroyed GUI context!");
-}
-
-void GUIContext::destroy() {
-	this->~GUIContext();
-}
-
-void GUIContext::create(lyra::Context* const context, const lyra::Window* const window) {
+GUIContext::GUIContext() {
 	Logger::log_info("Creating context for the GUI... ");
 
-	this->context = context;
-	this->window = window;
-
-	_framebuffers.create(context->device(), context->swapchain());
+	_framebuffers.create(Application::context()->device(), Application::context()->swapchain());
 
 	// information about the descriptor pool
 	VulkanDescriptorPool::Builder builder;
@@ -38,23 +23,23 @@ void GUIContext::create(lyra::Context* const context, const lyra::Window* const 
 		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
 		{ VulkanDescriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
 		{ VulkanDescriptor::Type::TYPE_INPUT_ATTACHMENT, 1000 }
-	});
+		});
 	builder.set_max_sets(1000); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	_descriptorPool.create(context->device(), builder);
+	_descriptorPool.create(builder);
 
 	// initialize ImGui
 	ImGui::CreateContext();
 	// initialize ImGui for SDL
-	ImGui_ImplSDL2_InitForVulkan(window->get());
+	ImGui_ImplSDL2_InitForVulkan(Application::window()->get());
 	// initialization information
 	ImGui_ImplVulkan_InitInfo initInfo{
-		context->instance()->instance(),
-		context->device()->physicalDevice(),
-		context->device()->device(),
-		context->device()->graphicsQueue().familyIndex,
-		context->device()->graphicsQueue().queue,
+		Application::context()->instance()->instance(),
+		Application::context()->device()->physicalDevice(),
+		Application::context()->device()->device(),
+		Application::context()->device()->graphicsQueue().familyIndex,
+		Application::context()->device()->graphicsQueue().queue,
 		VK_NULL_HANDLE,
 		_descriptorPool.get(),
 		0,
@@ -67,7 +52,7 @@ void GUIContext::create(lyra::Context* const context, const lyra::Window* const 
 
 	// create a temporary command buffer for creating the font textures
 	VulkanCommandBuffer cmdBuff;
-	cmdBuff.create(context->device(), context->commandPool());
+	cmdBuff.create(Application::context()->device(), Application::context()->commandPool());
 	// start recording the command buffer
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	// create the textures
@@ -75,13 +60,23 @@ void GUIContext::create(lyra::Context* const context, const lyra::Window* const 
 	// end recording the command buffer
 	cmdBuff.end();
 	// submit the commands
-	cmdBuff.submit_queue(context->device()->graphicsQueue().queue);
-	cmdBuff.wait_queue(context->device()->graphicsQueue().queue);
+	cmdBuff.submit_queue(Application::context()->device()->graphicsQueue().queue);
+	cmdBuff.wait_queue(Application::context()->device()->graphicsQueue().queue);
 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
+}
+
+GUIContext::~GUIContext() {
+	ImGui_ImplVulkan_Shutdown();
+
+	lyra::Logger::log_info("Successfully destroyed GUI context!");
+}
+
+void GUIContext::destroy() {
+	this->~GUIContext();
 }
 
 void GUIContext::add_draw_call(std::function<void()>&& func) {
@@ -91,7 +86,7 @@ void GUIContext::add_draw_call(std::function<void()>&& func) {
 void GUIContext::draw() {
 	// render a new frame
 	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame(window->get());
+	ImGui_ImplSDL2_NewFrame(Application::window()->get());
 	ImGui::NewFrame();
 	
 	_drawQueue.flush();
