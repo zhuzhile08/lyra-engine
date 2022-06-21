@@ -6,13 +6,13 @@ set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD 17)
 
 # directories for the config files
-set(SDL2_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(NOUD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(GLM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(STB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(VMA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(TOL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(SDL2_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(NOUD_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(GLM_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 # find path to libraries
@@ -60,7 +60,7 @@ add_library(LyraEngine
  "src/math/vulkan/compute_pipeline.cpp"
  "src/graphics/camera.cpp"
  "src/core/rendering/window.cpp"
- #"src/core/rendering/gui_context.cpp"       # engine GUI
+ "src/core/rendering/gui_context.cpp"       # engine GUI
  "src/components/physics/transform.cpp" 
  "src/graphics/renderer.cpp"
  "src/graphics/graphics_pipeline.cpp"
@@ -88,4 +88,5 @@ PRIVATE
     <array>
     <math.h>
     <algorithm>
+    <functional>
 )

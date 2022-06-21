@@ -1,4 +1,4 @@
-set(LYRA_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/LyraEngine/src/")
+set(LYRA_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/LyraEngine/include")
 
 # Support both 32 and 64 bit builds
 if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
