@@ -46,14 +46,14 @@ include_directories(
 
 # building the library
 add_library(LyraEngine
- "include/imgui/imgui.cpp"                  # imgui
- "include/imgui/imgui_demo.cpp"
- "include/imgui/imgui_draw.cpp"
- "include/imgui/imgui_tables.cpp"
- "include/imgui/imgui_widgets.cpp"
- "include/imgui/backends/imgui_impl_vulkan.cpp"
- "include/imgui/backends/imgui_impl_sdl.cpp"
- "include/NOUD/noud.cpp"                    # noud
+ "../include/imgui/imgui.cpp"                  # imgui
+ "../include/imgui/imgui_demo.cpp"
+ "../include/imgui/imgui_draw.cpp"
+ "../include/imgui/imgui_tables.cpp"
+ "../include/imgui/imgui_widgets.cpp"
+ "../include/imgui/backends/imgui_impl_vulkan.cpp"
+ "../include/imgui/backends/imgui_impl_sdl.cpp"
+ "../include/NOUD/noud.cpp"                    # noud
  "src/init/init_SDL.cpp"                    # engine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
@@ -89,9 +89,3 @@ PRIVATE
     <math.h>
     <algorithm>
 )
-
-add_executable(Game "src/main.cpp")
-
-target_link_libraries(Game PRIVATE LyraEngine)
-
-install(TARGETS Game DESTINATION "out/build")
