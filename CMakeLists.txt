@@ -7,3 +7,4 @@ project ("LyraEngine")
 
 # Include sub-projects.
 add_subdirectory ("LyraEngine")
+add_subdirectory ("ContentManager")
