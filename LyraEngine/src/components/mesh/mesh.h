@@ -17,8 +17,6 @@
 #include <core/rendering/vulkan/vertex.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <graphics/renderer.h>
-#include <graphics/texture.h>
-#include <graphics/camera.h>
 
 #include <noud.h>
 
