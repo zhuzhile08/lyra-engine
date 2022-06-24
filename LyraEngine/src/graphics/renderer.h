@@ -20,7 +20,7 @@
 #include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
-#include <graphics/camera.h>
+#include <components/graphics/camera.h>
 
 #include <vector>
 
