@@ -45,7 +45,7 @@ GUIContext::GUIContext() {
 		0,
 		3,
 		3,
-		VK_SAMPLE_COUNT_1_BIT
+		Application::context()->swapchain()->colorResources()->maxSamples()
 	};
 	// initialize ImGui for Vulkan
 	ImGui_ImplVulkan_Init(&initInfo, _framebuffers.renderPass());
