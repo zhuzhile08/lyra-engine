@@ -60,6 +60,10 @@ public:
 	void bind() {
 		// render a new frame
 		renderer->add_to_update_queue([&] {
+			// get inputs
+			ImGui_ImplSDL2_ProcessEvent(&Application::window()->event());
+
+			// begin drawing
 			ImGui_ImplVulkan_NewFrame();
 			ImGui_ImplSDL2_NewFrame(Application::window()->get());
 			ImGui::NewFrame();
@@ -74,16 +78,9 @@ public:
 	 * @return const lyra::VulkanDescriptorPool* const
 	*/
 	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return &_descriptorPool; };
-	/**
-	 * @brief get the renderer local to the GUI context
-	 *
-	 * @return const lyra::Framebuffers* const
-	*/
-	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; };
 
 private:
 	VulkanDescriptorPool _descriptorPool;
-	VulkanFramebuffers _framebuffers;
 	CallQueue _drawQueue;
 
 	Renderer* renderer;
