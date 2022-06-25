@@ -49,7 +49,7 @@ public:
 		 *
 		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor and the number bindings of that type
 		 */
-		void add_binding(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32>> newBindings) noexcept {
+		void add_bindings(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32>> newBindings) noexcept {
 			for (const auto& [binding, type, shaderType, count] : newBindings) {
 				bindings.push_back({
 					binding,
@@ -162,7 +162,7 @@ public:
 		uint32 maxSets = 1000;
 	};
 
-	VulkanDescriptorPool();
+	VulkanDescriptorPool() { }
 
 	/**
 	 * @brief destructor of the descriptor pool
@@ -273,7 +273,7 @@ public:
 		std::vector<VkWriteDescriptorSet> writes;
 	};
 
-	VulkanDescriptor();
+	VulkanDescriptor() { }
 
 	VulkanDescriptor operator=(const VulkanDescriptor&) const noexcept = delete;
 

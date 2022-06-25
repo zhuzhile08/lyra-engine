@@ -21,8 +21,6 @@ void VulkanDescriptorSetLayout::create(const Builder builder) {
 }
 
 // descriptor pool
-VulkanDescriptorPool::VulkanDescriptorPool() { }
-
 void VulkanDescriptorPool::create(const Builder builder) {
 	Logger::log_info("Creating Vulkan descriptor pool...");
 
@@ -43,8 +41,6 @@ void VulkanDescriptorPool::create(const Builder builder) {
 }
 
 // descriptors
-VulkanDescriptor::VulkanDescriptor() { }
-
 void VulkanDescriptor::create(const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer) {
 	Logger::log_info("Creating Vulkan descriptor sets...");
 
