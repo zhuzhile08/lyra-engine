@@ -70,13 +70,11 @@ public:
 	void events() noexcept;
 
 	/**
-	 * @brief get the events
-	 *
-	 * @param eventType type of event occuring
-	 * @param event that is occuring
+	 * @brief get the event object
+	 * 
+	 * @return const SDL_Event
 	 */
-	bool get_events(const uint32 eventType, const uint32 event) noexcept;
-
+	[[nodiscard]] const SDL_Event event() const noexcept { return _event; }
 	/**
 	 * @brief get the window object
 	 *
