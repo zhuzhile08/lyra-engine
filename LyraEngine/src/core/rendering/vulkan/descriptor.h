@@ -14,8 +14,10 @@
 #include <core/defines.h>
 #include <core/logger.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
+#include <math/math.h>
 #include <lyra.h>
 
+#include <array>
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -45,13 +47,10 @@ public:
 		/**
 		 * @brief add a binding to the vector of bindings
 		 *
-		 * @param binding at which index the shader expects the descriptor
-		 * @param type type of descriptor that will be used
-		 * @param shaderType which type of shader the descripter will bind to
-		 * @param count numbers of descriptors in the binding
+		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor and the number bindings of that type
 		 */
-		void add_binding(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32>> new_bindings) noexcept {
-			for (const auto& [binding, type, shaderType, count] : new_bindings) {
+		void add_binding(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32>> newBindings) noexcept {
+			for (const auto& [binding, type, shaderType, count] : newBindings) {
 				bindings.push_back({
 					binding,
 					static_cast<VkDescriptorType>(type),
@@ -250,46 +249,25 @@ public:
 		}
 
 		/**
-		 * @brief add a setting for buffers
+		 * @brief add a write
 		 *
-		 * @param bufferInfo information about the buffer
-		 * @param binding at which position it will be entered into the shader
-		 * @param type type of the descriptor set
+		 * @param newWrites Writes to add to the buffer. Consists of a image information, a buffer information, the binding and a type
 		 */
-		void add_buffer_write(const VkDescriptorBufferInfo* const bufferInfo, const uint16 binding = 0, const Type type = Type::TYPE_STORAGE_BUFFER) noexcept {
-			writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				VK_NULL_HANDLE,
-				binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(type),
-				nullptr,
-				bufferInfo,
-				nullptr
-			});
-		}
-		/**
-		 * @brief add a setting for images
-		 *
-		 * @param imageInfo information about the image
-		 * @param binding at which position it will be entered into the shader
-		 * @param type type of the descriptor set
-		 */
-		void add_image_write(const VkDescriptorImageInfo* const imageInfo, const uint16 binding = 1, const Type type = Type::TYPE_IMAGE_SAMPLER) noexcept {
-			writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				VK_NULL_HANDLE,
-				binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(type),
-				imageInfo,
-				nullptr,
-				nullptr
+		void add_writes(std::vector<std::tuple<const VkDescriptorImageInfo*, const VkDescriptorBufferInfo*, const uint16, const Type>> newWrites) noexcept {
+			for (const auto &[image_info, buffer_info, binding, type] : newWrites) {
+				writes.push_back({
+					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+					nullptr,
+					VK_NULL_HANDLE,
+					binding,
+					0,
+					1,
+					static_cast<VkDescriptorType>(type),
+					image_info,
+					buffer_info,
+					nullptr
 				});
+			}
 		}
 
 		std::vector<VkWriteDescriptorSet> writes;
