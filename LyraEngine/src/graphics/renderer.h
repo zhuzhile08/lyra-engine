@@ -20,7 +20,6 @@
 #include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/context.h>
-#include <components/graphics/camera.h>
 
 #include <vector>
 
@@ -52,7 +51,7 @@ public:
 	 * @brief bind the functions for resetting and finish recording the command buffers
 	 */
 	void bind() noexcept {
-		Application::context()->add_to_update_queue([&]() { _updateQueue.flush(); _camera.draw(); });
+		Application::context()->add_to_update_queue([&]() { _updateQueue.flush(); });
 		Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
 	}
 
@@ -86,17 +85,9 @@ public:
 	 * @return const lyra::VulkanFramebuffers* const
 	*/
 	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
-	
-	/**
-	 * @brief get the camera
-	 * 
-	 * @return Camera* const
-	*/
-	[[nodiscard]] Camera* const camera() noexcept { return &_camera; }
 
 private:
 	VulkanFramebuffers _framebuffers;
-	Camera _camera;
 
 	CallQueue _drawQueue;
 	CallQueue _updateQueue;
