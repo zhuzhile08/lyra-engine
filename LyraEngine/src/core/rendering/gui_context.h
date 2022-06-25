@@ -57,20 +57,7 @@ public:
 	/**
 	 * @brief bind the GUI
 	*/
-	void bind() {
-		// render a new frame
-		renderer->add_to_update_queue([&] {
-			// get inputs
-			ImGui_ImplSDL2_ProcessEvent(&Application::window()->event());
-
-			// begin drawing
-			ImGui_ImplVulkan_NewFrame();
-			ImGui_ImplSDL2_NewFrame(Application::window()->get());
-			ImGui::NewFrame();
-
-			_drawQueue.flush();
-			});
-	}
+	void bind() const;
 
 	/**
 	 * @brief get the descriptor pool local to the GUI context

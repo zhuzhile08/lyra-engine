@@ -71,6 +71,21 @@ GUIContext::GUIContext(Renderer* const renderer) {
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
 
+void GUIContext::bind() const {
+	// render a new frame
+	renderer->add_to_update_queue([&] {
+		// get inputs
+		ImGui_ImplSDL2_ProcessEvent(&Application::window()->event());
+
+		// begin drawing
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplSDL2_NewFrame(Application::window()->get());
+		ImGui::NewFrame();
+
+		_drawQueue.flush();
+		});
+}
+
 } // namespace gui
 
 } // namespace lyra
