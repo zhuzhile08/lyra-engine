@@ -97,7 +97,13 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	// GUI
 	lyra::gui::GUIContext gui(&renderer);
-	gui.add_draw_call([&] { ImGui::ShowDemoWindow(); });
+	gui.add_draw_call([&] { 
+		ImGui::ShowDemoWindow();
+
+		ImGui::Begin("Load/Compress files");
+		ImGui::Text("Sike B*tches");
+		ImGui::End();
+	});
 	gui.bind();
 
 	lyra::Application::draw();
