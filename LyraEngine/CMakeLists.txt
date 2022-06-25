@@ -72,7 +72,7 @@ add_library(LyraEngine
  "src/lyra.cpp"
  "src/core/settings.cpp"
  "src/graphics/asset_manager.cpp" "src/core/logger.cpp"
-  "src/components/gameObj.cpp")
+  "src/components/gameObj.cpp" "src/core/rendering/vulkan/vulkan_pipeline.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 
