@@ -19,6 +19,7 @@
 #include <glm.hpp>
 #include <cmath>
 #include <gtc/matrix_transform.hpp>
+#include <gtx/matrix_decompose.hpp>
 #include <string>
 
 namespace lyra {
@@ -61,7 +62,7 @@ public:
 		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
 		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
 		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
-		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+		const RotationOrder rotationOrder = RotationOrder::ROTATION_XYZ
 	) noexcept : noud::Node(parent, name), _parent(parent), _visible(visible), _tag(tag), _position(position), _rotation(rotation), _scale(scale), _rotationOrder(rotationOrder) { init(); }
 
 	/**
@@ -92,7 +93,7 @@ public:
 	/**
 	 * @brief rotate the game object
 	 * 
-	 * @param rotation rotation
+	 * @param rotation rotation in degrees
 	 * @param space space to rotate the object in
 	 */
 	void rotate(glm::vec3 rotation, Space space = Space::SPACE_LOCAL) { set_rotation(_rotation + rotation, space); }
@@ -113,13 +114,14 @@ public:
 	/**
 	 * @brief set the rotation
 	 *
-	 * @param newRotation new rotation
+	 * @param newRotation new rotation in degrees
 	 * @param space space to move the object in
 	*/
 	void set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept { 
 		if (space == Space::SPACE_LOCAL) _rotation = newRotation;
 		else _rotation = newRotation - rotation_global();
-		_localRotationMatrix = calculate_roation_mat(); 
+
+		_localTransformMatrix *= calculate_roation_mat(); 
 	}
 
 	/**
@@ -143,11 +145,11 @@ public:
 	*/
 	[[nodiscard]] const glm::vec3 scale_global() const noexcept { return _scale + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->scale_global()); };
 	/**
-	 * @brief convert the local rotation matrix to a global one
+	 * @brief convert the local matrix to a global one
 	 *
 	 * @return const glm::vec4
 	*/
-	[[nodiscard]] const glm::mat4 rot_mat_to_global() const noexcept { return _localRotationMatrix + ((_parent == nullptr) ? glm::mat4(0.0f) : _parent->rot_mat_to_global()); };
+	[[nodiscard]] const glm::mat4 mat_to_global() const noexcept { return _localTransformMatrix + ((_parent == nullptr) ? glm::mat4(0.0f) : _parent->mat_to_global()); };
 
 	/**
 	 * @brief set the scale
@@ -201,10 +203,9 @@ public:
 
 protected:
 	glm::vec3 _position = { 0.0f, 0.0f, 0.0f }, _rotation = { 0.0f, 0.0f, 0.0f }, _scale = { 1.0f, 1.0f, 1.0f };
-	RotationOrder _rotationOrder = RotationOrder::ROTATION_ZYX;
+	RotationOrder _rotationOrder = RotationOrder::ROTATION_XZY;
 
 	glm::mat4 _localTransformMatrix = glm::mat4(1.0f);
-	glm::mat4 _localRotationMatrix = glm::mat4(1.0f);
 
 	GameObject* _parent;
 	
