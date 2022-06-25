@@ -38,7 +38,6 @@ public:
 		CameraData() { }
 
 		glm::mat4 model;
-		glm::mat4 view;
 		glm::mat4 proj;
 	};
 
@@ -68,9 +67,9 @@ public:
 	void set_perspective(float fov = 45.0f, float width = Settings::Window::width, float height = Settings::Window::height, float near = 0.1f, float far = 20.0f) noexcept;
 
 	/**
-	 * @brief temporary draw function
+	 * @brief draw function
 	*/
-	void draw();
+	void draw(CameraData data);
 
 	/**
 	 * @brief get the GPU memory buffers
@@ -78,12 +77,6 @@ public:
 	 * @return const std::vector<VulkanGPUBuffer>&
 	*/
 	[[nodiscard]] const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
-	/**
-	 * @brief get the camera data of the camera
-	 * 
-	 * @return const CameraData
-	*/
-	[[nodiscard]] const CameraData data() const noexcept { return _data; }
 	/**
 	 * @brief get the field of view of the camera
 	 *
@@ -117,7 +110,6 @@ public:
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
-	CameraData _data;
 	float _fov = 45.0f, _width = Settings::Window::width, _height = Settings::Window::height, _near = 0.1f, _far = 20.0f;
 };
 
