@@ -21,13 +21,11 @@ void Camera::set_perspective(float fov, float width, float height, float near, f
 	_far = far;
 }
 
-void Camera::draw() {
-	_data.proj = glm::perspective(glm::radians(_fov), _width / _height, _near, _far);
-	_data.proj[1][1] *= -1;
+void Camera::draw(CameraData data) {
+	data.proj = glm::perspective(glm::radians(_fov), _width / _height, _near, _far);
+	data.proj[1][1] *= -1;
 
-	_buffers[Application::context()->currentFrame()].copy_data(&_data);
-
-	_data = CameraData();
+	_buffers[Application::context()->currentFrame()].copy_data(&data);
 }
 
 } // namespace lyra
