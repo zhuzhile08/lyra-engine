@@ -9,7 +9,7 @@ void ComputePipeline::create(const CreateInfo info) {
 
 	create_shaders({ info.shaderCreationInfo });
 
-	create_descriptor_stuff(info.layoutBuilder, info.poolBuilder);
+	create_descriptor_stuff(info.builder);
 
 	create_pipeline(info);
 

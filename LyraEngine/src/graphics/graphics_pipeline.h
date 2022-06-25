@@ -109,10 +109,8 @@ public:
 		const Renderer* renderer;
 		// shader creation information
 		const std::vector<ShaderCreationInfo> shaderCreationInfos;
-		// descriptor set layout creation information
-		const VulkanDescriptorSetLayout::Builder layoutBuilder;
-		// descriptor pool creation information
-		const VulkanDescriptorPool::Builder poolBuilder;
+		// descriptor set layout and pool creation information
+		const Builder builder;
 		// draw size
 		const VkExtent2D size;
 		// draw area
