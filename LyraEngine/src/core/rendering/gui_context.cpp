@@ -4,10 +4,10 @@ namespace lyra {
 
 namespace gui {
 
-GUIContext::GUIContext() {
+GUIContext::GUIContext(Renderer* const renderer) {
 	Logger::log_info("Creating context for the GUI... ");
 
-	_framebuffers.create(Application::context()->device(), Application::context()->swapchain());
+	this->renderer = renderer;
 
 	// information about the descriptor pool
 	VulkanDescriptorPool::Builder builder;
@@ -48,7 +48,7 @@ GUIContext::GUIContext() {
 		Application::context()->swapchain()->colorResources()->maxSamples()
 	};
 	// initialize ImGui for Vulkan
-	ImGui_ImplVulkan_Init(&initInfo, _framebuffers.renderPass());
+	ImGui_ImplVulkan_Init(&initInfo, renderer->framebuffers()->renderPass());
 
 	// create a temporary command buffer for creating the font textures
 	VulkanCommandBuffer cmdBuff;
@@ -66,30 +66,9 @@ GUIContext::GUIContext() {
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
+	renderer->add_to_draw_queue([&] { ImGui::Render(); ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers().at(Application::context()->currentFrame()).get()); });
+
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
-}
-
-GUIContext::~GUIContext() {
-	ImGui_ImplVulkan_Shutdown();
-
-	lyra::Logger::log_info("Successfully destroyed GUI context!");
-}
-
-void GUIContext::destroy() {
-	this->~GUIContext();
-}
-
-void GUIContext::add_draw_call(std::function<void()>&& func) {
-	_drawQueue.add(std::move(func));
-}
-
-void GUIContext::draw() {
-	// render a new frame
-	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame(Application::window()->get());
-	ImGui::NewFrame();
-	
-	_drawQueue.flush();
 }
 
 } // namespace gui

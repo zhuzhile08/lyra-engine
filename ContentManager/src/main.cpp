@@ -28,7 +28,6 @@ public:
 		look_at({ 0.0f, 0.0f, 0.0f });
 		// _rotation.y += lyra::FPS() * glm::radians(90.0f);
 		rotate({ 0.0f, 0.0f, lyra::FPS() * 90.0f });
-		lyra::Logger::log_info("rotation: ", " x: ", _rotation.x, " y: ", _rotation.y, " z: ", _rotation.z);
 		data.model = _localTransformMatrix;
 		draw(data);
 	}
@@ -40,13 +39,8 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	// init application
 	lyra::Application::init();
-
-	// GUI
-	lyra::gui::GUIContext gui;
-
 	// renderer
 	lyra::Renderer renderer;
-
 	// camera
 	Camera camera;
 	renderer.add_to_update_queue([&]() { camera.update(); });
@@ -57,7 +51,6 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// texture
 	lyra::Texture texture;
 	texture.create({ "data/img/viking_room.png" });
-
 	// graphics pipeline
 	lyra::GraphicsPipeline graphicsPipeline;
 	lyra::VulkanDescriptorSetLayout::Builder layoutBuilder;
@@ -102,7 +95,10 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	renderer.bind();
 
-	gui.draw();
+	// GUI
+	lyra::gui::GUIContext gui(&renderer);
+	gui.add_draw_call([&] { ImGui::ShowDemoWindow(); });
+	gui.bind();
 
 	lyra::Application::draw();
 
