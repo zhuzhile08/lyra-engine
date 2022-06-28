@@ -2,10 +2,6 @@
 
 namespace lyra {
 
-Application::~Application() {
-	quit_SDL();
-}
-
 void Application::init() noexcept {
 	init_SDL();
 

@@ -28,7 +28,7 @@ public: // behold, peasant, my superior "singleton" architecture
 	/**
 	 * @brief destructor of the window
 	**/
-	~Application() noexcept;
+	~Application() noexcept { quit_SDL(); }
 
 	Application() noexcept = delete;
 	Application(const Application&) noexcept = delete;
@@ -38,6 +38,11 @@ public: // behold, peasant, my superior "singleton" architecture
 	 * @brief initialize a new application
 	*/
 	static void init() noexcept;
+
+	/**
+	 * @brief quit the application
+	 */
+	static void quit() { _window.quit(); }
 
 	/**
 	 * @brief draw the current frame
