@@ -1,1 +1,1 @@
-set(IMGUI_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/imgui/")
+set(IMGUI_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/IMGUI/")
