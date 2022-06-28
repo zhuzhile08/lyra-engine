@@ -13,6 +13,8 @@ set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 # find path to libraries
@@ -23,6 +25,8 @@ find_package(STB REQUIRED)
 find_package(VMA REQUIRED)
 find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
+find_package(LZ4 REQUIRED)
+find_package(JSON REQUIRED)
 find_package(Vulkan REQUIRED)
 
 # shaders
@@ -41,6 +45,8 @@ include_directories(
  ${STB_INCLUDE_DIRS} 
  ${VMA_INCLUDE_DIRS} 
  ${TOL_INCLUDE_DIRS} 
+ ${JSON_INCLUDE_DIRS}
+ ${LZ4_INCLUDE_DIRS}
  ${IMGUI_INCLUDE_DIRS}
 )
 
@@ -72,7 +78,7 @@ add_library(LyraEngine
  "src/lyra.cpp"
  "src/core/settings.cpp"
  "src/graphics/asset_manager.cpp" "src/core/logger.cpp"
-  "src/components/gameObj.cpp" "src/core/rendering/vulkan/vulkan_pipeline.cpp")
+  "src/components/gameObj.cpp" "src/core/rendering/vulkan/vulkan_pipeline.cpp" "src/res/loaders/load_binary.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 
