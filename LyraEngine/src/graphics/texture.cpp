@@ -2,16 +2,16 @@
 
 namespace lyra {
 
-void Texture::create(const CreateInfo info, const VkFormat format) {
+void Texture::create(std::string path, const VkFormat format) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
-	load_image(info, format);
+	load_image(path, format);
 	create_sampler(info);
 
 	Logger::log_info("Successfully created Vulkan texture with path: ", info.path, " with image sampler at: ", get_address(this), Logger::end_l());
 }
 
-void Texture::load_image(const CreateInfo info, const VkFormat format) {
+void Texture::load_image(std::string path, const VkFormat format) {
 	// load the image
 	int width, height, channels;
 	stbi_uc* imagePixelData = stbi_load(info.path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
@@ -66,7 +66,7 @@ void Texture::load_image(const CreateInfo info, const VkFormat format) {
 	stbi_image_free(imagePixelData);
 }
 
-void Texture::create_sampler(const CreateInfo info, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
+void Texture::create_sampler(const TextureInfo info, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::context()->device()->physicalDevice(), &properties);
 

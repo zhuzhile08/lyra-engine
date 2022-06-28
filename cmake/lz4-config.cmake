@@ -1,0 +1,1 @@
+set(LZ4_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/LZ4/")

@@ -7,10 +7,12 @@
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_image.h>
+#include <graphics/asset_manager.h>
 #include <graphics/renderer.h>
 
 #include <algorithm>
 #include <stb_image.h>
+#include <lz4.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -69,19 +71,19 @@ public:
 		ANISTROPY_ENABLE = 1U
 	};
 
-	struct CreateInfo {
-		// path of image
-		const std::string path;
-		// type of the image
-		const Type type = Type::TYPE_TEXTURE;
+	struct TextureInfo {
+		// size of the image
+		uint64 size;
+		// type of texture
+		const Type type;
 		// how to treat the alpha value of the image
-		const Alpha alpha = Alpha::ALPHA_BLACK;
+		const Alpha alpha;
 		// how the UVs should read the image
-		const Dimension dimension = Dimension::DIMENSION_2D;
+		const Dimension dimension;
 		// how to wrap the image if the UVs exceeds the border of the image
-		const Wrap wrap = Wrap::WRAP_REPEAT;
+		const Wrap wrap;
 		// anistropic filtering
-		const Anistropy anistropy = Anistropy::ANISTROPY_ENABLE;
+		const Anistropy anistropy;
 	};
 
 	Texture() { }
@@ -107,10 +109,10 @@ public:
 	/**
 	 * @brief create the texture and the sampler
 	 *
-	 * @param info creation information
+	 * @param path path
 	 * @param format format of the image
 	 */
-	void create(const CreateInfo info, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	void create(std::string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -152,6 +154,15 @@ private:
 	std::string _path;
 
 	/**
+	 * @brief unpack the texture from a asset file
+	 * 
+	 * @assets asset file
+	 * 
+	 * @return const lyra::Texture::TextureInfo
+	 */
+	const TextureInfo unpack_texture(non_access::AssetFile& assets) const;
+
+	/**
 	 * @brief copy raw image data from a buffer into the image
 	 *
 	 * @param stagingBuffer buffer
@@ -162,21 +173,21 @@ private:
 	/**
 	 * load a image from a path
 	 *
-	 * @param info creation information
+	 * @param path path
 	 * @param format format of the image
 	 */
-	void load_image(const CreateInfo info, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	void load_image(std::string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief create the image sampler
 	 *
-	 * @param extendedTexels how to render the image if the surface is bigger than the image
+	 * @param info texture information
 	 * @param magnifiedTexel how to filter the image if a pixel is smaller than a texel
 	 * @param minimizedTexel how to filter the image if a pixel is bigger than a texel
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
-		const CreateInfo info,
+		const TextureInfo info,
 		const VkFilter magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
