@@ -14,8 +14,10 @@
 #pragma once
 
 #include <core/defines.h>
+#include <core/queue_types.h>
 #include <math/math.h>
 #include <core/logger.h>
+#include <backends/imgui_impl_sdl.h>
 
 #include <SDL.h>
 #include <SDL_error.h>
@@ -70,6 +72,20 @@ public:
 	void events() noexcept;
 
 	/**
+	 * @brief manually close the window
+	 */
+	void quit() noexcept { _running = false; }
+
+	/**
+	 * @brief add a function to the event queue
+	 *
+	 * @param function the function
+	*/
+	void check_events(std::function<void()>&& function) {
+		_eventQueue.add(std::move(function));
+	}
+
+	/**
 	 * @brief get the event object
 	 * 
 	 * @return const SDL_Event
@@ -91,6 +107,8 @@ public:
 private:
 	SDL_Window* _window;
 	SDL_Event _event;
+
+	CallQueue _eventQueue;
 
 	uint32 _width = 0;
 	uint32 _height = 0;

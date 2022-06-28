@@ -39,11 +39,12 @@ void Window::create(uint32 width, uint32 height, bool resizable, bool fullscreen
 
 void Window::events() noexcept {
 	if (SDL_PollEvent(&_event)) {
+		_eventQueue.flush();
+
 		if (_event.type == SDL_QUIT)
 		{
-			_running = false;
+			quit();
 		}
-		
 	}
 }
 

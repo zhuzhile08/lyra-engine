@@ -66,7 +66,8 @@ GUIContext::GUIContext(Renderer* const renderer) {
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-	renderer->add_to_draw_queue([&] { ImGui::Render(); ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers().at(Application::context()->currentFrame()).get()); });
+	renderer->add_to_draw_queue(FUNC_PTR( ImGui::Render(); ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers().at(Application::context()->currentFrame()).get()); ));
+	const_cast<Window*>(Application::window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Application::window()->event()); ));
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
@@ -75,7 +76,6 @@ void GUIContext::bind() const {
 	// render a new frame
 	renderer->add_to_update_queue([&] {
 		// get inputs
-		ImGui_ImplSDL2_ProcessEvent(&Application::window()->event());
 
 		// begin drawing
 		ImGui_ImplVulkan_NewFrame();
