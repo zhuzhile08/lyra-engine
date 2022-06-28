@@ -27,6 +27,7 @@ struct Settings {
 		FRONT_FACE_CLOCKWISE = 1
 	};
 
+	// generell application settings
 	struct Application {
 		static constexpr const char* description = "";
 		static constexpr bool gui = true;
@@ -36,6 +37,7 @@ struct Settings {
 		Application() noexcept = delete;
 	};
 
+	// debug settings
 	struct Debug {
 		static constexpr DebugMode debug = DebugMode::MODE_DEBUG;
 		static constexpr DisableLog disableLog = DisableLog::DISABLE_NONE;
@@ -48,6 +50,7 @@ struct Settings {
 		Debug() noexcept = delete;
 	};
 
+	// rendering settings
 	struct Rendering {
 		static constexpr uint8 maxFramesInFlight = 2;
 		static constexpr float fov = 70.f;

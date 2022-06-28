@@ -55,4 +55,6 @@ template<typename _Ty> std::string get_address(const _Ty type) {
 	return std::string ("0x") + ss.str();
 }
 
+#define FUNC_PTR(func) [&] { func }
+
 } // namespace lyra
