@@ -9,6 +9,7 @@
 #include <components/graphics/camera.h>
 #include <components/gameObj.h>
 #include <graphics/texture.h>
+#include <menus.h>
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -43,7 +44,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	lyra::Renderer renderer;
 	// camera
 	Camera camera;
-	renderer.add_to_update_queue([&]() { camera.update(); });
+	renderer.add_to_update_queue(FUNC_PTR( camera.update(); ));
 
 	// asset manager
 	lyra::MaterialManager manager;
@@ -51,28 +52,23 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// texture
 	lyra::Texture texture;
 	texture.create({ "data/img/viking_room.png" });
+
 	// graphics pipeline
 	lyra::GraphicsPipeline graphicsPipeline;
-	lyra::VulkanDescriptorSetLayout::Builder layoutBuilder;
-	lyra::VulkanDescriptorPool::Builder poolBuilder;
-	layoutBuilder.add_binding({
-		{ 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, lyra::VulkanShader::Type::TYPE_VERTEX, 1 },
-		{ 1, lyra::VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, lyra::VulkanShader::Type::TYPE_FRAGMENT, 1 }
+	lyra::GraphicsPipeline::Builder pipelineBuilder;
+	pipelineBuilder.set_max_sets(4);
+	pipelineBuilder.add_bindings({
+		{ 0, lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, lyra::VulkanShader::Type::TYPE_VERTEX, 1, lyra::Settings::Rendering::maxFramesInFlight },
+		{ 1, lyra::VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, lyra::VulkanShader::Type::TYPE_FRAGMENT, 1, lyra::Settings::Rendering::maxFramesInFlight }
 		});
-	poolBuilder.set_max_sets(4);
-	poolBuilder.add_pool_sizes({
-		{ lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, lyra::Settings::Rendering::maxFramesInFlight },
-		{ lyra::VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, lyra::Settings::Rendering::maxFramesInFlight }
-	});
 	graphicsPipeline.create({
 		&renderer,
-		{ { lyra::VulkanShader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" }, 
+		{ { lyra::VulkanShader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
 		{ lyra::VulkanShader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" } },
-		layoutBuilder,
-		poolBuilder,
+		pipelineBuilder,
 		lyra::Application::context()->swapchain()->extent(),
 		lyra::Application::context()->swapchain()->extent()
-	});
+		});
 
 	// add these to the manager
 	manager.add_pipelines({ &graphicsPipeline });
@@ -97,13 +93,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	// GUI
 	lyra::gui::GUIContext gui(&renderer);
-	gui.add_draw_call([&] { 
-		ImGui::ShowDemoWindow();
-
-		ImGui::Begin("Load/Compress files");
-		ImGui::Text("Sike B*tches");
-		ImGui::End();
-	});
+	gui.add_draw_call(FUNC_PTR( Menus::show_window_bar(); ImGui::ShowDemoWindow(); ));
 	gui.bind();
 
 	lyra::Application::draw();
