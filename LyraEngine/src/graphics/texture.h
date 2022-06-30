@@ -11,7 +11,6 @@
 #include <graphics/renderer.h>
 
 #include <algorithm>
-#include <stb_image.h>
 #include <lz4.h>
 #include <vulkan/vulkan.h>
 
