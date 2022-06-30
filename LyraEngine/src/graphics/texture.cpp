@@ -5,68 +5,64 @@ namespace lyra {
 void Texture::create(std::string path, const VkFormat format) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
-	load_image(path, format);
-	create_sampler(info);
+	AssetManager::TextureInfo textureInfo;
+	textureInfo = AssetManager::unpack_texture(path);
 
-	Logger::log_info("Successfully created Vulkan texture with path: ", info.path, " with image sampler at: ", get_address(this), Logger::end_l());
+	// assign some variables
+	_width = textureInfo.width; 
+	_height = textureInfo.height;
+	_mipmap = textureInfo.mipmap;
+	_path = path;
+
+	load_image(textureInfo, format);
+	create_sampler(textureInfo);
+
+	Logger::log_info("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", get_address(this), Logger::end_l());
 }
 
-void Texture::load_image(std::string path, const VkFormat format) {
-	// load the image
-	int width, height, channels;
-	stbi_uc* imagePixelData = stbi_load(info.path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-	if (imagePixelData == nullptr) Logger::log_error("Failed to load image from path: ", info.path, " at: ", get_address(this), "!");
-
-	_width = width; _height = height;
-	_path = info.path;
-
-	Logger::log_debug(Logger::tab(), "path: ", info.path);
-	Logger::log_debug(Logger::tab(), "width: ", width, " and height: ", height);
+void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat format) {
+	Logger::log_debug(Logger::tab(), "path: ", _path);
+	Logger::log_debug(Logger::tab(), "width: ", _width, " and height: ", _height);
+	Logger::log_debug(Logger::tab(), "mipmapping levels: ", _mipmap);
 
 	// calculate the mipmap levels of the image
-	_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
-
-	Logger::log_debug(Logger::tab(), "mipmapping levels: ", _mipmap);
+	// _mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(_width, _height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
 
 	// create a staging buffer
 	VulkanGPUBuffer stagingBuffer;
-	VkDeviceSize imageMemSize = static_cast<uint64>(width * height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
+	VkDeviceSize imageMemSize = static_cast<uint64>(_width * _height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
 	stagingBuffer.create(Application::context()->device(), imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
 	// copy the image data into the staging buffer
-	void* imagePtr = imagePixelData;
-	stagingBuffer.copy_data(imagePtr);
+	stagingBuffer.copy_data(textureInfo.data);
 
 	// create the image and allocate its memory
 	if (vmaCreateImage(
 		Application::context()->device()->allocator(), 
 		&get_image_create_info(
 			format, 
-			{ static_cast<uint32>(width), static_cast<uint32>(height), 1 },
+			{ static_cast<uint32>(_width), static_cast<uint32>(_height), 1 },
 			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			_mipmap,
-			static_cast<VkImageType>(info.dimension)
+			static_cast<VkImageType>(textureInfo.dimension)
 		),
 		&get_alloc_create_info(Application::context()->device(), VMA_MEMORY_USAGE_GPU_ONLY),
 		& _image, 
 		& _memory, 
 		nullptr
-	) != VK_SUCCESS) Logger::log_error("Failed to load image from path: ", info.path);
+	) != VK_SUCCESS) Logger::log_error("Failed to load image from path: ", _path);
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(Application::context()->device(), Application::context()->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
-	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(width), static_cast<uint32>(height), 1 });
+	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(_width), static_cast<uint32>(_height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();
 
 	// create the image view
-	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 }, static_cast<VkImageViewType>(info.dimension));
-
-	// free the pixels of the image
-	stbi_image_free(imagePixelData);
+	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 }, static_cast<VkImageViewType>(textureInfo.dimension));
 }
 
-void Texture::create_sampler(const TextureInfo info, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
+void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::context()->device()->physicalDevice(), &properties);
 
@@ -77,17 +73,17 @@ void Texture::create_sampler(const TextureInfo info, const VkFilter magnifiedTex
 		magnifiedTexel,
 		minimizedTexel,
 		mipmapMode,
-		static_cast<VkSamplerAddressMode>(info.wrap),
-		static_cast<VkSamplerAddressMode>(info.wrap),
-		static_cast<VkSamplerAddressMode>(info.wrap),
+		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
+		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
+		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
 		0.0f,
-		static_cast<uint32>(info.anistropy),
+		static_cast<uint32>(textureInfo.anistropy),
 		properties.limits.maxSamplerAnisotropy,
 		VK_FALSE,
 		VK_COMPARE_OP_NEVER,
 		0.0f,
 		static_cast<float>(_mipmap),
-		static_cast<VkBorderColor>(info.alpha),
+		static_cast<VkBorderColor>(textureInfo.alpha),
 		VK_FALSE
 	};
 

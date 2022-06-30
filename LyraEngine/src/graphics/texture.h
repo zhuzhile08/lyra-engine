@@ -21,7 +21,7 @@ namespace lyra {
 class Texture : private VulkanImage, private VulkanGPUMemory {
 public:
 	// type of the image
-	enum class Type : int {
+	enum Type : unsigned int {
 		// use the image as a texture/sprite
 		TYPE_TEXTURE = 0,
 		// use the image as a normal map
@@ -35,14 +35,14 @@ public:
 	};
 
 	// how to treat the alpha value of the image
-	enum class Alpha : int {
+	enum Alpha : unsigned int {
 		ALPHA_TRANSPARENT = 1,
 		ALPHA_BLACK = 3,
 		ALPHA_WHITE = 5
 	};
 
 	// how the UVs should read the image
-	enum class Dimension : int {
+	enum Dimension : unsigned int {
 		// one dimensional image
 		DIMENSION_1D = 0,
 		// two dimensional image
@@ -52,7 +52,7 @@ public:
 	};
 
 	// how to wrap the image if the UVs exceeds the border of the image
-	enum class Wrap : int {
+	enum Wrap : unsigned int {
 		// repeat the image
 		WRAP_REPEAT = 0,
 		// repeat the image whilst mirroring it
@@ -64,26 +64,11 @@ public:
 	};
 
 	// anistropic filtering
-	enum class Anistropy : unsigned int {
+	enum Anistropy : unsigned int {
 		// enable anistropic filtering
 		ANISTROPY_DISABLE = 0U,
 		// disable anistropic filtering
 		ANISTROPY_ENABLE = 1U
-	};
-
-	struct TextureInfo {
-		// size of the image
-		uint64 size;
-		// type of texture
-		const Type type;
-		// how to treat the alpha value of the image
-		const Alpha alpha;
-		// how the UVs should read the image
-		const Dimension dimension;
-		// how to wrap the image if the UVs exceeds the border of the image
-		const Wrap wrap;
-		// anistropic filtering
-		const Anistropy anistropy;
 	};
 
 	Texture() { }
@@ -154,15 +139,6 @@ private:
 	std::string _path;
 
 	/**
-	 * @brief unpack the texture from a asset file
-	 * 
-	 * @assets asset file
-	 * 
-	 * @return const lyra::Texture::TextureInfo
-	 */
-	const TextureInfo unpack_texture(non_access::AssetFile& assets) const;
-
-	/**
 	 * @brief copy raw image data from a buffer into the image
 	 *
 	 * @param stagingBuffer buffer
@@ -173,21 +149,21 @@ private:
 	/**
 	 * load a image from a path
 	 *
-	 * @param path path
+	 * @param textureInfo texture information
 	 * @param format format of the image
 	 */
-	void load_image(std::string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	void load_image(AssetManager::TextureInfo& textureInfo, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief create the image sampler
 	 *
-	 * @param info texture information
+	 * @param textureInfo texture information
 	 * @param magnifiedTexel how to filter the image if a pixel is smaller than a texel
 	 * @param minimizedTexel how to filter the image if a pixel is bigger than a texel
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
-		const TextureInfo info,
+		AssetManager::TextureInfo& textureInfo,
 		const VkFilter magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
