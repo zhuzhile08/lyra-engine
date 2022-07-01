@@ -2,13 +2,13 @@
 
 namespace lyra {
 
-non_access::LoadedModel load_model(const std::string path) {
+non_access::LoadedModel load_model(const char* path) {
 	non_access::LoadedModel load;
 	// warning and errors
 	std::string warning, error;
 
 	// load the model
-	tinyobj::LoadObj(&load.vertices, &load.shapes, &load.materials, &warning, &error, path.c_str(), nullptr);
+	tinyobj::LoadObj(&load.vertices, &load.shapes, &load.materials, &warning, &error, path, nullptr);
 
 	// check if there are errors
 	if (!warning.empty()) Logger::log_warning("A problem occurred while loading a model: ", warning);

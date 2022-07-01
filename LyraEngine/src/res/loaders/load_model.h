@@ -1,6 +1,5 @@
 #pragma once
 
-#include <core/defines.h>
 #include <core/logger.h>
 
 #include <vector>
@@ -29,6 +28,6 @@ struct LoadedModel {
  * 
  * @return non_access::LoadedModel
  */
-non_access::LoadedModel load_model(const std::string path);
+non_access::LoadedModel load_model(const char* path);
 
 } // namespace lyra

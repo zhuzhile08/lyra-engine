@@ -1,14 +1,21 @@
 #pragma once
 
-#include <core/defines.h>
+#include <res/loaders/load_file.h>
+
 #include <core/logger.h>
 
 #include <vector>
-#include <string>
 #include <fstream>
 
 namespace lyra {
 
-std::vector <char> read_shader_binary(std::string path);
+/**
+ * @brief read a shader form a .spv binary file
+ * 
+ * @param path path
+ * 
+ * @return std::vector<char>&
+ */
+std::vector <char>& read_shader_binary(const char* path);
 
 }
