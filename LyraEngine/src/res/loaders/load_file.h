@@ -23,6 +23,6 @@ enum OpenMode {
  * 
  * @return std::ifstream
  */
-std::ifstream load_file(const char* path, const int mode);
+[[nodiscard]] std::ifstream load_file(const char* path, const int mode);
 
 } // namespace lyra
