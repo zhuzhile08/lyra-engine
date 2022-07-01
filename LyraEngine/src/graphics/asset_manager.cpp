@@ -3,7 +3,7 @@
 namespace lyra {
 
 void AssetManager::init() {
-	const auto& data = load_binary("data/images/images.ldat"); // custom data formats, baby!
+	const auto& data = load_assets("data/images/images.ldat"); // custom data formats, baby!
 
 }
 

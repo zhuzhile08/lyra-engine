@@ -13,7 +13,7 @@
 #pragma once
 
 #include <core/logger.h>
-#include <res/loaders/load_binary.h>
+#include <res/loaders/load_assets.h>
 
 #include <fstream>
 #include <string>
