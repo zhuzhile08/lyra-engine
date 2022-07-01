@@ -67,7 +67,6 @@ add_library(LyraEngine
  "src/components/graphics/camera.cpp"
  "src/core/rendering/window.cpp"
  "src/core/rendering/gui_context.cpp"       # engine GUI
-  
  "src/graphics/renderer.cpp"
  "src/graphics/graphics_pipeline.cpp"
  "src/components/mesh/mesh.cpp"
@@ -77,7 +76,8 @@ add_library(LyraEngine
  "src/res/loaders.cpp"
  "src/lyra.cpp"
  "src/core/settings.cpp"
- "src/graphics/asset_manager.cpp" "src/core/logger.cpp"
+ "src/graphics/asset_manager.cpp" 
+ "src/core/logger.cpp"
  "src/components/gameObj.cpp" 
  "src/core/rendering/vulkan/vulkan_pipeline.cpp")
 
