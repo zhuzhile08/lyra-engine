@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-void Texture::create(std::string path, const VkFormat format) {
+void Texture::create(char* const path, const VkFormat format) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
 	AssetManager::TextureInfo textureInfo;

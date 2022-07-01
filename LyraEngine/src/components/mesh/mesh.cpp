@@ -8,7 +8,7 @@ void Mesh::destroy() noexcept {
 	this->~Mesh();
 }
 
-void Mesh::create(const std::string path, const uint16 index, const noud::Node* const parent, const std::string name) {
+void Mesh::create(const char* path, const uint16 index, const noud::Node* const parent, const char* name) {
 	Logger::log_info("Creating Mesh... ");
 
 	(parent, name);
@@ -21,7 +21,7 @@ void Mesh::create(const std::string path, const uint16 index, const noud::Node* 
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const  parent, const std::string name) {
+void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const  parent, const char* name) {
 	(parent, name);
 
 	_vertices = vertices;

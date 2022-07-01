@@ -21,7 +21,6 @@
 #include <noud.h>
 
 #include <vector>
-#include <array>
 #include <glm.hpp>
 #include <vulkan/vulkan.h>
 
@@ -49,7 +48,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const std::string path, const uint16 index = 0, const noud::Node* const parent = nullptr, const std::string name = "mesh");
+	void create(const char* path, const uint16 index = 0, const noud::Node* const parent = nullptr, const char* name = "mesh");
 	/**
 	 * @brief construct a new mesh with a custom model
 	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
@@ -59,7 +58,7 @@ public:
 	 * @param parent parent node
 	 * @param name name of the node
 	 */
-	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const parent = nullptr, const std::string name = "mesh");
+	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const parent = nullptr, const char* name = "mesh");
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue

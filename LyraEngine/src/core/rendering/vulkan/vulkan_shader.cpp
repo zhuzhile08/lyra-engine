@@ -4,7 +4,7 @@ namespace lyra {
 
 VulkanShader::VulkanShader() { }
 
-void VulkanShader::create(const VulkanDevice* const device, const std::string path, std::string entry, Type type) {
+void VulkanShader::create(const VulkanDevice* const device, const char* path, const char* entry, Type type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);

@@ -36,7 +36,7 @@ private:
 		UNL = 4
 	};
 
-	static int font_cast(Font font) {
+	[[nodiscard]] static int font_cast(Font font) {
 		return static_cast<int>(font);
 	}
 
@@ -62,7 +62,7 @@ private:
 		DEF = 0
 	};
 
-	static int color_cast(Color color) {
+	[[nodiscard]] static int color_cast(Color color) {
 		return static_cast<int>(color);
 	}
 
@@ -75,11 +75,11 @@ private:
 	}
 
 public:
-	static const std::string tab() {
+	[[nodiscard]] static const char* tab() {
 		return "\t";
 	}
 
-	static const std::string end_l() {
+	[[nodiscard]] static const char* end_l() {
 		return "\n";
 	}
 

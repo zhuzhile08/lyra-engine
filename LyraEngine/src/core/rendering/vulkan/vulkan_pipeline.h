@@ -37,9 +37,9 @@ protected:
 		// shader type
 		const VulkanShader::Type type;
 		// path of shader
-		const std::string path;
+		const char* path;
 		// shader entry point
-		const std::string entry = "main";
+		const char* entry = "main";
 	};
 
 public:

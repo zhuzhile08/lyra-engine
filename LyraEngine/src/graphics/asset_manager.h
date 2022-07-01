@@ -15,8 +15,6 @@
 #include <core/logger.h>
 #include <res/loaders/load_assets.h>
 
-#include <fstream>
-#include <string>
 #include <vector>
 
 namespace lyra {
@@ -73,7 +71,7 @@ public:
 	 * 
 	 * @return const lyra::AssetManager::TextureInfo&
 	 */
-	[[nodiscard]] static const TextureInfo& unpack_texture(std::string path);
+	[[nodiscard]] static const TextureInfo& unpack_texture(const char* path);
 
 	/**
 	 * @brief return the raw image data

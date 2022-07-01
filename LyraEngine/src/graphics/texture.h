@@ -96,7 +96,7 @@ public:
 	 * @param path path
 	 * @param format format of the image
 	 */
-	void create(std::string path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	void create(char* const path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -126,16 +126,16 @@ public:
 	/**
 	* @brief get the path of the image
 	* 
-	* @return const std::string
+	* @return const char* const
 	**/
-	[[nodiscard]] const std::string path() const noexcept { return _path; }
+	[[nodiscard]] const char* const path() const noexcept { return _path; }
 
 private:
 	VkSampler _sampler = VK_NULL_HANDLE;
 	uint32 _width;
 	uint32 _height;
 	uint32 _mipmap;
-	std::string _path;
+	char* _path;
 
 	/**
 	 * @brief copy raw image data from a buffer into the image
