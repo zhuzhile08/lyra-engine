@@ -30,7 +30,6 @@ struct Settings {
 	// generell application settings
 	struct Application {
 		static constexpr const char* description = "";
-		static constexpr bool gui = true;
 		static constexpr int fps = 60;
 
 	private: 
@@ -42,6 +41,7 @@ struct Settings {
 		static constexpr DebugMode debug = DebugMode::MODE_DEBUG;
 		static constexpr DisableLog disableLog = DisableLog::DISABLE_NONE;
 		static constexpr bool printFPS = false;
+		static constexpr bool stdio_sync = false;
 
 		static const std::vector <const char*> requestedDeviceExtensions;
 		static const std::vector <const char*> requestedValidationLayers;
