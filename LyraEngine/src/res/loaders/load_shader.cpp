@@ -3,7 +3,7 @@
 namespace lyra {
 
 // load files in binary format in only read mode
-std::vector <char>& read_shader_binary(const char* path) {
+const std::vector <char> read_shader_binary(const char* const path) {
 	// load the file
 	std::ifstream file = load_file(path, OpenMode::MODE_BINARY | OpenMode::MODE_START_AT_END);
 

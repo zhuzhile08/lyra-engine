@@ -29,7 +29,7 @@ struct AssetFile {
  * 
  * @return const lyra::non_access::AssetFile
  */
-[[nodiscard]] const non_access::AssetFile load_assets(std::string binPath);
+[[nodiscard]] const non_access::AssetFile load_assets(const std::string binPath);
 
 /**
  * @brief ldat file format documentation:
@@ -46,9 +46,9 @@ struct AssetFile {
  * @param length length of the compressed file
  * @param size size of the original file
  * 
- * @return char*
+ * @return const char*
  */
-[[nodiscard]] char* unpack_file(const char* const data, uint32 length, uint32 size);
+[[nodiscard]] const char* unpack_file(const char* const data, const uint32 length, const uint32 size);
 
 /**
  * @brief lson file format documentation:

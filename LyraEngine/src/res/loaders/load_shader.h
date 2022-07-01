@@ -14,8 +14,8 @@ namespace lyra {
  * 
  * @param path path
  * 
- * @return std::vector<char>&
+ * @return const std::vector<char>
  */
-[[nodiscard]] std::vector <char>& read_shader_binary(const char* path);
+[[nodiscard]] const std::vector <char> read_shader_binary(const char* const path);
 
 }

@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-const non_access::AssetFile load_assets(std::string binPath) {
+const non_access::AssetFile load_assets(const std::string binPath) {
 	non_access::AssetFile loadedAsset;
 
 	// check
@@ -55,7 +55,7 @@ const non_access::AssetFile load_assets(std::string binPath) {
 	return loadedAsset;
 }
 
-char* unpack_file(const char* const data, uint32 jsonLength, uint32 jsonSize) {
+const char* unpack_file(const char* const data, const uint32 jsonLength, const uint32 jsonSize) {
 	char* result;
 	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
 	return result;

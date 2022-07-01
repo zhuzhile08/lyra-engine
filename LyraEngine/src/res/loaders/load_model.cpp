@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-non_access::LoadedModel load_model(const char* path) {
+const non_access::LoadedModel load_model(const char* path) {
 	non_access::LoadedModel load;
 	// warning and errors
 	std::string warning, error;

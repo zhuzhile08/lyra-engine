@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-std::ifstream load_file(const char* path, const int mode) {
+const std::ifstream load_file(const char* const path, const int mode) {
 	// load the binary
 	std::ifstream file;
 	file.open(path, static_cast<std::ios_base::openmode>(mode));
