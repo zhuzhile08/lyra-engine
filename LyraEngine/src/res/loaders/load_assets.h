@@ -1,5 +1,7 @@
 #pragma once
 
+#include <res/loaders/load_file.h>
+
 #include <core/logger.h>
 
 #include <fstream>
@@ -27,7 +29,7 @@ struct AssetFile {
  * 
  * @return const lyra::non_access::AssetFile
  */
-const non_access::AssetFile& load_binary(std::string binPath);
+const non_access::AssetFile load_assets(std::string binPath);
 
 /**
  * @brief ldat file format documentation:
@@ -38,15 +40,15 @@ const non_access::AssetFile& load_binary(std::string binPath);
  */
 
 /**
- * @brief decompress the json of a asset file
+ * @brief decompress a file
  * 
- * @param assetFile asset file
- * @param jsonLength length of the compressed json file
- * @param jsonSize size of the original json file
+ * @param data data to decompress
+ * @param length length of the compressed file
+ * @param size size of the original file
  * 
- * @return char*&
+ * @return char*
  */
-char* &unpack_json(const char* const data, uint32 jsonLength, uint32 jsonSize);
+char* unpack_file(const char* const data, uint32 length, uint32 size);
 
 /**
  * @brief lson file format documentation:

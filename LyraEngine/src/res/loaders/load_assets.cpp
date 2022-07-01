@@ -1,21 +1,15 @@
-#include <res/loaders/load_binary.h>
+#include <res/loaders/load_assets.h>
 
 namespace lyra {
 
-const non_access::AssetFile& load_binary(std::string binPath) {
+const non_access::AssetFile load_assets(std::string binPath) {
 	non_access::AssetFile loadedAsset;
 
 	// check
 	if (binPath.substr(binPath.length() - 4, 4) != "ldat") Logger::log_warning("Non standard file extension found on data file at path: ", binPath, "! This may cause problems during loading.");
 
 	// load the binary
-	std::ifstream binInFile;
-	binInFile.open(binPath, std::ios::binary);
-	if (!binInFile.is_open()) Logger::log_exception("Failed to open an asset file for reading at path: ", binPath, "!");
-	Logger::log_debug(Logger::tab(), "Successfully loaded asset file in at path ", binPath, "!");
-
-	// read the file contentents
-	binInFile.seekg(0);
+	std::ifstream binInFile = load_file(binPath.c_str(), OpenMode::MODE_BINARY);
 
 	// read the type of the asset
 	binInFile.read(loadedAsset.type, 4);
@@ -32,13 +26,7 @@ const non_access::AssetFile& load_binary(std::string binPath) {
 	jsonPath.replace(binPath.length() - 4, 4, "lson");
 
 	// load the json
-	std::ifstream jsonInFile;
-	binInFile.open(jsonPath, std::ios::binary);
-	if (!jsonInFile.is_open()) Logger::log_exception("Failed to open an asset file for reading at path: ", binPath, "!");
-	Logger::log_debug(Logger::tab(), "Successfully loaded asset file in at path ", binPath, "!");
-
-	// read the file contentents
-	binInFile.seekg(0);
+	std::ifstream jsonInFile = load_file(jsonPath.c_str(), OpenMode::MODE_BINARY);
 
 	// read the type of the json
 	char type[4] = { };
@@ -57,13 +45,17 @@ const non_access::AssetFile& load_binary(std::string binPath) {
 	char* json;
 	jsonInFile.read(json, jsonLength);
 	// decompress the json
-	json = unpack_json(json, jsonLength, jsonDecompLength);
+	json = unpack_file(json, jsonLength, jsonDecompLength);
 	loadedAsset.json = nlohmann::json::parse(json);
+
+	// close the files
+	jsonInFile.close();
+	binInFile.close();
 
 	return loadedAsset;
 }
 
-char*& unpack_json(const char* const data, uint32 jsonLength, uint32 jsonSize) {
+char* unpack_file(const char* const data, uint32 jsonLength, uint32 jsonSize) {
 	char* result;
 	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
 	return result;
