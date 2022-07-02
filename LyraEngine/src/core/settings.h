@@ -1,6 +1,9 @@
 #pragma once
 
 #include <core/defines.h>
+#include <math/math.h>
+
+#include <json.hpp>
 
 namespace lyra {
 
@@ -27,10 +30,12 @@ struct Settings {
 		FRONT_FACE_CLOCKWISE = 1
 	};
 
+	static void init();
+
 	// generell application settings
 	struct Application {
-		static constexpr const char* description = "";
-		static constexpr int fps = 60;
+		static char* description;
+		static int fps;
 
 	private: 
 		Application() noexcept = delete;
@@ -38,13 +43,13 @@ struct Settings {
 
 	// debug settings
 	struct Debug {
-		static constexpr DebugMode debug = DebugMode::MODE_DEBUG;
-		static constexpr DisableLog disableLog = DisableLog::DISABLE_NONE;
-		static constexpr bool printFPS = false;
-		static constexpr bool stdio_sync = false;
+		static DebugMode debug;
+		static DisableLog disableLog;
+		static bool printFPS;
+		static bool stdioSync;
 
-		static const std::vector <const char*> requestedDeviceExtensions;
-		static const std::vector <const char*> requestedValidationLayers;
+		static std::vector <const char*> requestedDeviceExtensions;
+		static std::vector <const char*> requestedValidationLayers;
 
 	private:
 		Debug() noexcept = delete;
@@ -52,9 +57,10 @@ struct Settings {
 
 	// rendering settings
 	struct Rendering {
-		static constexpr uint8 maxFramesInFlight = 2;
-		static constexpr float fov = 70.f;
-		static constexpr PolygonFrontFace polygonFrontFace = PolygonFrontFace::FRONT_FACE_COUNTER_CLOCKWISE;
+		static uint8 maxFramesInFlight;
+		static float fov;
+		static PolygonFrontFace polygonFrontFace;
+		static uint32 resolution;
 
 	private:
 		Rendering() noexcept = delete;
@@ -62,18 +68,17 @@ struct Settings {
 
 	// window settings
 	struct Window {
-		static constexpr const char* title = "Game";
-		static constexpr const char* icon = "data/img/icon.png";
+		static char* title;
+		static char* iconPath;
 
-		static constexpr uint32 width = 1024;
-		static constexpr uint32 height = 600;
-		static constexpr uint32 resolution = 1;
-
-		static constexpr bool resizable = true;
-		static constexpr bool borderless = false;
-		static constexpr bool fullscreen = false;
-		static constexpr bool alwaysOnTop = false;
-		static constexpr bool vSync = true;
+		static uint32 width;
+		static uint32 height;
+		
+		static bool resizable;
+		static bool borderless;
+		static bool fullscreen;
+		static bool alwaysOnTop;
+		static bool vSync;
 
 	private:
 		Window() noexcept = delete;
@@ -83,6 +88,7 @@ struct Settings {
 
 	};
 
+private:
 	Settings() noexcept = delete;
 };
 
