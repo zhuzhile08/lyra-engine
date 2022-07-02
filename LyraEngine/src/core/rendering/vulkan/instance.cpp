@@ -67,10 +67,10 @@ void VulkanInstance::create_instance() {
 	VkApplicationInfo appInfo {
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		nullptr,
-		Settings::Window::title,
+		Settings::Window::title.c_str(),
 		VK_MAKE_VERSION(0, 0, 1),
-		Settings::Window::title,
-		VK_MAKE_VERSION(0, 0, 1),
+		"LyraEngine",
+		VK_MAKE_VERSION(0, 5, 0),
 		VK_API_VERSION_1_3
 	};
 

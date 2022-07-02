@@ -4,6 +4,7 @@
 #include <math/math.h>
 
 #include <json.hpp>
+#include <vector>
 
 namespace lyra {
 
@@ -68,8 +69,8 @@ struct Settings {
 
 	// window settings
 	struct Window {
-		static char* title;
-		static char* iconPath;
+		static std::string title;
+		static std::string iconPath;
 
 		static uint32 width;
 		static uint32 height;
