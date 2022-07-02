@@ -165,8 +165,8 @@ struct VulkanImage {
 		const VkImageLayout srcLayout,
 		const VkImageLayout dstLayout,
 		const VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
-		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
 	) const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,

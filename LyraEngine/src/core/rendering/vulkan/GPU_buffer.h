@@ -102,8 +102,8 @@ public:
 	[[nodiscard]] const VkBufferMemoryBarrier get_buffer_memory_barrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
-		const uint32_t srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		const uint32_t dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
 	) const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,

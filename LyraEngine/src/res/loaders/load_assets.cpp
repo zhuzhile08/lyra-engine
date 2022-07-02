@@ -15,7 +15,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	binInFile.read(loadedAsset.type, 4);
 
 	// length of the binary file
-	uint32_t binLength = 0;
+	uint32 binLength = 0;
 	binInFile.read((char*)&binLength, sizeof(uint32));
 	// resize and read the binary file
 	loadedAsset.binary.resize(binLength);
@@ -34,11 +34,11 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	if (type != loadedAsset.type) Logger::log_exception("Loaded compressed JSON file at: ", jsonPath, " is not the same type as the corresponding asset file loaded at: ", binPath, "!"); // check if binary and json are for the same type of stuff
 
 	// length of the compressed json
-	uint32_t jsonLength = 0;
+	uint32 jsonLength = 0;
 	jsonInFile.read((char*)&jsonLength, sizeof(uint32));
 
 	// length of the decompressed json
-	uint32_t jsonDecompLength = 0;
+	uint32 jsonDecompLength = 0;
 	jsonInFile.read((char*)&jsonDecompLength, sizeof(uint32));
 
 	// read the compressed json
@@ -46,7 +46,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	jsonInFile.read(json, jsonLength);
 	// decompress the json
 	json = unpack_file(json, jsonLength, jsonDecompLength);
-	loadedAsset.json = nlohmann::json::parse(json);
+	loadedAsset.json.parse(json);
 
 	// close the files
 	jsonInFile.close();
