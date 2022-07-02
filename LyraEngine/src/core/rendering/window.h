@@ -15,6 +15,7 @@
 
 #include <core/defines.h>
 #include <core/queue_types.h>
+#include <core/settings.h>
 #include <math/math.h>
 #include <core/logger.h>
 #include <backends/imgui_impl_sdl.h>
@@ -51,17 +52,6 @@ public:
 
 	Window(const Window&) noexcept = delete;
 	Window operator=(const Window&) const noexcept = delete;
-
-	/**
-	 * @brief construct a new window object
-	 *
-	 * @param width width of the window
-	 * @param height height of the window
-	 * @param resizable is window is resizeable
-	 * @param fullscreen is window fullscreen
-	 * @param title title of the window
-	*/
-	void create(uint32 width, uint32 height, bool resizable, bool fullscreen, const char* title);
 
 	/**
 	 * @brief get the events
@@ -116,13 +106,9 @@ private:
 
 	CallQueue _eventQueue;
 
-	uint32 _width = 0;
-	uint32 _height = 0;
-	bool _resizable = false;
 	bool _fullscreen = false;
 	bool _running = true;
 	bool _changed = false;
-	const char* _title = "Game";
 };
 
 } // namespace lyra

@@ -3,9 +3,10 @@
 namespace lyra {
 
 void Application::init() noexcept {
+	Logger::init();
+	Settings::init();
 	init_SDL();
 
-	_window.create(Settings::Window::width, Settings::Window::height, Settings::Window::resizable, Settings::Window::fullscreen, Settings::Window::title);
 	_context.create(&_window);
 }
 
