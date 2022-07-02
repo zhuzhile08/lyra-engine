@@ -49,6 +49,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// asset manager
 	lyra::MaterialManager manager;
 
+	/**  
 	// texture
 	lyra::Texture texture;
 	texture.create({ "data/img/viking_room.png" });
@@ -88,6 +89,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	lyra::Mesh room;
 	room.create("data/model/viking_room.obj");
 	room.bind(&renderer);
+	*/
 
 	renderer.bind();
 

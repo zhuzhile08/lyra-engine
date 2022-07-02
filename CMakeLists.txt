@@ -7,4 +7,4 @@ project ("LyraEngineToolchain")
 
 # Include sub-projects.
 add_subdirectory ("LyraEngine")
-add_subdirectory ("ContentManager")
+add_subdirectory ("LyraGui")
