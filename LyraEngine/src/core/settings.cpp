@@ -15,7 +15,7 @@ void Settings::init() {
 	// read the file and parse it into a json
 	char* contents = { };
 	file.read(contents, file.tellg());
-	json.parse(contents);
+	json = nlohmann::json::parse(contents);
 
 	// set the variables
 	// hooo booy, this is gonna be fuuun!

@@ -46,7 +46,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	jsonInFile.read(json, jsonLength);
 	// decompress the json
 	json = unpack_file(json, jsonLength, jsonDecompLength);
-	loadedAsset.json.parse(json);
+	loadedAsset.json = nlohmann::json::parse(json);
 
 	// close the files
 	jsonInFile.close();
