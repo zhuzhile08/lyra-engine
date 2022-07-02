@@ -125,6 +125,7 @@ void VulkanSwapchain::create(const VulkanDevice* const device, const VulkanInsta
 	this->device = device;
 	this->instance = instance;
 	this->window = window;
+	this->cmdPool = cmdPool;
 	create_swapchain(cmdPool);
 
 	Logger::log_info("Successfully created Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
@@ -135,39 +136,29 @@ void VulkanSwapchain::recreate() {
 	vkDeviceWaitIdle(device->device());
 
 	// destroy the images and depth buffer
-	_images.destroy();
-	_depthBuffer.destroy();
-
-	// destroy the previous old swapchain
-	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
-
-	// assign the old swapchain to the current swapchain
-	_oldSwapchain = &_swapchain;
+	destroy();
 
 	// recreate the swapchain
-	create(device, instance, cmdPool, window);
+	create_swapchain(cmdPool);
 
 	Logger::log_info("Successfully recreated Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
 
 void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities) {
-	if (surfaceCapabilities.currentExtent.width == UINT32_MAX) {           // if something is wrong, fix the extent
-		Logger::log_warning("Couldn't get Vulkan swapchain capabilities' width");
-		int width, height;
-		SDL_GL_GetDrawableSize(window->get(), &width, &height);
+	int width, height;
+	SDL_Vulkan_GetDrawableSize(window->get(), &width, &height);
 
-		VkExtent2D newExtent = {
-			static_cast<uint32>(width),
-			static_cast<uint32>(height)
-		};
+	VkExtent2D newExtent = {
+		static_cast<uint32>(width),
+		static_cast<uint32>(height)
+	};
 
-		newExtent.width = std::clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-		newExtent.height = std::clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+	newExtent.width = std::clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+	newExtent.height = std::clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
 
-		_extent = newExtent;
-	} else {                                                                // in this case, the extent is fine
-		_extent = surfaceCapabilities.currentExtent;
-	}
+	_extent = newExtent;
+
+	Logger::log_debug(Logger::tab(), "width is ", width, " and the height is ", height);
 }
 
 const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
@@ -232,15 +223,14 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
 
 	// get the optimal format
 	VkSurfaceFormatKHR format = get_optimal_format();
-	Logger::log_debug(Logger::tab(), "format is ", _format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ");");
+	Logger::log_debug(Logger::tab(), "format is ", _format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")");
 	
 	VkPresentModeKHR presentMode = get_optimal_present_mode();
-	Logger::log_debug(Logger::tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ");");
+	Logger::log_debug(Logger::tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")");
 
 	// set the surface capabilities if something went wrong
 	VkSurfaceCapabilitiesKHR surfaceCapabilities;
 	check_surface_capabilities(surfaceCapabilities);
-	Logger::log_debug(Logger::tab(), "width is ", Settings::Window::width, " and the height is ", Settings::Window::height);
 
 	// create the extent
 	create_swapchain_extent(surfaceCapabilities);

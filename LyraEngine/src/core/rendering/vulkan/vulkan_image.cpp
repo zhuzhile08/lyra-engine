@@ -48,21 +48,23 @@ void VulkanImage::transition_layout(
 
 const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
 	// check which tiling mode to use
-	VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM; // screw naming conventions, I don't care
-	if (_tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = tiling;
-	else if (tiling == VK_IMAGE_TILING_MAX_ENUM) tiling_ = _tiling;
-	else if (tiling != VK_IMAGE_TILING_MAX_ENUM && tiling_ != VK_IMAGE_TILING_MAX_ENUM) {
-		Logger::log_warning("Defined 2 seperate tiling modes whilst finding the best format for a image: ", _tiling, " and ", tiling, "! Automatically set to the first mode!");
+	VkImageTiling tiling_; // screw naming conventions, I don't care
+	if (_tiling == VK_IMAGE_TILING_MAX_ENUM) 
+		tiling_ = tiling;
+	else if (tiling == VK_IMAGE_TILING_MAX_ENUM) 
 		tiling_ = _tiling;
+	else if (_tiling == VK_IMAGE_TILING_MAX_ENUM && tiling == VK_IMAGE_TILING_MAX_ENUM) 
+		Logger::log_exception("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
+	else if (_tiling != VK_IMAGE_TILING_MAX_ENUM && tiling != VK_IMAGE_TILING_MAX_ENUM) {
+		tiling_ = tiling;
 	}
-	else Logger::log_exception("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
 
 	for (const auto& format : candidates) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(device->physicalDevice(), format, &props);
 
-		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return format;
-		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return format;
+		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return format;
+		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return format;
 	}
 
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");

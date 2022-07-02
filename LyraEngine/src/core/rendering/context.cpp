@@ -33,6 +33,7 @@ void Context::draw() {
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 		_swapchain.recreate();
+		_recreateQueue.flush();
 		return;
 	}
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) Logger::log_exception("Failed to get the next Vulkan image layer to blit on!");
@@ -91,10 +92,17 @@ void Context::present_device_queue() {
 
 	VkResult result = vkQueuePresentKHR(_device.presentQueue().queue, &presentInfo);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || const_cast<Window*>(window)->changed()) {
+		// check if window was minimized, if true, then loop until otherwise
+		SDL_WindowFlags flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
+		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
+			flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
+			SDL_WaitEvent(const_cast<SDL_Event*>(&window->event()));
+		}
+
 		_swapchain.recreate();
-	}
-	else if (result != VK_SUCCESS) {
+		_recreateQueue.flush();
+	} else if (result != VK_SUCCESS) {
 		Logger::log_exception("Failed to present swapchain image!");
 	}
 }

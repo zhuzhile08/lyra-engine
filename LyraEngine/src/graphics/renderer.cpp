@@ -6,6 +6,10 @@ Renderer::Renderer() {
 	Logger::log_info("Creating Renderer...");
 
 	_framebuffers.create(Application::context()->device(), Application::context()->swapchain());
+	const_cast<Context*>(Application::context())->add_to_recreate_queue(FUNC_PTR(
+		_framebuffers.destroy();
+		_framebuffers.create(Application::context()->device(), Application::context()->swapchain());
+	));
 
 	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
 }

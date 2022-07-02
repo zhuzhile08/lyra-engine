@@ -86,6 +86,14 @@ public:
 	void add_to_update_queue(std::function<void()>&& function) {
 		_renderQueue.add(std::move(function));
 	}
+	/**
+	 * @brief add a function to the recreate queue
+	 *
+	 * @param function the function
+	*/
+	void add_to_recreate_queue(std::function<void()>&& function) {
+		_recreateQueue.add(std::move(function));
+	}
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -140,6 +148,12 @@ public:
 	*/
 	[[nodiscard]] const CallQueue* updateQueue() const noexcept { return &_updateQueue; }
 	/**
+	 * @brief get the queue with the recreate functions
+	 *
+	 * @return const CallQueue*
+	*/
+	[[nodiscard]] const CallQueue* recreateQueue() const noexcept { return &_recreateQueue; }
+	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
@@ -162,6 +176,7 @@ private:
 
 	CallQueue _updateQueue;
 	CallQueue _renderQueue;
+	CallQueue _recreateQueue;
 
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;

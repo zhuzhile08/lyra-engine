@@ -103,6 +103,12 @@ public:
 	* @return const bool
 	**/
 	[[nodiscard]] const bool running() const noexcept { return _running; }
+	/**
+	* @brief get if window was changed and set it back to false
+	* 
+	* @return const bool
+	**/
+	[[nodiscard]] const bool changed() noexcept { return _changed; }
 
 private:
 	SDL_Window* _window;
@@ -115,6 +121,7 @@ private:
 	bool _resizable = false;
 	bool _fullscreen = false;
 	bool _running = true;
+	bool _changed = false;
 	const char* _title = "Game";
 };
 
