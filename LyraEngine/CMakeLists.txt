@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(SDL2_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(NOUD_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(GLM_DIR ${CMAKE_SOURCE_DIR}/cmake)
-set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
@@ -21,7 +20,6 @@ set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 find_package(SDL2 REQUIRED)
 find_package(NOUD REQUIRED)
 find_package(GLM REQUIRED)
-find_package(STB REQUIRED)
 find_package(VMA REQUIRED)
 find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
@@ -42,7 +40,6 @@ include_directories(
  ${Vulkan_INCLUDE_DIRS} 
  ${ENGINE_INCLUDE_DIR}
  ${GUI_INCLUDE_DIR}
- ${STB_INCLUDE_DIRS} 
  ${VMA_INCLUDE_DIRS} 
  ${TOL_INCLUDE_DIRS} 
  ${JSON_INCLUDE_DIRS}
@@ -83,17 +80,29 @@ add_library(LyraEngine
 
 add_dependencies(LyraEngine build_shaders)
 
-target_link_libraries(LyraEngine ${SDL2_LIBRARIES} Vulkan::Vulkan)
+target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} Vulkan::Vulkan)
 
 target_precompile_headers(LyraEngine
 PRIVATE
     <vector>
     <iostream>
     <fstream>
+    <deque>
     <string>
     <unordered_map>
     <array>
     <math.h>
     <algorithm>
     <functional>
+    <backends/imgui_impl_sdl.h>
+    <imgui.h>
+    <backends/imgui_impl_vulkan.h>
+    <lz4.h>
+    <vulkan/vulkan.h>
+    <SDL.h>
+    <SDL_error.h>
+    <glm.hpp>
+    <cmath>
+    <gtc/matrix_transform.hpp>
+    <gtx/matrix_decompose.hpp>
 )
