@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-Window::Window() noexcept {
+void Window::create() noexcept {
 	Logger::log_info("Creating SDL window...");
 
 	uint32 flags = SDL_WINDOW_VULKAN;
@@ -12,23 +12,13 @@ Window::Window() noexcept {
 	if (Settings::Window::alwaysOnTop) flags |= SDL_WINDOW_ALWAYS_ON_TOP;
 	if (Settings::Window::borderless) flags |= SDL_WINDOW_BORDERLESS;
 
-	_window = SDL_CreateWindow(Settings::Window::title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::Window::width, Settings::Window::height, flags);
+	_window = SDL_CreateWindow(Settings::Window::title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::Window::width, Settings::Window::height, flags);
 
 	if (!_window) {
 		Logger::log_exception("Failed to create SDL window with error: ", SDL_GetError());
 	}
 
 	Logger::log_info("Successfully created window at: ", get_address(this), "!", Logger::end_l());
-}
-
-Window::~Window() noexcept {
-	SDL_DestroyWindow(_window);
-
-	Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
-}
-
-void Window::destroy() noexcept {
-	this->~Window();
 }
 
 void Window::events() noexcept {

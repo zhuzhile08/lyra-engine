@@ -38,20 +38,31 @@ public:
 	/**
 	 * @brief construct a new window
 	 */
-	Window() noexcept;
+	Window() noexcept { }
 
 	/**
 	* @brief destructor of the window
 	**/
-	virtual ~Window() noexcept;
+	virtual ~Window() noexcept {
+		SDL_DestroyWindow(_window);
+
+		Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
+	}
 
 	/**
 	 * @brief destroy the window
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~Window();
+	}
 
 	Window(const Window&) noexcept = delete;
 	Window operator=(const Window&) const noexcept = delete;
+
+	/**
+	 * @brief create the window
+	 */
+	void create() noexcept;
 
 	/**
 	 * @brief get the events

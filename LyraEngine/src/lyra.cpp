@@ -7,6 +7,7 @@ void Application::init() noexcept {
 	Settings::init();
 	init_SDL();
 
+	_window.create();
 	_context.create(&_window);
 }
 
