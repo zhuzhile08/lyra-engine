@@ -1,0 +1,31 @@
+{
+  "application": {
+    "description": "None Lmao",
+    "fps": 60
+  },
+  "debug": {
+    "debug": false,
+    "disableLog": 1,
+    "printFPS": false,
+    "stdioSync": true,
+    "requestedDeviceExtensions": [ "VK_KHR_swapchain" ],
+    "requestedValidationLayers": [ "VK_LAYER_KHRONOS_validation" ]
+  },
+  "rendering": {
+    "maxFramesInFlight": 2,
+    "fov": 90,
+    "resolution": 100,
+    "polygonFrontFace": 0
+  },
+  "window": {
+    "title": "carson goe 2 da stor 2 buy milk",
+    "iconPath": "ligma",
+    "width": 1280,
+    "height": 720,
+    "resizable": true,
+    "borderless": false,
+    "fullscreen": false,
+    "alwaysOnTop": false,
+    "vSync": false
+  }
+}
