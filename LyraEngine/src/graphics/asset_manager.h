@@ -82,7 +82,6 @@ public:
 
 private:
 	static non_access::AssetFile _images;
-	
 };
 
 } // namespace lyra

@@ -24,4 +24,6 @@ const AssetManager::TextureInfo AssetManager::unpack_texture(const char* path) {
 	return textureInfo;
 }
 
+non_access::AssetFile AssetManager::_images;
+
 } // namespace lyra

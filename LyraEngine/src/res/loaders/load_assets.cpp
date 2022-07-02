@@ -42,7 +42,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	jsonInFile.read((char*)&jsonDecompLength, sizeof(uint32));
 
 	// read the compressed json
-	char* json;
+	char* json = { };
 	jsonInFile.read(json, jsonLength);
 	// decompress the json
 	json = unpack_file(json, jsonLength, jsonDecompLength);
@@ -56,7 +56,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 }
 
 char* const unpack_file(const char* const data, const uint32 jsonLength, const uint32 jsonSize) {
-	char* result;
+	char* result = { };
 	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
 	return result;
 }
