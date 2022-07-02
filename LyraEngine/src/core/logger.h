@@ -75,12 +75,9 @@ private:
 	}
 
 public:
-	[[nodiscard]] static const char* tab() {
-		return "\t";
-	}
-
-	[[nodiscard]] static const char* end_l() {
-		return "\n";
+	static void init() {
+		std::ios::sync_with_stdio(Settings::Debug::stdioSync);
+		_logFile.open("data/log/log.txt", std::ofstream::out | std::ofstream::trunc); // because I kinda can't use the logger functionality in here, you just have to hope that this doesn't throw an error
 	}
 
 	/**
@@ -207,17 +204,23 @@ public:
 		std::cout << std::endl;
 	}
 
+	[[nodiscard]] static const char* tab() {
+		return "\t";
+	}
+
+	[[nodiscard]] static const char* end_l() {
+		return "\n";
+	}
+
 	~Logger() noexcept {
+		clear_buffer();
 		_logFile.close();
 	}
 
 private:
 	static std::ofstream _logFile;
 
-	Logger() {
-		std::ios::sync_with_stdio(Settings::Debug::stdio_sync);
-		_logFile.open("data/log/log.txt", std::ofstream::out | std::ofstream::trunc); // because I kinda can't use the logger functionality in here, you just have to hope that this doesn't throw an error
-	}
+	Logger() noexcept = delete;
 };
 
 } // namespace lyra
