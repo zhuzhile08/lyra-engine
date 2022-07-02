@@ -49,4 +49,30 @@ void Settings::init() {
 	Window::vSync = (bool)json["window"]["vSync"]; // doesn't work yet
 }
 
+// i hate myself
+char* Settings::Application::description;
+int Settings::Application::fps;
+
+Settings::DebugMode Settings::Debug::debug;
+Settings::DisableLog Settings::Debug::disableLog;
+bool Settings::Debug::printFPS;
+bool Settings::Debug::stdioSync;
+std::vector <const char*> Settings::Debug::requestedDeviceExtensions;
+std::vector <const char*> Settings::Debug::requestedValidationLayers;
+
+uint8 Settings::Rendering::maxFramesInFlight;
+float Settings::Rendering::fov;
+uint32 Settings::Rendering::resolution;
+Settings::PolygonFrontFace Settings::Rendering::polygonFrontFace;
+
+char* Settings::Window::title;
+char* Settings::Window::iconPath;
+uint32 Settings::Window::width;
+uint32 Settings::Window::height;
+bool Settings::Window::resizable;
+bool Settings::Window::borderless;
+bool Settings::Window::fullscreen;
+bool Settings::Window::alwaysOnTop;
+bool Settings::Window::vSync;
+
 } // namespace lyra
