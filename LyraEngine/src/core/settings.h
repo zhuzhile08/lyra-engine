@@ -59,8 +59,8 @@ struct Settings {
 	struct Rendering {
 		static uint8 maxFramesInFlight;
 		static float fov;
-		static PolygonFrontFace polygonFrontFace;
 		static uint32 resolution;
+		static PolygonFrontFace polygonFrontFace;
 
 	private:
 		Rendering() noexcept = delete;
