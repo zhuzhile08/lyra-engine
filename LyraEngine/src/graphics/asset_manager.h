@@ -71,7 +71,7 @@ public:
 	 * 
 	 * @return const lyra::AssetManager::TextureInfo&
 	 */
-	[[nodiscard]] static const TextureInfo& unpack_texture(const char* path);
+	[[nodiscard]] static const TextureInfo unpack_texture(const char* path);
 
 	/**
 	 * @brief return the raw image data

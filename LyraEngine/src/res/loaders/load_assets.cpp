@@ -55,7 +55,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	return loadedAsset;
 }
 
-const char* unpack_file(const char* const data, const uint32 jsonLength, const uint32 jsonSize) {
+char* const unpack_file(const char* const data, const uint32 jsonLength, const uint32 jsonSize) {
 	char* result;
 	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
 	return result;

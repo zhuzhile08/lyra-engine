@@ -12,7 +12,7 @@ const std::ifstream load_file(const char* const path, const int mode) {
 	// move the cursor to the beginning of the file
 	file.seekg(0);
 
-	return file
+	return file;
 }
 
 } // namespace lyra

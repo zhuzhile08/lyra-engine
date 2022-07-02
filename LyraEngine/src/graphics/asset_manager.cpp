@@ -7,7 +7,7 @@ void AssetManager::init() {
 
 }
 
-const AssetManager::TextureInfo& AssetManager::unpack_texture(const char* path) {
+const AssetManager::TextureInfo AssetManager::unpack_texture(const char* path) {
 	const auto& begin = _images.binary.begin() + _images.json[path]["begin"];
 	const auto& end = begin + _images.json[path]["data_length"]; // IMPORTANT!!! Remember to add one to the length of the data, or else everything will be screwed up
 	std::vector<char> compImageData(begin, end);

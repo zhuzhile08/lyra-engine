@@ -46,9 +46,9 @@ struct AssetFile {
  * @param length length of the compressed file
  * @param size size of the original file
  * 
- * @return const char*
+ * @return char* const 
  */
-[[nodiscard]] const char* unpack_file(const char* const data, const uint32 length, const uint32 size);
+[[nodiscard]] char* const unpack_file(const char* const data, const uint32 length, const uint32 size);
 
 /**
  * @brief lson file format documentation:
