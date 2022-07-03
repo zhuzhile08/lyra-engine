@@ -60,7 +60,6 @@ struct Settings {
 	struct Rendering {
 		static uint8 maxFramesInFlight;
 		static float fov;
-		static uint32 resolution;
 		static PolygonFrontFace polygonFrontFace;
 
 	private:
@@ -72,10 +71,13 @@ struct Settings {
 		static std::string title;
 		static std::string iconPath;
 
-		static uint32 width;
+		static uint32 width; // renderer width and height
 		static uint32 height;
+		static uint32 wWidth; // window width and height
+		static uint32 wHeight;
 		
 		static bool resizable;
+		static bool maximized;
 		static bool borderless;
 		static bool fullscreen;
 		static bool alwaysOnTop;

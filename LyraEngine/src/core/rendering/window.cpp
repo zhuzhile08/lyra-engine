@@ -8,11 +8,12 @@ void Window::create() noexcept {
 	uint32 flags = SDL_WINDOW_VULKAN;
 
 	if (Settings::Window::fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+	if (Settings::Window::maximized) flags |= SDL_WINDOW_MAXIMIZED;
 	if (Settings::Window::resizable) flags |= SDL_WINDOW_RESIZABLE;
 	if (Settings::Window::alwaysOnTop) flags |= SDL_WINDOW_ALWAYS_ON_TOP;
 	if (Settings::Window::borderless) flags |= SDL_WINDOW_BORDERLESS;
 
-	_window = SDL_CreateWindow(Settings::Window::title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::Window::width, Settings::Window::height, flags);
+	_window = SDL_CreateWindow(Settings::Window::title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::Window::wWidth, Settings::Window::wHeight, flags);
 
 	if (!_window) {
 		Logger::log_exception("Failed to create SDL window with error: ", SDL_GetError());

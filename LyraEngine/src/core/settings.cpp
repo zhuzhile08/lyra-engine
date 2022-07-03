@@ -31,14 +31,16 @@ void Settings::init() {
 
 	Rendering::maxFramesInFlight = (uint8)json["rendering"]["maxFramesInFlight"];
 	Rendering::fov = (float)json["rendering"]["fov"];
-	Rendering::resolution = (uint32)json["rendering"]["resolution"];
 	Rendering::polygonFrontFace = static_cast<PolygonFrontFace>((int)json["rendering"]["polygonFrontFace"]);
 
 	Window::title = (std::string)json["window"]["title"];
 	Window::iconPath = (std::string)json["window"]["iconPath"];
 	Window::width = (uint32)json["window"]["width"];
 	Window::height = (uint32)json["window"]["height"];
+	Window::wWidth = (uint32)json["window"]["wWidth"];
+	Window::wHeight = (uint32)json["window"]["wHeight"];
 	Window::resizable = (bool)json["window"]["resizable"];
+	Window::maximized = (bool)json["window"]["maximized"];
 	Window::borderless = (bool)json["window"]["borderless"];
 	Window::fullscreen = (bool)json["window"]["fullscreen"];
 	Window::alwaysOnTop = (bool)json["window"]["alwaysOnTop"];
@@ -60,14 +62,16 @@ std::vector <const char*> Settings::Debug::requestedValidationLayers = { "VK_LAY
 
 uint8 Settings::Rendering::maxFramesInFlight;
 float Settings::Rendering::fov;
-uint32 Settings::Rendering::resolution;
 Settings::PolygonFrontFace Settings::Rendering::polygonFrontFace;
 
 std::string Settings::Window::title;
 std::string Settings::Window::iconPath;
 uint32 Settings::Window::width;
 uint32 Settings::Window::height;
+uint32 Settings::Window::wWidth;
+uint32 Settings::Window::wHeight;
 bool Settings::Window::resizable;
+bool Settings::Window::maximized;
 bool Settings::Window::borderless;
 bool Settings::Window::fullscreen;
 bool Settings::Window::alwaysOnTop;
