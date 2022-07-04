@@ -25,7 +25,7 @@ void Camera::draw(CameraData data) {
 	data.proj = glm::perspective(glm::radians(_fov), _width / _height, _near, _far);
 	data.proj[1][1] *= -1;
 
-	_buffers[Application::context()->currentFrame()].copy_data(&data);
+	_buffers.at(Application::context()->currentFrame()).copy_data(&data);
 }
 
 } // namespace lyra

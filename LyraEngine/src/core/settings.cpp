@@ -21,30 +21,30 @@ void Settings::init() {
 
 	// set the variables
 	// hooo booy, this is gonna be fuuun!
-	Application::description = (char*)&json["application"]["description"];
-	Application::fps = (int)json["application"]["fps"];
+	Application::description = (char*)&json.at("application").at("description");
+	Application::fps = (int)json.at("application").at("fps");
 
-	Debug::debug = static_cast<DebugMode>((int)json["debug"]["debug"]);
-	Debug::disableLog = static_cast<DisableLog>((int)json["debug"]["disableLog"]);
-	Debug::printFPS = (bool)json["debug"]["printFPS"];
-	Debug::stdioSync = (bool)json["debug"]["stdioSync"];
+	Debug::debug = static_cast<DebugMode>((int)json.at("debug").at("debug"));
+	Debug::disableLog = static_cast<DisableLog>((int)json.at("debug").at("disableLog"));
+	Debug::printFPS = (bool)json.at("debug").at("printFPS");
+	Debug::stdioSync = (bool)json.at("debug").at("stdioSync");
 
-	Rendering::maxFramesInFlight = (uint8)json["rendering"]["maxFramesInFlight"];
-	Rendering::fov = (float)json["rendering"]["fov"];
-	Rendering::polygonFrontFace = static_cast<PolygonFrontFace>((int)json["rendering"]["polygonFrontFace"]);
+	Rendering::maxFramesInFlight = (uint8)json.at("rendering").at("maxFramesInFlight");
+	Rendering::fov = (float)json.at("rendering").at("fov");
+	Rendering::polygonFrontFace = static_cast<PolygonFrontFace>((int)json.at("rendering").at("polygonFrontFace"));
 
-	Window::title = (std::string)json["window"]["title"];
-	Window::iconPath = (std::string)json["window"]["iconPath"];
-	Window::width = (uint32)json["window"]["width"];
-	Window::height = (uint32)json["window"]["height"];
-	Window::wWidth = (uint32)json["window"]["wWidth"];
-	Window::wHeight = (uint32)json["window"]["wHeight"];
-	Window::resizable = (bool)json["window"]["resizable"];
-	Window::maximized = (bool)json["window"]["maximized"];
-	Window::borderless = (bool)json["window"]["borderless"];
-	Window::fullscreen = (bool)json["window"]["fullscreen"];
-	Window::alwaysOnTop = (bool)json["window"]["alwaysOnTop"];
-	Window::vSync = (bool)json["window"]["vSync"]; // doesn't work yet
+	Window::title = (std::string)json.at("window").at("title");
+	Window::iconPath = (std::string)json.at("window").at("iconPath");
+	Window::width = (uint32)json.at("window").at("width");
+	Window::height = (uint32)json.at("window").at("height");
+	Window::wWidth = (uint32)json.at("window").at("wWidth");
+	Window::wHeight = (uint32)json.at("window").at("wHeight");
+	Window::resizable = (bool)json.at("window").at("resizable");
+	Window::maximized = (bool)json.at("window").at("maximized");
+	Window::borderless = (bool)json.at("window").at("borderless");
+	Window::fullscreen = (bool)json.at("window").at("fullscreen");
+	Window::alwaysOnTop = (bool)json.at("window").at("alwaysOnTop");
+	Window::vSync = (bool)json.at("window").at("vSync"); // doesn't work yet
 
 	file.close();
 }

@@ -176,8 +176,8 @@ const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
 		}
 	}
 
-	_format = availableFormats[0].format;
-	return availableFormats[0];
+	_format = availableFormats.at(0).format;
+	return availableFormats.at(0);
 }
 
 const VkPresentModeKHR VulkanSwapchain::get_optimal_present_mode() {

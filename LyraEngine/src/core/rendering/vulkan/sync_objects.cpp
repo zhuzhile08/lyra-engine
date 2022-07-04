@@ -46,11 +46,11 @@ void VulkanSyncObjects::create(const VulkanDevice* const  device) {
 }
 
 void VulkanSyncObjects::wait(const uint32 fenceIndex) const {
-	if (vkWaitForFences(device->device(), 1, &_inFlightFences[fenceIndex], VK_TRUE, UINT64_MAX) != VK_SUCCESS) Logger::log_exception("Failed to wait for Vulkan fences to finish!");
+	if (vkWaitForFences(device->device(), 1, &_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX) != VK_SUCCESS) Logger::log_exception("Failed to wait for Vulkan fences to finish!");
 }
 
 void VulkanSyncObjects::reset(const uint32 fenceIndex) const {
-	if (vkResetFences(device->device(), 1, &_inFlightFences[fenceIndex]) != VK_SUCCESS) Logger::log_exception("Failed to reset Vulkan fences!");
+	if (vkResetFences(device->device(), 1, &_inFlightFences.at(fenceIndex)) != VK_SUCCESS) Logger::log_exception("Failed to reset Vulkan fences!");
 }
 
 }

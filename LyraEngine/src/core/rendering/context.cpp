@@ -29,7 +29,7 @@ void Context::draw() {
 	_commandBuffers.at(currentFrame()).reset();
 
 	// get the next image to render on
-	VkResult result = vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores()[_currentFrame], VK_NULL_HANDLE, &_imageIndex);
+	VkResult result = vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores().at(_currentFrame), VK_NULL_HANDLE, &_imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 		_swapchain.recreate();
@@ -39,13 +39,13 @@ void Context::draw() {
 	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) Logger::log_exception("Failed to get the next Vulkan image layer to blit on!");
 
 	// begin recording the command buffer
-	_commandBuffers[currentFrame()].begin(0);
+	_commandBuffers.at(currentFrame()).begin(0);
 
 	// call the draw calls
 	_renderQueue.flush();
 
 	// end recording the command buffer
-	_commandBuffers[currentFrame()].end();
+	_commandBuffers.at(currentFrame()).end();
 
 	// signal the synchronization objects to wait until drawing is finished
 	submit_device_queue(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
@@ -57,8 +57,8 @@ void Context::draw() {
 }
 
 void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
-	VkSemaphore waitSemaphores[] = { _syncObjects.imageAvailableSemaphores()[_currentFrame] };
-	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores()[_currentFrame] };
+	VkSemaphore waitSemaphores[] = { _syncObjects.imageAvailableSemaphores().at(_currentFrame) };
+	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores().at(_currentFrame) };
 
 	VkSubmitInfo submitInfo = {
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -73,7 +73,7 @@ void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 	};
 
 	// submit the queue
-	if (vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences()[_currentFrame]) != VK_SUCCESS) Logger::log_exception("Failed to submit Vulkan queue!");
+	if (vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences().at(_currentFrame)) != VK_SUCCESS) Logger::log_exception("Failed to submit Vulkan queue!");
 }
 
 void Context::present_device_queue() {
