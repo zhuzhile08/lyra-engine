@@ -41,10 +41,37 @@ public:
 		SPACE_LOCAL,
 		SPACE_GLOBAL
 	};
-	
+
+	// entities
+	enum class Entities {
+		// mesh
+		ENTITY_MESH = 0x00000001,
+		ENTITY_MESH_RENDERER = 0x00000002,
+		ENTITY_TEXT = 0x00000004,
+		ENTITY_TEXT_RENDERER = 0x00000008,
+		// physics
+		ENTITY_RIGID_BODY = 0x00000010,
+		ENTITY_COLLIDER = 0x00000020,
+		ENTITY_MESH_COLLIDER = 0x00000040,
+		ENTITY_JOINT = 0x00000080,
+		ENTITY_CLOTH = 0x00000100,
+		// graphics
+		ENTITY_CAMERA = 0x00000200,
+		ENTITY_CAMERA_CANVAS = 0x00000400,
+		ENTITY_LIGHT = 0x00000800,
+		ENTITY_LIGHT_PROBES = 0x00001000,
+		ENTITY_SKYBOX = 0x000002000,
+		// effects
+		ENTITY_PARTICLE_SYSTEM = 0x000003000,
+		ENTITY_LINE_RENDERER = 0x000004000,
+		// animation
+		ENTITY_ANIMATION = 0x000008000,
+		ENTITY_ANIMATOR = 0x000010000
+	};
+
 	/**
 	 * @brief construct a game object
-	 * 
+	 *
 	 * @param name name of the object
 	 * @param parent parent node of the object
 	 * @param visible visibility of the object
@@ -55,7 +82,7 @@ public:
 	 * @param rotationOrder order of the multiplication of the rotation matricies
 	 */
 	GameObject(
-		const char* name = "Game Object", 
+		const char* name = "Game Object",
 		GameObject* parent = nullptr,
 		const bool visible = true,
 		const uint32 tag = 0,
@@ -85,21 +112,21 @@ public:
 
 	/**
 	 * @brief move the object
-	 * 
+	 *
 	 * @param velocity velocity to move the object
 	 * @param space space to translate the object in
 	 */
 	void translate(glm::vec3 velocity, Space space = Space::SPACE_LOCAL) { set_position(_position + velocity, space); }
 	/**
 	 * @brief rotate the game object
-	 * 
+	 *
 	 * @param rotation rotation in degrees
 	 * @param space space to rotate the object in
 	 */
 	void rotate(glm::vec3 rotation, Space space = Space::SPACE_LOCAL) { set_rotation(_rotation + rotation, space); }
 	/**
 	 * @brief look at a position
-	 * 
+	 *
 	 * @param target target to look at
 	 * @param up up vector
 	 */
@@ -117,11 +144,11 @@ public:
 	 * @param newRotation new rotation in degrees
 	 * @param space space to move the object in
 	*/
-	void set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept { 
+	void set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept {
 		if (space == Space::SPACE_LOCAL) _rotation = newRotation;
 		else _rotation = newRotation - rotation_global();
 
-		_localTransformMatrix *= calculate_roation_mat(); 
+		_localTransformMatrix *= calculate_roation_mat();
 	}
 
 	/**
@@ -207,8 +234,10 @@ protected:
 
 	glm::mat4 _localTransformMatrix = glm::mat4(1.0f);
 
+	int entityMask;
+
 	GameObject* _parent;
-	
+
 	bool _visible = true;
 
 	uint32 _tag = 0; // you can go and define some tags yourself, just remember that 0 is always an undefined tag
