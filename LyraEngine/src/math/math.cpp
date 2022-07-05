@@ -26,16 +26,18 @@ template<class Ty> Ty bezier(std::vector<Ty> points, float value) {
 	bezier<Ty>(remaining_points, value);
 }
 
+/** 
 const float FPS() {
-	static auto startTime = std::chrono::high_resolution_clock::now();
+	auto startTime = std::chrono::high_resolution_clock::now();
 
 	auto currentTime = std::chrono::high_resolution_clock::now();
-	return std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+	return 1.f/std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count()/1000.f;
 }
 
 const float deltaTime() {
 	return 1/FPS();
 }
+*/
 
 float randDoub(const float x, const float y) {
 	int precision = rand() % 1000000 + 100;			// calculate the precision

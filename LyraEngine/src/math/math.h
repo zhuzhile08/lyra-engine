@@ -81,19 +81,6 @@ template<class Ty> [[nodiscard]] Ty point_on_line(Ty first, Ty second, float val
 template<class Ty> [[nodiscard]] Ty bezier(std::vector<Ty> points, float value);
 
 /**
- * @brief calculate the deltatime from the current FPS
- *
- * @return float
- */
-[[nodiscard]] const float FPS();
-/**
- * @brief calculate the deltatime from the current FPS
- * 
- * @return float
- */
-[[nodiscard]] const float deltaTime();
-
-/**
  * @brief randomly generate a floating point number
  * 
  * @param x bottom limit

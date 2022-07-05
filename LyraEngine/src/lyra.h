@@ -50,6 +50,18 @@ public: // behold, peasant, my superior "singleton" architecture
 	static void draw();
 
 	/**
+	 * @brief get the fps
+	 *
+	 * @return static const float
+	 */
+	[[nodiscard]] static const float fps() noexcept { return _fps; }
+	/**
+	 * @brief get the deltatime
+	 *
+	 * @return static const float
+	 */
+	[[nodiscard]] static const float deltaTime()  noexcept { return _deltaTime; }
+	/**
 	 * @brief get the window
 	 *
 	 * @return static const lyra::Window* const
@@ -63,8 +75,13 @@ public: // behold, peasant, my superior "singleton" architecture
 	[[nodiscard]] static Context* const context() noexcept { return &_context; };
 
 private:
+	static float _fps;
+	static float _deltaTime;
 	static Window _window;
 	static Context _context;
+
+	static uint64 _lastTime;
+	static uint64 _currentTime;
 };
 
 } // namespace lyra
