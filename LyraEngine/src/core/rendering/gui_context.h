@@ -20,14 +20,10 @@ namespace gui {
 // Context and Renderer of the ImGui extension
 class GUIContext {
 public:
-	GUIContext() { }
-
 	/**
 	 * @brief initialize an instance of the Vulkan and SDL version of the Dear ImGui libary
-	 *
-	 * @param renderer renderer to render the GUI
 	*/
-	GUIContext(Renderer* const renderer);
+	GUIContext();
 
 	/**
 	* @brief destructor of the GUI context
@@ -57,7 +53,7 @@ public:
 	/**
 	 * @brief bind the GUI
 	*/
-	void bind() const;
+	void bind();
 
 	/**
 	 * @brief get the descriptor pool local to the GUI context
@@ -65,12 +61,18 @@ public:
 	 * @return const lyra::VulkanDescriptorPool* const
 	*/
 	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return &_descriptorPool; };
+	/**
+	 * @brief get the GUI renderer
+	 *
+	 * @return const lyra::Renderer* const
+	*/
+	[[nodiscard]] const Renderer* const renderer() const noexcept { return &_renderer; };
 
 private:
 	VulkanDescriptorPool _descriptorPool;
 	CallQueue _drawQueue;
 
-	Renderer* renderer;
+	Renderer _renderer;
 };
 
 } // namespace gui

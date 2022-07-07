@@ -4,10 +4,8 @@ namespace lyra {
 
 namespace gui {
 
-GUIContext::GUIContext(Renderer* const renderer) {
+GUIContext::GUIContext() {
 	Logger::log_info("Creating context for the GUI... ");
-
-	this->renderer = renderer;
 
 	// information about the descriptor pool
 	VulkanDescriptorPool::Builder builder;
@@ -48,7 +46,7 @@ GUIContext::GUIContext(Renderer* const renderer) {
 		Application::context()->swapchain()->colorResources()->maxSamples()
 	};
 	// initialize ImGui for Vulkan
-	ImGui_ImplVulkan_Init(&initInfo, renderer->framebuffers()->renderPass());
+	ImGui_ImplVulkan_Init(&initInfo, _renderer.framebuffers()->renderPass());
 
 	// create a temporary command buffer for creating the font textures
 	VulkanCommandBuffer cmdBuff;
@@ -66,24 +64,28 @@ GUIContext::GUIContext(Renderer* const renderer) {
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-	renderer->add_to_draw_queue(FUNC_PTR( ImGui::Render(); ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers().at(Application::context()->currentFrame()).get()); ));
+	// add some default drawing funcitons to the renderers draw queue
+	_renderer.add_to_draw_queue(FUNC_PTR( ImGui::Render(); ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers().at(Application::context()->currentFrame()).get()); ));
+	
 	const_cast<Window*>(Application::window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Application::window()->event()); ));
+	// bind the renderer
+	_renderer.bind();
+	// bind to the renderer
+	bind();
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
 
-void GUIContext::bind() const {
+void GUIContext::bind() {
 	// render a new frame
-	renderer->add_to_update_queue([&] {
-		// get inputs
-
+	_renderer.add_to_update_queue(FUNC_PTR(
 		// begin drawing
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL2_NewFrame(Application::window()->get());
 		ImGui::NewFrame();
 
 		_drawQueue.flush();
-		});
+		));
 }
 
 } // namespace gui
