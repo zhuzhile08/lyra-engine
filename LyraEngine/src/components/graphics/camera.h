@@ -16,6 +16,7 @@
 #include <lyra.h>
 #include <components/gameObj.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
+#include <graphics/renderer.h>
 #include <core/logger.h>
 #include <core/defines.h>
 #include <core/queue_types.h>
@@ -34,6 +35,20 @@ namespace lyra {
  */
 class Camera {
 public:
+	// projection mode of the camera
+	enum Projection {
+		PROJECTION_PERSPECTIVE,
+		PROJECTION_ORTHOGRAPHIC
+	};
+
+	// projection mode of the camera
+	enum Clear {
+		CLEAR_SKYBOX,
+		CLEAR_COLOR,
+		CLEAR_NONE
+	};
+
+	// camera data
 	struct CameraData {
 		CameraData() { }
 
@@ -56,15 +71,21 @@ public:
 	Camera operator=(const Camera&) const noexcept = delete;
 
 	/**
-	 * @brief set the perspective of the camera
+	 * @brief set the projection of the camera in perspective mode
 	 * 
 	 * @param fov field of view
-	 * @param width width of the camera
-	 * @param height height of the camera
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	*/
-	void set_perspective(float fov = 45.0f, float width = Settings::Window::width, float height = Settings::Window::height, float near = 0.1f, float far = 20.0f) noexcept;
+	void set_perspective(float fov = 45.0f, float near = 0.1f, float far = 20.0f) noexcept;
+	/**
+	 * @brief set the projection of the camera in orthographic mode
+	 *
+	 * @param viewport viewport
+	 * @param near near clipping plane
+	 * @param far far clipping plane
+	*/
+	void set_orthographic(glm::vec4 viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, float near = 0.1f, float far = 20.0f) noexcept;
 
 	/**
 	 * @brief draw function
@@ -78,23 +99,17 @@ public:
 	*/
 	[[nodiscard]] const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
 	/**
+	 * @brief get the Renderer
+	 *
+	 * @return const Renderer* const
+	*/
+	[[nodiscard]] const Renderer* const renderer() const noexcept { return &_renderer; }
+	/**
 	 * @brief get the field of view of the camera
 	 *
 	 * @return const float
 	*/
 	[[nodiscard]] const float fov() const noexcept { return _fov; }
-	/**
-	 * @brief get the width of the camera
-	 *
-	 * @return const float
-	*/
-	[[nodiscard]] const float width() const noexcept { return _width; }
-	/**
-	 * @brief get the height of the camera
-	 *
-	 * @return const float
-	*/
-	[[nodiscard]] const float height() const noexcept { return _height; }
 	/**
 	 * @brief get the near clipping plane of the camera
 	 *
@@ -107,10 +122,22 @@ public:
 	 * @return const float
 	*/
 	[[nodiscard]] const float far() const noexcept { return _far; }
+	/**
+	 * @brief get the viewport dimensions and positions
+	 *
+	 * @return const float
+	*/
+	[[nodiscard]] const glm::vec4 viewport() const noexcept { return _viewport; }
+
+protected:
+	Renderer _renderer;
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
-	float _fov = 45.0f, _width = Settings::Window::width, _height = Settings::Window::height, _near = 0.1f, _far = 20.0f;
+
+	float _fov = 45.0f, _near = 0.1f, _far = 20.0f, _depth = 1.0f;
+	glm::vec4 _viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
+	Projection _projection;
 };
 
 } // namespace lyra
