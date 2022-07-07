@@ -8,7 +8,6 @@
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_image.h>
 #include <graphics/asset_manager.h>
-#include <graphics/renderer.h>
 
 #include <algorithm>
 #include <lz4.h>
