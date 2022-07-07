@@ -29,14 +29,11 @@ void Context::draw() {
 	_commandBuffers.at(currentFrame()).reset();
 
 	// get the next image to render on
-	VkResult result = vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores().at(_currentFrame), VK_NULL_HANDLE, &_imageIndex);
-
-	if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+	if (vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores().at(_currentFrame), VK_NULL_HANDLE, &_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		_swapchain.recreate();
 		_recreateQueue.flush();
 		return;
 	}
-	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) Logger::log_exception("Failed to get the next Vulkan image layer to blit on!");
 
 	// begin recording the command buffer
 	_commandBuffers.at(currentFrame()).begin(0);
@@ -57,53 +54,45 @@ void Context::draw() {
 }
 
 void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
-	VkSemaphore waitSemaphores[] = { _syncObjects.imageAvailableSemaphores().at(_currentFrame) };
-	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores().at(_currentFrame) };
-
-	VkSubmitInfo submitInfo = {
+	VkSubmitInfo submitInfo {
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
 	   nullptr,
 	   1,
-	   waitSemaphores,
+	   &_syncObjects.imageAvailableSemaphores().at(_currentFrame),
 	   &stageFlags,
 	   1,
 	   _commandBuffers.at(_currentFrame).get_ptr(),
 	   1,
-	   signalSemaphores
+	   &_syncObjects.renderFinishedSemaphores().at(_currentFrame)
 	};
 
 	// submit the queue
-	if (vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences().at(_currentFrame)) != VK_SUCCESS) Logger::log_exception("Failed to submit Vulkan queue!");
+	vkQueueSubmit(_device.presentQueue().queue, 1, &submitInfo, _syncObjects.inFlightFences().at(_currentFrame));
 }
 
 void Context::present_device_queue() {
-	VkSwapchainKHR swapchains[] = { _swapchain.swapchain() };
-	VkSemaphore signalSemaphores[] = { _syncObjects.renderFinishedSemaphores().at(_currentFrame)};
-
-	VkPresentInfoKHR presentInfo = {
+	VkPresentInfoKHR presentInfo {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1,
-		signalSemaphores,
+		&_syncObjects.renderFinishedSemaphores().at(_currentFrame),
 		1,
-		swapchains,
+		&_swapchain.swapchain(),
 		&_imageIndex
 	};
 
-	VkResult result = vkQueuePresentKHR(_device.presentQueue().queue, &presentInfo);
+	VkResult result = std::move(vkQueuePresentKHR(_device.presentQueue().queue, &presentInfo));
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || const_cast<Window*>(window)->changed()) {
 		// check if window was minimized, if true, then loop until otherwise
-		SDL_WindowFlags flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
+		SDL_WindowFlags flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
-			flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
+			flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
 			SDL_WaitEvent(const_cast<SDL_Event*>(&window->event()));
 		}
 
 		_swapchain.recreate();
 		_recreateQueue.flush();
-	} else if (result != VK_SUCCESS) {
-		Logger::log_exception("Failed to present swapchain image!");
 	}
 }
 

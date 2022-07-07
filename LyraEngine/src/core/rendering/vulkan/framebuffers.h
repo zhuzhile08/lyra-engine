@@ -64,7 +64,7 @@ public:
 		VkClearValue clear[2] {};
 		clear[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 		clear[1].depthStencil = { 1.0f, 0 };
-		VkRenderPassBeginInfo beginInfo[]{
+		VkRenderPassBeginInfo beginInfo {
 			VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 			nullptr,
 			_renderPass,
@@ -77,7 +77,7 @@ public:
 			clear
 		};
 
-		vkCmdBeginRenderPass(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 	/**
 	 * @brief end render pass
