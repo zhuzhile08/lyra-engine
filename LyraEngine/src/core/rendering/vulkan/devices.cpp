@@ -154,7 +154,7 @@ void VulkanDevice::create_logical_device() {
 		0,
 		static_cast<uint32>(queueCreateInfos.size()),
 		queueCreateInfos.data(),
-#ifndef ndebug
+#ifdef _DEBUG
 		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
 		Settings::Debug::requestedValidationLayers.data(),
 #else

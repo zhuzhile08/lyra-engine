@@ -48,7 +48,7 @@ void VulkanInstance::check_requested_validation_layers(const std::vector <VkLaye
 
 void VulkanInstance::create_instance() {
 	// check if requested validation layers are available
-#ifndef ndebug
+#ifdef _DEBUG
 	uint32 availableLayerCount = 0;
 	vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr);
 	std::vector <VkLayerProperties> availableLayers(availableLayerCount);
@@ -80,7 +80,7 @@ void VulkanInstance::create_instance() {
 		nullptr,
 		0,
 		&appInfo,
-#ifndef ndebug
+#ifdef _DEBUG
 		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
 		Settings::Debug::requestedValidationLayers.data(),
 #else
