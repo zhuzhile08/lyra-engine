@@ -1,9 +1,8 @@
 #define SDL_MAIN_HANDLED
 
 #include <lyra.h>
-#include <graphics/renderer.h>
 #include <core/rendering/gui_context.h>
-#include <components/graphics/material.h>
+#include <graphics/material.h>
 #include <graphics/material_manager.h>
 #include <components/mesh/mesh.h>
 #include <components/graphics/camera.h>
@@ -20,17 +19,17 @@ class Camera : public lyra::GameObject, public lyra::Camera {
 public:
 	Camera() { init(); }
 
-	void init(void) override {
-		set_position({2.0f, 2.0f, 2.0f});
-	}
-
-	void update(void) override {	
+	void update(void) override {
 		CameraData data;
 		look_at({ 0.0f, 0.0f, 0.0f });
-		// _rotation.y += lyra::FPS() * glm::radians(90.0f);
-		rotate({ 0.0f, 0.0f, lyra::FPS() * 90.0f });
+		rotate({ 0.0f, 0.0f, lyra::Application::fps() * 90.0f });
 		data.model = _localTransformMatrix;
 		draw(data);
+	}
+
+	void init(void) override {
+		set_position({2.0f, 2.0f, 2.0f});
+		_renderer.add_to_update_queue(FUNC_PTR(update();));
 	}
 };
 
@@ -40,11 +39,9 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	// init application
 	lyra::Application::init();
-	// renderer
-	lyra::Renderer renderer;
+
 	// camera
 	Camera camera;
-	renderer.add_to_update_queue(FUNC_PTR( camera.update(); ));
 
 	// asset manager
 	lyra::MaterialManager manager;
@@ -91,12 +88,9 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	room.bind(&renderer);
 	*/
 
-	renderer.bind();
-
 	// GUI
-	lyra::gui::GUIContext gui(&renderer);
+	lyra::gui::GUIContext gui;
 	gui.add_draw_call(FUNC_PTR( Menus::show_window_bar(); ImGui::ShowDemoWindow(); ));
-	gui.bind();
 
 	lyra::Application::draw();
 
