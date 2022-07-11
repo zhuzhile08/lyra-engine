@@ -88,7 +88,7 @@ void Context::present_device_queue() {
 		SDL_WindowFlags flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
 			flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
-			SDL_WaitEvent(const_cast<SDL_Event*>(&window->event()));
+			window->wait_events();
 		}
 
 		_swapchain.recreate();

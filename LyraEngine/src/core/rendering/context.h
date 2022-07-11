@@ -181,7 +181,7 @@ private:
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;
 
-	const Window* window;
+	Window* window;
 
 	/**
 	 * @brief present all the recorded commands

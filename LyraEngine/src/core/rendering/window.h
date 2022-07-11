@@ -87,6 +87,13 @@ public:
 	}
 
 	/**
+	 * @brief wait until an event was detected
+	 */
+	void wait_events() {
+		SDL_WaitEvent(&_event);
+	}
+
+	/**
 	 * @brief get the event object
 	 * 
 	 * @return const SDL_Event
