@@ -18,7 +18,6 @@ set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 # find path to libraries
 find_package(SDL2 REQUIRED)
-find_package(NOUD REQUIRED)
 find_package(GLM REQUIRED)
 find_package(VMA REQUIRED)
 find_package(TOL REQUIRED)
@@ -76,7 +75,7 @@ add_library(LyraEngine
  "src/graphics/asset_manager.cpp" 
  "src/core/logger.cpp"
  "src/components/gameObj.cpp" 
- "src/core/rendering/vulkan/vulkan_pipeline.cpp")
+ "src/core/rendering/vulkan/vulkan_pipeline.cpp" )
 
 add_dependencies(LyraEngine build_shaders)
 

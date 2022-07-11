@@ -12,6 +12,13 @@ void GameObject::set_position(glm::vec3 newPosition, Space space) noexcept {
 	_localTransformMatrix = glm::translate(glm::mat4(1.0f), _position);
 }
 
+void GameObject::set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept {
+	if (space == Space::SPACE_LOCAL) _rotation = newRotation;
+	else _rotation = newRotation - rotation_global();
+
+	_localTransformMatrix *= calculate_roation_mat();
+}
+
 void GameObject::look_at(glm::vec3 target, glm::vec3 up) {
 	_localTransformMatrix = glm::lookAt(_position, target, up);
 

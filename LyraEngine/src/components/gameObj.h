@@ -15,16 +15,16 @@
 
 #include <math/math.h>
 
-#include <noud.h>
 #include <glm.hpp>
 #include <cmath>
+#include <unordered_map>
 #include <gtc/matrix_transform.hpp>
 #include <gtx/matrix_decompose.hpp>
 #include <string>
 
 namespace lyra {
 
-class GameObject : noud::Node {
+class GameObject : noud::GameObject {
 public:
 	// order of transformation the object should use
 	enum class RotationOrder { // since "normal" people think with euler angles and not that black magic quaternion stuff, this should work fine
@@ -73,7 +73,7 @@ public:
 	 * @brief construct a game object
 	 *
 	 * @param name name of the object
-	 * @param parent parent node of the object
+	 * @param parent parent GameObject of the object
 	 * @param visible visibility of the object
 	 * @param tag optional tag of the object
 	 * @param position position of the object
@@ -90,7 +90,12 @@ public:
 		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
 		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_XYZ
-	) noexcept : noud::Node(parent, name), _parent(parent), _visible(visible), _tag(tag), _position(position), _rotation(rotation), _scale(scale), _rotationOrder(rotationOrder) { init(); }
+	) noexcept : _name(name), _parent(parent), _visible(visible), _tag(tag), _position(position), _rotation(rotation), _scale(scale), _rotationOrder(rotationOrder) { init(); }
+
+	/**
+	 * @brief destroy the game object
+	 */
+	~GameObject() { for (auto& [name, child] : _children) child->set_parent(_parent); }
 
 	/**
 	 * @brief update function, which gets updated every frame
@@ -144,11 +149,44 @@ public:
 	 * @param newRotation new rotation in degrees
 	 * @param space space to move the object in
 	*/
-	void set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept {
-		if (space == Space::SPACE_LOCAL) _rotation = newRotation;
-		else _rotation = newRotation - rotation_global();
+	void set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept;
 
-		_localTransformMatrix *= calculate_roation_mat();
+	/**
+	 * @brief add a child object
+	 *
+	 * @param newChild
+	 */
+	void add_child(GameObject* newChild) {
+		newChild->_parent = this;
+		_children[newChild->name()] = newChild;
+	}
+
+	/**
+	 * @brief add the GameObject to the front of a tree
+	 *
+	 * @param root the GameObject that is going to be behind this one
+	 */
+	void add_to_beginning(GameObject root) noexcept {
+		_parent = nullptr;
+		root._parent = this;
+	}
+
+	/**
+	 * @brief add GameObject to another GameObject
+	 *
+	 * @param newParent the new parent of the GameObject
+	 */
+	void add_to(GameObject* newParent) noexcept { _parent = new_parent; }
+
+	/**
+	 * @brief add GameObject between two GameObjects
+	 * @cond this only works when the parameter newParent is not at the front of a scene tree
+	 *
+	 * @param newParent the new parent of the GameObject
+	 */
+	void add_between(GameObject* newParent) {
+		_parent = back->_parent;
+		add_child(back);
 	}
 
 	/**
@@ -156,9 +194,7 @@ public:
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 position_global() const noexcept {
-		return _position + _parent->position_global();
-	};
+	[[nodiscard]] const glm::vec3 position_global() const noexcept { return _position + _parent->position_global(); };
 	/**
 	 * @brief get the global rotation
 	 *
@@ -190,6 +226,12 @@ public:
 	 * @param tag new tag
 	 */
 	void set_tag(const uint32 tag) noexcept { _tag = tag; }
+	/**
+	 * @brief set the parent
+	 *
+	 * @param newParent the parent
+	 */
+	void set_parent(GameObject* newParent) noexcept { _parent = new_parent; }
 
 	/**
 	 * @brief get if the object is visible or not
@@ -227,26 +269,52 @@ public:
 	 * @return const lyra::Transform::RotationOrder
 	*/
 	[[nodiscard]] const RotationOrder rotationOrder() const noexcept { return _rotationOrder; }
+	/**
+	 * @brief get the child by name
+	 *
+	 * @param name name of the child to find
+	 * @return const GameObject* const
+	 */
+	[[nodiscard]] GameObject* const get_child_by_name(const std::string name) const { return _children.at(_name); }
+	/**
+	 * @brief get the children
+	 *
+	 * @return const std::unordered_map <std::string, GameObject*>* cosnt
+	 */
+	[[nodiscard]] const std::unordered_map <std::string, GameObject*>* const children() const noexcept { return _children; }
+	/**
+	 * @brief get the name
+	 *
+	 * @return const std::string
+	 */
+	[[nodiscard]] const std::string name() const noexcept { return _name; }
+	/**
+	 * @brief get the parent
+	 *
+	 * @return const GameObject* const
+	 */
+	[[nodiscard]] const GameObject* const parent() const noexcept { return _parent; }
 
 protected:
 	glm::vec3 _position = { 0.0f, 0.0f, 0.0f }, _rotation = { 0.0f, 0.0f, 0.0f }, _scale = { 1.0f, 1.0f, 1.0f };
 	RotationOrder _rotationOrder = RotationOrder::ROTATION_XZY;
-
 	glm::mat4 _localTransformMatrix = glm::mat4(1.0f);
 
 	int entityMask;
 
-	GameObject* _parent;
-
 	bool _visible = true;
-
 	uint32 _tag = 0; // you can go and define some tags yourself, just remember that 0 is always an undefined tag
+
+	std::string _name = "GameObject";
+
+	GameObject* _parent = nullptr;
+	std::unordered_map <std::string, GameObject*> _children;
 
 private:
 	/**
 	 * @brief calculate the rotation matrix based on the parent rotation matrix and the current rotation
 	 */
-	[[nodiscard]] const glm::mat4 calculate_roation_mat() const;
+	void calculate_roation_mat(glm::mat4& matrix) const;
 };
 
 } // namespace lyra

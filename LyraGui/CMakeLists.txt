@@ -21,7 +21,6 @@ set(MANAGER_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 find_package(LYRA REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(NOUD REQUIRED)
 find_package(GLM REQUIRED)
 find_package(STB REQUIRED)
 find_package(VMA REQUIRED)
