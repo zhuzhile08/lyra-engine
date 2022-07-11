@@ -23,7 +23,6 @@
 
 #include <vector>
 
-#include <noud.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -59,7 +58,7 @@ public:
 	 *
 	 * @param window the window
 	 */
-	void create(const Window* const window);
+	void create(Window* const window);
 
 	/**
 	 * @brief wait for queue to finish submitting

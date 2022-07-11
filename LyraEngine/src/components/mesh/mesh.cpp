@@ -8,10 +8,8 @@ void Mesh::destroy() noexcept {
 	this->~Mesh();
 }
 
-void Mesh::create(const char* path, const uint16 index, const noud::Node* const parent, const char* name) {
+void Mesh::create(const char* path, const uint16 index) {
 	Logger::log_info("Creating Mesh... ");
-
-	(parent, name);
 
 	create_mesh(load_model(path), index);
 
@@ -21,9 +19,7 @@ void Mesh::create(const char* path, const uint16 index, const noud::Node* const 
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const  parent, const char* name) {
-	(parent, name);
-
+void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices) {
 	_vertices = vertices;
 	_indices = indices;
 
@@ -31,6 +27,16 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32
 	create_index_buffer();
 
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
+}
+
+void Mesh::bind(Renderer* const renderer) noexcept {
+	renderer->add_to_draw_queue([&]() {
+		VkDeviceSize size[] = { 0 };
+		vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), size);
+		vkCmdBindIndexBuffer(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
+
+		vkCmdDrawIndexed(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), static_cast<uint32>(_indices.size()), 1, 0, 0, 0);
+		});
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {

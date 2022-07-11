@@ -33,7 +33,6 @@ find_package(Vulkan REQUIRED)
 include_directories(
  ${SDL2_INCLUDE_DIRS} 
  ${LYRA_INCLUDE_DIRS}
- ${NOUD_INCLUDE_DIRS} 
  ${GLM_INCLUDE_DIRS} 
  ${Vulkan_INCLUDE_DIRS} 
  ${GUI_INCLUDE_DIR}

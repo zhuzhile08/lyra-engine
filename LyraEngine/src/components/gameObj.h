@@ -24,7 +24,7 @@
 
 namespace lyra {
 
-class GameObject : noud::GameObject {
+class GameObject {
 public:
 	// order of transformation the object should use
 	enum class RotationOrder { // since "normal" people think with euler angles and not that black magic quaternion stuff, this should work fine
@@ -162,9 +162,9 @@ public:
 	}
 
 	/**
-	 * @brief add the GameObject to the front of a tree
+	 * @brief add the game object to the front of a tree
 	 *
-	 * @param root the GameObject that is going to be behind this one
+	 * @param root the game object that is going to be behind this one
 	 */
 	void add_to_beginning(GameObject root) noexcept {
 		_parent = nullptr;
@@ -172,21 +172,21 @@ public:
 	}
 
 	/**
-	 * @brief add GameObject to another GameObject
+	 * @brief add a game object to another game object
 	 *
 	 * @param newParent the new parent of the GameObject
 	 */
-	void add_to(GameObject* newParent) noexcept { _parent = new_parent; }
+	void add_to(GameObject* newParent) noexcept { _parent = newParent; }
 
 	/**
-	 * @brief add GameObject between two GameObjects
+	 * @brief add a game object between two game object
 	 * @cond this only works when the parameter newParent is not at the front of a scene tree
 	 *
-	 * @param newParent the new parent of the GameObject
+	 * @param front the new game object that is supposed be in front
 	 */
-	void add_between(GameObject* newParent) {
-		_parent = back->_parent;
-		add_child(back);
+	void add_between(GameObject* front) {
+		_parent = front->_parent;
+		add_child(front);
 	}
 
 	/**
@@ -231,7 +231,7 @@ public:
 	 *
 	 * @param newParent the parent
 	 */
-	void set_parent(GameObject* newParent) noexcept { _parent = new_parent; }
+	void set_parent(GameObject* newParent) noexcept { _parent = newParent; }
 
 	/**
 	 * @brief get if the object is visible or not
@@ -281,7 +281,7 @@ public:
 	 *
 	 * @return const std::unordered_map <std::string, GameObject*>* cosnt
 	 */
-	[[nodiscard]] const std::unordered_map <std::string, GameObject*>* const children() const noexcept { return _children; }
+	[[nodiscard]] const std::unordered_map <std::string, GameObject*>* const children() const noexcept { return &_children; }
 	/**
 	 * @brief get the name
 	 *
@@ -314,7 +314,7 @@ private:
 	/**
 	 * @brief calculate the rotation matrix based on the parent rotation matrix and the current rotation
 	 */
-	void calculate_roation_mat(glm::mat4& matrix) const;
+	void calculate_roation_mat();
 };
 
 } // namespace lyra

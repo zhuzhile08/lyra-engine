@@ -4,7 +4,7 @@ namespace lyra {
 
 Context::Context() { }
 
-void Context::create(const Window* const window) {
+void Context::create(Window* const window) {
 	Logger::log_info("Creating context for application...");
 
 	this->window = window;

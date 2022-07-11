@@ -23,7 +23,6 @@
 
 #include <vector>
 
-#include <noud.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {

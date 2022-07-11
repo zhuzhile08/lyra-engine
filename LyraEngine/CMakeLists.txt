@@ -34,7 +34,6 @@ add_custom_target(build_shaders ALL
 
 include_directories(
  ${SDL2_INCLUDE_DIRS} 
- ${NOUD_INCLUDE_DIRS} 
  ${GLM_INCLUDE_DIRS} 
  ${Vulkan_INCLUDE_DIRS} 
  ${ENGINE_INCLUDE_DIR}
@@ -55,7 +54,6 @@ add_library(LyraEngine
  "../include/imgui/imgui_widgets.cpp"
  "../include/imgui/backends/imgui_impl_vulkan.cpp"
  "../include/imgui/backends/imgui_impl_sdl.cpp"
- "../include/NOUD/noud.cpp"                    # noud
  "src/init/init_SDL.cpp"                    # engine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"

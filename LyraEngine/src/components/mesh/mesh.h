@@ -18,8 +18,6 @@
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <graphics/renderer.h>
 
-#include <noud.h>
-
 #include <vector>
 #include <glm.hpp>
 #include <vulkan/vulkan.h>
@@ -29,7 +27,7 @@ namespace lyra {
 /**
  * @brief A mesh struct containing vertices, indecies and vertex and index buffers
  */
-class Mesh : noud::Node {
+class Mesh {
 public:
 	Mesh();
 
@@ -45,35 +43,23 @@ public:
 	 *
 	 * @param path path of the model
 	 * @index index of the object in the model to load. Starts at 1, 0 is default
-	 * @param parent parent node
-	 * @param name name of the node
 	 */
-	void create(const char* path, const uint16 index = 0, const noud::Node* const parent = nullptr, const char* name = "mesh");
+	void create(const char* path, const uint16 index = 0);
 	/**
 	 * @brief construct a new mesh with a custom model
 	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
 	 *
 	 * @param vertices the new vertices
 	 * @param indices the new indices
-	 * @param parent parent node
-	 * @param name name of the node
 	 */
-	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices, const noud::Node* const parent = nullptr, const char* name = "mesh");
+	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices);
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
 	 *
 	 * @param renderer context to add the draw call to
 	 */
-	void bind(Renderer* const renderer) noexcept {
-		renderer->add_to_draw_queue([&]() {
-			VkDeviceSize size[] = { 0 };
-			vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), size);
-			vkCmdBindIndexBuffer(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
-
-			vkCmdDrawIndexed(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), static_cast<uint32>(_indices.size()), 1, 0, 0, 0); 
-		});
-	}
+	void bind(Renderer* const renderer) noexcept;
 
 	/**
 	 * @brief get the vertices

@@ -12,11 +12,11 @@ void GameObject::set_position(glm::vec3 newPosition, Space space) noexcept {
 	_localTransformMatrix = glm::translate(glm::mat4(1.0f), _position);
 }
 
-void GameObject::set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept {
+void GameObject::set_rotation(glm::vec3 newRotation, Space space) noexcept {
 	if (space == Space::SPACE_LOCAL) _rotation = newRotation;
 	else _rotation = newRotation - rotation_global();
 
-	_localTransformMatrix *= calculate_roation_mat();
+	calculate_roation_mat();
 }
 
 void GameObject::look_at(glm::vec3 target, glm::vec3 up) {
@@ -28,7 +28,7 @@ void GameObject::look_at(glm::vec3 target, glm::vec3 up) {
 	_rotation.z = glm::degrees(atan2(_localTransformMatrix[1][0], _localTransformMatrix[0][0]));
 }
 
-const glm::mat4 GameObject::calculate_roation_mat() const {
+void GameObject::calculate_roation_mat() {
 	glm::mat4 mat1, mat2, mat3;
 
 	// are you proud of me, Yandere Dev?
@@ -63,7 +63,7 @@ const glm::mat4 GameObject::calculate_roation_mat() const {
 		}
 	} // yeah, the maximum amount of if statements this has to go through is 4. Every. Single. Frame.
 
-	return mat3;
+	_localTransformMatrix *= mat3;
 }
 
 } // namespace lyra
