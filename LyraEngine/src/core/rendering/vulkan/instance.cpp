@@ -85,7 +85,7 @@ void VulkanInstance::create_instance() {
 		Settings::Debug::requestedValidationLayers.data(),
 #else
 		0,
-		nullptr
+		nullptr,
 #endif
 		SDLExtensionCount,
 		SDLExtensions
