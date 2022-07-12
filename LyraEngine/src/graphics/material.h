@@ -13,7 +13,7 @@
 
 #include <graphics/material_manager.h>
 #include <core/rendering/vulkan/descriptor.h>
-#include <graphics/renderer.h>
+#include <components/graphics/camera.h>
 #include <lyra.h>
 
 namespace lyra {
@@ -45,10 +45,10 @@ public:
 	/**
 	 * @brief bind the material
 	 * 
-	 * @param renderer renderer to bind to
+	 * @param camera camera to draw to
 	*/
-	void bind(Renderer* const renderer) const {
-		renderer->add_to_draw_queue([&]() {
+	void bind(Camera* const camera) const {
+		camera->renderer()->add_to_draw_queue([&]() {
 			vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), manager->pipeline(_pipelineID)->bindPoint(), manager->pipeline(_pipelineID)->pipeline());
 			vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), manager->pipeline(_pipelineID)->bindPoint(),
 				manager->pipeline(_pipelineID)->layout(), 0, 1, _descriptor.get_ptr(), 0, nullptr);

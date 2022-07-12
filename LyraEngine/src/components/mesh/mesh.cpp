@@ -29,8 +29,8 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::bind(Renderer* const renderer) noexcept {
-	renderer->add_to_draw_queue([&]() {
+void Mesh::bind(Camera* const camera) noexcept {
+	camera->renderer()->add_to_draw_queue([&]() {
 		VkDeviceSize size[] = { 0 };
 		vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), size);
 		vkCmdBindIndexBuffer(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);

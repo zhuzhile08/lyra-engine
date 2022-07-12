@@ -15,6 +15,7 @@
 #include <core/defines.h>
 #include <res/loaders/load_model.h>
 #include <core/rendering/vulkan/vertex.h>
+#include <components/graphics/camera.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <graphics/renderer.h>
 
@@ -57,9 +58,9 @@ public:
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
 	 *
-	 * @param renderer context to add the draw call to
+	 * @param camera context to add the draw call to
 	 */
-	void bind(Renderer* const renderer) noexcept;
+	void bind(Camera* const camera) noexcept;
 
 	/**
 	 * @brief get the vertices
