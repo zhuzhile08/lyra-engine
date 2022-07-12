@@ -101,9 +101,9 @@ public:
 	/**
 	 * @brief get the Renderer
 	 *
-	 * @return const Renderer* const
+	 * @return Renderer* const
 	*/
-	[[nodiscard]] const Renderer* const renderer() const noexcept { return &_renderer; }
+	[[nodiscard]] Renderer* const renderer() noexcept { return &_renderer; }
 	/**
 	 * @brief get the field of view of the camera
 	 *
