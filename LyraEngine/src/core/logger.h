@@ -225,7 +225,7 @@ private:
 
 template<typename ... Args> static void lassert(bool condition, Args... message) {
 #ifdef _DEBUG
-	if (!condition) Logger::log_exception(message);
+	if (!condition) (Logger::log_exception(message), ...);
 #endif
 }
 
