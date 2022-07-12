@@ -28,7 +28,7 @@ void VulkanShader::create(const VulkanDevice* const device, const char* path, co
 		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	if (vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) != VK_SUCCESS) Logger::log_exception("Failed to create a Vulkan shader module");
+	lassert(vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) == VK_SUCCESS, "Failed to create a Vulkan shader module");
 
 	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }

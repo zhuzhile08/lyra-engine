@@ -120,7 +120,7 @@ struct VulkanImage {
 		};
 
 		// create the view
-		if (vkCreateImageView(device->device(), &createInfo, nullptr, &_view) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan image views");
+		lassert(vkCreateImageView(device->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
 
 		Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 	}

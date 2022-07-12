@@ -109,7 +109,7 @@ void VulkanFramebuffers::create_render_pass() {
 		&dependencies
 	};
 
-	if (vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass)) Logger::log_exception("Failed to create Vulkan render pass!");
+	lassert(vkCreateRenderPass(device->device(), &renderPassInfo, nullptr, &_renderPass) == VK_SUCCESS, "Failed to create Vulkan render pass!");
 }
 
 void VulkanFramebuffers::create_frame_buffers() {
@@ -135,7 +135,7 @@ void VulkanFramebuffers::create_frame_buffers() {
 			1
 		};
 
-		if (vkCreateFramebuffer(device->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) != VK_SUCCESS) Logger::log_exception("Failed to create a framebuffer!");
+		lassert(vkCreateFramebuffer(device->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) == VK_SUCCESS, "Failed to create a framebuffer!");
 	}
 }
 

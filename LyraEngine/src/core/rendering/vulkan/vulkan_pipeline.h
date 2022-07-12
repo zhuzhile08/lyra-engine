@@ -175,8 +175,7 @@ protected:
 			nullptr
 		};
 
-		if (vkCreatePipelineLayout(Application::context()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) != VK_SUCCESS)
-			Logger::log_exception("Failed to create Vulkan graphics pipeline layout!");
+		lassert(vkCreatePipelineLayout(Application::context()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
 	}
 
 	/**

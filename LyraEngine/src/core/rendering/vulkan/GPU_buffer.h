@@ -74,7 +74,7 @@ public:
 	 */
 	void copy_data(const void* const src, const size_t copySize = 0) {
 		void* data;
-		if (vmaMapMemory(device->allocator(), _memory, &data) != VK_SUCCESS) Logger::log_exception("Failed to map buffer memory at ", get_address(_memory), "!");
+		lassert(vmaMapMemory(device->allocator(), _memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(_memory), "!");
 		memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
 		vmaUnmapMemory(device->allocator(), _memory);
 	}

@@ -18,7 +18,7 @@ void VulkanCommandPool::create(const VulkanDevice* const device) {
 		device->graphicsQueue().familyIndex
 	};
 
-	if (vkCreateCommandPool(device->device(), &createInfo, nullptr, &commandPool) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan command pool");
+	lassert(vkCreateCommandPool(device->device(), &createInfo, nullptr, &commandPool) == VK_SUCCESS, "Failed to create Vulkan command pool");
 
 	Logger::log_info("Successfully created Vulkan command pool at ", get_address(this), "!", Logger::end_l());
 }
@@ -42,7 +42,7 @@ void VulkanCommandBuffer::create(const VulkanDevice* const device, const VulkanC
 	};
 
 	// create the command buffers
-	if (vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan command buffer!");
+	lassert(vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) == VK_SUCCESS, "Failed to create Vulkan command buffer!");
 
 	Logger::log_info("Successfully created Vulkan command buffer at ", get_address(this), "!", Logger::end_l());
 }

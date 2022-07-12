@@ -10,7 +10,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* const de
 
 	// get the number of images
 	uint32 imageCount;
-	if (vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, nullptr) != VK_SUCCESS) Logger::log_exception("Failed to retrieve Vulkan swapchain images!");
+	lassert(vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, nullptr) == VK_SUCCESS, "Failed to retrieve Vulkan swapchain images!");
 	_images.resize(imageCount); _views.resize(imageCount);
 	vkGetSwapchainImagesKHR(device->device(), swapchain->swapchain(), &imageCount, _images.data());
 
@@ -30,7 +30,7 @@ void VulkanSwapchain::VulkanSwapchainImages::create(const VulkanDevice* const de
 		};
 
 		// create the view
-		if (vkCreateImageView(device->device(), &createInfo, nullptr, &_views.at(i)) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan image views");
+		lassert(vkCreateImageView(device->device(), &createInfo, nullptr, &_views.at(i)) == VK_SUCCESS, "Failed to create Vulkan image views");
 	}
 
 	Logger::log_info("Successfully created Vulkan swapchain images at ", get_address(this), "!", Logger::end_l());
@@ -47,7 +47,7 @@ void VulkanSwapchain::VulkanColorResources::create(const VulkanDevice* const dev
 	_maxSamples = getMaxSamples();
 
 	// create memory and image
-	if (vmaCreateImage(device->allocator(),
+	lassert(vmaCreateImage(device->allocator(),
 		&get_image_create_info(
 			colorFormat,
 			{ swapchain->extent().width, swapchain->extent().height, 1 },
@@ -61,7 +61,7 @@ void VulkanSwapchain::VulkanColorResources::create(const VulkanDevice* const dev
 		&_image,
 		&_memory,
 		nullptr
-	) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan color resources!");
+	) == VK_SUCCESS, "Failed to create Vulkan color resources!");
 
 	// create the image view
 	create_view(device, colorFormat, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
@@ -93,7 +93,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device
 	_format = get_best_format(device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
-	if (vmaCreateImage(device->allocator(),
+	lassert(vmaCreateImage(device->allocator(),
 		&get_image_create_info(
 			_format,
 			{ swapchain->extent().width, swapchain->extent().height, 1 },
@@ -107,7 +107,7 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device
 		&_image,
 		&_memory,
 		nullptr
-	) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan depth buffer!");
+	) == VK_SUCCESS, "Failed to create Vulkan depth buffer!");
 
 	// create the image view
 	create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
@@ -163,8 +163,8 @@ void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR sur
 
 const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
 	uint32 availableFormatCount = 0;
-	if (vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, nullptr) != VK_SUCCESS)
-		Logger::log_exception("Failed to get available swapchain surface modes");
+	lassert(vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, nullptr) == VK_SUCCESS,
+		"Failed to get available swapchain surface modes");
 
 	// check the formats
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
@@ -183,8 +183,8 @@ const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
 const VkPresentModeKHR VulkanSwapchain::get_optimal_present_mode() {
 	uint32 availablePresentModeCount = 0;
 
-	if (vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr) != VK_SUCCESS)
-		Logger::log_exception("Failed to get available swapchain present modes");
+	lassert(vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr) == VK_SUCCESS, 
+		"Failed to get available swapchain present modes");
 
 	// check the presentation modes
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
@@ -260,7 +260,7 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
 		(_oldSwapchain != nullptr) ? *_oldSwapchain : VK_NULL_HANDLE
 	};
 
-	if (vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan swapchain");
+	lassert(vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) == VK_SUCCESS, "Failed to create Vulkan swapchain");
 
 	_images.create(device, this);
 	_colorResources.create(device, this);

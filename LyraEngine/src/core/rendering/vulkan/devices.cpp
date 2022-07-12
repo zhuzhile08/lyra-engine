@@ -40,9 +40,7 @@ void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProp
 					}
 			}
 
-		if (!found) {
-			Logger::log_exception("User required Vulkan extensions weren't found!", extension);
-		}
+		lassert(found, "User required Vulkan extensions weren't found!", extension);
 	}
 }
 
@@ -70,7 +68,7 @@ void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
 void VulkanDevice::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
-	if (vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) != VK_SUCCESS) Logger::log_exception("Failed to find any Vulkan auitable GPUs!");
+	lassert(vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) == VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
 		std::vector <VkPhysicalDevice> devices(deviceCount);             // just put this in here cuz I was lazy
 	vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, devices.data());
 
@@ -167,7 +165,7 @@ void VulkanDevice::create_logical_device() {
 	};
 
 	// create the device and retrieve the graphics and presentation queue handles
-	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS) Logger::log_exception("Failed to create logical device!");
+	lassert(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) == VK_SUCCESS, "Failed to create logical device!");
 
 	create_queue(&_graphicsQueue);
 	create_queue(&_presentQueue);
@@ -189,7 +187,7 @@ void VulkanDevice::create_allocator() {
 	};
 
 	// create the allocator
-	if (vmaCreateAllocator(&createInfo, &_allocator) != VK_SUCCESS) Logger::log_exception("Failed to create VMA memory allocator!");
+	lassert(vmaCreateAllocator(&createInfo, &_allocator) == VK_SUCCESS, "Failed to create VMA memory allocator!");
 }
 
 void VulkanDevice::wait() const {

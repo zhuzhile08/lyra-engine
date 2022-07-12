@@ -169,8 +169,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 		0
 	};
 
-	if(vkCreateGraphicsPipelines(Application::context()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS) 
-		Logger::log_exception("Failed to create Vulkan Pipeline!");
+	lassert(vkCreateGraphicsPipelines(Application::context()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
 }
 
 } // namespace lyra

@@ -66,7 +66,7 @@ public:
 	 * @param queue queue to wait for
 	 */
 	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-		if (vkQueueWaitIdle(queue.queue) != VK_SUCCESS) Logger::log_exception("Failed to wait for device queue!");
+		lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
 	}
 
 	/**

@@ -14,8 +14,8 @@ void VulkanDescriptorSetLayout::create(const Builder builder) {
 		builder.bindings.data()
 	};
 
-	if (vkCreateDescriptorSetLayout(Application::context()->device()->device(), &layoutInfo, nullptr, &_descriptorSetLayout) != VK_SUCCESS) 
-		Logger::log_exception("Failed to create descriptor set layout");
+	lassert(vkCreateDescriptorSetLayout(Application::context()->device()->device(), &layoutInfo, nullptr, &_descriptorSetLayout) == VK_SUCCESS,
+		"Failed to create descriptor set layout");
 
 	Logger::log_info("Successfully created Vulkan descriptor set layout at ", get_address(this), "!", Logger::end_l());
 }
@@ -34,8 +34,8 @@ void VulkanDescriptorPool::create(const Builder builder) {
 		builder.poolSizes.data()
 	};
 
-	if (vkCreateDescriptorPool(Application::context()->device()->device(), &poolInfo, nullptr, &_descriptorPool) != VK_SUCCESS) 
-		Logger::log_exception("Failed to create descriptor pool");
+	lassert(vkCreateDescriptorPool(Application::context()->device()->device(), &poolInfo, nullptr, &_descriptorPool) == VK_SUCCESS,
+		"Failed to create descriptor pool");
 
 	Logger::log_info("Successfully created Vulkan descriptor pool at ", get_address(this), "!", Logger::end_l());
 }
@@ -53,7 +53,7 @@ void VulkanDescriptor::create(const VulkanDescriptorSetLayout* const layout, con
 		layout->get_ptr()
 	};
 
-	if (vkAllocateDescriptorSets(Application::context()->device()->device(), &allocInfo, &_descriptorSet) != VK_SUCCESS) Logger::log_exception("Failed to allocate descriptor sets");
+	lassert(vkAllocateDescriptorSets(Application::context()->device()->device(), &allocInfo, &_descriptorSet) == VK_SUCCESS, "Failed to allocate descriptor sets");
 
 	for(auto& write : writer.writes) write.dstSet = _descriptorSet;
 

@@ -121,13 +121,13 @@ public:
 		};
 
 		// start recording
-		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) Logger::log_exception("Failed to start recording Vulkan command buffer!");
+		lassert(vkBeginCommandBuffer(commandBuffer, &beginInfo) == VK_SUCCESS, "Failed to start recording Vulkan command buffer!");
 	}
 	/**
 	 * @brief end recording a commandBuffer
 	 */
 	void end() const {
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) Logger::log_exception("Failed to stop recording command buffer!");
+		lassert(vkEndCommandBuffer(commandBuffer) == VK_SUCCESS, "Failed to stop recording command buffer!");
 	}
 	/**
 	 * reset the command buffer after everything has been recorded
@@ -135,7 +135,7 @@ public:
 	 * @flags additional flags
 	 */
 	void reset(const VkCommandBufferResetFlags flags = 0) const {
-		if (vkResetCommandBuffer(commandBuffer, flags) != VK_SUCCESS) Logger::log_exception("Failed to reset command buffer!");
+		lassert(vkResetCommandBuffer(commandBuffer, flags) == VK_SUCCESS, "Failed to reset command buffer!");
 	}
 
 	/**
@@ -158,7 +158,7 @@ public:
 		};
 
 		// submit the queue
-		if (vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) Logger::log_exception("Failed to submit Vulkan queue!");
+		lassert(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) == VK_SUCCESS, "Failed to submit Vulkan queue!");
 
 		Logger::log_debug(Logger::tab(), "Submitted command buffer at: ", get_address(this));
 	}
@@ -169,7 +169,7 @@ public:
 	 * @param queue the queue to wait for
 	*/
 	void wait_queue(const VkQueue queue) const {
-		if (vkQueueWaitIdle(queue) != VK_SUCCESS) Logger::log_exception("Failed to wait for device queue!");
+		lassert(vkQueueWaitIdle(queue) == VK_SUCCESS, "Failed to wait for device queue!");
 	}
 
 	/**

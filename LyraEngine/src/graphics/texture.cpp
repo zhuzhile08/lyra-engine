@@ -50,7 +50,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 		& _image, 
 		& _memory, 
 		nullptr
-	) != VK_SUCCESS) Logger::log_error("Failed to load image from path: ", _path);
+	) == VK_SUCCESS) Logger::log_error("Failed to load image from path: ", _path);
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(Application::context()->device(), Application::context()->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
@@ -87,7 +87,7 @@ void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFil
 		VK_FALSE
 	};
 
-	if (vkCreateSampler(Application::context()->device()->device(), &samplerInfo, nullptr, &_sampler) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan image sampler!");
+	lassert(vkCreateSampler(Application::context()->device()->device(), &samplerInfo, nullptr, &_sampler) == VK_SUCCESS, "Failed to create Vulkan image sampler!");
 
 	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }
@@ -96,7 +96,7 @@ void Texture::generate_mipmaps() const {
 	// check if image supports linear filtering
 	VkFormatProperties formatProperties;
 	vkGetPhysicalDeviceFormatProperties(Application::context()->device()->physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
-	if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) Logger::log_exception("Image does not support linear filtering with its current format!", Logger::end_l());
+	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", Logger::end_l());
 
 	// temporary command buffer for generating midmaps
 	VulkanCommandBuffer     cmdBuff;

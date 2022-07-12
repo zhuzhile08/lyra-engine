@@ -40,9 +40,7 @@ void VulkanInstance::check_requested_validation_layers(const std::vector <VkLaye
 			}
 		}
 
-		if (!found) {
-			Logger::log_exception("User required Vulkan validation layer wasn't found: ", layer);
-		}
+		lassert(found, "User required Vulkan validation layer wasn't found: ", layer);
 	}
 }
 
@@ -59,9 +57,9 @@ void VulkanInstance::create_instance() {
 	// get all extensions
 	uint32 SDLExtensionCount = 0;
 
-	if(!SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, nullptr)) Logger::log_exception("Failed to get number of Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, nullptr), "Failed to get number of Vulkan instance extensions");
 	const char** SDLExtensions = new const char* [SDLExtensionCount];
-	if(!SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, SDLExtensions)) Logger::log_exception("Failed to get Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, SDLExtensions), "Failed to get Vulkan instance extensions");
 
 	// define some info for the application that will be used in instance creation
 	VkApplicationInfo appInfo {
@@ -93,12 +91,12 @@ void VulkanInstance::create_instance() {
 
 
 // create the instance
-	if(vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS) Logger::log_exception("Failed to create Vulkan instance");
+	lassert(vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS, "Failed to create Vulkan instance");
 }
 
 void VulkanInstance::create_window_surface() {
 	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
-	if(!SDL_Vulkan_CreateSurface(window->get(), _instance, &_surface)) Logger::log_exception("Failed to create Vulkan window surface");
+	lassert(SDL_Vulkan_CreateSurface(window->get(), _instance, &_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
 }
 
 } // namespace lyra
