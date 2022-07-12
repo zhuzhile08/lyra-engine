@@ -11,6 +11,7 @@ set(NOUD_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(GLM_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake) # temporary
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
@@ -20,6 +21,7 @@ set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
 find_package(SDL2 REQUIRED)
 find_package(GLM REQUIRED)
 find_package(VMA REQUIRED)
+find_package(STB REQUIRED) # temporary
 find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
@@ -38,6 +40,7 @@ include_directories(
  ${Vulkan_INCLUDE_DIRS} 
  ${ENGINE_INCLUDE_DIR}
  ${GUI_INCLUDE_DIR}
+ ${STB_INCLUDE_DIRS} # temporary
  ${VMA_INCLUDE_DIRS} 
  ${TOL_INCLUDE_DIRS} 
  ${JSON_INCLUDE_DIRS}

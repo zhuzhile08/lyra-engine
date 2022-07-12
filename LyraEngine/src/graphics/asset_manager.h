@@ -15,13 +15,12 @@
 #include <core/logger.h>
 #include <res/loaders/load_assets.h>
 
+#include <stb_image.h>
 #include <vector>
 
 namespace lyra {
 
 namespace non_access {
-
-
 
 } // namespace non_access
 
@@ -50,6 +49,11 @@ public:
 		// image data
 		void* data;
 	}; // this also roughly represents the texture data file
+
+	// mesh information
+	struct MeshInfo {
+
+	};
 
 	/**
 	 * @brief destructor of the window
