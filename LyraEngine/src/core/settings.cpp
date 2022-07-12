@@ -46,6 +46,9 @@ void Settings::init() {
 	Window::alwaysOnTop = (bool)json.at("window").at("alwaysOnTop");
 	Window::vSync = (bool)json.at("window").at("vSync"); // doesn't work yet
 
+	Memory::componentLimit = (uint32)json.at("memory").at("componentLimit");
+	Memory::entityLimit = (uint32)json.at("memory").at("entityLimit");
+
 	file.close();
 }
 
@@ -76,5 +79,8 @@ bool Settings::Window::borderless;
 bool Settings::Window::fullscreen;
 bool Settings::Window::alwaysOnTop;
 bool Settings::Window::vSync;
+
+uint32 Settings::Memory::componentLimit;
+uint32 Settings::Memory::entityLimit;
 
 } // namespace lyra

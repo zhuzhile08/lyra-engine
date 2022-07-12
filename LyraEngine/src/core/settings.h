@@ -87,6 +87,11 @@ struct Settings {
 		Window() noexcept = delete;
 	};
 
+	struct Memory {
+		static uint32 componentLimit;
+		static uint32 entityLimit;
+	};
+
 	struct Gui {
 
 	};

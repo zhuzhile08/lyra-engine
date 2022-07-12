@@ -30,5 +30,9 @@
     "fullscreen": false,
     "alwaysOnTop": false,
     "vSync": false
+  },
+  "memory": {
+    "componentLimit": 256,
+    "entityLimit": 1024
   }
 }
