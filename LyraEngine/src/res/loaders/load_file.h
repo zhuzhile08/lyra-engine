@@ -20,9 +20,8 @@ enum OpenMode {
  * 
  * @param path path
  * @param mode mode to open the file
- * 
- * @return const std::ifstream
+ * @param file file to load the file into
  */
-[[nodiscard]] const std::ifstream load_file(const char* const path, const int mode);
+void load_file(const char* path, const int mode, std::ifstream& file);
 
 } // namespace lyra

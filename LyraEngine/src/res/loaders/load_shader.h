@@ -13,9 +13,8 @@ namespace lyra {
  * @brief read a shader form a .spv binary file
  * 
  * @param path path
- * 
- * @return const std::vector<char>
+ * @param data empty data to load into
  */
-[[nodiscard]] const std::vector <char> read_shader_binary(const char* const path);
+void read_shader_binary(const char* const path, std::vector <char>& data);
 
 }

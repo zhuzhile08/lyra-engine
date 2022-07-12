@@ -9,7 +9,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	if (binPath.substr(binPath.length() - 4, 4) != "ldat") Logger::log_warning("Non standard file extension found on data file at path: ", binPath, "! This may cause problems during loading.");
 
 	// load the binary
-	std::ifstream binInFile = load_file(binPath.c_str(), OpenMode::MODE_BINARY);
+	std::ifstream binInFile; load_file(binPath.c_str(), OpenMode::MODE_BINARY, binInFile);
 
 	// read the type of the asset
 	binInFile.read(loadedAsset.type, 4);
@@ -26,7 +26,7 @@ const non_access::AssetFile load_assets(const std::string binPath) {
 	jsonPath.replace(binPath.length() - 4, 4, "lson");
 
 	// load the json
-	std::ifstream jsonInFile = load_file(jsonPath.c_str(), OpenMode::MODE_BINARY);
+	std::ifstream jsonInFile; load_file(jsonPath.c_str(), OpenMode::MODE_BINARY, jsonInFile);
 
 	// read the type of the json
 	char type[4] = { };
