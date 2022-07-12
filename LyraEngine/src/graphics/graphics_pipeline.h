@@ -18,7 +18,7 @@
 #include <core/rendering/vulkan/framebuffers.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/rendering/vulkan/vertex.h>
-#include <graphics/renderer.h>
+#include <components/graphics/camera.h>
 #include <core/logger.h>
 #include <lyra.h>
 
@@ -105,8 +105,8 @@ public:
 
 	// creation information
 	struct CreateInfo {
-		// renderer to render the pipeline
-		const Renderer* renderer;
+		// camera to render the pipeline
+		Camera* const camera;
 		// shader creation information
 		const std::vector<ShaderCreationInfo> shaderCreationInfos;
 		// descriptor set layout and pool creation information

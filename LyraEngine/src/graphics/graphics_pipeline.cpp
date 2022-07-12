@@ -163,7 +163,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
 		_layout,
-		info.renderer->framebuffers()->renderPass(),
+		info.camera->renderer()->framebuffers()->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0
