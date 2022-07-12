@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 # directories for the config files
 set(SDL2_DIR ${CMAKE_SOURCE_DIR}/cmake)
-set(NOUD_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(GLM_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
@@ -76,7 +75,7 @@ add_library(LyraEngine
  "src/graphics/asset_manager.cpp" 
  "src/core/logger.cpp"
  "src/components/gameObj.cpp" 
- "src/core/rendering/vulkan/vulkan_pipeline.cpp" )
+ "src/core/rendering/vulkan/vulkan_pipeline.cpp"  "src/components/component_manager.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 

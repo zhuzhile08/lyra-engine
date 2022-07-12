@@ -6,9 +6,8 @@ set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD 17)
 
 # find and link the libraries
-set(LYRA_DIR ${CMAKE_SOURCE_DIR}/cmake/)
-set(SDL2_DIR ${CMAKE_SOURCE_DIR}/cmake/)
-set(NOUD_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(LYRA_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(SDL2_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(GLM_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/cmake)
@@ -48,6 +47,6 @@ include_directories(
 # build the content manager
 add_executable(LyraGui
  "src/main.cpp"
- "src/menus.cpp" "src/image.cpp")
+ "src/menus.cpp")
 
-target_link_libraries(LyraGui ${LYRA_LIBRARIES} ${LZ4_LIBRARIES} ${SDL2_LIBRARIES} Vulkan::Vulkan)
+target_link_libraries(LyraGui ${LZ4_LIBRARIES} ${SDL2_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
