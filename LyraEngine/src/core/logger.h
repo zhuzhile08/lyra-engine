@@ -75,10 +75,7 @@ private:
 	}
 
 public:
-	static void init() {
-		std::ios::sync_with_stdio(Settings::Debug::stdioSync);
-		_logFile.open("data/log/log.txt", std::ofstream::out | std::ofstream::trunc); // because I kinda can't use the logger functionality in here, you just have to hope that this doesn't throw an error
-	}
+	static void init();
 
 	/**
 	 * @brief log normal messages
@@ -199,10 +196,7 @@ public:
 	/**
 	 * @brief clear the termial buffer
 	*/
-	static void clear_buffer() {
-		set_color_default();
-		std::cout << std::endl;
-	}
+	static void clear_buffer();
 
 	[[nodiscard]] static const char* tab() {
 		return "\t";
@@ -226,6 +220,8 @@ private:
 template<typename ... Args> static void lassert(bool condition, Args... message) {
 #ifdef _DEBUG
 	if (!condition) (Logger::log_exception(message), ...);
+#else
+	if (condition); // cused, I know, but I'm waaaay too lazy to put a debug check on every assert
 #endif
 }
 
