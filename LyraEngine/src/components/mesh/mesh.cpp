@@ -32,10 +32,10 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32
 void Mesh::bind(Camera* const camera) noexcept {
 	camera->renderer()->add_to_draw_queue([&]() {
 		VkDeviceSize size[] = { 0 };
-		vkCmdBindVertexBuffers(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), 0, 1, &_vertexBuffer.buffer(), size);
-		vkCmdBindIndexBuffer(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindVertexBuffers(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, 0, 1, &_vertexBuffer.buffer(), size);
+		vkCmdBindIndexBuffer(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
 
-		vkCmdDrawIndexed(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), static_cast<uint32>(_indices.size()), 1, 0, 0, 0);
+		vkCmdDrawIndexed(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, static_cast<uint32>(_indices.size()), 1, 0, 0, 0);
 		});
 }
 
