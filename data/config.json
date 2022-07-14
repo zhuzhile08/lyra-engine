@@ -32,7 +32,8 @@
     "vSync": false
   },
   "memory": {
-    "componentLimit": 256,
-    "entityLimit": 1024
+    "maxComponentCount": 256,
+    "maxEntityCount": 1024,
+    "maxCommandBuffers": 8
   }
 }
