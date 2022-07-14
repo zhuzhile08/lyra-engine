@@ -16,7 +16,6 @@
 
 #include <sstream>
 #include <string>
-#include <utility>
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <string>
