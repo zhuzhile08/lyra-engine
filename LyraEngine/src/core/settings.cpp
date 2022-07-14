@@ -46,8 +46,9 @@ void Settings::init() {
 	Window::alwaysOnTop = (bool)json.at("window").at("alwaysOnTop");
 	Window::vSync = (bool)json.at("window").at("vSync"); // doesn't work yet
 
-	Memory::componentLimit = (uint32)json.at("memory").at("componentLimit");
-	Memory::entityLimit = (uint32)json.at("memory").at("entityLimit");
+	Memory::maxComponentCount = (uint32)json.at("memory").at("maxComponentCount");
+	Memory::maxEntityCount = (uint32)json.at("memory").at("maxEntityCount");
+	Memory::maxCommandBuffers = (uint32)json.at("memory").at("maxCommandBuffers"); // evil
 
 	file.close();
 }
@@ -80,7 +81,8 @@ bool Settings::Window::fullscreen;
 bool Settings::Window::alwaysOnTop;
 bool Settings::Window::vSync;
 
-uint32 Settings::Memory::componentLimit;
-uint32 Settings::Memory::entityLimit;
+uint32 Settings::Memory::maxComponentCount;
+uint32 Settings::Memory::maxEntityCount;
+uint32 Settings::Memory::maxCommandBuffers = 0;
 
 } // namespace lyra

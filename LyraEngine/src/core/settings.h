@@ -31,6 +31,7 @@ struct Settings {
 		FRONT_FACE_CLOCKWISE = 1
 	};
 
+	// initialize the variables
 	static void init();
 
 	// generell application settings
@@ -88,8 +89,10 @@ struct Settings {
 	};
 
 	struct Memory {
-		static uint32 componentLimit;
-		static uint32 entityLimit;
+		static uint32 maxComponentCount;
+		static uint32 maxEntityCount;
+
+		static uint32 maxCommandBuffers; // caution: these only define the maximum amount of command buffers per pool
 	};
 
 	struct Gui {
