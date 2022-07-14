@@ -12,169 +12,138 @@
 #pragma once
 
 #include <core/defines.h>
+#include <core/settings.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/logger.h>
+#include <core/rendering/vulkan/command_pool.h>
 
+#include <vector>
+#include <algorithm>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
 
-/**
- * @brief command pool
- */
-struct VulkanCommandPool {
-public:
+// command buffer index type
+typedef uint32 CommandBuffer;
 
-	VulkanCommandPool();
-
-	/**
-	* @brief destructor of the command pool
-	**/
-	virtual ~VulkanCommandPool() noexcept {
-		vkDestroyCommandPool(device->device(), commandPool, nullptr);
-
-		Logger::log_info("Successfully destroyed Vulkan command pool!");
-	}
-
-	/**
-	 * @brief destroy the command pool
-	 */
-	void destroy() noexcept {
-		this->~VulkanCommandPool();
-	}
-
-	VulkanCommandPool operator=(const VulkanCommandPool&) const noexcept = delete;
-
-	/**
-	 * @brief create a Vulkan command pool to allocate the command buffers
-	 *
-	 * @param device device
-	 */
-	void create(const VulkanDevice* const device);
-
-	/**
-	 * @brief get the command pool
-	 *
-	 * @return const VkCommandPool&
-	 */
-	[[nodiscard]] const VkCommandPool& get() const noexcept { return commandPool; }
-	/**
-	 * @brief get the command pool as a pointer
-	 *
-	 * @return VkCommandPool
-	 */
-	[[nodiscard]] const VkCommandPool* const get_ptr() const noexcept { return &commandPool; }
-
+class CommandBufferManager {
 private:
-	VkCommandPool commandPool = VK_NULL_HANDLE;
+	/**
+	 * @brief command buffer
+	 */
+	struct VulkanCommandBuffer {
+	public:
+		VulkanCommandBuffer() { }
 
-	const VulkanDevice* device;
-};
+		/**
+		* @brief destructor of the command buffer
+		**/
+		virtual ~VulkanCommandBuffer() noexcept {
+			vkFreeCommandBuffers(device->device(), commandPool->commandPool(), 1, &commandBuffer);
 
-/**
- * @brief command buffer
- */
-struct VulkanCommandBuffer {
+			Logger::log_info("Successfully destroyed a Vulkan command buffer!");
+		}
+
+		/**
+		 * @brief destroy the command buffer
+		 */
+		void destroy() noexcept {
+			this->~VulkanCommandBuffer();
+		}
+
+		VulkanCommandBuffer operator=(const VulkanCommandBuffer&) const noexcept = delete;
+
+		/**
+		 * @brief create the Vulkan command buffers
+		 *
+		 * @param device device
+		 * @param commandPool command pool
+		 * @param level level of the command buffer
+		 */
+		void create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+
+		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+	
+	private:
+		const VulkanDevice* device;
+		const VulkanCommandPool* commandPool;
+	};
+
 public:
-
-	VulkanCommandBuffer();
+	CommandBufferManager() { }
 
 	/**
-	* @brief destructor of the command buffer
-	**/
-	virtual ~VulkanCommandBuffer() noexcept {
-		vkFreeCommandBuffers(device->device(), commandPool->get(), 1, &commandBuffer);
+	 * @brief destructor of the command buffer manager
+	 **/
+	virtual ~CommandBufferManager() noexcept {
+		_commandBuffers.clear();
 
-		Logger::log_info("Successfully destroyed Vulkan command buffer!");
+		Logger::log_info("Successfully destroyed a command buffer manager!");
 	}
 
 	/**
-	 * @brief destroy the command buffer
+	 * @brief destroy the command buffer manager
 	 */
 	void destroy() noexcept {
-		this->~VulkanCommandBuffer();
+		this->~CommandBufferManager();
 	}
 
-	VulkanCommandBuffer operator=(const VulkanCommandBuffer&) const noexcept = delete;
+	CommandBufferManager operator=(const CommandBufferManager&) const noexcept = delete;
 
 	/**
-	 * @brief create the Vulkan command buffers
+	 * @brief create the command buffer manager
 	 *
 	 * @param device device
 	 * @param commandPool command pool
-	 * @param level level of the command buffer
+	 * @param level level of the command buffers in the manager
 	 */
 	void create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 	/**
 	 * @brief begin recording a commandBuffer
 	 *
+	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param usage what the recording will be used for
 	 */
-	void begin(const VkCommandBufferUsageFlags usage = 0) const {
-		// some info about the recording
-		VkCommandBufferBeginInfo beginInfo{
-			VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-			nullptr,
-			usage,
-			nullptr
-		};
-
-		// start recording
-		lassert(vkBeginCommandBuffer(commandBuffer, &beginInfo) == VK_SUCCESS, "Failed to start recording Vulkan command buffer!");
-	}
+	void begin(const CommandBuffer cmdBuffer, const VkCommandBufferUsageFlags usage = 0);
 	/**
 	 * @brief end recording a commandBuffer
+	 * 
+	 * @param cmdBuffer the command buffer to perform the operation on
 	 */
-	void end() const {
-		lassert(vkEndCommandBuffer(commandBuffer) == VK_SUCCESS, "Failed to stop recording command buffer!");
+	void end(const CommandBuffer cmdBuffer) const {
+		lassert(vkEndCommandBuffer(_commandBuffers.at(cmdBuffer).commandBuffer) == VK_SUCCESS, "Failed to stop recording command buffer!");
 	}
 	/**
-	 * reset the command buffer after everything has been recorded
+	 * reset the command buffer after everything has been recorded and make it available for usage again
 	 *
-	 * @flags additional flags
+	 * @param cmdBuffer the command buffer to perform the operation on
+	 * @param flags additional flags
 	 */
-	void reset(const VkCommandBufferResetFlags flags = 0) const {
-		lassert(vkResetCommandBuffer(commandBuffer, flags) == VK_SUCCESS, "Failed to reset command buffer!");
-	}
+	void reset(const CommandBuffer cmdBuffer, const VkCommandBufferResetFlags flags = 0);
 
 	/**
 	 * @brief submit a Vulkan queue after command queue recording. DO NOT confuse with the submit function in the renderer class. This is ONLY for small, local submits for one time commands
 	 *
+	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param queue the queue to submit
 	 */
-	void submit_queue(const VkQueue queue) const {
-		// queue submission info
-		VkSubmitInfo submitInfo = {
-			VK_STRUCTURE_TYPE_SUBMIT_INFO,
-			nullptr,
-			0,
-			nullptr,
-			nullptr,
-			1,
-			&commandBuffer,
-			0,
-			nullptr
-		};
-
-		// submit the queue
-		lassert(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) == VK_SUCCESS, "Failed to submit Vulkan queue!");
-
-		Logger::log_debug(Logger::tab(), "Submitted command buffer at: ", get_address(this));
-	}
+	void submit_queue(const CommandBuffer cmdBuffer, const VkQueue queue) const;
 
 	/**
 	 * @brief wait for the queue to finish
 	 *
+	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param queue the queue to wait for
 	*/
-	void wait_queue(const VkQueue queue) const {
+	void wait_queue(const CommandBuffer cmdBuffer, const VkQueue queue) const {
 		lassert(vkQueueWaitIdle(queue) == VK_SUCCESS, "Failed to wait for device queue!");
 	}
 
 	/**
 	 * @brief setup a pipeline barrier
-	 * 
+	 *
+	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param srcStageFlags the pipeline stage to wait for
 	 * @param dstStageFlags the pipeline stage to skip to
 	 * @param memory if there is, then the memory to transition
@@ -183,7 +152,8 @@ public:
 	 * @param dependency I have no idea, just leave it zero
 	*/
 	void pipeline_barrier(
-		const VkPipelineStageFlags srcStageFlags, 
+		const CommandBuffer cmdBuffer,
+		const VkPipelineStageFlags srcStageFlags,
 		const VkPipelineStageFlags dstStageFlags,
 		const VkMemoryBarrier* const memory = nullptr,
 		const VkBufferMemoryBarrier* const buffer = nullptr,
@@ -191,7 +161,7 @@ public:
 		const VkDependencyFlags dependency = 0
 	) const {
 		vkCmdPipelineBarrier(
-			commandBuffer,
+			_commandBuffers.at(cmdBuffer).commandBuffer,
 			srcStageFlags,
 			dstStageFlags,
 			dependency,
@@ -203,28 +173,35 @@ public:
 			image
 		);
 
+#ifdef _DEBUG
 		Logger::log_debug(Logger::tab(), "Set up a pipeline barrier with the command buffer at: ", get_address(this));
+#endif
 	}
 
 	/**
-	 * @brief get the command buffer
-	 *
-	 * @return const VkCommandBuffer&
+	 * @brief return the index of an unused pipeline
 	 */
-	[[nodiscard]] const VkCommandBuffer& get() const noexcept { return commandBuffer; }
+	[[nodiscard]] const CommandBuffer get_unused() { return _unused.at(0); };
 
 	/**
-	 * @brief get the command buffer as a pointer
-	 *
-	 * @return const VkCommandBuffer*
+	 * @brief get a command buffer at a specific index
+	 * 
+	 * @param index index of the command buffer
 	 */
-	[[nodiscard]] const VkCommandBuffer* const get_ptr() const noexcept { return &commandBuffer; }
+	[[nodiscard]] const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBuffers.at(index); }
+	
+	/**
+	 * @brief get the vector with the command buffers
+	 * 
+	 * @return const std::vector<lyra::VulkanCommandBuffer>&
+	 */
+	[[nodiscard]] const std::vector<VulkanCommandBuffer>& commandBuffers() const noexcept { return _commandBuffers; }
 
 private:
-	VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+	std::vector<VulkanCommandBuffer> _commandBuffers { };
 
-	const VulkanDevice* device;
-	const VulkanCommandPool* commandPool;
+	std::vector<CommandBuffer> _inUse { };
+	std::vector<CommandBuffer> _unused { };
 };
 
 } // namespace lyra
