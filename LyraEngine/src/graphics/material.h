@@ -49,8 +49,8 @@ public:
 	*/
 	void bind(Camera* const camera) const {
 		camera->renderer()->add_to_draw_queue([&]() {
-			vkCmdBindPipeline(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), manager->pipeline(_pipelineID)->bindPoint(), manager->pipeline(_pipelineID)->pipeline());
-			vkCmdBindDescriptorSets(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), manager->pipeline(_pipelineID)->bindPoint(),
+			vkCmdBindPipeline(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, manager->pipeline(_pipelineID)->bindPoint(), manager->pipeline(_pipelineID)->pipeline());
+			vkCmdBindDescriptorSets(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, manager->pipeline(_pipelineID)->bindPoint(),
 				manager->pipeline(_pipelineID)->layout(), 0, 1, _descriptor.get_ptr(), 0, nullptr);
 		});
 	}

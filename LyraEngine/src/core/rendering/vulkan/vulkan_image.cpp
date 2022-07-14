@@ -5,17 +5,16 @@ namespace lyra {
 VulkanImage::VulkanImage() { }
 
 void VulkanImage::transition_layout(
-	const VulkanCommandPool* commandPool,
+	CommandBufferManager* const commandBufferManager,
 	const VkImageLayout oldLayout,
 	const VkImageLayout newLayout,
 	const VkFormat format,
 	const VkImageSubresourceRange subresourceRange
 ) const {
-	// temporary command buffer for setting up memory barrier
-	VulkanCommandBuffer     cmdBuff;
-	cmdBuff.create(device, commandPool);
+	// get a command buffer for setting up memory barrier
+	CommandBuffer cmdBuff = commandBufferManager->get_unused();
 	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	commandBufferManager->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -36,14 +35,17 @@ void VulkanImage::transition_layout(
 	}
 	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
-	vkCmdPipelineBarrier(cmdBuff.get(), sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
+	vkCmdPipelineBarrier(commandBufferManager->commandBuffer(cmdBuff)->commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
 	// end recording
-	cmdBuff.end();
+	commandBufferManager->end(cmdBuff);
 
 	// submit queues after recording
-	cmdBuff.submit_queue(device->graphicsQueue().queue);
-	cmdBuff.wait_queue(device->graphicsQueue().queue);
+	commandBufferManager->submit_queue(cmdBuff, device->graphicsQueue().queue);
+	commandBufferManager->wait_queue(cmdBuff, device->graphicsQueue().queue);
+	// reset the command buffer
+	commandBufferManager->reset(cmdBuff);
+	
 }
 
 const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {

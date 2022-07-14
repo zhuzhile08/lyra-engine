@@ -186,7 +186,7 @@ struct VulkanImage {
 	 * @brief transition the image layout to an another one
 	 *
 	 * @param device device, if not already defined
-	 * @param commandPool command pool
+	 * @param commandBufferManager command buffer manager
 	 * @param oldLayout old layout
 	 * @param newLayout new layout
 	 * @param format format of the image
@@ -194,7 +194,7 @@ struct VulkanImage {
 	*/
 	void transition_layout(
 		const VulkanDevice* const device,
-		const VulkanCommandPool* const commandPool,
+		CommandBufferManager* const commandBufferManager,
 		const VkImageLayout oldLayout,
 		const VkImageLayout newLayout,
 		const VkFormat format,
@@ -202,20 +202,20 @@ struct VulkanImage {
 	) {
 		this->device = device;
 
-		transition_layout(commandPool, oldLayout, newLayout, format, subresourceRange);
+		transition_layout(commandBufferManager, oldLayout, newLayout, format, subresourceRange);
 	}
 
 	/**
 	 * @brief transition the image layout to an another one
 	 * 
-	 * @param commandPool command pool
+	 * @param commandBufferManager command buffer manager
 	 * @param oldLayout old layout
 	 * @param newLayout new layout
 	 * @param format format of the image
 	 * @param aspect purpose of the image
 	*/
 	void transition_layout(
-		const VulkanCommandPool* const commandPool,
+		CommandBufferManager* const commandBufferManager,
 		const VkImageLayout oldLayout,
 		const VkImageLayout newLayout,
 		const VkFormat format,

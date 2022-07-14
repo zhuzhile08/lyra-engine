@@ -77,13 +77,13 @@ public:
 			clear
 		};
 
-		vkCmdBeginRenderPass(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 	}
 	/**
 	 * @brief end render pass
 	*/
 	void end() const noexcept {
-		vkCmdEndRenderPass(Application::context()->commandBuffers().at(Application::context()->currentFrame()).get());
+		vkCmdEndRenderPass(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer);
 	}
 
 	/**

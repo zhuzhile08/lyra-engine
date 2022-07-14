@@ -48,43 +48,44 @@ GUIContext::GUIContext() {
 	// initialize ImGui for Vulkan
 	ImGui_ImplVulkan_Init(&initInfo, _renderer.framebuffers()->renderPass());
 
-	// create a temporary command buffer for creating the font textures
-	VulkanCommandBuffer cmdBuff;
-	cmdBuff.create(Application::context()->device(), Application::context()->commandPool());
+	// get a command buffer for creating the font textures
+	CommandBuffer cmdBuff = Application::context()->commandBuffers()->get_unused();
 	// start recording the command buffer
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::context()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	// create the textures
-	ImGui_ImplVulkan_CreateFontsTexture(cmdBuff.get());
+	ImGui_ImplVulkan_CreateFontsTexture(Application::context()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer);
 	// end recording the command buffer
-	cmdBuff.end();
+	Application::context()->commandBuffers()->end(cmdBuff);
 	// submit the commands
-	cmdBuff.submit_queue(Application::context()->device()->graphicsQueue().queue);
-	cmdBuff.wait_queue(Application::context()->device()->graphicsQueue().queue);
+	Application::context()->commandBuffers()->submit_queue(cmdBuff, Application::context()->device()->graphicsQueue().queue);
+	Application::context()->commandBuffers()->wait_queue(cmdBuff, Application::context()->device()->graphicsQueue().queue);
+	// reset the command buffer
+	Application::context()->commandBuffers()->reset(cmdBuff);
 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
-
-	// add some default drawing funcitons to the renderers draw queue
-	_renderer.add_to_draw_queue(FUNC_PTR( ImGui::Render(); ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers().at(Application::context()->currentFrame()).get()); ));
 	
 	const_cast<Window*>(Application::window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Application::window()->event()); ));
-	// bind the renderer
-	_renderer.bind();
 	// bind to the renderer
 	bind();
+	// bind the renderer
+	_renderer.bind();
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
 
 void GUIContext::bind() {
 	// render a new frame
-	_renderer.add_to_update_queue(FUNC_PTR(
+	_renderer.add_to_draw_queue(FUNC_PTR(
 		// begin drawing
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL2_NewFrame(Application::window()->get());
 		ImGui::NewFrame();
 
 		_drawQueue.flush();
+
+		ImGui::Render(); 
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer);
 		));
 }
 

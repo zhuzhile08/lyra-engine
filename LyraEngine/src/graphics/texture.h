@@ -102,7 +102,13 @@ public:
 	 * 
 	 * @return const VkDescriptorImageInfo
 	*/
-	[[nodiscard]] const VkDescriptorImageInfo get_descriptor_image_info() const noexcept;
+	[[nodiscard]] const VkDescriptorImageInfo get_descriptor_image_info() const noexcept {
+		return {
+			_sampler,
+			_view,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		};
+	}
 
 	/**
 	 * @brief get the image

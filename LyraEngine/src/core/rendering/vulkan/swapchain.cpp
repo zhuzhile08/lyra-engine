@@ -69,23 +69,8 @@ void VulkanSwapchain::VulkanColorResources::create(const VulkanDevice* const dev
 	Logger::log_info("Successfully created Vulkan color resources at ", get_address(this), "!", Logger::end_l());
 }
 
-const VkSampleCountFlagBits VulkanSwapchain::VulkanColorResources::getMaxSamples() const noexcept {
-	VkPhysicalDeviceProperties physicalDeviceProperties;
-	vkGetPhysicalDeviceProperties(device->physicalDevice(), &physicalDeviceProperties);
-
-	VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
-	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
-	if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
-	if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
-	if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
-	if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
-	if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
-
-	return VK_SAMPLE_COUNT_1_BIT;
-}
-
 // depth buffer
-void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanColorResources* const multisampling, const VulkanCommandPool* const cmdPool) {
+void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanColorResources* const multisampling, CommandBufferManager* const commandBufferManager) {
 	Logger::log_info("Creating Vulkan depth buffer...");
 
 	this->device = device;
@@ -113,20 +98,20 @@ void VulkanSwapchain::VulkanDepthBuffer::create(const VulkanDevice* const device
 	create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	// transition the image layout
-	transition_layout(cmdPool, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	transition_layout(commandBufferManager, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	Logger::log_info("Successfully created Vulkan depth buffer at ", get_address(this), "!", Logger::end_l());
 }
 
 // swap chain
-void VulkanSwapchain::create(const VulkanDevice* const device, const VulkanInstance* const instance, const VulkanCommandPool* const cmdPool, const Window* const window) {
+void VulkanSwapchain::create(const VulkanDevice* const device, const VulkanInstance* const instance, CommandBufferManager* const commandBufferManager, const Window* const window) {
 	Logger::log_info("Creating Vulkan swapchain...");
 
 	this->device = device;
 	this->instance = instance;
 	this->window = window;
-	this->cmdPool = cmdPool;
-	create_swapchain(cmdPool);
+	this->commandBufferManager = commandBufferManager;
+	create_swapchain(commandBufferManager);
 
 	Logger::log_info("Successfully created Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
@@ -139,7 +124,7 @@ void VulkanSwapchain::recreate() {
 	destroy();
 
 	// recreate the swapchain
-	create_swapchain(cmdPool);
+	create_swapchain(commandBufferManager);
 
 	Logger::log_info("Successfully recreated Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
@@ -218,7 +203,22 @@ void VulkanSwapchain::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfa
 	}
 }
 
-void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
+const VkSampleCountFlagBits VulkanSwapchain::VulkanColorResources::getMaxSamples() const noexcept {
+	VkPhysicalDeviceProperties physicalDeviceProperties;
+	vkGetPhysicalDeviceProperties(device->physicalDevice(), &physicalDeviceProperties);
+
+	VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
+	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
+	if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
+	if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
+	if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
+	if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
+	if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+
+	return VK_SAMPLE_COUNT_1_BIT;
+}
+
+void VulkanSwapchain::create_swapchain(CommandBufferManager* const commandBufferManager) {
 	Logger::log_debug(Logger::tab(), "Swapchain configurations are: ");
 
 	// get the optimal format
@@ -264,7 +264,7 @@ void VulkanSwapchain::create_swapchain(const VulkanCommandPool* const cmdPool) {
 
 	_images.create(device, this);
 	_colorResources.create(device, this);
-	_depthBuffer.create(device, this, &_colorResources, cmdPool);
+	_depthBuffer.create(device, this, &_colorResources, commandBufferManager);
 }
 
 } // namespace lyra

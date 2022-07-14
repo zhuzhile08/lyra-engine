@@ -34,11 +34,10 @@ void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize cons
 }
 
 void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const VulkanGPUBuffer* const srcBuffer) {
-	// create a temporary command buffer
-	VulkanCommandBuffer commandBuffer;
-	commandBuffer.create(device, commandPool);
+	// get a unused command buffer
+	CommandBuffer cmdBuff = Application::context()->commandBuffers()->get_unused();
 	// start recording
-	commandBuffer.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::context()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// transfer the contents of the sorce to the destination buffer
 	VkBufferCopy copyRegion{
@@ -47,13 +46,15 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const Vul
 		_size
 	};
 
-	vkCmdCopyBuffer(commandBuffer.get(), srcBuffer->buffer(), _buffer, 1, &copyRegion);
+	vkCmdCopyBuffer(Application::context()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), _buffer, 1, &copyRegion);
 
-	commandBuffer.end();		// end recording
+	Application::context()->commandBuffers()->end(cmdBuff);		// end recording
 
 	// submit the commands
-	commandBuffer.submit_queue(device->graphicsQueue().queue);
-	commandBuffer.wait_queue(device->graphicsQueue().queue);
+	Application::context()->commandBuffers()->submit_queue(cmdBuff, device->graphicsQueue().queue);
+	Application::context()->commandBuffers()->wait_queue(cmdBuff, device->graphicsQueue().queue);
+	// reset the command buffer
+	Application::context()->commandBuffers()->reset(cmdBuff);
 
 	Logger::log_debug("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
 }

@@ -138,9 +138,9 @@ private:
 		 * @param device device
 		 * @param swapchain swapchain
 		 * @param multisampling multisampling
-		 * @param cmdPool command pool
+		 * @param commandBufferManager command buffer manager
 		 */
-		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanColorResources* const multisampling, const VulkanCommandPool* const cmdPool);
+		void create(const VulkanDevice* const device, const VulkanSwapchain* const swapchain, const VulkanColorResources* const multisampling, CommandBufferManager* const commandBufferManager);
 
 		VkFormat _format;
 
@@ -174,11 +174,11 @@ public:
 	 * @brief create the swapchain
 	 *
 	 * @param device device
-	 * @param cmdPool command pool
+	 * @param commandBufferManager command buffer manager
 	 * @param instance instance
 	 * @param window window
 	 */
-	void create(const VulkanDevice* const device, const VulkanInstance* const instance, const VulkanCommandPool* const cmdPool, const Window* const window);
+	void create(const VulkanDevice* const device, const VulkanInstance* const instance, CommandBufferManager* const commandBufferManager, const Window* const window);
 
 	/**
 	 * @brief create the swapchain
@@ -234,7 +234,7 @@ private:
 
 	const VulkanDevice* device;
 	const VulkanInstance* instance;
-	const VulkanCommandPool* cmdPool;
+	CommandBufferManager* commandBufferManager;
 	const Window* window;
 
 	/**
@@ -259,9 +259,9 @@ private:
 	/**
 	 * @brief create the swapchain
 	 *
-	 * @param cmdPool command pool
+	 * @param commandBufferManager command buffer manager
 	 */
-	void create_swapchain(const VulkanCommandPool* const cmdPool);
+	void create_swapchain(CommandBufferManager* const commandBufferManager);
 	/**
 	 * @brief create a extent of the swapchain
 	 *

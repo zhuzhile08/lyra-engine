@@ -53,7 +53,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 	) == VK_SUCCESS) Logger::log_error("Failed to load image from path: ", _path);
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(Application::context()->device(), Application::context()->commandPool(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 });
+	transition_layout(Application::context()->device(), Application::context()->commandBuffers(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1});
 	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(_width), static_cast<uint32>(_height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();
@@ -99,15 +99,15 @@ void Texture::generate_mipmaps() const {
 	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", Logger::end_l());
 
 	// temporary command buffer for generating midmaps
-	VulkanCommandBuffer     cmdBuff;
-	cmdBuff.create(Application::context()->device(), Application::context()->commandPool());
+	CommandBuffer cmdBuff = Application::context()->commandBuffers()->get_unused();
 	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::context()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	int32 mipWidth = _width, mipHeight = _height;
 
 	for (uint32 i = 1; i < _mipmap; i++) {
-		cmdBuff.pipeline_barrier(
+		Application::context()->commandBuffers()->pipeline_barrier(
+			cmdBuff,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_TRANSFER_BIT, 
 			nullptr, 
@@ -129,9 +129,11 @@ void Texture::generate_mipmaps() const {
 			{ { 0, 0, 0 }, { (mipWidth > 1) ? mipWidth / 2 : 1, (mipHeight > 1) ? mipHeight / 2 : 1, 1 } }
 		};
 
-		vkCmdBlitImage(cmdBuff.get(), _image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+		vkCmdBlitImage(Application::context()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, _image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+			_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 
-		cmdBuff.pipeline_barrier(
+		Application::context()->commandBuffers()->pipeline_barrier(
+			cmdBuff,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 			nullptr,
@@ -149,7 +151,8 @@ void Texture::generate_mipmaps() const {
 		if (mipHeight > 1) mipHeight /= 2;
 	}
 
-	cmdBuff.pipeline_barrier(
+	Application::context()->commandBuffers()->pipeline_barrier(
+		cmdBuff,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 		nullptr,
@@ -164,21 +167,22 @@ void Texture::generate_mipmaps() const {
 	);
 
 	// end recording
-	cmdBuff.end();
+	Application::context()->commandBuffers()->end(cmdBuff);
 
 	// submit queues after recording
-	cmdBuff.submit_queue(Application::context()->device()->graphicsQueue().queue);
-	cmdBuff.wait_queue(Application::context()->device()->graphicsQueue().queue);
+	Application::context()->commandBuffers()->submit_queue(cmdBuff, Application::context()->device()->graphicsQueue().queue);
+	Application::context()->commandBuffers()->wait_queue(cmdBuff, Application::context()->device()->graphicsQueue().queue);
+	// reset command buffer
+	Application::context()->commandBuffers()->reset(cmdBuff);
 
 	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
 }
 
 void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent) {
 	// temporary command buffer for copying
-	VulkanCommandBuffer cmdBuff;
-	cmdBuff.create(Application::context()->device(), Application::context()->commandPool());
+	CommandBuffer cmdBuff = Application::context()->commandBuffers()->get_unused();
 	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::context()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// copy image in buffer to the image
 	VkBufferImageCopy imageCopy{
@@ -190,24 +194,16 @@ void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExt
 		extent
 	};
 
-	vkCmdCopyBufferToImage(cmdBuff.get(), stagingBuffer->buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+	vkCmdCopyBufferToImage(Application::context()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, stagingBuffer->buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
 
 	// end recording
-	cmdBuff.end();
+	Application::context()->commandBuffers()->end(cmdBuff);
 
 	// submit queues after recording
-	cmdBuff.submit_queue(Application::context()->device()->graphicsQueue().queue);
-	cmdBuff.wait_queue(Application::context()->device()->graphicsQueue().queue);
+	Application::context()->commandBuffers()->submit_queue(cmdBuff, Application::context()->device()->graphicsQueue().queue);
+	Application::context()->commandBuffers()->wait_queue(cmdBuff, Application::context()->device()->graphicsQueue().queue);
 
 	Logger::log_debug(Logger::tab(), "Copied image data from buffer to image at: ", get_address(this));
-}
-
-const VkDescriptorImageInfo Texture::get_descriptor_image_info() const noexcept {
-	return {
-		_sampler,
-		_view,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	};
 }
 
 } // namespace lyra

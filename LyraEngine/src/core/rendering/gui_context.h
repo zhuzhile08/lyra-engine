@@ -51,11 +51,6 @@ public:
 	}
 
 	/**
-	 * @brief bind the GUI
-	*/
-	void bind();
-
-	/**
 	 * @brief get the descriptor pool local to the GUI context
 	 * 
 	 * @return const lyra::VulkanDescriptorPool* const
@@ -73,6 +68,11 @@ private:
 	CallQueue _drawQueue;
 
 	Renderer _renderer;
+
+	/**
+	 * @brief bind the GUI
+	*/
+	void bind();
 };
 
 } // namespace gui

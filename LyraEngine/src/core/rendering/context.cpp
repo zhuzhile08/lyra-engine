@@ -12,10 +12,9 @@ void Context::create(Window* const window) {
 	_instance.create(window);
 	_device.create(&_instance);
 	_commandPool.create(&_device);
-	_commandBuffers.resize(Settings::Rendering::maxFramesInFlight);
-	for (auto& cmdBuff : _commandBuffers) cmdBuff.create(&_device, &_commandPool);
+	_commandBuffers.create(&_device, &_commandPool);
 	_syncObjects.create(&_device);
-	_swapchain.create(&_device, &_instance, &_commandPool, window);
+	_swapchain.create(&_device, &_instance, &_commandBuffers, window);
 
 	Logger::log_info("Successfully created context for the application at: ", get_address(this), "!", Logger::end_l());
 }
@@ -26,7 +25,10 @@ void Context::draw() {
 	_syncObjects.reset(_currentFrame);
 
 	// reset command buffer after everything has been executed
-	_commandBuffers.at(currentFrame()).reset();
+	_commandBuffers.reset(_currentCommandBuffer);
+
+	// get a fresh command buffer
+	_currentCommandBuffer = _commandBuffers.get_unused();
 
 	// get the next image to render on
 	if (vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores().at(_currentFrame), VK_NULL_HANDLE, &_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -36,13 +38,13 @@ void Context::draw() {
 	}
 
 	// begin recording the command buffer
-	_commandBuffers.at(currentFrame()).begin(0);
+	_commandBuffers.begin(_currentCommandBuffer, 0);
 
 	// call the draw calls
 	_renderQueue.flush();
 
 	// end recording the command buffer
-	_commandBuffers.at(currentFrame()).end();
+	_commandBuffers.end(_currentCommandBuffer);
 
 	// signal the synchronization objects to wait until drawing is finished
 	submit_device_queue(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
@@ -61,7 +63,7 @@ void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 	   &_syncObjects.imageAvailableSemaphores().at(_currentFrame),
 	   &stageFlags,
 	   1,
-	   _commandBuffers.at(_currentFrame).get_ptr(),
+	   &_commandBuffers.commandBuffer(_currentCommandBuffer)->commandBuffer,
 	   1,
 	   &_syncObjects.renderFinishedSemaphores().at(_currentFrame)
 	};

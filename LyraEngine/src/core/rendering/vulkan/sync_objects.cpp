@@ -37,8 +37,8 @@ void VulkanSyncObjects::create(const VulkanDevice* const  device) {
 
 	for (int i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
 		lassert(vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores.at(i)) == VK_SUCCESS
-			|| vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores.at(i)) == VK_SUCCESS
-			|| vkCreateFence(device->device(), &fenceInfo, nullptr, &_inFlightFences.at(i)) == VK_SUCCESS,
+			&& vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores.at(i)) == VK_SUCCESS
+			&& vkCreateFence(device->device(), &fenceInfo, nullptr, &_inFlightFences.at(i)) == VK_SUCCESS,
 			"Failed to create Vulkan Synchronization Objects");
 	}
 

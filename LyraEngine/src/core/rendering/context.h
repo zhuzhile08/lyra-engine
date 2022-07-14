@@ -107,51 +107,51 @@ public:
 	/**
 	 * @brief get the instance
 	 *
-	 * @return const lyra::VulkanInstance*
+	 * @return const lyra::VulkanInstance* const
 	*/
-	[[nodiscard]] const VulkanInstance* instance() const noexcept { return &_instance; }
+	[[nodiscard]] const VulkanInstance* const instance() const noexcept { return &_instance; }
 	/**
 	 * @brief get the device
 	 * 
-	 * @return const lyra::VulkanDevice*
+	 * @return const lyra::VulkanDevice* const
 	*/
-	[[nodiscard]] const VulkanDevice* device() const noexcept { return &_device; }
+	[[nodiscard]] const VulkanDevice* const device() const noexcept { return &_device; }
 	/**
 	 * @brief get the command pool
 	 * 
-	 * @return const lyra::VulkanCommandPool*
+	 * @return const lyra::VulkanCommandPool* const
 	*/
-	[[nodiscard]] const VulkanCommandPool* commandPool() const noexcept { return &_commandPool; }
+	[[nodiscard]] const VulkanCommandPool* const commandPool() const noexcept { return &_commandPool; }
 	/**
 	 * @brief get the command buffers
 	 *
-	 * @return const std::vector<VulkanCommandBuffer>&
+	 * @return constCommandBufferManager* const
 	*/
-	[[nodiscard]] const std::vector<VulkanCommandBuffer>& commandBuffers() const noexcept { return _commandBuffers; }
+	[[nodiscard]] CommandBufferManager* const commandBuffers() noexcept { return &_commandBuffers; }
 	/**
 	 * @brief get the swapchain
 	 * 
-	 * @return const lyra::VulkanSwapchain*
+	 * @return const lyra::VulkanSwapchain* const
 	*/
-	[[nodiscard]] const VulkanSwapchain* swapchain() const noexcept { return &_swapchain; }
+	[[nodiscard]] const VulkanSwapchain* const swapchain() const noexcept { return &_swapchain; }
 	/**
 	 * @brief get the queue with the draw calls
 	 * 
-	 * @return const CallQueue*
+	 * @return const CallQueue* const
 	*/
-	[[nodiscard]] const CallQueue* renderQueue() const noexcept { return &_renderQueue; }
+	[[nodiscard]] const CallQueue* const renderQueue() const noexcept { return &_renderQueue; }
 	/**
 	 * @brief get the queue with the update functions
 	 *
-	 * @return const CallQueue*
+	 * @return const CallQueue* const
 	*/
-	[[nodiscard]] const CallQueue* updateQueue() const noexcept { return &_updateQueue; }
+	[[nodiscard]] const CallQueue* const updateQueue() const noexcept { return &_updateQueue; }
 	/**
 	 * @brief get the queue with the recreate functions
 	 *
-	 * @return const CallQueue*
+	 * @return const CallQueue* const
 	*/
-	[[nodiscard]] const CallQueue* recreateQueue() const noexcept { return &_recreateQueue; }
+	[[nodiscard]] const CallQueue* const recreateQueue() const noexcept { return &_recreateQueue; }
 	/**
 	 * @brief get the current frame count
 	 * 
@@ -164,12 +164,18 @@ public:
 	 * @return const uint32
 	*/
 	[[nodiscard]] const uint32 imageIndex() const noexcept { return _imageIndex; }
+	/**
+	 * @brief get the image index
+	 *
+	 * @return const lyra::CommandBuffer
+	*/
+	[[nodiscard]] const CommandBuffer currentCommandBuffer() const noexcept { return _currentCommandBuffer; }
 
 private:
 	VulkanInstance _instance;
 	VulkanDevice _device;
 	VulkanCommandPool _commandPool;
-	std::vector<VulkanCommandBuffer> _commandBuffers;
+	CommandBufferManager _commandBuffers;
 	VulkanSyncObjects _syncObjects;
 	VulkanSwapchain _swapchain;
 
@@ -179,6 +185,8 @@ private:
 
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;
+	
+	CommandBuffer _currentCommandBuffer;
 
 	Window* window;
 
