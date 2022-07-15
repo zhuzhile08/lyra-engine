@@ -21,21 +21,25 @@ void Context::create(Window* const window) {
 
 void Context::draw() {
 	// wait for the already recorded stuff to finish executing
-	_syncObjects.wait(_currentFrame);
-	_syncObjects.reset(_currentFrame);
-
-	// reset command buffer after everything has been executed
-	_commandBuffers.reset(_currentCommandBuffer);
-
-	// get a fresh command buffer
-	_currentCommandBuffer = _commandBuffers.get_unused();
-
+	_syncObjects.wait(_currentFrame); 
+	wait_device_queue(_device.presentQueue());
+	
 	// get the next image to render on
 	if (vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores().at(_currentFrame), VK_NULL_HANDLE, &_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		_swapchain.recreate();
 		_recreateQueue.flush();
 		return;
 	}
+
+	// reset the semaphores and fences
+	_syncObjects.reset(_currentFrame);
+	// reset command buffer after everything has been executed
+	try {
+		_commandBuffers.reset(_currentCommandBuffer);
+	} catch (...) { }
+
+	// get a fresh command buffer
+	_currentCommandBuffer = _currentFrame;//_commandBuffers.get_unused();
 
 	// begin recording the command buffer
 	_commandBuffers.begin(_currentCommandBuffer, 0);

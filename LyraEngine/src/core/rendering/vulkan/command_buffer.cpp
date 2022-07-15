@@ -29,10 +29,6 @@ void CommandBufferManager::create(const VulkanDevice* const device, const Vulkan
 	_unused.reserve(Settings::Memory::maxCommandBuffers);
 	_inUse.reserve(Settings::Memory::maxCommandBuffers);
 	_commandBuffers.resize(Settings::Memory::maxCommandBuffers);
-	/**
-	_unused.resize(Settings::Memory::maxCommandBuffers);
-	_inUse.resize(Settings::Memory::maxCommandBuffers);
-	*/
 
 	for (uint32 i = 0; i < Settings::Memory::maxCommandBuffers; i++) {
 		_commandBuffers.at(i).create(device, commandPool, level);
@@ -43,7 +39,7 @@ void CommandBufferManager::create(const VulkanDevice* const device, const Vulkan
 }
 
 void CommandBufferManager::begin(const CommandBuffer cmdBuffer, const VkCommandBufferUsageFlags usage) {
-	int index = std::distance(_inUse.begin(), std::find(_inUse.begin(), _inUse.end(), cmdBuffer)); // find the command buffer that has been used
+	int index = std::distance(_unused.begin(), std::find(_unused.begin(), _unused.end(), cmdBuffer)); // find the command buffer that has been used
 	move_element(_unused, _inUse, index); // set that command buffer as in use
 
 	// some info about the recording
