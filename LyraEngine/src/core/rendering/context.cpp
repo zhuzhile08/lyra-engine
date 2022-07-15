@@ -36,10 +36,11 @@ void Context::draw() {
 	// reset command buffer after everything has been executed
 	try {
 		_commandBuffers.reset(_currentCommandBuffer);
-	} catch (...) { }
+	}
+	catch (...) { }
 
 	// get a fresh command buffer
-	_currentCommandBuffer = _currentFrame;//_commandBuffers.get_unused();
+	_currentCommandBuffer = _commandBuffers.get_unused();
 
 	// begin recording the command buffer
 	_commandBuffers.begin(_currentCommandBuffer, 0);
