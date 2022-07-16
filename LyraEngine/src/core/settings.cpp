@@ -3,21 +3,10 @@
 namespace lyra {
 
 void Settings::init() {
-	// load the file
-	std::ifstream file;
-	file.open("data/config.json", std::ifstream::ate | std::ifstream::binary);
-	if (!file.is_open()) std::abort(); // I hate circular inclusion
-
-	int length = 0;
-	file.seekg(0, std::ios::end); // move the cursor to the end of the file to read the length
-	length = file.tellg();
-	file.seekg(0, std::ios::beg); // move the cursor back to the beginning
-
 	// read the file and parse it into a json
-	std::string contents;
-	contents.resize(length);
-	file.read(contents.data(), length);
-	nlohmann::json json = nlohmann::json::parse(contents);
+	std::string file;
+	load_file("data/config.json", OpenMode::MODE_START_AT_END | OpenMode::MODE_BINARY, &file);
+	nlohmann::json json = nlohmann::json::parse(file);
 
 	// set the variables
 	// hooo booy, this is gonna be fuuun!
@@ -31,6 +20,9 @@ void Settings::init() {
 
 	Rendering::maxFramesInFlight = (uint8)json.at("rendering").at("maxFramesInFlight");
 	Rendering::fov = (float)json.at("rendering").at("fov");
+	Rendering::anistropy = (bool)json.at("rendering").at("anistropy");
+	Rendering::anistropyStrength = (float)json.at("rendering").at("anistropyStrength");
+	Rendering::resolution = (float)json.at("rendering").at("resolution");
 	Rendering::polygonFrontFace = static_cast<PolygonFrontFace>((int)json.at("rendering").at("polygonFrontFace"));
 
 	Window::title = (std::string)json.at("window").at("title");
@@ -48,9 +40,7 @@ void Settings::init() {
 
 	Memory::maxComponentCount = (uint32)json.at("memory").at("maxComponentCount");
 	Memory::maxEntityCount = (uint32)json.at("memory").at("maxEntityCount");
-	Memory::maxCommandBuffers = (uint32)json.at("memory").at("maxCommandBuffers"); // evil
-
-	file.close();
+	Memory::maxCommandBuffers = (uint32)json.at("memory").at("maxCommandBuffers");
 }
 
 // i hate myself
@@ -66,6 +56,9 @@ std::vector <const char*> Settings::Debug::requestedValidationLayers = { "VK_LAY
 
 uint8 Settings::Rendering::maxFramesInFlight;
 float Settings::Rendering::fov;
+bool Settings::Rendering::anistropy;
+float Settings::Rendering::anistropyStrength;
+float Settings::Rendering::resolution;
 Settings::PolygonFrontFace Settings::Rendering::polygonFrontFace;
 
 std::string Settings::Window::title;

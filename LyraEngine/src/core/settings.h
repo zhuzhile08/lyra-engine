@@ -1,7 +1,7 @@
 #pragma once
 
 #include <core/defines.h>
-#include <math/math.h>
+#include <res/loaders/load_file.h>
 
 #include <json.hpp>
 #include <vector>
@@ -61,7 +61,12 @@ struct Settings {
 	struct Rendering {
 		static uint8 maxFramesInFlight;
 		static float fov;
+		
 		static PolygonFrontFace polygonFrontFace;
+
+		static bool anistropy;
+		static float anistropyStrength;
+		static float resolution;
 
 	private:
 		Rendering() noexcept = delete;
@@ -102,7 +107,5 @@ struct Settings {
 private:
 	Settings() noexcept = delete;
 };
-
-#define LOG_FILE
 
 } // namespace lyra

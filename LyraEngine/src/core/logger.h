@@ -18,8 +18,6 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
-#include <core/defines.h>
-#include <core/settings.h>
 
 namespace lyra {
 
