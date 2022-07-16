@@ -2,8 +2,6 @@
 
 namespace lyra {
 
-VulkanDevice::VulkanDevice() {}
-
 VulkanDevice::~VulkanDevice() {
 	vmaDestroyAllocator(_allocator);
 	vkDestroyDevice(_device, nullptr);
@@ -61,8 +59,53 @@ void VulkanDevice::find_family_index(VulkanQueueFamily* const queue, const VkPhy
 	}
 }
 
-void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
-	vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
+void VulkanDevice::rate_physical_device(const VkPhysicalDevice& device, std::multimap <int, VkPhysicalDevice>& map) {
+	// get the available extensions
+	uint32 availableExtensionCount = 0;
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, nullptr);
+	std::vector <VkExtensionProperties> availableExtensions(availableExtensionCount);
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, availableExtensions.data());
+
+	// get some device properties and features
+	VkPhysicalDeviceProperties properties;
+	vkGetPhysicalDeviceProperties(device, &properties);
+	VkPhysicalDeviceFeatures features;
+	vkGetPhysicalDeviceFeatures(device, &features);
+
+	check_requested_extensions(availableExtensions, Settings::Debug::requestedDeviceExtensions);
+
+	int score = 1;
+
+	// some required features. If not available, make the GPU unavailable
+#ifdef DRAW_INDIRECT
+	if (!features.geometryShader || !features.multiDrawIndirect) {
+		score = 0;
+		Logger::log_warning("GPU does not have some required features!");
+	}
+#else
+	if (!features.geometryShader) {
+		score = 0;
+		Logger::log_warning("GPU does not have some required features!");
+	}
+#endif
+
+	Logger::log_info("Available device features and properties: ");
+
+	// the actuall scoring system
+	if (score > 0) {
+		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
+			score += 10;
+			Logger::log_debug(Logger::tab(), "Discrete GPU");
+		} if (features.multiDrawIndirect) { // indirect drawing
+			score += 6;
+			Logger::log_debug(Logger::tab(), "Supports indirect drawing");
+		} if (features.samplerAnisotropy) {
+			score += 4;
+			Logger::log_debug(Logger::tab(), "Supports anistropic filtering");
+		}
+	}
+	Logger::log_info("Score: ", score, Logger::end_l());
+	map.insert(std::make_pair(score, device));
 }
 
 void VulkanDevice::pick_physical_device() {
@@ -87,41 +130,6 @@ void VulkanDevice::pick_physical_device() {
 	}
 
 	_physicalDevice = possibleDevices.begin()->second;
-}
-
-void VulkanDevice::rate_physical_device(const VkPhysicalDevice device, std::multimap <int, VkPhysicalDevice>& map) {
-	// get the available extensions
-	uint32 availableExtensionCount = 0;
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, nullptr);
-	std::vector <VkExtensionProperties> availableExtensions(availableExtensionCount);
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, availableExtensions.data());
-
-	int score = 1;
-
-	// get some device properties and features
-	VkPhysicalDeviceProperties properties;
-	vkGetPhysicalDeviceProperties(device, &properties);
-	VkPhysicalDeviceFeatures features;
-	vkGetPhysicalDeviceFeatures(device, &features);
-
-	check_requested_extensions(availableExtensions, Settings::Debug::requestedDeviceExtensions);
-	find_family_index(&_graphicsQueue, device);
-	find_family_index(&_presentQueue, device);
-
-	// some required features. If not available, make the GPU unavailable
-	if (!features.geometryShader && !features.samplerAnisotropy) {
-		score = 0;
-		Logger::log_warning("GPU does not have some required features!");
-	}
-
-	// the actuall scoring system
-	if (score > 0) {
-		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-			score += 10;
-		}
-	}
-	Logger::log_info("Score: ", score, Logger::end_l());
-	map.insert(std::make_pair(score, device));
 }
 
 void VulkanDevice::create_logical_device() {
@@ -167,8 +175,14 @@ void VulkanDevice::create_logical_device() {
 	// create the device and retrieve the graphics and presentation queue handles
 	lassert(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) == VK_SUCCESS, "Failed to create logical device!");
 
+	find_family_index(&_graphicsQueue, _physicalDevice);
+	find_family_index(&_presentQueue, _physicalDevice);
 	create_queue(&_graphicsQueue);
 	create_queue(&_presentQueue);
+}
+
+void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
+	vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
 }
 
 void VulkanDevice::create_allocator() {
@@ -188,10 +202,6 @@ void VulkanDevice::create_allocator() {
 
 	// create the allocator
 	lassert(vmaCreateAllocator(&createInfo, &_allocator) == VK_SUCCESS, "Failed to create VMA memory allocator!");
-}
-
-void VulkanDevice::wait() const {
-	vkDeviceWaitIdle(_device);
 }
 
 } // namespace lyra
