@@ -13,11 +13,15 @@ public:
 	ComponentManager() { }
 	
 	const uint32 insertComponent(_Ty &components) {
-		lassert(usedIndex < Settings::Memory::componentLimit, "Exceeded maximum entity limit(", Settings::Memory::componentLimit, ")!");
+		lassert(vkusedIndex < Settings::Memory::componentLimit, "Exceeded maximum entity limit(", Settings::Memory::componentLimit, ")!");
 
 		_components.at(usedIndex) = std::move(components);
 		usedIndex++;
 		return usedIndex - 1;
+	}
+
+	void removeComponent(uint32 componentIndex) {
+
 	}
 
 	/**
