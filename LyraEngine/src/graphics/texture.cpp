@@ -37,7 +37,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 	stagingBuffer.copy_data(textureInfo.data);
 
 	// create the image and allocate its memory
-	if (vmaCreateImage(
+	lassert(vmaCreateImage(
 		Application::context()->device()->allocator(), 
 		&get_image_create_info(
 			format, 
@@ -50,7 +50,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 		& _image, 
 		& _memory, 
 		nullptr
-	) == VK_SUCCESS) Logger::log_error("Failed to load image from path: ", _path);
+	) == VK_SUCCESS, "Failed to load image from path: ", _path);
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(Application::context()->device(), Application::context()->commandBuffers(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1});
@@ -78,7 +78,7 @@ void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFil
 		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
 		0.0f,
 		static_cast<uint32>(textureInfo.anistropy),
-		properties.limits.maxSamplerAnisotropy,
+		properties.limits.maxSamplerAnisotropy * Settings::Rendering::anistropy,
 		VK_FALSE,
 		VK_COMPARE_OP_NEVER,
 		0.0f,

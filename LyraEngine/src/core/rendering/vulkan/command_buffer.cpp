@@ -4,7 +4,7 @@ namespace lyra {
 
 // command buffer
 void CommandBufferManager::VulkanCommandBuffer::create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level) {
-	Logger::log_info("Creating Vulkan command buffer...");
+	Logger::log_debug(Logger::tab(), "Creating Vulkan command buffer...");
 
 	this->commandPool = commandPool;
 	this->device = device;
@@ -25,6 +25,8 @@ void CommandBufferManager::VulkanCommandBuffer::create(const VulkanDevice* const
 }
 
 void CommandBufferManager::create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level) {
+	Logger::log_info("Creating command buffer manager...");
+
 	_commandBuffers.reserve(Settings::Memory::maxCommandBuffers);
 	_unused.reserve(Settings::Memory::maxCommandBuffers);
 	_inUse.reserve(Settings::Memory::maxCommandBuffers);
@@ -39,7 +41,7 @@ void CommandBufferManager::create(const VulkanDevice* const device, const Vulkan
 }
 
 void CommandBufferManager::begin(const CommandBuffer cmdBuffer, const VkCommandBufferUsageFlags usage) {
-	int index = std::distance(_unused.begin(), std::find(_unused.begin(), _unused.end(), cmdBuffer)); // find the command buffer that has been used
+	const auto& index = std::distance(_unused.begin(), std::find(_unused.begin(), _unused.end(), cmdBuffer)); // find the command buffer that has been used
 	move_element(_unused, _inUse, index); // set that command buffer as in use
 
 	// some info about the recording
@@ -55,7 +57,7 @@ void CommandBufferManager::begin(const CommandBuffer cmdBuffer, const VkCommandB
 }
 
 void CommandBufferManager::reset(const CommandBuffer cmdBuffer, const VkCommandBufferResetFlags flags) {
-	int index = std::distance(_inUse.begin(), std::find(_inUse.begin(), _inUse.end(), cmdBuffer)); // find the command buffer that has been used
+	const auto& index = std::distance(_inUse.begin(), std::find(_inUse.begin(), _inUse.end(), cmdBuffer)); // find the command buffer that has been used
 	move_element(_inUse, _unused, index); // set that command buffer as unused
 	lassert(vkResetCommandBuffer(_commandBuffers.at(cmdBuffer).commandBuffer, flags) == VK_SUCCESS, "Failed to reset command buffer!"); // reset the command buffer
 }
@@ -76,10 +78,6 @@ void CommandBufferManager::submit_queue(const CommandBuffer cmdBuffer, const VkQ
 
 	// submit the queue
 	lassert(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) == VK_SUCCESS, "Failed to submit Vulkan queue!");
-
-#ifdef _DEBUG
-	Logger::log_debug(Logger::tab(), "Submitted command buffer at: ", get_address(this));
-#endif
 }
 
 } // namespace lyra
