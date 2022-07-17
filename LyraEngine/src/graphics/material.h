@@ -13,7 +13,6 @@
 
 #include <graphics/material_manager.h>
 #include <core/rendering/vulkan/descriptor.h>
-#include <components/graphics/camera.h>
 #include <lyra.h>
 
 namespace lyra {
@@ -43,36 +42,35 @@ public:
 	}
 
 	/**
-	 * @brief bind the material
-	 * 
-	 * @param camera camera to draw to
-	*/
-	void bind(Camera* const camera) const {
-		camera->renderer()->add_to_draw_queue([&]() {
-			vkCmdBindPipeline(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, manager->pipeline(_pipelineID)->bindPoint(), manager->pipeline(_pipelineID)->pipeline());
-			vkCmdBindDescriptorSets(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, manager->pipeline(_pipelineID)->bindPoint(),
-				manager->pipeline(_pipelineID)->layout(), 0, 1, _descriptor.get_ptr(), 0, nullptr);
-		});
-	}
-
-	/**
 	 * @brief get the texture ID
 	 * 
-	 * @return const uint32 
+	 * @return const uint32_t
 	*/
-	[[nodiscard]] const uint32 textureID() { return _textureID; }
+	[[nodiscard]] const uint32 textureID() const noexcept { return _textureID; }
 	/**
 	 * @brief get the pipeline ID
 	 *
-	 * @return const uint32
+	 * @return const uint32_t
 	*/
-	[[nodiscard]] const uint32 pipelineID() { return _pipelineID; }
+	[[nodiscard]] const uint32 pipelineID() const noexcept { return _pipelineID; }
+	/**
+	 * @brief get the texture ID
+	 *
+	 * @return const lyra::Texture* const
+	*/
+	[[nodiscard]] const Texture* const texture() const noexcept { return manager->texture(_textureID); }
+	/**
+	 * @brief get the pipeline ID
+	 *
+	 * @return const lyra::GraphicsPipeline* const
+	*/
+	[[nodiscard]] const GraphicsPipeline* const pipeline() const noexcept { return manager->pipeline(_pipelineID); }
 	/**
 	 * @brief get the descriptor set
 	 *
 	 * @return const lyra::VulkanDescriptor* const
 	*/
-	[[nodiscard]] const VulkanDescriptor* const descriptor() { return &_descriptor; }
+	[[nodiscard]] const VulkanDescriptor* const descriptor() const noexcept { return &_descriptor; }
 
 private:
 	uint32 _textureID, _pipelineID;

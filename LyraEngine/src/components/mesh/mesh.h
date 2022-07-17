@@ -17,7 +17,7 @@
 #include <core/rendering/vulkan/vertex.h>
 #include <components/graphics/camera.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
-#include <graphics/renderer.h>
+#include <graphics/material.h>
 
 #include <vector>
 #include <glm.hpp>
@@ -56,6 +56,12 @@ public:
 	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices);
 
 	/**
+	 * @brief add a material to the mesh
+	 * 
+	 * @param material material
+	 */
+	void add_material(const Material* const material) noexcept { _material = material; }
+	/**
 	 * add the mesh and its buffers to the renderer draw queue
 	 *
 	 * @param camera context to add the draw call to
@@ -86,6 +92,12 @@ public:
 	 * @return const lyra::VulkanGPUBuffer* const
 	*/
 	[[nodiscard]] const VulkanGPUBuffer* const indexBuffer() const noexcept { return &_indexBuffer; }
+	/**
+	 * @brief get the material
+	 *
+	 * @return const lyra::Material* const
+	*/
+	[[nodiscard]] const Material* const material() const noexcept { return _material; }
 
 private:
 	std::vector <Vertex> _vertices;
@@ -93,6 +105,8 @@ private:
 
 	VulkanGPUBuffer _vertexBuffer;
 	VulkanGPUBuffer _indexBuffer;
+
+	const Material* _material;
 
 	/**
 	 * @brief create a mesh from a already loaded .obj file
