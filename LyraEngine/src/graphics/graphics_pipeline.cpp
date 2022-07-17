@@ -20,7 +20,7 @@ void GraphicsPipeline::create(const CreateInfo info) {
 	Logger::log_info("Successfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
 }
 
-void GraphicsPipeline::create_pipeline(const CreateInfo info) {
+void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
     // add all the shader stage creation information into a vector
     std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
     shaderStages.reserve(_shaders.size());
@@ -163,7 +163,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo info) {
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
 		_layout,
-		info.camera->renderer()->framebuffers()->renderPass(),
+		info.camera->framebuffers()->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0

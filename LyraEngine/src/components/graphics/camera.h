@@ -33,7 +33,7 @@ namespace lyra {
 /**
  * @brief wrapper arond a uniform buffer object
  */
-class Camera {
+class Camera : public Renderer {
 public:
 	// projection mode of the camera
 	enum Projection {
@@ -99,12 +99,6 @@ public:
 	*/
 	[[nodiscard]] const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
 	/**
-	 * @brief get the Renderer
-	 *
-	 * @return Renderer* const
-	*/
-	[[nodiscard]] Renderer* const renderer() noexcept { return &_renderer; }
-	/**
 	 * @brief get the field of view of the camera
 	 *
 	 * @return const float
@@ -128,9 +122,6 @@ public:
 	 * @return const float
 	*/
 	[[nodiscard]] const glm::vec4 viewport() const noexcept { return _viewport; }
-
-protected:
-	Renderer _renderer;
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;

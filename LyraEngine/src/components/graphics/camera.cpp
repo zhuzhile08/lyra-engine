@@ -7,12 +7,13 @@ Camera::Camera() {
 
 	// create the buffers
 	_buffers.resize(Settings::Rendering::maxFramesInFlight);
-
 	for (auto& buffer : _buffers) buffer.create(Application::context()->device(), sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
+	// bind the renderer
+	bind();
 
-	_renderer.bind();
+	// add the update and draw functions into the queues
+	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
 }
 
 void Camera::set_perspective(float fov, float near, float far) noexcept {
