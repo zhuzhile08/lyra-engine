@@ -43,7 +43,7 @@ private:
 		 * @brief destructor of the swapchain images
 		 */
 		virtual ~VulkanSwapchainImages() noexcept {
-			for (auto& view : _views) vkDestroyImageView(device->device(), view, nullptr);
+			for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(device->device(), _views.at(i), nullptr);
 
 			Logger::log_info("Successfully destroyed Vulkan swapchain images!");
 		}

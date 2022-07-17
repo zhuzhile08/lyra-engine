@@ -26,19 +26,19 @@ void VulkanDevice::create(const VulkanInstance* const instance) {
 
 void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
-	for (const char* extension : requestedExtensions) {
+	for (uint32 i = 0; i < requestedExtensions.size(); i++) {
 		bool found = false;
 		Logger::log_info("Available device extensions:");
 
-			for (const auto& extensionProperties : extensions) {
-				Logger::log_debug(Logger::tab(), extensionProperties.extensionName);
-					if (strcmp(extension, extensionProperties.extensionName) == 0) {
+			for (uint32 j = 0; j < extensions.size(); j++) {
+				Logger::log_debug(Logger::tab(), extensions.at(j).extensionName);
+					if (strcmp(requestedExtensions.at(i), extensions.at(j).extensionName) == 0) {
 						found = true;
 						break;
 					}
 			}
 
-		lassert(found, "User required Vulkan extensions weren't found!", extension);
+		lassert(found, "User required Vulkan extensions weren't found!", requestedExtensions.at(i));
 	}
 }
 
@@ -48,14 +48,11 @@ void VulkanDevice::find_family_index(VulkanQueueFamily* const queue, const VkPhy
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-	int i = 0;
-	for (const auto& queueFamily : queueFamilies) {
-		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+	for (uint32 i = 0; i < queueFamilies.size(); i++) {
+		if (queueFamilies.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			queue->familyIndex = i;
 			break;
 		}
-
-		i++;
 	}
 }
 
@@ -118,11 +115,9 @@ void VulkanDevice::pick_physical_device() {
 	// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
 	std::multimap <int, VkPhysicalDevice> possibleDevices;
 
-	int i = 0;
-	for (auto& device : devices) {
+	for (uint32 i = 0; i < devices.size(); i++) {
 		Logger::log_info("GPU " + std::to_string(i + 1) + ": ");
-		rate_physical_device(device, possibleDevices);
-		i++;
+		rate_physical_device(devices.at(i), possibleDevices);
 	}
 
 	if (possibleDevices.begin()->first <= 0) {

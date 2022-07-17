@@ -55,7 +55,7 @@ void VulkanDescriptor::create(const VulkanDescriptorSetLayout* const layout, con
 
 	lassert(vkAllocateDescriptorSets(Application::context()->device()->device(), &allocInfo, &_descriptorSet) == VK_SUCCESS, "Failed to allocate descriptor sets");
 
-	for(auto& write : writer.writes) write.dstSet = _descriptorSet;
+	for(uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = _descriptorSet;
 
 	vkUpdateDescriptorSets(Application::context()->device()->device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
 

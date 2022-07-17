@@ -54,13 +54,13 @@ public:
 	*/
 	[[nodiscard]] const uint32 pipelineID() const noexcept { return _pipelineID; }
 	/**
-	 * @brief get the texture ID
+	 * @brief get the texture corresponding to the ID
 	 *
 	 * @return const lyra::Texture* const
 	*/
 	[[nodiscard]] const Texture* const texture() const noexcept { return manager->texture(_textureID); }
 	/**
-	 * @brief get the pipeline ID
+	 * @brief get the pipeline corresponding to the ID
 	 *
 	 * @return const lyra::GraphicsPipeline* const
 	*/

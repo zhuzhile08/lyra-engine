@@ -26,21 +26,21 @@ void VulkanInstance::create(const Window* const window) {
 	Logger::log_info("Successfully created Vulkan instance at ", get_address(this), "!", Logger::end_l());
 }
 
-void VulkanInstance::check_requested_validation_layers(const std::vector <VkLayerProperties> layers, const std::vector <const char*> requestedLayers) const {
+void VulkanInstance::check_requested_validation_layers(const std::vector <VkLayerProperties>& layers, const std::vector <const char*>& requestedLayers) const {
 	// go through every requested layers and see if they are available
-	for (const char* layer : requestedLayers) {
+	for (uint32 i = 0; i < requestedLayers.size(); i++) {
 		bool found = false;
 		Logger::log_info("Available layers:");
 
-		for (const auto& layerProperties : layers) {
-			Logger::log_debug(Logger::tab(), layerProperties.layerName, layerProperties.description);
-			if (strcmp(layer, layerProperties.layerName) == 0) {
+		for (uint32 j = 0; j < layers.size(); j++) {
+			Logger::log_debug(Logger::tab(), layers.at(j).layerName, layers.at(j).description);
+			if (strcmp(requestedLayers.at(i), layers.at(j).layerName) == 0) {
 				found = true;
 				break;
 			}
 		}
 
-		lassert(found, "User required Vulkan validation layer wasn't found: ", layer);
+		lassert(found, "User required Vulkan validation layer wasn't found: ", requestedLayers.at(i));
 	}
 }
 

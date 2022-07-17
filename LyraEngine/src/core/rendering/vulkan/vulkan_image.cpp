@@ -61,12 +61,13 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 		tiling_ = tiling;
 	}
 
-	for (const auto& format : candidates) {
+	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(device->physicalDevice(), format, &props);
+		vkGetPhysicalDeviceFormatProperties(device->physicalDevice(), candidates.at(i), &props);
 
-		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return format;
-		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return format;
+		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
+		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
+
 	}
 
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");

@@ -148,16 +148,14 @@ void VulkanSwapchain::create_swapchain_extent(const VkSurfaceCapabilitiesKHR sur
 
 const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
 	uint32 availableFormatCount = 0;
-	lassert(vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, nullptr) == VK_SUCCESS,
-		"Failed to get available swapchain surface modes");
-
-	// check the formats
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, nullptr);
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), instance->surface(), &availableFormatCount, availableFormats.data());
-	for (auto& availableFormat : availableFormats) {
-		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-			_format = availableFormat.format;
-			return availableFormat;
+	// check the formats
+	for (uint32 i = 0; i < availableFormats.size(); i++) {
+		if (availableFormats.at(i).format == VK_FORMAT_B8G8R8A8_SRGB && availableFormats.at(i).colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			_format = availableFormats.at(i).format;
+			return availableFormats.at(i);
 		}
 	}
 
@@ -167,16 +165,13 @@ const VkSurfaceFormatKHR VulkanSwapchain::get_optimal_format() {
 
 const VkPresentModeKHR VulkanSwapchain::get_optimal_present_mode() {
 	uint32 availablePresentModeCount = 0;
-
-	lassert(vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr) == VK_SUCCESS, 
-		"Failed to get available swapchain present modes");
-
-	// check the presentation modes
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, nullptr);
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), instance->surface(), &availablePresentModeCount, availablePresentModes.data());
-	for (const auto& mode : availablePresentModes) {
-		if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
-			return mode;
+	// check the presentation modess
+	for (uint32 i = 0; i < availablePresentModes.size(); i++) {
+		if (availablePresentModes.at(i) == VK_PRESENT_MODE_MAILBOX_KHR) {
+			return availablePresentModes.at(i);
 			break;
 		}
 	}

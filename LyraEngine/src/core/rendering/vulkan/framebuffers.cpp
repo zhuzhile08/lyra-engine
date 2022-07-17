@@ -71,7 +71,7 @@ void VulkanFramebuffers::create_render_pass() {
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 	};
 
-	std::vector<VkAttachmentDescription> attachments = { colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions };
+	std::array<VkAttachmentDescription, 3> attachments = { colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions };
 
 	VkSubpassDescription subpassDescriptions {
 		0,

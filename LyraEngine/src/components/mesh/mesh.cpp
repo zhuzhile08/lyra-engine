@@ -54,96 +54,75 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index)
 
 	case UINT16_MAX: // default option: load everything
 		// loop over all the shapes
-		for (const auto& shape : loaded.shapes) {
+		for (uint32 s = 0; s < loaded.shapes.size(); s++) {
 			// loop over all the polygons
-			size_t index_offset = 0;
-			for (const auto& index : shape.mesh.indices) {
+			for (uint32 i = 0; i < loaded.shapes.at(s).mesh.indices.size(); i++) {
+				Vertex vertex;
+
 				// calculate positions
-				tinyobj::real_t vertexPositions[3] = {
-					loaded.vertices.vertices[3 * index.vertex_index + 0],
-					loaded.vertices.vertices[3 * index.vertex_index + 1],
-					loaded.vertices.vertices[3 * index.vertex_index + 2]
+				vertex.pos = {
+					loaded.vertices.vertices[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0],
+					loaded.vertices.vertices[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1],
+					loaded.vertices.vertices[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2]
 				};
 				// calculate normals
-				tinyobj::real_t normals[3] = {
-					loaded.vertices.normals[3 * index.normal_index + 0],
-					loaded.vertices.normals[3 * index.normal_index + 1],
-					loaded.vertices.normals[3 * index.normal_index + 2]
+				vertex.normal = {
+					loaded.vertices.normals[3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 0],
+					loaded.vertices.normals[3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 1],
+					loaded.vertices.normals[3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 2]
 				};
-
-				tinyobj::real_t uv[2] = {
-					loaded.vertices.texcoords[2 * index.texcoord_index + 0],
-					loaded.vertices.texcoords[2 * index.texcoord_index + 1]
+				// calculate UV coordinates
+				vertex.uv = {
+					loaded.vertices.texcoords[2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 0],
+					loaded.vertices.texcoords[2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 1]
 				};
-
-				tinyobj::real_t colors[3] = {
-					loaded.vertices.colors[3 * index.vertex_index + 0],
-					loaded.vertices.colors[3 * index.vertex_index + 1],
-					loaded.vertices.colors[3 * index.vertex_index + 2]
+				// calcualte vertex color
+				vertex.color = {
+					loaded.vertices.colors[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0],
+					loaded.vertices.colors[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1],
+					loaded.vertices.colors[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2]
 				};
-
-				// the vertex
-				Vertex vertex = Vertex(
-					{ vertexPositions[0], vertexPositions[1], vertexPositions[2] }, // position
-					{ normals[0], normals[1], normals[2] }, // normals
-					{ uv[0], 1 - uv[1] }, // texture UV coordinates
-					{ colors[0], colors[1], colors[2] } // colors
-				);
 
 				// add the vertex to the list
 				_vertices.push_back(vertex);
-				_indices.push_back(static_cast<uint16>(_indices.size()));
-
-				index_offset += 3;
+				_indices.push_back(static_cast<uint32>(_indices.size()));
 			}
 		} 
 
 		break;
 
 	default: // funnily enough, this is not the default option
-		// loop over all the shapes
-		for (const auto& shape : loaded.shapes) {
-			// loop over all the polygons
-			size_t index_offset = 0;
-			for (const auto& index : shape.mesh.indices) {
-				// calculate positions
-				tinyobj::real_t vertexPositions[3] = {
-					loaded.vertices.vertices[3 * index.vertex_index + 0],
-					loaded.vertices.vertices[3 * index.vertex_index + 1],
-					loaded.vertices.vertices[3 * index.vertex_index + 2]
-				};
-				// calculate normals
-				tinyobj::real_t normals[3] = {
-					loaded.vertices.normals[3 * index.normal_index + 0],
-					loaded.vertices.normals[3 * index.normal_index + 1],
-					loaded.vertices.normals[3 * index.normal_index + 2]
-				};
+		// loop over all the polygons
+		for (uint32 i = 0; i < loaded.shapes.at(index).mesh.indices.size(); i++) {
+			Vertex vertex;
 
-				tinyobj::real_t uv[2] = {
-					loaded.vertices.texcoords[2 * index.texcoord_index + 0],
-					loaded.vertices.texcoords[2 * index.texcoord_index + 1]
-				};
+			// calculate positions
+			vertex.pos = {
+				loaded.vertices.vertices[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0],
+				loaded.vertices.vertices[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1],
+				loaded.vertices.vertices[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2]
+			};
+			// calculate normals
+			vertex.normal = {
+				loaded.vertices.normals[3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 0],
+				loaded.vertices.normals[3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 1],
+				loaded.vertices.normals[3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 2]
+			};
+			// calculate UV coordinates
+			vertex.uv = {
+				loaded.vertices.texcoords[2 * loaded.shapes.at(index).mesh.indices.at(i).texcoord_index + 0],
+				loaded.vertices.texcoords[2 * loaded.shapes.at(index).mesh.indices.at(i).texcoord_index + 1]
+			};
+			// calcualte vertex color
+			vertex.color = {
+				loaded.vertices.colors[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0],
+				loaded.vertices.colors[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1],
+				loaded.vertices.colors[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2]
+			};
 
-				tinyobj::real_t colors[3] = {
-					loaded.vertices.colors[3 * index.vertex_index + 0],
-					loaded.vertices.colors[3 * index.vertex_index + 1],
-					loaded.vertices.colors[3 * index.vertex_index + 2]
-				};
-
-				// the vertex
-				Vertex vertex = Vertex(
-					{ vertexPositions[0], vertexPositions[1], vertexPositions[2] }, // position
-					{ normals[0], normals[1], normals[2] }, // normals
-					{ uv[0], 1 - uv[1] }, // texture UV coordinates
-					{ colors[0], colors[1], colors[2] } // colors
-				);
-
-				// add the vertex to the list
-				_vertices.push_back(vertex);
-				_indices.push_back(static_cast<uint16>(_indices.size()));
-
-				index_offset += 3;
-			}
+			// add the vertex to the list
+			_vertices.push_back(vertex);
+			_indices.push_back(static_cast<uint32>(_indices.size()));
 		}
 
 		break;

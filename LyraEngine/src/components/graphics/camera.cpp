@@ -7,7 +7,7 @@ Camera::Camera() {
 
 	// create the buffers
 	_buffers.resize(Settings::Rendering::maxFramesInFlight);
-	for (auto& buffer : _buffers) buffer.create(Application::context()->device(), sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	for (uint32 i = 0; i < _buffers.size(); i++) _buffers.at(i).create(Application::context()->device(), sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// bind the renderer
 	bind();

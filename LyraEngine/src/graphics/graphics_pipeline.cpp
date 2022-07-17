@@ -23,8 +23,8 @@ void GraphicsPipeline::create(const CreateInfo info) {
 void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
     // add all the shader stage creation information into a vector
     std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
-    shaderStages.reserve(_shaders.size());
-    for (const auto& shader : _shaders) shaderStages.push_back(shader.get_stage_create_info());
+    shaderStages.resize(_shaders.size());
+    for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages.at(i) = _shaders.at(i).get_stage_create_info();
 
 	GraphicsPipelineCreateInfo createInfo = {
 		shaderStages, // create shaders

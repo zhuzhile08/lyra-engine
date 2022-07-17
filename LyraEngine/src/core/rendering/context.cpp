@@ -25,7 +25,7 @@ void Context::draw() {
 	wait_device_queue(_device.presentQueue());
 	
 	// get the next image to render on
-	if (vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores().at(_currentFrame), VK_NULL_HANDLE, &_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
+	if (vkAcquireNextImageKHR(_device.device(), _swapchain.swapchain(), UINT64_MAX, _syncObjects.imageAvailableSemaphores()[_currentFrame], VK_NULL_HANDLE, &_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		_swapchain.recreate();
 		_recreateQueue.flush();
 		return;
