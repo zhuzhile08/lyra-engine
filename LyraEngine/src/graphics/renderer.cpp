@@ -23,8 +23,6 @@ void Renderer::destroy() noexcept {
 }
 
 void Renderer::record_command_buffers() const {
-	// look at how D Y N A M I C this is
-
 	_framebuffers.begin();
 
 	_drawQueue.flush();

@@ -142,7 +142,7 @@ private:
 	 *
 	 * @param info creation information
 	 */
-	void create_pipeline(const CreateInfo info);
+	void create_pipeline(const CreateInfo& info);
 };
 
 } // namespace lyra

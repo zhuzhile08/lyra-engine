@@ -84,7 +84,7 @@ public:
 	template<typename ... Args> static void log(Args... message) {
 		// print the message
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
-#ifdef LOG_FILE
+#ifdef LYRA_LOG_FILE
 		(_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
 	}
@@ -101,7 +101,7 @@ public:
 		// print the message
 		std::cout << "[DEBUG]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
-#ifdef LOG_FILE
+#ifdef LYRA_LOG_FILE
 		_logFile << "[DEBUG]: ";
 		(_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
@@ -121,7 +121,7 @@ public:
 		// print the message
 		std::cout << "[INFO]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
-#ifdef LOG_FILE
+#ifdef LYRA_LOG_FILE
 		_logFile << "[INFO]: ";
 		(_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
@@ -141,7 +141,7 @@ public:
 		// print the message
 		std::cout << "[WARNING]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
-#ifdef LOG_FILE
+#ifdef LYRA_LOG_FILE
 		_logFile << "[WARNING]: ";
 		(_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
@@ -161,7 +161,7 @@ public:
 		// print the message
 		std::cout << "[ERROR]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
-#ifdef LOG_FILE
+#ifdef LYRA_LOG_FILE
 		_logFile << "[ERROR]: ";
 		(_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
@@ -181,7 +181,7 @@ public:
 		// print the message
 		std::cout << "[EXCEPTION]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
-#ifdef LOG_FILE
+#ifdef LYRA_LOG_FILE
 		_logFile << "[EXCEPTION]: ";
 		(_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif

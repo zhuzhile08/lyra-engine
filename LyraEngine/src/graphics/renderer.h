@@ -85,13 +85,11 @@ public:
 	*/
 	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
 
-private:
+protected:
 	VulkanFramebuffers _framebuffers;
 
 	CallQueue _drawQueue;
 	CallQueue _updateQueue;
-
-	bool _drawing = true;
 
 	/**
 	 * @brief record all the commands

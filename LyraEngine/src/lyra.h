@@ -48,6 +48,11 @@ public: // behold, peasant, my superior "singleton" architecture
 	 * @brief draw the current frame
 	*/
 	static void draw();
+	
+	/**
+	 * @brief add a function to the update queue
+	 */
+	static void add_to_update_queue(std::function<void()>&& function) { _context.add_to_update_queue(std::move(function)); }
 
 	/**
 	 * @brief get the fps

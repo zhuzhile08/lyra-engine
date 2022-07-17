@@ -23,7 +23,6 @@ const AssetManager::TextureInfo AssetManager::unpack_texture(const char* path) {
 	int width, height, channels;
 	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
 	if (imagePixelData == nullptr) Logger::log_exception("Failed to load image from path: ", path, "!");
-	void* data = imagePixelData;
 
 	AssetManager::TextureInfo textureInfo{
 		width, // jsonTextureInfo.at("width"),
@@ -35,7 +34,7 @@ const AssetManager::TextureInfo AssetManager::unpack_texture(const char* path) {
 		1, // jsonTextureInfo.at("dimension"),
 		1, // jsonTextureInfo.at("wrap"),
 		1, // jsonTextureInfo.at("anistropy"),
-		data // (void*)&jsonTextureInfo.at("data")
+		imagePixelData // (void*)&jsonTextureInfo.at("data")
 	};
 
 	return textureInfo;
