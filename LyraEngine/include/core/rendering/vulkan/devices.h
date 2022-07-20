@@ -28,7 +28,7 @@ namespace lyra {
 /**
  * @brief Vulkan physical and logical devices
  */
-struct VulkanDevice {
+class VulkanDevice {
 private:
 	friend class Context;
 

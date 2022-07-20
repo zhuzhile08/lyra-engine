@@ -51,7 +51,10 @@ class Context;
 class GUIContext;
 
 // low level utility
-// class BaseAllocator;
 class CallQueue;
+class BaseAllocator;
+class AllocatorLinear;
+class AllocatorStack;
+class AllocatorPool;
 
 } // namespace lyra

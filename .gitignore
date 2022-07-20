@@ -32,9 +32,9 @@
 *.app
 
 # folders
-include/
-out/
-.vs/
+/include
+/out
+/.vs
 
 # files
 CMakeSettings.json
