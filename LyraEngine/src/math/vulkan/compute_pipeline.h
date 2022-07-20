@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/vulkan_pipeline.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/logger.h>

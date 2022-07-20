@@ -1,5 +1,17 @@
 #include <core/rendering/gui_context.h>
 
+#include <lyra.h>
+
+#include <core/logger.h>
+
+#include <core/queue_types.h>
+
+#include <core/rendering/vulkan/devices.h>
+#include <core/rendering/vulkan/vulkan_window.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/renderer.h>
+
 namespace lyra {
 
 namespace gui {
@@ -25,7 +37,7 @@ GUIContext::GUIContext() {
 	builder.set_max_sets(1000); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	_descriptorPool.create(builder);
+	_descriptorPool->create(builder);
 
 	// initialize ImGui
 	ImGui::CreateContext();
@@ -33,20 +45,20 @@ GUIContext::GUIContext() {
 	ImGui_ImplSDL2_InitForVulkan(Application::window()->get());
 	// initialization information
 	ImGui_ImplVulkan_InitInfo initInfo{
-		Application::context()->instance()->instance(),
+		Application::context()->device()->instance(),
 		Application::context()->device()->physicalDevice(),
 		Application::context()->device()->device(),
 		Application::context()->device()->graphicsQueue().familyIndex,
 		Application::context()->device()->graphicsQueue().queue,
 		VK_NULL_HANDLE,
-		_descriptorPool.get(),
+		_descriptorPool->get(),
 		0,
 		3,
 		3,
-		Application::context()->swapchain()->colorResources()->maxSamples()
+		Application::context()->vulkanWindow()->maxMultisamples()
 	};
 	// initialize ImGui for Vulkan
-	ImGui_ImplVulkan_Init(&initInfo, _renderer.framebuffers()->renderPass());
+	ImGui_ImplVulkan_Init(&initInfo, _renderer->renderPass());
 
 	// get a command buffer for creating the font textures
 	CommandBuffer cmdBuff = Application::context()->commandBuffers()->get_unused();
@@ -69,20 +81,26 @@ GUIContext::GUIContext() {
 	// bind to the renderer
 	bind();
 	// bind the renderer
-	_renderer.bind();
+	_renderer->bind();
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
 
+GUIContext::~GUIContext() {
+	ImGui_ImplVulkan_Shutdown();
+
+	lyra::Logger::log_info("Successfully destroyed GUI context!");
+}
+
 void GUIContext::bind() {
 	// render a new frame
-	_renderer.add_to_draw_queue(FUNC_PTR(
+	_renderer->add_to_draw_queue(FUNC_PTR(
 		// begin drawing
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL2_NewFrame(Application::window()->get());
 		ImGui::NewFrame();
 
-		_drawQueue.flush();
+		_drawQueue->flush();
 
 		ImGui::Render(); 
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer);

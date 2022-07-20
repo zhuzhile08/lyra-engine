@@ -16,7 +16,7 @@
 #include <lyra.h>
 #include <components/gameObj.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
-#include <graphics/renderer.h>
+#include <core/rendering/renderer.h>
 #include <core/logger.h>
 #include <core/defines.h>
 #include <core/queue_types.h>

@@ -11,11 +11,9 @@
 
 #pragma once
 
+#include <core/core.h>
 #include <core/defines.h>
 #include <core/settings.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/logger.h>
-#include <core/rendering/vulkan/command_pool.h>
 
 #include <vector>
 #include <algorithm>
@@ -23,9 +21,56 @@
 
 namespace lyra {
 
-// command buffer index type
-typedef uint32 CommandBuffer;
+/**
+ * @brief command pool
+ */
+class VulkanCommandPool {
+public:
 
+	VulkanCommandPool() { }
+
+	/**
+	* @brief destructor of the command pool
+	**/
+	virtual ~VulkanCommandPool() noexcept;
+
+	/**
+	 * @brief destroy the command pool
+	 */
+	void destroy() noexcept {
+		this->~VulkanCommandPool();
+	}
+
+	VulkanCommandPool operator=(const VulkanCommandPool&) const noexcept = delete;
+
+	/**
+	 * @brief create a Vulkan command pool to allocate the command buffers
+	 *
+	 * @param device device
+	 */
+	void create(const VulkanDevice* const device);
+
+	/**
+	 * @brief reset the command buffer
+	 */
+	void reset();
+
+	/**
+	 * @brief get the command pool
+	 *
+	 * @return const VkCommandPool&
+	 */
+	[[nodiscard]] const VkCommandPool& commandPool() const noexcept { return _commandPool; }
+
+private:
+	VkCommandPool _commandPool = VK_NULL_HANDLE;
+
+	const VulkanDevice* device;
+};
+
+/**
+ * @brief manager for command buffers
+ */
 class CommandBufferManager {
 private:
 	/**
@@ -38,11 +83,7 @@ private:
 		/**
 		* @brief destructor of the command buffer
 		**/
-		virtual ~VulkanCommandBuffer() noexcept {
-			vkFreeCommandBuffers(device->device(), commandPool->commandPool(), 1, &commandBuffer);
-
-			Logger::log_info("Successfully destroyed a Vulkan command buffer!");
-		}
+		virtual ~VulkanCommandBuffer() noexcept;
 
 		/**
 		 * @brief destroy the command buffer
@@ -75,11 +116,7 @@ public:
 	/**
 	 * @brief destructor of the command buffer manager
 	 **/
-	virtual ~CommandBufferManager() noexcept {
-		_commandBuffers.clear();
-
-		Logger::log_info("Successfully destroyed a command buffer manager!");
-	}
+	virtual ~CommandBufferManager() noexcept;
 
 	/**
 	 * @brief destroy the command buffer manager
@@ -111,9 +148,7 @@ public:
 	 * 
 	 * @param cmdBuffer the command buffer to perform the operation on
 	 */
-	void end(const CommandBuffer cmdBuffer) const {
-		lassert(vkEndCommandBuffer(_commandBuffers.at(cmdBuffer).commandBuffer) == VK_SUCCESS, "Failed to stop recording command buffer!");
-	}
+	void end(const CommandBuffer cmdBuffer) const;
 	/**
 	 * reset the command buffer after everything has been recorded and make it available for usage again
 	 *
@@ -136,9 +171,7 @@ public:
 	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param queue the queue to wait for
 	*/
-	void wait_queue(const CommandBuffer cmdBuffer, const VkQueue queue) const {
-		lassert(vkQueueWaitIdle(queue) == VK_SUCCESS, "Failed to wait for device queue!");
-	}
+	void wait_queue(const CommandBuffer cmdBuffer, const VkQueue queue) const;
 
 	/**
 	 * @brief setup a pipeline barrier
@@ -172,10 +205,6 @@ public:
 			(image == nullptr) ? 0 : 1,
 			image
 		);
-
-#ifdef _DEBUG
-		Logger::log_debug(Logger::tab(), "Set up a pipeline barrier with the command buffer at: ", get_address(this));
-#endif
 	}
 
 	/**

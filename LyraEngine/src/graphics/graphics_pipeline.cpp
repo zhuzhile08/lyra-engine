@@ -33,9 +33,9 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 			nullptr,
 			0,
 			1,
-			&Vertex::get_binding_description(),
-			static_cast<uint32>(Vertex::get_attribute_descriptions().size()),
-			Vertex::get_attribute_descriptions().data()
+			&Mesh::Vertex::get_binding_description(),
+			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
+			Mesh::Vertex::get_attribute_descriptions().data()
 		},
 		{	// describe how shaders are executed
 			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -87,7 +87,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			Application::context()->swapchain()->colorResources()->maxSamples(),
+			Application::context()->vulkanWindow()->maxMultisamples(),
 			VK_TRUE,				// currently set to false
 			0.2f,
 			nullptr,
@@ -163,7 +163,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
 		_layout,
-		info.camera->framebuffers()->renderPass(),
+		info.camera->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0

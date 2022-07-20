@@ -1,10 +1,13 @@
 #include <core/rendering/vulkan/devices.h>
 
+#include <core/rendering/window.h>
+
 namespace lyra {
 
 VulkanDevice::~VulkanDevice() {
 	vmaDestroyAllocator(_allocator);
 	vkDestroyDevice(_device, nullptr);
+	vkDestroyInstance(_instance, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan device!");
 }
@@ -13,10 +16,11 @@ void VulkanDevice::destroy() noexcept {
 	this->~VulkanDevice();
 }
 
-void VulkanDevice::create(const VulkanInstance* const instance) {
+void VulkanDevice::create(const Window* const window) {
 	Logger::log_info("Creating Vulkan device...");
 
-	this->instance = instance;
+	this->window = window;
+	create_instance();
 	pick_physical_device();
 	create_logical_device();
 	create_allocator();
@@ -39,6 +43,24 @@ void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProp
 			}
 
 		lassert(found, "User required Vulkan extensions weren't found!", requestedExtensions.at(i));
+	}
+}
+
+void VulkanDevice::check_requested_validation_layers(const std::vector <VkLayerProperties>& layers, const std::vector <const char*>& requestedLayers) const {
+	// go through every requested layers and see if they are available
+	for (uint32 i = 0; i < requestedLayers.size(); i++) {
+		bool found = false;
+		Logger::log_info("Available layers:");
+
+		for (uint32 j = 0; j < layers.size(); j++) {
+			Logger::log_debug(Logger::tab(), layers.at(j).layerName, layers.at(j).description);
+			if (strcmp(requestedLayers.at(i), layers.at(j).layerName) == 0) {
+				found = true;
+				break;
+			}
+		}
+
+		lassert(found, "User required Vulkan validation layer wasn't found: ", requestedLayers.at(i));
 	}
 }
 
@@ -105,12 +127,66 @@ void VulkanDevice::rate_physical_device(const VkPhysicalDevice& device, std::mul
 	map.insert(std::make_pair(score, device));
 }
 
+void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
+	vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
+}
+
+void VulkanDevice::create_instance() {
+	// check if requested validation layers are available
+#ifdef _DEBUG
+	uint32 availableLayerCount = 0;
+	vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr);
+	std::vector <VkLayerProperties> availableLayers(availableLayerCount);
+	vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers.data());
+
+	check_requested_validation_layers(availableLayers, Settings::Debug::requestedValidationLayers);
+#endif
+	// get all extensions
+	uint32 SDLExtensionCount = 0;
+
+	lassert(SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, nullptr), "Failed to get number of Vulkan instance extensions");
+	const char** SDLExtensions = new const char* [SDLExtensionCount];
+	lassert(SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, SDLExtensions), "Failed to get Vulkan instance extensions");
+
+	// define some info for the application that will be used in instance creation
+	VkApplicationInfo appInfo{
+		VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		nullptr,
+		Settings::Window::title.c_str(),
+		VK_MAKE_VERSION(0, 0, 1),
+		"LyraEngine",
+		VK_MAKE_VERSION(0, 5, 0),
+		VK_API_VERSION_1_3
+	};
+
+	// defining some instance info
+	VkInstanceCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		nullptr,
+		0,
+		&appInfo,
+#ifdef _DEBUG
+		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
+		Settings::Debug::requestedValidationLayers.data(),
+#else
+		0,
+		nullptr,
+#endif
+		SDLExtensionCount,
+		SDLExtensions
+	};
+
+
+	// create the instance
+	lassert(vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+}
+
 void VulkanDevice::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
-	lassert(vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, nullptr) == VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
+	lassert(vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr) == VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
 		std::vector <VkPhysicalDevice> devices(deviceCount);             // just put this in here cuz I was lazy
-	vkEnumeratePhysicalDevices(instance->instance(), &deviceCount, devices.data());
+	vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
 
 	// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
 	std::multimap <int, VkPhysicalDevice> possibleDevices;
@@ -176,10 +252,6 @@ void VulkanDevice::create_logical_device() {
 	create_queue(&_presentQueue);
 }
 
-void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
-	vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
-}
-
 void VulkanDevice::create_allocator() {
 	// creation info
 	VmaAllocatorCreateInfo createInfo {
@@ -191,7 +263,7 @@ void VulkanDevice::create_allocator() {
 		nullptr,
 		nullptr,
 		nullptr,
-		instance->instance(),
+		_instance,
 		VK_API_VERSION_1_2
 	};
 

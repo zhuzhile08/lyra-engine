@@ -1,8 +1,80 @@
 #include <core/rendering/vulkan/vulkan_image.h>
 
+#include <core/logger.h>
+
+#include <core/rendering/vulkan/devices.h>
+#include <core/rendering/vulkan/command_buffer.h>
+
 namespace lyra {
 
-VulkanImage::VulkanImage() { }
+VulkanImage::~VulkanImage() {
+	vkDestroyImageView(device->device(), _view, nullptr);
+	vkDestroyImage(device->device(), _image, nullptr);
+
+	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
+}
+
+const VkImageCreateInfo VulkanImage::get_image_create_info(
+	const VkFormat format,
+	const VkExtent3D extent,
+	const VkImageUsageFlags usage,
+	const uint32 mipLevels,
+	const VkImageType imageType,
+	const uint32 arrayLayers,
+	const VkSampleCountFlagBits samples,
+	const VkImageTiling tiling
+) noexcept {
+	_tiling = tiling;
+
+	return {
+		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+		nullptr,
+		0,
+		imageType,
+		format,
+		extent,
+		mipLevels,
+		arrayLayers,
+		samples,
+		tiling,
+		usage,
+		VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
+		0,
+		0,
+		VK_IMAGE_LAYOUT_UNDEFINED
+	};
+}
+
+void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
+	// image view creation info
+	VkImageViewCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		nullptr,
+		0,
+		_image,
+		viewType,
+		format,
+		colorComponents,
+		subresourceRange
+	};
+
+	// create the view
+	lassert(vkCreateImageView(device->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
+
+	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
+}
+
+void VulkanImage::create_view(
+	const VulkanDevice* const device, 
+	const VkFormat format, 
+	const VkImageSubresourceRange subresourceRange, 
+	const VkImageViewType viewType, 
+	const VkComponentMapping colorComponents
+) {
+	this->device = device;
+
+	create_view(format, subresourceRange, viewType, colorComponents);
+}
 
 void VulkanImage::transition_layout(
 	CommandBufferManager* const commandBufferManager,
@@ -45,7 +117,19 @@ void VulkanImage::transition_layout(
 	commandBufferManager->wait_queue(cmdBuff, device->graphicsQueue().queue);
 	// reset the command buffer
 	commandBufferManager->reset(cmdBuff);
-	
+}
+
+void VulkanImage::transition_layout(
+	const VulkanDevice* const device,
+	CommandBufferManager* const commandBufferManager,
+	const VkImageLayout oldLayout,
+	const VkImageLayout newLayout,
+	const VkFormat format,
+	const VkImageSubresourceRange subresourceRange
+) {
+	this->device = device;
+
+	transition_layout(commandBufferManager, oldLayout, newLayout, format, subresourceRange);
 }
 
 const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
@@ -73,6 +157,12 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
 
 	return VK_FORMAT_MAX_ENUM;
+}
+
+const VkFormat VulkanImage::get_best_format(const VulkanDevice* const device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) {
+	this->device = device;
+
+	return get_best_format(candidates, features, tiling);
 }
 
 } // namespace lyra

@@ -1,8 +1,15 @@
 #include <core/rendering/vulkan/vulkan_shader.h>
 
+#include <res/loaders/load_file.h>
+#include <core/rendering/vulkan/devices.h>
+
 namespace lyra {
 
-VulkanShader::VulkanShader() { }
+VulkanShader::~VulkanShader() {
+	vkDestroyShaderModule(device->device(), _module, nullptr);
+
+	Logger::log_info("Successfully destroyed loaded Vulkan shader!");
+}
 
 void VulkanShader::create(const VulkanDevice* const device, const char* path, const char* entry, Type type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
@@ -34,3 +41,4 @@ void VulkanShader::create(const VulkanDevice* const device, const char* path, co
 }
 
 } // namespace lyra
+

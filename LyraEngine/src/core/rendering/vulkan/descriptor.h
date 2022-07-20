@@ -11,10 +11,7 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <core/logger.h>
-#include <core/rendering/vulkan/vulkan_shader.h>
-#include <math/math.h>
+#include <core/core.h>
 #include <lyra.h>
 
 #include <array>
@@ -49,7 +46,7 @@ public:
 		 *
 		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor and the number bindings of that type
 		 */
-		void add_bindings(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32>> newBindings) noexcept {
+		void add_bindings(std::vector<std::tuple<const uint32, const int, const int, const uint32>> newBindings) noexcept {
 			for (const auto& [binding, type, shaderType, count] : newBindings) {
 				bindings.push_back({
 					binding,

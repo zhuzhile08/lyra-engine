@@ -11,14 +11,9 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/instance.h>
-#include <core/rendering/vulkan/command_buffer.h>
-#include <core/logger.h>
+#include <core/core.h>
 
 #include <vector>
-
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -27,17 +22,12 @@ namespace lyra {
  * @brief wrapper around vulkan images
  */
 struct VulkanImage {
-	VulkanImage();
+	VulkanImage() { }
 
 	/**
 	* @brief destructor of the image
 	**/
-	virtual ~VulkanImage() noexcept {
-		vkDestroyImageView(device->device(), _view, nullptr);
-		vkDestroyImage(device->device(), _image, nullptr);
-
-		Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
-	}
+	virtual ~VulkanImage() noexcept;
 
 	/**
 	 * @brief destroy the image
@@ -71,27 +61,7 @@ struct VulkanImage {
 		const uint32 arrayLayers = 1,
 		const VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
 		const VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
-	) noexcept {
-		_tiling = tiling;
-
-		return {
-			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-			nullptr,
-			0,
-			imageType,
-			format,
-			extent,
-			mipLevels,
-			arrayLayers,
-			samples,
-			tiling,
-			usage,
-			VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
-			0,
-			0,
-			VK_IMAGE_LAYOUT_UNDEFINED
-		};
-	}
+	) noexcept;
 
 	/**
 	 * @brief create the image view only
@@ -106,24 +76,7 @@ struct VulkanImage {
 		const VkImageSubresourceRange subresourceRange,
 		const VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
 		const VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
-	) {
-		// image view creation info
-		VkImageViewCreateInfo createInfo{
-			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-			nullptr,
-			0,
-			_image,
-			viewType,
-			format,
-			colorComponents,
-			subresourceRange
-		};
-
-		// create the view
-		lassert(vkCreateImageView(device->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
-
-		Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
-	}
+	);
 
 	/**
 	 * @brief create the image view only
@@ -140,11 +93,7 @@ struct VulkanImage {
 		const VkImageSubresourceRange subresourceRange,
 		const VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
 		const VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
-	) {
-		this->device = device;
-
-		create_view(format, subresourceRange, viewType, colorComponents);
-	}
+	);
 
 	/**
 	 * @brief return a memory barrier for this image
@@ -199,11 +148,7 @@ struct VulkanImage {
 		const VkImageLayout newLayout,
 		const VkFormat format,
 		const VkImageSubresourceRange subresourceRange
-	) {
-		this->device = device;
-
-		transition_layout(commandBufferManager, oldLayout, newLayout, format, subresourceRange);
-	}
+	);
 
 	/**
 	 * @brief transition the image layout to an another one
@@ -222,14 +167,6 @@ struct VulkanImage {
 		const VkImageSubresourceRange subresourceRange
 	) const;
 
-	VkImage _image = VK_NULL_HANDLE;
-	VkImageView _view = VK_NULL_HANDLE;
-
-private:
-	const VulkanDevice* device;
-	VkImageTiling _tiling = VK_IMAGE_TILING_MAX_ENUM;
-
-protected:
 	/**
 	 * @brief get the best format out of a vector of requested ones for a certain situation
 	 *
@@ -251,11 +188,19 @@ protected:
 	 *
 	 * @return const VkFormat
 	*/
-	[[nodiscard]] const VkFormat get_best_format(const VulkanDevice* const device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) {
-		this->device = device;
+	[[nodiscard]] const VkFormat get_best_format(
+		const VulkanDevice* const device,
+		const std::vector<VkFormat> candidates,
+		const VkFormatFeatureFlags features,
+		const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM
+	);
 
-		return get_best_format(candidates, features, tiling);
-	}
+	VkImage _image = VK_NULL_HANDLE;
+	VkImageView _view = VK_NULL_HANDLE;
+
+private:
+	const VulkanDevice* device;
+	VkImageTiling _tiling = VK_IMAGE_TILING_MAX_ENUM;
 };
 
 } // namespace lyra

@@ -11,11 +11,7 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <core/rendering/vulkan/vulkan_shader.h>
-#include <core/rendering/vulkan/command_buffer.h>
-#include <core/rendering/vulkan/descriptor.h>
-#include <core/logger.h>
+#include <core/core.h>
 #include <lyra.h>
 
 #include <vector>
@@ -34,7 +30,7 @@ protected:
 	 */
 	struct ShaderCreationInfo {
 		// shader type
-		const VulkanShader::Type type;
+		const int type;
 		// path of shader
 		const char* path;
 		// shader entry point
@@ -42,7 +38,7 @@ protected:
 	};
 
 public:
-	VulkanPipeline() { };
+	VulkanPipeline() { }
 
 	/**
 	 * @brief builder for the descriptor sets
@@ -62,21 +58,7 @@ public:
 		 *
 		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor, the number of descriptors needed for that binding and the actuall number of descriptors to allocate
 		 */
-		void add_bindings(std::vector<std::tuple<const uint32, const int, const VulkanShader::Type, const uint32, const uint32>> newBindings) noexcept {
-			for (const auto& [binding, type, shaderType, count, allocCount] : newBindings) {
-				bindings.push_back({
-					binding,
-					static_cast<VkDescriptorType>(type),
-					count,
-					static_cast<VkShaderStageFlags>(shaderType),
-					nullptr
-					});
-				poolSizes.push_back({
-					static_cast<VkDescriptorType>(type),
-					allocCount
-					});
-			}
-		}
+		void add_bindings(std::vector<std::tuple<const uint32, const int, const int, const uint32, const uint32>> newBindings) noexcept;
 
 		/**
 		 * @brief set the number of maximum possible allocatable sets
@@ -117,13 +99,13 @@ public:
 	 *
 	 * @return const lyra::VulkanDescriptorSetLayout*
 	*/
-	[[nodiscard]] const VulkanDescriptorSetLayout* const descriptorSetLayout() const noexcept { return &_descriptorSetLayout; }
+	[[nodiscard]] const VulkanDescriptorSetLayout* const descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 *
 	 * @return const lyra::VulkanDescriptorPool*
 	*/
-	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return &_descriptorPool; }
+	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return _descriptorPool; }
 	/**
 	 * @brief get the pipeline
 	 *
@@ -152,8 +134,8 @@ public:
 protected:
 	VkPipeline _pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout _layout = VK_NULL_HANDLE;
-	VulkanDescriptorSetLayout _descriptorSetLayout;
-	VulkanDescriptorPool _descriptorPool;
+	VulkanDescriptorSetLayout* _descriptorSetLayout;
+	VulkanDescriptorPool* _descriptorPool;
 
 	VkPipelineBindPoint _bindPoint;
 
@@ -162,20 +144,7 @@ protected:
 	/**
 	 * @brief create the pipeline layout
 	 */
-	void create_layout() {
-		// create the pipeline layout
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo{
-			VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-			nullptr,
-			0,
-			1,
-			_descriptorSetLayout.get_ptr(),
-			0,    /// @todo push constants
-			nullptr
-		};
-
-		lassert(vkCreatePipelineLayout(Application::context()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
-	}
+	void create_layout();
 
 	/**
 	 * @brief create all the shaders

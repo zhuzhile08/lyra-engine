@@ -11,9 +11,10 @@
 
 #pragma once
 
-#include <vk_mem_alloc.h>
+#include <core/core.h>
 #include <core/rendering/vulkan/devices.h>
 
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -24,10 +25,16 @@ namespace lyra {
 struct VulkanGPUMemory {
 	VulkanGPUMemory() { };
 
-	virtual ~VulkanGPUMemory() {
-		vmaFreeMemory(device->allocator(), _memory);
+	/**
+	 * @brief destructor of the memory
+	 */
+	virtual ~VulkanGPUMemory();
 
-		Logger::log_debug(Logger::tab(), "Successfully destroyed VMA Memory!");
+	/**
+	 * @brief manually destroy the memory
+	 */
+	void destroy() {
+		this->~VulkanGPUMemory();
 	}
 
 	VulkanGPUMemory operator=(const VulkanGPUMemory&) const noexcept = delete;
@@ -40,20 +47,7 @@ struct VulkanGPUMemory {
 	 * 
 	 * @return const VmaAllocationCreateInfo
 	 */
-	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(const VulkanDevice* const device, const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept {
-		this->device = device;
-
-		return {
-			0,
-			usage,
-			requiredFlags,
-			0,
-			0,
-			0,
-			nullptr,
-			0
-		}; // the rest is absolutely useless
-	}
+	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(const VulkanDevice* const device, const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept;
 
 	VmaAllocation _memory = VK_NULL_HANDLE;
 

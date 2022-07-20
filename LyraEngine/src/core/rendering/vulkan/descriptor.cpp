@@ -1,5 +1,9 @@
 #include <core/rendering/vulkan/descriptor.h>
 
+#include <core/logger.h>
+
+#include <core/rendering/vulkan/vulkan_shader.h>
+
 namespace lyra {
 
 void VulkanDescriptorSetLayout::create(const Builder builder) {

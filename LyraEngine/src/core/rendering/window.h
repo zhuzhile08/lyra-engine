@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <core/defines.h>
+#include <core/core.h>
 #include <core/queue_types.h>
 #include <core/settings.h>
 #include <math/math.h>

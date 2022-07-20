@@ -11,9 +11,7 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <res/loaders/load_file.h>
-#include <core/rendering/vulkan/devices.h>
+#include <core/core.h>
 #include <core/logger.h>
 
 #include <vulkan/vulkan.h>
@@ -60,16 +58,12 @@ public:
 		TYPE_MESH = 0x00000080,
 	}; // I totally didn't steal these names from the API, why would I?
 
-	VulkanShader();
+	VulkanShader() { }
 
 	/**
 	* @brief destructor of the shader
 	**/
-	virtual ~VulkanShader() noexcept {
-		vkDestroyShaderModule(device->device(), _module, nullptr);
-
-		Logger::log_info("Successfully destroyed loaded Vulkan shader!");
-	}
+	virtual ~VulkanShader() noexcept;
 
 	/**
 	 * @brief destroy the shader

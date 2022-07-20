@@ -11,15 +11,7 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <core/logger.h>
-#include <core/queue_types.h>
-#include <core/rendering/vulkan/command_buffer.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/sync_objects.h>
-#include <core/rendering/vulkan/instance.h>
-#include <core/rendering/vulkan/swapchain.h>
-#include <core/rendering/window.h>
+#include <core/core.h>
 
 #include <vector>
 
@@ -32,16 +24,12 @@ namespace lyra {
  */
 class Context {
 public:
-	Context();
+	Context() { }
 
 	/**
 	 * @brief destructor of the context
 	 */
-	~Context() noexcept {
-		_device.wait();
-
-		Logger::log_info("Successfully destroyed application context!");
-	}
+	~Context() noexcept;
 
 	/**
 	 * @brief destroy the context
@@ -65,9 +53,7 @@ public:
 	 *
 	 * @param queue queue to wait for
 	 */
-	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-		lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
-	}
+	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
 
 	/**
 	 * @brief add a function to the rendering queue
@@ -75,7 +61,7 @@ public:
 	 * @param function the function
 	*/
 	void add_to_render_queue(std::function<void()>&& function) {
-		_renderQueue.add(std::move(function));
+		_renderQueue->add(std::move(function));
 	}
 	/**
 	 * @brief add a function to the update queue
@@ -83,7 +69,7 @@ public:
 	 * @param function the function
 	*/
 	void add_to_update_queue(std::function<void()>&& function) {
-		_renderQueue.add(std::move(function));
+		_renderQueue->add(std::move(function));
 	}
 	/**
 	 * @brief add a function to the recreate queue
@@ -91,7 +77,7 @@ public:
 	 * @param function the function
 	*/
 	void add_to_recreate_queue(std::function<void()>&& function) {
-		_recreateQueue.add(std::move(function));
+		_recreateQueue->add(std::move(function));
 	}
 
 	/**
@@ -102,56 +88,32 @@ public:
 	/**
 	 * @brief update all the members
 	*/
-	void update() const { _updateQueue.flush(); }
+	void update() const { _updateQueue->flush(); }
 
-	/**
-	 * @brief get the instance
-	 *
-	 * @return const lyra::VulkanInstance* const
-	*/
-	[[nodiscard]] const VulkanInstance* const instance() const noexcept { return &_instance; }
 	/**
 	 * @brief get the device
 	 * 
 	 * @return const lyra::VulkanDevice* const
 	*/
-	[[nodiscard]] const VulkanDevice* const device() const noexcept { return &_device; }
+	[[nodiscard]] const VulkanDevice* const device() const noexcept { return _device; }
 	/**
 	 * @brief get the command pool
 	 * 
 	 * @return const lyra::VulkanCommandPool* const
 	*/
-	[[nodiscard]] const VulkanCommandPool* const commandPool() const noexcept { return &_commandPool; }
+	[[nodiscard]] const VulkanCommandPool* const commandPool() const noexcept { return _commandPool; }
 	/**
 	 * @brief get the command buffers
 	 *
 	 * @return constCommandBufferManager* const
 	*/
-	[[nodiscard]] CommandBufferManager* const commandBuffers() noexcept { return &_commandBuffers; }
+	[[nodiscard]] CommandBufferManager* const commandBuffers() noexcept { return _commandBuffers; }
 	/**
-	 * @brief get the swapchain
+	 * @brief get the vulkanWindow
 	 * 
-	 * @return const lyra::VulkanSwapchain* const
+	 * @return const lyra::VulkanWindow* const
 	*/
-	[[nodiscard]] const VulkanSwapchain* const swapchain() const noexcept { return &_swapchain; }
-	/**
-	 * @brief get the queue with the draw calls
-	 * 
-	 * @return const CallQueue* const
-	*/
-	[[nodiscard]] const CallQueue* const renderQueue() const noexcept { return &_renderQueue; }
-	/**
-	 * @brief get the queue with the update functions
-	 *
-	 * @return const CallQueue* const
-	*/
-	[[nodiscard]] const CallQueue* const updateQueue() const noexcept { return &_updateQueue; }
-	/**
-	 * @brief get the queue with the recreate functions
-	 *
-	 * @return const CallQueue* const
-	*/
-	[[nodiscard]] const CallQueue* const recreateQueue() const noexcept { return &_recreateQueue; }
+	[[nodiscard]] const VulkanWindow* const vulkanWindow() const noexcept { return _vulkanWindow; }
 	/**
 	 * @brief get the current frame count
 	 * 
@@ -172,16 +134,14 @@ public:
 	[[nodiscard]] const CommandBuffer currentCommandBuffer() const noexcept { return _currentCommandBuffer; }
 
 private:
-	VulkanInstance _instance;
-	VulkanDevice _device;
-	VulkanCommandPool _commandPool;
-	CommandBufferManager _commandBuffers;
-	VulkanSyncObjects _syncObjects;
-	VulkanSwapchain _swapchain;
+	VulkanDevice* _device;
+	VulkanCommandPool* _commandPool;
+	CommandBufferManager* _commandBuffers;
+	VulkanWindow* _vulkanWindow;
 
-	CallQueue _updateQueue;
-	CallQueue _renderQueue;
-	CallQueue _recreateQueue;
+	CallQueue* _updateQueue;
+	CallQueue* _renderQueue;
+	CallQueue* _recreateQueue;
 
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;

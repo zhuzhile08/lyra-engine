@@ -61,21 +61,16 @@ add_library(LyraEngine
  "src/math/math.cpp"
  "src/math/vulkan/compute_pipeline.cpp"
  "src/components/graphics/camera.cpp"
- "src/core/rendering/window.cpp"
- "src/core/rendering/gui_context.cpp"       # engine GUI
- "src/graphics/renderer.cpp"
  "src/graphics/graphics_pipeline.cpp"
  "src/components/mesh/mesh.cpp"
  "src/graphics/texture.cpp"
- "src/core/rendering/context.cpp"
- "src/core/rendering/vulkan_core_wrappers.cpp"
+ "src/core/core.cpp"
  "src/res/loaders.cpp"
  "src/lyra.cpp"
- "src/core/settings.cpp"
  "src/graphics/asset_manager.cpp" 
- "src/core/logger.cpp"
  "src/components/gameObj.cpp" 
- "src/core/rendering/vulkan/vulkan_pipeline.cpp"  "src/components/component_manager.cpp" "src/core/rendering/vulkan/command_pool.cpp")
+ "src/components/component_manager.cpp" 
+ "src/components/mesh/mesh_renderer.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 

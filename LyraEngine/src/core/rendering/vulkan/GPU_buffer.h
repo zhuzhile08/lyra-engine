@@ -11,11 +11,8 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/command_buffer.h>
+#include <core/core.h>
 #include <core/rendering/vulkan/GPU_memory.h>
-#include <core/logger.h>
 
 #include <cstring>
 #include <vector>
@@ -29,16 +26,12 @@ namespace lyra {
  */
 class VulkanGPUBuffer : private VulkanGPUMemory {
 public:
-	VulkanGPUBuffer();
+	VulkanGPUBuffer() { }
 
 	/**
 	 * @brief destructor of the buffer
 	 */
-	virtual ~VulkanGPUBuffer() noexcept {
-		vkDestroyBuffer(device->device(), _buffer, nullptr);
-
-		Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
-	}
+	virtual ~VulkanGPUBuffer() noexcept;
 
 	/**
 	 * @brief destroy the buffer
@@ -72,12 +65,7 @@ public:
 	 * @param src data to copy into the buffer
 	 * @param copySize size of the data to copy, default is the size of the buffer memory
 	 */
-	void copy_data(const void* const src, const size_t copySize = 0) {
-		void* data;
-		lassert(vmaMapMemory(device->allocator(), _memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(_memory), "!");
-		memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
-		vmaUnmapMemory(device->allocator(), _memory);
-	}
+	void copy_data(const void* const src, const size_t copySize = 0);
 
 	/**
 	 * @brief get the information in a buffer for descriptor sets

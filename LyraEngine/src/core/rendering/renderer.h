@@ -12,14 +12,7 @@
 #pragma once
 
 #include <lyra.h>
-#include <core/defines.h>
-#include <core/logger.h>
-#include <core/queue_types.h>
-#include <core/rendering/vulkan/command_buffer.h>
-#include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/vulkan/framebuffers.h>
-#include <core/rendering/vulkan/GPU_buffer.h>
-#include <core/rendering/context.h>
+#include <core/core.h>
 
 #include <vector>
 
@@ -42,7 +35,9 @@ public:
 	/**
 	 * @brief destroy the renderer
 	 */
-	void destroy() noexcept;
+	void destroy() noexcept {
+		this->~Renderer();
+	}
 
 	Renderer operator=(const Renderer&) const noexcept = delete;
 
@@ -78,18 +73,35 @@ public:
 	 * @return lyra::CallQueue* const
 	*/
 	[[nodiscard]] const CallQueue* const drawQueue() const noexcept { return &_drawQueue; }
+
+	/**
+	 * @brief get the render pass
+	 *
+	 * @return const VkRenderPass&
+	*/
+	[[nodiscard]] const VkRenderPass& renderPass() const noexcept { return _renderPass; }
 	/**
 	 * @brief get the framebuffers
-	 * 
-	 * @return const lyra::VulkanFramebuffers* const
+	 *
+	 * @return const std::vector <VkFramebuffer>&
 	*/
-	[[nodiscard]] const VulkanFramebuffers* const framebuffers() const noexcept { return &_framebuffers; }
+	[[nodiscard]] const std::vector <VkFramebuffer>& framebuffers() const noexcept { return _framebuffers; }
 
 protected:
-	VulkanFramebuffers _framebuffers;
+	VkRenderPass _renderPass = VK_NULL_HANDLE;
+	std::vector <VkFramebuffer> _framebuffers;
 
 	CallQueue _drawQueue;
 	CallQueue _updateQueue;
+
+	/**
+	 * @brief create the render pass
+	 */
+	void create_render_pass();
+	/**
+	 * @brief create the framebuffers
+	 */
+	void create_framebuffers();
 
 	/**
 	 * @brief record all the commands

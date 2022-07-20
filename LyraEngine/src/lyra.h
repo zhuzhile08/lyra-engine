@@ -13,6 +13,7 @@
 #pragma once
 
 #include <init/init_SDL.h>
+#include <core/rendering/vulkan/devices.h>
 #include <core/rendering/window.h>
 #include <core/rendering/context.h>
 #include <core/logger.h>
