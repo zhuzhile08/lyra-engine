@@ -2,19 +2,49 @@
 
 namespace lyra {
 
-Mesh::Mesh() { }
-
-void Mesh::destroy() noexcept {
-	this->~Mesh();
+// vertex
+const VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() noexcept {
+	return {
+		0,
+		sizeof(Vertex),
+		VK_VERTEX_INPUT_RATE_VERTEX
+	};
 }
 
+const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() noexcept {
+	return {
+		{{
+			0,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, pos)
+		},
+		{
+			1,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, normal)
+		},
+		{
+			2,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, color)
+		},
+		{
+			3,
+			0,
+			VK_FORMAT_R32G32B32_SFLOAT,
+			offsetof(Vertex, uv)
+		}}
+	};
+}
+
+// mesh
 void Mesh::create(const char* path, const uint16 index) {
 	Logger::log_info("Creating Mesh... ");
 
 	create_mesh(load_model(path), index);
-
-	create_vertex_buffer();
-	create_index_buffer();
 
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
@@ -23,27 +53,7 @@ void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32
 	_vertices = vertices;
 	_indices = indices;
 
-	create_vertex_buffer();
-	create_index_buffer();
-
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
-}
-
-void Mesh::bind(Camera* const camera) noexcept {
-	camera->add_to_draw_queue(FUNC_PTR(
-		vkCmdBindPipeline(
-			Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, 
-			_material->pipeline()->bindPoint(), _material->pipeline()->pipeline()
-		);
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, 0, 1, &_vertexBuffer.buffer(), offsets);
-		vkCmdBindIndexBuffer(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
-		vkCmdBindDescriptorSets(
-			Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, 
-			_material->pipeline()->bindPoint(), _material->pipeline()->layout(), 0, 1, _material->descriptor()->get_ptr(), 0, nullptr
-		);
-		vkCmdDrawIndexed(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, static_cast<uint32>(_indices.size()), 1, 0, 0, 0);
-		));
 }
 
 void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {
@@ -128,34 +138,6 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index)
 		break;
 
 	}
-}
-
-void Mesh::create_vertex_buffer() {
-	// create the staging buffer
-	VulkanGPUBuffer stagingBuffer;
-	stagingBuffer.create(Application::context()->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-	stagingBuffer.copy_data(_vertices.data());
-
-	// create the vertex buffer
-	_vertexBuffer.create(Application::context()->device(), sizeof(_vertices[0]) * _vertices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-	// copy the buffer
-	_vertexBuffer.copy(Application::context()->commandPool(), &stagingBuffer);
-}
-
-void Mesh::create_index_buffer() {
-	// create the staging buffer
-	VulkanGPUBuffer stagingBuffer;
-	stagingBuffer.create(Application::context()->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-	stagingBuffer.copy_data(_indices.data());
-
-	// create the vertex buffer
-	_indexBuffer.create(Application::context()->device(), sizeof(_indices[0]) * _indices.size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-	// copy the buffer
-	_indexBuffer.copy(Application::context()->commandPool(), &stagingBuffer);
 }
 
 } // namespace lyra
