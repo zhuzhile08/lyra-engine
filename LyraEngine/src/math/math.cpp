@@ -26,19 +26,6 @@ template<class Ty> Ty bezier(std::vector<Ty> points, float value) {
 	bezier<Ty>(remaining_points, value);
 }
 
-/** 
-const float FPS() {
-	auto startTime = std::chrono::high_resolution_clock::now();
-
-	auto currentTime = std::chrono::high_resolution_clock::now();
-	return 1.f/std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count()/1000.f;
-}
-
-const float deltaTime() {
-	return 1/FPS();
-}
-*/
-
 float randDoub(const float x, const float y) {
 	int precision = rand() % 1000000 + 100;			// calculate the precision
 	/**
@@ -48,6 +35,18 @@ float randDoub(const float x, const float y) {
 	 * at last it will be added to the lower limit because everything else is calculated without it in mind
 	 */
 	return x + float(rand() % precision) * (y - x)/precision;
+}
+
+void alignPointer(void* address, const uint8_t alignment, const uint8_t mode) {
+	address = (mode == 1) ? (void*)((reinterpret_cast<uintptr_t>(address) + static_cast<uintptr_t>(alignment - 1)) & static_cast<uintptr_t>(~(alignment - 1))) :
+		(void*)(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(~(alignment - 1)));
+}
+
+const uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode) {
+	uint8_t adjustment = (mode == 1) ? alignment - (reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(alignment - 1)) : 
+		(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(alignment - 1));
+
+	return adjustment;
 }
 
 }
