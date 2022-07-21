@@ -73,4 +73,30 @@ template<class Ty> [[nodiscard]] Ty bezier(std::vector<Ty> points, float value);
  */
 [[nodiscard]] float randFloat(const float x, const float y);
 
+// pointer alignment mode
+enum AlignMode : uint8_t {
+	ALIGN_FORWARD,
+	ALIGH_BACKWARD
+};
+
+/**
+ * @brief align a address to a memory aligment
+ *
+ * @param address address
+ * @param alignment alignment
+ * @param mode align mode
+ */
+void alignPointer(void* address, const uint8_t alignment, const uint8_t mode = 0);
+
+/**
+ * @brief calculate by how many bytes the address has to be shifted to be aligned
+ *
+ * @param address address
+ * @param alignment alignment
+ * @param mode align mode
+ *
+ * @return const uint8_t
+ */
+[[nodiscard]] const uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode = 0);
+
 } // namespace lyra
