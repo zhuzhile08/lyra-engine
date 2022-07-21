@@ -25,10 +25,15 @@ typedef int16_t int16;
 typedef int32_t int32;
 typedef int64_t int64;
 
-// core vulkan wrappers
+// pointer types
+
+typedef uintptr_t uptr;
 
 // command buffer index type
-typedef uint32 CommandBuffer;
+typedef uint32_t CommandBuffer;
+
+
+// core vulkan wrappers
 
 class VulkanDevice;
 class VulkanWindow;
@@ -53,8 +58,8 @@ class GUIContext;
 // low level utility
 class CallQueue;
 class BaseAllocator;
-class AllocatorLinear;
-class AllocatorStack;
-class AllocatorPool;
+class LinearAllocator;
+class StackAllocator;
+class PoolAllocator;
 
 } // namespace lyra
