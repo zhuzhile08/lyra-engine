@@ -11,21 +11,22 @@
 
 #pragma once
 
-#include <core/rendering/vulkan/command_buffer.cpp>
-#include <core/rendering/vulkan/descriptor.cpp>
-#include <core/rendering/vulkan/devices.cpp>
-#include <core/rendering/vulkan/GPU_buffer.cpp>
-#include <core/rendering/vulkan/GPU_memory.cpp>
-#include <core/rendering/vulkan/vulkan_image.cpp>
-#include <core/rendering/vulkan/vulkan_pipeline.cpp>
-#include <core/rendering/vulkan/vulkan_shader.cpp>
-#include <core/rendering/vulkan/vulkan_window.cpp>
+#include "rendering/vulkan/command_buffer.cpp"
+#include "rendering/vulkan/descriptor.cpp"
+#include "rendering/vulkan/devices.cpp"
+#include "rendering/vulkan/GPU_buffer.cpp"
+#include "rendering/vulkan/GPU_memory.cpp"
+#include "rendering/vulkan/vulkan_image.cpp"
+#include "rendering/vulkan/vulkan_pipeline.cpp"
+#include "rendering/vulkan/vulkan_shader.cpp"
+#include "rendering/vulkan/vulkan_window.cpp"
 
-#include <core/rendering/context.cpp>
-#include <core/rendering/gui_context.cpp>
-#include <core/rendering/renderer.cpp>
-#include <core/rendering/window.cpp>
+#include "rendering/context.cpp"
+#include "rendering/gui_context.cpp"
+#include "rendering/renderer.cpp"
+#include "rendering/window.cpp"
 
-// #include <core/allocators.cpp>
-#include <core/logger.cpp>
-#include <core/settings.cpp>
+#include "logger.cpp"
+#include "settings.cpp"
+
+#include "allocators.cpp"

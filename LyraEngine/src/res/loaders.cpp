@@ -11,6 +11,6 @@
 
 #pragma once
 
-#include <res/loaders/load_assets.cpp>
-#include <res/loaders/load_file.cpp>
-#include <res/loaders/load_model.cpp>
+#include "loaders/load_assets.cpp"
+#include "loaders/load_file.cpp"
+#include "loaders/load_model.cpp"
