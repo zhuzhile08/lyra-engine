@@ -22,6 +22,14 @@ void Context::create(Window* const window) {
 
 	this->window = window;
 
+	_device = new VulkanDevice;
+	_commandPool = new VulkanCommandPool;
+	_commandBuffers = new CommandBufferManager;
+	_vulkanWindow = new VulkanWindow;
+	_updateQueue = new CallQueue;
+	_renderQueue = new CallQueue;
+	_recreateQueue = new CallQueue;
+
 	_device->create(window);
 	_commandPool->create(_device);
 	_commandBuffers->create(_device, _commandPool);

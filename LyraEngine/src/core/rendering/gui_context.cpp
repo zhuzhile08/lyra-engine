@@ -19,6 +19,10 @@ namespace gui {
 GUIContext::GUIContext() {
 	Logger::log_info("Creating context for the GUI... ");
 
+	_descriptorPool = new VulkanDescriptorPool;
+	_renderer = new Renderer;
+	_drawQueue = new CallQueue;
+
 	// information about the descriptor pool
 	VulkanDescriptorPool::Builder builder;
 	builder.add_pool_sizes({

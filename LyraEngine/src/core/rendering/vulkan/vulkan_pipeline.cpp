@@ -63,6 +63,9 @@ void VulkanPipeline::create_shaders(std::vector<ShaderCreationInfo> shaderCreati
 }
 
 void VulkanPipeline::create_descriptor_stuff(Builder builder) {
+	_descriptorSetLayout = new VulkanDescriptorSetLayout;
+	_descriptorPool = new VulkanDescriptorPool;
+
 	// configure the builders using the custom pipeline builder
 	VulkanDescriptorSetLayout::Builder layoutBuilder; // layout
 	layoutBuilder.bindings = builder.bindings;

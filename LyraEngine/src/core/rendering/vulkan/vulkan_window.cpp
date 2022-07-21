@@ -25,6 +25,12 @@ VulkanWindow::~VulkanWindow() noexcept {
 void VulkanWindow::create(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window) {
 	Logger::log_info("Creating Vulkan swapchain...");
 
+	_colorImage = new VulkanImage;
+	_colorMem = new VulkanGPUMemory;
+
+	_depthImage = new VulkanImage;
+	_depthMem = new VulkanGPUMemory;
+
 	this->device = device;
 	this->window = window;
 	this->commandBufferManager = commandBufferManager;
@@ -36,6 +42,7 @@ void VulkanWindow::create(const VulkanDevice* const device, CommandBufferManager
 }
 
 void VulkanWindow::recreate() {
+	Logger::log_info("Recreating Vulkan swapchain...");
 	// wait until all commands are done executing
 	vkDeviceWaitIdle(device->device());
 
