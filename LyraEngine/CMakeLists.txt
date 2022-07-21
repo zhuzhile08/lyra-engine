@@ -14,7 +14,7 @@ set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake) # temporary
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
-set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/)
+set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 # find path to libraries
 find_package(SDL2 REQUIRED)
