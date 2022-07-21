@@ -15,10 +15,13 @@ namespace lyra {
 Renderer::Renderer() {
 	Logger::log_info("Creating Renderer...");
 
+	create_render_pass();
+	create_framebuffers();
+
 	const_cast<Context*>(Application::context())->add_to_recreate_queue(FUNC_PTR(
 		destroy();
-		create_framebuffers();
 		create_render_pass();
+		create_framebuffers();
 	));
 
 	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
