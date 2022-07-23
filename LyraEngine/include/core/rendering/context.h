@@ -57,28 +57,22 @@ public:
 
 	/**
 	 * @brief add a function to the rendering queue
-	 * 
+	 *
 	 * @param function the function
 	*/
-	void add_to_render_queue(std::function<void()>&& function) {
-		_renderQueue->add(std::move(function));
-	}
+	void add_to_render_queue(std::function<void()>&& function);
 	/**
 	 * @brief add a function to the update queue
 	 *
 	 * @param function the function
 	*/
-	void add_to_update_queue(std::function<void()>&& function) {
-		_renderQueue->add(std::move(function));
-	}
+	void add_to_update_queue(std::function<void()>&& function);
 	/**
 	 * @brief add a function to the recreate queue
 	 *
 	 * @param function the function
 	*/
-	void add_to_recreate_queue(std::function<void()>&& function) {
-		_recreateQueue->add(std::move(function));
-	}
+	void add_to_recreate_queue(std::function<void()>&& function);
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -88,7 +82,7 @@ public:
 	/**
 	 * @brief update all the members
 	*/
-	void update() const { _updateQueue->flush(); }
+	void update() const;
 
 	/**
 	 * @brief get the device
@@ -164,9 +158,7 @@ private:
 	/**
 	 * @brief update the frame count
 	 */
-	void update_frame_count() noexcept {
-		_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
-	}
+	void update_frame_count() noexcept;
 };
 
 } // namespace Vulkan

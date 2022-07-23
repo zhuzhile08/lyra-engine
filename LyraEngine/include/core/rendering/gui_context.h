@@ -37,9 +37,7 @@ public:
 	 * 
 	 * @param func function to add as a function pointer
 	*/
-	void add_draw_call(std::function<void()>&& func) {
-		_drawQueue->add(std::move(func));
-	}
+	void add_draw_call(std::function<void()>&& func);
 
 	/**
 	 * @brief get the descriptor pool local to the GUI context

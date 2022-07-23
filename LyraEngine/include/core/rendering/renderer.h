@@ -44,35 +44,21 @@ public:
 	/**
 	 * @brief bind the functions for resetting and finish recording the command buffers
 	 */
-	void bind() noexcept {
-		Application::context()->add_to_update_queue([&]() { _updateQueue.flush(); });
-		Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
-	}
+	void bind() noexcept;
 
 	/**
 	 * @brief add a function to the draw queue
 	 * 
 	 * @param function functio to add
 	*/
-	void add_to_draw_queue(std::function<void()>&& function) {
-		_drawQueue.add(std::move(function));
-	}
+	void add_to_draw_queue(std::function<void()>&& function);
 
 	/**
 	 * @brief add a function to the draw queue
 	 *
 	 * @param function functio to add
 	*/
-	void add_to_update_queue(std::function<void()>&& function) {
-		_updateQueue.add(std::move(function));
-	}
-
-	/**
-	 * @brief get the draw queue
-	 * 
-	 * @return lyra::CallQueue* const
-	*/
-	[[nodiscard]] const CallQueue* const drawQueue() const noexcept { return &_drawQueue; }
+	void add_to_update_queue(std::function<void()>&& function);
 
 	/**
 	 * @brief get the render pass
@@ -91,8 +77,8 @@ protected:
 	VkRenderPass _renderPass = VK_NULL_HANDLE;
 	std::vector <VkFramebuffer> _framebuffers;
 
-	CallQueue _drawQueue;
-	CallQueue _updateQueue;
+	CallQueue* _drawQueue;
+	CallQueue* _updateQueue;
 
 	/**
 	 * @brief create the render pass

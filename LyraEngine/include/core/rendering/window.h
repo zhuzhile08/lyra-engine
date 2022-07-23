@@ -14,14 +14,8 @@
 #pragma once
 
 #include <core/core.h>
-#include <core/queue_types.h>
-#include <core/settings.h>
-#include <math/math.h>
-#include <core/logger.h>
-#include <backends/imgui_impl_sdl.h>
 
 #include <SDL.h>
-#include <SDL_error.h>
 
 namespace lyra {
 
@@ -43,11 +37,7 @@ public:
 	/**
 	* @brief destructor of the window
 	**/
-	virtual ~Window() noexcept {
-		SDL_DestroyWindow(_window);
-
-		Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
-	}
+	virtual ~Window() noexcept;
 
 	/**
 	 * @brief destroy the window
@@ -82,9 +72,7 @@ public:
 	 *
 	 * @param function the function
 	*/
-	void check_events(std::function<void()>&& function) {
-		_eventQueue.add(std::move(function));
-	}
+	void check_events(std::function<void()>&& function);
 
 	/**
 	 * @brief wait until an event was detected
@@ -122,7 +110,7 @@ private:
 	SDL_Window* _window;
 	SDL_Event _event;
 
-	CallQueue _eventQueue;
+	CallQueue* _eventQueue;
 
 	bool _fullscreen = false;
 	bool _running = true;
