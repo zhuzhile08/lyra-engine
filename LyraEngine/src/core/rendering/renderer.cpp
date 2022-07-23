@@ -15,11 +15,14 @@ namespace lyra {
 Renderer::Renderer() {
 	Logger::log_info("Creating Renderer...");
 
+	_drawQueue = new CallQueue;
+	_updateQueue = new CallQueue;
 	create_render_pass();
 	create_framebuffers();
 
 	const_cast<Context*>(Application::context())->add_to_recreate_queue(FUNC_PTR(
-		destroy();
+		for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::context()->device()->device(), framebuffer, nullptr);
+		vkDestroyRenderPass(Application::context()->device()->device(), _renderPass, nullptr);
 		create_render_pass();
 		create_framebuffers();
 	));
@@ -28,10 +31,25 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() noexcept {
+	delete _drawQueue;
+	delete _updateQueue;
 	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::context()->device()->device(), framebuffer, nullptr);
 	vkDestroyRenderPass(Application::context()->device()->device(), _renderPass, nullptr);
 
 	Logger::log_info("Successfully destroyed a renderer!");
+}
+
+void Renderer::bind() noexcept {
+	Application::context()->add_to_update_queue([&]() { _updateQueue->flush(); });
+	Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
+}
+
+void Renderer::add_to_draw_queue(std::function<void()>&& function) {
+	_drawQueue->add(std::move(function));
+}
+
+void Renderer::add_to_update_queue(std::function<void()>&& function) {
+	_updateQueue->add(std::move(function));
 }
 
 void Renderer::create_render_pass() {
@@ -176,7 +194,7 @@ void Renderer::record_command_buffers() const {
 
 	vkCmdBeginRenderPass(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-	_drawQueue.flush();
+	_drawQueue->flush();
 
 	vkCmdEndRenderPass(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer);
 }

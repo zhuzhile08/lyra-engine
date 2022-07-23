@@ -176,9 +176,10 @@ void VulkanDevice::create_instance() {
 		SDLExtensions
 	};
 
-
 	// create the instance
 	lassert(vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+
+	delete[] SDLExtensions;
 }
 
 void VulkanDevice::pick_physical_device() {

@@ -28,6 +28,9 @@ void VulkanPipeline::Builder::add_bindings(std::vector<std::tuple<const uint32, 
 
 // pipeline
 VulkanPipeline::~VulkanPipeline() noexcept {
+	delete _descriptorPool;
+	delete _descriptorSetLayout;
+
 	vkDestroyPipeline(Application::context()->device()->device(), _pipeline, nullptr);
 	vkDestroyPipelineLayout(Application::context()->device()->device(), _layout, nullptr);
 	_shaders.clear();

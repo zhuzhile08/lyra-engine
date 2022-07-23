@@ -45,7 +45,18 @@ void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize cons
 void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
 	void* data;
 	lassert(vmaMapMemory(device->allocator(), _memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(_memory), "!");
+
+	/**  
+	const char* s = (char*)src;
+	char* d = (char*)data;
+
+	for(size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(_size) : copySize; i++) d[i] = s[i];
+
+	data = std::move(d);
+	*/
+
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
+
 	vmaUnmapMemory(device->allocator(), _memory);
 }
 

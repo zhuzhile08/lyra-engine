@@ -14,6 +14,14 @@ namespace lyra {
 Context::~Context() {
 	_device->wait();
 
+	delete _recreateQueue;
+	delete _renderQueue;
+	delete _updateQueue;
+	delete _vulkanWindow;
+	delete _commandBuffers;
+	delete _commandPool;
+	delete _device;
+
 	Logger::log_info("Successfully destroyed application context!");
 }
 
@@ -40,6 +48,22 @@ void Context::create(Window* const window) {
 
 void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
 	lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
+}
+
+void Context::add_to_render_queue(std::function<void()>&& function) {
+	_renderQueue->add(std::move(function));
+}
+
+void Context::add_to_update_queue(std::function<void()>&& function) {
+	_renderQueue->add(std::move(function));
+}
+
+void Context::add_to_recreate_queue(std::function<void()>&& function) {
+	_recreateQueue->add(std::move(function));
+}
+
+void Context::update() const {
+	_updateQueue->flush();
 }
 
 void Context::draw() {
@@ -124,6 +148,10 @@ void Context::present_device_queue() {
 		_vulkanWindow->recreate();
 		_recreateQueue->flush();
 	}
+}
+
+void Context::update_frame_count() noexcept {
+	_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
 }
 
 } // namespace lyra

@@ -10,11 +10,17 @@
 namespace lyra {
 
 VulkanWindow::~VulkanWindow() noexcept {
+	delete _colorImage;
+	delete _colorMem;
+	delete _depthImage;
+	delete _depthMem;
+
 	for (int i = 0; i < _imageAvailableSemaphores.size(); i++) { // sync objects
 		vkDestroySemaphore(device->device(), _renderFinishedSemaphores.at(i), nullptr);
 		vkDestroySemaphore(device->device(), _imageAvailableSemaphores.at(i), nullptr);
 		vkDestroyFence(device->device(), _inFlightFences.at(i), nullptr);
 	}
+	for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(device->device(), _views.at(i), nullptr);
 	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr); // swapchain and old swapchain
 	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
 	vkDestroySurfaceKHR(device->instance(), _surface, nullptr); // window surface

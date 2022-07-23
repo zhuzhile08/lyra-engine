@@ -91,9 +91,16 @@ GUIContext::GUIContext() {
 }
 
 GUIContext::~GUIContext() {
+	delete _descriptorPool;
+	delete _renderer;
+	delete _drawQueue;
 	ImGui_ImplVulkan_Shutdown();
 
 	lyra::Logger::log_info("Successfully destroyed GUI context!");
+}
+
+void GUIContext::add_draw_call(std::function<void()>&& func) {
+	_drawQueue->add(std::move(func));
 }
 
 void GUIContext::bind() {
