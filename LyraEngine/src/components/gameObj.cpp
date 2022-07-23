@@ -29,41 +29,39 @@ void GameObject::look_at(glm::vec3 target, glm::vec3 up) {
 }
 
 void GameObject::calculate_roation_mat() {
-	glm::mat4 mat1, mat2, mat3;
+	glm::mat4 mat1, mat2;
 
 	// are you proud of me, Yandere Dev?
 	if (_rotationOrder == RotationOrder::ROTATION_XYZ || _rotationOrder == RotationOrder::ROTATION_XZY) {
 		mat1 = glm::rotate(glm::mat4{ 1 }, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
 		if (_rotationOrder == RotationOrder::ROTATION_XYZ) {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
-			mat3 = glm::rotate(mat2, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
+			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
 		} else {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
-			mat3 = glm::rotate(mat2, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
+			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
 		}
 	} else if (_rotationOrder == RotationOrder::ROTATION_YZX || _rotationOrder == RotationOrder::ROTATION_YXZ) {
 		mat1 = glm::rotate(glm::mat4{ 1 }, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
 		if (_rotationOrder == RotationOrder::ROTATION_YXZ) {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
-			mat3 = glm::rotate(mat2, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
+			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
 		}
 		else {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
-			mat3 = glm::rotate(mat2, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
+			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
 		}
 	} else {
 		mat1 = glm::rotate(glm::mat4{ 1 }, glm::radians(_rotation[2]), {0.0f, 0.0f, 1.0f});
 		if (_rotationOrder == RotationOrder::ROTATION_ZXY) {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
-			mat3 = glm::rotate(mat2, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
+			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
 		}
 		else {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
-			mat3 = glm::rotate(mat2, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
+			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
 		}
 	} // yeah, the maximum amount of if statements this has to go through is 4. Every. Single. Frame.
-
-	_localTransformMatrix *= mat3;
 }
 
 } // namespace lyra

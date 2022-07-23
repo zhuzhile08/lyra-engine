@@ -110,6 +110,8 @@ private:
 		const VulkanCommandPool* commandPool;
 	};
 
+	friend class Context;
+
 public:
 	CommandBufferManager() { }
 

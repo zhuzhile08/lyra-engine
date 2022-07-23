@@ -71,26 +71,26 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index)
 
 				// calculate positions
 				vertex.pos = {
-					loaded.vertices.vertices[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0],
-					loaded.vertices.vertices[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1],
-					loaded.vertices.vertices[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2]
+					loaded.vertices.vertices.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0),
+					loaded.vertices.vertices.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1),
+					loaded.vertices.vertices.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2)
 				};
 				// calculate normals
 				vertex.normal = {
-					loaded.vertices.normals[3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 0],
-					loaded.vertices.normals[3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 1],
-					loaded.vertices.normals[3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 2]
-				};
-				// calculate UV coordinates
-				vertex.uv = {
-					loaded.vertices.texcoords[2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 0],
-					loaded.vertices.texcoords[2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 1]
+					loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 0),
+					loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 1),
+					loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 2)
 				};
 				// calcualte vertex color
 				vertex.color = {
-					loaded.vertices.colors[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0],
-					loaded.vertices.colors[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1],
-					loaded.vertices.colors[3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2]
+					loaded.vertices.colors.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0),
+					loaded.vertices.colors.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1),
+					loaded.vertices.colors.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2)
+				};
+				// calculate UV coordinates
+				vertex.uv = {
+					loaded.vertices.texcoords.at(2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 0),
+					1.0f - loaded.vertices.texcoords.at(2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 1)
 				};
 
 				// add the vertex to the list
@@ -108,26 +108,26 @@ void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index)
 
 			// calculate positions
 			vertex.pos = {
-				loaded.vertices.vertices[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0],
-				loaded.vertices.vertices[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1],
-				loaded.vertices.vertices[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2]
+				loaded.vertices.vertices.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0),
+				loaded.vertices.vertices.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1),
+				loaded.vertices.vertices.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2)
 			};
 			// calculate normals
 			vertex.normal = {
-				loaded.vertices.normals[3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 0],
-				loaded.vertices.normals[3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 1],
-				loaded.vertices.normals[3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 2]
-			};
-			// calculate UV coordinates
-			vertex.uv = {
-				loaded.vertices.texcoords[2 * loaded.shapes.at(index).mesh.indices.at(i).texcoord_index + 0],
-				loaded.vertices.texcoords[2 * loaded.shapes.at(index).mesh.indices.at(i).texcoord_index + 1]
+				loaded.vertices.normals.at(3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 0),
+				loaded.vertices.normals.at(3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 1),
+				loaded.vertices.normals.at(3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 2)
 			};
 			// calcualte vertex color
 			vertex.color = {
-				loaded.vertices.colors[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0],
-				loaded.vertices.colors[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1],
-				loaded.vertices.colors[3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2]
+				loaded.vertices.colors.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0),
+				loaded.vertices.colors.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1),
+				loaded.vertices.colors.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2)
+			};
+			// calculate UV coordinates
+			vertex.uv = {
+				loaded.vertices.texcoords.at(2 * loaded.shapes.at(index).mesh.indices.at(i).texcoord_index + 0),
+				1.0f - loaded.vertices.texcoords.at(2 * loaded.shapes.at(index).mesh.indices.at(i).texcoord_index + 1)
 			};
 
 			// add the vertex to the list

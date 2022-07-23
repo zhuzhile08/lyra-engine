@@ -17,19 +17,21 @@ Camera::Camera() {
 }
 
 void Camera::set_perspective(float fov, float near, float far) noexcept {
+	_projection = Projection::PROJECTION_PERSPECTIVE;
 	_fov = fov;
 	_near = near;
 	_far = far;
 }
 
 void Camera::set_orthographic(glm::vec4 viewport, float near, float far) noexcept {
+	_projection = Projection::PROJECTION_ORTHOGRAPHIC;
 	_viewport = viewport;
 	_near = near;
 	_far = far;
 }
 
 void Camera::draw(CameraData data) {
-	if (_projection = Projection::PROJECTION_PERSPECTIVE) data.proj = glm::perspective(glm::radians(_fov), Settings::Window::width / (float) Settings::Window::height, _near, _far);
+	if (_projection == Projection::PROJECTION_PERSPECTIVE) data.proj = glm::perspective(glm::radians(_fov), Settings::Window::width / (float) Settings::Window::height, _near, _far);
 	else data.proj = glm::ortho(_viewport[0], _viewport[1] + _viewport[0], _viewport[2], _viewport[3] + _viewport[2], _near, _far);
 	data.proj[1][1] *= -1;
 
