@@ -45,15 +45,10 @@ template<typename _Ty> uint32 arr_size(const _Ty* array) {
  * 
  * @return std::string 
 */
-template<typename _Ty> [[nodiscard]] inline std::string get_address(const _Ty type);
+template<typename _Ty> [[nodiscard]] inline const void* get_address(const _Ty type);
 
-template<typename _Ty> std::string get_address(const _Ty type) {
-	const void* address = static_cast<const void*>(type);
-
-	std::stringstream ss; // black magic
-	ss << address;
-
-	return std::string ("0x") + ss.str();
+template<typename _Ty> const void* get_address(const _Ty type) {
+	return static_cast<const void*>(type);
 }
 
 /**
