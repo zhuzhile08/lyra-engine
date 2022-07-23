@@ -18,17 +18,18 @@ void MeshRenderer::create(const Mesh* const mesh, const Material* const material
 void MeshRenderer::bind(Camera* const camera) noexcept {
 	camera->add_to_draw_queue(FUNC_PTR(
 		vkCmdBindPipeline(
-			Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer,
+			Application::context()->activeCommandBuffer(),
 			_material->pipeline()->bindPoint(), _material->pipeline()->pipeline()
 		);
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, 0, 1, &_vertexBuffer.buffer(), offsets);
-	vkCmdBindIndexBuffer(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
-	vkCmdBindDescriptorSets(
-		Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer,
-		_material->pipeline()->bindPoint(), _material->pipeline()->layout(), 0, 1, _material->descriptor()->get_ptr(), 0, nullptr
-	);
-	vkCmdDrawIndexed(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, static_cast<uint32>(_mesh->indices().size()), 1, 0, 0, 0);
+
+		VkDeviceSize offsets[] = { 0 };
+		vkCmdBindVertexBuffers(Application::context()->activeCommandBuffer(), 0, 1, &_vertexBuffer.buffer(), offsets);
+		vkCmdBindIndexBuffer(Application::context()->activeCommandBuffer(), _indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindDescriptorSets(
+			Application::context()->activeCommandBuffer(),
+			_material->pipeline()->bindPoint(), _material->pipeline()->layout(), 0, 1, _material->descriptor()->get_ptr(), 0, nullptr
+		);
+		vkCmdDrawIndexed(Application::context()->activeCommandBuffer(), static_cast<uint32>(_mesh->indices().size()), 1, 0, 0, 0);
 	));
 }
 

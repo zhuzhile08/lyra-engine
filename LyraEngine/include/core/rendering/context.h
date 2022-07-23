@@ -99,9 +99,15 @@ public:
 	/**
 	 * @brief get the command buffers
 	 *
-	 * @return constCommandBufferManager* const
+	 * @return const lyra::CommandBufferManager* const
 	*/
 	[[nodiscard]] CommandBufferManager* const commandBuffers() noexcept { return _commandBuffers; }
+	/**
+	 * @brief get the current active command buffer
+	 *
+	 * @return const VkCommandBuffer&
+	*/
+	[[nodiscard]] const VkCommandBuffer& activeCommandBuffer() noexcept;
 	/**
 	 * @brief get the vulkanWindow
 	 * 

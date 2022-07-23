@@ -192,11 +192,11 @@ void Renderer::record_command_buffers() const {
 		clear
 	};
 
-	vkCmdBeginRenderPass(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(Application::context()->activeCommandBuffer(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	_drawQueue->flush();
 
-	vkCmdEndRenderPass(Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer);
+	vkCmdEndRenderPass(Application::context()->activeCommandBuffer());
 }
 
 } // namespace lyra

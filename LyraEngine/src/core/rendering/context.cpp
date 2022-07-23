@@ -66,6 +66,10 @@ void Context::update() const {
 	_updateQueue->flush();
 }
 
+const VkCommandBuffer& Context::activeCommandBuffer() noexcept { 
+	return _commandBuffers->commandBuffer(_currentCommandBuffer)->commandBuffer; 
+}
+
 void Context::draw() {
 	// wait for the already recorded stuff to finish executing
 	_vulkanWindow->wait(_currentFrame); 

@@ -114,7 +114,7 @@ void GUIContext::bind() {
 		_drawQueue->flush();
 
 		ImGui::Render(); 
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->commandBuffers()->commandBuffer(Application::context()->currentCommandBuffer())->commandBuffer);
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::context()->activeCommandBuffer());
 		));
 }
 
