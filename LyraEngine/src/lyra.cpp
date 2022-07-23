@@ -13,7 +13,7 @@ void Application::init() noexcept {
 
 void Application::draw() {
 	while (_window.running()) {
-		_lastTime = _currentTime;
+		_lastTime = std::move(_currentTime);
 
 		_window.events();
 		_context.update();
@@ -24,8 +24,6 @@ void Application::draw() {
 		// framerate calculation
 		_deltaTime = (_currentTime - _lastTime) * 0.001f;
 		_fps = 1.0f / (float)_deltaTime;
-
-		Logger::log_debug("FPS: ", _fps);
 	}
 
 	_context.device()->wait();
