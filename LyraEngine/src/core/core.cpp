@@ -9,8 +9,6 @@
  * @copyright Copyright (c) 2022 Zhile Zhu
  *************************/
 
-#pragma once
-
 #include "rendering/vulkan/command_buffer.cpp"
 #include "rendering/vulkan/descriptor.cpp"
 #include "rendering/vulkan/devices.cpp"
