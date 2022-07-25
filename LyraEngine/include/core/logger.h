@@ -73,7 +73,15 @@ private:
 	}
 
 public:
+	/**
+	 * @brief initialize the logger
+	 */
 	static void init();
+
+	/**
+	 * @brief quit logging
+	 */
+	static void quit();
 
 	/**
 	 * @brief log normal messages
@@ -202,11 +210,6 @@ public:
 
 	[[nodiscard]] static const char* end_l() {
 		return "\n";
-	}
-
-	~Logger() noexcept {
-		clear_buffer();
-		_logFile.close();
 	}
 
 private:

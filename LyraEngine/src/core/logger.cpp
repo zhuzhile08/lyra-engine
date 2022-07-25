@@ -9,6 +9,11 @@ void Logger::init() {
 	_logFile.open("data/log/log.txt", std::ofstream::out | std::ofstream::trunc); // because I kinda can't use the logger functionality in here, you just have to hope that this doesn't throw an error
 }
 
+void Logger::quit() {
+	clear_buffer();
+	_logFile.close();
+}
+
 void Logger::clear_buffer() {
 	set_color_default();
 	std::cout << std::endl;
