@@ -14,8 +14,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <lyra.h>
-#include <components/node.h>
-#include <components/spatial.h>
+#include <nodes/node.h>
+#include <nodes/spatial.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/renderer.h>
 #include <core/settings.h>

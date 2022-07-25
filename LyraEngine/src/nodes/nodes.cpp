@@ -1,8 +1,8 @@
 /*************************
- * @file   components.cpp
+ * @file   nodes.cpp
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief  include all component definitions for ease of use and convenience
+ * @brief  include all node definitions for ease of use and convenience
  * 
  * @date   2022-24-7
  * 

@@ -163,7 +163,7 @@ protected:
 	std::unordered_map <std::string, _Tp*> _children;
 };
 
-// components
+// nodes
 
 class Spatial;
 

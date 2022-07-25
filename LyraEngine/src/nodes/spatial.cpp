@@ -1,4 +1,4 @@
-#include <components/spatial.h>
+#include <nodes/spatial.h>
 
 #include <gtc/matrix_transform.hpp>
 #include <gtx/matrix_decompose.hpp>

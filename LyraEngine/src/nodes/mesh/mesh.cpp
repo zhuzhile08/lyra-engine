@@ -1,4 +1,4 @@
-#include <components/mesh/mesh.h>
+#include <nodes/mesh/mesh.h>
 
 #include <core/defines.h>
 

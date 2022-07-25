@@ -13,8 +13,8 @@
 #pragma once
 
 #include <core/core.h>
-#include <components/node.h>
-#include <components/spatial.h>
+#include <nodes/node.h>
+#include <nodes/spatial.h>
 
 #include <res/loaders/load_model.h>
 

@@ -1,4 +1,4 @@
-#include <components/graphics/camera.h>
+#include <nodes/graphics/camera.h>
 
 #include <core/logger.h>
 #include <core/defines.h>

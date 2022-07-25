@@ -12,7 +12,7 @@
 #pragma once
 
 #include <core/core.h>
-#include <components/node.h>
+#include <nodes/node.h>
 #include <graphics/material.h>
 
 #include <vector>

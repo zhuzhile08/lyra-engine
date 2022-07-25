@@ -60,17 +60,13 @@ add_library(LyraEngine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
  "src/math/vulkan/compute_pipeline.cpp"
- "src/components/graphics/camera.cpp"
  "src/graphics/graphics_pipeline.cpp"
- "src/components/mesh/mesh.cpp"
  "src/graphics/texture.cpp"
  "src/core/core.cpp"
  "src/res/loaders.cpp"
  "src/lyra.cpp"
- "src/graphics/asset_manager.cpp" 
- "src/components/gameObj.cpp" 
- "src/components/component_manager.cpp" 
- "src/components/mesh/mesh_renderer.cpp")
+ "src/graphics/asset_manager.cpp"
+ "src/nodes/nodes.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 
@@ -83,6 +79,7 @@ PRIVATE
     <fstream>
     <deque>
     <string>
+    <map>
     <unordered_map>
     <array>
     <math.h>

@@ -18,8 +18,8 @@
 #include <core/rendering/vulkan/vulkan_pipeline.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
-#include <components/mesh/mesh.h>
-#include <components/graphics/camera.h>
+#include <nodes/mesh/mesh.h>
+#include <nodes/graphics/camera.h>
 #include <core/logger.h>
 #include <lyra.h>
 

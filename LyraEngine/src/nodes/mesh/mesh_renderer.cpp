@@ -1,8 +1,8 @@
-#include <components/mesh/mesh_renderer.h>
+#include <nodes/mesh/mesh_renderer.h>
 
-#include <components/mesh/mesh.h>
+#include <nodes/mesh/mesh.h>
 
-#include <components/graphics/camera.h>
+#include <nodes/graphics/camera.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 
 namespace lyra {
