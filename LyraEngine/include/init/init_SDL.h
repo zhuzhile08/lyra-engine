@@ -11,13 +11,6 @@
 
 #pragma once
 
-#include <SDL.h>
-
-#include <core/defines.h>
-
-#include <core/logger.h>
-#include <SDL_error.h>
-
 namespace lyra {
 
 /**

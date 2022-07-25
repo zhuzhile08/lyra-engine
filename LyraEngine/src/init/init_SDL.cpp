@@ -1,5 +1,10 @@
 #include <init/init_SDL.h>
 
+#include <SDL.h>
+
+#include <core/logger.h>
+#include <SDL_error.h>
+
 namespace lyra {
 
 void init_SDL() {

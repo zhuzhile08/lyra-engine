@@ -12,26 +12,18 @@
 
 #pragma once
 
-#include <init/init_SDL.h>
 #include <core/settings.h>
-#include <core/rendering/vulkan/devices.h>
+
 #include <core/rendering/window.h>
 #include <core/rendering/context.h>
-#include <core/logger.h>
-#include <core/defines.h>
 
-#include <deque>
+#include <core/rendering/vulkan/devices.h>
 
 namespace lyra {
 
 // @brief wrapper around a every basic component of an application
 class Application {
 public: // behold, peasant, my superior "singleton" architecture
-	/**
-	 * @brief destructor of the window
-	**/
-	~Application() noexcept { quit_SDL(); }
-
 	Application() noexcept = delete;
 	Application(const Application&) noexcept = delete;
 	Application operator=(const Application&) const noexcept = delete;
@@ -44,17 +36,12 @@ public: // behold, peasant, my superior "singleton" architecture
 	/**
 	 * @brief quit the application
 	 */
-	static void quit() { _window.quit(); }
+	static void quit();
 
 	/**
 	 * @brief draw the current frame
 	*/
 	static void draw();
-	
-	/**
-	 * @brief add a function to the update queue
-	 */
-	static void add_to_update_queue(std::function<void()>&& function) { _context.add_to_update_queue(std::move(function)); }
 
 	/**
 	 * @brief get the fps

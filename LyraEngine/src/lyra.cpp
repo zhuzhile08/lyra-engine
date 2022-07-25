@@ -1,11 +1,23 @@
 #include <lyra.h>
 
+#include <init/init_SDL.h>
+#include <core/logger.h>
+
 namespace lyra {
+
+void Application::quit() { 
+	_window.quit(); 
+	quit_SDL();
+	Logger::quit();
+}
 
 void Application::init() noexcept {
 	Logger::init();
 	Settings::init();
 	init_SDL();
+
+	//_window = new Window;
+	//_context = new Context;
 
 	_window.create();
 	_context.create(&_window);
