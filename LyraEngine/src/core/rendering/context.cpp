@@ -5,7 +5,7 @@
 #include <core/queue_types.h>
 
 #include <core/rendering/window.h>
-#include <core/rendering/vulkan/devices.h>
+#include <core/rendering/renderer.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_window.h>
 
@@ -14,9 +14,6 @@ namespace lyra {
 Context::~Context() {
 	_device->wait();
 
-	delete _recreateQueue;
-	delete _renderQueue;
-	delete _updateQueue;
 	delete _vulkanWindow;
 	delete _commandBuffers;
 	delete _commandPool;
@@ -34,36 +31,26 @@ void Context::create(Window* const window) {
 	_commandPool = new VulkanCommandPool;
 	_commandBuffers = new CommandBufferManager;
 	_vulkanWindow = new VulkanWindow;
-	_updateQueue = new CallQueue;
-	_renderQueue = new CallQueue;
-	_recreateQueue = new CallQueue;
 
 	_device->create(window);
 	_commandPool->create(_device);
 	_commandBuffers->create(_device, _commandPool);
 	_vulkanWindow->create(_device, _commandBuffers, window);
+	_renderers.reserve(4);
 
 	Logger::log_info("Successfully created context for the application at: ", get_address(this), "!", Logger::end_l());
 }
 
-void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
-	lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
-}
-
-void Context::add_to_render_queue(std::function<void()>&& function) {
-	_renderQueue->add(std::move(function));
-}
-
-void Context::add_to_update_queue(std::function<void()>&& function) {
-	_renderQueue->add(std::move(function));
-}
-
-void Context::add_to_recreate_queue(std::function<void()>&& function) {
-	_recreateQueue->add(std::move(function));
+void Context::add_renderer(Renderer* const renderer) {
+	_renderers.push_back(renderer);
 }
 
 void Context::update() const {
-	_updateQueue->flush();
+	for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->_updateQueue->flush();
+}
+
+void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
+	lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
 }
 
 const VkCommandBuffer& Context::activeCommandBuffer() noexcept { 
@@ -78,7 +65,7 @@ void Context::draw() {
 	// get the next image to render on
 	if (vkAcquireNextImageKHR(_device->device(), _vulkanWindow->swapchain(), UINT64_MAX, _vulkanWindow->imageAvailableSemaphores()[_currentFrame], VK_NULL_HANDLE, &_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		_vulkanWindow->recreate();
-		_recreateQueue->flush();
+		for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->recreate();
 		return;
 	}
 
@@ -97,7 +84,7 @@ void Context::draw() {
 	_commandBuffers->begin(_currentCommandBuffer, 0);
 
 	// call the draw calls
-	_renderQueue->flush();
+	for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->record_command_buffers();
 
 	// end recording the command buffer
 	_commandBuffers->end(_currentCommandBuffer);
@@ -150,7 +137,7 @@ void Context::present_device_queue() {
 		}
 
 		_vulkanWindow->recreate();
-		_recreateQueue->flush();
+		for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->recreate();
 	}
 }
 

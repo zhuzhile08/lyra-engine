@@ -84,8 +84,6 @@ GUIContext::GUIContext() {
 	const_cast<Window*>(Application::window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Application::window()->event()); ));
 	// bind to the renderer
 	bind();
-	// bind the renderer
-	_renderer->bind();
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }

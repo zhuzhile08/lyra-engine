@@ -13,6 +13,8 @@
 
 #include <core/core.h>
 
+#include <core/rendering/vulkan/devices.h>
+
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -54,25 +56,6 @@ public:
 	 * @param queue queue to wait for
 	 */
 	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
-
-	/**
-	 * @brief add a function to the rendering queue
-	 *
-	 * @param function the function
-	*/
-	void add_to_render_queue(std::function<void()>&& function);
-	/**
-	 * @brief add a function to the update queue
-	 *
-	 * @param function the function
-	*/
-	void add_to_update_queue(std::function<void()>&& function);
-	/**
-	 * @brief add a function to the recreate queue
-	 *
-	 * @param function the function
-	*/
-	void add_to_recreate_queue(std::function<void()>&& function);
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -139,9 +122,7 @@ private:
 	CommandBufferManager* _commandBuffers;
 	VulkanWindow* _vulkanWindow;
 
-	CallQueue* _updateQueue;
-	CallQueue* _renderQueue;
-	CallQueue* _recreateQueue;
+	std::vector<Renderer*> _renderers;
 
 	uint8 _currentFrame = 0;
 	uint32 _imageIndex;
@@ -149,6 +130,14 @@ private:
 	CommandBuffer _currentCommandBuffer;
 
 	Window* window;
+
+
+	/**
+	 * @brief add a renderer to the vector of renderers
+	 *
+	 * @param renderer renderer
+	*/
+	void add_renderer(Renderer* const renderer);
 
 	/**
 	 * @brief present all the recorded commands
@@ -165,6 +154,8 @@ private:
 	 * @brief update the frame count
 	 */
 	void update_frame_count() noexcept;
+
+	friend class Renderer;
 };
 
 } // namespace Vulkan

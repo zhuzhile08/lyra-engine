@@ -20,12 +20,7 @@ Renderer::Renderer() {
 	create_render_pass();
 	create_framebuffers();
 
-	const_cast<Context*>(Application::context())->add_to_recreate_queue(FUNC_PTR(
-		for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::context()->device()->device(), framebuffer, nullptr);
-		vkDestroyRenderPass(Application::context()->device()->device(), _renderPass, nullptr);
-		create_render_pass();
-		create_framebuffers();
-	));
+	Application::context()->add_renderer(this);
 
 	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
 }
@@ -33,15 +28,17 @@ Renderer::Renderer() {
 Renderer::~Renderer() noexcept {
 	delete _drawQueue;
 	delete _updateQueue;
-	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::context()->device()->device(), framebuffer, nullptr);
-	vkDestroyRenderPass(Application::context()->device()->device(), _renderPass, nullptr);
+	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::context()->_device->device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
+	vkDestroyRenderPass(Application::context()->_device->device(), _renderPass, nullptr);
 
 	Logger::log_info("Successfully destroyed a renderer!");
 }
 
-void Renderer::bind() noexcept {
-	Application::context()->add_to_update_queue([&]() { _updateQueue->flush(); });
-	Application::context()->add_to_render_queue([&]() { record_command_buffers(); });
+void Renderer::recreate() {
+	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::context()->_device->device(), framebuffer, nullptr);
+	vkDestroyRenderPass(Application::context()->_device->device(), _renderPass, nullptr);
+	create_render_pass();
+	create_framebuffers();
 }
 
 void Renderer::add_to_draw_queue(std::function<void()>&& function) {
@@ -56,8 +53,8 @@ void Renderer::create_render_pass() {
 	// define what to do with an image during rendering
 	VkAttachmentDescription colorAttachmentDescriptions{
 		0,
-		Application::context()->vulkanWindow()->format(),
-		Application::context()->vulkanWindow()->maxMultisamples(),
+		Application::context()->_vulkanWindow->format(),
+		Application::context()->_vulkanWindow->maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -69,8 +66,8 @@ void Renderer::create_render_pass() {
 	// depth buffers
 	VkAttachmentDescription	depthBufferAttachmentDescriptions{
 		0,
-		Application::context()->vulkanWindow()->depthBufferFormat(),
-		Application::context()->vulkanWindow()->maxMultisamples(),
+		Application::context()->_vulkanWindow->depthBufferFormat(),
+		Application::context()->_vulkanWindow->maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -82,7 +79,7 @@ void Renderer::create_render_pass() {
 	// "finalise" the image to render
 	VkAttachmentDescription colorAttachmentFinalDescriptions{ // Nanashi became Dagdas personal game engine programmer
 		0,
-		Application::context()->vulkanWindow()->format(),
+		Application::context()->_vulkanWindow->format(),
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_STORE,
@@ -145,17 +142,17 @@ void Renderer::create_render_pass() {
 		&dependencies
 	};
 
-	lassert(vkCreateRenderPass(Application::context()->device()->device(), &renderPassInfo, nullptr, &_renderPass) == VK_SUCCESS, "Failed to create Vulkan render pass!");
+	lassert(vkCreateRenderPass(Application::context()->_device->device(), &renderPassInfo, nullptr, &_renderPass) == VK_SUCCESS, "Failed to create Vulkan render pass!");
 }
 
 void Renderer::create_framebuffers() {
-	_framebuffers.resize(Application::context()->vulkanWindow()->images().size());
+	_framebuffers.resize(Application::context()->_vulkanWindow->images().size());
 
-	for (int i = 0; i < Application::context()->vulkanWindow()->images().size(); i++) {
+	for (int i = 0; i < Application::context()->_vulkanWindow->images().size(); i++) {
 		std::array<VkImageView, 3> attachments = {
-			Application::context()->vulkanWindow()->colorImage()->_view,
-			Application::context()->vulkanWindow()->depthImage()->_view,
-			Application::context()->vulkanWindow()->views().at(i)
+			Application::context()->_vulkanWindow->colorImage()->_view,
+			Application::context()->_vulkanWindow->depthImage()->_view,
+			Application::context()->_vulkanWindow->views().at(i)
 		};
 
 		// create the frame buffers
@@ -166,12 +163,12 @@ void Renderer::create_framebuffers() {
 			_renderPass,
 			static_cast<uint32>(attachments.size()),
 			attachments.data(),
-			Application::context()->vulkanWindow()->extent().width,
-			Application::context()->vulkanWindow()->extent().height,
+			Application::context()->_vulkanWindow->extent().width,
+			Application::context()->_vulkanWindow->extent().height,
 			1
 		};
 
-		lassert(vkCreateFramebuffer(Application::context()->device()->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) == VK_SUCCESS, "Failed to create a framebuffer!");
+		lassert(vkCreateFramebuffer(Application::context()->_device->device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) == VK_SUCCESS, "Failed to create a framebuffer!");
 	}
 }
 
@@ -183,10 +180,10 @@ void Renderer::record_command_buffers() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		_renderPass,
-		_framebuffers.at(Application::context()->imageIndex()),
+		_framebuffers.at(Application::context()->_imageIndex),
 		{	// rendering area
 			{ 0, 0 },
-			Application::context()->vulkanWindow()->extent()
+			Application::context()->_vulkanWindow->extent()
 		},
 		2, // hard coded
 		clear

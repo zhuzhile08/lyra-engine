@@ -42,11 +42,6 @@ public:
 	Renderer operator=(const Renderer&) const noexcept = delete;
 
 	/**
-	 * @brief bind the functions for resetting and finish recording the command buffers
-	 */
-	void bind() noexcept;
-
-	/**
 	 * @brief add a function to the draw queue
 	 * 
 	 * @param function functio to add
@@ -81,6 +76,10 @@ protected:
 	CallQueue* _updateQueue;
 
 	/**
+	 * @brief recreate the renderer
+	 */
+	void recreate();
+	/**
 	 * @brief create the render pass
 	 */
 	void create_render_pass();
@@ -93,6 +92,8 @@ protected:
 	 * @brief record all the commands
 	 */
 	void record_command_buffers() const;
+
+	friend class Context;
 };
 
 }
