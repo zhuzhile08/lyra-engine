@@ -1,5 +1,10 @@
 #include <components/graphics/camera.h>
 
+#include <core/logger.h>
+#include <core/defines.h>
+
+#include <gtc/matrix_transform.hpp>
+
 namespace lyra {
 
 Camera::Camera() {
@@ -8,9 +13,6 @@ Camera::Camera() {
 	// create the buffers
 	_buffers.resize(Settings::Rendering::maxFramesInFlight);
 	for (uint32 i = 0; i < _buffers.size(); i++) _buffers.at(i).create(Application::context()->device(), sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-	// bind the renderer
-	bind();
 
 	// add the update and draw functions into the queues
 	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());

@@ -14,27 +14,22 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <lyra.h>
-#include <components/gameObj.h>
+#include <components/node.h>
+#include <components/spatial.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/renderer.h>
 #include <core/settings.h>
-#include <core/logger.h>
-#include <core/defines.h>
-#include <core/queue_types.h>
-#include <math/math.h>
 
 #include <vector>
 
 #include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <vulkan/vulkan.h>
 
 namespace lyra {
 
 /**
  * @brief wrapper arond a uniform buffer object
  */
-class Camera : public Renderer {
+class Camera : public Renderer, public Spatial {
 public:
 	// projection mode of the camera
 	enum Projection {

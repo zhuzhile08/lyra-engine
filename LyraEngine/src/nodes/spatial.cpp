@@ -1,34 +1,40 @@
-#include <components/gameObj.h>
+#include <components/spatial.h>
+
+#include <gtc/matrix_transform.hpp>
+#include <gtx/matrix_decompose.hpp>
+#include <cmath>
 
 namespace lyra {
 
-void GameObject::set_position(glm::vec3 newPosition, Space space) noexcept {
+void Spatial::update() {
+	calculate_transform_mat();
+}
+
+void Spatial::set_position(glm::vec3 newPosition, Space space) noexcept {
 	if (space == Space::SPACE_LOCAL) {
 		_position = newPosition;
-	} else {
-		glm::vec4 tempVec = glm::vec4{ newPosition[0], newPosition[1], newPosition[2], 1.0f } * _localTransformMatrix;
+	}
+	else {
+		glm::vec4 tempVec = glm::vec4{ newPosition[0], newPosition[1], newPosition[2], 1.0f } *_localTransformMatrix;
 		_position = glm::vec3{ tempVec[0], tempVec[1], tempVec[2] };
 	}
-	_localTransformMatrix = glm::translate(glm::mat4(1.0f), _position);
 }
 
-void GameObject::set_rotation(glm::vec3 newRotation, Space space) noexcept {
+void Spatial::set_rotation(glm::vec3 newRotation, Space space) noexcept {
 	if (space == Space::SPACE_LOCAL) _rotation = newRotation;
 	else _rotation = newRotation - rotation_global();
-
-	calculate_roation_mat();
 }
 
-void GameObject::look_at(glm::vec3 target, glm::vec3 up) {
+void Spatial::look_at(glm::vec3 target, glm::vec3 up) {
 	_localTransformMatrix = glm::lookAt(_position, target, up);
 
 	// deconsturct the rotation matrix to get the new rotations
 	_rotation.x = glm::degrees(atan2(_localTransformMatrix[2][1], _localTransformMatrix[2][2]));
-	_rotation.y = glm::degrees(atan2(-_localTransformMatrix[2][0], sqrt(pow(_localTransformMatrix[0][0], 2) + pow(_localTransformMatrix[1][0], 2)))); 
+	_rotation.y = glm::degrees(atan2(-_localTransformMatrix[2][0], sqrt(pow(_localTransformMatrix[0][0], 2) + pow(_localTransformMatrix[1][0], 2))));
 	_rotation.z = glm::degrees(atan2(_localTransformMatrix[1][0], _localTransformMatrix[0][0]));
 }
 
-void GameObject::calculate_roation_mat() {
+void Spatial::calculate_transform_mat() {
 	glm::mat4 mat1, mat2;
 
 	// are you proud of me, Yandere Dev?
@@ -37,11 +43,13 @@ void GameObject::calculate_roation_mat() {
 		if (_rotationOrder == RotationOrder::ROTATION_XYZ) {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
 			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
-		} else {
+		}
+		else {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
 			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
 		}
-	} else if (_rotationOrder == RotationOrder::ROTATION_YZX || _rotationOrder == RotationOrder::ROTATION_YXZ) {
+	}
+	else if (_rotationOrder == RotationOrder::ROTATION_YZX || _rotationOrder == RotationOrder::ROTATION_YXZ) {
 		mat1 = glm::rotate(glm::mat4{ 1 }, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
 		if (_rotationOrder == RotationOrder::ROTATION_YXZ) {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
@@ -51,8 +59,9 @@ void GameObject::calculate_roation_mat() {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
 			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
 		}
-	} else {
-		mat1 = glm::rotate(glm::mat4{ 1 }, glm::radians(_rotation[2]), {0.0f, 0.0f, 1.0f});
+	}
+	else {
+		mat1 = glm::rotate(glm::mat4{ 1 }, glm::radians(_rotation[2]), { 0.0f, 0.0f, 1.0f });
 		if (_rotationOrder == RotationOrder::ROTATION_ZXY) {
 			mat2 = glm::rotate(mat1, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
 			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[1]), { 0.0f, 1.0f, 0.0f });
@@ -62,6 +71,9 @@ void GameObject::calculate_roation_mat() {
 			_localTransformMatrix *= glm::rotate(mat2, glm::radians(_rotation[0]), { 1.0f, 0.0f, 0.0f });
 		}
 	} // yeah, the maximum amount of if statements this has to go through is 4. Every. Single. Frame.
+
+	// calculate the translation
+	_localTransformMatrix *= glm::translate(glm::mat4(1.0f), _position);
 }
 
 } // namespace lyra

@@ -1,5 +1,7 @@
 #include <components/mesh/mesh.h>
 
+#include <core/defines.h>
+
 namespace lyra {
 
 // vertex

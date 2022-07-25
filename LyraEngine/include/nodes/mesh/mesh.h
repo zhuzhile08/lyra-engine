@@ -12,10 +12,11 @@
 
 #pragma once
 
-#include <core/defines.h>
+#include <core/core.h>
+#include <components/node.h>
+#include <components/spatial.h>
+
 #include <res/loaders/load_model.h>
-#include <components/graphics/camera.h>
-#include <core/rendering/vulkan/GPU_buffer.h>
 
 #include <vector>
 #include <glm.hpp>
@@ -26,7 +27,7 @@ namespace lyra {
 /**
  * @brief A mesh struct containing vertices, indecies and vertex and index buffers
  */
-class Mesh {
+class Mesh : public Spatial {
 public:
 	// vertex
 	struct Vertex {

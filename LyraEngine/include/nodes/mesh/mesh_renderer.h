@@ -11,12 +11,9 @@
 
 #pragma once
 
-#include <core/defines.h>
-#include <res/loaders/load_model.h>
-#include <components/graphics/camera.h>
-#include <core/rendering/vulkan/GPU_buffer.h>
+#include <core/core.h>
+#include <components/node.h>
 #include <graphics/material.h>
-#include <components/mesh/mesh.h>
 
 #include <vector>
 #include <glm.hpp>
@@ -27,7 +24,7 @@ namespace lyra {
 /**
  * @brief A mesh struct containing vertices, indecies and vertex and index buffers
  */
-class MeshRenderer {
+class MeshRenderer : public Node<Spatial> {
 public:
 	MeshRenderer() { }
 
