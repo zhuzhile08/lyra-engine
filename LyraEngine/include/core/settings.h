@@ -1,6 +1,6 @@
 #pragma once
 
-#include <core/defines.h>
+#include <core/util.h>
 #include <res/loaders/load_file.h>
 
 #include <json.hpp>
