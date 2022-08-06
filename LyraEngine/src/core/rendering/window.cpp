@@ -10,6 +10,8 @@
 namespace lyra {
 
 Window::~Window() noexcept {
+	_running = false;
+
 	delete _eventQueue;
 	SDL_DestroyWindow(_window);
 
@@ -50,7 +52,7 @@ void Window::events() noexcept {
 		// check for quitting
 		if (_event.type == SDL_QUIT)
 		{
-			quit();
+			_running = false;
 		}
 
 		if (_event.type == SDL_WINDOWEVENT) {

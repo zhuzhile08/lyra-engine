@@ -13,7 +13,9 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
+
+#include <functional>
 
 #include <SDL.h>
 
@@ -61,11 +63,6 @@ public:
 	 * @param event that is occuring
 	 */
 	void events() noexcept;
-
-	/**
-	 * @brief manually close the window
-	 */
-	void quit() noexcept { _running = false; }
 
 	/**
 	 * @brief add a function to the event queue
