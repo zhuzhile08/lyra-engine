@@ -1,63 +1,53 @@
-#include <core/rendering/context.h>
+#include <core/rendering/render_system.h>
 
 #include <core/logger.h>
 
 #include <core/queue_types.h>
 
-#include <core/rendering/window.h>
-#include <core/rendering/renderer.h>
+#include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_window.h>
+#include <core/rendering/window.h>
+#include <core/rendering/renderer.h>
 
 namespace lyra {
 
-Context::~Context() {
-	_device->wait();
-
-	delete _vulkanWindow;
-	delete _commandBuffers;
-	delete _commandPool;
-	delete _device;
-
-	Logger::log_info("Successfully destroyed application context!");
-}
-
-void Context::create(Window* const window) {
+RenderSystem::RenderSystem(Window* const window) : window(window) {
 	Logger::log_info("Creating context for application...");
 
-	this->window = window;
+	_device = std::make_shared<VulkanDevice>();
+	_commandPool = std::make_shared<VulkanCommandPool>();
+	_commandBuffers = std::make_shared<CommandBufferManager>();
+	_vulkanWindow = std::make_shared<VulkanWindow>();
 
-	_device = new VulkanDevice;
-	_commandPool = new VulkanCommandPool;
-	_commandBuffers = new CommandBufferManager;
-	_vulkanWindow = new VulkanWindow;
-
-	_device->create(window);
-	_commandPool->create(_device);
-	_commandBuffers->create(_device, _commandPool);
-	_vulkanWindow->create(_device, _commandBuffers, window);
 	_renderers.reserve(4);
 
 	Logger::log_info("Successfully created context for the application at: ", get_address(this), "!", Logger::end_l());
 }
 
-void Context::add_renderer(Renderer* const renderer) {
+RenderSystem::~RenderSystem() {
+	_device->wait();
+
+	Logger::log_info("Successfully destroyed application context!");
+}
+
+void RenderSystem::add_renderer(Renderer* const renderer) {
 	_renderers.push_back(renderer);
 }
 
-void Context::update() const {
+void RenderSystem::update() const {
 	for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->_updateQueue->flush();
 }
 
-void Context::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
+void RenderSystem::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {
 	lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
 }
 
-const VkCommandBuffer& Context::activeCommandBuffer() noexcept { 
+const VkCommandBuffer& RenderSystem::activeCommandBuffer() noexcept { 
 	return _commandBuffers->commandBuffer(_currentCommandBuffer)->commandBuffer; 
 }
 
-void Context::draw() {
+void RenderSystem::draw() {
 	// wait for the already recorded stuff to finish executing
 	_vulkanWindow->wait(_currentFrame); 
 	wait_device_queue(_device->presentQueue());
@@ -98,7 +88,7 @@ void Context::draw() {
 	update_frame_count();
 }
 
-void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
+void RenderSystem::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 	VkSubmitInfo submitInfo {
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
 	   nullptr,
@@ -115,7 +105,7 @@ void Context::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
 	vkQueueSubmit(_device->presentQueue().queue, 1, &submitInfo, _vulkanWindow->inFlightFences().at(_currentFrame));
 }
 
-void Context::present_device_queue() {
+void RenderSystem::present_device_queue() {
 	VkPresentInfoKHR presentInfo {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
@@ -141,7 +131,7 @@ void Context::present_device_queue() {
 	}
 }
 
-void Context::update_frame_count() noexcept {
+void RenderSystem::update_frame_count() noexcept {
 	_currentFrame = (_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
 }
 
