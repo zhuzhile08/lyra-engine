@@ -13,7 +13,7 @@
 
 #define GLM_FORCE_RADIANS
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <nodes/node.h>
 
 #include <glm.hpp>
