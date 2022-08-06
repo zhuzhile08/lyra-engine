@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 
 #include <math/math.h>
 #include <core/logger.h>
