@@ -21,7 +21,7 @@
 
 #include "rendering/asset_manager.cpp"
 #include "rendering/render_system.cpp"
-#include "rendering/gui_context.cpp"
+#include "rendering/gui_renderer.cpp"
 #include "rendering/graphics_pipeline.cpp"
 #include "rendering/material.cpp"
 #include "rendering/renderer.cpp"

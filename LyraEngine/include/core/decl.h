@@ -61,7 +61,7 @@ class Window;
 class Renderer;
 class RenderSystem;
 class GraphicsPipeline;
-class GUIContext;
+class GUIRenderer;
 class Material;
 class Texture;
 
