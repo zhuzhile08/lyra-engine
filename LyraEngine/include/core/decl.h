@@ -1,5 +1,5 @@
 /*************************
- * @file vulkan_wrappers.h
+ * @file decl.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief forward declare all core members
@@ -29,9 +29,16 @@ typedef int64_t int64;
 
 typedef uintptr_t uptr;
 
-// command buffer index type
-typedef uint32_t CommandBuffer;
+// vulkan command buffer index type
 
+typedef uint8_t CommandBuffer;
+
+// color
+struct Color {
+	uint8 r = 0, g = 0, b = 0, a = 0;
+};
+
+typedef Color Colour;
 
 // core vulkan wrappers
 
@@ -52,8 +59,11 @@ class VulkanPipeline;
 
 class Window;
 class Renderer;
-class Context;
+class RenderSystem;
+class GraphicsPipeline;
 class GUIContext;
+class Material;
+class Texture;
 
 // low level utility
 
