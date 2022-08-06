@@ -1,7 +1,7 @@
 #pragma once
 
 #include <res/loaders/load_file.h>
-#include <core/defines.h>
+#include <core/util.h>
 
 #include <core/logger.h>
 
