@@ -1,5 +1,5 @@
 /*************************
- * @file context.h
+ * @file render_system.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief a rendering system around the Vulkan API with basic features
@@ -11,8 +11,9 @@
 
 #pragma once
 
-#include <lyra.h>
-#include <core/core.h>
+#include <core/context.h>
+#include <core/decl.h>
+#include <core/queue_types.h>
 
 #include <vector>
 
@@ -72,8 +73,8 @@ protected:
 	VkRenderPass _renderPass = VK_NULL_HANDLE;
 	std::vector <VkFramebuffer> _framebuffers;
 
-	CallQueue* _drawQueue;
-	CallQueue* _updateQueue;
+	CallQueue _drawQueue;
+	CallQueue _updateQueue;
 
 	/**
 	 * @brief recreate the renderer
@@ -93,7 +94,7 @@ protected:
 	 */
 	void record_command_buffers() const;
 
-	friend class Context;
+	friend class RenderSystem;
 };
 
 }
