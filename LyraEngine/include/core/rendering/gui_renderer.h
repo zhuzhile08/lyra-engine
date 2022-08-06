@@ -1,8 +1,9 @@
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 
 #include <functional>
+#include <memory>
 
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
@@ -12,24 +13,24 @@ namespace lyra {
 
 namespace gui {
 
-// Context and Renderer of the ImGui extension
-class GUIContext {
+// Renderer for the ImGui extension
+class GUIRenderer {
 public:
 	/**
 	 * @brief initialize an instance of the Vulkan and SDL version of the Dear ImGui libary
 	*/
-	GUIContext();
+	GUIRenderer();
 
 	/**
 	* @brief destructor of the GUI context
 	*/
-	~GUIContext();
+	~GUIRenderer();
 
 	/**
 	 * @brief destroy an instance of the GUI context
 	*/
 	void destroy() {
-		this->~GUIContext();
+		this->~GUIRenderer();
 	}
 
 	/**
@@ -39,24 +40,11 @@ public:
 	*/
 	void add_draw_call(std::function<void()>&& func);
 
-	/**
-	 * @brief get the descriptor pool local to the GUI context
-	 * 
-	 * @return const lyra::VulkanDescriptorPool* const
-	*/
-	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return _descriptorPool; };
-	/**
-	 * @brief get the GUI renderer
-	 *
-	 * @return const lyra::Renderer* const
-	*/
-	[[nodiscard]] const Renderer* const renderer() const noexcept { return _renderer; };
-
 private:
-	VulkanDescriptorPool* _descriptorPool;
-	Renderer* _renderer;
+	std::unique_ptr<VulkanDescriptorPool> _descriptorPool;
+	std::unique_ptr<Renderer> _renderer;
 
-	CallQueue* _drawQueue;
+	std::unique_ptr<CallQueue> _drawQueue;
 
 	/**
 	 * @brief bind the GUI
