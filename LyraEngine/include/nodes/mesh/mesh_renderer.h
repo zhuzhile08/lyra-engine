@@ -11,9 +11,9 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <nodes/node.h>
-#include <graphics/material.h>
+#include <core/rendering/material.h>
 
 #include <vector>
 #include <glm.hpp>
@@ -28,15 +28,22 @@ class MeshRenderer : public Node<Spatial> {
 public:
 	MeshRenderer() { }
 
-	MeshRenderer operator=(const MeshRenderer&) const noexcept = delete;
-
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
 	 * @param mesh mesh
 	 * @param material material of the mesh
 	 */
-	void create(const Mesh* const mesh, const Material* const material);
+	MeshRenderer(
+		const Mesh* const mesh, 
+		const Material* const material,
+		const char* name = "MeshRenderer",
+		Spatial* parent = nullptr,
+		const bool visible = true,
+		const uint32 tag = 0
+	);
+
+	MeshRenderer operator=(const MeshRenderer&) const noexcept = delete;
 
 	/**
 	 * add the mesh and its buffers to the renderer draw queue
@@ -65,11 +72,11 @@ public:
 	[[nodiscard]] const Material* const material() const noexcept { return _material; }
 
 private:
-	VulkanGPUBuffer _vertexBuffer;
-	VulkanGPUBuffer _indexBuffer;
-
 	const Material* _material;
 	const Mesh* _mesh;
+
+	VulkanGPUBuffer _vertexBuffer;
+	VulkanGPUBuffer _indexBuffer;
 
 	/**
 	 * @brief create a vertex buffer

@@ -13,8 +13,7 @@
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#include <lyra.h>
-#include <nodes/node.h>
+#include <core/context.h>
 #include <nodes/spatial.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/renderer.h>
@@ -52,10 +51,30 @@ public:
 		glm::mat4 proj;
 	};
 
+	Camera() { }
+	
 	/**
-	 * @brief construct a new camera
-	*/
-	Camera();
+	 * @brief construct a camera node
+	 *
+	 * @param name name of the object
+	 * @param parent parent Node of the object
+	 * @param visible visibility of the object
+	 * @param tag optional tag of the object
+	 * @param position position of the object
+	 * @param rotation rotation of the object
+	 * @param scale scale of the object
+	 * @param rotationOrder order of the multiplication of the rotation matricies
+	 */
+	Camera(
+		const char* name = "Camera",
+		Spatial* parent = nullptr,
+		const bool visible = true,
+		const uint32 tag = 0,
+		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
+		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
+		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
+		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+	);
 
 	/**
 	 * @brief destroy the camera

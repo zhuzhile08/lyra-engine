@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <nodes/node.h>
 #include <nodes/spatial.h>
 
@@ -64,23 +64,45 @@ public:
 
 	Mesh() { }
 
-	Mesh operator=(const Mesh&) const noexcept = delete;
-
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
 	 * @param path path of the model
 	 * @param index index of the object in the model to load. Starts at 1, 0 is default
 	 */
-	void create(const char* path, const uint16 index = 0);
+	Mesh(
+		const char* path, 
+		const uint16 index = 0,
+		const char* name = "Mesh",
+		Spatial* parent = nullptr,
+		const bool visible = true,
+		const uint32 tag = 0,
+		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
+		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
+		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
+		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+	);
+
 	/**
-	 * @brief construct a new mesh with a custom model
-	 * @brief the vertices and indecies are user defined, which makes it perfect for generated meshes
+	 * @brief construct a new mesh with a custom ´mesh
 	 *
 	 * @param vertices the new vertices
 	 * @param indices the new indices
 	 */
-	void create(const std::vector <Vertex> vertices, const std::vector <uint32> indices);
+	Mesh(
+		const std::vector <Vertex> vertices, 
+		const std::vector <uint32> indices, 
+		const char* name = "Mesh",
+		Spatial* parent = nullptr,
+		const bool visible = true,
+		const uint32 tag = 0,
+		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
+		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
+		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
+		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+	);
+
+	Mesh operator=(const Mesh&) const noexcept = delete;
 
 	/**
 	 * @brief get the vertices

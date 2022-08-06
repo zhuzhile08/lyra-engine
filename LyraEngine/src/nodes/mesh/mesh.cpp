@@ -1,6 +1,6 @@
 #include <nodes/mesh/mesh.h>
 
-#include <core/defines.h>
+#include <core/util.h>
 
 namespace lyra {
 
@@ -43,7 +43,18 @@ const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribu
 }
 
 // mesh
-void Mesh::create(const char* path, const uint16 index) {
+Mesh::Mesh(
+	const char* path, 
+	const uint16 index, 
+	const char* name, 
+	Spatial* parent, 
+	const bool visible, 
+	const uint32 tag, 
+	const glm::vec3 position, 
+	const glm::vec3 rotation, 
+	const glm::vec3 scale, 
+	const RotationOrder rotationOrder
+) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder) {
 	Logger::log_info("Creating Mesh... ");
 
 	create_mesh(load_model(path), index);
@@ -51,7 +62,17 @@ void Mesh::create(const char* path, const uint16 index) {
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create(const std::vector <Vertex> vertices, const std::vector <uint32> indices) {
+Mesh::Mesh(
+	const std::vector <Vertex> vertices, 
+	const std::vector <uint32> indices, 
+	const char* name, Spatial* parent, 
+	const bool visible, 
+	const uint32 tag, 
+	const glm::vec3 position, 
+	const glm::vec3 rotation, 
+	const glm::vec3 scale, 
+	const RotationOrder rotationOrder
+) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), _vertices(vertices), _indices(_indices) {
 	_vertices = vertices;
 	_indices = indices;
 
