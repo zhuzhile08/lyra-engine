@@ -1,5 +1,5 @@
 /*************************
- * @file defines.h
+ * @file util.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief miscelanious functions
@@ -14,7 +14,7 @@
 
 #include <math/math.h>
 
-#include <core/core.h>
+#include <core/decl.h>
 
 #include <sstream>
 #include <string>
@@ -59,6 +59,8 @@ template<typename _Ty> const void* get_address(const _Ty type) {
  * @param dst destination vector
  * @param index index of the element
  */
+template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index);
+
 template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index) {
 	dst.push_back(std::move(src.at(index)));
 	src.erase(src.begin() + index);
