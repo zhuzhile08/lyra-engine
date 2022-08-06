@@ -11,12 +11,11 @@
 
 #pragma once
 
-#include <core/core.h>
-#include <core/defines.h>
+#include <core/decl.h>
+#include <core/util.h>
 #include <core/settings.h>
 
-#include <vector>
-#include <algorithm>
+#include <map>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -26,14 +25,17 @@ namespace lyra {
  */
 class VulkanCommandPool {
 public:
-
 	VulkanCommandPool() { }
-
+	/**
+	 * @brief create a Vulkan command pool to allocate the command buffers
+	 *
+	 * @param device device
+	 */
+	VulkanCommandPool(const VulkanDevice* const device);
 	/**
 	* @brief destructor of the command pool
 	**/
 	virtual ~VulkanCommandPool() noexcept;
-
 	/**
 	 * @brief destroy the command pool
 	 */
@@ -42,13 +44,6 @@ public:
 	}
 
 	VulkanCommandPool operator=(const VulkanCommandPool&) const noexcept = delete;
-
-	/**
-	 * @brief create a Vulkan command pool to allocate the command buffers
-	 *
-	 * @param device device
-	 */
-	void create(const VulkanDevice* const device);
 
 	/**
 	 * @brief reset the command buffer
@@ -73,18 +68,31 @@ private:
  */
 class CommandBufferManager {
 private:
+	// enum to see if command buffer is used or not
+	enum class CommandBufferUsage : unsigned int {
+		COMMAND_BUFFER_USED,
+		COMMAND_BUFFER_UNUSED
+	};
+
 	/**
 	 * @brief command buffer
 	 */
 	struct VulkanCommandBuffer {
 	public:
 		VulkanCommandBuffer() { }
+		/**
+		 * @brief create the Vulkan command buffers
+		 *
+		 * @param device device
+		 * @param commandPool command pool
+		 * @param level level of the command buffer
+		 */
+		VulkanCommandBuffer(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 		/**
 		* @brief destructor of the command buffer
 		**/
 		virtual ~VulkanCommandBuffer() noexcept;
-
 		/**
 		 * @brief destroy the command buffer
 		 */
@@ -94,15 +102,6 @@ private:
 
 		VulkanCommandBuffer operator=(const VulkanCommandBuffer&) const noexcept = delete;
 
-		/**
-		 * @brief create the Vulkan command buffers
-		 *
-		 * @param device device
-		 * @param commandPool command pool
-		 * @param level level of the command buffer
-		 */
-		void create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-
 		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 	
 	private:
@@ -110,16 +109,23 @@ private:
 		const VulkanCommandPool* commandPool;
 	};
 
-	friend class Context;
+	friend class RenderSystem;
 
 public:
 	CommandBufferManager() { }
+	/**
+	 * @brief create the command buffer manager
+	 *
+	 * @param device device
+	 * @param commandPool command pool
+	 * @param level level of the command buffers in the manager
+	 */
+	CommandBufferManager(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 	/**
 	 * @brief destructor of the command buffer manager
 	 **/
 	virtual ~CommandBufferManager() noexcept;
-
 	/**
 	 * @brief destroy the command buffer manager
 	 */
@@ -128,15 +134,6 @@ public:
 	}
 
 	CommandBufferManager operator=(const CommandBufferManager&) const noexcept = delete;
-
-	/**
-	 * @brief create the command buffer manager
-	 *
-	 * @param device device
-	 * @param commandPool command pool
-	 * @param level level of the command buffers in the manager
-	 */
-	void create(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 	/**
 	 * @brief begin recording a commandBuffer
@@ -170,10 +167,9 @@ public:
 	/**
 	 * @brief wait for the queue to finish
 	 *
-	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param queue the queue to wait for
 	*/
-	void wait_queue(const CommandBuffer cmdBuffer, const VkQueue queue) const;
+	void wait_queue(const VkQueue queue) const;
 
 	/**
 	 * @brief setup a pipeline barrier
@@ -196,7 +192,7 @@ public:
 		const VkDependencyFlags dependency = 0
 	) const {
 		vkCmdPipelineBarrier(
-			_commandBuffers.at(cmdBuffer).commandBuffer,
+			_commandBufferData.at(cmdBuffer).commandBuffer,
 			srcStageFlags,
 			dstStageFlags,
 			dependency,
@@ -212,27 +208,26 @@ public:
 	/**
 	 * @brief return the index of an unused pipeline
 	 */
-	[[nodiscard]] const CommandBuffer get_unused() { return _unused.at(0); };
+	[[nodiscard]] const CommandBuffer& get_unused() { 
+		for (auto& it : _commandBuffers) 
+			if (it.second == CommandBufferUsage::COMMAND_BUFFER_UNUSED) 
+				return it.first; 
+#ifdef _DEBUG
+		Logger::log_exception("Failed to get an unused command buffer from the command buffer manager at: ", get_address(this), "!");
+#endif
+		return 0;
+	};
 
 	/**
 	 * @brief get a command buffer at a specific index
-	 * 
+	 *
 	 * @param index index of the command buffer
 	 */
-	[[nodiscard]] const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBuffers.at(index); }
-	
-	/**
-	 * @brief get the vector with the command buffers
-	 * 
-	 * @return const std::vector<lyra::VulkanCommandBuffer>&
-	 */
-	[[nodiscard]] const std::vector<VulkanCommandBuffer>& commandBuffers() const noexcept { return _commandBuffers; }
+	[[nodiscard]] const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBufferData.at(index); }
 
 private:
-	std::vector<VulkanCommandBuffer> _commandBuffers { };
-
-	std::vector<CommandBuffer> _inUse { };
-	std::vector<CommandBuffer> _unused { };
+	std::vector<VulkanCommandBuffer> _commandBufferData;
+	std::unordered_map<CommandBuffer, CommandBufferUsage> _commandBuffers;
 };
 
 } // namespace lyra

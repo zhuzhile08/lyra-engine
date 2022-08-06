@@ -114,7 +114,7 @@ void VulkanImage::transition_layout(
 
 	// submit queues after recording
 	commandBufferManager->submit_queue(cmdBuff, device->graphicsQueue().queue);
-	commandBufferManager->wait_queue(cmdBuff, device->graphicsQueue().queue);
+	commandBufferManager->wait_queue(device->graphicsQueue().queue);
 	// reset the command buffer
 	commandBufferManager->reset(cmdBuff);
 }

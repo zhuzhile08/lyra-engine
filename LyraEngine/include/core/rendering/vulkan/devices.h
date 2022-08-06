@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <core/logger.h>
 
 #include <vector>
@@ -30,7 +30,7 @@ namespace lyra {
  */
 class VulkanDevice {
 private:
-	friend class Context;
+	friend class RenderSystem;
 
 	/**
 	 * @brief queue families
@@ -43,12 +43,17 @@ private:
 
 public:
 	VulkanDevice() { }
+	/**
+	 * @brief create the devices
+	 *
+	 * @param window window
+	 */
+	VulkanDevice(const Window* const window);
 
 	/**
 	* @brief destructor of the device
 	**/
 	virtual ~VulkanDevice() noexcept;
-
 	/**
 	 * @brief destroy the device
 	 */
@@ -71,13 +76,6 @@ public:
 	 * @param⠀⠀⠀⠀⠁⠇⠡⠩⡫⢿⣝⡻⡮⣒⢽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	 */
 	VulkanDevice operator=(const VulkanDevice&) const noexcept = delete;
-
-	/**
-	 * @brief create the devices
-	 *
-	 * @param window window
-	 */
-	void create(const Window* const window);
 
 	/**
 	 * @brief wait for the logical device to finish with whatever operations are still going on

@@ -12,20 +12,19 @@ VulkanDevice::~VulkanDevice() {
 	Logger::log_info("Successfully destroyed Vulkan device!");
 }
 
-void VulkanDevice::destroy() noexcept {
-	this->~VulkanDevice();
-}
-
-void VulkanDevice::create(const Window* const window) {
+VulkanDevice::VulkanDevice(const Window* const window) : window(window) {
 	Logger::log_info("Creating Vulkan device...");
 
-	this->window = window;
 	create_instance();
 	pick_physical_device();
 	create_logical_device();
 	create_allocator();
 
 	Logger::log_info("Successfully created Vulkan device and allocated GPU at ", get_address(this), "!", Logger::end_l());
+}
+
+void VulkanDevice::destroy() noexcept {
+	this->~VulkanDevice();
 }
 
 void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {

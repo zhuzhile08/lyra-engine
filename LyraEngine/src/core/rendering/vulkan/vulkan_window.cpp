@@ -2,19 +2,25 @@
 
 #include <core/logger.h>
 
-#include <core/rendering/vulkan/GPU_memory.h>
 #include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/vulkan_image.h>
 #include <core/rendering/vulkan/command_buffer.h>
 
 namespace lyra {
 
-VulkanWindow::~VulkanWindow() noexcept {
-	delete _colorImage;
-	delete _colorMem;
-	delete _depthImage;
-	delete _depthMem;
+VulkanWindow::VulkanWindow(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window) {
+	Logger::log_info("Creating Vulkan swapchain...");
 
+	this->device = device;
+	this->window = window;
+	this->commandBufferManager = commandBufferManager;
+	create_window_surface();
+	create_swapchain();
+	create_sync_objects();
+
+	Logger::log_info("Successfully created Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
+}
+
+VulkanWindow::~VulkanWindow() noexcept {
 	for (int i = 0; i < _imageAvailableSemaphores.size(); i++) { // sync objects
 		vkDestroySemaphore(device->device(), _renderFinishedSemaphores.at(i), nullptr);
 		vkDestroySemaphore(device->device(), _imageAvailableSemaphores.at(i), nullptr);
@@ -28,25 +34,6 @@ VulkanWindow::~VulkanWindow() noexcept {
 	Logger::log_info("Successfully destroyed Vulkan swapchain!");
 }
 
-void VulkanWindow::create(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window) {
-	Logger::log_info("Creating Vulkan swapchain...");
-
-	_colorImage = new VulkanImage;
-	_colorMem = new VulkanGPUMemory;
-
-	_depthImage = new VulkanImage;
-	_depthMem = new VulkanGPUMemory;
-
-	this->device = device;
-	this->window = window;
-	this->commandBufferManager = commandBufferManager;
-	create_window_surface();
-	create_swapchain();
-	create_sync_objects();
-
-	Logger::log_info("Successfully created Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
-}
-
 void VulkanWindow::recreate() {
 	Logger::log_info("Recreating Vulkan swapchain...");
 	// wait until all commands are done executing
@@ -54,10 +41,10 @@ void VulkanWindow::recreate() {
 
 	// destroy the images
 	for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(device->device(), _views.at(i), nullptr);
-	_depthImage->destroy();
-	_colorImage->destroy();
-	_depthMem->destroy();
-	_colorMem->destroy();
+	_depthImage.destroy();
+	_colorImage.destroy();
+	_depthMem.destroy();
+	_colorMem.destroy();
 	// destroy the swapchain
 	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
 	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
@@ -195,11 +182,11 @@ void VulkanWindow::create_swapchain_images() {
 }
 
 void VulkanWindow::create_depth_buffer() {
-	_depthBufferFormat = _depthImage->get_best_format(device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+	_depthBufferFormat = _depthImage.get_best_format(device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
 	lassert(vmaCreateImage(device->allocator(),
-		&_depthImage->get_image_create_info(
+		&_depthImage.get_image_create_info(
 			_depthBufferFormat,
 			{ _extent.width, _extent.height, 1 },
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -208,17 +195,17 @@ void VulkanWindow::create_depth_buffer() {
 			1,
 			_maxMultisamples
 		),
-		&_depthMem->get_alloc_create_info(Application::context()->device(), VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
-		&_depthImage->_image,
-		&_depthMem->_memory,
+		&_depthMem.get_alloc_create_info(device, VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		&_depthImage._image,
+		&_depthMem._memory,
 		nullptr
 	) == VK_SUCCESS, "Failed to create Vulkan depth buffer!");
 
 	// create the image view
-	_depthImage->create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	_depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	// transition the image layout
-	_depthImage->transition_layout(commandBufferManager, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	_depthImage.transition_layout(commandBufferManager, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 }
 
 void VulkanWindow::create_color_resources() {
@@ -226,7 +213,7 @@ void VulkanWindow::create_color_resources() {
 
 	// create memory and image
 	lassert(vmaCreateImage(device->allocator(),
-		&_colorImage->get_image_create_info(
+		&_colorImage.get_image_create_info(
 			_format,
 			{ _extent.width, _extent.height, 1 },
 			VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
@@ -235,14 +222,14 @@ void VulkanWindow::create_color_resources() {
 			1,
 			_maxMultisamples
 		),
-		&_colorMem->get_alloc_create_info(device, VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
-		&_colorImage->_image,
-		&_colorMem->_memory,
+		&_colorMem.get_alloc_create_info(device, VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		&_colorImage._image,
+		&_colorMem._memory,
 		nullptr
 	) == VK_SUCCESS, "Failed to create Vulkan color resources!");
 
 	// create the image view
-	_colorImage->create_view(device, _format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+	_colorImage.create_view(device, _format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 }
 
 void VulkanWindow::create_swapchain() {

@@ -11,7 +11,10 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
+
+#include <core/rendering/vulkan/vulkan_image.h>
+#include <core/rendering/vulkan/GPU_memory.h>
 
 #include <vector>
 #include <algorithm>
@@ -27,12 +30,19 @@ namespace lyra {
 class VulkanWindow {
 public:
 	VulkanWindow() { }
+	/**
+	 * @brief create the swapchain
+	 *
+	 * @param device device
+	 * @param commandBufferManager command buffer manager
+	 * @param window window
+	 */
+	VulkanWindow(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window);
 
 	/**
 	 * @brief destructor of the swapchain
 	 */
 	virtual ~VulkanWindow() noexcept;
-
 	/**
 	 * @brief destroy the swapchain
 	 */
@@ -41,15 +51,6 @@ public:
 	}
 
 	VulkanWindow operator=(const VulkanWindow&) const noexcept = delete;
-
-	/**
-	 * @brief create the swapchain
-	 *
-	 * @param device device
-	 * @param commandBufferManager command buffer manager
-	 * @param window window
-	 */
-	void create(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window);
 
 	/**
 	 * @brief create the swapchain
@@ -110,7 +111,7 @@ public:
 	 *
 	 * @return const VulkanImage* const
 	 */
-	[[nodiscard]] const VulkanImage* const colorImage() const noexcept { return _colorImage; }
+	[[nodiscard]] const VulkanImage* const colorImage() const noexcept { return &_colorImage; }
 	/**
 	 * @brief get the maximum amout of samples
 	 *
@@ -122,7 +123,7 @@ public:
 	 *
 	 * @return const VulkanImage* const
 	 */
-	[[nodiscard]] const VulkanImage* const depthImage() const noexcept { return _depthImage; }
+	[[nodiscard]] const VulkanImage* const depthImage() const noexcept { return &_depthImage; }
 	/**
 	 * @brief get the depth buffer format
 	 *
@@ -157,12 +158,12 @@ private:
 	std::vector<VkImage> _images;
 	std::vector<VkImageView> _views;
 	
-	VulkanImage* _colorImage;
-	VulkanGPUMemory* _colorMem;
+	VulkanImage _colorImage;
+	VulkanGPUMemory _colorMem;
 	VkSampleCountFlagBits _maxMultisamples = VK_SAMPLE_COUNT_1_BIT;
 
-	VulkanImage* _depthImage;
-	VulkanGPUMemory* _depthMem;
+	VulkanImage _depthImage;
+	VulkanGPUMemory _depthMem;
 	VkFormat _depthBufferFormat;
 
 	std::vector <VkSemaphore> _imageAvailableSemaphores;

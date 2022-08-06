@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include <core/core.h>
-#include <lyra.h>
+#include <core/decl.h>
+#include <core/context.h>
 
 #include <array>
 #include <vector>
@@ -62,16 +62,17 @@ public:
 	};
 
 	VulkanDescriptorSetLayout() { }
+	/**
+	 * @brief create the descriptor set layout
+	 *
+	 * @param builder the builder containing all the creation data
+	 */
+	VulkanDescriptorSetLayout(const Builder builder);
 
 	/**
 	 * @brief destructor of the descriptor set layout
 	 */
-	~VulkanDescriptorSetLayout() noexcept {
-		vkDestroyDescriptorSetLayout(Application::context()->device()->device(), _descriptorSetLayout, nullptr);
-
-		Logger::log_info("Successfully destroyed Vulkan descriptor set layout!");
-	}
-
+	~VulkanDescriptorSetLayout() noexcept;
 	/**
 	 * @brief destroy the descriptor set layout
 	 */
@@ -81,12 +82,6 @@ public:
 
 	VulkanDescriptorSetLayout operator=(const VulkanDescriptorSetLayout&) const noexcept = delete;
 
-	/**
-	 * @brief create the descriptor set layout
-	 *
-	 * @param builder the builder containing all the creation data
-	 */
-	void create(const Builder builder);
 	/**
 	 * @brief get the descriptor set layout
 	 *
@@ -160,16 +155,17 @@ public:
 	};
 
 	VulkanDescriptorPool() { }
+	/**
+	 * @brief create a descriptor pool to allocate the descriptor sets
+	 *
+	 * @param swapchain swapchain
+	 */
+	VulkanDescriptorPool(const Builder builder);
 
 	/**
 	 * @brief destructor of the descriptor pool
 	 */
-	~VulkanDescriptorPool() noexcept {
-		vkDestroyDescriptorPool(Application::context()->device()->device(), _descriptorPool, nullptr);
-
-		Logger::log_info("Successfully destroyed Vulkan descriptor pool!");
-	}
-
+	~VulkanDescriptorPool() noexcept;
 	/**
 	 * @brief destroy the descriptor pool
 	 */
@@ -178,13 +174,6 @@ public:
 	}
 
 	VulkanDescriptorPool operator=(const VulkanDescriptorPool&) const noexcept = delete;
-
-	/**
-	 * @brief create a descriptor pool to allocate the descriptor sets
-	 *
-	 * @param swapchain swapchain
-	 */
-	void create(const Builder builder);
 
 	/**
 	 * @brief get the descriptor pool
@@ -271,9 +260,6 @@ public:
 	};
 
 	VulkanDescriptor() { }
-
-	VulkanDescriptor operator=(const VulkanDescriptor&) const noexcept = delete;
-
 	/**
 	 * @brief construct new Vulkan descriptors
 	 *
@@ -281,7 +267,9 @@ public:
 	 * @param pool descriptor pool
 	 * @param writer data to be written into the descriptor
 	 */
-	void create(const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer);
+	VulkanDescriptor(const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer);
+
+	VulkanDescriptor operator=(const VulkanDescriptor&) const noexcept = delete;
 
 	/**
 	 * @brief get the descriptor set

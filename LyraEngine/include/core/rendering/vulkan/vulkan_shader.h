@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <core/logger.h>
 
 #include <vulkan/vulkan.h>
@@ -59,21 +59,6 @@ public:
 	}; // I totally didn't steal these names from the API, why would I?
 
 	VulkanShader() { }
-
-	/**
-	* @brief destructor of the shader
-	**/
-	virtual ~VulkanShader() noexcept;
-
-	/**
-	 * @brief destroy the shader
-	 */
-	void destroy() noexcept {
-		this->~VulkanShader();
-	}
-
-	VulkanShader operator=(const VulkanShader&) const noexcept = delete;
-
 	/**
 	 * @brief create a shader
 	 *
@@ -82,7 +67,20 @@ public:
 	 * @param entry name of the entrance point of the shader
 	 * @param type type of the shader
 	 */
-	void create(const VulkanDevice* const device, const char* path, const char* entry, Type type);
+	VulkanShader(const VulkanDevice* const device, const char* path, const char* entry, Type type);
+
+	/**
+	* @brief destructor of the shader
+	**/
+	virtual ~VulkanShader() noexcept;
+	/**
+	 * @brief destroy the shader
+	 */
+	void destroy() noexcept {
+		this->~VulkanShader();
+	}
+
+	VulkanShader operator=(const VulkanShader&) const noexcept = delete;
 
 	/**
 	 * @brief get the shader loading information

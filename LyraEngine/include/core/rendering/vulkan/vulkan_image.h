@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 
 #include <vector>
 #include <vulkan/vulkan.h>

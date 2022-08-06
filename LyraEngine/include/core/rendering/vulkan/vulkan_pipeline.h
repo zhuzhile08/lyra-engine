@@ -11,10 +11,11 @@
 
 #pragma once
 
-#include <core/core.h>
-#include <lyra.h>
+#include <core/decl.h>
+#include <core/context.h>
 
 #include <vector>
+#include <memory>
 
 #include <vulkan/vulkan.h>
 
@@ -40,47 +41,20 @@ protected:
 public:
 	VulkanPipeline() { }
 
-	/**
-	 * @brief builder for the descriptor sets
-	 */
-	struct Builder {
-		Builder() { }
-
-		/**
-		 * @brief destructor of the builder
-		 */
-		~Builder() noexcept {
-			bindings.clear();
-		}
-
-		/**
-		 * @brief add new bindings to the vector of bindings
-		 *
-		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor, the number of descriptors needed for that binding and the actuall number of descriptors to allocate
-		 */
-		void add_bindings(std::vector<std::tuple<const uint32, const int, const int, const uint32, const uint32>> newBindings) noexcept;
-
-		/**
-		 * @brief set the number of maximum possible allocatable sets
-		 *
-		 * @param _maxSets the number to set to
-		 */
-		void set_max_sets(const uint32 _maxSets) noexcept {
-			maxSets = _maxSets;
-		}
-		/**
-		 * @brief Set special flags for the pool
-		 *
-		 * @param _poolFlags
-		 */
-		void set_pool_flags(const VkDescriptorPoolCreateFlags _poolFlags) noexcept {
-			poolFlags = _poolFlags;
-		}
-
-		std::vector<VkDescriptorPoolSize> poolSizes;
-		std::vector<VkDescriptorSetLayoutBinding> bindings;
-		VkDescriptorPoolCreateFlags poolFlags = 0;
-		uint32 maxSets = 1000;
+	// descriptor and shader information
+	struct Binding {
+		// type of descriptor
+		int descriptorType;
+		// number of this type of descriptor needed in the shader
+		uint32 descriptorCount;
+		// number of descriptor to allocate
+		uint32 descriptorAllocCount;
+		// type of shader
+		int shaderType;
+		// shader path
+		const char* path;
+		// shader entry function name
+		const char* entry;
 	};
 
 	/**
@@ -97,15 +71,15 @@ public:
 	/**
 	 * @brief get the descriptor set layout
 	 *
-	 * @return const lyra::VulkanDescriptorSetLayout*
+	 * @return const std::shared_ptr<const VulkanDescriptorSetLayout>
 	*/
-	[[nodiscard]] const VulkanDescriptorSetLayout* const descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
+	[[nodiscard]] const std::shared_ptr<const VulkanDescriptorSetLayout> descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 *
-	 * @return const lyra::VulkanDescriptorPool*
+	 * @return const std::shared_ptr<const VulkanDescriptorPool>
 	*/
-	[[nodiscard]] const VulkanDescriptorPool* const descriptorPool() const noexcept { return _descriptorPool; }
+	[[nodiscard]] const std::shared_ptr<const VulkanDescriptorPool> descriptorPool() const noexcept { return _descriptorPool; }
 	/**
 	 * @brief get the pipeline
 	 *
@@ -134,8 +108,8 @@ public:
 protected:
 	VkPipeline _pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout _layout = VK_NULL_HANDLE;
-	VulkanDescriptorSetLayout* _descriptorSetLayout;
-	VulkanDescriptorPool* _descriptorPool;
+	std::shared_ptr<VulkanDescriptorSetLayout> _descriptorSetLayout;
+	std::shared_ptr<VulkanDescriptorPool> _descriptorPool;
 
 	VkPipelineBindPoint _bindPoint;
 
@@ -147,18 +121,21 @@ protected:
 	void create_layout();
 
 	/**
-	 * @brief create all the shaders
-	 *
-	 * @param shaderCreationInfos creation information of the shaders
-	 */
-	void create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos);
-
-	/**
 	 * @brief create stuff related to descriptors
 	 * 
-	 * @param builder pipeline builder
+	 * @param bindings descriptor and shader information. Have to be in their correct order
+	 * @param poolFlags descriptor pool additional flags
+	 * @param maxSets maximum number of descriptor sets
 	*/
-	void create_descriptor_stuff(Builder builder);
+	void create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags = 0);
+
+private:
+	/**
+	 * @brief create all the shaders
+	 *
+	 * @param bindings descriptor and shader information. Have to be in their correct order
+	 */
+	void create_shaders(std::vector<Binding> bindings);
 };
 
 } // namespace lyra

@@ -7,13 +7,7 @@
 
 namespace lyra {
 
-VulkanGPUBuffer::~VulkanGPUBuffer() noexcept {
-	vkDestroyBuffer(device->device(), _buffer, nullptr);
-
-	Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
-}
-
-void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) {
+VulkanGPUBuffer::VulkanGPUBuffer(const VulkanDevice* const device, VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) {
 	Logger::log_info("Creating Vulkan GPU memory buffer...");
 
 	_size = size;
@@ -36,10 +30,16 @@ void VulkanGPUBuffer::create(const VulkanDevice* const device, VkDeviceSize cons
 		0
 	};
 
-	lassert(vmaCreateBuffer(device->allocator(), &bufferInfo, &get_alloc_create_info(Application::context()->device(), memUsage), &_buffer, &_memory, nullptr) == VK_SUCCESS, 
+	lassert(vmaCreateBuffer(device->allocator(), &bufferInfo, &get_alloc_create_info(Context::get()->renderSystem()->device().get(), memUsage), &_buffer, &_memory, nullptr) == VK_SUCCESS,
 		"Failed to create Vulkan GPU memory buffer!");
 
 	Logger::log_info("Successfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
+}
+
+VulkanGPUBuffer::~VulkanGPUBuffer() noexcept {
+	vkDestroyBuffer(device->device(), _buffer, nullptr);
+
+	Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
 }
 
 void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
@@ -62,9 +62,9 @@ void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
 
 void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const VulkanGPUBuffer* const srcBuffer) {
 	// get a unused command buffer
-	CommandBuffer cmdBuff = Application::context()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
 	// start recording
-	Application::context()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// transfer the contents of the sorce to the destination buffer
 	VkBufferCopy copyRegion{
@@ -73,15 +73,15 @@ void VulkanGPUBuffer::copy(const VulkanCommandPool* const commandPool, const Vul
 		_size
 	};
 
-	vkCmdCopyBuffer(Application::context()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), _buffer, 1, &copyRegion);
+	vkCmdCopyBuffer(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), _buffer, 1, &copyRegion);
 
-	Application::context()->commandBuffers()->end(cmdBuff);		// end recording
+	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);		// end recording
 
 	// submit the commands
-	Application::context()->commandBuffers()->submit_queue(cmdBuff, device->graphicsQueue().queue);
-	Application::context()->commandBuffers()->wait_queue(cmdBuff, device->graphicsQueue().queue);
+	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, device->graphicsQueue().queue);
+	Context::get()->renderSystem()->commandBuffers()->wait_queue(device->graphicsQueue().queue);
 	// reset the command buffer
-	Application::context()->commandBuffers()->reset(cmdBuff);
+	Context::get()->renderSystem()->commandBuffers()->reset(cmdBuff);
 
 	Logger::log_debug("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
 }

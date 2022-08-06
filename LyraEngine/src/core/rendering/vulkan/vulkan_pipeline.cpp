@@ -9,30 +9,9 @@
 
 namespace lyra {
 
-// builder
-void VulkanPipeline::Builder::add_bindings(std::vector<std::tuple<const uint32, const int, const int, const uint32, const uint32>> newBindings) noexcept {
-	for (const auto& [binding, type, shaderType, count, allocCount] : newBindings) {
-		bindings.push_back({
-			binding,
-			static_cast<VkDescriptorType>(type),
-			count,
-			static_cast<VkShaderStageFlags>(shaderType),
-			nullptr
-			});
-		poolSizes.push_back({
-			static_cast<VkDescriptorType>(type),
-			allocCount
-			});
-	}
-}
-
-// pipeline
 VulkanPipeline::~VulkanPipeline() noexcept {
-	delete _descriptorPool;
-	delete _descriptorSetLayout;
-
-	vkDestroyPipeline(Application::context()->device()->device(), _pipeline, nullptr);
-	vkDestroyPipelineLayout(Application::context()->device()->device(), _layout, nullptr);
+	vkDestroyPipeline(Context::get()->renderSystem()->device()->device(), _pipeline, nullptr);
+	vkDestroyPipelineLayout(Context::get()->renderSystem()->device()->device(), _layout, nullptr);
 	_shaders.clear();
 
 	Logger::log_info("Successfully destroyed Vulkan pipeline!");
@@ -50,37 +29,57 @@ void VulkanPipeline::create_layout() {
 		nullptr
 	};
 
-	lassert(vkCreatePipelineLayout(Application::context()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
+	lassert(vkCreatePipelineLayout(Context::get()->renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
 }
 
-void VulkanPipeline::create_shaders(std::vector<ShaderCreationInfo> shaderCreationInfos) {
-	if (shaderCreationInfos.size() != _shaders.size()) {
+void VulkanPipeline::create_shaders(std::vector<Binding> bindings) {
+	_shaders.reserve(bindings.size());
+
+	if (bindings.size() != _shaders.size()) {
 		Logger::log_warning("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", get_address(this), "!");
 	}
 
-	for (int index = 0; index < shaderCreationInfos.size(); index++) {
-		_shaders.at(index).create(Application::context()->device(), shaderCreationInfos.at(index).path, shaderCreationInfos.at(index).entry, 
-			static_cast<VulkanShader::Type>(shaderCreationInfos.at(index).type));
-		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", shaderCreationInfos.at(index).type, "!");
+	for (int index = 0; index < bindings.size(); index++) {
+		_shaders.emplace_back(Context::get()->renderSystem()->device(), bindings.at(index).path, bindings.at(index).entry, 
+			static_cast<VulkanShader::Type>(bindings.at(index).shaderType));
+		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", bindings.at(index).shaderType, "!");
 	}
 }
 
-void VulkanPipeline::create_descriptor_stuff(Builder builder) {
-	_descriptorSetLayout = new VulkanDescriptorSetLayout;
-	_descriptorPool = new VulkanDescriptorPool;
+void VulkanPipeline::create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags) {
+	// create the shaders first
+	create_shaders(bindings);
 
 	// configure the builders using the custom pipeline builder
 	VulkanDescriptorSetLayout::Builder layoutBuilder; // layout
-	layoutBuilder.bindings = builder.bindings;
-
 	VulkanDescriptorPool::Builder poolBuilder; // pool
-	poolBuilder.maxSets = builder.maxSets;
-	poolBuilder.poolFlags = builder.poolFlags;
-	poolBuilder.poolSizes = builder.poolSizes;
+
+	uint32 setCount = 0;
+
+	for (uint32 i = 0; i < bindings.size(); i++) {
+		// add the information to the layout builder first
+		layoutBuilder.add_bindings({ std::make_tuple(
+			i,
+			bindings.at(i).descriptorType,
+			bindings.at(i).shaderType,
+			bindings.at(i).descriptorCount
+		)});
+		// then add the information to the pool builder
+		poolBuilder.add_pool_sizes( {{
+			bindings.at(i).descriptorType,
+			bindings.at(i).descriptorAllocCount
+		}});
+		// update the count of descriptor sets
+		setCount += bindings.at(i).descriptorAllocCount;
+	}
+
+	// set some remaining information about the pool
+	poolBuilder.maxSets = setCount;
+	poolBuilder.poolFlags = poolFlags;
 
 	// create the descriptor layout and pool
-	_descriptorSetLayout->create(layoutBuilder);
-	_descriptorPool->create(poolBuilder);
+	_descriptorSetLayout = std::make_shared<VulkanDescriptorSetLayout>(layoutBuilder);
+	_descriptorPool = std::make_shared<VulkanDescriptorPool>(poolBuilder);
 }
 
 } // namespace lyra

@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <core/rendering/vulkan/devices.h>
 
 #include <vk_mem_alloc.h>

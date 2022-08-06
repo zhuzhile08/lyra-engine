@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <core/core.h>
+#include <core/decl.h>
 #include <core/rendering/vulkan/GPU_memory.h>
 
 #include <cstring>
@@ -27,12 +27,17 @@ namespace lyra {
 class VulkanGPUBuffer : private VulkanGPUMemory {
 public:
 	VulkanGPUBuffer() { }
+	/**
+	 * @brief create the buffer
+	 *
+	 * @param device device
+	 */
+	VulkanGPUBuffer(const VulkanDevice* const device, const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
 
 	/**
 	 * @brief destructor of the buffer
 	 */
 	virtual ~VulkanGPUBuffer() noexcept;
-
 	/**
 	 * @brief destroy the buffer
 	 */
@@ -41,13 +46,6 @@ public:
 	}
 
 	VulkanGPUBuffer operator=(const VulkanGPUBuffer&) const noexcept = delete;
-
-	/**
-	 * @brief create the buffer
-	 *
-	 * @param device device
-	 */
-	void create(const VulkanDevice* const device, const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
 
 	/**
 	 * @brief copy a buffer to another
