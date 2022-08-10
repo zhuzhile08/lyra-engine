@@ -59,14 +59,10 @@ add_library(LyraEngine
  "src/init/init_SDL.cpp"                    # engine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
- "src/math/vulkan/compute_pipeline.cpp"
- "src/graphics/graphics_pipeline.cpp"
- "src/graphics/texture.cpp"
- "src/core/core.cpp"
  "src/res/loaders.cpp"
- "src/lyra.cpp"
- "src/graphics/asset_manager.cpp"
- "src/nodes/nodes.cpp")
+ "src/core/rendering/asset_manager.cpp"
+ "src/nodes/nodes.cpp" 
+ "src/core/def.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 
