@@ -13,8 +13,8 @@
 
 #include <core/decl.h>
 #include <nodes/node.h>
-#include <core/rendering/material.h>
 
+#include <memory>
 #include <vector>
 #include <glm.hpp>
 #include <vulkan/vulkan.h>
@@ -36,7 +36,6 @@ public:
 	 */
 	MeshRenderer(
 		const Mesh* const mesh, 
-		const Material* const material,
 		const char* name = "MeshRenderer",
 		Spatial* parent = nullptr,
 		const bool visible = true,
@@ -46,37 +45,23 @@ public:
 	MeshRenderer operator=(const MeshRenderer&) const noexcept = delete;
 
 	/**
-	 * add the mesh and its buffers to the renderer draw queue
-	 *
-	 * @param camera context to add the draw call to
-	 */
-	void bind(Camera* const camera) noexcept;
-
-	/**
 	 * @brief get the vertex buffer
 	 *
-	 * @return const lyra::VulkanGPUBuffer* const
+	 * @return const std::shared_ptr <const VulkanGPUBuffer>
 	*/
-	[[nodiscard]] const VulkanGPUBuffer* const vertexBuffer() const noexcept { return &_vertexBuffer; }
+	[[nodiscard]] const std::shared_ptr <const VulkanGPUBuffer> vertexBuffer() const noexcept { return _vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 *
-	 * @return const lyra::VulkanGPUBuffer* const
+	 * @return const std::shared_ptr <const VulkanGPUBuffer>
 	*/
-	[[nodiscard]] const VulkanGPUBuffer* const indexBuffer() const noexcept { return &_indexBuffer; }
-	/**
-	 * @brief get the material
-	 *
-	 * @return const lyra::Material* const
-	*/
-	[[nodiscard]] const Material* const material() const noexcept { return _material; }
+	[[nodiscard]] const std::shared_ptr<const VulkanGPUBuffer> indexBuffer() const noexcept { return _indexBuffer; }
 
 private:
-	const Material* _material;
 	const Mesh* _mesh;
 
-	VulkanGPUBuffer _vertexBuffer;
-	VulkanGPUBuffer _indexBuffer;
+	std::shared_ptr<VulkanGPUBuffer> _vertexBuffer;
+	std::shared_ptr<VulkanGPUBuffer> _indexBuffer;
 
 	/**
 	 * @brief create a vertex buffer
@@ -86,6 +71,13 @@ private:
 	 * @brief create a index buffer
 	 */
 	void create_index_buffer();
+
+	/**
+	 * bind the buffers of the mesh and draw it
+	 */
+	void draw() const noexcept;
+
+	friend class Material;
 };
 
 } // namespace lyra
