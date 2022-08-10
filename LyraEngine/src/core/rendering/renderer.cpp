@@ -4,10 +4,10 @@
 
 #include <core/queue_types.h>
 
+#include <core/context.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_window.h>
-#include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/render_system.h>
 
 namespace lyra {
@@ -15,15 +15,18 @@ namespace lyra {
 Renderer::Renderer() {
 	Logger::log_info("Creating Renderer...");
 
+	// create the framebuffers
 	create_render_pass();
 	create_framebuffers();
 
+	// add the renderer to the render system
 	Context::get()->renderSystem()->add_renderer(this);
 
 	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
 }
 
 Renderer::~Renderer() noexcept {
+	// destrpy the framebuffer
 	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Context::get()->renderSystem()->_device->device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
 	vkDestroyRenderPass(Context::get()->renderSystem()->_device->device(), _renderPass, nullptr);
 
@@ -35,14 +38,6 @@ void Renderer::recreate() {
 	vkDestroyRenderPass(Context::get()->renderSystem()->_device->device(), _renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();
-}
-
-void Renderer::add_to_draw_queue(std::function<void()>&& function) {
-	_drawQueue.add(std::move(function));
-}
-
-void Renderer::add_to_update_queue(std::function<void()>&& function) {
-	_updateQueue.add(std::move(function));
 }
 
 void Renderer::create_render_pass() {
@@ -168,7 +163,7 @@ void Renderer::create_framebuffers() {
 	}
 }
 
-void Renderer::record_command_buffers() const {
+void Renderer::begin_renderpass() const {
 	VkClearValue clear[2]{};
 	clear[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 	clear[1].depthStencil = { 1.0f, 0 };
@@ -186,10 +181,10 @@ void Renderer::record_command_buffers() const {
 	};
 
 	vkCmdBeginRenderPass(Context::get()->renderSystem()->activeCommandBuffer(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
 
-	_drawQueue.flush();
-
-	vkCmdEndRenderPass(Context::get()->renderSystem()->activeCommandBuffer());
+void Renderer::end_renderpass() const { 
+	vkCmdEndRenderPass(Context::get()->renderSystem()->activeCommandBuffer()); 
 }
 
 } // namespace lyra

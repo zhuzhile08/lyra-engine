@@ -16,11 +16,8 @@ namespace lyra {
 
 namespace gui {
 
-GUIRenderer::GUIRenderer() {
+GUIRenderer::GUIRenderer() : Renderer() {
 	Logger::log_info("Creating context for the GUI... ");
-
-	_renderer = std::make_unique<Renderer>();
-	_drawQueue = std::make_unique<CallQueue>();
 
 	// information about the descriptor pool
 	VulkanDescriptorPool::Builder builder;
@@ -61,7 +58,7 @@ GUIRenderer::GUIRenderer() {
 		Context::get()->renderSystem()->vulkanWindow()->maxMultisamples()
 	};
 	// initialize ImGui for Vulkan
-	ImGui_ImplVulkan_Init(&initInfo, _renderer->renderPass());
+	ImGui_ImplVulkan_Init(&initInfo, _renderPass);
 
 	// get a command buffer for creating the font textures
 	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
@@ -81,8 +78,6 @@ GUIRenderer::GUIRenderer() {
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 	
 	const_cast<Window*>(Context::get()->window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Context::get()->window()->event()); ));
-	// bind to the renderer
-	bind();
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
@@ -94,22 +89,25 @@ GUIRenderer::~GUIRenderer() {
 }
 
 void GUIRenderer::add_draw_call(std::function<void()>&& func) {
-	_drawQueue->add(std::move(func));
+	_drawQueue.add(std::move(func));
 }
 
-void GUIRenderer::bind() {
-	// render a new frame
-	_renderer->add_to_draw_queue(FUNC_PTR(
-		// begin drawing
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplSDL2_NewFrame(Context::get()->window()->get());
-		ImGui::NewFrame();
+void GUIRenderer::record_command_buffers() const {
+	begin_renderpass();
 
-		_drawQueue->flush();
+	// begin drawing
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplSDL2_NewFrame(Context::get()->window()->get());
+	ImGui::NewFrame();
 
-		ImGui::Render(); 
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Context::get()->renderSystem()->activeCommandBuffer());
-		));
+	// flush all draw commands
+	_drawQueue.flush();
+
+	// render
+	ImGui::Render();
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Context::get()->renderSystem()->activeCommandBuffer());
+
+	end_renderpass();
 }
 
 } // namespace gui

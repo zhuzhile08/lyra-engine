@@ -13,13 +13,13 @@
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#include <core/context.h>
 #include <nodes/spatial.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/renderer.h>
 #include <core/settings.h>
 
 #include <vector>
+#include <memory>
 
 #include <glm.hpp>
 
@@ -140,10 +140,21 @@ public:
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
+	std::vector<Material*> _materials;
+	std::unique_ptr<GraphicsPipeline> _renderPipeline;
 
 	float _fov = 45.0f, _near = 0.1f, _far = 20.0f, _depth = 1.0f;
 	glm::vec4 _viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
 	Projection _projection;
+
+	/**
+	 * @brief record the command buffer
+	 */
+	void record_command_buffers() const override;
+
+	friend class RenderSystem;
+	friend class Material;
+	friend class Mesh;
 };
 
 } // namespace lyra

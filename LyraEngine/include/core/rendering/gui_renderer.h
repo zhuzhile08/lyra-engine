@@ -1,6 +1,8 @@
 #pragma once
 
 #include <core/decl.h>
+#include <core/queue_types.h>
+#include <core/rendering/renderer.h>
 
 #include <functional>
 #include <memory>
@@ -14,7 +16,7 @@ namespace lyra {
 namespace gui {
 
 // Renderer for the ImGui extension
-class GUIRenderer {
+class GUIRenderer : public Renderer {
 public:
 	/**
 	 * @brief initialize an instance of the Vulkan and SDL version of the Dear ImGui libary
@@ -27,13 +29,6 @@ public:
 	~GUIRenderer();
 
 	/**
-	 * @brief destroy an instance of the GUI context
-	*/
-	void destroy() {
-		this->~GUIRenderer();
-	}
-
-	/**
 	 * @brief add a draw call to the drawing queue
 	 * 
 	 * @param func function to add as a function pointer
@@ -42,14 +37,13 @@ public:
 
 private:
 	std::unique_ptr<VulkanDescriptorPool> _descriptorPool;
-	std::unique_ptr<Renderer> _renderer;
 
-	std::unique_ptr<CallQueue> _drawQueue;
+	CallQueue _drawQueue;
 
 	/**
-	 * @brief bind the GUI
-	*/
-	void bind();
+	 * @brief record the command buffer
+	 */
+	void record_command_buffers() const override;
 };
 
 } // namespace gui

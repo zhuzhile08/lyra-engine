@@ -11,11 +11,11 @@
 
 #pragma once
 
-#include <core/context.h>
 #include <core/decl.h>
 #include <core/queue_types.h>
 
 #include <vector>
+#include <memory>
 
 #include <vulkan/vulkan.h>
 
@@ -43,20 +43,6 @@ public:
 	Renderer operator=(const Renderer&) const noexcept = delete;
 
 	/**
-	 * @brief add a function to the draw queue
-	 * 
-	 * @param function functio to add
-	*/
-	void add_to_draw_queue(std::function<void()>&& function);
-
-	/**
-	 * @brief add a function to the draw queue
-	 *
-	 * @param function functio to add
-	*/
-	void add_to_update_queue(std::function<void()>&& function);
-
-	/**
 	 * @brief get the render pass
 	 *
 	 * @return const VkRenderPass&
@@ -73,7 +59,6 @@ protected:
 	VkRenderPass _renderPass = VK_NULL_HANDLE;
 	std::vector <VkFramebuffer> _framebuffers;
 
-	CallQueue _drawQueue;
 	CallQueue _updateQueue;
 
 	/**
@@ -90,9 +75,15 @@ protected:
 	void create_framebuffers();
 
 	/**
-	 * @brief record all the commands
+	 * @brief begin the render pass
 	 */
-	void record_command_buffers() const;
+	void begin_renderpass() const;
+	/**
+	 * @brief end the render pass
+	 */
+	void end_renderpass() const;
+
+	virtual void record_command_buffers() const = 0;
 
 	friend class RenderSystem;
 };

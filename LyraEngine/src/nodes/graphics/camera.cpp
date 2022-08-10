@@ -5,12 +5,33 @@
 
 #include <gtc/matrix_transform.hpp>
 
+#include <core/context.h>
+#include <core/rendering/vulkan/vulkan_window.h>
+#include <core/rendering/vulkan/vulkan_pipeline.h>
+#include <core/rendering/vulkan/vulkan_shader.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/graphics_pipeline.h>
+#include <core/rendering/material.h>
+
 namespace lyra {
 
 Camera::Camera(const char* name, Spatial* parent, const bool visible, const uint32 tag, const glm::vec3 position, const glm::vec3 rotation, const glm::vec3 scale, const RotationOrder rotationOrder) :
 	Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), Renderer()
 {
 	Logger::log_info("Creating Camera... ");
+	
+	// create the graphics pipeline
+	std::vector<VulkanPipeline::Binding> bindings{
+		{ lyra::VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, 1, lyra::Settings::Rendering::maxFramesInFlight, lyra::VulkanShader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
+		{ lyra::VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1, lyra::Settings::Rendering::maxFramesInFlight, lyra::VulkanShader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" }
+	};
+
+	_renderPipeline = std::make_unique<GraphicsPipeline>(
+		this,
+		bindings,
+		lyra::Context::get()->renderSystem()->vulkanWindow()->extent(),
+		lyra::Context::get()->renderSystem()->vulkanWindow()->extent()
+		);
 
 	// create the buffers
 	_buffers.resize(Settings::Rendering::maxFramesInFlight);
@@ -40,6 +61,16 @@ void Camera::draw(CameraData data) {
 	data.proj[1][1] *= -1;
 
 	_buffers.at(Context::get()->renderSystem()->currentFrame()).copy_data(&data);
+}
+
+void Camera::record_command_buffers() const {
+	begin_renderpass();
+
+	vkCmdBindPipeline(Context::get()->renderSystem()->activeCommandBuffer(), _renderPipeline->bindPoint(), _renderPipeline->pipeline());
+
+	for (int i = 0; i < _materials.size(); i++) _materials.at(i)->draw();
+
+	end_renderpass();
 }
 
 } // namespace lyra
