@@ -1,4 +1,4 @@
-#include <graphics/asset_manager.h>
+#include <core/rendering/asset_manager.h>
 
 namespace lyra {
 

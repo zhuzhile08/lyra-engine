@@ -1,26 +1,59 @@
-#include <graphics/graphics_pipeline.h>
+#include <core/rendering/graphics_pipeline.h>
+
+#include <core/rendering/vulkan/vulkan_window.h>
+#include <core/rendering/vulkan/devices.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <nodes/mesh/mesh.h>
+#include <nodes/graphics/camera.h>
+#include <core/context.h>
+#include <core/logger.h>
 
 namespace lyra {
 
-void GraphicsPipeline::create(const CreateInfo info) {
+GraphicsPipeline::GraphicsPipeline(
+	const Renderer* const renderer,
+	const std::vector<Binding> bindings,
+	const VkExtent2D size,
+	const VkExtent2D area,
+	const ColorBlending&& colorBlending,
+	const Tessellation&& tessellation,
+	const Multisampling&& multisampling,
+	const RenderMode&& renderMode,
+	const Culling&& culling
+) {
 	Logger::log_info("Creating Vulkan graphics pipeline...");
 
-    _shaders.reserve(info.shaderCreationInfos.size());
-	_shaders.resize(info.shaderCreationInfos.size());
-
+	// define what type of pipeline this is
 	_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-	create_shaders(info.shaderCreationInfos);
+	// create stuff relating to descriptors
+	create_descriptor_stuff(std::move(bindings)); // yes, I know, very good naming
 
-	// yes, I know, very good naming
-	create_descriptor_stuff(info.builder);
-
-	create_pipeline(info);
+	// create the pipeline
+	create_pipeline(
+		std::move(renderer),
+		std::move(size),
+		std::move(area), 
+		std::move(colorBlending), 
+		std::move(tessellation), 
+		std::move(multisampling), 
+		std::move(renderMode), 
+		std::move(culling)
+	);
 
 	Logger::log_info("Successfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
 }
 
-void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
+void GraphicsPipeline::create_pipeline(
+	const Renderer* const renderer,
+	const VkExtent2D size,
+	const VkExtent2D area,
+	const ColorBlending colorBlending,
+	const Tessellation tessellation,
+	const Multisampling multisampling,
+	const RenderMode renderMode,
+	const Culling culling
+) {
     // add all the shader stage creation information into a vector
     std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
     shaderStages.resize(_shaders.size());
@@ -50,14 +83,14 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 		{	// define where the drawable area on the window is
 			0.0f,
 			0.0f,
-			(float) info.size.width,
-			(float) info.size.height,
+			(float) size.width,
+			(float) size.height,
 			0.0f,
 			1.0f
 		},
 		{	// define where you will acutally draw to
 			{0, 0},
-			info.area
+			area
 		},
 		{
 			VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -74,8 +107,8 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 			0,
 			VK_FALSE,
 			VK_FALSE,
-			static_cast<VkPolygonMode>(info.renderMode),
-			static_cast<VkCullModeFlags>(info.culling),
+			static_cast<VkPolygonMode>(renderMode),
+			static_cast<VkCullModeFlags>(culling),
 			static_cast<VkFrontFace>(Settings::Rendering::polygonFrontFace),
 			VK_FALSE,
 			0.0f,
@@ -87,7 +120,7 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			Application::context()->vulkanWindow()->maxMultisamples(),
+			Context::get()->renderSystem()->vulkanWindow()->maxMultisamples(),
 			VK_TRUE,				// currently set to false
 			0.2f,
 			nullptr,
@@ -163,13 +196,13 @@ void GraphicsPipeline::create_pipeline(const CreateInfo& info) {
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
 		_layout,
-		info.camera->renderPass(),
+		renderer->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0
 	};
 
-	lassert(vkCreateGraphicsPipelines(Application::context()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
+	lassert(vkCreateGraphicsPipelines(Context::get()->renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
 }
 
 } // namespace lyra

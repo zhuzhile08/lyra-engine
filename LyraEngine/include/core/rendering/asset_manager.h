@@ -1,5 +1,5 @@
 /*************************
- * @file lyra.h
+ * @file core/asset_manager.h
  *
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *

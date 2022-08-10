@@ -155,6 +155,7 @@ private:
 	void update_frame_count() noexcept;
 
 	friend class Renderer;
+	friend class Camera;
 };
 
 } // namespace Vulkan

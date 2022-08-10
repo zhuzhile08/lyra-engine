@@ -36,7 +36,7 @@ void RenderSystem::add_renderer(Renderer* const renderer) {
 }
 
 void RenderSystem::update() const {
-	for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->_updateQueue->flush();
+	for (int i = 0; i < _renderers.size(); i++) _renderers.at(i)->_updateQueue.flush();
 }
 
 void RenderSystem::wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const {

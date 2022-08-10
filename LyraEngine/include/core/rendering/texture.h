@@ -1,13 +1,24 @@
+/*************************
+ * @file   texture.h
+ * @author Zhile Zhu (zhuzhile08@gmail.com)
+ * 
+ * @brief  texture class
+ * 
+ * @date   2022-31-7
+ * 
+ * @copyright Copyright (c) 2022
+*************************/
+
 #pragma once
 
-#include <lyra.h>
-#include <core/defines.h>
+#include <core/context.h>
+#include <core/util.h>
 #include <core/logger.h>
 #include <core/rendering/vulkan/GPU_memory.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_image.h>
-#include <graphics/asset_manager.h>
+#include <core/rendering/asset_manager.h>
 
 #include <algorithm>
 #include <lz4.h>
@@ -70,16 +81,18 @@ public:
 	};
 
 	Texture() { }
+	/**
+	 * @brief create the texture and the sampler
+	 *
+	 * @param path path
+	 * @param format format of the image
+	 */
+	Texture(char* const path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief destructor of the texture
 	 */
-	virtual ~Texture() noexcept {
-		vkDestroySampler(Application::context()->device()->device(), _sampler, nullptr);
-
-		Logger::log_info("Successfully destroyed Texture!");
-	}
-
+	virtual ~Texture() noexcept;
 	/**
 	 * @brief destroy the texture
 	 */
@@ -88,14 +101,6 @@ public:
 	}
 
 	Texture operator=(const Texture&) const noexcept = delete;
-
-	/**
-	 * @brief create the texture and the sampler
-	 *
-	 * @param path path
-	 * @param format format of the image
-	 */
-	void create(char* const path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
