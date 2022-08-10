@@ -1,18 +1,11 @@
 #include <core/rendering/vulkan/devices.h>
 
+#include <core/context.h>
 #include <core/rendering/window.h>
 
 namespace lyra {
 
-VulkanDevice::~VulkanDevice() {
-	vmaDestroyAllocator(_allocator);
-	vkDestroyDevice(_device, nullptr);
-	vkDestroyInstance(_instance, nullptr);
-
-	Logger::log_info("Successfully destroyed Vulkan device!");
-}
-
-VulkanDevice::VulkanDevice(const Window* const window) : window(window) {
+VulkanDevice::VulkanDevice() {
 	Logger::log_info("Creating Vulkan device...");
 
 	create_instance();
@@ -21,6 +14,14 @@ VulkanDevice::VulkanDevice(const Window* const window) : window(window) {
 	create_allocator();
 
 	Logger::log_info("Successfully created Vulkan device and allocated GPU at ", get_address(this), "!", Logger::end_l());
+}
+
+VulkanDevice::~VulkanDevice() {
+	vmaDestroyAllocator(_allocator);
+	vkDestroyDevice(_device, nullptr);
+	vkDestroyInstance(_instance, nullptr);
+
+	Logger::log_info("Successfully destroyed Vulkan device!");
 }
 
 void VulkanDevice::destroy() noexcept {
@@ -143,9 +144,9 @@ void VulkanDevice::create_instance() {
 	// get all extensions
 	uint32 SDLExtensionCount = 0;
 
-	lassert(SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, nullptr), "Failed to get number of Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(Context::get()->window()->get(), &SDLExtensionCount, nullptr), "Failed to get number of Vulkan instance extensions");
 	const char** SDLExtensions = new const char* [SDLExtensionCount];
-	lassert(SDL_Vulkan_GetInstanceExtensions(window->get(), &SDLExtensionCount, SDLExtensions), "Failed to get Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(Context::get()->window()->get(), &SDLExtensionCount, SDLExtensions), "Failed to get Vulkan instance extensions");
 
 	// define some info for the application that will be used in instance creation
 	VkApplicationInfo appInfo{

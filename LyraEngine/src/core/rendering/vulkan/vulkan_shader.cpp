@@ -1,11 +1,12 @@
 #include <core/rendering/vulkan/vulkan_shader.h>
 
 #include <res/loaders/load_file.h>
+#include <core/context.h>
 #include <core/rendering/vulkan/devices.h>
 
 namespace lyra {
 
-VulkanShader::VulkanShader(const VulkanDevice* const device, const char* path, const char* entry, Type type) : device(device), _entry(entry), _type(type) {
+VulkanShader::VulkanShader(const char* path, const char* entry, Type type) : _entry(entry), _type(type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);
@@ -24,13 +25,13 @@ VulkanShader::VulkanShader(const VulkanDevice* const device, const char* path, c
 		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	lassert(vkCreateShaderModule(device->device(), &createInfo, nullptr, &_module) == VK_SUCCESS, "Failed to create a Vulkan shader module");
+	lassert(vkCreateShaderModule(Context::get()->renderSystem()->device()->device(), &createInfo, nullptr, &_module) == VK_SUCCESS, "Failed to create a Vulkan shader module");
 
 	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }
 
 VulkanShader::~VulkanShader() {
-	vkDestroyShaderModule(device->device(), _module, nullptr);
+	vkDestroyShaderModule(Context::get()->renderSystem()->device()->device(), _module, nullptr);
 
 	Logger::log_info("Successfully destroyed loaded Vulkan shader!");
 }

@@ -12,7 +12,6 @@
 #pragma once
 
 #include <core/decl.h>
-#include <core/rendering/vulkan/devices.h>
 
 #include <vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
@@ -47,12 +46,9 @@ struct VulkanGPUMemory {
 	 * 
 	 * @return const VmaAllocationCreateInfo
 	 */
-	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(const VulkanDevice* const device, const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept;
+	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept;
 
 	VmaAllocation _memory = VK_NULL_HANDLE;
-
-private:
-	const VulkanDevice* device;
 };
 
 } // namespace lyra

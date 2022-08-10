@@ -29,15 +29,7 @@ namespace lyra {
  */
 class VulkanWindow {
 public:
-	VulkanWindow() { }
-	/**
-	 * @brief create the swapchain
-	 *
-	 * @param device device
-	 * @param commandBufferManager command buffer manager
-	 * @param window window
-	 */
-	VulkanWindow(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window);
+	VulkanWindow();
 
 	/**
 	 * @brief destructor of the swapchain
@@ -171,10 +163,6 @@ private:
 	std::vector <VkFence> _inFlightFences;
 
 	VkSwapchainKHR* _oldSwapchain = nullptr;
-
-	const VulkanDevice* device;
-	CommandBufferManager* commandBufferManager;
-	const Window* window;
 
 	/**
 	 * @brief get the optimal format for the swapchain

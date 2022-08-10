@@ -2,39 +2,40 @@
 
 #include <core/logger.h>
 
+#include <core/context.h>
 #include <core/rendering/vulkan/devices.h>
 
 namespace lyra {
 
-VulkanCommandPool::VulkanCommandPool(const VulkanDevice* const device) : device(device) {
+VulkanCommandPool::VulkanCommandPool() {
 	Logger::log_info("Creating Vulkan command pool...");
 
 	VkCommandPoolCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
 		VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		device->graphicsQueue().familyIndex
+		Context::get()->renderSystem()->device()->graphicsQueue().familyIndex
 	};
 
-	lassert(vkCreateCommandPool(device->device(), &createInfo, nullptr, &_commandPool) == VK_SUCCESS, "Failed to create Vulkan command pool");
+	lassert(vkCreateCommandPool(Context::get()->renderSystem()->device()->device(), &createInfo, nullptr, &_commandPool) == VK_SUCCESS, "Failed to create Vulkan command pool");
 
 	Logger::log_info("Successfully created Vulkan command pool at ", get_address(this), "!", Logger::end_l());
 }
 
 // command pool
 VulkanCommandPool::~VulkanCommandPool() noexcept {
-	vkDestroyCommandPool(device->device(), _commandPool, nullptr);
+	vkDestroyCommandPool(Context::get()->renderSystem()->device()->device(), _commandPool, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan command pool!");
 }
 
 void VulkanCommandPool::reset() {
-	lassert(vkResetCommandPool(device->device(), _commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "Failed to reset command pool!");
+	lassert(vkResetCommandPool(Context::get()->renderSystem()->device()->device(), _commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "Failed to reset command pool!");
 }
 
 // command buffer
-CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level) : 
-	commandPool(commandPool), device(device) 
+CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level) : 
+	commandPool(commandPool)
 {
 	Logger::log_debug(Logger::tab(), "Creating Vulkan command buffer...");
 
@@ -48,23 +49,23 @@ CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const VulkanDevic
 	};
 
 	// create the command buffers
-	lassert(vkAllocateCommandBuffers(device->device(), &allocInfo, &commandBuffer) == VK_SUCCESS, "Failed to create Vulkan command buffer!");
+	lassert(vkAllocateCommandBuffers(Context::get()->renderSystem()->device()->device(), &allocInfo, &commandBuffer) == VK_SUCCESS, "Failed to create Vulkan command buffer!");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan command buffer at ", get_address(this), "!", Logger::end_l());
 }
 
 CommandBufferManager::VulkanCommandBuffer::~VulkanCommandBuffer() noexcept {
-	vkFreeCommandBuffers(device->device(), commandPool->commandPool(), 1, &commandBuffer);
+	vkFreeCommandBuffers(Context::get()->renderSystem()->device()->device(), commandPool->commandPool(), 1, &commandBuffer);
 
 	Logger::log_info("Successfully destroyed a Vulkan command buffer!");
 }
 
 // manager
-CommandBufferManager::CommandBufferManager(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level) {
+CommandBufferManager::CommandBufferManager(const VkCommandBufferLevel level) : _commandPool() {
 	Logger::log_info("Creating command buffer manager...");
 
 	for (uint32 i = 0; i < Settings::Memory::maxCommandBuffers; i++) {
-		_commandBufferData.emplace_back(device, commandPool, level);
+		_commandBufferData.emplace_back(_commandPool, level);
 		_commandBuffers.emplace(i, CommandBufferUsage::COMMAND_BUFFER_UNUSED);
 	}
 

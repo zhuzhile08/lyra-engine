@@ -42,13 +42,10 @@ private:
 	};
 
 public:
-	VulkanDevice() { }
 	/**
 	 * @brief create the devices
-	 *
-	 * @param window window
 	 */
-	VulkanDevice(const Window* const window);
+	VulkanDevice();
 
 	/**
 	* @brief destructor of the device
@@ -128,8 +125,6 @@ private:
 	VulkanQueueFamily _presentQueue;
 
 	VmaAllocator _allocator = VK_NULL_HANDLE;
-
-	const Window* window;
 
 	/**
 	 * @brief check if a vector of user requested Vulkan validation layers is actually available

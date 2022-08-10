@@ -30,9 +30,11 @@ public:
 	/**
 	 * @brief create the buffer
 	 *
-	 * @param device device
+	 * @param size buffer size
+	 * @param bufferUsage way to use the buffer
+	 * @param memUsage way to use the memory
 	 */
-	VulkanGPUBuffer(const VulkanDevice* const device, const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
+	VulkanGPUBuffer(const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
 
 	/**
 	 * @brief destructor of the buffer
@@ -55,7 +57,7 @@ public:
 	 * @param srcBuffer the buffer to copy
 	 * @param size the size of the buffer
 	 */
-	void copy(const VulkanCommandPool* const commandPool, const VulkanGPUBuffer* const srcBuffer);
+	void copy(const VulkanGPUBuffer* const srcBuffer);
 
 	/**
 	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
@@ -126,9 +128,6 @@ public:
 private:
 	VkBuffer _buffer = VK_NULL_HANDLE;
 	VkDeviceSize _size = 0;
-
-protected:
-	const VulkanDevice* device;
 };
 
 } // namespace lyra

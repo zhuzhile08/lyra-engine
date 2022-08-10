@@ -2,17 +2,15 @@
 
 #include <core/logger.h>
 
+#include <core/context.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 
 namespace lyra {
 
-VulkanWindow::VulkanWindow(const VulkanDevice* const device, CommandBufferManager* const commandBufferManager, const Window* const window) {
+VulkanWindow::VulkanWindow() {
 	Logger::log_info("Creating Vulkan swapchain...");
 
-	this->device = device;
-	this->window = window;
-	this->commandBufferManager = commandBufferManager;
 	create_window_surface();
 	create_swapchain();
 	create_sync_objects();
@@ -22,14 +20,14 @@ VulkanWindow::VulkanWindow(const VulkanDevice* const device, CommandBufferManage
 
 VulkanWindow::~VulkanWindow() noexcept {
 	for (int i = 0; i < _imageAvailableSemaphores.size(); i++) { // sync objects
-		vkDestroySemaphore(device->device(), _renderFinishedSemaphores.at(i), nullptr);
-		vkDestroySemaphore(device->device(), _imageAvailableSemaphores.at(i), nullptr);
-		vkDestroyFence(device->device(), _inFlightFences.at(i), nullptr);
+		vkDestroySemaphore(Context::get()->renderSystem()->device()->device(), _renderFinishedSemaphores.at(i), nullptr);
+		vkDestroySemaphore(Context::get()->renderSystem()->device()->device(), _imageAvailableSemaphores.at(i), nullptr);
+		vkDestroyFence(Context::get()->renderSystem()->device()->device(), _inFlightFences.at(i), nullptr);
 	}
-	for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(device->device(), _views.at(i), nullptr);
-	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr); // swapchain and old swapchain
-	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
-	vkDestroySurfaceKHR(device->instance(), _surface, nullptr); // window surface
+	for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(Context::get()->renderSystem()->device()->device(), _views.at(i), nullptr);
+	vkDestroySwapchainKHR(Context::get()->renderSystem()->device()->device(), _swapchain, nullptr); // swapchain and old swapchain
+	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(Context::get()->renderSystem()->device()->device(), *_oldSwapchain, nullptr);
+	vkDestroySurfaceKHR(Context::get()->renderSystem()->device()->instance(), _surface, nullptr); // window surface
 
 	Logger::log_info("Successfully destroyed Vulkan swapchain!");
 }
@@ -37,17 +35,17 @@ VulkanWindow::~VulkanWindow() noexcept {
 void VulkanWindow::recreate() {
 	Logger::log_info("Recreating Vulkan swapchain...");
 	// wait until all commands are done executing
-	vkDeviceWaitIdle(device->device());
+	vkDeviceWaitIdle(Context::get()->renderSystem()->device()->device());
 
 	// destroy the images
-	for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(device->device(), _views.at(i), nullptr);
+	for (uint32 i = 0; i < _views.size(); i++) vkDestroyImageView(Context::get()->renderSystem()->device()->device(), _views.at(i), nullptr);
 	_depthImage.destroy();
 	_colorImage.destroy();
 	_depthMem.destroy();
 	_colorMem.destroy();
 	// destroy the swapchain
-	vkDestroySwapchainKHR(device->device(), _swapchain, nullptr);
-	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(device->device(), *_oldSwapchain, nullptr);
+	vkDestroySwapchainKHR(Context::get()->renderSystem()->device()->device(), _swapchain, nullptr);
+	if (_oldSwapchain != nullptr) vkDestroySwapchainKHR(Context::get()->renderSystem()->device()->device(), *_oldSwapchain, nullptr);
 
 	// recreate the swapchain
 	create_swapchain();
@@ -56,16 +54,16 @@ void VulkanWindow::recreate() {
 }
 
 void VulkanWindow::wait(const uint32 fenceIndex) const {
-	lassert(vkWaitForFences(device->device(), 1, &_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX) == VK_SUCCESS, "Failed to wait for Vulkan fences to finish!");
+	lassert(vkWaitForFences(Context::get()->renderSystem()->device()->device(), 1, &_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX) == VK_SUCCESS, "Failed to wait for Vulkan fences to finish!");
 }
 
 void VulkanWindow::reset(const uint32 fenceIndex) const {
-	lassert(vkResetFences(device->device(), 1, &_inFlightFences.at(fenceIndex)) == VK_SUCCESS, "Failed to reset Vulkan fences!");
+	lassert(vkResetFences(Context::get()->renderSystem()->device()->device(), 1, &_inFlightFences.at(fenceIndex)) == VK_SUCCESS, "Failed to reset Vulkan fences!");
 }
 
 void VulkanWindow::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities) {
 	int width, height;
-	SDL_Vulkan_GetDrawableSize(window->get(), &width, &height);
+	SDL_Vulkan_GetDrawableSize(Context::get()->window()->get(), &width, &height);
 
 	VkExtent2D newExtent = {
 		static_cast<uint32>(width),
@@ -82,9 +80,9 @@ void VulkanWindow::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfac
 
 const VkSurfaceFormatKHR VulkanWindow::get_optimal_format() {
 	uint32 availableFormatCount = 0;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), _surface, &availableFormatCount, nullptr);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(Context::get()->renderSystem()->device()->physicalDevice(), _surface, &availableFormatCount, nullptr);
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device->physicalDevice(), _surface, &availableFormatCount, availableFormats.data());
+	vkGetPhysicalDeviceSurfaceFormatsKHR(Context::get()->renderSystem()->device()->physicalDevice(), _surface, &availableFormatCount, availableFormats.data());
 	// check the formats
 	for (uint32 i = 0; i < availableFormats.size(); i++) {
 		if (availableFormats.at(i).format == VK_FORMAT_B8G8R8A8_SRGB && availableFormats.at(i).colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -99,9 +97,9 @@ const VkSurfaceFormatKHR VulkanWindow::get_optimal_format() {
 
 const VkPresentModeKHR VulkanWindow::get_optimal_present_mode() {
 	uint32 availablePresentModeCount = 0;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), _surface, &availablePresentModeCount, nullptr);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(Context::get()->renderSystem()->device()->physicalDevice(), _surface, &availablePresentModeCount, nullptr);
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device->physicalDevice(), _surface, &availablePresentModeCount, availablePresentModes.data());
+	vkGetPhysicalDeviceSurfacePresentModesKHR(Context::get()->renderSystem()->device()->physicalDevice(), _surface, &availablePresentModeCount, availablePresentModes.data());
 	// check the presentation modess
 	for (uint32 i = 0; i < availablePresentModes.size(); i++) {
 		if (availablePresentModes.at(i) == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -115,7 +113,7 @@ const VkPresentModeKHR VulkanWindow::get_optimal_present_mode() {
 
 const VkSampleCountFlagBits VulkanWindow::get_max_samples() const noexcept {
 	VkPhysicalDeviceProperties physicalDeviceProperties;
-	vkGetPhysicalDeviceProperties(device->physicalDevice(), &physicalDeviceProperties);
+	vkGetPhysicalDeviceProperties(Context::get()->renderSystem()->device()->physicalDevice(), &physicalDeviceProperties);
 
 	VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
 	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
@@ -129,7 +127,7 @@ const VkSampleCountFlagBits VulkanWindow::get_max_samples() const noexcept {
 }
 
 void VulkanWindow::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabilities) const {
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->physicalDevice(), _surface, &surfaceCapabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Context::get()->renderSystem()->device()->physicalDevice(), _surface, &surfaceCapabilities);
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
 		surfaceCapabilities.currentExtent.width = Settings::Window::width;
@@ -149,7 +147,7 @@ void VulkanWindow::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceC
 
 void VulkanWindow::create_window_surface() {
 	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
-	lassert(SDL_Vulkan_CreateSurface(window->get(), device->instance(), &_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
+	lassert(SDL_Vulkan_CreateSurface(Context::get()->window()->get(), Context::get()->renderSystem()->device()->instance(), &_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
 
 	Logger::log_debug(Logger::tab(), "Successfully created window surface");
 }
@@ -157,9 +155,9 @@ void VulkanWindow::create_window_surface() {
 void VulkanWindow::create_swapchain_images() {
 	// get the number of images
 	uint32 imageCount;
-	lassert(vkGetSwapchainImagesKHR(device->device(), _swapchain, &imageCount, nullptr) == VK_SUCCESS, "Failed to retrieve Vulkan swapchain images!");
+	lassert(vkGetSwapchainImagesKHR(Context::get()->renderSystem()->device()->device(), _swapchain, &imageCount, nullptr) == VK_SUCCESS, "Failed to retrieve Vulkan swapchain images!");
 	_images.resize(imageCount); _views.resize(imageCount);
-	vkGetSwapchainImagesKHR(device->device(), _swapchain, &imageCount, _images.data());
+	vkGetSwapchainImagesKHR(Context::get()->renderSystem()->device()->device(), _swapchain, &imageCount, _images.data());
 
 	// I hate this bro why C++
 	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
@@ -177,15 +175,15 @@ void VulkanWindow::create_swapchain_images() {
 		};
 
 		// create the view
-		lassert(vkCreateImageView(device->device(), &createInfo, nullptr, &_views.at(i)) == VK_SUCCESS, "Failed to create Vulkan image views");
+		lassert(vkCreateImageView(Context::get()->renderSystem()->device()->device(), &createInfo, nullptr, &_views.at(i)) == VK_SUCCESS, "Failed to create Vulkan image views");
 	}
 }
 
 void VulkanWindow::create_depth_buffer() {
-	_depthBufferFormat = _depthImage.get_best_format(device, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+	_depthBufferFormat = _depthImage.get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
-	lassert(vmaCreateImage(device->allocator(),
+	lassert(vmaCreateImage(Context::get()->renderSystem()->device()->allocator(),
 		&_depthImage.get_image_create_info(
 			_depthBufferFormat,
 			{ _extent.width, _extent.height, 1 },
@@ -195,7 +193,7 @@ void VulkanWindow::create_depth_buffer() {
 			1,
 			_maxMultisamples
 		),
-		&_depthMem.get_alloc_create_info(device, VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		&_depthMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 		&_depthImage._image,
 		&_depthMem._memory,
 		nullptr
@@ -205,14 +203,14 @@ void VulkanWindow::create_depth_buffer() {
 	_depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 
 	// transition the image layout
-	_depthImage.transition_layout(commandBufferManager, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	_depthImage.transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, _format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 }
 
 void VulkanWindow::create_color_resources() {
 	_maxMultisamples = get_max_samples();
 
 	// create memory and image
-	lassert(vmaCreateImage(device->allocator(),
+	lassert(vmaCreateImage(Context::get()->renderSystem()->device()->allocator(),
 		&_colorImage.get_image_create_info(
 			_format,
 			{ _extent.width, _extent.height, 1 },
@@ -222,14 +220,14 @@ void VulkanWindow::create_color_resources() {
 			1,
 			_maxMultisamples
 		),
-		&_colorMem.get_alloc_create_info(device, VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		&_colorMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 		&_colorImage._image,
 		&_colorMem._memory,
 		nullptr
 	) == VK_SUCCESS, "Failed to create Vulkan color resources!");
 
 	// create the image view
-	_colorImage.create_view(device, _format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+	_colorImage.create_view(_format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 }
 
 void VulkanWindow::create_swapchain() {
@@ -250,8 +248,8 @@ void VulkanWindow::create_swapchain() {
 	create_swapchain_extent(surfaceCapabilities);
 
 	// create the swapchain
-	const auto temp = device->graphicsQueue().familyIndex;
-	const auto cond = (device->graphicsQueue().familyIndex != device->presentQueue().familyIndex);
+	const auto temp = Context::get()->renderSystem()->device()->graphicsQueue().familyIndex;
+	const auto cond = (Context::get()->renderSystem()->device()->graphicsQueue().familyIndex != Context::get()->renderSystem()->device()->presentQueue().familyIndex);
 
 	VkSwapchainCreateInfoKHR createInfo = {
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -274,7 +272,7 @@ void VulkanWindow::create_swapchain() {
 		(_oldSwapchain != nullptr) ? *_oldSwapchain : VK_NULL_HANDLE
 	};
 
-	lassert(vkCreateSwapchainKHR(device->device(), &createInfo, nullptr, &_swapchain) == VK_SUCCESS, "Failed to create Vulkan swapchain");
+	lassert(vkCreateSwapchainKHR(Context::get()->renderSystem()->device()->device(), &createInfo, nullptr, &_swapchain) == VK_SUCCESS, "Failed to create Vulkan swapchain");
 
 	create_swapchain_images();
 	create_color_resources();
@@ -284,8 +282,6 @@ void VulkanWindow::create_swapchain() {
 }
 
 void VulkanWindow::create_sync_objects() {
-	this->device = device;
-
 	_imageAvailableSemaphores.resize(Settings::Rendering::maxFramesInFlight);
 	_renderFinishedSemaphores.resize(Settings::Rendering::maxFramesInFlight);
 	_inFlightFences.resize(Settings::Rendering::maxFramesInFlight);
@@ -298,9 +294,9 @@ void VulkanWindow::create_sync_objects() {
 	};
 
 	for (int i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
-		lassert(vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores.at(i)) == VK_SUCCESS
-			&& vkCreateSemaphore(device->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores.at(i)) == VK_SUCCESS
-			&& vkCreateFence(device->device(), &fenceInfo, nullptr, &_inFlightFences.at(i)) == VK_SUCCESS,
+		lassert(vkCreateSemaphore(Context::get()->renderSystem()->device()->device(), &semaphoreInfo, nullptr, &_imageAvailableSemaphores.at(i)) == VK_SUCCESS
+			&& vkCreateSemaphore(Context::get()->renderSystem()->device()->device(), &semaphoreInfo, nullptr, &_renderFinishedSemaphores.at(i)) == VK_SUCCESS
+			&& vkCreateFence(Context::get()->renderSystem()->device()->device(), &fenceInfo, nullptr, &_inFlightFences.at(i)) == VK_SUCCESS,
 			"Failed to create Vulkan Synchronization Objects");
 	}
 

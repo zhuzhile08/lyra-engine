@@ -62,12 +62,11 @@ public:
 	/**
 	 * @brief create a shader
 	 *
-	 * @param device device
 	 * @param path path of the shader
 	 * @param entry name of the entrance point of the shader
 	 * @param type type of the shader
 	 */
-	VulkanShader(const VulkanDevice* const device, const char* path, const char* entry, Type type);
+	VulkanShader(const char* path, const char* entry, Type type);
 
 	/**
 	* @brief destructor of the shader
@@ -116,8 +115,6 @@ private:
 	VkShaderModule _module = VK_NULL_HANDLE;
 	Type _type;
 	const char* _entry;
-
-	const VulkanDevice* device;
 };
 
 } // namespace lyra

@@ -73,12 +73,6 @@ public:
 	*/
 	[[nodiscard]] const std::shared_ptr<const VulkanDevice> device() const noexcept { return _device; }
 	/**
-	 * @brief get the command pool
-	 * 
-	 * @return const std::shared_ptr<const VulkanCommandPool>
-	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanCommandPool> commandPool() const noexcept { return _commandPool; }
-	/**
 	 * @brief get the command buffers
 	 *
 	 * @return const std::shared_ptr<CommandBufferManager>
@@ -117,7 +111,6 @@ public:
 
 private:
 	std::shared_ptr<VulkanDevice> _device;
-	std::shared_ptr<VulkanCommandPool> _commandPool;
 	std::shared_ptr<CommandBufferManager> _commandBuffers;
 	std::shared_ptr<VulkanWindow> _vulkanWindow;
 
@@ -127,9 +120,6 @@ private:
 	uint32 _imageIndex;
 	
 	CommandBuffer _currentCommandBuffer;
-
-	Window* window;
-
 
 	/**
 	 * @brief add a renderer to the vector of renderers

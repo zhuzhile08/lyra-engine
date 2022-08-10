@@ -37,7 +37,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 	// calculate the size of the staging buffer
 	VkDeviceSize imageMemSize = static_cast<uint64>(_width * _height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
 	// create a staging buffer
-	VulkanGPUBuffer stagingBuffer(Context::get()->renderSystem()->device().get(), imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+	VulkanGPUBuffer stagingBuffer(imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
 	// copy the image data into the staging buffer
 	stagingBuffer.copy_data(textureInfo.data);
@@ -52,14 +52,14 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 			_mipmap,
 			static_cast<VkImageType>(textureInfo.dimension)
 		),
-		&get_alloc_create_info(Context::get()->renderSystem()->device().get(), VMA_MEMORY_USAGE_GPU_ONLY),
+		&get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
 		& _image, 
 		& _memory, 
 		nullptr
 	) == VK_SUCCESS, "Failed to load image from path: ", _path);
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(Context::get()->renderSystem()->device().get(), Context::get()->renderSystem()->commandBuffers().get(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1});
+	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1});
 	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(_width), static_cast<uint32>(_height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();

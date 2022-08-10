@@ -25,13 +25,8 @@ namespace lyra {
  */
 class VulkanCommandPool {
 public:
-	VulkanCommandPool() { }
-	/**
-	 * @brief create a Vulkan command pool to allocate the command buffers
-	 *
-	 * @param device device
-	 */
-	VulkanCommandPool(const VulkanDevice* const device);
+	VulkanCommandPool();
+
 	/**
 	* @brief destructor of the command pool
 	**/
@@ -59,8 +54,6 @@ public:
 
 private:
 	VkCommandPool _commandPool = VK_NULL_HANDLE;
-
-	const VulkanDevice* device;
 };
 
 /**
@@ -83,11 +76,10 @@ private:
 		/**
 		 * @brief create the Vulkan command buffers
 		 *
-		 * @param device device
 		 * @param commandPool command pool
 		 * @param level level of the command buffer
 		 */
-		VulkanCommandBuffer(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		VulkanCommandBuffer(const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 		/**
 		* @brief destructor of the command buffer
@@ -105,14 +97,12 @@ private:
 		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 	
 	private:
-		const VulkanDevice* device;
 		const VulkanCommandPool* commandPool;
 	};
 
 	friend class RenderSystem;
 
 public:
-	CommandBufferManager() { }
 	/**
 	 * @brief create the command buffer manager
 	 *
@@ -120,7 +110,7 @@ public:
 	 * @param commandPool command pool
 	 * @param level level of the command buffers in the manager
 	 */
-	CommandBufferManager(const VulkanDevice* const device, const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	CommandBufferManager(const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 	/**
 	 * @brief destructor of the command buffer manager
@@ -226,6 +216,7 @@ public:
 	[[nodiscard]] const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBufferData.at(index); }
 
 private:
+	VulkanCommandPool _commandPool;
 	std::vector<VulkanCommandBuffer> _commandBufferData;
 	std::unordered_map<CommandBuffer, CommandBufferUsage> _commandBuffers;
 };

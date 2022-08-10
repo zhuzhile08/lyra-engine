@@ -19,8 +19,8 @@ MeshRenderer::MeshRenderer(
 	Logger::log_info("Creating Mesh Renderer... ");
 
 	// create the vertex and index buffer
-	_vertexBuffer = std::make_shared<VulkanGPUBuffer>(Context::get()->renderSystem()->device().get(), sizeof(_mesh->vertices()[0]) * _mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	_indexBuffer = std::make_shared<VulkanGPUBuffer>(Context::get()->renderSystem()->device().get(), sizeof(_mesh->indices()[0]) * _mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_vertexBuffer = std::make_shared<VulkanGPUBuffer>(sizeof(_mesh->vertices()[0]) * _mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_indexBuffer = std::make_shared<VulkanGPUBuffer>(sizeof(_mesh->indices()[0]) * _mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	create_vertex_buffer();
 	create_index_buffer();
 
@@ -29,22 +29,22 @@ MeshRenderer::MeshRenderer(
 
 void MeshRenderer::create_vertex_buffer() {
 	// create the staging buffer
-	VulkanGPUBuffer stagingBuffer(Context::get()->renderSystem()->device().get(), sizeof(_mesh->vertices()[0]) * _mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	VulkanGPUBuffer stagingBuffer(sizeof(_mesh->vertices()[0]) * _mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	stagingBuffer.copy_data(_mesh->vertices().data());
 
 	// copy the buffer
-	_vertexBuffer->copy(Context::get()->renderSystem()->commandPool().get(), &stagingBuffer);
+	_vertexBuffer->copy(&stagingBuffer);
 }
 
 void MeshRenderer::create_index_buffer() {
 	// create the staging buffer
-	VulkanGPUBuffer stagingBuffer(Context::get()->renderSystem()->device().get(), sizeof(_mesh->indices()[0]) * _mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	VulkanGPUBuffer stagingBuffer(sizeof(_mesh->indices()[0]) * _mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	
 	stagingBuffer.copy_data(_mesh->indices().data());
 
 	// copy the buffer
-	_indexBuffer->copy(Context::get()->renderSystem()->commandPool().get(), &stagingBuffer);
+	_indexBuffer->copy(&stagingBuffer);
 }
 
 void MeshRenderer::draw() const noexcept {

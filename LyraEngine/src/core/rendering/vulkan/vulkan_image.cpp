@@ -2,14 +2,15 @@
 
 #include <core/logger.h>
 
+#include <core/context.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 
 namespace lyra {
 
 VulkanImage::~VulkanImage() {
-	vkDestroyImageView(device->device(), _view, nullptr);
-	vkDestroyImage(device->device(), _image, nullptr);
+	vkDestroyImageView(Context::get()->renderSystem()->device()->device(), _view, nullptr);
+	vkDestroyImage(Context::get()->renderSystem()->device()->device(), _image, nullptr);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
 }
@@ -59,34 +60,21 @@ void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRan
 	};
 
 	// create the view
-	lassert(vkCreateImageView(device->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
+	lassert(vkCreateImageView(Context::get()->renderSystem()->device()->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 }
 
-void VulkanImage::create_view(
-	const VulkanDevice* const device, 
-	const VkFormat format, 
-	const VkImageSubresourceRange subresourceRange, 
-	const VkImageViewType viewType, 
-	const VkComponentMapping colorComponents
-) {
-	this->device = device;
-
-	create_view(format, subresourceRange, viewType, colorComponents);
-}
-
 void VulkanImage::transition_layout(
-	CommandBufferManager* const commandBufferManager,
 	const VkImageLayout oldLayout,
 	const VkImageLayout newLayout,
 	const VkFormat format,
 	const VkImageSubresourceRange subresourceRange
 ) const {
 	// get a command buffer for setting up memory barrier
-	CommandBuffer cmdBuff = commandBufferManager->get_unused();
+	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
 	// begin recording
-	commandBufferManager->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -107,29 +95,16 @@ void VulkanImage::transition_layout(
 	}
 	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
-	vkCmdPipelineBarrier(commandBufferManager->commandBuffer(cmdBuff)->commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
+	vkCmdPipelineBarrier(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
 	// end recording
-	commandBufferManager->end(cmdBuff);
+	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);
 
 	// submit queues after recording
-	commandBufferManager->submit_queue(cmdBuff, device->graphicsQueue().queue);
-	commandBufferManager->wait_queue(device->graphicsQueue().queue);
+	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, Context::get()->renderSystem()->device()->graphicsQueue().queue);
+	Context::get()->renderSystem()->commandBuffers()->wait_queue(Context::get()->renderSystem()->device()->graphicsQueue().queue);
 	// reset the command buffer
-	commandBufferManager->reset(cmdBuff);
-}
-
-void VulkanImage::transition_layout(
-	const VulkanDevice* const device,
-	CommandBufferManager* const commandBufferManager,
-	const VkImageLayout oldLayout,
-	const VkImageLayout newLayout,
-	const VkFormat format,
-	const VkImageSubresourceRange subresourceRange
-) {
-	this->device = device;
-
-	transition_layout(commandBufferManager, oldLayout, newLayout, format, subresourceRange);
+	Context::get()->renderSystem()->commandBuffers()->reset(cmdBuff);
 }
 
 const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
@@ -147,7 +122,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 
 	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(device->physicalDevice(), candidates.at(i), &props);
+		vkGetPhysicalDeviceFormatProperties(Context::get()->renderSystem()->device()->physicalDevice(), candidates.at(i), &props);
 
 		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
 		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
@@ -157,12 +132,6 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
 
 	return VK_FORMAT_MAX_ENUM;
-}
-
-const VkFormat VulkanImage::get_best_format(const VulkanDevice* const device, const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) {
-	this->device = device;
-
-	return get_best_format(candidates, features, tiling);
 }
 
 } // namespace lyra
