@@ -154,7 +154,7 @@ void VulkanDevice::create_instance() {
 		Settings::Window::title.c_str(),
 		VK_MAKE_VERSION(0, 0, 1),
 		"LyraEngine",
-		VK_MAKE_VERSION(0, 5, 0),
+		VK_MAKE_VERSION(0, 7, 0),
 		VK_API_VERSION_1_3
 	};
 
