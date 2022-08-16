@@ -14,7 +14,8 @@
 
 #include <core/settings.h>
 
-#include <core/context.h>
+#include <core/rendering/render_system.h>
+#include <core/rendering/window.h>
 
 namespace lyra {
 
@@ -49,14 +50,26 @@ public:
 	 *
 	 * @return const float
 	 */
-	[[nodiscard]] const float fps() const noexcept { return _fps; }
+	NODISCARD const float fps() const noexcept { return _fps; }
 	/**
 	 * @brief get the deltatime
 	 *
 	 * @return const float
 	 */
-	[[nodiscard]] const float deltaTime() const noexcept { return _deltaTime; }
-
+	NODISCARD const float deltaTime() const noexcept { return _deltaTime; }
+	/**
+	 * @brief get the window
+	 *
+	 * @return const lyra::Window* const
+	 */
+	NODISCARD static Window* const window() noexcept { return &_window; }
+	/**
+	 * @brief get the render system
+	 *
+	 * @return const lyra::RenderSystem* const
+	 */
+	NODISCARD static RenderSystem* const renderSystem() noexcept { return &_renderSystem; }
+	
 protected:
 	float _fps;
 	float _deltaTime;
@@ -64,7 +77,10 @@ protected:
 	uint64 _lastTime;
 	uint64 _currentTime;
 
-	virtual void init() = 0;
+	static Window _window;
+	static RenderSystem _renderSystem;
+
+	virtual void init() { }
 };
 
 } // namespace lyra
