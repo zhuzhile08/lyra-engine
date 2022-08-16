@@ -12,8 +12,6 @@ namespace lyra {
 
 Application::Application() {
 	Logger::init();
-	Settings::init();
-	Context::init();
 	init_SDL();
 	init();
 }
@@ -24,12 +22,12 @@ Application::~Application() {
 }
 
 void Application::draw() {
-	while (Context::get()->window()->running()) {
+	while (_window.running()) {
 		_lastTime = std::move(_currentTime);
 
-		Context::get()->window()->events();
-		Context::get()->renderSystem()->update();
-		Context::get()->renderSystem()->draw();
+		_window.events();
+		_renderSystem.update();
+		_renderSystem.draw();
 
 		_currentTime = SDL_GetTicks64();
 
@@ -38,7 +36,10 @@ void Application::draw() {
 		_fps = 1.0f / (float)_deltaTime;
 	}
 
-	Context::get()->renderSystem()->device()->wait();
+	_renderSystem.device()->wait();
 }
+
+Window Application::_window;
+RenderSystem Application::_renderSystem(&_window);
 
 } // namespace lyra
