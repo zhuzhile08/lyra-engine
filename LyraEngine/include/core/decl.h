@@ -11,19 +11,21 @@
 
 #pragma once
 
+#include <stdint.h>
+
 namespace lyra {
 
 // abbreviations for fixed width integers
 
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
+using uint8 = uint8_t;
+using uint16 = uint16_t;
+using uint32 = uint32_t;
+using uint64 = uint64_t;
 
-typedef int8_t int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
+using int8 = int8_t;
+using int16 = int16_t;
+using int32 = int32_t;
+using int64 = int64_t;
 
 // pointer types
 
@@ -72,5 +74,11 @@ class BaseAllocator;
 class LinearAllocator;
 class StackAllocator;
 class PoolAllocator;
+
+// utility macros
+
+#define NODISCARD [[nodiscard]]
+#define FUNC_PTR(func) [&] { func }
+#define TO_FUNC_PTR(func, type) type(*)(func*)
 
 } // namespace lyra
