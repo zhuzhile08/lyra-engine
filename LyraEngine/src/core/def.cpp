@@ -34,5 +34,3 @@
 #include "allocators.cpp"
 
 #include "application.cpp"
-
-#include "context.cpp"
