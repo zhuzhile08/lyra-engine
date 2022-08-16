@@ -9,16 +9,7 @@
 
 namespace lyra {
 
-Window::~Window() noexcept {
-	_running = false;
-
-	delete _eventQueue;
-	SDL_DestroyWindow(_window);
-
-	Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
-}
-
-void Window::create() noexcept {
+Window::Window() noexcept {
 	Logger::log_info("Creating SDL window...");
 
 	_eventQueue = new CallQueue;
@@ -33,11 +24,18 @@ void Window::create() noexcept {
 
 	_window = SDL_CreateWindow(Settings::Window::title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::Window::wWidth, Settings::Window::wHeight, flags);
 
-	if (!_window) {
-		Logger::log_exception("Failed to create SDL window with error: ", SDL_GetError());
-	}
+	lassert(_window, "Failed to create SDL window with error: ", SDL_GetError());
 
 	Logger::log_info("Successfully created window at: ", get_address(this), "!", Logger::end_l());
+}
+
+Window::~Window() noexcept {
+	_running = false;
+
+	delete _eventQueue;
+	SDL_DestroyWindow(_window);
+
+	Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
 }
 
 void Window::check_events(std::function<void()>&& function) {

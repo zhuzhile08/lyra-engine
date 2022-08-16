@@ -34,7 +34,7 @@ public:
 	/**
 	 * @brief construct a new window
 	 */
-	Window() noexcept { }
+	Window() noexcept;
 
 	/**
 	* @brief destructor of the window
@@ -50,11 +50,6 @@ public:
 
 	Window(const Window&) noexcept = delete;
 	Window operator=(const Window&) const noexcept = delete;
-
-	/**
-	 * @brief create the window
-	 */
-	void create() noexcept;
 
 	/**
 	 * @brief get the events
@@ -74,34 +69,32 @@ public:
 	/**
 	 * @brief wait until an event was detected
 	 */
-	void wait_events() {
-		SDL_WaitEvent(&_event);
-	}
+	void wait_events() { SDL_WaitEvent(&_event); }
 
 	/**
 	 * @brief get the event object
 	 * 
 	 * @return const SDL_Event
 	 */
-	[[nodiscard]] const SDL_Event event() const noexcept { return _event; }
+	NODISCARD const SDL_Event event() const noexcept { return _event; }
 	/**
 	 * @brief get the window object
 	 *
 	 * @return SDL_Window*
 	 */
-	[[nodiscard]] SDL_Window* get() const noexcept { return _window; };
+	NODISCARD SDL_Window* get() const noexcept { return _window; };
 	/**
 	* @brief get if window is still running
 	* 
 	* @return const bool
 	**/
-	[[nodiscard]] const bool running() const noexcept { return _running; }
+	NODISCARD const bool running() const noexcept { return _running; }
 	/**
 	* @brief get if window was changed and set it back to false
 	* 
 	* @return const bool
 	**/
-	[[nodiscard]] const bool changed() noexcept { return _changed; }
+	NODISCARD const bool changed() noexcept { return _changed; }
 
 private:
 	SDL_Window* _window;
