@@ -60,7 +60,6 @@ add_library(LyraEngine
  "src/init/single_header_init.cpp"
  "src/math/math.cpp"
  "src/res/loaders.cpp"
- "src/core/rendering/asset_manager.cpp"
  "src/nodes/nodes.cpp" 
  "src/core/def.cpp")
 
