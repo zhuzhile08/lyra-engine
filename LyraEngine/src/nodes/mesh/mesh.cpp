@@ -57,7 +57,7 @@ Mesh::Mesh(
 ) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder) {
 	Logger::log_info("Creating Mesh... ");
 
-	create_mesh(load_model(path), index);
+	create_mesh(util::load_model(path), index);
 
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
@@ -79,7 +79,7 @@ Mesh::Mesh(
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create_mesh(const non_access::LoadedModel loaded, const uint16 index) {
+void Mesh::create_mesh(const util::LoadedModel loaded, const uint16 index) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on
 	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this
 

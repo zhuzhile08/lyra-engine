@@ -75,17 +75,17 @@ public:
 	 * 
 	 * @return const lyra::AssetManager::TextureInfo&
 	 */
-	[[nodiscard]] static const TextureInfo unpack_texture(const char* path);
+	NODISCARD static const TextureInfo unpack_texture(const char* path);
 
 	/**
 	 * @brief return the raw image data
 	 * 
-	 * @return const lyra::non_access::AssetFile&
+	 * @return const lyra::util::AssetFile&
 	 */
-	[[nodiscard]] static const non_access::AssetFile& images() noexcept { return _images; }
+	NODISCARD static const util::AssetFile& images() noexcept { return _images; }
 
 private:
-	static non_access::AssetFile _images;
+	static util::AssetFile _images;
 };
 
 } // namespace lyra
