@@ -13,6 +13,8 @@
 
 #include <core/decl.h>
 #include <core/rendering/vulkan/devices.h>
+#include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/vulkan/vulkan_window.h>
 
 #include <vector>
 #include <memory>
@@ -69,50 +71,50 @@ public:
 	/**
 	 * @brief get the device
 	 * 
-	 * @return const std::shared_ptr<const VulkanDevice>
+	 * @return const VulkanDevice* const
 	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanDevice> device() const noexcept { return _device; }
+	NODISCARD const VulkanDevice* const device() const noexcept { return &_device; }
 	/**
 	 * @brief get the command buffers
 	 *
-	 * @return const std::shared_ptr<CommandBufferManager>
+	 * @return const SmartPointer<CommandBufferManager>
 	*/
-	[[nodiscard]] const std::shared_ptr<CommandBufferManager> commandBuffers() noexcept { return _commandBuffers; }
+	NODISCARD CommandBufferManager* const commandBuffers() noexcept { return &_commandBuffers; }
 	/**
 	 * @brief get the vulkan window
 	 *
 	 * @return const lyra::VulkanWindow* const
 	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanWindow> vulkanWindow() const noexcept { return _vulkanWindow; }
+	NODISCARD const VulkanWindow* const vulkanWindow() const noexcept { return &_vulkanWindow; }
 	/**
 	 * @brief get the current active command buffer
 	 *
 	 * @return const VkCommandBuffer&
 	*/
-	[[nodiscard]] const VkCommandBuffer& activeCommandBuffer() noexcept;
+	NODISCARD const VkCommandBuffer& activeCommandBuffer() noexcept;
 	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
 	*/
-	[[nodiscard]] const uint8 currentFrame() const noexcept { return _currentFrame; }
+	NODISCARD const uint8 currentFrame() const noexcept { return _currentFrame; }
 	/**
 	 * @brief get the image index
 	 * 
 	 * @return const uint32
 	*/
-	[[nodiscard]] const uint32 imageIndex() const noexcept { return _imageIndex; }
+	NODISCARD const uint32 imageIndex() const noexcept { return _imageIndex; }
 	/**
 	 * @brief get the image index
 	 *
 	 * @return const lyra::CommandBuffer&
 	*/
-	[[nodiscard]] const CommandBuffer& currentCommandBuffer() const noexcept { return _currentCommandBuffer; }
+	NODISCARD const CommandBuffer& currentCommandBuffer() const noexcept { return _currentCommandBuffer; }
 
 private:
-	std::shared_ptr<VulkanDevice> _device;
-	std::shared_ptr<CommandBufferManager> _commandBuffers;
-	std::shared_ptr<VulkanWindow> _vulkanWindow;
+	VulkanDevice _device;
+	CommandBufferManager _commandBuffers;
+	VulkanWindow _vulkanWindow;
 
 	std::vector<Renderer*> _renderers;
 
@@ -120,6 +122,8 @@ private:
 	uint32 _imageIndex;
 	
 	CommandBuffer _currentCommandBuffer;
+
+	Window* window;
 
 	/**
 	 * @brief add a renderer to the vector of renderers
