@@ -5,6 +5,8 @@
 
 namespace lyra {
 
+namespace util {
+
 // mode to open a file
 enum OpenMode {
 	MODE_INPUT = 0x01,
@@ -32,7 +34,7 @@ void load_file(const char* path, const int mode, std::ifstream& file);
  * @param mode mode to open the file
  * @param data type to dump the file into
  */
-template<class _Ty> void load_file(const char* path, const int mode, _Ty* data) {
+template<class _Ty> _Ty load_file(const char* path, const int mode) {
 	// load the binary
 	std::ifstream file;
 	load_file(path, mode, file);
@@ -41,9 +43,14 @@ template<class _Ty> void load_file(const char* path, const int mode, _Ty* data) 
 	size_t size = (size_t)file.tellg();
 	file.seekg(0, file.beg);
 
-	data->resize(size);
-	file.read(data->data(), size);
+	_Ty value;
+	value.resize(size);
+	file.read(value.data(), size);
 	file.close();
+
+	return value;
 }
+
+} // namespace util
 
 } // namespace lyra

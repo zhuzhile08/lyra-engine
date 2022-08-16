@@ -2,8 +2,10 @@
 
 namespace lyra {
 
-const non_access::AssetFile load_assets(const std::string binPath) {
-	non_access::AssetFile loadedAsset;
+namespace util {
+
+const AssetFile load_assets(const std::string binPath) {
+	AssetFile loadedAsset;
 
 	// check
 	if (binPath.substr(binPath.length() - 4, 4) != "ldat") Logger::log_warning("Non standard file extension found on data file at path: ", binPath, "! This may cause problems during loading.");
@@ -60,5 +62,7 @@ char* const unpack_file(const char* const data, const uint32 jsonLength, const u
 	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
 	return result;
 }
+
+} // util
 
 } // namespace lyra

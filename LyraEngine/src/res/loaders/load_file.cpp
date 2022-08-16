@@ -2,6 +2,8 @@
 
 namespace lyra {
 
+namespace util {
+
 void load_file(const char* path, const int mode, std::ifstream& file) {
 	// load the binary
 	file.open(path, static_cast<std::ios_base::openmode>(mode));
@@ -11,5 +13,7 @@ void load_file(const char* path, const int mode, std::ifstream& file) {
 	// move the cursor to the beginning of the file
 	file.seekg(0);
 }
+
+} // namespace util
 
 } // namespace lyra

@@ -2,8 +2,10 @@
 
 namespace lyra {
 
-const non_access::LoadedModel load_model(const char* path) {
-	non_access::LoadedModel load;
+namespace util {
+
+const LoadedModel load_model(const char* path) {
+	LoadedModel load;
 	// warning and errors
 	std::string warning, error;
 
@@ -17,5 +19,7 @@ const non_access::LoadedModel load_model(const char* path) {
 
 	return load;
 }
+
+} // namespace util
 
 } // namespace lyra

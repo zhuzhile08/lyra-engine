@@ -13,7 +13,7 @@
 
 namespace lyra {
 
-namespace non_access {
+namespace util {
 
 struct AssetFile {
 	char type[4];
@@ -21,16 +21,14 @@ struct AssetFile {
 	std::vector<char> binary;
 };
 
-} // non_access
-
 /**
  * @brief load a asset file
  *
  * @param binPath path for the binary file
  * 
- * @return const lyra::non_access::AssetFile
+ * @return const lyra::util::AssetFile
  */
-[[nodiscard]] const non_access::AssetFile load_assets(const std::string binPath);
+NODISCARD const AssetFile load_assets(const std::string binPath);
 
 /**
  * @brief ldat file format documentation:
@@ -49,7 +47,7 @@ struct AssetFile {
  * 
  * @return char* const 
  */
-[[nodiscard]] char* const unpack_file(const char* const data, const uint32 length, const uint32 size);
+NODISCARD char* const unpack_file(const char* const data, const uint32 length, const uint32 size);
 
 /**
  * @brief lson file format documentation:
@@ -59,5 +57,7 @@ struct AssetFile {
  * 4 bytes, uint32_t, length of the original json file
  * the rest is the compressed json
  */
+
+} // util
 
 } // namespace lyra
