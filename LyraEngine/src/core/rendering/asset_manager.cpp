@@ -3,7 +3,7 @@
 namespace lyra {
 
 void AssetManager::init() {
-	_images = load_assets("data/images/images.ldat"); // custom data formats, baby!
+	_images = util::load_assets("data/images/images.ldat"); // custom data formats, baby!
 
 }
 
@@ -40,6 +40,6 @@ const AssetManager::TextureInfo AssetManager::unpack_texture(const char* path) {
 	return textureInfo;
 }
 
-non_access::AssetFile AssetManager::_images;
+util::AssetFile AssetManager::_images;
 
 } // namespace lyra
