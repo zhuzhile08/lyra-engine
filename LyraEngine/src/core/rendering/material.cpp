@@ -52,7 +52,7 @@ Material::Material(
 
 	} });
 
-	_descriptor = std::make_shared<VulkanDescriptor>(camera->_renderPipeline->descriptorSetLayout(), camera->_renderPipeline->descriptorPool(), writer);
+	_descriptor = SmartPointer<VulkanDescriptor>::create(camera->_renderPipeline->descriptorSetLayout(), camera->_renderPipeline->descriptorPool(), writer);
 
 	Logger::log_info("Successfully created material with address:", get_address(this), "!");
 }
@@ -60,7 +60,7 @@ Material::Material(
 void Material::draw() const {
 	// bind the descriptor set first
 	vkCmdBindDescriptorSets(
-		Context::get()->renderSystem()->activeCommandBuffer(),
+		Application::renderSystem()->activeCommandBuffer(),
 		camera->_renderPipeline->bindPoint(), camera->_renderPipeline->layout(), 0, 1, _descriptor->get_ptr(), 0, nullptr
 	);
 	// then draw all the meshes

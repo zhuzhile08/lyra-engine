@@ -2,15 +2,15 @@
 
 #include <core/logger.h>
 
-#include <core/context.h>
+#include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 
 namespace lyra {
 
 VulkanImage::~VulkanImage() {
-	vkDestroyImageView(Context::get()->renderSystem()->device()->device(), _view, nullptr);
-	vkDestroyImage(Context::get()->renderSystem()->device()->device(), _image, nullptr);
+	vkDestroyImageView(Application::renderSystem()->device()->device(), _view, nullptr);
+	vkDestroyImage(Application::renderSystem()->device()->device(), _image, nullptr);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
 }
@@ -60,7 +60,7 @@ void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRan
 	};
 
 	// create the view
-	lassert(vkCreateImageView(Context::get()->renderSystem()->device()->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
+	lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 }
@@ -72,9 +72,9 @@ void VulkanImage::transition_layout(
 	const VkImageSubresourceRange subresourceRange
 ) const {
 	// get a command buffer for setting up memory barrier
-	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// begin recording
-	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -95,16 +95,16 @@ void VulkanImage::transition_layout(
 	}
 	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
-	vkCmdPipelineBarrier(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
+	vkCmdPipelineBarrier(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
 
 	// end recording
-	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);
+	Application::renderSystem()->commandBuffers()->end(cmdBuff);
 
 	// submit queues after recording
-	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, Context::get()->renderSystem()->device()->graphicsQueue().queue);
-	Context::get()->renderSystem()->commandBuffers()->wait_queue(Context::get()->renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset the command buffer
-	Context::get()->renderSystem()->commandBuffers()->reset(cmdBuff);
+	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
 }
 
 const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
@@ -122,7 +122,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 
 	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(Context::get()->renderSystem()->device()->physicalDevice(), candidates.at(i), &props);
+		vkGetPhysicalDeviceFormatProperties(Application::renderSystem()->device()->physicalDevice(), candidates.at(i), &props);
 
 		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
 		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);

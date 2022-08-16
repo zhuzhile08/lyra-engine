@@ -1,6 +1,6 @@
 #include <core/rendering/vulkan/devices.h>
 
-#include <core/context.h>
+#include <core/application.h>
 #include <core/rendering/window.h>
 
 namespace lyra {
@@ -53,7 +53,7 @@ void VulkanDevice::check_requested_validation_layers(const std::vector <VkLayerP
 		Logger::log_info("Available layers:");
 
 		for (uint32 j = 0; j < layers.size(); j++) {
-			Logger::log_debug(Logger::tab(), layers.at(j).layerName, layers.at(j).description);
+			Logger::log_debug(Logger::tab(), layers.at(j).layerName, ": ", layers.at(j).description);
 			if (strcmp(requestedLayers.at(i), layers.at(j).layerName) == 0) {
 				found = true;
 				break;
@@ -144,9 +144,9 @@ void VulkanDevice::create_instance() {
 	// get all extensions
 	uint32 SDLExtensionCount = 0;
 
-	lassert(SDL_Vulkan_GetInstanceExtensions(Context::get()->window()->get(), &SDLExtensionCount, nullptr), "Failed to get number of Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
 	const char** SDLExtensions = new const char* [SDLExtensionCount];
-	lassert(SDL_Vulkan_GetInstanceExtensions(Context::get()->window()->get(), &SDLExtensionCount, SDLExtensions), "Failed to get Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, SDLExtensions) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 
 	// define some info for the application that will be used in instance creation
 	VkApplicationInfo appInfo{

@@ -2,13 +2,13 @@
 
 #include <core/logger.h>
 
-#include <core/context.h>
+#include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
 
 namespace lyra {
 
 VulkanGPUMemory::~VulkanGPUMemory() {
-	vmaFreeMemory(Context::get()->renderSystem()->device()->allocator(), _memory);
+	vmaFreeMemory(Application::renderSystem()->device()->allocator(), _memory);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed VMA Memory!");
 }

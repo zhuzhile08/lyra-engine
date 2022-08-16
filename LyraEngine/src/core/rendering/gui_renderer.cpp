@@ -1,6 +1,6 @@
 #include <core/rendering/gui_renderer.h>
 
-#include <core/context.h>
+#include <core/application.h>
 
 #include <core/logger.h>
 
@@ -37,47 +37,47 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	builder.set_max_sets(1000); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	_descriptorPool = std::make_unique<VulkanDescriptorPool>(builder);
+	_descriptorPool = SmartPointer<VulkanDescriptorPool>::create(builder);
 
 	// initialize ImGui
 	ImGui::CreateContext();
 	// initialize ImGui for SDL
-	ImGui_ImplSDL2_InitForVulkan(Context::get()->window()->get());
+	ImGui_ImplSDL2_InitForVulkan(Application::window()->get());
 	// initialization information
 	ImGui_ImplVulkan_InitInfo initInfo{
-		Context::get()->renderSystem()->device()->instance(),
-		Context::get()->renderSystem()->device()->physicalDevice(),
-		Context::get()->renderSystem()->device()->device(),
-		Context::get()->renderSystem()->device()->graphicsQueue().familyIndex,
-		Context::get()->renderSystem()->device()->graphicsQueue().queue,
+		Application::renderSystem()->device()->instance(),
+		Application::renderSystem()->device()->physicalDevice(),
+		Application::renderSystem()->device()->device(),
+		Application::renderSystem()->device()->graphicsQueue().familyIndex,
+		Application::renderSystem()->device()->graphicsQueue().queue,
 		VK_NULL_HANDLE,
 		_descriptorPool->get(),
 		0,
 		3,
 		3,
-		Context::get()->renderSystem()->vulkanWindow()->maxMultisamples()
+		Application::renderSystem()->vulkanWindow()->maxMultisamples()
 	};
 	// initialize ImGui for Vulkan
 	ImGui_ImplVulkan_Init(&initInfo, _renderPass);
 
 	// get a command buffer for creating the font textures
-	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// start recording the command buffer
-	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	// create the textures
-	ImGui_ImplVulkan_CreateFontsTexture(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer);
+	ImGui_ImplVulkan_CreateFontsTexture(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer);
 	// end recording the command buffer
-	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);
+	Application::renderSystem()->commandBuffers()->end(cmdBuff);
 	// submit the commands
-	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, Context::get()->renderSystem()->device()->graphicsQueue().queue);
-	Context::get()->renderSystem()->commandBuffers()->wait_queue(Context::get()->renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset the command buffer
-	Context::get()->renderSystem()->commandBuffers()->reset(cmdBuff);
+	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 	
-	const_cast<Window*>(Context::get()->window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Context::get()->window()->event()); ));
+	const_cast<Window*>(Application::window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Application::window()->event()); ));
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
@@ -97,7 +97,7 @@ void GUIRenderer::record_command_buffers() const {
 
 	// begin drawing
 	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame(Context::get()->window()->get());
+	ImGui_ImplSDL2_NewFrame(Application::window()->get());
 	ImGui::NewFrame();
 
 	// flush all draw commands
@@ -105,7 +105,7 @@ void GUIRenderer::record_command_buffers() const {
 
 	// render
 	ImGui::Render();
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Context::get()->renderSystem()->activeCommandBuffer());
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::renderSystem()->activeCommandBuffer());
 
 	end_renderpass();
 }

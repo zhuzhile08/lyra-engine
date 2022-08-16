@@ -2,7 +2,7 @@
 
 #include <core/logger.h>
 
-#include <core/context.h>
+#include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 
@@ -29,21 +29,21 @@ VulkanGPUBuffer::VulkanGPUBuffer(VkDeviceSize const size, VkBufferUsageFlags con
 		0
 	};
 
-	lassert(vmaCreateBuffer(Context::get()->renderSystem()->device()->allocator(), &bufferInfo, &get_alloc_create_info(memUsage), &_buffer, &_memory, nullptr) == VK_SUCCESS,
+	lassert(vmaCreateBuffer(Application::renderSystem()->device()->allocator(), &bufferInfo, &get_alloc_create_info(memUsage), &_buffer, &_memory, nullptr) == VK_SUCCESS,
 		"Failed to create Vulkan GPU memory buffer!");
 
 	Logger::log_info("Successfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
 }
 
 VulkanGPUBuffer::~VulkanGPUBuffer() noexcept {
-	vkDestroyBuffer(Context::get()->renderSystem()->device()->device(), _buffer, nullptr);
+	vkDestroyBuffer(Application::renderSystem()->device()->device(), _buffer, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
 }
 
 void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
 	void* data;
-	lassert(vmaMapMemory(Context::get()->renderSystem()->device()->allocator(), _memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(_memory), "!");
+	lassert(vmaMapMemory(Application::renderSystem()->device()->allocator(), _memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(_memory), "!");
 
 	/**  
 	const char* s = (char*)src;
@@ -56,14 +56,14 @@ void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
 
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
 
-	vmaUnmapMemory(Context::get()->renderSystem()->device()->allocator(), _memory);
+	vmaUnmapMemory(Application::renderSystem()->device()->allocator(), _memory);
 }
 
 void VulkanGPUBuffer::copy(const VulkanGPUBuffer* const srcBuffer) {
 	// get a unused command buffer
-	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// start recording
-	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// transfer the contents of the sorce to the destination buffer
 	VkBufferCopy copyRegion{
@@ -72,15 +72,15 @@ void VulkanGPUBuffer::copy(const VulkanGPUBuffer* const srcBuffer) {
 		_size
 	};
 
-	vkCmdCopyBuffer(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), _buffer, 1, &copyRegion);
+	vkCmdCopyBuffer(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), _buffer, 1, &copyRegion);
 
-	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);		// end recording
+	Application::renderSystem()->commandBuffers()->end(cmdBuff);		// end recording
 
 	// submit the commands
-	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, Context::get()->renderSystem()->device()->graphicsQueue().queue);
-	Context::get()->renderSystem()->commandBuffers()->wait_queue(Context::get()->renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset the command buffer
-	Context::get()->renderSystem()->commandBuffers()->reset(cmdBuff);
+	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
 
 	Logger::log_debug("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
 }

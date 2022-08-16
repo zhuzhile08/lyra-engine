@@ -5,7 +5,7 @@
 #include <core/rendering/vulkan/descriptor.h>
 #include <nodes/mesh/mesh.h>
 #include <nodes/graphics/camera.h>
-#include <core/context.h>
+#include <core/application.h>
 #include <core/logger.h>
 
 namespace lyra {
@@ -120,7 +120,7 @@ void GraphicsPipeline::create_pipeline(
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			Context::get()->renderSystem()->vulkanWindow()->maxMultisamples(),
+			Application::renderSystem()->vulkanWindow()->maxMultisamples(),
 			VK_TRUE,				// currently set to false
 			0.2f,
 			nullptr,
@@ -202,7 +202,7 @@ void GraphicsPipeline::create_pipeline(
 		0
 	};
 
-	lassert(vkCreateGraphicsPipelines(Context::get()->renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
+	lassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
 }
 
 } // namespace lyra

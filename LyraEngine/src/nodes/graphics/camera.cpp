@@ -5,7 +5,7 @@
 
 #include <gtc/matrix_transform.hpp>
 
-#include <core/context.h>
+#include <core/application.h>
 #include <core/rendering/vulkan/vulkan_window.h>
 #include <core/rendering/vulkan/vulkan_pipeline.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
@@ -26,16 +26,16 @@ Camera::Camera(const char* name, Spatial* parent, const bool visible, const uint
 		{ lyra::VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1, lyra::Settings::Rendering::maxFramesInFlight, lyra::VulkanShader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" }
 	};
 
-	_renderPipeline = std::make_unique<GraphicsPipeline>(
+	_renderPipeline = SmartPointer<GraphicsPipeline>::create(
 		this,
 		bindings,
-		lyra::Context::get()->renderSystem()->vulkanWindow()->extent(),
-		lyra::Context::get()->renderSystem()->vulkanWindow()->extent()
+		lyra::Application::renderSystem()->vulkanWindow()->extent(),
+		lyra::Application::renderSystem()->vulkanWindow()->extent()
 		);
 
 	// create the buffers
-	_buffers.resize(Settings::Rendering::maxFramesInFlight);
-	for (uint32 i = 0; i < _buffers.size(); i++) _buffers.emplace_back(Context::get()->renderSystem()->device(), sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_buffers.reserve(Settings::Rendering::maxFramesInFlight);
+	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) _buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// add the update and draw functions into the queues
 	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
@@ -60,13 +60,13 @@ void Camera::draw(CameraData data) {
 	else data.proj = glm::ortho(_viewport[0], _viewport[1] + _viewport[0], _viewport[2], _viewport[3] + _viewport[2], _near, _far);
 	data.proj[1][1] *= -1;
 
-	_buffers.at(Context::get()->renderSystem()->currentFrame()).copy_data(&data);
+	_buffers.at(Application::renderSystem()->currentFrame()).copy_data(&data);
 }
 
 void Camera::record_command_buffers() const {
 	begin_renderpass();
 
-	vkCmdBindPipeline(Context::get()->renderSystem()->activeCommandBuffer(), _renderPipeline->bindPoint(), _renderPipeline->pipeline());
+	vkCmdBindPipeline(Application::renderSystem()->activeCommandBuffer(), _renderPipeline->bindPoint(), _renderPipeline->pipeline());
 
 	for (int i = 0; i < _materials.size(); i++) _materials.at(i)->draw();
 

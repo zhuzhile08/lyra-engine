@@ -10,8 +10,8 @@
 namespace lyra {
 
 VulkanPipeline::~VulkanPipeline() noexcept {
-	vkDestroyPipeline(Context::get()->renderSystem()->device()->device(), _pipeline, nullptr);
-	vkDestroyPipelineLayout(Context::get()->renderSystem()->device()->device(), _layout, nullptr);
+	vkDestroyPipeline(Application::renderSystem()->device()->device(), _pipeline, nullptr);
+	vkDestroyPipelineLayout(Application::renderSystem()->device()->device(), _layout, nullptr);
 	_shaders.clear();
 
 	Logger::log_info("Successfully destroyed Vulkan pipeline!");
@@ -29,7 +29,7 @@ void VulkanPipeline::create_layout() {
 		nullptr
 	};
 
-	lassert(vkCreatePipelineLayout(Context::get()->renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
+	lassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
 }
 
 void VulkanPipeline::create_shaders(std::vector<Binding> bindings) {
@@ -40,7 +40,7 @@ void VulkanPipeline::create_shaders(std::vector<Binding> bindings) {
 	}
 
 	for (int index = 0; index < bindings.size(); index++) {
-		_shaders.emplace_back(Context::get()->renderSystem()->device(), bindings.at(index).path, bindings.at(index).entry, 
+		_shaders.emplace_back(bindings.at(index).path, bindings.at(index).entry, 
 			static_cast<VulkanShader::Type>(bindings.at(index).shaderType));
 		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", bindings.at(index).shaderType, "!");
 	}
@@ -78,8 +78,8 @@ void VulkanPipeline::create_descriptor_stuff(std::vector<Binding> bindings, VkDe
 	poolBuilder.poolFlags = poolFlags;
 
 	// create the descriptor layout and pool
-	_descriptorSetLayout = std::make_shared<VulkanDescriptorSetLayout>(layoutBuilder);
-	_descriptorPool = std::make_shared<VulkanDescriptorPool>(poolBuilder);
+	_descriptorSetLayout = SmartPointer<VulkanDescriptorSetLayout>::create(layoutBuilder);
+	_descriptorPool = SmartPointer<VulkanDescriptorPool>::create(poolBuilder);
 }
 
 } // namespace lyra

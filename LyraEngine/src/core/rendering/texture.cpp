@@ -21,7 +21,7 @@ Texture::Texture(char* const path, const VkFormat format) {
 }
 
 Texture::~Texture() noexcept {
-	vkDestroySampler(Context::get()->renderSystem()->device()->device(), _sampler, nullptr);
+	vkDestroySampler(Application::renderSystem()->device()->device(), _sampler, nullptr);
 
 	Logger::log_info("Successfully destroyed Texture!");
 }
@@ -44,7 +44,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 
 	// create the image and allocate its memory
 	lassert(vmaCreateImage(
-		Context::get()->renderSystem()->device()->allocator(), 
+		Application::renderSystem()->device()->allocator(), 
 		&get_image_create_info(
 			format, 
 			{ static_cast<uint32>(_width), static_cast<uint32>(_height), 1 },
@@ -70,7 +70,7 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 
 void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
 	VkPhysicalDeviceProperties properties;
-	vkGetPhysicalDeviceProperties(Context::get()->renderSystem()->device()->physicalDevice(), &properties);
+	vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &properties);
 
 	VkSamplerCreateInfo samplerInfo {
 		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -93,7 +93,7 @@ void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFil
 		VK_FALSE
 	};
 
-	lassert(vkCreateSampler(Context::get()->renderSystem()->device()->device(), &samplerInfo, nullptr, &_sampler) == VK_SUCCESS, "Failed to create Vulkan image sampler!");
+	lassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &_sampler) == VK_SUCCESS, "Failed to create Vulkan image sampler!");
 
 	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }
@@ -101,18 +101,18 @@ void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFil
 void Texture::generate_mipmaps() const {
 	// check if image supports linear filtering
 	VkFormatProperties formatProperties;
-	vkGetPhysicalDeviceFormatProperties(Context::get()->renderSystem()->device()->physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
+	vkGetPhysicalDeviceFormatProperties(Application::renderSystem()->device()->physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
 	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", Logger::end_l());
 
 	// temporary command buffer for generating midmaps
-	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// begin recording
-	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	int32 mipWidth = _width, mipHeight = _height;
 
 	for (uint32 i = 1; i < _mipmap; i++) {
-		Context::get()->renderSystem()->commandBuffers()->pipeline_barrier(
+		Application::renderSystem()->commandBuffers()->pipeline_barrier(
 			cmdBuff,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_TRANSFER_BIT, 
@@ -135,10 +135,10 @@ void Texture::generate_mipmaps() const {
 			{ { 0, 0, 0 }, { (mipWidth > 1) ? mipWidth / 2 : 1, (mipHeight > 1) ? mipHeight / 2 : 1, 1 } }
 		};
 
-		vkCmdBlitImage(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, _image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+		vkCmdBlitImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, _image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
 			_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 
-		Context::get()->renderSystem()->commandBuffers()->pipeline_barrier(
+		Application::renderSystem()->commandBuffers()->pipeline_barrier(
 			cmdBuff,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
@@ -157,7 +157,7 @@ void Texture::generate_mipmaps() const {
 		if (mipHeight > 1) mipHeight /= 2;
 	}
 
-	Context::get()->renderSystem()->commandBuffers()->pipeline_barrier(
+	Application::renderSystem()->commandBuffers()->pipeline_barrier(
 		cmdBuff,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
@@ -173,22 +173,22 @@ void Texture::generate_mipmaps() const {
 	);
 
 	// end recording
-	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);
+	Application::renderSystem()->commandBuffers()->end(cmdBuff);
 
 	// submit queues after recording
-	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, Context::get()->renderSystem()->device()->graphicsQueue().queue);
-	Context::get()->renderSystem()->commandBuffers()->wait_queue(Context::get()->renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset command buffer
-	Context::get()->renderSystem()->commandBuffers()->reset(cmdBuff);
+	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
 
 	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
 }
 
 void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent) {
 	// temporary command buffer for copying
-	CommandBuffer cmdBuff = Context::get()->renderSystem()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// begin recording
-	Context::get()->renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// copy image in buffer to the image
 	VkBufferImageCopy imageCopy{
@@ -200,14 +200,14 @@ void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExt
 		extent
 	};
 
-	vkCmdCopyBufferToImage(Context::get()->renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, stagingBuffer->buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+	vkCmdCopyBufferToImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, stagingBuffer->buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
 
 	// end recording
-	Context::get()->renderSystem()->commandBuffers()->end(cmdBuff);
+	Application::renderSystem()->commandBuffers()->end(cmdBuff);
 
 	// submit queues after recording
-	Context::get()->renderSystem()->commandBuffers()->submit_queue(cmdBuff, Context::get()->renderSystem()->device()->graphicsQueue().queue);
-	Context::get()->renderSystem()->commandBuffers()->wait_queue(Context::get()->renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
+	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
 
 	Logger::log_debug(Logger::tab(), "Copied image data from buffer to image at: ", get_address(this));
 }
