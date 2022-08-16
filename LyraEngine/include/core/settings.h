@@ -32,7 +32,7 @@ struct Settings {
 	};
 
 	// initialize the variables
-	static void init();
+	static nlohmann::json json;
 
 	// generell application settings
 	struct Application {
