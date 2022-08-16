@@ -52,7 +52,7 @@ struct VulkanImage {
 	 * 
 	 * @return const VkImageCreateInfo
 	 */
-	[[nodiscard]] const VkImageCreateInfo get_image_create_info(
+	NODISCARD const VkImageCreateInfo get_image_create_info(
 		const VkFormat format,
 		const VkExtent3D extent,
 		const VkImageUsageFlags usage,
@@ -91,7 +91,7 @@ struct VulkanImage {
 	 *
 	 * @return const VkImageMemoryBarrier
 	*/
-	[[nodiscard]] const VkImageMemoryBarrier get_image_memory_barrier(
+	NODISCARD const VkImageMemoryBarrier get_image_memory_barrier(
 		const VkAccessFlags srcAccessMask,
 		const VkAccessFlags dstAccessMask,
 		const VkImageLayout srcLayout,
@@ -139,7 +139,7 @@ struct VulkanImage {
 	 *
 	 * @return const VkFormat
 	*/
-	[[nodiscard]] const VkFormat get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
+	NODISCARD const VkFormat get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
 
 	VkImage _image = VK_NULL_HANDLE;
 	VkImageView _view = VK_NULL_HANDLE;

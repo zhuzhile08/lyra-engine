@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <core/decl.h>
+
 #include <vector>
 #include <glm.hpp>
 
@@ -26,7 +28,7 @@ namespace lyra {
  * 
  * @return double 
  */
-[[nodiscard]] float pyth(const glm::vec2 a, const glm::vec2 b);
+NODISCARD float pyth(const glm::vec2 a, const glm::vec2 b);
 
 /**
  * @brief an implementation of pythagoras theorem, but in 3D
@@ -36,7 +38,7 @@ namespace lyra {
  * 
  * @return double 
  */
-[[nodiscard]] float pyth3(const glm::vec3 a, const glm::vec3 b);
+NODISCARD float pyth3(const glm::vec3 a, const glm::vec3 b);
 
 /**
  * @brief get the position on a line based on a normalized value
@@ -49,7 +51,7 @@ namespace lyra {
  * 
  * @return Ty
 */
-template<class Ty> [[nodiscard]] Ty point_on_line(Ty first, Ty second, float value);
+template<class Ty> NODISCARD Ty point_on_line(Ty first, Ty second, float value);
 
 /**
  * @brief get a point on a bezier curve
@@ -61,7 +63,7 @@ template<class Ty> [[nodiscard]] Ty point_on_line(Ty first, Ty second, float val
  * 
  * @return Ty 
 */
-template<class Ty> [[nodiscard]] Ty bezier(std::vector<Ty> points, float value);
+template<class Ty> NODISCARD Ty bezier(std::vector<Ty> points, float value);
 
 /**
  * @brief randomly generate a floating point number
@@ -71,7 +73,7 @@ template<class Ty> [[nodiscard]] Ty bezier(std::vector<Ty> points, float value);
  * 
  * @return float
  */
-[[nodiscard]] float randFloat(const float x, const float y);
+NODISCARD float randFloat(const float x, const float y);
 
 // pointer alignment mode
 enum AlignMode : uint8_t {
@@ -97,6 +99,6 @@ void alignPointer(void* address, const uint8_t alignment, const uint8_t mode = 0
  *
  * @return const uint8_t
  */
-[[nodiscard]] const uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode = 0);
+NODISCARD const uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode = 0);
 
 } // namespace lyra

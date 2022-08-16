@@ -47,21 +47,21 @@ public:
 	/**
 	 * @brief get the vertex buffer
 	 *
-	 * @return const std::shared_ptr <const VulkanGPUBuffer>
+	 * @return const VulkanGPUBuffer>
 	*/
-	[[nodiscard]] const std::shared_ptr <const VulkanGPUBuffer> vertexBuffer() const noexcept { return _vertexBuffer; }
+	NODISCARD const VulkanGPUBuffer* const vertexBuffer() const noexcept { return _vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 *
-	 * @return const std::shared_ptr <const VulkanGPUBuffer>
+	 * @return const VulkanGPUBuffer>
 	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanGPUBuffer> indexBuffer() const noexcept { return _indexBuffer; }
+	NODISCARD const VulkanGPUBuffer* const indexBuffer() const noexcept { return _indexBuffer; }
 
 private:
 	const Mesh* _mesh;
 
-	std::shared_ptr<VulkanGPUBuffer> _vertexBuffer;
-	std::shared_ptr<VulkanGPUBuffer> _indexBuffer;
+	SmartPointer<VulkanGPUBuffer> _vertexBuffer;
+	SmartPointer<VulkanGPUBuffer> _indexBuffer;
 
 	/**
 	 * @brief create a vertex buffer

@@ -12,7 +12,7 @@
 #pragma once
 
 #include <core/decl.h>
-#include <core/context.h>
+#include <core/application.h>
 
 #include <vector>
 #include <memory>
@@ -71,45 +71,45 @@ public:
 	/**
 	 * @brief get the descriptor set layout
 	 *
-	 * @return const std::shared_ptr<const VulkanDescriptorSetLayout>
+	 * @return const VulkanDescriptorSetLayout* const
 	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanDescriptorSetLayout> descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
+	NODISCARD const VulkanDescriptorSetLayout* const descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 *
-	 * @return const std::shared_ptr<const VulkanDescriptorPool>
+	 * @return const VulkanDescriptorPool* const
 	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanDescriptorPool> descriptorPool() const noexcept { return _descriptorPool; }
+	NODISCARD const VulkanDescriptorPool* const descriptorPool() const noexcept { return _descriptorPool; }
 	/**
 	 * @brief get the pipeline
 	 *
 	 * @return const VkPipeline&
 	*/
-	[[nodiscard]] const VkPipeline& pipeline() const noexcept { return _pipeline; }
+	NODISCARD const VkPipeline& pipeline() const noexcept { return _pipeline; }
 	/**
 	 * @brief get the pipeline layout
 	 *
 	 * @return const VkPipelineLayout&
 	*/
-	[[nodiscard]] const VkPipelineLayout& layout() const noexcept { return _layout; }
+	NODISCARD const VkPipelineLayout& layout() const noexcept { return _layout; }
 	/**
 	 * @brief get the shaders
 	 *
 	 * @return const std::vector<VulkanShader>&
 	*/
-	[[nodiscard]] const std::vector<VulkanShader>& shaders() const noexcept { return _shaders; }
+	NODISCARD const std::vector<VulkanShader>& shaders() const noexcept { return _shaders; }
 	/**
 	 * @brief get the shaders
 	 *
 	 * @return const VkPipelineBindPoint&
 	*/
-	[[nodiscard]] const VkPipelineBindPoint& bindPoint() const noexcept { return _bindPoint; }
+	NODISCARD const VkPipelineBindPoint& bindPoint() const noexcept { return _bindPoint; }
 
 protected:
 	VkPipeline _pipeline = VK_NULL_HANDLE;
 	VkPipelineLayout _layout = VK_NULL_HANDLE;
-	std::shared_ptr<VulkanDescriptorSetLayout> _descriptorSetLayout;
-	std::shared_ptr<VulkanDescriptorPool> _descriptorPool;
+	SmartPointer<VulkanDescriptorSetLayout> _descriptorSetLayout;
+	SmartPointer<VulkanDescriptorPool> _descriptorPool;
 
 	VkPipelineBindPoint _bindPoint;
 

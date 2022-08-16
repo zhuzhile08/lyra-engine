@@ -50,7 +50,7 @@ public:
 	 *
 	 * @return const VkCommandPool&
 	 */
-	[[nodiscard]] const VkCommandPool& commandPool() const noexcept { return _commandPool; }
+	NODISCARD const VkCommandPool& commandPool() const noexcept { return _commandPool; }
 
 private:
 	VkCommandPool _commandPool = VK_NULL_HANDLE;
@@ -198,7 +198,7 @@ public:
 	/**
 	 * @brief return the index of an unused pipeline
 	 */
-	[[nodiscard]] const CommandBuffer& get_unused() { 
+	NODISCARD const CommandBuffer get_unused() const { 
 		for (auto& it : _commandBuffers) 
 			if (it.second == CommandBufferUsage::COMMAND_BUFFER_UNUSED) 
 				return it.first; 
@@ -213,7 +213,7 @@ public:
 	 *
 	 * @param index index of the command buffer
 	 */
-	[[nodiscard]] const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBufferData.at(index); }
+	NODISCARD const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBufferData.at(index); }
 
 private:
 	VulkanCommandPool _commandPool;

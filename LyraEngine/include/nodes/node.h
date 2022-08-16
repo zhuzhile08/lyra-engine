@@ -119,38 +119,38 @@ public:
 	 * @param name name of the child to find
 	 * @return const Node* const
 	 */
-	[[nodiscard]] _Tp* const get_child_by_name(const std::string name) const { return _children.at(_name); }
+	NODISCARD _Tp* const get_child_by_name(const std::string name) const { return _children.at(_name); }
 
 	/**
 	 * @brief get if the object is visible or not
 	 *
 	 * @return const bool
 	*/
-	[[nodiscard]] const bool visibility() const noexcept { return _visible; }
+	NODISCARD const bool visibility() const noexcept { return _visible; }
 	/**
 	 * @brief get if the object is visible or not
 	 *
 	 * @return const uint32_t
 	*/
-	[[nodiscard]] const uint32 tag() const noexcept { return _tag; }
+	NODISCARD const uint32 tag() const noexcept { return _tag; }
 	/**
 	 * @brief get the name
 	 *
 	 * @return const std::string
 	 */
-	[[nodiscard]] const std::string name() const noexcept { return _name; }
+	NODISCARD const std::string name() const noexcept { return _name; }
 	/**
 	 * @brief get the children
 	 *
 	 * @return const std::unordered_map <std::string, Node*>* cosnt
 	 */
-	[[nodiscard]] const std::unordered_map <std::string, Node*>* const children() const noexcept { return &_children; }
+	NODISCARD const std::unordered_map <std::string, Node*>* const children() const noexcept { return &_children; }
 	/**
 	 * @brief get the parent
 	 *
 	 * @return const _Tp* const
 	 */
-	[[nodiscard]] const _Tp* const parent() const noexcept { return _parent; }
+	NODISCARD const _Tp* const parent() const noexcept { return _parent; }
 
 protected:
 	bool _visible = true;

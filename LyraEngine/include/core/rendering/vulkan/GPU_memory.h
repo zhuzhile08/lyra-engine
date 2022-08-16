@@ -46,7 +46,7 @@ struct VulkanGPUMemory {
 	 * 
 	 * @return const VmaAllocationCreateInfo
 	 */
-	[[nodiscard]] const VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept;
+	NODISCARD const VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept;
 
 	VmaAllocation _memory = VK_NULL_HANDLE;
 };

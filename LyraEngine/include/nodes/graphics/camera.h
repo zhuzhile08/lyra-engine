@@ -112,36 +112,36 @@ public:
 	 * 
 	 * @return const std::vector<VulkanGPUBuffer>&
 	*/
-	[[nodiscard]] const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
+	NODISCARD const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
 	/**
 	 * @brief get the field of view of the camera
 	 *
 	 * @return const float
 	*/
-	[[nodiscard]] const float fov() const noexcept { return _fov; }
+	NODISCARD const float fov() const noexcept { return _fov; }
 	/**
 	 * @brief get the near clipping plane of the camera
 	 *
 	 * @return const float
 	*/
-	[[nodiscard]] const float near() const noexcept { return _near; }
+	NODISCARD const float near() const noexcept { return _near; }
 	/**
 	 * @brief get the far clipping plane of the camera
 	 *
 	 * @return const float
 	*/
-	[[nodiscard]] const float far() const noexcept { return _far; }
+	NODISCARD const float far() const noexcept { return _far; }
 	/**
 	 * @brief get the viewport dimensions and positions
 	 *
 	 * @return const float
 	*/
-	[[nodiscard]] const glm::vec4 viewport() const noexcept { return _viewport; }
+	NODISCARD const glm::vec4 viewport() const noexcept { return _viewport; }
 
 private:
 	std::vector<VulkanGPUBuffer> _buffers;
 	std::vector<Material*> _materials;
-	std::unique_ptr<GraphicsPipeline> _renderPipeline;
+	SmartPointer<GraphicsPipeline> _renderPipeline;
 
 	float _fov = 45.0f, _near = 0.1f, _far = 20.0f, _depth = 1.0f;
 	glm::vec4 _viewport = { 0.0f, 0.0f, 1.0f, 1.0f };

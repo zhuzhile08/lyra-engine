@@ -52,14 +52,14 @@ public:
 		 *
 		 * @return VkVertexInputBindingDescription
 		 */
-		[[nodiscard]] static const VkVertexInputBindingDescription get_binding_description() noexcept;
+		NODISCARD static const VkVertexInputBindingDescription get_binding_description() noexcept;
 
 		/**
 		 * @brief returns a static vertex input attribute
 		 *
 		 * @return std::array<VkVertexInputAttributeDescription, 4>
 		 */
-		[[nodiscard]] static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
+		NODISCARD static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
 	};
 
 	Mesh() { }
@@ -109,13 +109,13 @@ public:
 	 * 
 	 * @return const std::vector <lyra::Vertex>
 	*/
-	[[nodiscard]] const std::vector <Vertex> vertices() const noexcept { return _vertices; }
+	NODISCARD const std::vector <Vertex> vertices() const noexcept { return _vertices; }
 	/**
 	 * @brief get the indices
 	 *
 	 * @return const std::vector <uint16>
 	*/
-	[[nodiscard]] const std::vector <uint32> indices() const noexcept { return _indices; }
+	NODISCARD const std::vector <uint32> indices() const noexcept { return _indices; }
 
 private:
 	std::vector <Vertex> _vertices;
@@ -127,7 +127,7 @@ private:
 	 * @param load an already loaded model
 	 * @param index load the model with the following index if a file has more than just one object. Will load everything on default
 	 */
-	void create_mesh(const non_access::LoadedModel loaded, const uint16 index = UINT16_MAX);
+	void create_mesh(const util::LoadedModel loaded, const uint16 index = UINT16_MAX);
 };
 
 } // namespace lyra

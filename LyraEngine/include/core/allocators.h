@@ -38,7 +38,7 @@ public:
 	 */
 	virtual ~BaseAllocator();
 
-	[[nodiscard]] virtual void* alloc(size_t size, uint8 alignment = 4) = 0;
+	NODISCARD virtual void* alloc(size_t size, uint8 alignment = 4) = 0;
 	virtual void dealloc(void* p) = 0;
 
 	/**
@@ -46,25 +46,25 @@ public:
 	 *
 	 * @return const void*
 	 */
-	[[nodiscard]] const void* start() const noexcept { return _start; }
+	NODISCARD const void* start() const noexcept { return _start; }
 	/**
 	 * @brief get the size of the allocation
 	 * 
 	 * @return const uint32_t
 	 */
-	[[nodiscard]] const uint32 size() const noexcept { return _size; }
+	NODISCARD const uint32 size() const noexcept { return _size; }
 	/**
 	 * @brief get total used memory
 	 *
 	 * @return const uint32_t
 	 */
-	[[nodiscard]] const uint32 usedMemory() const noexcept { return _usedMemory; }
+	NODISCARD const uint32 usedMemory() const noexcept { return _usedMemory; }
 	/**
 	 * @brief get the number of allocations
 	 *
 	 * @return const uint32_t
 	 */
-	[[nodiscard]] const uint32 allocCount() const noexcept { return _allocCount; }
+	NODISCARD const uint32 allocCount() const noexcept { return _allocCount; }
 
 protected:
 	void* _start;
@@ -89,7 +89,7 @@ public:
 	 * 
 	 * @return void*
 	 */
-	[[nodiscard]] void* alloc(size_t size, uint8 alignment = 4) override;
+	NODISCARD void* alloc(size_t size, uint8 alignment = 4) override;
 #ifdef _DEBUG
 	/**
 	 * @brief WARNING! This function is not available in a linear allocator and will not be available in the release build
@@ -127,7 +127,7 @@ public:
 	 * @tparam _Ty type to allocate
 	 * @param allocator the allocator to allocate the memory
 	 */
-	template <class _Ty> [[nodiscard]] static _Ty* allocate(BaseAllocator* allocator) {
+	template <class _Ty> NODISCARD static _Ty* allocate(BaseAllocator* allocator) {
 		return new(allocator->alloc(sizeof(_Ty), __alignof(_Ty))) _Ty;
 	}
 
@@ -138,7 +138,7 @@ public:
 	 * @param allocator the allocator to allocate the memory
 	 * @param value to initialize the memory
 	 */
-	template <class _Ty> [[nodiscard]] static _Ty* allocate(BaseAllocator* allocator, _Ty value) {
+	template <class _Ty> NODISCARD static _Ty* allocate(BaseAllocator* allocator, _Ty value) {
 		return new (allocator->alloc(sizeof(_Ty), __alignof(_Ty))) _Ty(value);
 	}
 
@@ -161,7 +161,7 @@ public:
 	 * @param allocator the allocator to allocate the memory
 	 * @param length length of the array
 	 */
-	template <class _Ty> [[nodiscard]] static _Ty* allocate_array(BaseAllocator* allocator, size_t length) {
+	template <class _Ty> NODISCARD static _Ty* allocate_array(BaseAllocator* allocator, size_t length) {
 		lassert(length == 0, "Attemted to allocate an array with a length of 0!");
 		uint32 headerSize{ sizeof(size_t) / sizeof(_Ty) };
 

@@ -84,37 +84,37 @@ public:
 	 *
 	 * @return const VkInstance&
 	 */
-	[[nodiscard]] const VkInstance& instance() const noexcept { return _instance; }
+	NODISCARD const VkInstance& instance() const noexcept { return _instance; }
 	/**
 	 * @brief get the GPU
 	 *
 	 * @return VkPhysicalDevice
 	 */
-	[[nodiscard]] const VkPhysicalDevice& physicalDevice() const noexcept { return _physicalDevice;  }
+	NODISCARD const VkPhysicalDevice& physicalDevice() const noexcept { return _physicalDevice;  }
 	/**
 	 * @brief get the logical device
 	 * 
 	 * @return const VkLogicalDevice&
 	 */
-	[[nodiscard]] const VkDevice& device() const noexcept { return _device; }
+	NODISCARD const VkDevice& device() const noexcept { return _device; }
 	/**
 	 * @brief get the graphics queue
 	 * 
 	 * @return const lyra::VulkanQueueFamily&
 	 */
-	[[nodiscard]] const VulkanQueueFamily& graphicsQueue() const noexcept { return _graphicsQueue; }
+	NODISCARD const VulkanQueueFamily& graphicsQueue() const noexcept { return _graphicsQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
 	 * @return const lyra::VulkanQueueFamily&
 	 */
-	[[nodiscard]] const VulkanQueueFamily& presentQueue() const noexcept { return _presentQueue; }
+	NODISCARD const VulkanQueueFamily& presentQueue() const noexcept { return _presentQueue; }
 	/**
 	 * @brief get the VMA memory allocator
 	 *
 	 * @return const VmaAllocator&
 	 */
-	[[nodiscard]] const VmaAllocator& allocator() const noexcept { return _allocator; }
+	NODISCARD const VmaAllocator& allocator() const noexcept { return _allocator; }
 
 private:
 	VkInstance _instance = VK_NULL_HANDLE;

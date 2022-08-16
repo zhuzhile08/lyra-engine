@@ -68,9 +68,9 @@ public:
 	/**
 	 * @brief get the descriptor set
 	 *
-	 * @return const std::shared_ptr<const VulkanDescriptor>
+	 * @return const VulkanDescriptor* const
 	*/
-	[[nodiscard]] const std::shared_ptr<const VulkanDescriptor> descriptor() const noexcept { return _descriptor; }
+	NODISCARD const VulkanDescriptor* const descriptor() const noexcept { return _descriptor; }
 
 private:
 	Color _albedoColor;
@@ -96,7 +96,7 @@ private:
 	uint8 _occlusionMapValue;
 
 	std::vector<MeshRenderer*> _meshRenderers;
-	std::shared_ptr<VulkanDescriptor> _descriptor;
+	SmartPointer<VulkanDescriptor> _descriptor;
 
 	const Camera* camera;
 

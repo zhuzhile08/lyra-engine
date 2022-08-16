@@ -36,7 +36,7 @@ public:
 	void add_draw_call(std::function<void()>&& func);
 
 private:
-	std::unique_ptr<VulkanDescriptorPool> _descriptorPool;
+	SmartPointer<VulkanDescriptorPool> _descriptorPool;
 
 	CallQueue _drawQueue;
 

@@ -72,7 +72,7 @@ public:
 	 * 
 	 * @return const VkDescriptorBufferInfo
 	*/
-	[[nodiscard]] const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
+	NODISCARD const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
 		return {
 			_buffer, 0, _size
 		};
@@ -87,7 +87,7 @@ public:
 	 *
 	 * @return const VkBufferMemoryBarrier*
 	*/
-	[[nodiscard]] const VkBufferMemoryBarrier get_buffer_memory_barrier(
+	NODISCARD const VkBufferMemoryBarrier get_buffer_memory_barrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
 		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
@@ -111,19 +111,19 @@ public:
 	 * 
 	 * @return const VkBuffer&
 	*/
-	[[nodiscard]] const VkBuffer& buffer() const noexcept { return _buffer; }
+	NODISCARD const VkBuffer& buffer() const noexcept { return _buffer; }
 	/**
 	 * @brief get the memory
 	 * 
 	 * @return const VmaAllocation&
 	*/
-	[[nodiscard]] const VmaAllocation& memory() const noexcept { return _memory; };
+	NODISCARD const VmaAllocation& memory() const noexcept { return _memory; };
 	/**
 	 * @brief get the size of the buffer
 	 * 
 	 * @return const VkDeviceSize&
 	*/
-	[[nodiscard]] const VkDeviceSize& size() const noexcept { return _size; };
+	NODISCARD const VkDeviceSize& size() const noexcept { return _size; };
 
 private:
 	VkBuffer _buffer = VK_NULL_HANDLE;

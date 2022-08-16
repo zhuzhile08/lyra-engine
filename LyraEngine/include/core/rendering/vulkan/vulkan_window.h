@@ -12,6 +12,7 @@
 #pragma once
 
 #include <core/decl.h>
+#include <core/util.h>
 
 #include <core/rendering/vulkan/vulkan_image.h>
 #include <core/rendering/vulkan/GPU_memory.h>
@@ -67,79 +68,79 @@ public:
 	 *
 	 * @return const VkSurfaceKHR&
 	 */
-	[[nodiscard]] const VkSurfaceKHR& surface() const noexcept { return _surface; }
+	NODISCARD const VkSurfaceKHR& surface() const noexcept { return _surface; }
 	/**
 	 * @brief get the swapchain
 	 *
 	 * @return const VkSwapchainKHR&
 	*/
-	[[nodiscard]] const VkSwapchainKHR& swapchain() const noexcept { return _swapchain; }
+	NODISCARD const VkSwapchainKHR& swapchain() const noexcept { return _swapchain; }
 	/**
 	 * @brief get the swapchain images
 	 * 
 	 * @return const std::vector<VkImage>&
 	 */
-	[[nodiscard]] const std::vector<VkImage>& images() const noexcept { return _images; }
+	NODISCARD const std::vector<VkImage>& images() const noexcept { return _images; }
 	/**
 	 * @brief get the image views of the swapchain images
 	 *
 	 * @return const std::vector<VkImageView>&
 	 */
-	[[nodiscard]] const std::vector<VkImageView>& views() const noexcept { return _views; }
+	NODISCARD const std::vector<VkImageView>& views() const noexcept { return _views; }
 	/**
 	 * @brief get the format
 	 *
 	 * @return const VkFormat&
 	*/
-	[[nodiscard]] const VkFormat& format() const noexcept { return _format; }
+	NODISCARD const VkFormat& format() const noexcept { return _format; }
 	/**
 	 * @brief get the extent
 	 *
 	 * @return const VkExtent2D&
 	*/
-	[[nodiscard]] const VkExtent2D& extent() const noexcept { return _extent; }
+	NODISCARD const VkExtent2D& extent() const noexcept { return _extent; }
 	/**
 	 * @brief get the color resources image
 	 *
 	 * @return const VulkanImage* const
 	 */
-	[[nodiscard]] const VulkanImage* const colorImage() const noexcept { return &_colorImage; }
+	NODISCARD const VulkanImage* const colorImage() const noexcept { return &_colorImage; }
 	/**
 	 * @brief get the maximum amout of samples
 	 *
 	 * @return const VkSampleCountFlagBits
 	 */
-	[[nodiscard]] const VkSampleCountFlagBits& maxMultisamples() const noexcept { return _maxMultisamples; }
+	NODISCARD const VkSampleCountFlagBits& maxMultisamples() const noexcept { return _maxMultisamples; }
 	/**
 	 * @brief get the depth buffer image
 	 *
 	 * @return const VulkanImage* const
 	 */
-	[[nodiscard]] const VulkanImage* const depthImage() const noexcept { return &_depthImage; }
+	NODISCARD const VulkanImage* const depthImage() const noexcept { return &_depthImage; }
 	/**
 	 * @brief get the depth buffer format
 	 *
 	 * @return const VkFormat&
 	*/
-	[[nodiscard]] const VkFormat& depthBufferFormat() const noexcept { return _depthBufferFormat; }
+	NODISCARD const VkFormat& depthBufferFormat() const noexcept { return _depthBufferFormat; }
 	/**
 	 * @brief get the image available semaphores
 	 *
 	 * @return const std::vector <VkSemaphore>&
 	*/
-	[[nodiscard]] const std::vector <VkSemaphore>& imageAvailableSemaphores() const noexcept { return _imageAvailableSemaphores; }
+	NODISCARD const std::vector <VkSemaphore>& imageAvailableSemaphores() const noexcept { return _imageAvailableSemaphores; }
 	/**
 	 * @brief get the render finished semaphores
 	 *
 	 * @return const std::vector <VkSemaphore>&
 	*/
-	[[nodiscard]] const std::vector <VkSemaphore>& renderFinishedSemaphores() const noexcept { return _renderFinishedSemaphores; }
+	NODISCARD const std::vector <VkSemaphore>& renderFinishedSemaphores() const noexcept { return _renderFinishedSemaphores; }
 	/**
 	 * @brief get the in flight fences
 	 *
 	 * @return const std::vector <VkFence>&
 	*/
-	[[nodiscard]] const std::vector <VkFence>& inFlightFences() const noexcept { return _inFlightFences; }
+	NODISCARD const std::vector <VkFence>& inFlightFences() const noexcept { return _inFlightFences; }
 
 private:
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;
@@ -169,19 +170,19 @@ private:
 	 * 
 	 * @return const VkSurfaceFormatKHR
 	*/
-	[[nodiscard]] const VkSurfaceFormatKHR get_optimal_format();
+	NODISCARD const VkSurfaceFormatKHR get_optimal_format();
 	/**
 	 * @brief get the optimal presentation mode for the swapchain
 	 *
 	 * @return const VkPresentModeKHR
 	*/
-	[[nodiscard]] const VkPresentModeKHR get_optimal_present_mode();
+	NODISCARD const VkPresentModeKHR get_optimal_present_mode();
 	/**
 	 * @brief get the maximum amout of samples
 	 *
 	 * @return const VkSampleCountFlagBits
 	 */
-	[[nodiscard]] const VkSampleCountFlagBits get_max_samples() const noexcept;
+	NODISCARD const VkSampleCountFlagBits get_max_samples() const noexcept;
 
 	/**
 	 * @brief check the correctness of the suface capabilities of the swapchain

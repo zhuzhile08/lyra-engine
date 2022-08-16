@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <core/context.h>
+#include <core/application.h>
 #include <core/util.h>
 #include <core/logger.h>
 #include <core/rendering/vulkan/GPU_memory.h>
@@ -107,7 +107,7 @@ public:
 	 * 
 	 * @return const VkDescriptorImageInfo
 	*/
-	[[nodiscard]] const VkDescriptorImageInfo get_descriptor_image_info() const noexcept {
+	NODISCARD const VkDescriptorImageInfo get_descriptor_image_info() const noexcept {
 		return {
 			_sampler,
 			_view,
@@ -120,25 +120,25 @@ public:
 	 * 
 	 * @return const lyra::VulkanImage&
 	*/
-	[[nodiscard]] const VkImageView& view() const noexcept { return _view; }
+	NODISCARD const VkImageView& view() const noexcept { return _view; }
 	/**
 	 * @brief get the sampler
 	 * 
 	 * @return const VkSampler&
 	*/
-	[[nodiscard]] const VkSampler& sampler() const noexcept { return _sampler; }
+	NODISCARD const VkSampler& sampler() const noexcept { return _sampler; }
 	/**
 	 * @brief get the memory
 	 * 
 	 * @return const VmaAllocation&
 	*/
-	[[nodiscard]] const VmaAllocation& memory() const noexcept { return _memory; }
+	NODISCARD const VmaAllocation& memory() const noexcept { return _memory; }
 	/**
 	* @brief get the path of the image
 	* 
 	* @return const char* const
 	**/
-	[[nodiscard]] const char* const path() const noexcept { return _path; }
+	NODISCARD const char* const path() const noexcept { return _path; }
 
 private:
 	VkSampler _sampler = VK_NULL_HANDLE;

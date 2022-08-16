@@ -95,25 +95,25 @@ public:
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 position_global() const noexcept { return _position + _parent->position_global(); };
+	NODISCARD const glm::vec3 position_global() const noexcept { return _position + _parent->position_global(); };
 	/**
 	 * @brief get the global rotation
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 rotation_global() const noexcept { return _rotation + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->rotation_global()); };
+	NODISCARD const glm::vec3 rotation_global() const noexcept { return _rotation + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->rotation_global()); };
 	/**
 	 * @brief get the global scale
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 scale_global() const noexcept { return _scale + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->scale_global()); };
+	NODISCARD const glm::vec3 scale_global() const noexcept { return _scale + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->scale_global()); };
 	/**
 	 * @brief convert the local matrix to a global one
 	 *
 	 * @return const glm::vec4
 	*/
-	[[nodiscard]] const glm::mat4 mat_to_global() const noexcept { return _localTransformMatrix + ((_parent == nullptr) ? glm::mat4(0.0f) : _parent->mat_to_global()); };
+	NODISCARD const glm::mat4 mat_to_global() const noexcept { return _localTransformMatrix + ((_parent == nullptr) ? glm::mat4(0.0f) : _parent->mat_to_global()); };
 
 	/**
 	 * @brief set the position
@@ -141,25 +141,25 @@ public:
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 position_local() const noexcept { return _position; };
+	NODISCARD const glm::vec3 position_local() const noexcept { return _position; };
 	/**
 	 * @brief get the local rotation
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 rotation_local() const noexcept { return _rotation; };
+	NODISCARD const glm::vec3 rotation_local() const noexcept { return _rotation; };
 	/**
 	 * @brief get the local scale
 	 *
 	 * @return const glm::vec3
 	*/
-	[[nodiscard]] const glm::vec3 scale_local() const noexcept { return _scale; };
+	NODISCARD const glm::vec3 scale_local() const noexcept { return _scale; };
 	/**
 	 * @brief get the order of rotation
 	 *
 	 * @return const lyra::Spatial::RotationOrder
 	*/
-	[[nodiscard]] const RotationOrder rotationOrder() const noexcept { return _rotationOrder; }
+	NODISCARD const RotationOrder rotationOrder() const noexcept { return _rotationOrder; }
 
 protected:
 	glm::vec3 _position = { 0.0f, 0.0f, 0.0f }, _rotation = { 0.0f, 0.0f, 0.0f }, _scale = { 1.0f, 1.0f, 1.0f };

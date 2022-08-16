@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <core/decl.h>
+
 #include <iostream>
 #include <fstream>
 #include <utility>
@@ -34,7 +36,7 @@ private:
 		UNL = 4
 	};
 
-	[[nodiscard]] static int font_cast(Font font) {
+	NODISCARD static int font_cast(Font font) {
 		return static_cast<int>(font);
 	}
 
@@ -60,7 +62,7 @@ private:
 		DEF = 0
 	};
 
-	[[nodiscard]] static int color_cast(Color color) {
+	NODISCARD static int color_cast(Color color) {
 		return static_cast<int>(color);
 	}
 
@@ -204,11 +206,11 @@ public:
 	*/
 	static void clear_buffer();
 
-	[[nodiscard]] static const char* tab() {
+	NODISCARD static const char* tab() {
 		return "\t";
 	}
 
-	[[nodiscard]] static const char* end_l() {
+	NODISCARD static const char* end_l() {
 		return "\n";
 	}
 

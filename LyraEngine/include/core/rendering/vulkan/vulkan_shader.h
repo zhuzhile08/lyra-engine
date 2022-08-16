@@ -86,7 +86,7 @@ public:
 	 *
 	 * @return const VkPipelineShaderStageCreateInfo
 	*/
-	[[nodiscard]] const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
+	NODISCARD const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
@@ -103,13 +103,13 @@ public:
 	 * 
 	 * @return const VkShaderModule&
 	*/
-	[[nodiscard]] const VkShaderModule& module() const noexcept { return _module; }
+	NODISCARD const VkShaderModule& module() const noexcept { return _module; }
 	/**
 	 * @brief get the entry point of the shader
 	 * 
 	 * @return const string
 	*/
-	[[nodiscard]] const char* const entry() const noexcept { return _entry; }
+	NODISCARD const char* const entry() const noexcept { return _entry; }
 
 private:
 	VkShaderModule _module = VK_NULL_HANDLE;

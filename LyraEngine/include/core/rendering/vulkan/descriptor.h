@@ -12,7 +12,7 @@
 #pragma once
 
 #include <core/decl.h>
-#include <core/context.h>
+#include <core/application.h>
 
 #include <array>
 #include <vector>
@@ -87,13 +87,13 @@ public:
 	 *
 	 * @return const VkDescriptorSetLayout&
 	 */
-	[[nodiscard]] const VkDescriptorSetLayout& get() const noexcept { return _descriptorSetLayout; }
+	NODISCARD const VkDescriptorSetLayout& get() const noexcept { return _descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor set layout as pointers
 	 *
 	 * @return const VkDescriptorSetLayout* const
 	 */
-	[[nodiscard]] const VkDescriptorSetLayout* const get_ptr() const noexcept { return &_descriptorSetLayout; }
+	NODISCARD const VkDescriptorSetLayout* const get_ptr() const noexcept { return &_descriptorSetLayout; }
 
 private:
 	VkDescriptorSetLayout _descriptorSetLayout = VK_NULL_HANDLE;
@@ -180,7 +180,7 @@ public:
 	 *
 	 * @return const VkDescriptorPool&
 	 */
-	[[nodiscard]] const VkDescriptorPool& get() const noexcept { return _descriptorPool; }
+	NODISCARD const VkDescriptorPool& get() const noexcept { return _descriptorPool; }
 
 private:
 	VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
@@ -276,14 +276,14 @@ public:
 	 *
 	 * @return const VkDescriptorSet&
 	 */
-	[[nodiscard]] const VkDescriptorSet& get() const noexcept { return _descriptorSet; }
+	NODISCARD const VkDescriptorSet& get() const noexcept { return _descriptorSet; }
 
 	/**
 	 * @brief get the descriptor set
 	 *
 	 * @return const VkDescriptorSet* const
 	 */
-	[[nodiscard]] const VkDescriptorSet* const get_ptr() const noexcept { return &_descriptorSet; }
+	NODISCARD const VkDescriptorSet* const get_ptr() const noexcept { return &_descriptorSet; }
 
 private:
 	VkDescriptorSet _descriptorSet = VK_NULL_HANDLE;
