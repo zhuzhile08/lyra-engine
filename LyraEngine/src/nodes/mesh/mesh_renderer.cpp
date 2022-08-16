@@ -19,8 +19,8 @@ MeshRenderer::MeshRenderer(
 	Logger::log_info("Creating Mesh Renderer... ");
 
 	// create the vertex and index buffer
-	_vertexBuffer = std::make_shared<VulkanGPUBuffer>(sizeof(_mesh->vertices()[0]) * _mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	_indexBuffer = std::make_shared<VulkanGPUBuffer>(sizeof(_mesh->indices()[0]) * _mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_vertexBuffer = SmartPointer<VulkanGPUBuffer>::create(sizeof(_mesh->vertices()[0]) * _mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	_indexBuffer = SmartPointer<VulkanGPUBuffer>::create(sizeof(_mesh->indices()[0]) * _mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	create_vertex_buffer();
 	create_index_buffer();
 
@@ -50,10 +50,10 @@ void MeshRenderer::create_index_buffer() {
 void MeshRenderer::draw() const noexcept {
 	VkDeviceSize offsets[] = { 0 };
 	// bind index and vertex buffer
-	vkCmdBindVertexBuffers(Context::get()->renderSystem()->activeCommandBuffer(), 0, 1, &_vertexBuffer->buffer(), offsets);
-	vkCmdBindIndexBuffer(Context::get()->renderSystem()->activeCommandBuffer(), _indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdBindVertexBuffers(Application::renderSystem()->activeCommandBuffer(), 0, 1, &_vertexBuffer->buffer(), offsets);
+	vkCmdBindIndexBuffer(Application::renderSystem()->activeCommandBuffer(), _indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
 	// draw
-	vkCmdDrawIndexed(Context::get()->renderSystem()->activeCommandBuffer(), static_cast<uint32>(_mesh->indices().size()), 1, 0, 0, 0);
+	vkCmdDrawIndexed(Application::renderSystem()->activeCommandBuffer(), static_cast<uint32>(_mesh->indices().size()), 1, 0, 0, 0);
 }
 
 } // namespace lyra
