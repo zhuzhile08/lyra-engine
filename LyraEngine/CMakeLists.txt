@@ -79,6 +79,8 @@ PRIVATE
     <array>
     <math.h>
     <algorithm>
+    <utility>
+    <stdint.h>
     <functional>
     <backends/imgui_impl_sdl.h>
     <imgui.h>
@@ -91,4 +93,5 @@ PRIVATE
     <cmath>
     <gtc/matrix_transform.hpp>
     <gtx/matrix_decompose.hpp>
+    <json.hpp>
 )
