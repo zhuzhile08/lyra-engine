@@ -12,8 +12,6 @@
 
 #pragma once
 
-#include <core/settings.h>
-
 #include <core/rendering/render_system.h>
 #include <core/rendering/window.h>
 
@@ -82,5 +80,10 @@ protected:
 
 	virtual void init() { }
 };
+
+/**
+ * @brief initialize lyra
+ */
+void init(void);
 
 } // namespace lyra

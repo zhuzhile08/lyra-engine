@@ -8,17 +8,18 @@
 #include <init/init_SDL.h>
 #include <core/logger.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 namespace lyra {
 
 Application::Application() {
-	Logger::init();
-	init_SDL();
 	init();
 }
 
 Application::~Application() {
 	quit_SDL();
-	Logger::quit();
 }
 
 void Application::draw() {
@@ -37,6 +38,25 @@ void Application::draw() {
 	}
 
 	_renderSystem.device()->wait();
+}
+
+void init(void) {
+	// initialize SDL
+	init_SDL();
+
+#ifndef STDIO_SYNC
+	std::ios::sync_with_stdio(true);
+#endif
+
+#ifdef _WIN32
+	DWORD outMode = 0;
+	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	GetConsoleMode(stdoutHandle, &outMode);
+	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	SetConsoleMode(stdoutHandle, outMode);
+#endif
 }
 
 Window Application::_window;
