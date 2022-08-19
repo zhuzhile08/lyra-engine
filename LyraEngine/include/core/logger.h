@@ -75,15 +75,6 @@ private:
 	}
 
 public:
-	/**
-	 * @brief initialize the logger
-	 */
-	static void init();
-
-	/**
-	 * @brief quit logging
-	 */
-	static void quit();
 
 	/**
 	 * @brief log normal messages
@@ -206,10 +197,20 @@ public:
 	*/
 	static void clear_buffer();
 
+	/**
+	 * @brief tab escape character
+	 * 
+	 * @return const char*
+	 */
 	NODISCARD static const char* tab() {
 		return "\t";
 	}
 
+	/**
+	 * @brief line end escape character
+	 * 
+	 * @return const char*
+	 */
 	NODISCARD static const char* end_l() {
 		return "\n";
 	}
