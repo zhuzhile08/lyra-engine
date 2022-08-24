@@ -50,8 +50,6 @@ public:
 		glm::mat4 model;
 		glm::mat4 proj;
 	};
-
-	Camera() { }
 	
 	/**
 	 * @brief construct a camera node
