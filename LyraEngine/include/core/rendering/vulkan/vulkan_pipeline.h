@@ -25,36 +25,33 @@ namespace lyra {
  * @brief wrapper around the Vulkan graphics pipeline
  */
 class VulkanPipeline {
-protected:
+public:
+	VulkanPipeline() { }
+
+	/**
+	 * @brief descriptor and shader information
+	 */
+	struct Binding {
+		// type of descriptor
+		int descriptorType;
+		// number of this type of descriptor needed in the shader
+		uint32 descriptorCount;
+		// number of descriptors to allocate
+		uint32 descriptorAllocCount;
+		// shader type
+		const int shaderType;
+	};
+
 	/**
 	 * @brief struct holding creation information for a shader
 	 */
-	struct ShaderCreationInfo {
+	struct Shader {
 		// shader type
 		const int type;
 		// path of shader
 		const char* path;
 		// shader entry point
 		const char* entry = "main";
-	};
-
-public:
-	VulkanPipeline() { }
-
-	// descriptor and shader information
-	struct Binding {
-		// type of descriptor
-		int descriptorType;
-		// number of this type of descriptor needed in the shader
-		uint32 descriptorCount;
-		// number of descriptor to allocate
-		uint32 descriptorAllocCount;
-		// type of shader
-		int shaderType;
-		// shader path
-		const char* path;
-		// shader entry function name
-		const char* entry;
 	};
 
 	/**
@@ -119,23 +116,20 @@ protected:
 	 * @brief create the pipeline layout
 	 */
 	void create_layout();
-
 	/**
 	 * @brief create stuff related to descriptors
 	 * 
-	 * @param bindings descriptor and shader information. Have to be in their correct order
+	 * @param bindings descriptorinformation. Have to be in their correct order
 	 * @param poolFlags descriptor pool additional flags
 	 * @param maxSets maximum number of descriptor sets
 	*/
 	void create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags = 0);
-
-private:
 	/**
 	 * @brief create all the shaders
 	 *
-	 * @param bindings descriptor and shader information. Have to be in their correct order
+	 * @param shaders shader information
 	 */
-	void create_shaders(std::vector<Binding> bindings);
+	void create_shaders(std::vector<Shader> shaders);
 };
 
 } // namespace lyra
