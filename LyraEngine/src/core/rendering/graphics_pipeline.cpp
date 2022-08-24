@@ -12,6 +12,7 @@ namespace lyra {
 
 GraphicsPipeline::GraphicsPipeline(
 	const Renderer* const renderer,
+	const std::vector<Shader> shaders,
 	const std::vector<Binding> bindings,
 	const VkExtent2D size,
 	const VkExtent2D area,
@@ -26,6 +27,8 @@ GraphicsPipeline::GraphicsPipeline(
 	// define what type of pipeline this is
 	_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
+	// crate shaders
+	create_shaders(shaders);
 	// create stuff relating to descriptors
 	create_descriptor_stuff(std::move(bindings)); // yes, I know, very good naming
 
@@ -176,7 +179,7 @@ void GraphicsPipeline::create_pipeline(
 		}
 	};
 
-	// create the layout
+	// create the pipeline layout
 	create_layout();
 
 	// create the pipeline

@@ -14,7 +14,8 @@
 #include <core/decl.h>
 #include <nodes/node.h>
 
-#include <memory>
+#include <core/rendering/vulkan/GPU_buffer.h>
+#include <core/rendering/vulkan/descriptor.h>
 
 namespace lyra {
 
@@ -39,9 +40,9 @@ public:
 	 * @param emissionEnergy light energy value if enabled
 	 * @param normalMapTexture normal map texture
 	 * @param normalMapValue normal map strength
-	 * @param heightMap height map texture
+	 * @param heightMapTexture height map texture
 	 * @param heightMapValue height map strength
-	 * @param occlusionMap occlusion map texture
+	 * @param occlusionMapTexture occlusion map texture
 	 * @param occlusionMapValue occlusion map value
 	 */
 	Material(
@@ -59,18 +60,18 @@ public:
 		const uint8 emissionEnergy = 0,
 		const Texture* const normalMapTexture = nullptr,
 		const int8 normalMapValue = 0,
-		const Texture* const heightMap = nullptr,
+		const Texture* const heightMapTexture = nullptr,
 		const uint8 heightMapValue = 0,
-		const Texture* const  occlusionMap = nullptr,
+		const Texture* const occlusionMapTexture = nullptr,
 		const uint8 occlusionMapValue = 0
 	);
 
 	/**
-	 * @brief get the descriptor set
+	 * @brief get the descriptor sets
 	 *
-	 * @return const VulkanDescriptor* const
+	 * @return const std::vector<VulkanDescriptor>&
 	*/
-	NODISCARD const VulkanDescriptor* const descriptor() const noexcept { return _descriptor; }
+	NODISCARD const std::vector<VulkanDescriptor>& descriptor() const noexcept { return _descriptors; }
 
 private:
 	Color _albedoColor;
@@ -89,16 +90,35 @@ private:
 	const Texture* _normalMapTexture;
 	int8 _normalMapValue;
 
-	const Texture* _heightMap;
+	const Texture* _heightMapTexture;
 	uint8 _heightMapValue;
 
-	const Texture* _occlusionMap;
+	const Texture* _occlusionMapTexture;
 	uint8 _occlusionMapValue;
 
 	std::vector<MeshRenderer*> _meshRenderers;
-	SmartPointer<VulkanDescriptor> _descriptor;
+
+	std::vector<VulkanDescriptor> _descriptors;
+	std::vector<VulkanGPUBuffer> _fragShaderBuffers;
+	std::vector<VulkanGPUBuffer> _vertShaderBuffers;
 
 	const Camera* camera;
+
+	struct MaterialVertexData {
+		uint32 _normalMapValue;
+		int32 _heightMapValue;
+	};
+
+	struct MaterialFragmentData {
+		Color _albedoColor;
+		uint32 _metallic;
+		uint32 _roughness;
+		uint32 _specular;
+		bool _emissionEnabled;
+		Color _emissionColor;
+		uint32 _emissionEnergy;
+		uint32 _occlusionMapValue;
+	};
 
 	/**
 	 * @brief draw all meshes using the material

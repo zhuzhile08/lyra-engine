@@ -103,8 +103,8 @@ public:
 	 * @brief construct a new graphics pipeline
 	 * 
 	 * @param renderer renderer to render the pipeline
-	 * @param shaderCreationInfos shader creation information
-	 * @param builder descriptor set layout and pool creation information
+	 * @param shaders shader creation information
+	 * @param bindings binding descriptor information
 	 * @param size draw size
 	 * @param area draw area
 	 * @param colorBlending enable color blending
@@ -115,6 +115,7 @@ public:
 	 */
 	GraphicsPipeline(
 		const Renderer* const renderer,
+		const std::vector<Shader> shaders,
 		const std::vector<Binding> bindings,
 		const VkExtent2D size,
 		const VkExtent2D area,
