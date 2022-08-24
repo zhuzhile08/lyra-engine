@@ -35,13 +35,6 @@ public:
 		Builder() { }
 
 		/**
-		 * @brief destructor of the builder
-		 */
-		~Builder() noexcept {
-			bindings.clear();
-		}
-
-		/**
 		 * @brief add a binding to the vector of bindings
 		 *
 		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor and the number bindings of that type
@@ -111,13 +104,6 @@ public:
 	 */
 	struct Builder {
 		Builder() { };
-
-		/**
-		 * @brief destructor of the builder
-		 */
-		virtual ~Builder() noexcept {
-			poolSizes.clear();
-		}
 
 		/**
 		 * @brief set a struct to define wwhat type and how many types of descriptors a set is going to contain
@@ -226,13 +212,6 @@ public:
 	 */
 	struct Writer {
 		Writer() { }
-
-		/**
-		 * @brief destructor of the wrter
-		 */
-		~Writer() noexcept {
-			writes.clear();
-		}
 
 		/**
 		 * @brief add a write
