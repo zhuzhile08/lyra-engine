@@ -13,8 +13,10 @@
 #pragma once
 
 #include <core/decl.h>
+#include <core/logger.h>
 
 #include <vector>
+#include <chrono>
 #include <utility>
 
 namespace lyra {
@@ -63,11 +65,34 @@ template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>
 }
 
 /**
+ * @brief small scope-based benchmarking class
+ */
+class Benchmark {
+public:
+    // initialize and start the timer
+    Benchmark() : _start(std::chrono::high_resolution_clock::now()) { Logger::log_warning("A benchmarker was created at address: ", get_address(this)); }
+
+    // destruct and stop the timer
+    ~Benchmark() {
+        // calculate end time
+        auto end = std::chrono::high_resolution_clock::now();
+
+        // calculate time passed since start in miliseconds
+        auto elapsed = std::chrono::time_point_cast<std::chrono::microseconds>(end).time_since_epoch().count() - std::chrono::time_point_cast<std::chrono::microseconds>(_start).time_since_epoch().count();
+
+        Logger::log_warning("The benchmarker at address", get_address(this), " exited its scope with a time of: ", elapsed, " microseconds!");
+    }
+
+private:
+    std::chrono::time_point<std::chrono::high_resolution_clock> _start;
+};
+
+/**
  * @brief A smart pointer implementation
  *
  * @tparam _Ty pointer type
  */
-template <class _Ty> class SmartPointer {
+template <class _Ty, class _DTy = std::default_delete<_Ty>> class SmartPointer {
 public:
     // defalut constructor
     SmartPointer() noexcept { }
@@ -82,23 +107,23 @@ public:
      *
      * @param right pointer to copy from
      */
-    SmartPointer(SmartPointer<_Ty>&& right) : _pointer(right.release()), _deleter(right.deleter) {}
+    SmartPointer(SmartPointer<_Ty, _DTy>&& right) : _pointer(right.release()), _deleter(right.deleter) {}
 
     /**
      * @brief destructor of the pointer
      */
     inline ~SmartPointer() noexcept {
-        if (_pointer) delete _pointer;
+        if (_pointer) _deleter(_pointer);
     }
 
     /**
-     * @brief copy the pointer from a rvalue reference
+     * @brief copy the pointer from a rvalue reference with deleter
      *
      * @param right pointer to copy from
      *
      * @return SmartPointer<_Ty>&
      */
-    inline SmartPointer<_Ty>& operator=(SmartPointer<_Ty>&& right) {
+    inline SmartPointer<_Ty, _DTy>& operator=(SmartPointer<_Ty, _DTy>&& right) {
         assign(right.release());
         return *this;
     }
@@ -132,6 +157,7 @@ public:
     NODISCARD inline _Ty& operator*() const noexcept {
         return *_pointer;
     }
+
     /**
      * @brief get the internal raw pointer
      *
@@ -139,6 +165,22 @@ public:
      */
     NODISCARD inline _Ty* get() const noexcept {
         return _pointer;
+    }
+    /**
+     * @brief get the deleter function
+     * 
+     * @return const _DTy& 
+     */
+    NODISCARD inline const _DTy& deleter() const noexcept {
+        return _deleter;
+    }
+    /**
+     * @brief get the deleter function
+     * 
+     * _DTy&
+     */
+    NODISCARD inline _DTy& deleter() noexcept {
+        return _deleter;
     }
 
     /**
@@ -181,7 +223,7 @@ public:
      */
     inline void assign(_Ty* ptr = nullptr) noexcept {
         _Ty* old = std::exchange(_pointer, ptr);
-        if (old) delete old;
+        if (old) _deleter(old);
     }
 
     /**
@@ -198,8 +240,9 @@ public:
 
 private:
     _Ty* _pointer = nullptr;
+    _DTy _deleter;
 
-    template <class>
+    template <class, class>
     friend class SmartPointer;
 };
 
