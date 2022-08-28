@@ -8,14 +8,16 @@
 
 namespace lyra {
 
-VulkanImage::~VulkanImage() {
-	vkDestroyImageView(Application::renderSystem()->device()->device(), _view, nullptr);
-	vkDestroyImage(Application::renderSystem()->device()->device(), _image, nullptr);
+namespace vulkan {
+
+Image::~Image() {
+	vkDestroyImageView(Application::renderSystem()->device()->device(), m_view, nullptr);
+	vkDestroyImage(Application::renderSystem()->device()->device(), m_image, nullptr);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
 }
 
-const VkImageCreateInfo VulkanImage::get_image_create_info(
+const VkImageCreateInfo Image::get_image_create_info(
 	const VkFormat format,
 	const VkExtent3D extent,
 	const VkImageUsageFlags usage,
@@ -25,7 +27,7 @@ const VkImageCreateInfo VulkanImage::get_image_create_info(
 	const VkSampleCountFlagBits samples,
 	const VkImageTiling tiling
 ) noexcept {
-	_tiling = tiling;
+	m_tiling = tiling;
 
 	return {
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -46,13 +48,13 @@ const VkImageCreateInfo VulkanImage::get_image_create_info(
 	};
 }
 
-void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
+void Image::create_view(const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
 	// image view creation info
 	VkImageViewCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0,
-		_image,
+		m_image,
 		viewType,
 		format,
 		colorComponents,
@@ -60,12 +62,12 @@ void VulkanImage::create_view(const VkFormat format, const VkImageSubresourceRan
 	};
 
 	// create the view
-	lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &_view) == VK_SUCCESS, "Failed to create Vulkan image views");
+	lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_view) == VK_SUCCESS, "Failed to create Vulkan image views");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 }
 
-void VulkanImage::transition_layout(
+void Image::transition_layout(
 	const VkImageLayout oldLayout,
 	const VkImageLayout newLayout,
 	const VkFormat format,
@@ -107,16 +109,16 @@ void VulkanImage::transition_layout(
 	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
 }
 
-const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
+const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
 	// check which tiling mode to use
 	VkImageTiling tiling_; // screw naming conventions, I don't care
-	if (_tiling == VK_IMAGE_TILING_MAX_ENUM) 
+	if (m_tiling == VK_IMAGE_TILING_MAX_ENUM) 
 		tiling_ = tiling;
 	else if (tiling == VK_IMAGE_TILING_MAX_ENUM) 
-		tiling_ = _tiling;
-	else if (_tiling == VK_IMAGE_TILING_MAX_ENUM && tiling == VK_IMAGE_TILING_MAX_ENUM) 
+		tiling_ = m_tiling;
+	else if (m_tiling == VK_IMAGE_TILING_MAX_ENUM && tiling == VK_IMAGE_TILING_MAX_ENUM) 
 		Logger::log_exception("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
-	else if (_tiling != VK_IMAGE_TILING_MAX_ENUM && tiling != VK_IMAGE_TILING_MAX_ENUM) {
+	else if (m_tiling != VK_IMAGE_TILING_MAX_ENUM && tiling != VK_IMAGE_TILING_MAX_ENUM) {
 		tiling_ = tiling;
 	}
 
@@ -133,5 +135,7 @@ const VkFormat VulkanImage::get_best_format(const std::vector<VkFormat> candidat
 
 	return VK_FORMAT_MAX_ENUM;
 }
+
+} // namespace vulkan
 
 } // namespace lyra

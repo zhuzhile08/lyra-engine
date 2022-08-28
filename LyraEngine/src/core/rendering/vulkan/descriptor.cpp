@@ -6,7 +6,9 @@
 
 namespace lyra {
 
-VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const Builder builder) {
+namespace vulkan {
+
+DescriptorSetLayout::DescriptorSetLayout(const Builder builder) {
 	Logger::log_info("Creating Vulkan descriptor set layout...");
 
 	// create the descriptor set
@@ -18,20 +20,20 @@ VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const Builder builder) {
 		builder.bindings.data()
 	};
 
-	lassert(vkCreateDescriptorSetLayout(Application::renderSystem()->device()->device(), &layoutInfo, nullptr, &_descriptorSetLayout) == VK_SUCCESS,
+	lassert(vkCreateDescriptorSetLayout(Application::renderSystem()->device()->device(), &layoutInfo, nullptr, &m_descriptorSetLayout) == VK_SUCCESS,
 		"Failed to create descriptor set layout");
 
 	Logger::log_info("Successfully created Vulkan descriptor set layout at ", get_address(this), "!", Logger::end_l());
 }
 
-VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout() noexcept {
-	vkDestroyDescriptorSetLayout(Application::renderSystem()->device()->device(), _descriptorSetLayout, nullptr);
+DescriptorSetLayout::~DescriptorSetLayout() noexcept {
+	vkDestroyDescriptorSetLayout(Application::renderSystem()->device()->device(), m_descriptorSetLayout, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan descriptor set layout!");
 }
 
 // descriptor pool
-VulkanDescriptorPool::VulkanDescriptorPool(const Builder builder) {
+DescriptorPool::DescriptorPool(const Builder builder) {
 	Logger::log_info("Creating Vulkan descriptor pool...");
 
 	// create the descriptor pool
@@ -44,20 +46,20 @@ VulkanDescriptorPool::VulkanDescriptorPool(const Builder builder) {
 		builder.poolSizes.data()
 	};
 
-	lassert(vkCreateDescriptorPool(Application::renderSystem()->device()->device(), &poolInfo, nullptr, &_descriptorPool) == VK_SUCCESS,
+	lassert(vkCreateDescriptorPool(Application::renderSystem()->device()->device(), &poolInfo, nullptr, &m_descriptorPool) == VK_SUCCESS,
 		"Failed to create descriptor pool");
 
 	Logger::log_info("Successfully created Vulkan descriptor pool at ", get_address(this), "!", Logger::end_l());
 }
 
-VulkanDescriptorPool::~VulkanDescriptorPool() noexcept {
-	vkDestroyDescriptorPool(Application::renderSystem()->device()->device(), _descriptorPool, nullptr);
+DescriptorPool::~DescriptorPool() noexcept {
+	vkDestroyDescriptorPool(Application::renderSystem()->device()->device(), m_descriptorPool, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan descriptor pool!");
 }
 
 // descriptors
-VulkanDescriptor::VulkanDescriptor(const VulkanDescriptorSetLayout* const layout, const VulkanDescriptorPool* const pool, Writer writer) {
+Descriptor::Descriptor(const DescriptorSetLayout* const layout, const DescriptorPool* const pool, Writer writer) {
 	Logger::log_info("Creating Vulkan descriptor sets...");
 
 	// create the descriptor set
@@ -69,14 +71,16 @@ VulkanDescriptor::VulkanDescriptor(const VulkanDescriptorSetLayout* const layout
 		layout->get_ptr()
 	};
 
-	lassert(vkAllocateDescriptorSets(Application::renderSystem()->device()->device(), &allocInfo, &_descriptorSet) == VK_SUCCESS, "Failed to allocate descriptor sets");
+	lassert(vkAllocateDescriptorSets(Application::renderSystem()->device()->device(), &allocInfo, &m_descriptorSet) == VK_SUCCESS, "Failed to allocate descriptor sets");
 
-	for(uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = _descriptorSet;
+	for(uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = m_descriptorSet;
 
 	vkUpdateDescriptorSets(Application::renderSystem()->device()->device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
 
 	Logger::log_info("Successfully created Vulkan descriptor at ", get_address(this), "!", Logger::end_l());
 }
+
+} // namespace vulkan
 
 } // namespace lyra
 

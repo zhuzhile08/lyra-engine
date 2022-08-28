@@ -7,6 +7,6 @@ void Logger::clear_buffer() {
 	std::cout << std::endl;
 }
 
-std::ofstream Logger::_logFile("data/log/log.txt", std::ofstream::out | std::ofstream::trunc);
+std::ofstream Logger::m_logFile("data/log/log.txt", std::ofstream::out | std::ofstream::trunc);
 
 } // namespace lyra

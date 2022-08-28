@@ -21,7 +21,7 @@ public:
 	 * @param function the function (probably) as a lambda
 	 */
 	void add(std::function<void()>&& function) {
-		_queue.push_back(function);
+		m_queue.push_back(function);
 	}
 	/**
 	 * @brief remove a function from the queue without calling it
@@ -29,18 +29,18 @@ public:
 	 * @param index index of the function to remove
 	 */
 	void remove(int index) {
-		_queue.erase(_queue.begin() + index);
+		m_queue.erase(m_queue.begin() + index);
 	}
 
 	/**
 	 * @brief flush the queue whilst calling all the functions
 	 */
 	void flush() const {
-		for (uint32 i = 0; i < _queue.size(); i++) (_queue.at(i))();
+		for (uint32 i = 0; i < m_queue.size(); i++) (m_queue.at(i))();
 	}
 
 private:
-	std::deque<std::function<void()>> _queue;
+	std::deque<std::function<void()>> m_queue;
 };
 
 } // namespace lyra

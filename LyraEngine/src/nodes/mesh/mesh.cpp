@@ -72,9 +72,9 @@ Mesh::Mesh(
 	const glm::vec3 rotation, 
 	const glm::vec3 scale, 
 	const RotationOrder rotationOrder
-) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), _vertices(vertices), _indices(_indices) {
-	_vertices = vertices;
-	_indices = indices;
+) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), m_vertices(vertices), m_indices(m_indices) {
+	m_vertices = vertices;
+	m_indices = indices;
 
 	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
 }
@@ -117,8 +117,8 @@ void Mesh::create_mesh(const util::LoadedModel loaded, const uint16 index) {
 				};
 
 				// add the vertex to the list
-				_vertices.push_back(vertex);
-				_indices.push_back(static_cast<uint32>(_indices.size()));
+				m_vertices.push_back(vertex);
+				m_indices.push_back(static_cast<uint32>(m_indices.size()));
 			}
 		} 
 
@@ -154,8 +154,8 @@ void Mesh::create_mesh(const util::LoadedModel loaded, const uint16 index) {
 			};
 
 			// add the vertex to the list
-			_vertices.push_back(vertex);
-			_indices.push_back(static_cast<uint32>(_indices.size()));
+			m_vertices.push_back(vertex);
+			m_indices.push_back(static_cast<uint32>(m_indices.size()));
 		}
 
 		break;

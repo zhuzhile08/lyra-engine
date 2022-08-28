@@ -25,17 +25,19 @@
 
 namespace lyra {
 
+namespace vulkan {
+
 /**
  * @brief Vulkan physical and logical devices
  */
-class VulkanDevice {
+class Device {
 private:
 	friend class RenderSystem;
 
 	/**
 	 * @brief queue families
 	 */
-	struct VulkanQueueFamily {
+	struct QueueFamily {
 	public:
 		VkQueue queue = VK_NULL_HANDLE;
 		uint32  familyIndex = 0;
@@ -45,12 +47,12 @@ public:
 	/**
 	 * @brief create the devices
 	 */
-	VulkanDevice();
+	Device();
 
 	/**
 	* @brief destructor of the device
 	**/
-	virtual ~VulkanDevice() noexcept;
+	virtual ~Device() noexcept;
 	/**
 	 * @brief destroy the device
 	 */
@@ -72,59 +74,59 @@ public:
 	 * @param ⠀⠀⠀⡟⡾⣿⢿⢿⢵⣽⣾⣼⣘⢸⢸⣞⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	 * @param⠀⠀⠀⠀⠁⠇⠡⠩⡫⢿⣝⡻⡮⣒⢽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 	 */
-	VulkanDevice operator=(const VulkanDevice&) const noexcept = delete;
+	Device operator=(const Device&) const noexcept = delete;
 
 	/**
 	 * @brief wait for the logical device to finish with whatever operations are still going on
 	 */
-	void wait() const { lassert(vkDeviceWaitIdle(_device) == VK_SUCCESS, "Failed to wait for device to finish its operations!"); }
+	void wait() const { lassert(vkDeviceWaitIdle(m_device) == VK_SUCCESS, "Failed to wait for device to finish its operations!"); }
 
 	/**
 	 * @brief get the Vulkan instance
 	 *
 	 * @return const VkInstance&
 	 */
-	NODISCARD const VkInstance& instance() const noexcept { return _instance; }
+	NODISCARD const VkInstance& instance() const noexcept { return m_instance; }
 	/**
 	 * @brief get the GPU
 	 *
 	 * @return VkPhysicalDevice
 	 */
-	NODISCARD const VkPhysicalDevice& physicalDevice() const noexcept { return _physicalDevice;  }
+	NODISCARD const VkPhysicalDevice& physicalDevice() const noexcept { return m_physicalDevice;  }
 	/**
 	 * @brief get the logical device
 	 * 
 	 * @return const VkLogicalDevice&
 	 */
-	NODISCARD const VkDevice& device() const noexcept { return _device; }
+	NODISCARD const VkDevice& device() const noexcept { return m_device; }
 	/**
 	 * @brief get the graphics queue
 	 * 
-	 * @return const lyra::VulkanQueueFamily&
+	 * @return const lyra::QueueFamily&
 	 */
-	NODISCARD const VulkanQueueFamily& graphicsQueue() const noexcept { return _graphicsQueue; }
+	NODISCARD const QueueFamily& graphicsQueue() const noexcept { return m_graphicsQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
-	 * @return const lyra::VulkanQueueFamily&
+	 * @return const lyra::QueueFamily&
 	 */
-	NODISCARD const VulkanQueueFamily& presentQueue() const noexcept { return _presentQueue; }
+	NODISCARD const QueueFamily& presentQueue() const noexcept { return m_presentQueue; }
 	/**
 	 * @brief get the VMA memory allocator
 	 *
 	 * @return const VmaAllocator&
 	 */
-	NODISCARD const VmaAllocator& allocator() const noexcept { return _allocator; }
+	NODISCARD const VmaAllocator& allocator() const noexcept { return m_allocator; }
 
 private:
-	VkInstance _instance = VK_NULL_HANDLE;
-	VkPhysicalDevice _physicalDevice = VK_NULL_HANDLE;
-	VkDevice _device = VK_NULL_HANDLE;
+	VkInstance m_instance = VK_NULL_HANDLE;
+	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+	VkDevice m_device = VK_NULL_HANDLE;
 
-	VulkanQueueFamily _graphicsQueue;
-	VulkanQueueFamily _presentQueue;
+	QueueFamily m_graphicsQueue;
+	QueueFamily m_presentQueue;
 
-	VmaAllocator _allocator = VK_NULL_HANDLE;
+	VmaAllocator m_allocator = VK_NULL_HANDLE;
 
 	/**
 	 * @brief check if a vector of user requested Vulkan validation layers is actually available
@@ -146,9 +148,9 @@ private:
 	 *
 	 * @param queue the queue to find the family index of
 	 * @param device device to find the family index of the queue of
-	 * @return VulkanQueueFamily
+	 * @return QueueFamily
 	 */
-	void find_family_index(VulkanQueueFamily* const queue, const VkPhysicalDevice device) noexcept;
+	void find_family_index(QueueFamily* const queue, const VkPhysicalDevice device) noexcept;
 
 	/**
 	 * @brief rate a physical device by its features
@@ -161,9 +163,9 @@ private:
 	/**
 	 * @brief create a Vulkan queue
 	 *
-	 * @return VulkanQueueFamily
+	 * @return QueueFamily
 	 */
-	void create_queue(VulkanQueueFamily* const queue) noexcept;
+	void create_queue(QueueFamily* const queue) noexcept;
 	
 	/**
 	 * @brief create a Vulkan instance
@@ -184,5 +186,7 @@ private:
 	 */
 	void create_allocator();
 };
+
+} // namespace vulkan
 
 } // namespace lyra

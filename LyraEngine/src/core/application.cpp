@@ -8,7 +8,7 @@
 #include <init/init_SDL.h>
 #include <core/logger.h>
 
-#ifdef _WIN32
+#ifdef m_WIN32
 #include <windows.h>
 #endif
 
@@ -23,21 +23,21 @@ Application::~Application() {
 }
 
 void Application::draw() {
-	while (_window.running()) {
-		_lastTime = std::move(_currentTime);
+	while (m_window.running()) {
+		m_lastTime = std::move(m_currentTime);
 
-		_window.events();
-		_renderSystem.update();
-		_renderSystem.draw();
+		m_window.events();
+		m_renderSystem.update();
+		m_renderSystem.draw();
 
-		_currentTime = SDL_GetTicks64();
+		m_currentTime = SDL_GetTicks64();
 
 		// framerate calculation
-		_deltaTime = (_currentTime - _lastTime) * 0.001f;
-		_fps = 1.0f / (float)_deltaTime;
+		m_deltaTime = (m_currentTime - m_lastTime) * 0.001f;
+		m_fps = 1.0f / (float)m_deltaTime;
 	}
 
-	_renderSystem.device()->wait();
+	m_renderSystem.device()->wait();
 }
 
 void init(void) {
@@ -48,7 +48,7 @@ void init(void) {
 	std::ios::sync_with_stdio(true);
 #endif
 
-#ifdef _WIN32
+#ifdef m_WIN32
 	DWORD outMode = 0;
 	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -59,7 +59,7 @@ void init(void) {
 #endif
 }
 
-Window Application::_window;
-RenderSystem Application::_renderSystem(&_window);
+Window Application::m_window;
+RenderSystem Application::m_renderSystem(&m_window);
 
 } // namespace lyra

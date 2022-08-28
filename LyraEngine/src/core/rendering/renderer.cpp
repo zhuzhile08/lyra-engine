@@ -27,15 +27,15 @@ Renderer::Renderer() {
 
 Renderer::~Renderer() noexcept {
 	// destrpy the framebuffer
-	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::renderSystem()->_device.device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
-	vkDestroyRenderPass(Application::renderSystem()->_device.device(), _renderPass, nullptr);
+	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem()->m_device.device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
+	vkDestroyRenderPass(Application::renderSystem()->m_device.device(), m_renderPass, nullptr);
 
 	Logger::log_info("Successfully destroyed a renderer!");
 }
 
 void Renderer::recreate() {
-	for (auto framebuffer : _framebuffers) vkDestroyFramebuffer(Application::renderSystem()->_device.device(), framebuffer, nullptr);
-	vkDestroyRenderPass(Application::renderSystem()->_device.device(), _renderPass, nullptr);
+	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem()->m_device.device(), framebuffer, nullptr);
+	vkDestroyRenderPass(Application::renderSystem()->m_device.device(), m_renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();
 }
@@ -44,8 +44,8 @@ void Renderer::create_render_pass() {
 	// define what to do with an image during rendering
 	VkAttachmentDescription colorAttachmentDescriptions{
 		0,
-		Application::renderSystem()->_vulkanWindow.format(),
-		Application::renderSystem()->_vulkanWindow.maxMultisamples(),
+		Application::renderSystem()->m_vulkanWindow.format(),
+		Application::renderSystem()->m_vulkanWindow.maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -57,8 +57,8 @@ void Renderer::create_render_pass() {
 	// depth buffers
 	VkAttachmentDescription	depthBufferAttachmentDescriptions{
 		0,
-		Application::renderSystem()->_vulkanWindow.depthBufferFormat(),
-		Application::renderSystem()->_vulkanWindow.maxMultisamples(),
+		Application::renderSystem()->m_vulkanWindow.depthBufferFormat(),
+		Application::renderSystem()->m_vulkanWindow.maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -70,7 +70,7 @@ void Renderer::create_render_pass() {
 	// "finalise" the image to render
 	VkAttachmentDescription colorAttachmentFinalDescriptions{ // Nanashi became Dagdas personal game engine programmer
 		0,
-		Application::renderSystem()->_vulkanWindow.format(),
+		Application::renderSystem()->m_vulkanWindow.format(),
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_STORE,
@@ -133,17 +133,17 @@ void Renderer::create_render_pass() {
 		&dependencies
 	};
 
-	lassert(vkCreateRenderPass(Application::renderSystem()->_device.device(), &renderPassInfo, nullptr, &_renderPass) == VK_SUCCESS, "Failed to create Vulkan render pass!");
+	lassert(vkCreateRenderPass(Application::renderSystem()->m_device.device(), &renderPassInfo, nullptr, &m_renderPass) == VK_SUCCESS, "Failed to create Vulkan render pass!");
 }
 
 void Renderer::create_framebuffers() {
-	_framebuffers.resize(Application::renderSystem()->_vulkanWindow.images().size());
+	m_framebuffers.resize(Application::renderSystem()->m_vulkanWindow.images().size());
 
-	for (int i = 0; i < Application::renderSystem()->_vulkanWindow.images().size(); i++) {
+	for (int i = 0; i < Application::renderSystem()->m_vulkanWindow.images().size(); i++) {
 		std::array<VkImageView, 3> attachments = {
-			Application::renderSystem()->_vulkanWindow.colorImage()->_view,
-			Application::renderSystem()->_vulkanWindow.depthImage()->_view,
-			Application::renderSystem()->_vulkanWindow.views().at(i)
+			Application::renderSystem()->m_vulkanWindow.colorImage()->m_view,
+			Application::renderSystem()->m_vulkanWindow.depthImage()->m_view,
+			Application::renderSystem()->m_vulkanWindow.views().at(i)
 		};
 
 		// create the frame buffers
@@ -151,15 +151,15 @@ void Renderer::create_framebuffers() {
 			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 			nullptr,
 			0,
-			_renderPass,
+			m_renderPass,
 			static_cast<uint32>(attachments.size()),
 			attachments.data(),
-			Application::renderSystem()->_vulkanWindow.extent().width,
-			Application::renderSystem()->_vulkanWindow.extent().height,
+			Application::renderSystem()->m_vulkanWindow.extent().width,
+			Application::renderSystem()->m_vulkanWindow.extent().height,
 			1
 		};
 
-		lassert(vkCreateFramebuffer(Application::renderSystem()->_device.device(), &framebufferInfo, nullptr, &_framebuffers.at(i)) == VK_SUCCESS, "Failed to create a framebuffer!");
+		lassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers.at(i)) == VK_SUCCESS, "Failed to create a framebuffer!");
 	}
 }
 
@@ -170,11 +170,11 @@ void Renderer::begin_renderpass() const {
 	VkRenderPassBeginInfo beginInfo{
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
-		_renderPass,
-		_framebuffers.at(Application::renderSystem()->_imageIndex),
+		m_renderPass,
+		m_framebuffers.at(Application::renderSystem()->m_imageIndex),
 		{	// rendering area
 			{ 0, 0 },
-			Application::renderSystem()->_vulkanWindow.extent()
+			Application::renderSystem()->m_vulkanWindow.extent()
 		},
 		2, // hard coded
 		clear

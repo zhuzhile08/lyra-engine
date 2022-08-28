@@ -5,42 +5,42 @@
 namespace lyra {
 
 // base allocator
-BaseAllocator::BaseAllocator(uint32 size, void* start) : _size(size), _start(start) { 
-	lassert(_size != 0 && _start != nullptr, "Attemted to create a allocator with invalid starting conditions!");
+BaseAllocator::BaseAllocator(uint32 size, void* start) : m_size(size), m_start(start) { 
+	lassert(m_size != 0 && m_start != nullptr, "Attemted to create a allocator with invalid starting conditions!");
 }
 
 BaseAllocator::~BaseAllocator() {
-	lassert(_allocCount == 0 && _usedMemory == 0, "Memory from the allocator at: ", get_address(this), " was not properly deallocated when the destructor of the allocator was called!");
+	lassert(m_allocCount == 0 && m_usedMemory == 0, "Memory from the allocator at: ", get_address(this), " was not properly deallocated when the destructor of the allocator was called!");
 }
 
 // linear allocator
 LinearAllocator::~LinearAllocator() {
-	_currentPos = nullptr;
+	m_currentPos = nullptr;
 }
 
 void* LinearAllocator::alloc(size_t size, uint8 alignment) {
-	lassert(_size != 0, "Attemted to allocate memory using a linear allocator at: ", get_address(this), " with a size of 0!");
+	lassert(m_size != 0, "Attemted to allocate memory using a linear allocator at: ", get_address(this), " with a size of 0!");
 
 	// calculate the pointer alignment
-	uint8 adjustment = alignPointerAdjustment(_currentPos, alignment);
-	uptr alignedAddress = (uptr)_currentPos + adjustment;
+	uint8 adjustment = alignPointerAdjustment(m_currentPos, alignment);
+	uptr alignedAddress = (uptr)m_currentPos + adjustment;
 
 	// recalculate the internal variables and check them
-	_currentPos = (void*)(alignedAddress + size);
-	_usedMemory += size + adjustment;
-	if (_usedMemory > size) {	// check if memory is still in bounds
+	m_currentPos = (void*)(alignedAddress + size);
+	m_usedMemory += size + adjustment;
+	if (m_usedMemory > size) {	// check if memory is still in bounds
 		Logger::log_exception("The allocator at: ", get_address(this), "was instructed to allocate memory with size: ", size, " but does not have enough space left!");
 		return nullptr;
 	}
-	_allocCount += 1;
+	m_allocCount += 1;
 
 	return (void*)alignedAddress;
 }
 
 void LinearAllocator::clear() {
-	_allocCount = 0;
-	_usedMemory = 0;
-	_currentPos = _start;
+	m_allocCount = 0;
+	m_usedMemory = 0;
+	m_currentPos = m_start;
 }
 
 #ifdef _DEBUG

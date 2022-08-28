@@ -18,7 +18,7 @@
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_image.h>
-#include <core/rendering/asset_manager.h>
+#include <core/rendering/assets.h>
 
 #include <algorithm>
 #include <lz4.h>
@@ -27,7 +27,7 @@
 namespace lyra {
 
 // Textures and images
-class Texture : private VulkanImage, private VulkanGPUMemory {
+class Texture : private vulkan::Image, private vulkan::GPUMemory {
 public:
 	// type of the image
 	enum Type : unsigned int {
@@ -109,8 +109,8 @@ public:
 	*/
 	NODISCARD const VkDescriptorImageInfo get_descriptor_image_info() const noexcept {
 		return {
-			_sampler,
-			_view,
+			m_sampler,
+			m_view,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 		};
 	}
@@ -118,34 +118,34 @@ public:
 	/**
 	 * @brief get the image
 	 * 
-	 * @return const lyra::VulkanImage&
+	 * @return const lyra::vulkan::Image&
 	*/
-	NODISCARD const VkImageView& view() const noexcept { return _view; }
+	NODISCARD const VkImageView& view() const noexcept { return m_view; }
 	/**
 	 * @brief get the sampler
 	 * 
 	 * @return const VkSampler&
 	*/
-	NODISCARD const VkSampler& sampler() const noexcept { return _sampler; }
+	NODISCARD const VkSampler& sampler() const noexcept { return m_sampler; }
 	/**
 	 * @brief get the memory
 	 * 
 	 * @return const VmaAllocation&
 	*/
-	NODISCARD const VmaAllocation& memory() const noexcept { return _memory; }
+	NODISCARD const VmaAllocation& memory() const noexcept { return m_memory; }
 	/**
 	* @brief get the path of the image
 	* 
 	* @return const char* const
 	**/
-	NODISCARD const char* const path() const noexcept { return _path; }
+	NODISCARD const char* const path() const noexcept { return m_path; }
 
 private:
-	VkSampler _sampler = VK_NULL_HANDLE;
-	uint32 _width;
-	uint32 _height;
-	uint32 _mipmap;
-	char* _path;
+	VkSampler m_sampler = VK_NULL_HANDLE;
+	uint32 m_width;
+	uint32 m_height;
+	uint32 m_mipmap;
+	char* m_path;
 
 	/**
 	 * @brief copy raw image data from a buffer into the image
@@ -153,7 +153,7 @@ private:
 	 * @param stagingBuffer buffer
 	 * @param extent size of the image
 	 */
-	void copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent);
+	void copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D extent);
 
 	/**
 	 * load a image from a path
@@ -161,7 +161,7 @@ private:
 	 * @param textureInfo texture information
 	 * @param format format of the image
 	 */
-	void load_image(AssetManager::TextureInfo& textureInfo, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	void load_image(Assets::TextureInfo& textureInfo, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief create the image sampler
@@ -172,7 +172,7 @@ private:
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
-		AssetManager::TextureInfo& textureInfo,
+		Assets::TextureInfo& textureInfo,
 		const VkFilter magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR

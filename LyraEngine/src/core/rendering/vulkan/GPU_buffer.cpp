@@ -8,10 +8,12 @@
 
 namespace lyra {
 
-VulkanGPUBuffer::VulkanGPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) {
+namespace vulkan {
+
+GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) {
 	Logger::log_info("Creating Vulkan GPU memory buffer...");
 
-	_size = size;
+	m_size = size;
 
 	Logger::log_debug(Logger::tab(), "Size: ", size, " bytes (", size / 1000, " kilobytes)");
 	Logger::log_debug(Logger::tab(), "Buffer usage flag: ", bufferUsage);
@@ -29,37 +31,37 @@ VulkanGPUBuffer::VulkanGPUBuffer(VkDeviceSize const size, VkBufferUsageFlags con
 		0
 	};
 
-	lassert(vmaCreateBuffer(Application::renderSystem()->device()->allocator(), &bufferInfo, &get_alloc_create_info(memUsage), &_buffer, &_memory, nullptr) == VK_SUCCESS,
+	lassert(vmaCreateBuffer(Application::renderSystem()->device()->allocator(), &bufferInfo, &get_alloc_create_info(memUsage), &m_buffer, &m_memory, nullptr) == VK_SUCCESS,
 		"Failed to create Vulkan GPU memory buffer!");
 
 	Logger::log_info("Successfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
 }
 
-VulkanGPUBuffer::~VulkanGPUBuffer() noexcept {
-	vkDestroyBuffer(Application::renderSystem()->device()->device(), _buffer, nullptr);
+GPUBuffer::~GPUBuffer() noexcept {
+	vkDestroyBuffer(Application::renderSystem()->device()->device(), m_buffer, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
 }
 
-void VulkanGPUBuffer::copy_data(const void* const src, const size_t copySize) {
+void GPUBuffer::copy_data(const void* const src, const size_t copySize) {
 	void* data;
-	lassert(vmaMapMemory(Application::renderSystem()->device()->allocator(), _memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(_memory), "!");
+	lassert(vmaMapMemory(Application::renderSystem()->device()->allocator(), m_memory, &data) == VK_SUCCESS, "Failed to map buffer memory at ", get_address(m_memory), "!");
 
 	/**  
 	const char* s = (char*)src;
 	char* d = (char*)data;
 
-	for(size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(_size) : copySize; i++) d[i] = s[i];
+	for(size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(m_size) : copySize; i++) d[i] = s[i];
 
 	data = std::move(d);
 	*/
 
-	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(_size) : copySize);
+	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(m_size) : copySize);
 
-	vmaUnmapMemory(Application::renderSystem()->device()->allocator(), _memory);
+	vmaUnmapMemory(Application::renderSystem()->device()->allocator(), m_memory);
 }
 
-void VulkanGPUBuffer::copy(const VulkanGPUBuffer* const srcBuffer) {
+void GPUBuffer::copy(const GPUBuffer* const srcBuffer) {
 	// get a unused command buffer
 	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// start recording
@@ -69,10 +71,10 @@ void VulkanGPUBuffer::copy(const VulkanGPUBuffer* const srcBuffer) {
 	VkBufferCopy copyRegion{
 		0,
 		0,
-		_size
+		m_size
 	};
 
-	vkCmdCopyBuffer(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), _buffer, 1, &copyRegion);
+	vkCmdCopyBuffer(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, srcBuffer->buffer(), m_buffer, 1, &copyRegion);
 
 	Application::renderSystem()->commandBuffers()->end(cmdBuff);		// end recording
 
@@ -84,5 +86,7 @@ void VulkanGPUBuffer::copy(const VulkanGPUBuffer* const srcBuffer) {
 
 	Logger::log_debug("Successfully copied Vulkan GPU buffer at ", get_address(&srcBuffer), " to ", get_address(this), "!", Logger::end_l());
 }
+
+} // namespace vulkan
 
 } // namespace lyra

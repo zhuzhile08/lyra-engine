@@ -36,9 +36,9 @@ public:
 	void add_draw_call(std::function<void()>&& func);
 
 private:
-	SmartPointer<VulkanDescriptorPool> _descriptorPool;
+	SmartPointer<vulkan::DescriptorPool> m_descriptorPool;
 
-	CallQueue _drawQueue;
+	CallQueue m_drawQueue;
 
 	/**
 	 * @brief record the command buffer

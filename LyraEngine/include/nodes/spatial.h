@@ -59,7 +59,7 @@ public:
 		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
 		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
-	) noexcept : Node(name, parent, visible, tag), _position(position), _rotation(rotation), _scale(scale), _rotationOrder(rotationOrder) { }
+	) noexcept : Node(name, parent, visible, tag), m_position(position), m_rotation(rotation), m_scale(scale), m_rotationOrder(rotationOrder) { }
 
 	/**
 	 * @brief update function, which gets updated every frame
@@ -72,7 +72,7 @@ public:
 	 * @param velocity velocity to move the object
 	 * @param space space to translate the object in
 	 */
-	void translate(glm::vec3 velocity, Space space = Space::SPACE_LOCAL) { set_position(_position + velocity, space); }
+	void translate(glm::vec3 velocity, Space space = Space::SPACE_LOCAL) { set_position(m_position + velocity, space); }
 	/**
 	 * @brief rotate the game object
 	 *
@@ -80,7 +80,7 @@ public:
 	 * @param space space to rotate the object in
 	 */
 	void rotate(glm::vec3 rotation, Space space = Space::SPACE_LOCAL) {
-		set_rotation(_rotation + rotation, space);
+		set_rotation(m_rotation + rotation, space);
 	}
 	/**
 	 * @brief look at a position
@@ -95,25 +95,25 @@ public:
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 position_global() const noexcept { return _position + _parent->position_global(); };
+	NODISCARD const glm::vec3 position_global() const noexcept { return m_position + m_parent->position_global(); };
 	/**
 	 * @brief get the global rotation
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 rotation_global() const noexcept { return _rotation + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->rotation_global()); };
+	NODISCARD const glm::vec3 rotation_global() const noexcept { return m_rotation + ((m_parent == nullptr) ? glm::vec3(0.0f) : m_parent->rotation_global()); };
 	/**
 	 * @brief get the global scale
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 scale_global() const noexcept { return _scale + ((_parent == nullptr) ? glm::vec3(0.0f) : _parent->scale_global()); };
+	NODISCARD const glm::vec3 scale_global() const noexcept { return m_scale + ((m_parent == nullptr) ? glm::vec3(0.0f) : m_parent->scale_global()); };
 	/**
 	 * @brief convert the local matrix to a global one
 	 *
 	 * @return const glm::vec4
 	*/
-	NODISCARD const glm::mat4 mat_to_global() const noexcept { return _localTransformMatrix + ((_parent == nullptr) ? glm::mat4(0.0f) : _parent->mat_to_global()); };
+	NODISCARD const glm::mat4 mat_to_global() const noexcept { return m_localTransformMatrix + ((m_parent == nullptr) ? glm::mat4(0.0f) : m_parent->mat_to_global()); };
 
 	/**
 	 * @brief set the position
@@ -134,37 +134,37 @@ public:
 	 *
 	 * @param newScale new scale
 	*/
-	void set_scale(glm::vec3 newScale) noexcept { _scale = newScale; }
+	void set_scale(glm::vec3 newScale) noexcept { m_scale = newScale; }
 
 	/**
 	 * @brief get the local position
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 position_local() const noexcept { return _position; };
+	NODISCARD const glm::vec3 position_local() const noexcept { return m_position; };
 	/**
 	 * @brief get the local rotation
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 rotation_local() const noexcept { return _rotation; };
+	NODISCARD const glm::vec3 rotation_local() const noexcept { return m_rotation; };
 	/**
 	 * @brief get the local scale
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 scale_local() const noexcept { return _scale; };
+	NODISCARD const glm::vec3 scale_local() const noexcept { return m_scale; };
 	/**
 	 * @brief get the order of rotation
 	 *
 	 * @return const lyra::Spatial::RotationOrder
 	*/
-	NODISCARD const RotationOrder rotationOrder() const noexcept { return _rotationOrder; }
+	NODISCARD const RotationOrder rotationOrder() const noexcept { return m_rotationOrder; }
 
 protected:
-	glm::vec3 _position = { 0.0f, 0.0f, 0.0f }, _rotation = { 0.0f, 0.0f, 0.0f }, _scale = { 1.0f, 1.0f, 1.0f };
-	RotationOrder _rotationOrder = RotationOrder::ROTATION_ZYX;
-	glm::mat4 _localTransformMatrix = glm::mat4(1.0f);
+	glm::vec3 m_position = { 0.0f, 0.0f, 0.0f }, m_rotation = { 0.0f, 0.0f, 0.0f }, m_scale = { 1.0f, 1.0f, 1.0f };
+	RotationOrder m_rotationOrder = RotationOrder::ROTATION_ZYX;
+	glm::mat4 m_localTransformMatrix = glm::mat4(1.0f);
 
 private:
 	/**

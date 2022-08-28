@@ -17,10 +17,12 @@
 #include <vulkan/vulkan.h>
 
 namespace lyra {
+
+namespace vulkan {
 /**
  * @brief wrapper around the Vulkan graphics pipeline
  */
-class VulkanShader {
+class Shader {
 public:
 	// types of shaders
 	enum Type : int {
@@ -58,7 +60,7 @@ public:
 		TYPE_MESH = 0x00000080,
 	}; // I totally didn't steal these names from the API, why would I?
 
-	VulkanShader() { }
+	Shader() { }
 	/**
 	 * @brief create a shader
 	 *
@@ -66,20 +68,20 @@ public:
 	 * @param entry name of the entrance point of the shader
 	 * @param type type of the shader
 	 */
-	VulkanShader(const char* path, const char* entry, Type type);
+	Shader(const char* path, const char* entry, Type type);
 
 	/**
 	* @brief destructor of the shader
 	**/
-	virtual ~VulkanShader() noexcept;
+	virtual ~Shader() noexcept;
 	/**
 	 * @brief destroy the shader
 	 */
 	void destroy() noexcept {
-		this->~VulkanShader();
+		this->~Shader();
 	}
 
-	VulkanShader operator=(const VulkanShader&) const noexcept = delete;
+	Shader operator=(const Shader&) const noexcept = delete;
 
 	/**
 	 * @brief get the shader loading information
@@ -91,9 +93,9 @@ public:
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
 			0,
-			static_cast<VkShaderStageFlagBits>(_type),
-			_module,
-			_entry,
+			static_cast<VkShaderStageFlagBits>(m_type),
+			m_module,
+			m_entry,
 			nullptr
 		};
 	}
@@ -103,18 +105,20 @@ public:
 	 * 
 	 * @return const VkShaderModule&
 	*/
-	NODISCARD const VkShaderModule& module() const noexcept { return _module; }
+	NODISCARD const VkShaderModule& module() const noexcept { return m_module; }
 	/**
 	 * @brief get the entry point of the shader
 	 * 
 	 * @return const string
 	*/
-	NODISCARD const char* const entry() const noexcept { return _entry; }
+	NODISCARD const char* const entry() const noexcept { return m_entry; }
 
 private:
-	VkShaderModule _module = VK_NULL_HANDLE;
-	Type _type;
-	const char* _entry;
+	VkShaderModule m_module = VK_NULL_HANDLE;
+	Type m_type;
+	const char* m_entry;
 };
+
+} // namespace vulkan
 
 } // namespace lyra

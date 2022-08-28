@@ -108,42 +108,42 @@ public:
 	/**
 	 * @brief get the GPU memory buffers
 	 * 
-	 * @return const std::vector<VulkanGPUBuffer>&
+	 * @return const std::vector<vulkan::GPUBuffer>&
 	*/
-	NODISCARD const std::vector<VulkanGPUBuffer>& buffers() const noexcept { return _buffers; }
+	NODISCARD const std::vector<vulkan::GPUBuffer>& buffers() const noexcept { return m_buffers; }
 	/**
 	 * @brief get the field of view of the camera
 	 *
 	 * @return const float
 	*/
-	NODISCARD const float fov() const noexcept { return _fov; }
+	NODISCARD const float fov() const noexcept { return m_fov; }
 	/**
 	 * @brief get the near clipping plane of the camera
 	 *
 	 * @return const float
 	*/
-	NODISCARD const float near() const noexcept { return _near; }
+	NODISCARD const float near() const noexcept { return m_near; }
 	/**
 	 * @brief get the far clipping plane of the camera
 	 *
 	 * @return const float
 	*/
-	NODISCARD const float far() const noexcept { return _far; }
+	NODISCARD const float far() const noexcept { return m_far; }
 	/**
 	 * @brief get the viewport dimensions and positions
 	 *
 	 * @return const float
 	*/
-	NODISCARD const glm::vec4 viewport() const noexcept { return _viewport; }
+	NODISCARD const glm::vec4 viewport() const noexcept { return m_viewport; }
 
 private:
-	std::vector<VulkanGPUBuffer> _buffers;
-	std::vector<Material*> _materials;
-	SmartPointer<GraphicsPipeline> _renderPipeline;
+	std::vector<vulkan::GPUBuffer> m_buffers;
+	std::vector<Material*> m_materials;
+	SmartPointer<GraphicsPipeline> m_renderPipeline;
 
-	float _fov = 45.0f, _near = 0.1f, _far = 20.0f, _depth = 1.0f;
-	glm::vec4 _viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
-	Projection _projection;
+	float m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_depth = 1.0f;
+	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
+	Projection m_projection;
 
 	/**
 	 * @brief record the command buffer

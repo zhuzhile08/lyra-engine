@@ -69,55 +69,55 @@ public:
 	/**
 	 * @brief get the descriptor sets
 	 *
-	 * @return const std::vector<VulkanDescriptor>&
+	 * @return const std::vector<vulkan::Descriptor>&
 	*/
-	NODISCARD const std::vector<VulkanDescriptor>& descriptor() const noexcept { return _descriptors; }
+	NODISCARD const std::vector<vulkan::Descriptor>& descriptor() const noexcept { return m_descriptors; }
 
 private:
-	Color _albedoColor;
-	const Texture* _albedoTexture;
+	Color m_albedoColor;
+	const Texture* m_albedoTexture;
 
-	uint8 _metallic;
-	uint8 _roughness;
-	uint8 _specular;
-	const Texture* _metallicTexture;
+	uint8 m_metallic;
+	uint8 m_roughness;
+	uint8 m_specular;
+	const Texture* m_metallicTexture;
 
-	bool _emissionEnabled;
-	Color _emissionColor;
-	const Texture* _emissionTexture;
-	uint8 _emissionEnergy;
+	bool m_emissionEnabled;
+	Color m_emissionColor;
+	const Texture* m_emissionTexture;
+	uint8 m_emissionEnergy;
 	
-	const Texture* _normalMapTexture;
-	int8 _normalMapValue;
+	const Texture* m_normalMapTexture;
+	int8 m_normalMapValue;
 
-	const Texture* _heightMapTexture;
-	uint8 _heightMapValue;
+	const Texture* m_heightMapTexture;
+	uint8 m_heightMapValue;
 
-	const Texture* _occlusionMapTexture;
-	uint8 _occlusionMapValue;
+	const Texture* m_occlusionMapTexture;
+	uint8 m_occlusionMapValue;
 
-	std::vector<MeshRenderer*> _meshRenderers;
+	std::vector<MeshRenderer*> m_meshRenderers;
 
-	std::vector<VulkanDescriptor> _descriptors;
-	std::vector<VulkanGPUBuffer> _fragShaderBuffers;
-	std::vector<VulkanGPUBuffer> _vertShaderBuffers;
+	std::vector<vulkan::Descriptor> m_descriptors;
+	std::vector<vulkan::GPUBuffer> m_fragShaderBuffers;
+	std::vector<vulkan::GPUBuffer> m_vertShaderBuffers;
 
 	const Camera* camera;
 
 	struct MaterialVertexData {
-		uint32 _normalMapValue;
-		int32 _heightMapValue;
+		uint32 m_normalMapValue;
+		int32 m_heightMapValue;
 	};
 
 	struct MaterialFragmentData {
-		Color _albedoColor;
-		uint32 _metallic;
-		uint32 _roughness;
-		uint32 _specular;
-		bool _emissionEnabled;
-		Color _emissionColor;
-		uint32 _emissionEnergy;
-		uint32 _occlusionMapValue;
+		Color m_albedoColor;
+		uint32 m_metallic;
+		uint32 m_roughness;
+		uint32 m_specular;
+		bool m_emissionEnabled;
+		Color m_emissionColor;
+		uint32 m_emissionEnergy;
+		uint32 m_occlusionMapValue;
 	};
 
 	/**

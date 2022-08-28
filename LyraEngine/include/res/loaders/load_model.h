@@ -14,9 +14,9 @@ namespace util {
  * @brief used as a hidden middle step, since a .obj model can have multiple seperate models inside
  */
 struct LoadedModel {
-	tinyobj::attrib_t                   vertices;
-	std::vector<tinyobj::shape_t>       shapes;
-	std::vector<tinyobj::material_t>    materials;
+	tinyobj::attrib_t				   vertices;
+	std::vector<tinyobj::shape_t>	   shapes;
+	std::vector<tinyobj::material_t>	materials;
 };
 
 /**

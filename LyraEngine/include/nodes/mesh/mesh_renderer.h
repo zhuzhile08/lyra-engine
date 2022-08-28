@@ -47,21 +47,21 @@ public:
 	/**
 	 * @brief get the vertex buffer
 	 *
-	 * @return const VulkanGPUBuffer>
+	 * @return const vulkan::GPUBuffer>
 	*/
-	NODISCARD const VulkanGPUBuffer* const vertexBuffer() const noexcept { return _vertexBuffer; }
+	NODISCARD const vulkan::GPUBuffer* const vertexBuffer() const noexcept { return m_vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 *
-	 * @return const VulkanGPUBuffer>
+	 * @return const vulkan::GPUBuffer>
 	*/
-	NODISCARD const VulkanGPUBuffer* const indexBuffer() const noexcept { return _indexBuffer; }
+	NODISCARD const vulkan::GPUBuffer* const indexBuffer() const noexcept { return m_indexBuffer; }
 
 private:
-	const Mesh* _mesh;
+	const Mesh* m_mesh;
 
-	SmartPointer<VulkanGPUBuffer> _vertexBuffer;
-	SmartPointer<VulkanGPUBuffer> _indexBuffer;
+	SmartPointer<vulkan::GPUBuffer> m_vertexBuffer;
+	SmartPointer<vulkan::GPUBuffer> m_indexBuffer;
 
 	/**
 	 * @brief create a vertex buffer

@@ -20,25 +20,27 @@
 
 namespace lyra {
 
+namespace vulkan {
+
 /**
  * @brief command pool
  */
-class VulkanCommandPool {
+class CommandPool {
 public:
-	VulkanCommandPool();
+	CommandPool();
 
 	/**
 	* @brief destructor of the command pool
 	**/
-	virtual ~VulkanCommandPool() noexcept;
+	virtual ~CommandPool() noexcept;
 	/**
 	 * @brief destroy the command pool
 	 */
 	void destroy() noexcept {
-		this->~VulkanCommandPool();
+		this->~CommandPool();
 	}
 
-	VulkanCommandPool operator=(const VulkanCommandPool&) const noexcept = delete;
+	CommandPool operator=(const CommandPool&) const noexcept = delete;
 
 	/**
 	 * @brief reset the command buffer
@@ -50,10 +52,10 @@ public:
 	 *
 	 * @return const VkCommandPool&
 	 */
-	NODISCARD const VkCommandPool& commandPool() const noexcept { return _commandPool; }
+	NODISCARD const VkCommandPool& commandPool() const noexcept { return m_commandPool; }
 
 private:
-	VkCommandPool _commandPool = VK_NULL_HANDLE;
+	VkCommandPool m_commandPool = VK_NULL_HANDLE;
 };
 
 /**
@@ -79,7 +81,7 @@ private:
 		 * @param commandPool command pool
 		 * @param level level of the command buffer
 		 */
-		VulkanCommandBuffer(const VulkanCommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		VulkanCommandBuffer(const CommandPool* const commandPool, const VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
 		/**
 		* @brief destructor of the command buffer
@@ -97,7 +99,7 @@ private:
 		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 	
 	private:
-		const VulkanCommandPool* commandPool;
+		const CommandPool* commandPool;
 	};
 
 	friend class RenderSystem;
@@ -126,14 +128,14 @@ public:
 	CommandBufferManager operator=(const CommandBufferManager&) const noexcept = delete;
 
 	/**
-	 * @brief begin recording a commandBuffer
+	 * @brief begin recording a VulkanCommandBuffer
 	 *
 	 * @param cmdBuffer the command buffer to perform the operation on
 	 * @param usage what the recording will be used for
 	 */
 	void begin(const CommandBuffer cmdBuffer, const VkCommandBufferUsageFlags usage = 0);
 	/**
-	 * @brief end recording a commandBuffer
+	 * @brief end recording a VulkanCommandBuffer
 	 * 
 	 * @param cmdBuffer the command buffer to perform the operation on
 	 */
@@ -182,7 +184,7 @@ public:
 		const VkDependencyFlags dependency = 0
 	) const {
 		vkCmdPipelineBarrier(
-			_commandBufferData.at(cmdBuffer).commandBuffer,
+			m_commandBufferData.at(cmdBuffer).commandBuffer,
 			srcStageFlags,
 			dstStageFlags,
 			dependency,
@@ -197,9 +199,11 @@ public:
 
 	/**
 	 * @brief return the index of an unused pipeline
+	 * 
+	 * @return const lyra::CommandBuffer
 	 */
 	NODISCARD const CommandBuffer get_unused() const { 
-		for (auto& it : _commandBuffers) 
+		for (auto& it : m_commandBuffers) 
 			if (it.second == CommandBufferUsage::COMMAND_BUFFER_UNUSED) 
 				return it.first; 
 #ifdef _DEBUG
@@ -212,13 +216,17 @@ public:
 	 * @brief get a command buffer at a specific index
 	 *
 	 * @param index index of the command buffer
+	 * 
+	 * @return const lyra::vulkan::VulkanCommandBuffer* const
 	 */
-	NODISCARD const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &_commandBufferData.at(index); }
+	NODISCARD const VulkanCommandBuffer* const commandBuffer(CommandBuffer index) const noexcept { return &m_commandBufferData.at(index); }
 
 private:
-	VulkanCommandPool _commandPool;
-	std::vector<VulkanCommandBuffer> _commandBufferData;
-	std::unordered_map<CommandBuffer, CommandBufferUsage> _commandBuffers;
+	CommandPool m_commandPool;
+	std::vector<VulkanCommandBuffer> m_commandBufferData;
+	std::unordered_map<CommandBuffer, CommandBufferUsage> m_commandBuffers;
 };
+
+} // namespace vulkan
 
 } // namespace lyra

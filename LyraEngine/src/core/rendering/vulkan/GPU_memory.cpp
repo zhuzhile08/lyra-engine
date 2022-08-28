@@ -7,13 +7,15 @@
 
 namespace lyra {
 
-VulkanGPUMemory::~VulkanGPUMemory() {
-	vmaFreeMemory(Application::renderSystem()->device()->allocator(), _memory);
+namespace vulkan {
+
+GPUMemory::~GPUMemory() {
+	vmaFreeMemory(Application::renderSystem()->device()->allocator(), m_memory);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed VMA Memory!");
 }
 
-const VmaAllocationCreateInfo VulkanGPUMemory::get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags) noexcept {
+const VmaAllocationCreateInfo GPUMemory::get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags) noexcept {
 	return {
 		0,
 		usage,
@@ -25,5 +27,7 @@ const VmaAllocationCreateInfo VulkanGPUMemory::get_alloc_create_info(const VmaMe
 		0
 	}; // the rest is absolutely useless
 }
+
+} // namespace vulkan
 
 } // namespace lyra

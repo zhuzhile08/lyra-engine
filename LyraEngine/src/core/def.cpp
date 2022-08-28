@@ -19,7 +19,7 @@
 #include "rendering/vulkan/vulkan_shader.cpp"
 #include "rendering/vulkan/vulkan_window.cpp"
 
-#include "rendering/asset_manager.cpp"
+#include "rendering/assets.cpp"
 #include "rendering/render_system.cpp"
 #include "rendering/gui_renderer.cpp"
 #include "rendering/graphics_pipeline.cpp"

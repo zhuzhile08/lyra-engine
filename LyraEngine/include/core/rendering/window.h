@@ -69,42 +69,42 @@ public:
 	/**
 	 * @brief wait until an event was detected
 	 */
-	void wait_events() { SDL_WaitEvent(&_event); }
+	void wait_events() { SDL_WaitEvent(&m_event); }
 
 	/**
 	 * @brief get the event object
 	 * 
 	 * @return const SDL_Event
 	 */
-	NODISCARD const SDL_Event event() const noexcept { return _event; }
+	NODISCARD const SDL_Event event() const noexcept { return m_event; }
 	/**
 	 * @brief get the window object
 	 *
 	 * @return SDL_Window*
 	 */
-	NODISCARD SDL_Window* get() const noexcept { return _window; };
+	NODISCARD SDL_Window* get() const noexcept { return m_window; };
 	/**
 	* @brief get if window is still running
 	* 
 	* @return const bool
 	**/
-	NODISCARD const bool running() const noexcept { return _running; }
+	NODISCARD const bool running() const noexcept { return m_running; }
 	/**
 	* @brief get if window was changed and set it back to false
 	* 
 	* @return const bool
 	**/
-	NODISCARD const bool changed() noexcept { return _changed; }
+	NODISCARD const bool changed() noexcept { return m_changed; }
 
 private:
-	SDL_Window* _window;
-	SDL_Event _event;
+	SDL_Window* m_window;
+	SDL_Event m_event;
 
-	CallQueue* _eventQueue;
+	CallQueue* m_eventQueue;
 
-	bool _fullscreen = false;
-	bool _running = true;
-	bool _changed = false;
+	bool m_fullscreen = false;
+	bool m_running = true;
+	bool m_changed = false;
 };
 
 } // namespace lyra

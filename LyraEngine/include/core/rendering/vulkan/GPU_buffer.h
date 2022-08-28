@@ -21,12 +21,14 @@
 
 namespace lyra {
 
+namespace vulkan {
+
 /**
  * @brief wrapper around the Vulkan buffer
  */
-class VulkanGPUBuffer : private VulkanGPUMemory {
+class GPUBuffer : private GPUMemory {
 public:
-	VulkanGPUBuffer() { }
+	GPUBuffer() { }
 	/**
 	 * @brief create the buffer
 	 *
@@ -34,20 +36,20 @@ public:
 	 * @param bufferUsage way to use the buffer
 	 * @param memUsage way to use the memory
 	 */
-	VulkanGPUBuffer(const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
+	GPUBuffer(const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
 
 	/**
 	 * @brief destructor of the buffer
 	 */
-	virtual ~VulkanGPUBuffer() noexcept;
+	virtual ~GPUBuffer() noexcept;
 	/**
 	 * @brief destroy the buffer
 	 */
 	void destroy() noexcept {
-		this->~VulkanGPUBuffer();
+		this->~GPUBuffer();
 	}
 
-	VulkanGPUBuffer operator=(const VulkanGPUBuffer&) const noexcept = delete;
+	GPUBuffer operator=(const GPUBuffer&) const noexcept = delete;
 
 	/**
 	 * @brief copy a buffer to another
@@ -57,7 +59,7 @@ public:
 	 * @param srcBuffer the buffer to copy
 	 * @param size the size of the buffer
 	 */
-	void copy(const VulkanGPUBuffer* const srcBuffer);
+	void copy(const GPUBuffer* const srcBuffer);
 
 	/**
 	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it
@@ -74,7 +76,7 @@ public:
 	*/
 	NODISCARD const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
 		return {
-			_buffer, 0, _size
+			m_buffer, 0, m_size
 		};
 	}
 	/**
@@ -100,9 +102,9 @@ public:
 			dstAccessMask,
 			srcQueueFamily,
 			dstQueueFamily,
-			_buffer,
+			m_buffer,
 			0,
-			_size
+			m_size
 		};
 	}
 
@@ -111,23 +113,25 @@ public:
 	 * 
 	 * @return const VkBuffer&
 	*/
-	NODISCARD const VkBuffer& buffer() const noexcept { return _buffer; }
+	NODISCARD const VkBuffer& buffer() const noexcept { return m_buffer; }
 	/**
 	 * @brief get the memory
 	 * 
 	 * @return const VmaAllocation&
 	*/
-	NODISCARD const VmaAllocation& memory() const noexcept { return _memory; };
+	NODISCARD const VmaAllocation& memory() const noexcept { return m_memory; };
 	/**
 	 * @brief get the size of the buffer
 	 * 
 	 * @return const VkDeviceSize&
 	*/
-	NODISCARD const VkDeviceSize& size() const noexcept { return _size; };
+	NODISCARD const VkDeviceSize& size() const noexcept { return m_size; };
 
 private:
-	VkBuffer _buffer = VK_NULL_HANDLE;
-	VkDeviceSize _size = 0;
+	VkBuffer m_buffer = VK_NULL_HANDLE;
+	VkDeviceSize m_size = 0;
 };
+
+} // namespace vulkan
 
 } // namespace lyra

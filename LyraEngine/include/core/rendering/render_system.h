@@ -56,7 +56,7 @@ public:
 	 *
 	 * @param queue queue to wait for
 	 */
-	void wait_device_queue(const VulkanDevice::VulkanQueueFamily queue) const;
+	void wait_device_queue(const vulkan::Device::QueueFamily queue) const;
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -71,21 +71,21 @@ public:
 	/**
 	 * @brief get the device
 	 * 
-	 * @return const VulkanDevice* const
+	 * @return const vulkan::Device* const
 	*/
-	NODISCARD const VulkanDevice* const device() const noexcept { return &_device; }
+	NODISCARD const vulkan::Device* const device() const noexcept { return &m_device; }
 	/**
 	 * @brief get the command buffers
 	 *
-	 * @return const SmartPointer<CommandBufferManager>
+	 * @return lyra::vulkan::CommandBufferManager* const
 	*/
-	NODISCARD CommandBufferManager* const commandBuffers() noexcept { return &_commandBuffers; }
+	NODISCARD vulkan::CommandBufferManager* const commandBuffers() noexcept { return &m_commandBuffers; }
 	/**
 	 * @brief get the vulkan window
 	 *
-	 * @return const lyra::VulkanWindow* const
+	 * @return const lyra::vulkan::Window* const
 	*/
-	NODISCARD const VulkanWindow* const vulkanWindow() const noexcept { return &_vulkanWindow; }
+	NODISCARD const vulkan::Window* const vulkanWindow() const noexcept { return &m_vulkanWindow; }
 	/**
 	 * @brief get the current active command buffer
 	 *
@@ -97,31 +97,31 @@ public:
 	 * 
 	 * @return const uint8
 	*/
-	NODISCARD const uint8 currentFrame() const noexcept { return _currentFrame; }
+	NODISCARD const uint8 currentFrame() const noexcept { return m_currentFrame; }
 	/**
 	 * @brief get the image index
 	 * 
 	 * @return const uint32
 	*/
-	NODISCARD const uint32 imageIndex() const noexcept { return _imageIndex; }
+	NODISCARD const uint32 imageIndex() const noexcept { return m_imageIndex; }
 	/**
 	 * @brief get the image index
 	 *
 	 * @return const lyra::CommandBuffer&
 	*/
-	NODISCARD const CommandBuffer& currentCommandBuffer() const noexcept { return _currentCommandBuffer; }
+	NODISCARD const CommandBuffer& currentCommandBuffer() const noexcept { return m_currentCommandBuffer; }
 
 private:
-	VulkanDevice _device;
-	CommandBufferManager _commandBuffers;
-	VulkanWindow _vulkanWindow;
+	vulkan::Device m_device;
+	vulkan::CommandBufferManager m_commandBuffers;
+	vulkan::Window m_vulkanWindow;
 
-	std::vector<Renderer*> _renderers;
+	std::vector<Renderer*> m_renderers;
 
-	uint8 _currentFrame = 0;
-	uint32 _imageIndex;
+	uint8 m_currentFrame = 0;
+	uint32 m_imageIndex;
 	
-	CommandBuffer _currentCommandBuffer;
+	CommandBuffer m_currentCommandBuffer;
 
 	Window* window;
 
@@ -152,4 +152,4 @@ private:
 	friend class Camera;
 };
 
-} // namespace Vulkan
+} // namespace lyra

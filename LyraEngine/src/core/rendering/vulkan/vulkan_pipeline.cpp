@@ -9,51 +9,53 @@
 
 namespace lyra {
 
-VulkanPipeline::~VulkanPipeline() noexcept {
+namespace vulkan {
+
+Pipeline::~Pipeline() noexcept {
 	// destroy pipeline and layout
-	vkDestroyPipeline(Application::renderSystem()->device()->device(), _pipeline, nullptr);
-	vkDestroyPipelineLayout(Application::renderSystem()->device()->device(), _layout, nullptr);
+	vkDestroyPipeline(Application::renderSystem()->device()->device(), m_pipeline, nullptr);
+	vkDestroyPipelineLayout(Application::renderSystem()->device()->device(), m_layout, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan pipeline!");
 }
 
-void VulkanPipeline::create_layout() {
+void Pipeline::create_layout() {
 	// create the pipeline layout
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
 		1,
-		_descriptorSetLayout->get_ptr(),
-		0,    /// @todo push constants
+		m_descriptorSetLayout->get_ptr(),
+		0,	/// @todo push constants
 		nullptr
 	};
 
-	lassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
+	lassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
 }
 
-void VulkanPipeline::create_shaders(std::vector<Shader> shaders) {
-	_shaders.reserve(shaders.size());
+void Pipeline::create_shaders(std::vector<ShaderInfo> shaders) {
+	m_shaders.reserve(shaders.size());
 
 #ifdef _DEBUG
 	// check if there are the same amount of shaders as shader informations
-	if (shaders.size() != _shaders.size()) {
+	if (shaders.size() != m_shaders.size()) {
 		Logger::log_warning("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", get_address(this), "!");
 	}
 #endif
 
 	// create the shaders in the vector
 	for (int index = 0; index < shaders.size(); index++) {
-		_shaders.emplace_back(shaders.at(index).path, shaders.at(index).entry,
-			static_cast<VulkanShader::Type>(shaders.at(index).type));
-		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&_shaders.at(index)), " with flag: ", shaders.at(index).type, "!");
+		m_shaders.emplace_back(shaders.at(index).path, shaders.at(index).entry,
+			static_cast<Shader::Type>(shaders.at(index).type));
+		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&m_shaders.at(index)), " with flag: ", shaders.at(index).type, "!");
 	}
 }
 
-void VulkanPipeline::create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags) {
+void Pipeline::create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags) {
 	// configure the builders using the custom pipeline builder
-	VulkanDescriptorSetLayout::Builder layoutBuilder; // layout
-	VulkanDescriptorPool::Builder poolBuilder; // pool
+	DescriptorSetLayout::Builder layoutBuilder; // layout
+	DescriptorPool::Builder poolBuilder; // pool
 
 	for (uint32 i = 0; i < bindings.size(); i++) {
 		// add the information to the layout builder first
@@ -76,8 +78,10 @@ void VulkanPipeline::create_descriptor_stuff(std::vector<Binding> bindings, VkDe
 	poolBuilder.poolFlags = poolFlags;
 
 	// create the descriptor layout and pool
-	_descriptorSetLayout = SmartPointer<VulkanDescriptorSetLayout>::create(layoutBuilder);
-	_descriptorPool = SmartPointer<VulkanDescriptorPool>::create(poolBuilder);
+	m_descriptorSetLayout = SmartPointer<DescriptorSetLayout>::create(layoutBuilder);
+	m_descriptorPool = SmartPointer<DescriptorPool>::create(poolBuilder);
 }
+
+} // namespace vulkan
 
 } // namespace lyra

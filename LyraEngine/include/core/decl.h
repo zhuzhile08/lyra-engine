@@ -44,18 +44,22 @@ typedef Color Colour;
 
 // core vulkan wrappers
 
-class VulkanDevice;
-class VulkanWindow;
-class VulkanCommandPool;
+namespace vulkan {
+
+class Device;
+class Window;
+class CommandPool;
 class CommandBufferManager;
-class VulkanDescriptorSetLayout;
-class VulkanDescriptorPool;
-class VulkanDescriptor;
-struct VulkanGPUMemory;
-struct VulkanImage;
-class VulkanGPUBuffer;
-class VulkanShader;
-class VulkanPipeline;
+class DescriptorSetLayout;
+class DescriptorPool;
+class Descriptor;
+struct GPUMemory;
+struct Image;
+class GPUBuffer;
+class Shader;
+class Pipeline;
+
+} // namespace vulkan
 
 // some higher level wrappers
 

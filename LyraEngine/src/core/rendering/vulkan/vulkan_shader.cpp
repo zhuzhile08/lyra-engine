@@ -6,7 +6,9 @@
 
 namespace lyra {
 
-VulkanShader::VulkanShader(const char* path, const char* entry, Type type) : _entry(entry), _type(type) {
+namespace vulkan {
+
+Shader::Shader(const char* path, const char* entry, Type type) : m_entry(entry), m_type(type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);
@@ -25,16 +27,18 @@ VulkanShader::VulkanShader(const char* path, const char* entry, Type type) : _en
 		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	lassert(vkCreateShaderModule(Application::renderSystem()->device()->device(), &createInfo, nullptr, &_module) == VK_SUCCESS, "Failed to create a Vulkan shader module");
+	lassert(vkCreateShaderModule(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_module) == VK_SUCCESS, "Failed to create a Vulkan shader module");
 
 	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }
 
-VulkanShader::~VulkanShader() {
-	vkDestroyShaderModule(Application::renderSystem()->device()->device(), _module, nullptr);
+Shader::~Shader() {
+	vkDestroyShaderModule(Application::renderSystem()->device()->device(), m_module, nullptr);
 
 	Logger::log_info("Successfully destroyed loaded Vulkan shader!");
 }
+
+} // namespace vulkan
 
 } // namespace lyra
 

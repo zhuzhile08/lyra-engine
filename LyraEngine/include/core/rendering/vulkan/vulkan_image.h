@@ -18,25 +18,27 @@
 
 namespace lyra {
 
+namespace vulkan {
+
 /**
  * @brief wrapper around vulkan images
  */
-struct VulkanImage {
-	VulkanImage() { }
+struct Image {
+	Image() { }
 
 	/**
 	* @brief destructor of the image
 	**/
-	virtual ~VulkanImage() noexcept;
+	virtual ~Image() noexcept;
 
 	/**
 	 * @brief destroy the image
 	 */
 	virtual void destroy() noexcept {
-		this->~VulkanImage();
+		this->~Image();
 	}
 
-	VulkanImage operator=(const VulkanImage&) const noexcept = delete;
+	Image operator=(const Image&) const noexcept = delete;
 
 	/**
 	 * @brief create the image and image view
@@ -109,7 +111,7 @@ struct VulkanImage {
 			dstLayout,
 			srcQueueFamily,
 			dstQueueFamily,
-			_image,
+			m_image,
 			subresourceRange
 		};
 	}
@@ -141,11 +143,13 @@ struct VulkanImage {
 	*/
 	NODISCARD const VkFormat get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
 
-	VkImage _image = VK_NULL_HANDLE;
-	VkImageView _view = VK_NULL_HANDLE;
+	VkImage m_image = VK_NULL_HANDLE;
+	VkImageView m_view = VK_NULL_HANDLE;
 
 private:
-	VkImageTiling _tiling = VK_IMAGE_TILING_MAX_ENUM;
+	VkImageTiling m_tiling = VK_IMAGE_TILING_MAX_ENUM;
 };
+
+} // namespace vulkan
 
 } // namespace lyra

@@ -18,25 +18,27 @@
 
 namespace lyra {
 
+namespace vulkan {
+
 /**
  * @brief wrapper around the VMA GPU allocations
  */
-struct VulkanGPUMemory {
-	VulkanGPUMemory() { };
+struct GPUMemory {
+	GPUMemory() { };
 
 	/**
 	 * @brief destructor of the memory
 	 */
-	virtual ~VulkanGPUMemory();
+	virtual ~GPUMemory();
 
 	/**
 	 * @brief manually destroy the memory
 	 */
 	void destroy() {
-		this->~VulkanGPUMemory();
+		this->~GPUMemory();
 	}
 
-	VulkanGPUMemory operator=(const VulkanGPUMemory&) const noexcept = delete;
+	GPUMemory operator=(const GPUMemory&) const noexcept = delete;
 
 	/**
 	 * @brief get the creation information of the allocation
@@ -48,7 +50,9 @@ struct VulkanGPUMemory {
 	 */
 	NODISCARD const VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept;
 
-	VmaAllocation _memory = VK_NULL_HANDLE;
+	VmaAllocation m_memory = VK_NULL_HANDLE;
 };
+
+} // namespace vulkan
 
 } // namespace lyra

@@ -12,7 +12,7 @@ namespace lyra {
 
 GraphicsPipeline::GraphicsPipeline(
 	const Renderer* const renderer,
-	const std::vector<Shader> shaders,
+	const std::vector<ShaderInfo> shaders,
 	const std::vector<Binding> bindings,
 	const VkExtent2D size,
 	const VkExtent2D area,
@@ -25,7 +25,7 @@ GraphicsPipeline::GraphicsPipeline(
 	Logger::log_info("Creating Vulkan graphics pipeline...");
 
 	// define what type of pipeline this is
-	_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
 	// crate shaders
 	create_shaders(shaders);
@@ -57,10 +57,10 @@ void GraphicsPipeline::create_pipeline(
 	const RenderMode renderMode,
 	const Culling culling
 ) {
-    // add all the shader stage creation information into a vector
-    std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
-    shaderStages.resize(_shaders.size());
-    for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages.at(i) = _shaders.at(i).get_stage_create_info();
+	// add all the shader stage creation information into a vector
+	std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
+	shaderStages.resize(m_shaders.size());
+	for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages.at(i) = m_shaders.at(i).get_stage_create_info();
 
 	GraphicsPipelineCreateInfo createInfo = {
 		shaderStages, // create shaders
@@ -198,14 +198,14 @@ void GraphicsPipeline::create_pipeline(
 		&createInfo.depthStencilState,
 		&createInfo.colorBlending,
 		&createInfo.dynamicState,
-		_layout,
+		m_layout,
 		renderer->renderPass(),
 		0,
 		VK_NULL_HANDLE,
 		0
 	};
 
-	lassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
+	lassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
 }
 
 } // namespace lyra

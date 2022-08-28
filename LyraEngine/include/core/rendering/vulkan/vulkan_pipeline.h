@@ -21,12 +21,14 @@
 
 namespace lyra {
 
+namespace vulkan {
+
 /**
  * @brief wrapper around the Vulkan graphics pipeline
  */
-class VulkanPipeline {
+class Pipeline {
 public:
-	VulkanPipeline() { }
+	Pipeline() { }
 
 	/**
 	 * @brief descriptor and shader information
@@ -45,7 +47,7 @@ public:
 	/**
 	 * @brief struct holding creation information for a shader
 	 */
-	struct Shader {
+	struct ShaderInfo {
 		// shader type
 		const int type;
 		// path of shader
@@ -57,60 +59,60 @@ public:
 	/**
 	 * @brief destructor of the pipeline
 	 */
-	virtual ~VulkanPipeline() noexcept;
+	virtual ~Pipeline() noexcept;
 	/**
 	 * @brief destroy the pipeline
 	 */
-	virtual void destroy() noexcept { this->~VulkanPipeline(); };
+	virtual void destroy() noexcept { this->~Pipeline(); };
 
-	VulkanPipeline operator=(const VulkanPipeline&) const noexcept = delete;
+	Pipeline operator=(const Pipeline&) const noexcept = delete;
 
 	/**
 	 * @brief get the descriptor set layout
 	 *
-	 * @return const VulkanDescriptorSetLayout* const
+	 * @return const DescriptorSetLayout* const
 	*/
-	NODISCARD const VulkanDescriptorSetLayout* const descriptorSetLayout() const noexcept { return _descriptorSetLayout; }
+	NODISCARD const DescriptorSetLayout* const descriptorSetLayout() const noexcept { return m_descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 *
-	 * @return const VulkanDescriptorPool* const
+	 * @return const DescriptorPool* const
 	*/
-	NODISCARD const VulkanDescriptorPool* const descriptorPool() const noexcept { return _descriptorPool; }
+	NODISCARD const DescriptorPool* const descriptorPool() const noexcept { return m_descriptorPool; }
 	/**
 	 * @brief get the pipeline
 	 *
 	 * @return const VkPipeline&
 	*/
-	NODISCARD const VkPipeline& pipeline() const noexcept { return _pipeline; }
+	NODISCARD const VkPipeline& pipeline() const noexcept { return m_pipeline; }
 	/**
 	 * @brief get the pipeline layout
 	 *
 	 * @return const VkPipelineLayout&
 	*/
-	NODISCARD const VkPipelineLayout& layout() const noexcept { return _layout; }
+	NODISCARD const VkPipelineLayout& layout() const noexcept { return m_layout; }
 	/**
 	 * @brief get the shaders
 	 *
-	 * @return const std::vector<VulkanShader>&
+	 * @return const std::vector<Shader>&
 	*/
-	NODISCARD const std::vector<VulkanShader>& shaders() const noexcept { return _shaders; }
+	NODISCARD const std::vector<Shader>& shaders() const noexcept { return m_shaders; }
 	/**
 	 * @brief get the shaders
 	 *
 	 * @return const VkPipelineBindPoint&
 	*/
-	NODISCARD const VkPipelineBindPoint& bindPoint() const noexcept { return _bindPoint; }
+	NODISCARD const VkPipelineBindPoint& bindPoint() const noexcept { return m_bindPoint; }
 
 protected:
-	VkPipeline _pipeline = VK_NULL_HANDLE;
-	VkPipelineLayout _layout = VK_NULL_HANDLE;
-	SmartPointer<VulkanDescriptorSetLayout> _descriptorSetLayout;
-	SmartPointer<VulkanDescriptorPool> _descriptorPool;
+	VkPipeline m_pipeline = VK_NULL_HANDLE;
+	VkPipelineLayout m_layout = VK_NULL_HANDLE;
+	SmartPointer<DescriptorSetLayout> m_descriptorSetLayout;
+	SmartPointer<DescriptorPool> m_descriptorPool;
 
-	VkPipelineBindPoint _bindPoint;
+	VkPipelineBindPoint m_bindPoint;
 
-	std::vector<VulkanShader> _shaders;
+	std::vector<Shader> m_shaders;
 
 	/**
 	 * @brief create the pipeline layout
@@ -129,7 +131,9 @@ protected:
 	 *
 	 * @param shaders shader information
 	 */
-	void create_shaders(std::vector<Shader> shaders);
+	void create_shaders(std::vector<ShaderInfo> shaders);
 };
+
+} // namespace vulkan
 
 } // namespace lyra

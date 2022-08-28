@@ -21,22 +21,26 @@ Camera::Camera(const char* name, Spatial* parent, const bool visible, const uint
 	Logger::log_info("Creating Camera... ");
 	
 	// shader information
-	std::vector<VulkanPipeline::Shader> shaders{
-		{ VulkanShader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
-		{ VulkanShader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" }
+	std::vector<vulkan::Pipeline::ShaderInfo> shaders{
+		{ vulkan::Shader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" }
 	};
 
 	// binding information
-	std::vector<VulkanPipeline::Binding> bindings{
-		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, VulkanShader::Type::TYPE_VERTEX },
-		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, VulkanShader::Type::TYPE_VERTEX },
-		{ VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, VulkanShader::Type::TYPE_VERTEX },
-		{ VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, VulkanShader::Type::TYPE_VERTEX },
-		{ VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, VulkanShader::Type::TYPE_FRAGMENT }
+	std::vector<vulkan::Pipeline::Binding> bindings{
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT }
 	};
 
 	// create the graphics pipeline
-	_renderPipeline = SmartPointer<GraphicsPipeline>::create(
+	m_renderPipeline = SmartPointer<GraphicsPipeline>::create(
 		this,
 		shaders,
 		bindings,
@@ -45,44 +49,44 @@ Camera::Camera(const char* name, Spatial* parent, const bool visible, const uint
 		);
 
 	// create the buffers
-	_buffers.reserve(Settings::Rendering::maxFramesInFlight);
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) _buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	m_buffers.reserve(Settings::Rendering::maxFramesInFlight);
+	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) m_buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	// add the update and draw functions into the queues
 	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
 }
 
 void Camera::set_perspective(float fov, float near, float far) noexcept {
-	_projection = Projection::PROJECTION_PERSPECTIVE;
-	_fov = fov;
-	_near = near;
-	_far = far;
+	m_projection = Projection::PROJECTION_PERSPECTIVE;
+	m_fov = fov;
+	m_near = near;
+	m_far = far;
 }
 
 void Camera::set_orthographic(glm::vec4 viewport, float near, float far) noexcept {
-	_projection = Projection::PROJECTION_ORTHOGRAPHIC;
-	_viewport = viewport;
-	_near = near;
-	_far = far;
+	m_projection = Projection::PROJECTION_ORTHOGRAPHIC;
+	m_viewport = viewport;
+	m_near = near;
+	m_far = far;
 }
 
 void Camera::draw(CameraData data) {
 	// check wich projection model the camera uses and calculate the projection data
-	if (_projection == Projection::PROJECTION_PERSPECTIVE) data.proj = glm::perspective(glm::radians(_fov), Settings::Window::width / (float) Settings::Window::height, _near, _far);
-	else data.proj = glm::ortho(_viewport[0], _viewport[1] + _viewport[0], _viewport[2], _viewport[3] + _viewport[2], _near, _far);
+	if (m_projection == Projection::PROJECTION_PERSPECTIVE) data.proj = glm::perspective(glm::radians(m_fov), Settings::Window::width / (float) Settings::Window::height, m_near, m_far);
+	else data.proj = glm::ortho(m_viewport[0], m_viewport[1] + m_viewport[0], m_viewport[2], m_viewport[3] + m_viewport[2], m_near, m_far);
 	data.proj[1][1] *= -1;
 
 	// send the data to the buffer
-	_buffers.at(Application::renderSystem()->currentFrame()).copy_data(&data);
+	m_buffers.at(Application::renderSystem()->currentFrame()).copy_data(&data);
 }
 
 void Camera::record_command_buffers() const {
 	// begin the renderpass
 	begin_renderpass();
 	// bind the default render pipeline
-	vkCmdBindPipeline(Application::renderSystem()->activeCommandBuffer(), _renderPipeline->bindPoint(), _renderPipeline->pipeline());
+	vkCmdBindPipeline(Application::renderSystem()->activeCommandBuffer(), m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
 	// loop through the materials and draw their meshes
-	for (int i = 0; i < _materials.size(); i++) _materials.at(i)->draw();
+	for (int i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
 	// end renderpass
 	end_renderpass();
 }

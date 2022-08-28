@@ -10,6 +10,7 @@
 *************************/
 
 #include "graphics/camera.cpp"
+#include "graphics/cubemap.cpp"
 
 #include "mesh/mesh.cpp"
 #include "mesh/mesh_renderer.cpp"

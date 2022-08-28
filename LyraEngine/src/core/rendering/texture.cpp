@@ -5,14 +5,14 @@ namespace lyra {
 Texture::Texture(char* const path, const VkFormat format) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
-	AssetManager::TextureInfo textureInfo;
-	textureInfo = AssetManager::unpack_texture(path);
+	Assets::TextureInfo textureInfo;
+	textureInfo = Assets::unpack_texture(path);
 
 	// assign some variables
-	_width = textureInfo.width; 
-	_height = textureInfo.height;
-	_mipmap = textureInfo.mipmap;
-	_path = path;
+	m_width = textureInfo.width; 
+	m_height = textureInfo.height;
+	m_mipmap = textureInfo.mipmap;
+	m_path = path;
 
 	load_image(textureInfo, format);
 	create_sampler(textureInfo);
@@ -21,23 +21,23 @@ Texture::Texture(char* const path, const VkFormat format) {
 }
 
 Texture::~Texture() noexcept {
-	vkDestroySampler(Application::renderSystem()->device()->device(), _sampler, nullptr);
+	vkDestroySampler(Application::renderSystem()->device()->device(), m_sampler, nullptr);
 
 	Logger::log_info("Successfully destroyed Texture!");
 }
 
-void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat format) {
-	Logger::log_debug(Logger::tab(), "path: ", _path);
-	Logger::log_debug(Logger::tab(), "width: ", _width, " and height: ", _height);
-	Logger::log_debug(Logger::tab(), "mipmapping levels: ", _mipmap);
+void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat format) {
+	Logger::log_debug(Logger::tab(), "path: ", m_path);
+	Logger::log_debug(Logger::tab(), "width: ", m_width, " and height: ", m_height);
+	Logger::log_debug(Logger::tab(), "mipmapping levels: ", m_mipmap);
 
 	// calculate the mipmap levels of the image
-	// _mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(_width, _height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
+	// m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
 
 	// calculate the size of the staging buffer
-	VkDeviceSize imageMemSize = static_cast<uint64>(_width * _height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
+	VkDeviceSize imageMemSize = static_cast<uint64>(m_width * m_height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
 	// create a staging buffer
-	VulkanGPUBuffer stagingBuffer(imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+	vulkan::GPUBuffer stagingBuffer(imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 
 	// copy the image data into the staging buffer
 	stagingBuffer.copy_data(textureInfo.data);
@@ -47,28 +47,28 @@ void Texture::load_image(AssetManager::TextureInfo& textureInfo, const VkFormat 
 		Application::renderSystem()->device()->allocator(), 
 		&get_image_create_info(
 			format, 
-			{ static_cast<uint32>(_width), static_cast<uint32>(_height), 1 },
+			{ static_cast<uint32>(m_width), static_cast<uint32>(m_height), 1 },
 			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-			_mipmap,
+			m_mipmap,
 			static_cast<VkImageType>(textureInfo.dimension)
 		),
 		&get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
-		& _image, 
-		& _memory, 
+		& m_image, 
+		& m_memory, 
 		nullptr
-	) == VK_SUCCESS, "Failed to load image from path: ", _path);
+	) == VK_SUCCESS, "Failed to load image from path: ", m_path);
 
 	// convert the image layout and copy it from the buffer
-	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1});
-	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(_width), static_cast<uint32>(_height), 1 });
+	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
+	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(m_width), static_cast<uint32>(m_height), 1 });
 	// generate the mipmaps
 	generate_mipmaps();
 
 	// create the image view
-	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, _mipmap, 0, 1 }, static_cast<VkImageViewType>(textureInfo.dimension));
+	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(textureInfo.dimension));
 }
 
-void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
+void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &properties);
 
@@ -88,12 +88,12 @@ void Texture::create_sampler(AssetManager::TextureInfo& textureInfo, const VkFil
 		VK_FALSE,
 		VK_COMPARE_OP_NEVER,
 		0.0f,
-		static_cast<float>(_mipmap),
+		static_cast<float>(m_mipmap),
 		static_cast<VkBorderColor>(textureInfo.alpha),
 		VK_FALSE
 	};
 
-	lassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &_sampler) == VK_SUCCESS, "Failed to create Vulkan image sampler!");
+	lassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler) == VK_SUCCESS, "Failed to create Vulkan image sampler!");
 
 	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }
@@ -109,9 +109,9 @@ void Texture::generate_mipmaps() const {
 	// begin recording
 	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
-	int32 mipWidth = _width, mipHeight = _height;
+	int32 mipWidth = m_width, mipHeight = m_height;
 
-	for (uint32 i = 1; i < _mipmap; i++) {
+	for (uint32 i = 1; i < m_mipmap; i++) {
 		Application::renderSystem()->commandBuffers()->pipeline_barrier(
 			cmdBuff,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -135,8 +135,8 @@ void Texture::generate_mipmaps() const {
 			{ { 0, 0, 0 }, { (mipWidth > 1) ? mipWidth / 2 : 1, (mipHeight > 1) ? mipHeight / 2 : 1, 1 } }
 		};
 
-		vkCmdBlitImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, _image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
-			_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+		vkCmdBlitImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+			m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
 
 		Application::renderSystem()->commandBuffers()->pipeline_barrier(
 			cmdBuff,
@@ -168,7 +168,7 @@ void Texture::generate_mipmaps() const {
 			VK_ACCESS_SHADER_READ_BIT,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			{ VK_IMAGE_ASPECT_COLOR_BIT, _mipmap - 1, 1, 0, 1 }
+			{ VK_IMAGE_ASPECT_COLOR_BIT, m_mipmap - 1, 1, 0, 1 }
 		)
 	);
 
@@ -184,7 +184,7 @@ void Texture::generate_mipmaps() const {
 	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
 }
 
-void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExtent3D extent) {
+void Texture::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D extent) {
 	// temporary command buffer for copying
 	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
 	// begin recording
@@ -200,7 +200,7 @@ void Texture::copy_from_buffer(const VulkanGPUBuffer* stagingBuffer, const VkExt
 		extent
 	};
 
-	vkCmdCopyBufferToImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, stagingBuffer->buffer(), _image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+	vkCmdCopyBufferToImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, stagingBuffer->buffer(), m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
 
 	// end recording
 	Application::renderSystem()->commandBuffers()->end(cmdBuff);

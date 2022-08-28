@@ -47,19 +47,19 @@ public:
 	 *
 	 * @return const VkRenderPass&
 	*/
-	NODISCARD const VkRenderPass& renderPass() const noexcept { return _renderPass; }
+	NODISCARD const VkRenderPass& renderPass() const noexcept { return m_renderPass; }
 	/**
 	 * @brief get the framebuffers
 	 *
 	 * @return const std::vector <VkFramebuffer>&
 	*/
-	NODISCARD const std::vector <VkFramebuffer>& framebuffers() const noexcept { return _framebuffers; }
+	NODISCARD const std::vector <VkFramebuffer>& framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
-	VkRenderPass _renderPass = VK_NULL_HANDLE;
-	std::vector <VkFramebuffer> _framebuffers;
+	VkRenderPass m_renderPass = VK_NULL_HANDLE;
+	std::vector <VkFramebuffer> m_framebuffers;
 
-	CallQueue _updateQueue;
+	CallQueue m_updateQueue;
 
 	/**
 	 * @brief recreate the renderer

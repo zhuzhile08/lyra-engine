@@ -25,7 +25,7 @@ namespace lyra {
 /**
  * @brief wrapper around the Vulkan graphics pipeline
  */
-class GraphicsPipeline : public VulkanPipeline {
+class GraphicsPipeline : public vulkan::Pipeline {
 private:
 	/**
 	 * @brief creation information of a pipeline
@@ -115,7 +115,7 @@ public:
 	 */
 	GraphicsPipeline(
 		const Renderer* const renderer,
-		const std::vector<Shader> shaders,
+		const std::vector<ShaderInfo> shaders,
 		const std::vector<Binding> bindings,
 		const VkExtent2D size,
 		const VkExtent2D area,

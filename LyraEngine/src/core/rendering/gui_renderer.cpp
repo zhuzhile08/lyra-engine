@@ -20,24 +20,24 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	Logger::log_info("Creating context for the GUI... ");
 
 	// information about the descriptor pool
-	VulkanDescriptorPool::Builder builder;
+	vulkan::DescriptorPool::Builder builder;
 	builder.add_pool_sizes({
-		{ VulkanDescriptor::Type::TYPE_SAMPLER, 1000 },
-		{ VulkanDescriptor::Type::TYPE_IMAGE_SAMPLER, 1000 },
-		{ VulkanDescriptor::Type::TYPE_SAMPLED_IMAGE, 1000 },
-		{ VulkanDescriptor::Type::TYPE_STORAGE_IMAGE, 1000 },
-		{ VulkanDescriptor::Type::TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ VulkanDescriptor::Type::TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER, 1000 },
-		{ VulkanDescriptor::Type::TYPE_STORAGE_BUFFER, 1000 },
-		{ VulkanDescriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ VulkanDescriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ VulkanDescriptor::Type::TYPE_INPUT_ATTACHMENT, 1000 }
+		{ vulkan::Descriptor::Type::TYPE_SAMPLER, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_SAMPLED_IMAGE, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_IMAGE, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+		{ vulkan::Descriptor::Type::TYPE_INPUT_ATTACHMENT, 1000 }
 		});
 	builder.set_max_sets(1000); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	_descriptorPool = SmartPointer<VulkanDescriptorPool>::create(builder);
+	m_descriptorPool = SmartPointer<vulkan::DescriptorPool>::create(builder);
 
 	// initialize ImGui
 	ImGui::CreateContext();
@@ -51,14 +51,14 @@ GUIRenderer::GUIRenderer() : Renderer() {
 		Application::renderSystem()->device()->graphicsQueue().familyIndex,
 		Application::renderSystem()->device()->graphicsQueue().queue,
 		VK_NULL_HANDLE,
-		_descriptorPool->get(),
+		m_descriptorPool->get(),
 		0,
 		3,
 		3,
 		Application::renderSystem()->vulkanWindow()->maxMultisamples()
 	};
 	// initialize ImGui for Vulkan
-	ImGui_ImplVulkan_Init(&initInfo, _renderPass);
+	ImGui_ImplVulkan_Init(&initInfo, m_renderPass);
 
 	// get a command buffer for creating the font textures
 	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
@@ -89,7 +89,7 @@ GUIRenderer::~GUIRenderer() {
 }
 
 void GUIRenderer::add_draw_call(std::function<void()>&& func) {
-	_drawQueue.add(std::move(func));
+	m_drawQueue.add(std::move(func));
 }
 
 void GUIRenderer::record_command_buffers() const {
@@ -101,7 +101,7 @@ void GUIRenderer::record_command_buffers() const {
 	ImGui::NewFrame();
 
 	// flush all draw commands
-	_drawQueue.flush();
+	m_drawQueue.flush();
 
 	// render
 	ImGui::Render();

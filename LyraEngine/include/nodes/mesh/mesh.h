@@ -109,17 +109,17 @@ public:
 	 * 
 	 * @return const std::vector <lyra::Vertex>
 	*/
-	NODISCARD const std::vector <Vertex> vertices() const noexcept { return _vertices; }
+	NODISCARD const std::vector <Vertex> vertices() const noexcept { return m_vertices; }
 	/**
 	 * @brief get the indices
 	 *
 	 * @return const std::vector <uint16>
 	*/
-	NODISCARD const std::vector <uint32> indices() const noexcept { return _indices; }
+	NODISCARD const std::vector <uint32> indices() const noexcept { return m_indices; }
 
 private:
-	std::vector <Vertex> _vertices;
-	std::vector <uint32> _indices;
+	std::vector <Vertex> m_vertices;
+	std::vector <uint32> m_indices;
 
 	/**
 	 * @brief create a mesh from a already loaded .obj file

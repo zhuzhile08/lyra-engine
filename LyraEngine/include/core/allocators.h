@@ -46,31 +46,31 @@ public:
 	 *
 	 * @return const void*
 	 */
-	NODISCARD const void* start() const noexcept { return _start; }
+	NODISCARD const void* start() const noexcept { return m_start; }
 	/**
 	 * @brief get the size of the allocation
 	 * 
 	 * @return const uint32_t
 	 */
-	NODISCARD const uint32 size() const noexcept { return _size; }
+	NODISCARD const uint32 size() const noexcept { return m_size; }
 	/**
 	 * @brief get total used memory
 	 *
 	 * @return const uint32_t
 	 */
-	NODISCARD const uint32 usedMemory() const noexcept { return _usedMemory; }
+	NODISCARD const uint32 usedMemory() const noexcept { return m_usedMemory; }
 	/**
 	 * @brief get the number of allocations
 	 *
 	 * @return const uint32_t
 	 */
-	NODISCARD const uint32 allocCount() const noexcept { return _allocCount; }
+	NODISCARD const uint32 allocCount() const noexcept { return m_allocCount; }
 
 protected:
-	void* _start;
-	uint32 _size;
-	uint32 _usedMemory = 0;
-	uint32 _allocCount = 0;
+	void* m_start;
+	uint32 m_size;
+	uint32 m_usedMemory = 0;
+	uint32 m_allocCount = 0;
 };
 
 // linear allocator
@@ -105,7 +105,7 @@ public:
 
 private:
 	LinearAllocator operator=(const LinearAllocator&);
-	void* _currentPos;
+	void* m_currentPos;
 };
 
 // linear allocator
@@ -128,7 +128,7 @@ public:
 	 * @param allocator the allocator to allocate the memory
 	 */
 	template <class _Ty> NODISCARD static _Ty* allocate(BaseAllocator* allocator) {
-		return new(allocator->alloc(sizeof(_Ty), __alignof(_Ty))) _Ty;
+		return new(allocator->alloc(sizeof(_Ty), m__alignof(_Ty))) _Ty;
 	}
 
 	/**
@@ -139,7 +139,7 @@ public:
 	 * @param value to initialize the memory
 	 */
 	template <class _Ty> NODISCARD static _Ty* allocate(BaseAllocator* allocator, _Ty value) {
-		return new (allocator->alloc(sizeof(_Ty), __alignof(_Ty))) _Ty(value);
+		return new (allocator->alloc(sizeof(_Ty), m__alignof(_Ty))) _Ty(value);
 	}
 
 	/**
@@ -167,7 +167,7 @@ public:
 
 		if (sizeof(size_t) % sizeof(T) > 0) headerSize += 1;
 
-		_Ty* p = ((_Ty)allocator->alloc(sizeof(_Ty) * (length + headerSize), __alignof(_Ty))) + headerSize;
+		_Ty* p = ((_Ty)allocator->alloc(sizeof(_Ty) * (length + headerSize), m__alignof(_Ty))) + headerSize;
 		*(((size_t*)p) - 1) = length;
 
 		for (int i = 0; i < length; i++) new (&p) _Ty;

@@ -5,7 +5,9 @@
 
 namespace lyra {
 
-VulkanDevice::VulkanDevice() {
+namespace vulkan {
+
+Device::Device() {
 	Logger::log_info("Creating Vulkan device...");
 
 	create_instance();
@@ -16,19 +18,19 @@ VulkanDevice::VulkanDevice() {
 	Logger::log_info("Successfully created Vulkan device and allocated GPU at ", get_address(this), "!", Logger::end_l());
 }
 
-VulkanDevice::~VulkanDevice() {
-	vmaDestroyAllocator(_allocator);
-	vkDestroyDevice(_device, nullptr);
-	vkDestroyInstance(_instance, nullptr);
+Device::~Device() {
+	vmaDestroyAllocator(m_allocator);
+	vkDestroyDevice(m_device, nullptr);
+	vkDestroyInstance(m_instance, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan device!");
 }
 
-void VulkanDevice::destroy() noexcept {
-	this->~VulkanDevice();
+void Device::destroy() noexcept {
+	this->~Device();
 }
 
-void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
+void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
 	for (uint32 i = 0; i < requestedExtensions.size(); i++) {
 		bool found = false;
@@ -46,7 +48,7 @@ void VulkanDevice::check_requested_extensions(const std::vector <VkExtensionProp
 	}
 }
 
-void VulkanDevice::check_requested_validation_layers(const std::vector <VkLayerProperties>& layers, const std::vector <const char*>& requestedLayers) const {
+void Device::check_requested_validation_layers(const std::vector <VkLayerProperties>& layers, const std::vector <const char*>& requestedLayers) const {
 	// go through every requested layers and see if they are available
 	for (uint32 i = 0; i < requestedLayers.size(); i++) {
 		bool found = false;
@@ -64,7 +66,7 @@ void VulkanDevice::check_requested_validation_layers(const std::vector <VkLayerP
 	}
 }
 
-void VulkanDevice::find_family_index(VulkanQueueFamily* const queue, const VkPhysicalDevice device) noexcept {
+void Device::find_family_index(QueueFamily* const queue, const VkPhysicalDevice device) noexcept {
 	uint32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -78,7 +80,7 @@ void VulkanDevice::find_family_index(VulkanQueueFamily* const queue, const VkPhy
 	}
 }
 
-void VulkanDevice::rate_physical_device(const VkPhysicalDevice& device, std::multimap <int, VkPhysicalDevice>& map) {
+void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap <int, VkPhysicalDevice>& map) {
 	// get the available extensions
 	uint32 availableExtensionCount = 0;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &availableExtensionCount, nullptr);
@@ -127,11 +129,11 @@ void VulkanDevice::rate_physical_device(const VkPhysicalDevice& device, std::mul
 	map.insert(std::make_pair(score, device));
 }
 
-void VulkanDevice::create_queue(VulkanQueueFamily* const queue) noexcept {
-	vkGetDeviceQueue(_device, queue->familyIndex, 0, &queue->queue);
+void Device::create_queue(QueueFamily* const queue) noexcept {
+	vkGetDeviceQueue(m_device, queue->familyIndex, 0, &queue->queue);
 }
 
-void VulkanDevice::create_instance() {
+void Device::create_instance() {
 	// check if requested validation layers are available
 #ifdef _DEBUG
 	uint32 availableLayerCount = 0;
@@ -177,17 +179,17 @@ void VulkanDevice::create_instance() {
 	};
 
 	// create the instance
-	lassert(vkCreateInstance(&createInfo, nullptr, &_instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+	lassert(vkCreateInstance(&createInfo, nullptr, &m_instance) == VK_SUCCESS, "Failed to create Vulkan instance");
 
 	delete[] SDLExtensions;
 }
 
-void VulkanDevice::pick_physical_device() {
+void Device::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
-	lassert(vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr) == VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
-		std::vector <VkPhysicalDevice> devices(deviceCount);             // just put this in here cuz I was lazy
-	vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
+	lassert(vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr) == VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
+		std::vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
 
 	// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
 	std::multimap <int, VkPhysicalDevice> possibleDevices;
@@ -201,12 +203,12 @@ void VulkanDevice::pick_physical_device() {
 		Logger::log_exception("Failed to find GPU with enough features");
 	}
 
-	_physicalDevice = possibleDevices.begin()->second;
+	m_physicalDevice = possibleDevices.begin()->second;
 }
 
-void VulkanDevice::create_logical_device() {
+void Device::create_logical_device() {
 	std::vector <VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::set<uint32> queueFamilies = { _graphicsQueue.familyIndex, _presentQueue.familyIndex };
+	std::set<uint32> queueFamilies = { m_graphicsQueue.familyIndex, m_presentQueue.familyIndex };
 
 	float queuePriority = 1.0f;
 	for (uint32 familyIndex : queueFamilies) {
@@ -245,31 +247,33 @@ void VulkanDevice::create_logical_device() {
 	};
 
 	// create the device and retrieve the graphics and presentation queue handles
-	lassert(vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) == VK_SUCCESS, "Failed to create logical device!");
+	lassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) == VK_SUCCESS, "Failed to create logical device!");
 
-	find_family_index(&_graphicsQueue, _physicalDevice);
-	find_family_index(&_presentQueue, _physicalDevice);
-	create_queue(&_graphicsQueue);
-	create_queue(&_presentQueue);
+	find_family_index(&m_graphicsQueue, m_physicalDevice);
+	find_family_index(&m_presentQueue, m_physicalDevice);
+	create_queue(&m_graphicsQueue);
+	create_queue(&m_presentQueue);
 }
 
-void VulkanDevice::create_allocator() {
+void Device::create_allocator() {
 	// creation info
 	VmaAllocatorCreateInfo createInfo {
 		0,
-		_physicalDevice,
-		_device,
+		m_physicalDevice,
+		m_device,
 		0,
 		nullptr,
 		nullptr,
 		nullptr,
 		nullptr,
-		_instance,
+		m_instance,
 		VK_API_VERSION_1_2
 	};
 
 	// create the allocator
-	lassert(vmaCreateAllocator(&createInfo, &_allocator) == VK_SUCCESS, "Failed to create VMA memory allocator!");
+	lassert(vmaCreateAllocator(&createInfo, &m_allocator) == VK_SUCCESS, "Failed to create VMA memory allocator!");
 }
+
+} // namespace vulkan
 
 } // namespace lyra
