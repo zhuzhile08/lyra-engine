@@ -87,7 +87,7 @@ public:
 	 * @param path path
 	 * @param format format of the image
 	 */
-	Texture(char* const path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const char* path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief destructor of the texture
@@ -145,7 +145,7 @@ private:
 	uint32 m_width;
 	uint32 m_height;
 	uint32 m_mipmap;
-	char* m_path;
+	const char* m_path;
 
 	/**
 	 * @brief copy raw image data from a buffer into the image

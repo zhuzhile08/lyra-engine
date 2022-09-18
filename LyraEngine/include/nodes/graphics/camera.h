@@ -99,18 +99,6 @@ public:
 	 * @param far far clipping plane
 	*/
 	void set_orthographic(glm::vec4 viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, float near = 0.1f, float far = 20.0f) noexcept;
-
-	/**
-	 * @brief draw function
-	*/
-	void draw(CameraData data);
-
-	/**
-	 * @brief get the GPU memory buffers
-	 * 
-	 * @return const std::vector<vulkan::GPUBuffer>&
-	*/
-	NODISCARD const std::vector<vulkan::GPUBuffer>& buffers() const noexcept { return m_buffers; }
 	/**
 	 * @brief get the field of view of the camera
 	 *
@@ -137,7 +125,6 @@ public:
 	NODISCARD const glm::vec4 viewport() const noexcept { return m_viewport; }
 
 private:
-	std::vector<vulkan::GPUBuffer> m_buffers;
 	std::vector<Material*> m_materials;
 	SmartPointer<GraphicsPipeline> m_renderPipeline;
 
@@ -145,6 +132,10 @@ private:
 	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
 	Projection m_projection;
 
+	/**
+	 * @brief draw function
+	*/
+	void draw() const;
 	/**
 	 * @brief record the command buffer
 	 */

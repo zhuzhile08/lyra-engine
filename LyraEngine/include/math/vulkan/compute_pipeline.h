@@ -16,7 +16,7 @@
 #include <core/rendering/vulkan/vulkan_pipeline.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/logger.h>
-#include <lyra.h>
+#include <core/application.h>
 
 #include <vector>
 
@@ -27,7 +27,7 @@ namespace lyra {
 /**
  * @brief Vulkan compute pipelines
 */
-class ComputePipeline : public VulkanPipeline {
+class ComputePipeline : public vulkan::Pipeline {
 public:
 	// creation information
 	struct CreateInfo {

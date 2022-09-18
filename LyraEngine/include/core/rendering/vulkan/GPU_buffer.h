@@ -87,7 +87,7 @@ public:
 	 * @param srcQueueFamily the original queue family of the buffer
 	 * @param dstQueueFamily the queue family to transfer ownership to
 	 *
-	 * @return const VkBufferMemoryBarrier*
+	 * @return const VkBufferMemoryBarrier
 	*/
 	NODISCARD const VkBufferMemoryBarrier get_buffer_memory_barrier(
 		const VkAccessFlags srcAccessMask, 

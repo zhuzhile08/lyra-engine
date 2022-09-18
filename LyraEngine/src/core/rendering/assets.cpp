@@ -1,5 +1,11 @@
 #include <core/rendering/assets.h>
 
+#include <core/logger.h>
+
+#include <core/rendering/texture.h>
+
+#include <stb_image.h>
+
 namespace lyra {
 
 const Assets::TextureInfo Assets::unpack_texture(const char* path) {
@@ -19,15 +25,11 @@ const Assets::TextureInfo Assets::unpack_texture(const char* path) {
 	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
 	if (imagePixelData == nullptr) Logger::log_exception("Failed to load image from path: ", path, "!");
 
-	int width1, height1, channels1;
-	stbi_uc* imagePixelData1 = stbi_load("data/img/NormalMap.png", &width, &height, &channels, STBI_rgb_alpha);
-	if (imagePixelData1 == nullptr) Logger::log_exception("Failed to load image from path: ", path, "!");
-
 	Assets::TextureInfo textureInfo{
 		width, // jsonTextureInfo.at("width"),
 		height, // jsonTextureInfo.at("height"),
 		0, // jsonTextureInfo.at("length"),
-		3, // jsonTextureInfo.at("mipmap"),
+		1, // jsonTextureInfo.at("mipmap"),
 		0, // jsonTextureInfo.at("type"),
 		1, // jsonTextureInfo.at("alpha"),
 		1, // jsonTextureInfo.at("dimension"),
@@ -40,5 +42,7 @@ const Assets::TextureInfo Assets::unpack_texture(const char* path) {
 }
 
 util::AssetFile Assets::m_images; // = util::load_assets("data/images/images.ldat");
+SmartPointer<Texture> Assets::m_nullTexture = SmartPointer<Texture>::create("data/img/Default.bmp");
+SmartPointer<Texture> Assets::m_nullNormal = SmartPointer<Texture>::create("data/img/Normal.bmp");
 
 } // namespace lyra

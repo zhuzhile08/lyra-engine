@@ -96,7 +96,7 @@ public:
 	 */
 	void dealloc(void* p) override;
 #else
-	void dealloc(void* p) override = delete;
+	void dealloc(void* p) = delete;
 #endif
 	/**
 	 * @brief clear the linear allocator
@@ -165,14 +165,14 @@ public:
 		lassert(length == 0, "Attemted to allocate an array with a length of 0!");
 		uint32 headerSize{ sizeof(size_t) / sizeof(_Ty) };
 
-		if (sizeof(size_t) % sizeof(T) > 0) headerSize += 1;
+		if (sizeof(size_t) % sizeof(_Ty) > 0) headerSize += 1;
 
 		_Ty* p = ((_Ty)allocator->alloc(sizeof(_Ty) * (length + headerSize), m__alignof(_Ty))) + headerSize;
 		*(((size_t*)p) - 1) = length;
 
 		for (int i = 0; i < length; i++) new (&p) _Ty;
 
-		return p
+		return p;
 	}
 
 	/**
@@ -186,10 +186,10 @@ public:
 		lassert(array == nullptr, "Attemted to deallocate an array which is a nullpointer!");
 		size_t length = *(((size_t*)array) - 1);
 
-		for (size_t i = 0; i < length; i++) array.~T();
+		for (size_t i = 0; i < length; i++) array.~_Ty();
 
-		uint32 headerSize = sizeof(size_t) / sizeof(T);
-		if (sizeof(size_t) % sizeof(T) > 0) headerSize += 1;
+		uint32 headerSize = sizeof(size_t) / sizeof(_Ty);
+		if (sizeof(size_t) % sizeof(_Ty) > 0) headerSize += 1;
 
 		allocator.dealloc(array - headerSize);
 	}

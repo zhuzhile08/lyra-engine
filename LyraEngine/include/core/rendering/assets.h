@@ -12,11 +12,10 @@
 
 #pragma once
 
-#include <core/logger.h>
-#include <res/loaders/load_assets.h>
+#include <core/decl.h>
+#include <core/util.h>
 
-#include <stb_image.h>
-#include <vector>
+#include <res/loaders/load_assets.h>
 
 namespace lyra {
 
@@ -74,9 +73,23 @@ public:
 	 * @return const lyra::util::AssetFile&
 	 */
 	NODISCARD static const util::AssetFile& images() noexcept { return m_images; }
+	/**
+	 * @brief return the null texture
+	 * 
+	 * @reutrn const lyra::Texture* const 
+	 */
+	NODISCARD static const Texture* const nullTexture() noexcept { return m_nullTexture; }
+	/**
+	 * @brief return the null normal map texture
+	 *
+	 * @reutrn const lyra::Texture* const
+	 */
+	NODISCARD static const Texture* const nullNormal() noexcept { return m_nullNormal; }
 
 private:
 	static util::AssetFile m_images;
+	static SmartPointer<Texture> m_nullTexture;
+	static SmartPointer<Texture> m_nullNormal;
 };
 
 } // namespace lyra

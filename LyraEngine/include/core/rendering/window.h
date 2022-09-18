@@ -74,9 +74,9 @@ public:
 	/**
 	 * @brief get the event object
 	 * 
-	 * @return const SDL_Event
+	 * @return const SDL_Event&
 	 */
-	NODISCARD const SDL_Event event() const noexcept { return m_event; }
+	NODISCARD const SDL_Event& event() const noexcept { return m_event; }
 	/**
 	 * @brief get the window object
 	 *
