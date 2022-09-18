@@ -216,12 +216,12 @@ public:
 		Writer() { }
 
 		/**
-		 * @brief add a write
+		 * @brief add image writes
 		 *
-		 * @param newWrites Writes to add to the buffer. Consists of a image information, a buffer information, the binding and a type
+		 * @param newWrites Writes to add to the buffer. Consists of a image information, the binding and a type
 		 */
-		void add_writes(std::vector<std::tuple<const VkDescriptorImageInfo*, const VkDescriptorBufferInfo*, const uint16, const Type>> newWrites) noexcept {
-			for (const auto &[image_info, buffer_info, binding, type] : newWrites) {
+		void add_writes(std::vector<std::tuple<const VkDescriptorImageInfo&, const uint16, const Type>> newWrites) noexcept {
+			for (const auto &[image_info, binding, type] : newWrites) {
 				writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
@@ -230,10 +230,52 @@ public:
 					0,
 					1,
 					static_cast<VkDescriptorType>(type),
-					image_info,
-					buffer_info,
+					&image_info,
+					nullptr,
 					nullptr
 				});
+			}
+		}
+		/**
+		 * @brief add buffer writes
+		 *
+		 * @param newWrites Writes to add to the buffer. Consists of a buffer information, the binding and a type
+		 */
+		void add_writes(std::vector<std::tuple<const VkDescriptorBufferInfo&, const uint16, const Type>> newWrites) noexcept {
+			for (const auto& [buffer_info, binding, type] : newWrites) {
+				writes.push_back({
+					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+					nullptr,
+					VK_NULL_HANDLE,
+					binding,
+					0,
+					1,
+					static_cast<VkDescriptorType>(type),
+					nullptr,
+					&buffer_info,
+					nullptr
+				});
+			}
+		}
+		/**
+		 * @brief add writes of both types
+		 *
+		 * @param newWrites Writes to add to the buffer. Consists of a image information, a buffer information, the binding and a type
+		 */
+		void add_writes(std::vector<std::tuple<const VkDescriptorImageInfo&, const VkDescriptorBufferInfo&, const uint16, const Type>> newWrites) noexcept {
+			for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
+				writes.push_back({
+					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+					nullptr,
+					VK_NULL_HANDLE,
+					binding,
+					0,
+					1,
+					static_cast<VkDescriptorType>(type),
+					&image_info,
+					&buffer_info,
+					nullptr
+					});
 			}
 		}
 
