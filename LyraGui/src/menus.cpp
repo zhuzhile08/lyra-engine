@@ -36,7 +36,6 @@ void Menus::show_window_bar() {
 			} 
 			
 			if (ImGui::MenuItem("Exit", "Alt + F4")) {
-				lyra::Application::quit();
 			}
 
 			ImGui::EndMenu();

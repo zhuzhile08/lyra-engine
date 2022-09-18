@@ -165,6 +165,8 @@ protected:
 
 // nodes
 
+class Script;
+
 class Spatial;
 
 class Mesh;

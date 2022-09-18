@@ -3,7 +3,7 @@ project(LyraGui VERSION 0.5.0)
 
 # set default to debug
 set(CMAKE_BUILD_TYPE DEBUG)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # find and link the libraries
 set(LYRA_DIR ${CMAKE_SOURCE_DIR}/cmake)

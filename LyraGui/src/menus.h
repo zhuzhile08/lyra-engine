@@ -12,7 +12,9 @@
 #pragma once
 
 #include <imgui.h>
-#include <lyra.h>
+#include <core/application.h>
+
+#include <core/decl.h>
 
 #include <vector>
 

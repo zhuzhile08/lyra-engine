@@ -16,6 +16,8 @@
 #include <nodes/spatial.h>
 #include <core/rendering/texture.h>
 #include <menus.h>
+
+#include <array>
 /** 
 class Camera : public lyra::Node, public lyra::Camera {
 public:
@@ -25,7 +27,7 @@ public:
 		CameraData data;
 		rotate({ 0.0f, 0.0f, lyra::Application::fps() * 90.0f });
 		look_at({ 0.0f, 0.0f, 0.0f });
-		data.model = _localTransformMatrix;
+		data.model = m_localTransformMatrix;
 		draw(data);
 	}
 
@@ -42,7 +44,7 @@ class Application : public lyra::Application {
 };
 
 int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever you want to call this SMT reference
-	lyra::Logger::log_info("Welcome to the Lyra Engine Content Manager, where Assets gather... ");
+	lyra::init();
 
 	// init application
 	Application app;
@@ -57,7 +59,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	lyra::MeshRenderer roomRenderer(&roomMesh, "MeshRenderer", &room);
 
 	// material
-	lyra::Material material(&camera, { &roomRenderer });
+	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(), &roomTexture);
 
 	app.draw();
 
