@@ -14,6 +14,7 @@ GraphicsPipeline::GraphicsPipeline(
 	const Renderer* const renderer,
 	const std::vector<ShaderInfo> shaders,
 	const std::vector<Binding> bindings,
+	const std::vector<VkPushConstantRange> pushConstants,
 	const VkExtent2D size,
 	const VkExtent2D area,
 	const ColorBlending&& colorBlending,
@@ -35,6 +36,7 @@ GraphicsPipeline::GraphicsPipeline(
 	// create the pipeline
 	create_pipeline(
 		std::move(renderer),
+		std::move(pushConstants),
 		std::move(size),
 		std::move(area), 
 		std::move(colorBlending), 
@@ -49,6 +51,7 @@ GraphicsPipeline::GraphicsPipeline(
 
 void GraphicsPipeline::create_pipeline(
 	const Renderer* const renderer,
+	const std::vector<VkPushConstantRange> pushConstants,
 	const VkExtent2D size,
 	const VkExtent2D area,
 	const ColorBlending colorBlending,
@@ -62,6 +65,8 @@ void GraphicsPipeline::create_pipeline(
 	shaderStages.resize(m_shaders.size());
 	for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages.at(i) = m_shaders.at(i).get_stage_create_info();
 
+	VkVertexInputBindingDescription temp = Mesh::Vertex::get_binding_description(); // i loooove c++
+
 	GraphicsPipelineCreateInfo createInfo = {
 		shaderStages, // create shaders
 		{	// describe how vertices are inputed into shaders
@@ -69,7 +74,7 @@ void GraphicsPipeline::create_pipeline(
 			nullptr,
 			0,
 			1,
-			&Mesh::Vertex::get_binding_description(),
+			&temp,
 			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
 			Mesh::Vertex::get_attribute_descriptions().data()
 		},
@@ -180,7 +185,7 @@ void GraphicsPipeline::create_pipeline(
 	};
 
 	// create the pipeline layout
-	create_layout();
+	create_layout(pushConstants);
 
 	// create the pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo = {
@@ -205,7 +210,7 @@ void GraphicsPipeline::create_pipeline(
 		0
 	};
 
-	lassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) == VK_SUCCESS, "Failed to create Vulkan Pipeline!");
+	lassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) == VkResult::VK_SUCCESS, "Failed to create Vulkan Pipeline!");
 }
 
 } // namespace lyra

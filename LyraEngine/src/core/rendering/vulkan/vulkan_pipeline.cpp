@@ -19,7 +19,7 @@ Pipeline::~Pipeline() noexcept {
 	Logger::log_info("Successfully destroyed Vulkan pipeline!");
 }
 
-void Pipeline::create_layout() {
+void Pipeline::create_layout(std::vector<VkPushConstantRange> pushConstants) {
 	// create the pipeline layout
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -27,22 +27,15 @@ void Pipeline::create_layout() {
 		0,
 		1,
 		m_descriptorSetLayout->get_ptr(),
-		0,	/// @todo push constants
-		nullptr
+		pushConstants.size(),	/// @todo push constants
+		pushConstants.data()
 	};
 
-	lassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout) == VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
+	lassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout) == VkResult::VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
 }
 
 void Pipeline::create_shaders(std::vector<ShaderInfo> shaders) {
 	m_shaders.reserve(shaders.size());
-
-#ifdef _DEBUG
-	// check if there are the same amount of shaders as shader informations
-	if (shaders.size() != m_shaders.size()) {
-		Logger::log_warning("Number of shader creation infos doesn't match up with the numbers of shaders in the pipeline at: ", get_address(this), "!");
-	}
-#endif
 
 	// create the shaders in the vector
 	for (int index = 0; index < shaders.size(); index++) {

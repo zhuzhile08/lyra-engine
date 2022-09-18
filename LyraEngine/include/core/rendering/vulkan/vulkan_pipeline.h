@@ -116,8 +116,10 @@ protected:
 
 	/**
 	 * @brief create the pipeline layout
+	 * 
+	 * @param pushConstants push constant data
 	 */
-	void create_layout();
+	void create_layout(std::vector<VkPushConstantRange> pushConstants); // first time I've used a default Vulkan struct in an exposed part of the API
 	/**
 	 * @brief create stuff related to descriptors
 	 * 

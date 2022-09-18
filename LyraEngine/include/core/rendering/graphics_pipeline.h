@@ -104,7 +104,8 @@ public:
 	 * 
 	 * @param renderer renderer to render the pipeline
 	 * @param shaders shader creation information
-	 * @param bindings binding descriptor information
+	 * @param bindings descriptor binding information
+	 * @param pushConstants push constant information
 	 * @param size draw size
 	 * @param area draw area
 	 * @param colorBlending enable color blending
@@ -117,6 +118,7 @@ public:
 		const Renderer* const renderer,
 		const std::vector<ShaderInfo> shaders,
 		const std::vector<Binding> bindings,
+		const std::vector<VkPushConstantRange> pushConstants,
 		const VkExtent2D size,
 		const VkExtent2D area,
 		const ColorBlending&& colorBlending = ColorBlending::BLEND_ENABLE,
@@ -131,6 +133,7 @@ private:
 	 * @brief create a pipeline
 	 * 
 	 * @param renderer renderer to render the pipeline
+	 * @param pushConstants push constant information
 	 * @param size draw size
 	 * @param area draw area
 	 * @param colorBlending enable color blending
@@ -141,6 +144,7 @@ private:
 	 */
 	void create_pipeline(
 		const Renderer* const renderer,
+		const std::vector<VkPushConstantRange> pushConstants,
 		const VkExtent2D size,
 		const VkExtent2D area,
 		const ColorBlending colorBlending,
