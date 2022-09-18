@@ -62,7 +62,7 @@ void Image::create_view(const VkFormat format, const VkImageSubresourceRange sub
 	};
 
 	// create the view
-	lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_view) == VK_SUCCESS, "Failed to create Vulkan image views");
+	lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_view) == VkResult::VK_SUCCESS, "Failed to create Vulkan image views");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 }
@@ -74,9 +74,9 @@ void Image::transition_layout(
 	const VkImageSubresourceRange subresourceRange
 ) const {
 	// get a command buffer for setting up memory barrier
-	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
+	CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
 	// begin recording
-	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -97,16 +97,26 @@ void Image::transition_layout(
 	}
 	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
-	vkCmdPipelineBarrier(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &get_image_memory_barrier(sourceAccess, destinationAccess, oldLayout, newLayout, subresourceRange));
+	cmdBuff.pipelineBarrier(
+		sourceStage, 
+		destinationStage, 
+		VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+		VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM }, 
+		get_image_memory_barrier(
+			sourceAccess, 
+			destinationAccess, 
+			oldLayout, 
+			newLayout, 
+			subresourceRange
+		)
+	);
 
 	// end recording
-	Application::renderSystem()->commandBuffers()->end(cmdBuff);
-
+	cmdBuff.end();
 	// submit queues after recording
-	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
-	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset the command buffer
-	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
+	cmdBuff.reset();
 }
 
 const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {

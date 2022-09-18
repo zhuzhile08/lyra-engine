@@ -19,7 +19,7 @@ CommandPool::CommandPool() {
 		Application::renderSystem()->device()->graphicsQueue().familyIndex
 	};
 
-	lassert(vkCreateCommandPool(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_commandPool) == VK_SUCCESS, "Failed to create Vulkan command pool");
+	lassert(vkCreateCommandPool(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_commandPool) == VkResult::VK_SUCCESS, "Failed to create Vulkan command pool");
 
 	Logger::log_info("Successfully created Vulkan command pool at ", get_address(this), "!", Logger::end_l());
 }
@@ -32,7 +32,7 @@ CommandPool::~CommandPool() noexcept {
 }
 
 void CommandPool::reset() {
-	lassert(vkResetCommandPool(Application::renderSystem()->device()->device(), m_commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "Failed to reset command pool!");
+	lassert(Application::renderSystem()->device()->resetCommandPool(m_commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "Failed to reset command pool!");
 }
 
 // command buffer
@@ -51,13 +51,13 @@ CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const CommandPool
 	};
 
 	// create the command buffers
-	lassert(vkAllocateCommandBuffers(Application::renderSystem()->device()->device(), &allocInfo, &commandBuffer) == VK_SUCCESS, "Failed to create Vulkan command buffer!");
+	lassert(vkAllocateCommandBuffers(Application::renderSystem()->device()->device(), &allocInfo, &commandBuffer) == VkResult::VK_SUCCESS, "Failed to create Vulkan command buffer!");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan command buffer at ", get_address(this), "!", Logger::end_l());
 }
 
 CommandBufferManager::VulkanCommandBuffer::~VulkanCommandBuffer() noexcept {
-	vkFreeCommandBuffers(Application::renderSystem()->device()->device(), commandPool->commandPool(), 1, &commandBuffer);
+	Application::renderSystem()->device()->freeCommandBuffers(commandPool->commandPool(), 1, commandBuffer);
 
 	Logger::log_info("Successfully destroyed a Vulkan command buffer!");
 }
@@ -82,8 +82,8 @@ CommandBufferManager::~CommandBufferManager() noexcept {
 	Logger::log_info("Successfully destroyed a command buffer manager!");
 }
 
-void CommandBufferManager::begin(const CommandBuffer cmdBuffer, const VkCommandBufferUsageFlags usage) {
-	m_commandBuffers.find(cmdBuffer)->second = CommandBufferUsage::COMMAND_BUFFER_USED; // set that command buffer as in use
+void CommandBuffer::begin(const VkCommandBufferUsageFlags usage) {
+	commandBufferManager->m_commandBuffers.find(m_index)->second = CommandBufferManager::CommandBufferUsage::COMMAND_BUFFER_USED; // set that command buffer as in use
 
 	// some info about the recording
 	VkCommandBufferBeginInfo beginInfo{
@@ -94,20 +94,16 @@ void CommandBufferManager::begin(const CommandBuffer cmdBuffer, const VkCommandB
 	};
 
 	// start recording
-	lassert(vkBeginCommandBuffer(m_commandBufferData.at(cmdBuffer).commandBuffer, &beginInfo) == VK_SUCCESS, "Failed to start recording Vulkan command buffer!");
+	lassert(vkBeginCommandBuffer(*m_commandBuffer, &beginInfo) == VkResult::VK_SUCCESS, "Failed to start recording Vulkan command buffer!");
 }
 
-void CommandBufferManager::end(const CommandBuffer cmdBuffer) const {
-	lassert(vkEndCommandBuffer(m_commandBufferData.at(cmdBuffer).commandBuffer) == VK_SUCCESS, "Failed to stop recording command buffer!");
+void CommandBuffer::reset(const VkCommandBufferResetFlags flags) {
+	commandBufferManager->m_commandBuffers.find(m_index)->second = CommandBufferManager::CommandBufferUsage::COMMAND_BUFFER_UNUSED; // set that command buffer as unused
+
+	lassert(vkResetCommandBuffer(*m_commandBuffer, flags) == VkResult::VK_SUCCESS, "Failed to reset command buffer!"); // reset the command buffer
 }
 
-void CommandBufferManager::reset(const CommandBuffer cmdBuffer, const VkCommandBufferResetFlags flags) {
-	m_commandBuffers.find(cmdBuffer)->second = CommandBufferUsage::COMMAND_BUFFER_UNUSED; // set that command buffer as unused
-
-	lassert(vkResetCommandBuffer(m_commandBufferData.at(cmdBuffer).commandBuffer, flags) == VK_SUCCESS, "Failed to reset command buffer!"); // reset the command buffer
-}
-
-void CommandBufferManager::submit_queue(const CommandBuffer cmdBuffer, const VkQueue queue) const {
+void CommandBuffer::submitQueue(const VkQueue queue) {
 	// queue submission info
 	VkSubmitInfo submitInfo = {
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -116,17 +112,14 @@ void CommandBufferManager::submit_queue(const CommandBuffer cmdBuffer, const VkQ
 		nullptr,
 		nullptr,
 		1,
-		&m_commandBufferData.at(cmdBuffer).commandBuffer,
+		m_commandBuffer,
 		0,
 		nullptr
 	};
 
 	// submit the queue
-	lassert(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) == VK_SUCCESS, "Failed to submit Vulkan queue!");
-}
-
-void CommandBufferManager::wait_queue(const VkQueue queue) const {
-	lassert(vkQueueWaitIdle(queue) == VK_SUCCESS, "Failed to wait for device queue!");
+	lassert(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE) == VkResult::VK_SUCCESS, "Failed to submit Vulkan queue!");
+	lassert(vkQueueWaitIdle(queue) == VkResult::VK_SUCCESS, "Failed to wait for device queue!");
 }
 
 } // namespace vulkan

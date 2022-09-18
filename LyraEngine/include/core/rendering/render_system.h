@@ -73,7 +73,7 @@ public:
 	 * 
 	 * @return const vulkan::Device* const
 	*/
-	NODISCARD const vulkan::Device* const device() const noexcept { return &m_device; }
+	NODISCARD vulkan::Device* const device() noexcept { return &m_device; }
 	/**
 	 * @brief get the command buffers
 	 *
@@ -87,12 +87,6 @@ public:
 	*/
 	NODISCARD const vulkan::Window* const vulkanWindow() const noexcept { return &m_vulkanWindow; }
 	/**
-	 * @brief get the current active command buffer
-	 *
-	 * @return const VkCommandBuffer&
-	*/
-	NODISCARD const VkCommandBuffer& activeCommandBuffer() noexcept;
-	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
@@ -105,23 +99,23 @@ public:
 	*/
 	NODISCARD const uint32 imageIndex() const noexcept { return m_imageIndex; }
 	/**
-	 * @brief get the image index
+	 * @brief get the current active command buffer
 	 *
-	 * @return const lyra::CommandBuffer&
+	 * @return const lyra::vulkan::CommandBuffer
 	*/
-	NODISCARD const CommandBuffer& currentCommandBuffer() const noexcept { return m_currentCommandBuffer; }
+	NODISCARD vulkan::CommandBuffer& currentCommandBuffer() noexcept { return m_currentCommandBuffer; }
 
 private:
 	vulkan::Device m_device;
 	vulkan::CommandBufferManager m_commandBuffers;
 	vulkan::Window m_vulkanWindow;
 
+	vulkan::CommandBuffer m_currentCommandBuffer;
+
 	std::vector<Renderer*> m_renderers;
 
 	uint8 m_currentFrame = 0;
 	uint32 m_imageIndex;
-	
-	CommandBuffer m_currentCommandBuffer;
 
 	Window* window;
 
@@ -142,6 +136,13 @@ private:
 	 * @param stageFlags pipeline shader stage flags
 	 */
 	void submit_device_queue(const VkPipelineStageFlags stageFlags) const;
+	
+	/// @todo
+	/**
+	 * @brief bind a sparce device queue
+	
+	void bind_sparce_device_queue(const VkBindSparseInfo* pBindInfo) const;
+	 */
 
 	/**
 	 * @brief update the frame count

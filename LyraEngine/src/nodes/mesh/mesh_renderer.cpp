@@ -2,6 +2,8 @@
 
 #include <nodes/mesh/mesh.h>
 
+#include <core/application.h>
+#include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/GPU_buffer.h>
 
 namespace lyra {
@@ -48,12 +50,11 @@ void MeshRenderer::create_index_buffer() {
 }
 
 void MeshRenderer::draw() const noexcept {
-	VkDeviceSize offsets[] = { 0 };
 	// bind index and vertex buffer
-	vkCmdBindVertexBuffers(Application::renderSystem()->activeCommandBuffer(), 0, 1, &m_vertexBuffer->buffer(), offsets);
-	vkCmdBindIndexBuffer(Application::renderSystem()->activeCommandBuffer(), m_indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+	Application::renderSystem()->currentCommandBuffer().bindVertexBuffer(0, 0, m_vertexBuffer->buffer(), 0);
+	Application::renderSystem()->currentCommandBuffer().bindIndexBuffer(m_indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
 	// draw
-	vkCmdDrawIndexed(Application::renderSystem()->activeCommandBuffer(), static_cast<uint32>(m_mesh->indices().size()), 1, 0, 0, 0);
+	Application::renderSystem()->currentCommandBuffer().drawIndexed(static_cast<uint32>(m_mesh->indices().size()), 1, 0, 0, 0);
 }
 
 } // namespace lyra

@@ -133,7 +133,7 @@ void Renderer::create_render_pass() {
 		&dependencies
 	};
 
-	lassert(vkCreateRenderPass(Application::renderSystem()->m_device.device(), &renderPassInfo, nullptr, &m_renderPass) == VK_SUCCESS, "Failed to create Vulkan render pass!");
+	lassert(vkCreateRenderPass(Application::renderSystem()->m_device.device(), &renderPassInfo, nullptr, &m_renderPass) == VkResult::VK_SUCCESS, "Failed to create Vulkan render pass!");
 }
 
 void Renderer::create_framebuffers() {
@@ -159,7 +159,7 @@ void Renderer::create_framebuffers() {
 			1
 		};
 
-		lassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers.at(i)) == VK_SUCCESS, "Failed to create a framebuffer!");
+		lassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers.at(i)) == VkResult::VK_SUCCESS, "Failed to create a framebuffer!");
 	}
 }
 
@@ -180,11 +180,11 @@ void Renderer::begin_renderpass() const {
 		clear
 	};
 
-	vkCmdBeginRenderPass(Application::renderSystem()->activeCommandBuffer(), &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	Application::renderSystem()->currentCommandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void Renderer::end_renderpass() const { 
-	vkCmdEndRenderPass(Application::renderSystem()->activeCommandBuffer()); 
+	Application::renderSystem()->currentCommandBuffer().endRenderPass();
 }
 
 } // namespace lyra

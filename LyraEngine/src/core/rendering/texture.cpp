@@ -2,7 +2,8 @@
 
 namespace lyra {
 
-Texture::Texture(char* const path, const VkFormat format) {
+Texture::Texture(const char* path, const VkFormat format)
+: m_path(path) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
 	Assets::TextureInfo textureInfo;
@@ -43,20 +44,18 @@ void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat format
 	stagingBuffer.copy_data(textureInfo.data);
 
 	// create the image and allocate its memory
-	lassert(vmaCreateImage(
-		Application::renderSystem()->device()->allocator(), 
-		&get_image_create_info(
+	lassert(Application::renderSystem()->device()->createImage(
+		get_image_create_info(
 			format, 
 			{ static_cast<uint32>(m_width), static_cast<uint32>(m_height), 1 },
 			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 			m_mipmap,
 			static_cast<VkImageType>(textureInfo.dimension)
 		),
-		&get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
-		& m_image, 
-		& m_memory, 
-		nullptr
-	) == VK_SUCCESS, "Failed to load image from path: ", m_path);
+		get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
+		m_image, 
+		m_memory
+	) == VkResult::VK_SUCCESS, "Failed to load image from path: ", m_path);
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
@@ -93,7 +92,7 @@ void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter ma
 		VK_FALSE
 	};
 
-	lassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler) == VK_SUCCESS, "Failed to create Vulkan image sampler!");
+	lassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler) == VkResult::VK_SUCCESS, "Failed to create Vulkan image sampler!");
 
 	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }
@@ -105,20 +104,19 @@ void Texture::generate_mipmaps() const {
 	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", Logger::end_l());
 
 	// temporary command buffer for generating midmaps
-	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
 	// begin recording
-	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	int32 mipWidth = m_width, mipHeight = m_height;
 
 	for (uint32 i = 1; i < m_mipmap; i++) {
-		Application::renderSystem()->commandBuffers()->pipeline_barrier(
-			cmdBuff,
+		cmdBuff.pipelineBarrier(
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_TRANSFER_BIT, 
-			nullptr, 
-			nullptr, 
-			&get_image_memory_barrier(
+			VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+			VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+			get_image_memory_barrier(
 				VK_ACCESS_TRANSFER_WRITE_BIT,
 				VK_ACCESS_TRANSFER_READ_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -135,16 +133,14 @@ void Texture::generate_mipmaps() const {
 			{ { 0, 0, 0 }, { (mipWidth > 1) ? mipWidth / 2 : 1, (mipHeight > 1) ? mipHeight / 2 : 1, 1 } }
 		};
 
-		vkCmdBlitImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
-			m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+		cmdBuff.blitImage(m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, blit, VK_FILTER_LINEAR);
 
-		Application::renderSystem()->commandBuffers()->pipeline_barrier(
-			cmdBuff,
+		cmdBuff.pipelineBarrier(
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-			nullptr,
-			nullptr,
-			&get_image_memory_barrier(
+			VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+			VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+			get_image_memory_barrier(
 				VK_ACCESS_TRANSFER_READ_BIT,
 				VK_ACCESS_SHADER_READ_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -157,13 +153,12 @@ void Texture::generate_mipmaps() const {
 		if (mipHeight > 1) mipHeight /= 2;
 	}
 
-	Application::renderSystem()->commandBuffers()->pipeline_barrier(
-		cmdBuff,
+	cmdBuff.pipelineBarrier(
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-		nullptr,
-		nullptr,
-		&get_image_memory_barrier(
+		VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+		VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+		get_image_memory_barrier(
 			VK_ACCESS_TRANSFER_WRITE_BIT,
 			VK_ACCESS_SHADER_READ_BIT,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -173,25 +168,24 @@ void Texture::generate_mipmaps() const {
 	);
 
 	// end recording
-	Application::renderSystem()->commandBuffers()->end(cmdBuff);
+	cmdBuff.end();
 
 	// submit queues after recording
-	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
-	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset command buffer
-	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
+	cmdBuff.reset();
 
 	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
 }
 
 void Texture::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D extent) {
 	// temporary command buffer for copying
-	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
 	// begin recording
-	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
 	// copy image in buffer to the image
-	VkBufferImageCopy imageCopy{
+	VkBufferImageCopy imageCopy {
 		0,
 		0,
 		0,
@@ -199,15 +193,12 @@ void Texture::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkE
 		{0, 0, 0},
 		extent
 	};
-
-	vkCmdCopyBufferToImage(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer, stagingBuffer->buffer(), m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+	cmdBuff.copyBufferToImage(stagingBuffer->buffer(), m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
 
 	// end recording
-	Application::renderSystem()->commandBuffers()->end(cmdBuff);
-
+	cmdBuff.end();
 	// submit queues after recording
-	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
-	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
 
 	Logger::log_debug(Logger::tab(), "Copied image data from buffer to image at: ", get_address(this));
 }

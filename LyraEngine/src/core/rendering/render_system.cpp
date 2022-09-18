@@ -9,7 +9,7 @@
 
 namespace lyra {
 
-RenderSystem::RenderSystem(Window* const window) : window(window) {
+RenderSystem::RenderSystem(Window* const window) : window(window), m_currentCommandBuffer(&m_commandBuffers) {
 	Logger::log_info("Creating context for application...");
 
 	m_renderers.reserve(4);
@@ -32,11 +32,7 @@ void RenderSystem::update() const {
 }
 
 void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily queue) const {
-	lassert(vkQueueWaitIdle(queue.queue) == VK_SUCCESS, "Failed to wait for device queue!");
-}
-
-const VkCommandBuffer& RenderSystem::activeCommandBuffer() noexcept { 
-	return m_commandBuffers.commandBuffer(m_currentCommandBuffer)->commandBuffer; 
+	lassert(vkQueueWaitIdle(queue.queue) == VkResult::VK_SUCCESS, "Failed to wait for device queue!");
 }
 
 void RenderSystem::draw() {
@@ -55,21 +51,21 @@ void RenderSystem::draw() {
 	m_vulkanWindow.reset(m_currentFrame);
 	// reset command buffer after everything has been executed
 	try {
-		m_commandBuffers.reset(m_currentCommandBuffer);
+		m_currentCommandBuffer.reset();
 	}
 	catch (...) { }
 
 	// get a fresh command buffer
-	m_currentCommandBuffer = m_commandBuffers.get_unused();
+	m_currentCommandBuffer = vulkan::CommandBuffer(&m_commandBuffers);
 
 	// begin recording the command buffer
-	m_commandBuffers.begin(m_currentCommandBuffer, 0);
+	m_currentCommandBuffer.begin();
 
 	// call the draw calls
 	for (int i = 0; i < m_renderers.size(); i++) m_renderers.at(i)->record_command_buffers();
 
 	// end recording the command buffer
-	m_commandBuffers.end(m_currentCommandBuffer);
+	m_currentCommandBuffer.end();
 
 	// signal the synchronization objects to wait until drawing is finished
 	submit_device_queue(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
@@ -88,7 +84,7 @@ void RenderSystem::submit_device_queue(const VkPipelineStageFlags stageFlags) co
 	   &m_vulkanWindow.imageAvailableSemaphores().at(m_currentFrame),
 	   &stageFlags,
 	   1,
-	   &m_commandBuffers.commandBuffer(m_currentCommandBuffer)->commandBuffer,
+	   m_currentCommandBuffer.m_commandBuffer,
 	   1,
 	   &m_vulkanWindow.renderFinishedSemaphores().at(m_currentFrame)
 	};

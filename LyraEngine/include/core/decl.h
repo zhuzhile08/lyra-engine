@@ -31,10 +31,6 @@ using int64 = int64_t;
 
 typedef uintptr_t uptr;
 
-// vulkan command buffer index type
-
-typedef uint8_t CommandBuffer;
-
 // color
 struct Color {
 	uint8 r = 0, g = 0, b = 0, a = 0;

@@ -10,7 +10,7 @@ namespace lyra {
 namespace vulkan {
 
 GPUMemory::~GPUMemory() {
-	vmaFreeMemory(Application::renderSystem()->device()->allocator(), m_memory);
+	Application::renderSystem()->device()->freeMemory(m_memory);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed VMA Memory!");
 }

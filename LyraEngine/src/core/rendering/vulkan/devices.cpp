@@ -130,7 +130,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 }
 
 void Device::create_queue(QueueFamily* const queue) noexcept {
-	vkGetDeviceQueue(m_device, queue->familyIndex, 0, &queue->queue);
+	getDeviceQueue(queue->familyIndex, 0, queue->queue);
 }
 
 void Device::create_instance() {
@@ -179,7 +179,7 @@ void Device::create_instance() {
 	};
 
 	// create the instance
-	lassert(vkCreateInstance(&createInfo, nullptr, &m_instance) == VK_SUCCESS, "Failed to create Vulkan instance");
+	lassert(vkCreateInstance(&createInfo, nullptr, &m_instance) == VkResult::VK_SUCCESS, "Failed to create Vulkan instance");
 
 	delete[] SDLExtensions;
 }
@@ -187,7 +187,7 @@ void Device::create_instance() {
 void Device::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
-	lassert(vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr) == VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
+	lassert(vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr) == VkResult::VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
 		std::vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
 
@@ -247,7 +247,7 @@ void Device::create_logical_device() {
 	};
 
 	// create the device and retrieve the graphics and presentation queue handles
-	lassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) == VK_SUCCESS, "Failed to create logical device!");
+	lassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) == VkResult::VK_SUCCESS, "Failed to create logical device!");
 
 	find_family_index(&m_graphicsQueue, m_physicalDevice);
 	find_family_index(&m_presentQueue, m_physicalDevice);
@@ -271,7 +271,7 @@ void Device::create_allocator() {
 	};
 
 	// create the allocator
-	lassert(vmaCreateAllocator(&createInfo, &m_allocator) == VK_SUCCESS, "Failed to create VMA memory allocator!");
+	lassert(vmaCreateAllocator(&createInfo, &m_allocator) == VkResult::VK_SUCCESS, "Failed to create VMA memory allocator!");
 }
 
 } // namespace vulkan

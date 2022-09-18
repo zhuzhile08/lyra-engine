@@ -61,18 +61,17 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	ImGui_ImplVulkan_Init(&initInfo, m_renderPass);
 
 	// get a command buffer for creating the font textures
-	CommandBuffer cmdBuff = Application::renderSystem()->commandBuffers()->get_unused();
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
 	// start recording the command buffer
-	Application::renderSystem()->commandBuffers()->begin(cmdBuff, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	// create the textures
-	ImGui_ImplVulkan_CreateFontsTexture(Application::renderSystem()->commandBuffers()->commandBuffer(cmdBuff)->commandBuffer);
+	ImGui_ImplVulkan_CreateFontsTexture(*cmdBuff.m_commandBuffer);
 	// end recording the command buffer
-	Application::renderSystem()->commandBuffers()->end(cmdBuff);
+	cmdBuff.end();
 	// submit the commands
-	Application::renderSystem()->commandBuffers()->submit_queue(cmdBuff, Application::renderSystem()->device()->graphicsQueue().queue);
-	Application::renderSystem()->commandBuffers()->wait_queue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset the command buffer
-	Application::renderSystem()->commandBuffers()->reset(cmdBuff);
+	cmdBuff.reset();
 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -105,7 +104,7 @@ void GUIRenderer::record_command_buffers() const {
 
 	// render
 	ImGui::Render();
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::renderSystem()->activeCommandBuffer());
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *Application::renderSystem()->currentCommandBuffer().m_commandBuffer);
 
 	end_renderpass();
 }
