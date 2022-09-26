@@ -15,8 +15,10 @@ set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
-
 set(MANAGER_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
+if (APPLE) 
+	set(VULKAN_DIR ${CMAKE_SOURCE_DIR}/cmake)
+endif()
 
 find_package(LYRA REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -27,26 +29,53 @@ find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
-find_package(Vulkan REQUIRED)
+if (WIN32)
+	find_package(Vulkan REQUIRED)
+elseif (APPLE)
+	find_package(VULKAN REQUIRED)
+endif()
 
-include_directories(
- ${SDL2_INCLUDE_DIRS} 
- ${LYRA_INCLUDE_DIRS}
- ${GLM_INCLUDE_DIRS} 
- ${Vulkan_INCLUDE_DIRS} 
- ${GUI_INCLUDE_DIR}
- ${STB_INCLUDE_DIRS} 
- ${VMA_INCLUDE_DIRS} 
- ${TOL_INCLUDE_DIRS} 
- ${IMGUI_INCLUDE_DIRS}
- ${JSON_INCLUDE_DIRS}
- ${LZ4_INCLUDE_DIRS}
- ${MANAGER_INCLUDE_DIRS}
-)
+if (WIN32)
+	include_directories(
+		${SDL2_INCLUDE_DIRS} 
+        ${LYRA_INCLUDE_DIRS}
+		${GLM_INCLUDE_DIRS} 
+		${Vulkan_INCLUDE_DIRS} 
+		${ENGINE_INCLUDE_DIR}
+		${GUI_INCLUDE_DIR}
+		${STB_INCLUDE_DIRS}
+		${VMA_INCLUDE_DIRS} 
+		${TOL_INCLUDE_DIRS} 
+		${JSON_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
+		${IMGUI_INCLUDE_DIRS}
+        ${MANAGER_INCLUDE_DIRS}
+	)
+elseif (APPLE)
+	include_directories(
+		${SDL2_INCLUDE_DIRS} 
+        ${LYRA_INCLUDE_DIRS}
+		${GLM_INCLUDE_DIRS} 
+		${Vulkan_INCLUDE_DIRS} 
+		${ENGINE_INCLUDE_DIR}
+		${GUI_INCLUDE_DIR}
+		${STB_INCLUDE_DIRS}
+		${VMA_INCLUDE_DIRS} 
+		${TOL_INCLUDE_DIRS} 
+		${JSON_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
+		${IMGUI_INCLUDE_DIRS}
+        ${MANAGER_INCLUDE_DIRS}
+	)
+endif()
 
 # build the content manager
 add_executable(LyraGui
  "src/main.cpp"
  "src/menus.cpp")
 
-target_link_libraries(LyraGui ${LZ4_LIBRARIES} ${SDL2_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
+if (WIN32)
+	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
+elseif (APPLE)
+	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${LYRA_LIBRARIES} ${VULKAN_LIBRARIES})
+endif()

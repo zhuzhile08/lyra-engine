@@ -1,1 +1,1 @@
-set(TOL_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/TOL/")
+set(TOL_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/tol/")

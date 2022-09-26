@@ -1,1 +1,1 @@
-set(JSON_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/JSON/")
+set(JSON_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/nlohmann/")

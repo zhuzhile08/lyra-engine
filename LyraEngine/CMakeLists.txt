@@ -15,6 +15,9 @@ set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/)
+if (APPLE) 
+	set(VULKAN_DIR ${CMAKE_SOURCE_DIR}/cmake)
+endif()
 
 # find path to libraries
 find_package(SDL2 REQUIRED)
@@ -25,7 +28,11 @@ find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
-find_package(Vulkan REQUIRED)
+if (WIN32)
+	find_package(Vulkan REQUIRED)
+elseif (APPLE)
+	find_package(VULKAN REQUIRED)
+endif()
 
 # shaders
 add_custom_target(build_shaders ALL
@@ -33,39 +40,78 @@ add_custom_target(build_shaders ALL
 	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
-include_directories(
- ${SDL2_INCLUDE_DIRS} 
- ${GLM_INCLUDE_DIRS} 
- ${Vulkan_INCLUDE_DIRS} 
- ${ENGINE_INCLUDE_DIR}
- ${GUI_INCLUDE_DIR}
- ${STB_INCLUDE_DIRS} # temporary
- ${VMA_INCLUDE_DIRS} 
- ${TOL_INCLUDE_DIRS} 
- ${JSON_INCLUDE_DIRS}
- ${LZ4_INCLUDE_DIRS}
- ${IMGUI_INCLUDE_DIRS}
-)
+if (WIN32)
+	include_directories(
+		${SDL2_INCLUDE_DIRS} 
+		${GLM_INCLUDE_DIRS} 
+		${Vulkan_INCLUDE_DIRS} 
+		${ENGINE_INCLUDE_DIR}
+		${GUI_INCLUDE_DIR}
+		${STB_INCLUDE_DIRS}
+		${VMA_INCLUDE_DIRS} 
+		${TOL_INCLUDE_DIRS} 
+		${JSON_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
+		${IMGUI_INCLUDE_DIRS}
+	)
+elseif (APPLE)
+	include_directories(
+		${SDL2_INCLUDE_DIRS} 
+		${GLM_INCLUDE_DIRS} 
+		${Vulkan_INCLUDE_DIRS} 
+		${ENGINE_INCLUDE_DIR}
+		${GUI_INCLUDE_DIR}
+		${STB_INCLUDE_DIRS}
+		${VMA_INCLUDE_DIRS} 
+		${TOL_INCLUDE_DIRS} 
+		${JSON_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
+		${IMGUI_INCLUDE_DIRS}
+	)
+endif()
 
 # building the library
-add_library(LyraEngine
- "../include/imgui/imgui.cpp"				  # imgui
- "../include/imgui/imgui_demo.cpp"
- "../include/imgui/imgui_draw.cpp"
- "../include/imgui/imgui_tables.cpp"
- "../include/imgui/imgui_widgets.cpp"
- "../include/imgui/backends/imgui_impl_vulkan.cpp"
- "../include/imgui/backends/imgui_impl_sdl.cpp"
- "src/init/init_SDL.cpp"					# engine
- "src/init/single_header_init.cpp"
- "src/math/math.cpp"
- "src/res/loaders.cpp"
- "src/nodes/nodes.cpp" 
- "src/core/def.cpp")
+if (WIN32)
+	add_library(LyraEngine
+		"../include/imgui/imgui.cpp"				  # imgui
+		"../include/imgui/imgui_demo.cpp"
+		"../include/imgui/imgui_draw.cpp"
+		"../include/imgui/imgui_tables.cpp"
+		"../include/imgui/imgui_widgets.cpp"
+		"../include/imgui/backends/imgui_impl_vulkan.cpp"
+		"../include/imgui/backends/imgui_impl_sdl.cpp"
+		"src/init/init_SDL.cpp"					# engine
+		"src/init/single_header_init.cpp"
+		"src/math/math.cpp"
+		"src/res/loaders.cpp"
+		"src/nodes/nodes.cpp" 
+		"src/core/def.cpp"
+	)
+elseif (APPLE)
+	add_library(LyraEngine
+		"../include/imgui/imgui.cpp"				  # imgui
+		"../include/imgui/imgui_demo.cpp"
+		"../include/imgui/imgui_draw.cpp"
+		"../include/imgui/imgui_tables.cpp"
+		"../include/imgui/imgui_widgets.cpp"
+		"../include/imgui/backends/imgui_impl_vulkan.cpp"
+		"../include/imgui/backends/imgui_impl_sdl.cpp"
+		"src/init/init_SDL.cpp"					# engine
+		"src/init/single_header_init.cpp"
+		"src/math/math.cpp"
+		"src/res/loaders.cpp"
+		"src/nodes/nodes.cpp" 
+		"src/core/def.cpp"
+	)
+endif()
 
 add_dependencies(LyraEngine build_shaders)
 
-target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} Vulkan::Vulkan)
+if (WIN32)
+	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} Vulkan::Vulkan)
+elseif (APPLE)
+	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${VULKAN_LIBRARIES})
+endif()
 
 target_precompile_headers(LyraEngine
 PRIVATE

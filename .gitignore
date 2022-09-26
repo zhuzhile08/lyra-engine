@@ -31,10 +31,15 @@
 *.out
 *.app
 
+# mac specific files
+*.DS_Store
+
 # folders
 /include
 /out
 /.vs
+/.vscode
+/lib
 
 # files
 CMakeSettings.json
