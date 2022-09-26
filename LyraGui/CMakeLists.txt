@@ -16,9 +16,6 @@ set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(MANAGER_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
-if (APPLE) 
-	set(VULKAN_DIR ${CMAKE_SOURCE_DIR}/cmake)
-endif()
 
 find_package(LYRA REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -29,13 +26,10 @@ find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
-if (WIN32)
-	find_package(Vulkan REQUIRED)
-elseif (APPLE)
-	find_package(VULKAN REQUIRED)
-endif()
+find_package(Vulkan REQUIRED)
 
 if (WIN32)
+
 	include_directories(
 		${SDL2_INCLUDE_DIRS} 
         ${LYRA_INCLUDE_DIRS}
@@ -67,6 +61,8 @@ elseif (APPLE)
 		${IMGUI_INCLUDE_DIRS}
         ${MANAGER_INCLUDE_DIRS}
 	)
+
+	set(VULKAN_DIR ${CMAKE_SOURCE_DIR}/cmake)
 endif()
 
 # build the content manager

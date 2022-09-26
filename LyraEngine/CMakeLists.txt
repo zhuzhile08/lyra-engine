@@ -15,9 +15,6 @@ set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-if (APPLE) 
-	set(VULKAN_DIR ${CMAKE_SOURCE_DIR}/cmake)
-endif()
 
 # find path to libraries
 find_package(SDL2 REQUIRED)
@@ -28,19 +25,16 @@ find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
-if (WIN32)
-	find_package(Vulkan REQUIRED)
-elseif (APPLE)
-	find_package(VULKAN REQUIRED)
-endif()
-
-# shaders
-add_custom_target(build_shaders ALL
-	COMMAND "${CMAKE_SOURCE_DIR}/compileShader.bat"
-	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-)
+find_package(Vulkan REQUIRED)
 
 if (WIN32)
+	# shaders
+	add_custom_target(build_shaders ALL
+		COMMAND "${CMAKE_SOURCE_DIR}/compileShader.bat"
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
+
+	# includes
 	include_directories(
 		${SDL2_INCLUDE_DIRS} 
 		${GLM_INCLUDE_DIRS} 
@@ -54,24 +48,8 @@ if (WIN32)
 		${LZ4_INCLUDE_DIRS}
 		${IMGUI_INCLUDE_DIRS}
 	)
-elseif (APPLE)
-	include_directories(
-		${SDL2_INCLUDE_DIRS} 
-		${GLM_INCLUDE_DIRS} 
-		${Vulkan_INCLUDE_DIRS} 
-		${ENGINE_INCLUDE_DIR}
-		${GUI_INCLUDE_DIR}
-		${STB_INCLUDE_DIRS}
-		${VMA_INCLUDE_DIRS} 
-		${TOL_INCLUDE_DIRS} 
-		${JSON_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
-		${IMGUI_INCLUDE_DIRS}
-	)
-endif()
 
-# building the library
-if (WIN32)
+	# compile librarie
 	add_library(LyraEngine
 		"../include/imgui/imgui.cpp"				  # imgui
 		"../include/imgui/imgui_demo.cpp"
@@ -88,6 +66,27 @@ if (WIN32)
 		"src/core/def.cpp"
 	)
 elseif (APPLE)
+	# shaders
+	add_custom_target(build_shaders ALL
+		COMMAND "${CMAKE_SOURCE_DIR}/compileShader.sh"
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
+
+	include_directories(
+		${SDL2_INCLUDE_DIRS} 
+		${GLM_INCLUDE_DIRS} 
+		${Vulkan_INCLUDE_DIRS} 
+		${ENGINE_INCLUDE_DIR}
+		${GUI_INCLUDE_DIR}
+		${STB_INCLUDE_DIRS}
+		${VMA_INCLUDE_DIRS} 
+		${TOL_INCLUDE_DIRS} 
+		${JSON_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
+		${IMGUI_INCLUDE_DIRS}
+	)
+
+	# building the library
 	add_library(LyraEngine
 		"../include/imgui/imgui.cpp"				  # imgui
 		"../include/imgui/imgui_demo.cpp"
