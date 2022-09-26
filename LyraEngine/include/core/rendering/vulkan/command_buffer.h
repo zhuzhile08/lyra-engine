@@ -13,7 +13,6 @@
 
 #include <core/decl.h>
 #include <core/util.h>
-#include <core/settings.h>
 
 #include <map>
 #include <vulkan/vulkan.h>
