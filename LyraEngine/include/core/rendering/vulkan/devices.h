@@ -40,6 +40,8 @@ private:
 		VkQueue queue = VK_NULL_HANDLE;
 		uint32  familyIndex = 0;
 	};
+	
+	friend class RenderSystem;
 
 public:
 	/**
@@ -134,7 +136,7 @@ public:
 		return vmaFindMemoryTypeIndex(m_allocator, memoryTypeBits, &pAllocationCreateInfo, &pMemoryTypeIndex);
 	}
 	VkResult checkPoolCorruption(VmaPool pool) {
-		vmaCheckPoolCorruption(m_allocator, pool);
+		return vmaCheckPoolCorruption(m_allocator, pool);
 	}
 	void getPoolName(VmaPool pool, const char** ppName) {
 		vmaGetPoolName(m_allocator, pool, ppName);
@@ -379,8 +381,6 @@ private:
 	 * @brief create the VMA memoryW allocator
 	 */
 	void create_allocator();
-	
-	friend class RenderSystem;
 };
 
 } // namespace vulkan
