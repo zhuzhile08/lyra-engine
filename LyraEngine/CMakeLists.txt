@@ -104,7 +104,7 @@ elseif (APPLE)
 	)
 endif()
 
-add_dependencies(LyraEngine build_shaders)
+# add_dependencies(LyraEngine build_shaders)
 
 if (WIN32)
 	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} Vulkan::Vulkan)
@@ -138,5 +138,5 @@ PRIVATE
 	<cmath>
 	<gtc/matrix_transform.hpp>
 	<gtx/matrix_decompose.hpp>
-	<json.hpp>
+	<nlohmann/json.hpp>
 )
