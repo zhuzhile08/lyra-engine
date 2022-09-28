@@ -26,8 +26,8 @@ const Assets::TextureInfo Assets::unpack_texture(const char* path) {
 	if (imagePixelData == nullptr) Logger::log_exception("Failed to load image from path: ", path, "!");
 
 	Assets::TextureInfo textureInfo{
-		width, // jsonTextureInfo.at("width"),
-		height, // jsonTextureInfo.at("height"),
+		(uint32) width, // jsonTextureInfo.at("width"),
+		(uint32) height, // jsonTextureInfo.at("height"),
 		0, // jsonTextureInfo.at("length"),
 		1, // jsonTextureInfo.at("mipmap"),
 		0, // jsonTextureInfo.at("type"),

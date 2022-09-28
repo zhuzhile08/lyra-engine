@@ -3,6 +3,7 @@
 #include <core/rendering/vulkan/vulkan_window.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/vulkan/vulkan_shader.h>
 #include <nodes/mesh/mesh.h>
 #include <nodes/graphics/camera.h>
 #include <core/application.h>
@@ -65,7 +66,8 @@ void GraphicsPipeline::create_pipeline(
 	shaderStages.resize(m_shaders.size());
 	for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages.at(i) = m_shaders.at(i).get_stage_create_info();
 
-	VkVertexInputBindingDescription temp = Mesh::Vertex::get_binding_description(); // i loooove c++
+	auto temp = Mesh::Vertex::get_binding_description(); // i loooove c++
+	auto temp2 = Mesh::Vertex::get_attribute_descriptions();
 
 	GraphicsPipelineCreateInfo createInfo = {
 		shaderStages, // create shaders
@@ -76,7 +78,7 @@ void GraphicsPipeline::create_pipeline(
 			1,
 			&temp,
 			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
-			Mesh::Vertex::get_attribute_descriptions().data()
+			temp2.data()
 		},
 		{	// describe how shaders are executed
 			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -176,11 +178,11 @@ void GraphicsPipeline::create_pipeline(
 			// VK_DYNAMIC_STATE_SCISSOR
 		},
 		{
-			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-			nullptr,
-			0,
-			static_cast<uint32>(createInfo.dynamicStates.size()),
-			createInfo.dynamicStates.data()
+			// VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+			// nullptr,
+			// 0,
+			// (uint32) createInfo.dynamicStates.size(),
+			// createInfo.dynamicStates.data()
 		}
 	};
 
@@ -192,7 +194,7 @@ void GraphicsPipeline::create_pipeline(
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
 		nullptr,
 		0,
-		static_cast<uint32>(createInfo.shaderStages.size()),
+		(uint32) createInfo.shaderStages.size(),
 		createInfo.shaderStages.data(),
 		&createInfo.vertexInputInfo,
 		&createInfo.inputAssembly,

@@ -69,17 +69,10 @@ public:
 	 * @param type type of the shader
 	 */
 	Shader(const char* path, const char* entry, Type type);
-
 	/**
 	* @brief destructor of the shader
 	**/
-	virtual ~Shader() noexcept;
-	/**
-	 * @brief destroy the shader
-	 */
-	void destroy() noexcept {
-		this->~Shader();
-	}
+	virtual ~Shader();
 
 	Shader operator=(const Shader&) const noexcept = delete;
 

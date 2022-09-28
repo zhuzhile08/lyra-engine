@@ -25,16 +25,14 @@ namespace vulkan {
  */
 struct Image {
 	Image() { }
-
 	/**
 	* @brief destructor of the image
 	**/
-	virtual ~Image() noexcept;
-
+	virtual ~Image();
 	/**
 	 * @brief destroy the image
 	 */
-	virtual void destroy() noexcept {
+	virtual void destroy() {
 		this->~Image();
 	}
 

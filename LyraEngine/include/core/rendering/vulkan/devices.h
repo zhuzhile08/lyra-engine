@@ -31,32 +31,23 @@ namespace vulkan {
  * @brief Vulkan physical and logical devices
  */
 class Device {
-private:
+public:
 	/**
 	 * @brief queue families
 	 */
 	struct QueueFamily {
-	public:
 		VkQueue queue = VK_NULL_HANDLE;
 		uint32  familyIndex = 0;
 	};
-	
-	friend class RenderSystem;
 
-public:
 	/**
 	 * @brief create the devices
 	 */
 	Device();
-
 	/**
 	* @brief destructor of the device
 	**/
-	virtual ~Device() noexcept;
-	/**
-	 * @brief destroy the device
-	 */
-	void destroy() noexcept;
+	virtual ~Device();
 	/**
 	 * @brief No copy constructors?
 	 * @param ⠀⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝
@@ -381,6 +372,8 @@ private:
 	 * @brief create the VMA memoryW allocator
 	 */
 	void create_allocator();
+	
+	friend class RenderSystem;
 };
 
 } // namespace vulkan

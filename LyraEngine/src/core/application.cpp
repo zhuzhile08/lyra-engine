@@ -8,7 +8,7 @@
 #include <init/init_SDL.h>
 #include <core/logger.h>
 
-#ifdef m_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -48,7 +48,7 @@ void init(void) {
 	std::ios::sync_with_stdio(true);
 #endif
 
-#ifdef m_WIN32
+#ifdef _WIN32
 	DWORD outMode = 0;
 	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
