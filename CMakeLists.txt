@@ -12,3 +12,4 @@ project ("LyraEngineToolchain")
 
 # Include sub-projects.
 add_subdirectory ("LyraEngine")
+add_subdirectory ("LyraGui")
