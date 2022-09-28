@@ -32,7 +32,8 @@ namespace lyra {
 template<typename _Ty> NODISCARD inline uint32 arr_size(const _Ty* array); 
 
 template<typename _Ty> uint32 arr_size(const _Ty* array) {
-	return sizeof(array) / sizeof(array[0]);
+	// return sizeof(array) / sizeof(array[0]);
+	return *(&array + 1) - array; // if you won't take my normal and understandable code, take this instead!
 }
 
 /**

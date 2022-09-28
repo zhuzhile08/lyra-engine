@@ -31,30 +31,23 @@ namespace vulkan {
  * @brief Vulkan physical and logical devices
  */
 class Device {
-private:
+public:
 	/**
 	 * @brief queue families
 	 */
 	struct QueueFamily {
-	public:
 		VkQueue queue = VK_NULL_HANDLE;
 		uint32  familyIndex = 0;
 	};
 
-public:
 	/**
 	 * @brief create the devices
 	 */
 	Device();
-
 	/**
 	* @brief destructor of the device
 	**/
-	virtual ~Device() noexcept;
-	/**
-	 * @brief destroy the device
-	 */
-	void destroy() noexcept;
+	virtual ~Device();
 	/**
 	 * @brief No copy constructors?
 	 * @param ⠀⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝
@@ -134,7 +127,7 @@ public:
 		return vmaFindMemoryTypeIndex(m_allocator, memoryTypeBits, &pAllocationCreateInfo, &pMemoryTypeIndex);
 	}
 	VkResult checkPoolCorruption(VmaPool pool) {
-		vmaCheckPoolCorruption(m_allocator, pool);
+		return vmaCheckPoolCorruption(m_allocator, pool);
 	}
 	void getPoolName(VmaPool pool, const char** ppName) {
 		vmaGetPoolName(m_allocator, pool, ppName);

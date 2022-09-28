@@ -19,6 +19,7 @@
 #include <res/loaders/load_model.h>
 
 #include <vector>
+#include <array>
 #include <glm.hpp>
 #include <vulkan/vulkan.h>
 

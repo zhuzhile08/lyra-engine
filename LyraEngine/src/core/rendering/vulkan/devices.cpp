@@ -1,5 +1,6 @@
 #include <core/rendering/vulkan/devices.h>
 
+#include <core/settings.h>
 #include <core/application.h>
 #include <core/rendering/window.h>
 
@@ -24,10 +25,6 @@ Device::~Device() {
 	vkDestroyInstance(m_instance, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan device!");
-}
-
-void Device::destroy() noexcept {
-	this->~Device();
 }
 
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {

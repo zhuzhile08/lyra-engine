@@ -4,6 +4,7 @@
 
 #include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
+#include <core/settings.h>
 
 namespace lyra {
 

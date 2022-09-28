@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <lz4.h>
 
 namespace lyra {

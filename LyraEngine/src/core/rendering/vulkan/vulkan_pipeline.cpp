@@ -27,7 +27,7 @@ void Pipeline::create_layout(std::vector<VkPushConstantRange> pushConstants) {
 		0,
 		1,
 		m_descriptorSetLayout->get_ptr(),
-		pushConstants.size(),	/// @todo push constants
+		(uint32) pushConstants.size(),	/// @todo push constants
 		pushConstants.data()
 	};
 

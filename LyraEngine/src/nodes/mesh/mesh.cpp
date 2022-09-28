@@ -72,7 +72,7 @@ Mesh::Mesh(
 	const glm::vec3 rotation, 
 	const glm::vec3 scale, 
 	const RotationOrder rotationOrder
-) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), m_vertices(vertices), m_indices(m_indices) {
+) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), m_vertices(vertices), m_indices(indices) {
 	m_vertices = vertices;
 	m_indices = indices;
 
@@ -104,12 +104,6 @@ void Mesh::create_mesh(const util::LoadedModel loaded, const uint16 index) {
 					loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 1),
 					loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 2)
 				};
-				// calcualte vertex color
-				vertex.color = {
-					loaded.vertices.colors.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0),
-					loaded.vertices.colors.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1),
-					loaded.vertices.colors.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2)
-				};
 				// calculate UV coordinates
 				vertex.uv = {
 					loaded.vertices.texcoords.at(2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 0),
@@ -140,12 +134,6 @@ void Mesh::create_mesh(const util::LoadedModel loaded, const uint16 index) {
 				loaded.vertices.normals.at(3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 0),
 				loaded.vertices.normals.at(3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 1),
 				loaded.vertices.normals.at(3 * loaded.shapes.at(index).mesh.indices.at(i).normal_index + 2)
-			};
-			// calcualte vertex color
-			vertex.color = {
-				loaded.vertices.colors.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 0),
-				loaded.vertices.colors.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 1),
-				loaded.vertices.colors.at(3 * loaded.shapes.at(index).mesh.indices.at(i).vertex_index + 2)
 			};
 			// calculate UV coordinates
 			vertex.uv = {

@@ -33,7 +33,7 @@ const AssetFile load_assets(const std::string binPath) {
 	// read the type of the json
 	char type[4] = { };
 	jsonInFile.read(type, sizeof(char[4]));
-	if (type != loadedAsset.type) Logger::log_exception("Loaded compressed JSON file at: ", jsonPath, " is not the same type as the corresponding asset file loaded at: ", binPath, "!"); // check if binary and json are for the same type of stuff
+	if (memcmp(type, loadedAsset.type, sizeof(type)) != 0) Logger::log_exception("Loaded compressed JSON file at: ", jsonPath, " is not the same type as the corresponding asset file loaded at: ", binPath, "!"); // check if binary and json are for the same type of stuff
 
 	// length of the compressed json
 	uint32 jsonLength = 0;

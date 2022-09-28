@@ -13,9 +13,8 @@
 
 #include <core/decl.h>
 #include <core/util.h>
-#include <core/settings.h>
 
-#include <map>
+#include <unordered_map>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -238,7 +237,7 @@ struct CommandBuffer {
 	void bindVertexBuffer(uint32 firstBinding, uint32 bindingCount, const VkBuffer& pBuffer, const VkDeviceSize& pOffset = 0) {
 		vkCmdBindVertexBuffers(*m_commandBuffer, firstBinding, bindingCount, &pBuffer, &pOffset);
 	}
-	void bindVertexBuffers(uint32 firstBinding, uint32 bindingCount, const VkBuffer pBuffers[], const VkDeviceSize pOffsets[] = {0}) {
+	void bindVertexBuffers(uint32 firstBinding, uint32 bindingCount, const VkBuffer pBuffers[], const VkDeviceSize pOffsets[] = 0) {
 		vkCmdBindVertexBuffers(*m_commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 	}
 	void blitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, const VkImageBlit& pRegion, VkFilter filter) {

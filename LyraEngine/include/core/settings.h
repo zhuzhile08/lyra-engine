@@ -3,7 +3,7 @@
 #include <core/util.h>
 #include <res/loaders/load_file.h>
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <vector>
 
 namespace lyra {

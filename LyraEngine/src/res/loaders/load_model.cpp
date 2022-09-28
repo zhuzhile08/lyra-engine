@@ -10,7 +10,7 @@ const LoadedModel load_model(const char* path) {
 	std::string warning, error;
 
 	// load the model
-	tinyobj::LoadObj(&load.vertices, &load.shapes, &load.materials, &warning, &error, path, nullptr);
+	tinyobj::LoadObj(&load.vertices, &load.shapes, &load.materials, &error, path);
 
 	// check if there are errors
 	if (!warning.empty()) Logger::log_warning("A problem occurred while loading a model: ", warning);

@@ -40,8 +40,6 @@ public:
 		this->~Renderer();
 	}
 
-	Renderer operator=(const Renderer&) const noexcept = delete;
-
 	/**
 	 * @brief get the render pass
 	 *

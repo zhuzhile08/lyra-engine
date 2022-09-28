@@ -35,18 +35,10 @@ public:
 	 * @param window the window
 	 */
 	RenderSystem(Window* const window);
-
 	/**
 	 * @brief destructor of the context
 	 */
-	~RenderSystem() noexcept;
-
-	/**
-	 * @brief destroy the context
-	 */
-	void destroy() noexcept {
-		this->~RenderSystem();
-	}
+	~RenderSystem();
 
 	RenderSystem(const RenderSystem&) noexcept = delete;
 	RenderSystem operator=(const RenderSystem&) const noexcept = delete;
