@@ -8,9 +8,6 @@
  * 
  * @copyright Copyright (c) 2022 Zhile Zhu
  *************************/
-
-#pragma once
-
 #include "loaders/load_assets.cpp"
 #include "loaders/load_file.cpp"
 #include "loaders/load_model.cpp"
