@@ -29,7 +29,6 @@ find_package(JSON REQUIRED)
 find_package(Vulkan REQUIRED)
 
 if (WIN32)
-
 	include_directories(
 		${SDL2_INCLUDE_DIRS} 
         ${LYRA_INCLUDE_DIRS}
