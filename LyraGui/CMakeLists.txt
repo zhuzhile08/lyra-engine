@@ -28,49 +28,27 @@ find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
 find_package(Vulkan REQUIRED)
 
-if (WIN32)
-	include_directories(
-		${SDL2_INCLUDE_DIRS} 
-        ${LYRA_INCLUDE_DIRS}
-		${GLM_INCLUDE_DIRS} 
-		${Vulkan_INCLUDE_DIRS} 
-		${ENGINE_INCLUDE_DIR}
-		${GUI_INCLUDE_DIR}
-		${STB_INCLUDE_DIRS}
-		${VMA_INCLUDE_DIRS} 
-		${TOL_INCLUDE_DIRS} 
-		${JSON_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
-		${IMGUI_INCLUDE_DIRS}
-        ${MANAGER_INCLUDE_DIRS}
-	)
-elseif (APPLE)
-	include_directories(
-		${SDL2_INCLUDE_DIRS} 
-        ${LYRA_INCLUDE_DIRS}
-		${GLM_INCLUDE_DIRS} 
-		${Vulkan_INCLUDE_DIRS} 
-		${ENGINE_INCLUDE_DIR}
-		${GUI_INCLUDE_DIR}
-		${STB_INCLUDE_DIRS}
-		${VMA_INCLUDE_DIRS} 
-		${TOL_INCLUDE_DIRS} 
-		${JSON_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
-		${IMGUI_INCLUDE_DIRS}
-        ${MANAGER_INCLUDE_DIRS}
-	)
-
-	set(VULKAN_DIR ${CMAKE_SOURCE_DIR}/cmake)
-endif()
+include_directories(
+	${SDL2_INCLUDE_DIRS} 
+	${LYRA_INCLUDE_DIRS}
+	${GLM_INCLUDE_DIRS} 
+	${Vulkan_INCLUDE_DIRS} 
+	${ENGINE_INCLUDE_DIR}
+	${GUI_INCLUDE_DIR}
+	${STB_INCLUDE_DIRS}
+	${VMA_INCLUDE_DIRS} 
+	${TOL_INCLUDE_DIRS} 
+	${JSON_INCLUDE_DIRS}
+	${LZ4_INCLUDE_DIRS}
+	${IMGUI_INCLUDE_DIRS}
+	${MANAGER_INCLUDE_DIRS}
+)
 
 # build the content manager
 add_executable(LyraGui
- "src/main.cpp"
- "src/menus.cpp")
+	"src/main.cpp"
+	"src/menus.cpp"
+)
 
-if (WIN32)
-	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
-elseif (APPLE)
-	target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${LYRA_LIBRARIES} ${VULKAN_LIBRARIES})
-endif()
+target_link_libraries(LyraGui ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${LYRA_LIBRARIES} ${IMGUI_LIBRARIES}  Vulkan::Vulkan)
+

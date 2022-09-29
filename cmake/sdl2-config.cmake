@@ -10,5 +10,5 @@ if(WIN32)
 elseif(APPLE)
 	set(SDL2_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/SDL2/")
 
-	set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/lib/libSDL2-2.0.a;${CMAKE_SOURCE_DIR}/lib/libSDL2main.a")
+	set(SDL2_LIBRARIES "${CMAKE_SOURCE_DIR}/lib/libSDL2.a;${CMAKE_SOURCE_DIR}/lib/libSDL2main.a")
 endif()
