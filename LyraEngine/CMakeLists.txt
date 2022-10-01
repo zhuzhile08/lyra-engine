@@ -67,10 +67,10 @@ if (WIN32)
 	)
 elseif (APPLE)
 	# shaders
-	add_custom_target(build_shaders ALL
-		COMMAND "${CMAKE_SOURCE_DIR}/compileShader.sh"
-		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	)
+	# add_custom_target(build_shaders ALL
+	#	COMMAND "${CMAKE_SOURCE_DIR}/compileShader.sh"
+	#	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	# )
 
 	include_directories(
 		${SDL2_INCLUDE_DIRS} 
