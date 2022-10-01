@@ -19,7 +19,19 @@
 #include <map>
 
 #include <SDL.h>
+
+#ifdef __APPLE__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wswitch"
 #include <vk_mem_alloc.h>
+#pragma clang diagnostic pop
+#else
+#include <vk_mem_alloc.h>
+#endif
+
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 
