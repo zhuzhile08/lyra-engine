@@ -1,10 +1,10 @@
 #pragma once
 
+#include <vector>
+#include <nlohmann/json.hpp>
+
 #include <core/util.h>
 #include <res/loaders/load_file.h>
-
-#include <nlohmann/json.hpp>
-#include <vector>
 
 namespace lyra {
 

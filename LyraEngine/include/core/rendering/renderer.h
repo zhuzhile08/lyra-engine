@@ -11,13 +11,13 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/queue_types.h>
-
 #include <vector>
 #include <memory>
 
 #include <vulkan/vulkan.h>
+
+#include <core/decl.h>
+#include <core/queue_types.h>
 
 namespace lyra {
 
@@ -27,18 +27,10 @@ namespace lyra {
 class Renderer {
 public:
 	Renderer();
-
 	/**
 	 * @brief destructor of the renderer
 	 */
-	virtual ~Renderer() noexcept;
-
-	/**
-	 * @brief destroy the renderer
-	 */
-	void destroy() noexcept {
-		this->~Renderer();
-	}
+	virtual ~Renderer();
 
 	/**
 	 * @brief get the render pass

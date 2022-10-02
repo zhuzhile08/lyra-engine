@@ -1,7 +1,8 @@
 #pragma once
 
-#include <core/logger.h>
 #include <fstream>
+
+#include <core/logger.h>
 
 namespace lyra {
 

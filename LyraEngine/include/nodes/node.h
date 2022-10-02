@@ -11,10 +11,11 @@
 
 #pragma once
 
+#include <string>
+#include <unordered_map>
+
 #include <core/decl.h>
 
-#include <unordered_map>
-#include <string>
 
 namespace lyra {
 

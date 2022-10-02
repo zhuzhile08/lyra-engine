@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/logger.h>
-
+#include <utility>
 #include <vector>
 #include <chrono>
-#include <utility>
+
+#include <core/decl.h>
+#include <core/logger.h>
 
 namespace lyra {
 
@@ -33,7 +33,7 @@ template<typename _Ty> NODISCARD inline uint32 arr_size(const _Ty* array);
 
 template<typename _Ty> uint32 arr_size(const _Ty* array) {
 	// return sizeof(array) / sizeof(array[0]);
-	return *(&array + 1) - array; // if you won't take my normal and understandable code, take this instead!
+	return static_cast<uint32>(*(&array + 1) - array); // if you won't take my normal and understandable code, take this instead!
 }
 
 /**
