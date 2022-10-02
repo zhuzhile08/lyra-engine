@@ -13,15 +13,16 @@
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-#include <nodes/spatial.h>
-#include <core/rendering/vulkan/GPU_buffer.h>
-#include <core/rendering/renderer.h>
-#include <core/settings.h>
 
 #include <vector>
 #include <memory>
 
 #include <glm.hpp>
+
+#include <nodes/spatial.h>
+#include <core/settings.h>
+#include <core/rendering/vulkan/GPU_buffer.h>
+#include <core/rendering/renderer.h>
 
 namespace lyra {
 
@@ -68,18 +69,11 @@ public:
 		Spatial* parent = nullptr,
 		const bool visible = true,
 		const uint32 tag = 0,
-		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
+		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
 	);
-
-	/**
-	 * @brief destroy the camera
-	 */
-	void destroy() noexcept {
-		this->~Camera();
-	}
 
 	Camera operator=(const Camera&) const noexcept = delete;
 

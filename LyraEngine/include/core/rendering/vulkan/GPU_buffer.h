@@ -11,13 +11,13 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/rendering/vulkan/GPU_memory.h>
-
-#include <cstring>
 #include <vector>
+#include <string>
 
 #include <vulkan/vulkan.h>
+
+#include <core/decl.h>
+#include <core/rendering/vulkan/GPU_memory.h>
 
 namespace lyra {
 

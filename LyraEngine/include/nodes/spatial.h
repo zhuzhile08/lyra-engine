@@ -13,10 +13,10 @@
 
 #define GLM_FORCE_RADIANS
 
+#include <glm.hpp>
+
 #include <core/decl.h>
 #include <nodes/node.h>
-
-#include <glm.hpp>
 
 namespace lyra {
 
@@ -55,9 +55,9 @@ public:
 		Spatial* parent = nullptr,
 		const bool visible = true,
 		const uint32 tag = 0,
-		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
+		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
 	) noexcept : Node(name, parent, visible, tag), m_position(position), m_rotation(rotation), m_scale(scale), m_rotationOrder(rotationOrder) { }
 

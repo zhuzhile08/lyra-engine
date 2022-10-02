@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include <core/decl.h>
-
 #ifdef __APPLE__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -26,6 +24,8 @@
 #endif
 
 #include <vulkan/vulkan.h>
+
+#include <core/decl.h>
 
 namespace lyra {
 

@@ -29,13 +29,13 @@ Camera::Camera(const char* name, Spatial* parent, const bool visible, const uint
 	// binding information
 	std::vector<vulkan::Pipeline::Binding> bindings{
 		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_VERTEX },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
 		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, 1, vulkan::Shader::Type::TYPE_FRAGMENT }
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1,Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
 	};
 
 	// push constants
