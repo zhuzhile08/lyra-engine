@@ -11,5 +11,6 @@ endif()
 project ("LyraEngineToolchain")
 
 # Include sub-projects.
+add_subdirectory ("ImGuiBuild")
 add_subdirectory ("LyraEngine")
 add_subdirectory ("LyraGui")
