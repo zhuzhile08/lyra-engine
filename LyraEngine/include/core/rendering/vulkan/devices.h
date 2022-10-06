@@ -11,14 +11,12 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/logger.h>
-
 #include <vector>
-#include <set>
 #include <map>
 
-#include <SDL.h>
+#include <vulkan/vulkan.h>
+
+#include <core/decl.h>
 
 #ifdef __APPLE__
 #pragma clang diagnostic push
@@ -31,9 +29,6 @@
 #else
 #include <vk_mem_alloc.h>
 #endif
-
-#include <SDL_vulkan.h>
-#include <vulkan/vulkan.h>
 
 namespace lyra {
 

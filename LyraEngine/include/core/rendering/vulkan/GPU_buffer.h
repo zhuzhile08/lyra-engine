@@ -11,9 +11,6 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-
 #include <vulkan/vulkan.h>
 
 #include <core/decl.h>

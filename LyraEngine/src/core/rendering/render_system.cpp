@@ -2,6 +2,7 @@
 
 #include <core/logger.h>
 
+#include <core/settings.h>
 #include <core/queue_types.h>
 
 #include <core/rendering/window.h>

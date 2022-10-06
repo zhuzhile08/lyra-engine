@@ -1,16 +1,21 @@
 #include <core/rendering/gui_renderer.h>
 
-#include <core/application.h>
+#include <imgui.h>
+#include <backends/imgui_impl_vulkan.h>
+#include <backends/imgui_impl_sdl.h>
 
 #include <core/logger.h>
 
 #include <core/queue_types.h>
 
 #include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/vulkan_window.h>
-#include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/command_buffer.h>
+#include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/vulkan/vulkan_window.h>
+
 #include <core/rendering/renderer.h>
+
+#include <core/application.h>
 
 namespace lyra {
 

@@ -4,6 +4,8 @@
 
 #include <core/rendering/vulkan/vulkan_shader.h>
 
+#include <core/application.h>
+
 namespace lyra {
 
 namespace vulkan {

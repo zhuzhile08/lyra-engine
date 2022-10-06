@@ -1,8 +1,15 @@
 #include <core/rendering/vulkan/devices.h>
 
+#include <set>
+
+#include <SDL.h>
+#include <SDL_vulkan.h>
+
+#include <core/logger.h>
 #include <core/settings.h>
-#include <core/application.h>
+
 #include <core/rendering/window.h>
+#include <core/application.h>
 
 namespace lyra {
 

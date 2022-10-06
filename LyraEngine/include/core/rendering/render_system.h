@@ -11,15 +11,15 @@
 
 #pragma once
 
+#include <vector>
+
+#include <vulkan/vulkan.h>
+
 #include <core/decl.h>
+
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_window.h>
-
-#include <vector>
-#include <memory>
-
-#include <vulkan/vulkan.h>
 
 namespace lyra {
 

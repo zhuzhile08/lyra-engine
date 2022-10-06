@@ -11,11 +11,9 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/application.h>
-
-#include <array>
 #include <vector>
+
+#include <core/decl.h>
 
 #include <vulkan/vulkan.h>
 

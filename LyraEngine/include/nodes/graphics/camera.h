@@ -15,14 +15,16 @@
 
 
 #include <vector>
-#include <memory>
 
 #include <glm.hpp>
 
-#include <nodes/spatial.h>
+#include <core/util.h>
 #include <core/settings.h>
+
 #include <core/rendering/vulkan/GPU_buffer.h>
 #include <core/rendering/renderer.h>
+
+#include <nodes/spatial.h>
 
 namespace lyra {
 
