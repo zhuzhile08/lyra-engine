@@ -222,11 +222,12 @@ private:
 };
 
 template<typename ... Args> static void lassert(bool condition, Args... message) {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	if (!condition) (Logger::log_exception(message), ...);
 #else
 	if (condition) // cused, I know, but I'm waaaay too lazy to put a debug check on every assert
 	;
+	assert()
 #endif
 }
 

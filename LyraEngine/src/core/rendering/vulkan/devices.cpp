@@ -139,7 +139,7 @@ void Device::create_queue(QueueFamily* const queue) noexcept {
 
 void Device::create_instance() {
 	// check if requested validation layers are available
-#ifdef _DEBUG
+#ifndef NDEBUG
 	uint32 availableLayerCount = 0;
 	vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr);
 	std::vector <VkLayerProperties> availableLayers(availableLayerCount);
@@ -171,7 +171,7 @@ void Device::create_instance() {
 		nullptr,
 		0,
 		&appInfo,
-#ifdef _DEBUG
+#ifndef NDEBUG
 		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
 		Settings::Debug::requestedValidationLayers.data(),
 #else
@@ -238,7 +238,7 @@ void Device::create_logical_device() {
 		0,
 		static_cast<uint32>(queueCreateInfos.size()),
 		queueCreateInfos.data(),
-#ifdef _DEBUG
+#ifndef NDEBUG
 		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
 		Settings::Debug::requestedValidationLayers.data(),
 #else

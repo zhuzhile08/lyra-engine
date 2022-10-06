@@ -90,7 +90,7 @@ public:
 	 * @return void*
 	 */
 	NODISCARD void* alloc(size_t size, uint8 alignment = 4) override;
-#ifdef _DEBUG
+#ifndef NDEBUG
 	/**
 	 * @brief WARNING! This function is not available in a linear allocator and will not be available in the release build
 	 */
