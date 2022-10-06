@@ -2,16 +2,19 @@
 
 #include <core/logger.h>
 
-#include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
+
+#include <core/application.h>
 
 namespace lyra {
 
 namespace vulkan {
 
 Image::~Image() {
+	// destroy the image view
 	vkDestroyImageView(Application::renderSystem()->device()->device(), m_view, nullptr);
+	// destroy the image
 	vkDestroyImage(Application::renderSystem()->device()->device(), m_image, nullptr);
 
 	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
@@ -78,6 +81,7 @@ void Image::transition_layout(
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
+	// goofy ahh check to see which image layout to use
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	VkAccessFlags sourceAccess = 0;
@@ -97,6 +101,7 @@ void Image::transition_layout(
 	}
 	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
+	// use a memory barrier to transition the layout
 	cmdBuff.pipelineBarrier(
 		sourceStage, 
 		destinationStage, 
@@ -132,6 +137,7 @@ const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, co
 		tiling_ = tiling;
 	}
 
+	// check which of the canditates is the best choice
 	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(Application::renderSystem()->device()->physicalDevice(), candidates.at(i), &props);
@@ -141,8 +147,11 @@ const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, co
 
 	}
 
+#ifdef _DEBUG
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
+#endif
 
+	// return error case
 	return VK_FORMAT_MAX_ENUM;
 }
 

@@ -3,9 +3,11 @@
 #include <core/logger.h>
 
 #include <core/rendering/vulkan/devices.h>
-#include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/descriptor.h>
+#include <core/rendering/vulkan/vulkan_shader.h>
+
+#include <core/application.h>
 
 namespace lyra {
 

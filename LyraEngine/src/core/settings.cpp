@@ -1,8 +1,19 @@
 #include <core/settings.h>
 
+#include <res/loaders/load_file.h>
+
 namespace lyra {
 
-nlohmann::json Settings::json = nlohmann::json::parse(util::load_file<std::string>("data/config.json", util::OpenMode::MODE_START_AT_END | util::OpenMode::MODE_BINARY));
+std::string Settings::init_json() {
+	std::string buffer;
+
+	// load the file into the setring
+	util::load_file("data/config.json", util::OpenMode::MODE_START_AT_END | util::OpenMode::MODE_BINARY, buffer);
+
+	return buffer;
+}
+
+nlohmann::json Settings::json = nlohmann::json::parse(std::move(Settings::init_json()));
 
 char* Settings::Application::description = (char*)&json.at("application").at("description");
 int Settings::Application::fps = (int)json.at("application").at("fps");

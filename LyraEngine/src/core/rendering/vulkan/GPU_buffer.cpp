@@ -2,19 +2,19 @@
 
 #include <core/logger.h>
 
-#include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
+
+#include <core/application.h>
 
 namespace lyra {
 
 namespace vulkan {
 
-GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) {
+GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) : m_size(size) {
 	Logger::log_info("Creating Vulkan GPU memory buffer...");
 
-	m_size = size;
-
+	// log debugging messages
 	Logger::log_debug(Logger::tab(), "Size: ", size, " bytes (", size / 1000, " kilobytes)");
 	Logger::log_debug(Logger::tab(), "Buffer usage flag: ", bufferUsage);
 	Logger::log_debug(Logger::tab(), "Memory usage flag: ", memUsage);
@@ -31,6 +31,7 @@ GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsa
 		0
 	};
 
+	// create buffer
 	lassert(Application::renderSystem()->device()->createBuffer(bufferInfo, get_alloc_create_info(memUsage), m_buffer, m_memory) == VkResult::VK_SUCCESS,
 		"Failed to create Vulkan GPU memory buffer!");
 
@@ -38,18 +39,22 @@ GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsa
 }
 
 GPUBuffer::~GPUBuffer() noexcept {
+	// destroy the buffer
 	vkDestroyBuffer(Application::renderSystem()->device()->device(), m_buffer, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
 }
 
 void GPUBuffer::copy_data(const void* const src, const size_t copySize) {
+	// map the memory
 	void* data;
 	lassert(Application::renderSystem()->device()->mapMemory(m_memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(m_memory), "!");
 	
+	// copy the data into the mapped memory
 #ifdef _DEBUG
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(m_size) : copySize);
 #else
+	// custom memcpy functionality, (probably) faster in release mode
 	const char* s = (char*)src;
 	char* d = (char*)data;
 
@@ -58,7 +63,7 @@ void GPUBuffer::copy_data(const void* const src, const size_t copySize) {
 	data = std::move(d);
 #endif
 
-
+	// unmap the memory
 	Application::renderSystem()->device()->unmapMemory(m_memory);
 }
 

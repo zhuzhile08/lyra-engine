@@ -1,10 +1,18 @@
 #include <core/rendering/vulkan/vulkan_window.h>
 
-#include <core/logger.h>
+#include <algorithm>
 
-#include <core/application.h>
+#include <SDL.h>
+#include <SDL_vulkan.h>
+
+#include <core/util.h>
+#include <core/logger.h>
+#include <core/settings.h>
+
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
+
+#include <core/application.h>
 
 namespace lyra {
 

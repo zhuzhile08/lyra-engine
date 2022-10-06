@@ -9,7 +9,13 @@
  * @copyright Copyright (c) 2022 Zhile Zhu
  *************************/
 
+#include "logger.cpp"
+#include "settings.cpp"
+
+#include "application.cpp"
+
 #include "rendering/vulkan/command_buffer.cpp"
+#include "rendering/vulkan/command_buffer.inl"
 #include "rendering/vulkan/descriptor.cpp"
 #include "rendering/vulkan/devices.cpp"
 #include "rendering/vulkan/GPU_buffer.cpp"
@@ -18,11 +24,6 @@
 #include "rendering/vulkan/vulkan_pipeline.cpp"
 #include "rendering/vulkan/vulkan_shader.cpp"
 #include "rendering/vulkan/vulkan_window.cpp"
-
-#include "logger.cpp"
-#include "settings.cpp"
-
-#include "application.cpp"
 
 #include "rendering/assets.cpp"
 #include "rendering/render_system.cpp"

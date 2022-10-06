@@ -12,16 +12,19 @@
 
 #pragma once
 
+#include <vector>
+#include <array>
+
+#include <glm.hpp>
+
+#include <vulkan/vulkan.h>
+
 #include <core/decl.h>
-#include <nodes/node.h>
-#include <nodes/spatial.h>
 
 #include <res/loaders/load_model.h>
 
-#include <vector>
-#include <array>
-#include <glm.hpp>
-#include <vulkan/vulkan.h>
+#include <nodes/node.h>
+#include <nodes/spatial.h>
 
 namespace lyra {
 

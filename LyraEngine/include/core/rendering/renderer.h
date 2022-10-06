@@ -12,7 +12,6 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 
 #include <vulkan/vulkan.h>
 

@@ -11,10 +11,21 @@
 
 #pragma once
 
-#include <core/decl.h>
+#ifdef __APPLE__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-completeness"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wswitch"
+#include <vk_mem_alloc.h>
+#pragma clang diagnostic pop
+#else
+#include <vk_mem_alloc.h>
+#endif
 
 #include <vulkan/vulkan.h>
-#include <vk_mem_alloc.h>
+
+#include <core/decl.h>
 
 namespace lyra {
 

@@ -47,8 +47,7 @@ include_directories(
 # build the content manager
 add_executable(LyraGui
 	"src/main.cpp"
-	"src/menus.cpp"
 )
 
-target_link_libraries(LyraGui ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${LYRA_LIBRARIES} ${IMGUI_LIBRARIES}  Vulkan::Vulkan)
+target_link_libraries(LyraGui ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
 

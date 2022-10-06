@@ -1,7 +1,11 @@
 #pragma once
 
+#include <vector>
 #include <fstream>
+#include <sstream>
+#include <limits> // should have seen the look on my face then I found out that I would have to include another goofy ahh standard libary JUST to count the file size
 
+#include <core/decl.h>
 #include <core/logger.h>
 
 namespace lyra {
@@ -28,28 +32,49 @@ enum OpenMode {
 void load_file(const char* path, const int mode, std::ifstream& file);
 
 /**
- * @brief load a file and store all of its contents
+ * @brief load a file and store all of its contents into a string-like container
  *
- * @tparam data type to store the file
+ * @tparam _Ty type of container
  * @param path path
  * @param mode mode to open the file
- * @param data type to dump the file into
+ * @param fileContainer container to copy the file into
  */
-template<class _Ty> _Ty load_file(const char* path, const int mode) {
+template<class _Ty>
+void load_file(const char* path, const int mode, _Ty& fileContainer) {
 	// load the binary
 	std::ifstream file;
 	load_file(path, mode, file);
 
-	file.seekg(0, file.end);
-	size_t size = (size_t)file.tellg();
-	file.seekg(0, file.beg);
+	// read the value into a stringstream
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	// move the stringstream into the string
+	fileContainer = std::move(buffer.str());
 
-	_Ty value;
-	value.resize(size);
-	file.read(value.data(), size);
+	// close the file
 	file.close();
+}
 
-	return value;
+/**
+ * @brief load a file and store all of its contents into a vector
+ * 
+ * @tparam _Ty type to store in the container
+ * @param path path
+ * @param mode mode to open the file
+ * @param fileContainer container to copy the file into
+ */
+template<class _Ty> 
+void load_file(const char* path, const int mode, std::vector<_Ty>& fileContainer) {
+	// load the binary
+	std::ifstream file;
+	load_file(path, mode, file);
+
+	// read the value into a single buffer and push it into the container
+	_Ty buffer;
+	while(file.get(buffer)) fileContainer.push_back(std::move(buffer));
+
+	// close the file
+	file.close();
 }
 
 } // namespace util

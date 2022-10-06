@@ -1,14 +1,18 @@
 #include <core/rendering/renderer.h>
 
+#include <array>
+
 #include <core/logger.h>
 
 #include <core/queue_types.h>
 
-#include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
 #include <core/rendering/vulkan/vulkan_window.h>
+
 #include <core/rendering/render_system.h>
+
+#include <core/application.h>
 
 namespace lyra {
 
@@ -25,7 +29,7 @@ Renderer::Renderer() {
 	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
 }
 
-Renderer::~Renderer() noexcept {
+Renderer::~Renderer() {
 	// destrpy the framebuffer
 	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem()->m_device.device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
 	vkDestroyRenderPass(Application::renderSystem()->m_device.device(), m_renderPass, nullptr);

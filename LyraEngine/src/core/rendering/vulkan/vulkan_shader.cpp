@@ -16,7 +16,7 @@ Shader::Shader(const char* path, const char* entry, Type type) : m_entry(entry),
 	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", static_cast<int>(type));
 
 	// load the shader
-	std::vector<char> shaderSrc = util::load_file<std::vector<char>>(path, util::OpenMode::MODE_START_AT_END | util::OpenMode::MODE_BINARY);
+	std::vector<char> shaderSrc; util::load_file(path, util::OpenMode::MODE_START_AT_END | util::OpenMode::MODE_BINARY, shaderSrc);
 
 	// create the shader
 	VkShaderModuleCreateInfo createInfo{

@@ -11,13 +11,11 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/application.h>
-
 #include <vector>
-#include <memory>
 
 #include <vulkan/vulkan.h>
+
+#include <core/decl.h>
 
 namespace lyra {
 

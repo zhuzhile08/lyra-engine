@@ -11,17 +11,14 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/util.h>
-
-#include <core/rendering/vulkan/vulkan_image.h>
-#include <core/rendering/vulkan/GPU_memory.h>
-
 #include <vector>
-#include <algorithm>
 
-#include <SDL.h>
 #include <vulkan/vulkan.h>
+
+#include <core/decl.h>
+
+#include <core/rendering/vulkan/GPU_memory.h>
+#include <core/rendering/vulkan/vulkan_image.h>
 
 namespace lyra {
 

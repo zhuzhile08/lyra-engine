@@ -5,11 +5,6 @@
 #include <core/rendering/renderer.h>
 
 #include <functional>
-#include <memory>
-
-#include <imgui.h>
-#include <backends/imgui_impl_vulkan.h>
-#include <backends/imgui_impl_sdl.h>
 
 namespace lyra {
 

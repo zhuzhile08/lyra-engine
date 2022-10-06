@@ -1,10 +1,11 @@
 #include <core/rendering/vulkan/command_buffer.h>
 
 #include <core/logger.h>
+#include <core/settings.h>
+
+#include <core/rendering/vulkan/devices.h>
 
 #include <core/application.h>
-#include <core/rendering/vulkan/devices.h>
-#include <core/settings.h>
 
 namespace lyra {
 

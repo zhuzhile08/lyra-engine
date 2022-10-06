@@ -14,11 +14,6 @@
 #include <core/decl.h>
 #include <nodes/node.h>
 
-#include <memory>
-#include <vector>
-#include <glm.hpp>
-#include <vulkan/vulkan.h>
-
 namespace lyra {
 
 /**
