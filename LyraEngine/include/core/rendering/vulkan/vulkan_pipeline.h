@@ -16,6 +16,7 @@
 #include <vulkan/vulkan.h>
 
 #include <core/decl.h>
+#include <core/util.h>
 
 namespace lyra {
 
