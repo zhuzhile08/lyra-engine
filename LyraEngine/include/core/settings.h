@@ -1,10 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <nlohmann/json.hpp>
 
-#include <core/util.h>
-#include <res/loaders/load_file.h>
+#include <core/decl.h>
 
 namespace lyra {
 
@@ -32,6 +32,9 @@ struct Settings {
 	};
 
 	// initialize the variables
+	NODISCARD static std::string init_json();
+
+	// json containing the variables
 	static nlohmann::json json;
 
 	// generell application settings
