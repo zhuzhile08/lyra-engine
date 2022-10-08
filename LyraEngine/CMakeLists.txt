@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.24.2)
 project(LyraEngine VERSION 0.5.0)
 
 # set default to debug
@@ -27,43 +27,26 @@ find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
 find_package(Vulkan REQUIRED)
 
+# includes
+include_directories(
+	${SDL2_INCLUDE_DIRS} 
+	${GLM_INCLUDE_DIRS} 
+	${Vulkan_INCLUDE_DIRS} 
+	${ENGINE_INCLUDE_DIR}
+	${GUI_INCLUDE_DIR}
+	${STB_INCLUDE_DIRS}
+	${VMA_INCLUDE_DIRS} 
+	${TOL_INCLUDE_DIRS} 
+	${JSON_INCLUDE_DIRS}
+	${LZ4_INCLUDE_DIRS}
+	${IMGUI_INCLUDE_DIRS}
+)
+
 if (WIN32)
 	# shaders
 	add_custom_target(build_shaders ALL
 		COMMAND "${CMAKE_SOURCE_DIR}/compileShader.bat"
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	)
-
-	# includes
-	include_directories(
-		${SDL2_INCLUDE_DIRS} 
-		${GLM_INCLUDE_DIRS} 
-		${Vulkan_INCLUDE_DIRS} 
-		${ENGINE_INCLUDE_DIR}
-		${GUI_INCLUDE_DIR}
-		${STB_INCLUDE_DIRS}
-		${VMA_INCLUDE_DIRS} 
-		${TOL_INCLUDE_DIRS} 
-		${JSON_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
-		${IMGUI_INCLUDE_DIRS}
-	)
-
-	# compile librarie
-	add_library(LyraEngine
-		"../include/imgui/imgui.cpp"				  # imgui
-		"../include/imgui/imgui_demo.cpp"
-		"../include/imgui/imgui_draw.cpp"
-		"../include/imgui/imgui_tables.cpp"
-		"../include/imgui/imgui_widgets.cpp"
-		"../include/imgui/backends/imgui_impl_vulkan.cpp"
-		"../include/imgui/backends/imgui_impl_sdl.cpp"
-		"src/init/init_SDL.cpp"					# engine
-		"src/init/single_header_init.cpp"
-		"src/math/math.cpp"
-		"src/res/loaders.cpp"
-		"src/nodes/nodes.cpp" 
-		"src/core/def.cpp"
 	)
 elseif (APPLE)
 	# shaders
@@ -71,35 +54,21 @@ elseif (APPLE)
 	#	COMMAND "${CMAKE_SOURCE_DIR}/compileShader.sh"
 	#	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	# )
-
-	include_directories(
-		${SDL2_INCLUDE_DIRS} 
-		${GLM_INCLUDE_DIRS} 
-		${Vulkan_INCLUDE_DIRS} 
-		${ENGINE_INCLUDE_DIR}
-		${GUI_INCLUDE_DIR}
-		${STB_INCLUDE_DIRS}
-		${VMA_INCLUDE_DIRS} 
-		${TOL_INCLUDE_DIRS} 
-		${JSON_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
-		${IMGUI_INCLUDE_DIRS}
-	)
-
-	# building the library
-	add_library(LyraEngine
-		"src/init/init_SDL.cpp"					# engine
-		"src/init/single_header_init.cpp"
-		"src/math/math.cpp"
-		"src/res/loaders.cpp"
-		"src/nodes/nodes.cpp" 
-		"src/core/def.cpp"
-	)
 endif()
+
+
+# building the library
+add_library(LyraEngine
+	"src/init/init_SDL.cpp"					# engine
+	"src/init/single_header_init.cpp"
+	"src/math/math.cpp"
+	"src/res/loaders.cpp"
+	"src/nodes/nodes.cpp" 
+	"src/core/def.cpp"
+)
 
 # add_dependencies(LyraEngine build_shaders)
 target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} Vulkan::Vulkan)
-
 
 target_precompile_headers(LyraEngine
 PRIVATE
