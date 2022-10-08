@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.24.2)
 project(LyraGui VERSION 0.5.0)
 
 # set default to debug
@@ -50,4 +50,3 @@ add_executable(LyraGui
 )
 
 target_link_libraries(LyraGui ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
-
