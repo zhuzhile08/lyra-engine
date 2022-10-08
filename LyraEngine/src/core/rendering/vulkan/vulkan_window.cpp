@@ -64,11 +64,11 @@ void Window::recreate() {
 }
 
 void Window::wait(const uint32 fenceIndex) const {
-	lassert(Application::renderSystem()->device()->waitForFences(1, m_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX) == VkResult::VK_SUCCESS, "Failed to wait for Vulkan fences to finish!");
+	vassert(Application::renderSystem()->device()->waitForFences(1, m_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
 }
 
 void Window::reset(const uint32 fenceIndex) const {
-	lassert(Application::renderSystem()->device()->resetFences(1, m_inFlightFences.at(fenceIndex)) == VkResult::VK_SUCCESS, "Failed to reset Vulkan fences!");
+	vassert(Application::renderSystem()->device()->resetFences(1, m_inFlightFences.at(fenceIndex)), "reset Vulkan fences");
 }
 
 void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities) {
@@ -165,7 +165,7 @@ void Window::create_window_surface() {
 void Window::create_swapchain_images() {
 	// get the number of images
 	uint32 imageCount;
-	lassert(vkGetSwapchainImagesKHR(Application::renderSystem()->device()->device(), m_swapchain, &imageCount, nullptr) == VkResult::VK_SUCCESS, "Failed to retrieve Vulkan swapchain images!");
+	vassert(vkGetSwapchainImagesKHR(Application::renderSystem()->device()->device(), m_swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
 	m_images.resize(imageCount); m_views.resize(imageCount);
 	vkGetSwapchainImagesKHR(Application::renderSystem()->device()->device(), m_swapchain, &imageCount, m_images.data());
 
@@ -185,7 +185,7 @@ void Window::create_swapchain_images() {
 		};
 
 		// create the view
-		lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_views.at(i)) == VkResult::VK_SUCCESS, "Failed to create Vulkan image views");
+		vassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_views.at(i)), "create Vulkan image views");
 	}
 }
 
@@ -193,7 +193,7 @@ void Window::create_depth_buffer() {
 	m_depthBufferFormat = m_depthImage.get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
-	lassert(Application::renderSystem()->device()->createImage(
+	vassert(Application::renderSystem()->device()->createImage(
 		m_depthImage.get_image_create_info(
 			m_depthBufferFormat,
 			{ m_extent.width, m_extent.height, 1 },
@@ -206,7 +206,7 @@ void Window::create_depth_buffer() {
 		m_depthMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 		m_depthImage.m_image,
 		m_depthMem.m_memory
-	) == VkResult::VK_SUCCESS, "Failed to create Vulkan depth buffer!");
+	), "create Vulkan depth buffer");
 
 	// create the image view
 	m_depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
@@ -219,7 +219,7 @@ void Window::create_color_resources() {
 	m_maxMultisamples = get_max_samples();
 
 	// create memory and image
-	lassert(Application::renderSystem()->device()->createImage(
+	vassert(Application::renderSystem()->device()->createImage(
 		m_colorImage.get_image_create_info(
 			m_format,
 			{ m_extent.width, m_extent.height, 1 },
@@ -232,7 +232,7 @@ void Window::create_color_resources() {
 		m_colorMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 		m_colorImage.m_image,
 		m_colorMem.m_memory
-	) == VkResult::VK_SUCCESS, "Failed to create Vulkan color resources!");
+	), "create Vulkan color resources");
 
 	// create the image view
 	m_colorImage.create_view(m_format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
@@ -280,7 +280,7 @@ void Window::create_swapchain() {
 		(m_oldSwapchain != nullptr) ? *m_oldSwapchain : VK_NULL_HANDLE
 	};
 
-	lassert(vkCreateSwapchainKHR(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_swapchain) == VkResult::VK_SUCCESS, "Failed to create Vulkan swapchain");
+	vassert(vkCreateSwapchainKHR(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_swapchain), "create Vulkan swapchain");
 
 	create_swapchain_images();
 	create_color_resources();
@@ -302,10 +302,12 @@ void Window::create_sync_objects() {
 	};
 
 	for (int i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
-		lassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores.at(i)) == VkResult::VK_SUCCESS
-			&& vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores.at(i)) == VkResult::VK_SUCCESS
-			&& vkCreateFence(Application::renderSystem()->device()->device(), &fenceInfo, nullptr, &m_inFlightFences.at(i)) == VkResult::VK_SUCCESS,
-			"Failed to create Vulkan Synchronization Objects");
+		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores.at(i)),
+			"create Vulkan Synchronization Objects");
+		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores.at(i)),
+			"create Vulkan Synchronization Objects");
+		vassert(vkCreateFence(Application::renderSystem()->device()->device(), &fenceInfo, nullptr, &m_inFlightFences.at(i)),
+			"create Vulkan Synchronization Objects");
 	}
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan synchronizaton objects");

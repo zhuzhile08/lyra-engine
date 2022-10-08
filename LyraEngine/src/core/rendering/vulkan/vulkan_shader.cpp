@@ -1,5 +1,7 @@
 #include <core/rendering/vulkan/vulkan_shader.h>
 
+#include <core/util.h>
+
 #include <res/loaders/load_file.h>
 #include <core/application.h>
 #include <core/rendering/vulkan/devices.h>
@@ -16,7 +18,7 @@ Shader::Shader(const char* path, const char* entry, Type type) : m_entry(entry),
 	Logger::log_debug(Logger::tab(), "Type of shader(VkShaderStageFlagBits): ", static_cast<int>(type));
 
 	// load the shader
-	std::vector<char> shaderSrc; util::load_file(path, util::OpenMode::MODE_START_AT_END | util::OpenMode::MODE_BINARY, shaderSrc);
+	std::vector<char> shaderSrc; util::load_file(path, util::OpenMode::MODE_BINARY, shaderSrc);
 
 	// create the shader
 	VkShaderModuleCreateInfo createInfo{
@@ -27,7 +29,7 @@ Shader::Shader(const char* path, const char* entry, Type type) : m_entry(entry),
 		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	lassert(vkCreateShaderModule(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_module) == VkResult::VK_SUCCESS, "Failed to create a Vulkan shader module");
+	vassert(vkCreateShaderModule(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_module), "create a Vulkan shader module");
 
 	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }

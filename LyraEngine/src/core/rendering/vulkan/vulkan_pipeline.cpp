@@ -33,7 +33,7 @@ void Pipeline::create_layout(std::vector<VkPushConstantRange> pushConstants) {
 		pushConstants.data()
 	};
 
-	lassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout) == VkResult::VK_SUCCESS, "Failed to create Vulkan graphics pipeline layout!");
+	vassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout), "create Vulkan graphics pipeline layout");
 }
 
 void Pipeline::create_shaders(std::vector<ShaderInfo> shaders) {

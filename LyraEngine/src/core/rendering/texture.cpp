@@ -1,5 +1,7 @@
 #include <core/rendering/texture.h>
 
+#include <core/settings.h>
+
 namespace lyra {
 
 Texture::Texture(const char* path, const VkFormat format)
@@ -44,7 +46,7 @@ void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat format
 	stagingBuffer.copy_data(textureInfo.data);
 
 	// create the image and allocate its memory
-	lassert(Application::renderSystem()->device()->createImage(
+	vassert(Application::renderSystem()->device()->createImage(
 		get_image_create_info(
 			format, 
 			{ static_cast<uint32>(m_width), static_cast<uint32>(m_height), 1 },
@@ -55,7 +57,7 @@ void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat format
 		get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
 		m_image, 
 		m_memory
-	) == VkResult::VK_SUCCESS, "Failed to load image from path: ", m_path);
+	), std::string(std::string("load image from path: ") + m_path));
 
 	// convert the image layout and copy it from the buffer
 	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
@@ -92,7 +94,7 @@ void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter ma
 		VK_FALSE
 	};
 
-	lassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler) == VkResult::VK_SUCCESS, "Failed to create Vulkan image sampler!");
+	vassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler");
 
 	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }

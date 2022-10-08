@@ -33,7 +33,7 @@ void RenderSystem::update() const {
 }
 
 void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily queue) const {
-	lassert(vkQueueWaitIdle(queue.queue) == VkResult::VK_SUCCESS, "Failed to wait for device queue!");
+	vassert(vkQueueWaitIdle(queue.queue), "wait for device queue");
 }
 
 void RenderSystem::draw() {

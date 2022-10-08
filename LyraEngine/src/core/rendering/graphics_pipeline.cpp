@@ -212,7 +212,7 @@ void GraphicsPipeline::create_pipeline(
 		0
 	};
 
-	lassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) == VkResult::VK_SUCCESS, "Failed to create Vulkan Pipeline!");
+	vassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "create Vulkan pipeline");
 }
 
 } // namespace lyra

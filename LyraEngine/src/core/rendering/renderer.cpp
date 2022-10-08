@@ -137,7 +137,7 @@ void Renderer::create_render_pass() {
 		&dependencies
 	};
 
-	lassert(vkCreateRenderPass(Application::renderSystem()->m_device.device(), &renderPassInfo, nullptr, &m_renderPass) == VkResult::VK_SUCCESS, "Failed to create Vulkan render pass!");
+	vassert(vkCreateRenderPass(Application::renderSystem()->m_device.device(), &renderPassInfo, nullptr, &m_renderPass), "create Vulkan render pass");
 }
 
 void Renderer::create_framebuffers() {
@@ -163,7 +163,7 @@ void Renderer::create_framebuffers() {
 			1
 		};
 
-		lassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers.at(i)) == VkResult::VK_SUCCESS, "Failed to create a framebuffer!");
+		vassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers.at(i)), "create a framebuffer");
 	}
 }
 

@@ -76,7 +76,7 @@ public:
 	/**
 	 * @brief wait for the logical device to finish with whatever operations are still going on
 	 */
-	void wait() const { lassert(vkDeviceWaitIdle(m_device) == VkResult::VK_SUCCESS, "Failed to wait for device to finish its operations!"); }
+	void wait() const { vassert(vkDeviceWaitIdle(m_device), "wait for device to finish its operations"); }
 
 	/**
 	 * @brief wrappers around the core Vulkan API and VMA functions

@@ -1,6 +1,7 @@
 #include <core/rendering/vulkan/GPU_buffer.h>
 
 #include <core/logger.h>
+#include <core/util.h>
 
 #include <core/rendering/vulkan/devices.h>
 #include <core/rendering/vulkan/command_buffer.h>
@@ -32,8 +33,8 @@ GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsa
 	};
 
 	// create buffer
-	lassert(Application::renderSystem()->device()->createBuffer(bufferInfo, get_alloc_create_info(memUsage), m_buffer, m_memory) == VkResult::VK_SUCCESS,
-		"Failed to create Vulkan GPU memory buffer!");
+	vassert(Application::renderSystem()->device()->createBuffer(bufferInfo, get_alloc_create_info(memUsage), m_buffer, m_memory),
+		"create Vulkan GPU memory buffer");
 
 	Logger::log_info("Successfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
 }

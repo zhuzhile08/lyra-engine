@@ -195,7 +195,7 @@ struct CommandBuffer {
 
 	void begin(const VkCommandBufferUsageFlags usage = 0);
 	void end() const {
-		lassert(vkEndCommandBuffer(*m_commandBuffer) == VkResult::VK_SUCCESS, "Failed to stop recording command buffer!");
+		vassert(vkEndCommandBuffer(*m_commandBuffer), "stop recording command buffer");
 	}
 	void beginQuery(VkQueryPool queryPool, uint32 query, VkQueryControlFlags flags) {
 		vkCmdBeginQuery(*m_commandBuffer, queryPool, query, flags);

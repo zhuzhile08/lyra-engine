@@ -65,7 +65,7 @@ void Image::create_view(const VkFormat format, const VkImageSubresourceRange sub
 	};
 
 	// create the view
-	lassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_view) == VkResult::VK_SUCCESS, "Failed to create Vulkan image views");
+	vassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_view), "create Vulkan image views");
 
 	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
 }
