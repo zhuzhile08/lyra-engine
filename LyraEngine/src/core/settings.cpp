@@ -8,7 +8,7 @@ std::string Settings::init_json() {
 	std::string buffer;
 
 	// load the file into the setring
-	util::load_file("data/config.json", util::OpenMode::MODE_START_AT_END | util::OpenMode::MODE_BINARY, buffer);
+	util::load_file("data/config.json", util::OpenMode::MODE_INPUT, buffer);
 
 	return buffer;
 }
@@ -22,7 +22,7 @@ Settings::DebugMode Settings::Debug::debug = static_cast<DebugMode>((int)json.at
 Settings::DisableLog Settings::Debug::disableLog = static_cast<DisableLog>((int)json.at("debug").at("disableLog"));
 bool Settings::Debug::printFPS = (bool)json.at("debug").at("printFPS");
 bool Settings::Debug::stdioSync = (bool)json.at("debug").at("stdioSync");
-std::vector <const char*> Settings::Debug::requestedDeviceExtensions = { "VK_KHR_swapchain" };
+std::vector <const char*> Settings::Debug::requestedDeviceExtensions = { "VK_KHR_swapchain", "VK_KHR_portability_subset" };
 std::vector <const char*> Settings::Debug::requestedValidationLayers = { "VK_LAYER_KHRONOS_validation" };
 
 uint8 Settings::Rendering::maxFramesInFlight = (uint8)json.at("rendering").at("maxFramesInFlight");

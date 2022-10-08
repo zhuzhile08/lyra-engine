@@ -6,6 +6,7 @@
 #include <SDL_vulkan.h>
 
 #include <core/logger.h>
+#include <core/util.h>
 #include <core/settings.h>
 
 #include <core/rendering/window.h>
@@ -36,18 +37,18 @@ Device::~Device() {
 
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
+#ifndef NDEBUG
+	Logger::log_info("Available device extensions:");
+	for (uint32 j = 0; j < extensions.size(); j++) Logger::log_debug(Logger::tab(), extensions.at(j).extensionName);
+#endif
 	for (uint32 i = 0; i < requestedExtensions.size(); i++) {
 		bool found = false;
-		Logger::log_info("Available device extensions:");
-
 			for (uint32 j = 0; j < extensions.size(); j++) {
-				Logger::log_debug(Logger::tab(), extensions.at(j).extensionName);
 					if (strcmp(requestedExtensions.at(i), extensions.at(j).extensionName) == 0) {
 						found = true;
 						break;
 					}
 			}
-
 		lassert(found, "User required Vulkan extensions weren't found!", requestedExtensions.at(i));
 	}
 }
@@ -102,6 +103,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 	int score = 1;
 
 	// some required features. If not available, make the GPU unavailable
+#ifndef __APPLE__
 #ifdef DRAW_INDIRECT
 	if (!features.geometryShader || !features.multiDrawIndirect) {
 		score = 0;
@@ -112,6 +114,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 		score = 0;
 		Logger::log_warning("GPU does not have some required features!");
 	}
+#endif
 #endif
 
 	Logger::log_info("Available device features and properties: ");
@@ -124,6 +127,9 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 		} if (features.multiDrawIndirect) { // indirect drawing
 			score += 6;
 			Logger::log_debug(Logger::tab(), "Supports indirect drawing");
+#ifndef DRAW_INDIRECT
+			Logger::log_warning("Indirect draw calls are not enabled, but are supported. Please turn indirect drawing on if you want better performance.");
+#endif
 		} if (features.samplerAnisotropy) {
 			score += 4;
 			Logger::log_debug(Logger::tab(), "Supports anistropic filtering");
@@ -151,8 +157,10 @@ void Device::create_instance() {
 	uint32 SDLExtensionCount = 0;
 
 	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
-	const char** SDLExtensions = new const char* [SDLExtensionCount];
-	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, SDLExtensions) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+	std::vector<const char*> SDLExtensions(SDLExtensionCount);
+	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+	SDLExtensions.push_back("VK_KHR_get_physical_device_properties2");
+	SDLExtensions.push_back("VK_KHR_portability_enumeration");
 
 	// define some info for the application that will be used in instance creation
 	VkApplicationInfo appInfo{
@@ -169,7 +177,11 @@ void Device::create_instance() {
 	VkInstanceCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		nullptr,
+#ifdef _WINDOWS
 		0,
+#elif __APPLE__
+		VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
+#endif
 		&appInfo,
 #ifndef NDEBUG
 		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
@@ -178,20 +190,18 @@ void Device::create_instance() {
 		0,
 		nullptr,
 #endif
-		SDLExtensionCount,
-		SDLExtensions
+		static_cast<uint32>(SDLExtensions.size()),
+		SDLExtensions.data()
 	};
 
 	// create the instance
-	lassert(vkCreateInstance(&createInfo, nullptr, &m_instance) == VkResult::VK_SUCCESS, "Failed to create Vulkan instance");
-
-	delete[] SDLExtensions;
+	vassert(vkCreateInstance(&createInfo, nullptr, &m_instance), "create Vulkan instance");
 }
 
 void Device::pick_physical_device() {
 	// get all devices
 	uint32 deviceCount = 0;
-	lassert(vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr) == VkResult::VK_SUCCESS, "Failed to find any Vulkan auitable GPUs!");
+	vassert(vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr), "find any Vulkan auitable GPUs");
 		std::vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
 
@@ -251,7 +261,7 @@ void Device::create_logical_device() {
 	};
 
 	// create the device and retrieve the graphics and presentation queue handles
-	lassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) == VkResult::VK_SUCCESS, "Failed to create logical device!");
+	vassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device), "create logical device");
 
 	find_family_index(&m_graphicsQueue, m_physicalDevice);
 	find_family_index(&m_presentQueue, m_physicalDevice);
@@ -275,7 +285,7 @@ void Device::create_allocator() {
 	};
 
 	// create the allocator
-	lassert(vmaCreateAllocator(&createInfo, &m_allocator) == VkResult::VK_SUCCESS, "Failed to create VMA memory allocator!");
+	vassert(vmaCreateAllocator(&createInfo, &m_allocator), "create VMA memory allocator");
 }
 
 } // namespace vulkan

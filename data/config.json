@@ -8,7 +8,7 @@
 	"disableLog": 1,
 	"printFPS": false,
 	"stdioSync": true,
-	"requestedDeviceExtensions": [ "VK_KHR_swapchain" ],
+	"requestedDeviceExtensions": [ "VK_KHR_swapchain", "VK_KHR_portability_subset" ],
 	"requestedValidationLayers": [ "VK_LAYER_KHRONOS_validation" ]
   },
   "rendering": {
