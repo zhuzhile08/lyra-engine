@@ -1,4 +1,4 @@
-/***
+/*************************
  * @file log.h
  * @author Zhu Zhile (zhuzhile08@gmail.com)
  *
@@ -15,7 +15,7 @@
 
 #pragma once
 
-#ifdef m_WIN32
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -39,6 +39,11 @@ private:
 		UNL = 4
 	};
 
+	/**
+	 * @brief cast a font enum value to an integer
+	 * 
+	 * @param font font to cast
+	 */
 	NODISCARD static int font_cast(Font font) {
 		return static_cast<int>(font);
 	}
@@ -62,23 +67,35 @@ private:
 		B_BLU = 94,
 		B_MAG = 95,
 		B_CYN = 96,
-		DEF = 0
+		DEF = WHT
 	};
 
+	/**
+	 * @brief cast a color enum value to an integer
+	 * 
+	 * @param color color to cast
+	 */
 	NODISCARD static int color_cast(Color color) {
 		return static_cast<int>(color);
 	}
 
+	/**
+	 * @brief print an ANSI escape code to set font and color
+	 * 
+	 * @param font font
+	 * @param color color
+	 */
 	static void ANSI(Font font, Color color) {
 		std::cout << "\033[" << font_cast(font) << ";" << color_cast(color) << "m";
 	}
-
+	/**
+	 * @brief set the color to default
+	 */
 	static void set_color_default() {
-		ANSI(Font::NON, Color::DEF);
+		ANSI(Font::NON, Color::WHT);
 	}
 
 public:
-
 	/**
 	 * @brief log normal messages
 	 *
@@ -200,10 +217,19 @@ public:
 	*/
 	static void clear_buffer();
 
+	/**
+	 * @brief return tab character
+	 * 
+	 * @return const* 
+	 */
 	NODISCARD static const char* tab() {
 		return "\t";
 	}
-
+	/**
+	 * @brief return new line character
+	 * 
+	 * @return const* 
+	 */
 	NODISCARD static const char* end_l() {
 		return "\n";
 	}
@@ -215,7 +241,7 @@ private:
 };
 
 template<typename ... Args> static void lassert(bool condition, Args... message) {
-#ifdef _DEBUG
+#ifndef NDEBUG
 	if (!condition) (Logger::log_exception(message), ...);
 #else
 	if (condition); // cused, I know, but I'm waaaay too lazy to put a debug check on every assert
