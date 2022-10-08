@@ -1,5 +1,7 @@
 #include <res/loaders/load_model.h>
 
+#include <core/logger.h>
+
 namespace lyra {
 
 namespace util {

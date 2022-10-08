@@ -1,10 +1,9 @@
 #pragma once
 
-#include <core/logger.h>
-
 #include <vector>
 #include <tiny_obj_loader.h>
-#include <glm.hpp>
+
+#include <core/util.h>
 
 namespace lyra {
 
@@ -26,7 +25,7 @@ struct LoadedModel {
  * 
  * @return const lyra::util::LoadedModel
  */
-const LoadedModel load_model(const char* path);
+NODISCARD const LoadedModel load_model(const char* path);
 
 } // namespace util
 
