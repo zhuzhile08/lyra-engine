@@ -39,6 +39,7 @@
 /.vs
 /.vscode
 /lib
+/data/log/
 
 # files
 CMakeSettings.json
