@@ -10,8 +10,6 @@ void display_compress(std::string& answerBuffer);
 void ask_for_path(std::string& answerBuffer);
 
 int main() {
-	Logger::init();
-
 	std::string answerBuffer;
 
 	Logger::log_info("Lyra command line asset compression tool [Version ", VERSION, "]");
