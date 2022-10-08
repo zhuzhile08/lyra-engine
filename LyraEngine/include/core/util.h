@@ -12,8 +12,16 @@
 
 #pragma once
 
+#ifdef _WIN32
+#include <wchar.h>
+#include <Windows.h>
+#elif __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 #include <utility>
 #include <vector>
+#include <filesystem>
 #include <chrono>
 
 #include <core/decl.h>
@@ -58,11 +66,36 @@ template<typename _Ty> const void* get_address(const _Ty type) {
  * @param dst destination vector
  * @param index index of the element
  */
-template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index);
+template<typename _Ty> inline void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index);
 
 template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index) {
 	dst.push_back(std::move(src.at(index)));
 	src.erase(src.begin() + index);
+}
+
+/**
+ * @brief platform agnostic function to get the current path of the executable
+ * 
+ * @return std::filesystem::path 
+ */
+NODISCARD inline std::filesystem::path get_executable_path();
+
+std::filesystem::path get_executable_path() {
+#ifdef _WIN32
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, sizeof(buffer));
+	return std::filesystem::path(buffer).parent_path();
+#elif __APPLE__
+	char buffer [PATH_MAX];
+	uint32_t bufsize = PATH_MAX;
+	if(!_NSGetExecutablePath(buffer, &bufsize))
+		puts(buffer);
+	return std::filesystem::path(buffer).parent_path();
+#elif linux
+	std::filesystem::path path("/proc/self/exe");
+	std::filesystem::canonical(path);
+	return path;
+#endif
 }
 
 /**
