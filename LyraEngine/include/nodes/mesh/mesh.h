@@ -131,7 +131,7 @@ private:
 	 * @param load an already loaded model
 	 * @param index load the model with the following index if a file has more than just one object. Will load everything on default
 	 */
-	void create_mesh(const util::LoadedModel loaded, const uint16 index = UINT16_MAX);
+	void create_mesh(const util::LoadedModel& loaded, const uint16 index = UINT16_MAX);
 };
 
 } // namespace lyra
