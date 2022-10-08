@@ -72,7 +72,7 @@ void Menus::file_text_input(std::string openedType) {
 	std::string message = "Enter a file path relative to the path of the selected " + openedType + ": ";
 
 	if (ImGui::BeginPopupModal(name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-		ImGui::Text(message.c_str());
+		// ImGui::Text(message.c_str());
 		ImGui::InputText("Path", buffer, 254);
 		
 		if (ImGui::Button("Close"))

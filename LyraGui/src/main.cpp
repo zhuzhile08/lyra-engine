@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #define LYRA_LOG_FILE
 
+#include <core/logger.h>
 #include <core/application.h>
 #include <core/application.h>
 #include <core/rendering/gui_renderer.h>

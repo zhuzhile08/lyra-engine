@@ -43,7 +43,7 @@ void LinearAllocator::clear() {
 	m_currentPos = m_start;
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 void LinearAllocator::dealloc(void* p) {
 	Logger::log_error("This function is not available for linear allocators and does not exist in the release build. Please call the clear() function if you want to deallocate the memory!");
 	clear(); // call the clear function automatically for the user

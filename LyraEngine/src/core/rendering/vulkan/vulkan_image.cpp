@@ -147,7 +147,7 @@ const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, co
 
 	}
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
 #endif
 

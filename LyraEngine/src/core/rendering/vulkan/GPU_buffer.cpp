@@ -51,7 +51,7 @@ void GPUBuffer::copy_data(const void* const src, const size_t copySize) {
 	lassert(Application::renderSystem()->device()->mapMemory(m_memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(m_memory), "!");
 	
 	// copy the data into the mapped memory
-#ifdef _DEBUG
+#ifndef NDEBUG
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(m_size) : copySize);
 #else
 	// custom memcpy functionality, (probably) faster in release mode
