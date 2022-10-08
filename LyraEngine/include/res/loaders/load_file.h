@@ -13,6 +13,7 @@ namespace lyra {
 namespace util {
 
 // mode to open a file
+#ifdef _WIN32 // try to imagine how long I took to find out that the values were differnt om macOS
 enum OpenMode {
 	MODE_INPUT = 0x01,
 	MODE_OUTPUT = 0x02,
@@ -21,6 +22,20 @@ enum OpenMode {
 	MODE_APPEND = 0x08,
 	MODE_TRUNCATE = 0x10
 };
+#elif __APPLE__
+enum OpenMode {
+	MODE_APPEND = 0x01,
+	MODE_START_AT_END = 0x02,
+	MODE_BINARY = 0x04,
+	MODE_INPUT = 0x08,
+	MODE_OUTPUT = 0x10,
+	MODE_TRUNCATE = 0x20
+};
+#elif linux
+	std::filesystem::path path("/proc/self/exe");
+	std::filesystem::canonical(path);
+	return path;
+#endif
 
 /**
  * @brief load a file
