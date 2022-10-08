@@ -15,11 +15,13 @@
 
 #pragma once
 
-#include <core/decl.h>
-
 #include <iostream>
 #include <fstream>
 #include <utility>
+
+#include <vulkan/vulkan.h>
+
+#include <core/decl.h>
 
 namespace lyra {
 
@@ -36,6 +38,11 @@ private:
 		UNL = 4
 	};
 
+	/**
+	 * @brief cast a font enum value to an integer
+	 * 
+	 * @param font font to cast
+	 */
 	NODISCARD static int font_cast(Font font) {
 		return static_cast<int>(font);
 	}
@@ -59,23 +66,35 @@ private:
 		B_BLU = 94,
 		B_MAG = 95,
 		B_CYN = 96,
-		DEF = 0
+		DEF = WHT
 	};
 
+	/**
+	 * @brief cast a color enum value to an integer
+	 * 
+	 * @param color color to cast
+	 */
 	NODISCARD static int color_cast(Color color) {
 		return static_cast<int>(color);
 	}
 
+	/**
+	 * @brief print an ANSI escape code to set font and color
+	 * 
+	 * @param font font
+	 * @param color color
+	 */
 	static void ANSI(Font font, Color color) {
 		std::cout << "\033[" << font_cast(font) << ";" << color_cast(color) << "m";
 	}
-
+	/**
+	 * @brief set the color to default
+	 */
 	static void set_color_default() {
-		ANSI(Font::NON, Color::DEF);
+		ANSI(Font::NON, Color::WHT);
 	}
 
 public:
-
 	/**
 	 * @brief log normal messages
 	 *
@@ -186,10 +205,10 @@ public:
 		m_logFile << "[EXCEPTION]: ";
 		(m_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
-		// abourt the program
-		std::abort();
 		// reset color
 		set_color_default();
+		// abourt the program
+		std::abort();
 	}
 
 	/**
@@ -205,7 +224,6 @@ public:
 	NODISCARD static const char* tab() {
 		return "\t";
 	}
-
 	/**
 	 * @brief line end escape character
 	 * 
@@ -221,13 +239,34 @@ private:
 	Logger() noexcept = delete;
 };
 
+/**
+ * @brief custom assert function to check if a condition is false
+ * 
+ * @tparam Args variadic message template
+ * @param condition condition to check if false
+ * @param message exception message
+ */
 template<typename ... Args> static void lassert(bool condition, Args... message) {
 #ifndef NDEBUG
 	if (!condition) (Logger::log_exception(message), ...);
 #else
 	if (condition) // cused, I know, but I'm waaaay too lazy to put a debug check on every assert
 	;
-	assert()
+#endif
+}
+/**
+ * @brief Vulkan function assert
+ * 
+ * @tparam Args variadic message template
+ * @param function Vulkan function to check
+ * @param purpose Purpose of the function
+ */
+template<typename Arg> static void vassert(VkResult function, Arg purpose) {
+#ifndef NDEBUG
+	if (function != VkResult::VK_SUCCESS) (Logger::log_exception("Failed to ", purpose, " with error code: ", function, "!"));
+#else
+	if (function) // cused, I know, but I'm waaaay too lazy to put a debug check on every assert
+	;
 #endif
 }
 
