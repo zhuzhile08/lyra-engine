@@ -27,19 +27,19 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	// information about the descriptor pool
 	vulkan::DescriptorPool::Builder builder;
 	builder.add_pool_sizes({
-		{ vulkan::Descriptor::Type::TYPE_SAMPLER, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_SAMPLED_IMAGE, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_IMAGE, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-		{ vulkan::Descriptor::Type::TYPE_INPUT_ATTACHMENT, 1000 }
+		{ vulkan::Descriptor::Type::TYPE_SAMPLER, 500 },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 500 },
+		{ vulkan::Descriptor::Type::TYPE_SAMPLED_IMAGE, 500 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_IMAGE, 500 },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_TEXEL_BUFFER, 500 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_TEXEL_BUFFER, 500 },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 500 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER, 500 },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 500 },
+		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 500 },
+		{ vulkan::Descriptor::Type::TYPE_INPUT_ATTACHMENT, 500 }
 		});
-	builder.set_max_sets(1000); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
+	builder.set_max_sets(500); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
 	m_descriptorPool = SmartPointer<vulkan::DescriptorPool>::create(builder);
