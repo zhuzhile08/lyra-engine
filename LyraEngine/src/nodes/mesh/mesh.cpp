@@ -36,7 +36,7 @@ const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribu
 		{
 			3,
 			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
+			VK_FORMAT_R32G32_SFLOAT,
 			offsetof(Vertex, uv)
 		}}
 	};
