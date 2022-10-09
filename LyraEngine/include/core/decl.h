@@ -63,9 +63,14 @@ class Window;
 class Renderer;
 class RenderSystem;
 class GraphicsPipeline;
-class GUIRenderer;
 class Material;
 class Texture;
+
+namespace gui {
+
+class GUIRenderer;
+
+} // namespace gui
 
 // low level utility
 
