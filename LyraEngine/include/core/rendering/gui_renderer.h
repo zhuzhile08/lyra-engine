@@ -1,12 +1,12 @@
 #pragma once
 
+#include <functional>
+
 #include <core/decl.h>
 #include <core/util.h>
 #include <core/queue_types.h>
 
 #include <core/rendering/renderer.h>
-
-#include <functional>
 
 namespace lyra {
 
