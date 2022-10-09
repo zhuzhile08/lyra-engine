@@ -1,6 +1,7 @@
 #include <core/rendering/render_system.h>
 
 #include <core/logger.h>
+#include <core/util.h>
 
 #include <core/settings.h>
 #include <core/queue_types.h>

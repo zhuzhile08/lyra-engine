@@ -3,6 +3,7 @@
 #include <array>
 
 #include <core/logger.h>
+#include <core/util.h>
 
 #include <core/queue_types.h>
 
@@ -169,7 +170,7 @@ void Renderer::create_framebuffers() {
 
 void Renderer::begin_renderpass() const {
 	VkClearValue clear[2]{};
-	clear[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+	clear[0].color = { {0.0f, 0.0f, 0.0f, 0.0f} };
 	clear[1].depthStencil = { 1.0f, 0 };
 	VkRenderPassBeginInfo beginInfo{
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
