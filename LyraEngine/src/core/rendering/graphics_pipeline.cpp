@@ -77,7 +77,7 @@ void GraphicsPipeline::create_pipeline(
 			0,
 			1,
 			&temp,
-			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
+			static_cast<uint32>(temp2.size()),
 			temp2.data()
 		},
 		{	// describe how shaders are executed
@@ -178,11 +178,11 @@ void GraphicsPipeline::create_pipeline(
 			// VK_DYNAMIC_STATE_SCISSOR
 		},
 		{
-			// VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-			// nullptr,
-			// 0,
-			// (uint32) createInfo.dynamicStates.size(),
-			// createInfo.dynamicStates.data()
+			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			0,
+			nullptr
 		}
 	};
 
