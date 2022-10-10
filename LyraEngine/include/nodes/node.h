@@ -16,13 +16,54 @@
 
 #include <core/decl.h>
 
-
 namespace lyra {
+
+// easily define a script member for any class
+#define LYRA_NODE_SCRIPT_MEMBER(class) lyra::SmartPointer<lyra::Script<class>> m_script; // please don't kill me C++ gods
+
+// nodes
+
+template <class> class Script;
+class Spatial;
+
+class Mesh;
+class MeshRenderer;
+class Text;
+class TextRenderer;
+
+class Rigidbody;
+class Collider;
+class BoxCollider;
+class SphereCollider;
+class CapsuleCollider;
+class TaperedCapsuleCollider;
+class CylinderCollider;
+class MeshCollider;
+class Joint;
+class Cloth;
+class Raycast;
+
+class Camera;
+class Light;
+class LightProbe;
+class Skybox;
+class MoviePlayer;
+
+class ParticleSystem;
+class LineRenderer;
+
+class Animation;
+class Animator;
+
+class AudioSource;
+class AudioListener;
+class AudioFilter;
 
 /**
  * @brief a base class for a node
  * 
  * @tparam _Ty type of children/parent
+ * @tparam _Script script to bind to the node
  */
 template <class _Ty> class Node {
 public:
@@ -39,21 +80,12 @@ public:
 		_Ty* parent = nullptr,
 		const bool visible = true,
 		const uint32 tag = 0
-	) noexcept : m_name(name), m_parent(parent), m_visible(visible), m_tag(tag) { init(); }
+	) noexcept : m_name(name), m_parent(parent), m_visible(visible), m_tag(tag) { }
 
 	/**
 	 * @brief destroy the game object
 	 */
 	~Node() { for (auto& [name, child] : m_children) child->set_parent(m_parent); }
-
-	/**
-	 * @brief update function, which gets updated every frame
-	 */
-	virtual void update(void) { }
-	/**
-	 * @brief function called at initialization time
-	 */
-	virtual void init(void) { }
 
 	/**
 	 * @brief show the object
@@ -163,40 +195,5 @@ protected:
 	_Ty* m_parent = nullptr;
 	std::unordered_map <std::string, _Ty*> m_children;
 };
-
-// nodes
-
-class Script;
-
-class Spatial;
-
-class Mesh;
-class MeshRenderer;
-class Text;
-class TextRenderer;
-
-class RigidBody;
-class Collider;
-class MeshCollider;
-class Joint;
-class Cloth;
-class Raycast;
-class Spatial;
-
-class Camera;
-class Light;
-class LightProbe;
-class Skybox;
-class MoviePlayer;
-
-class ParticleSystem;
-class LineRenderer;
-
-class Animation;
-class Animator;
-
-class AudioSource;
-class AudioListener;
-class AudioFilter;
 
 } // namespace lyra

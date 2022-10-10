@@ -6,10 +6,6 @@
 
 namespace lyra {
 
-void Spatial::update() {
-	calculate_transform_mat();
-}
-
 void Spatial::set_position(glm::vec3 newPosition, Space space) noexcept {
 	if (space == Space::SPACE_LOCAL) {
 		m_position = newPosition;
