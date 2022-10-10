@@ -99,4 +99,5 @@ PRIVATE
 	<gtc/matrix_transform.hpp>
 	<gtx/matrix_decompose.hpp>
 	<nlohmann/json.hpp>
+	<Jolt/Jolt.h>
 )
