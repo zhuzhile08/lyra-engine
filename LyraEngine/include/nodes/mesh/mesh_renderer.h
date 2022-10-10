@@ -17,23 +17,24 @@
 namespace lyra {
 
 /**
- * @brief A mesh struct containing vertices, indecies and vertex and index buffers
+ * @brief a mesh renderer to render (multiple) meshes
  */
-class MeshRenderer : public Node<Spatial> {
+class MeshRenderer : public Spatial {
 public:
-	MeshRenderer() { }
-
 	/**
-	 * @brief construct a new mesh loaded from a .obj file
-	 *
+	 * @brief construct a mesh renderer
+	 * 
 	 * @param mesh mesh
-	 * @param material material of the mesh
+	 * @param name name of the object
+	 * @param parent parent of the object
+	 * @param script script of the object
+	 * @param tag optional tag of the object
 	 */
 	MeshRenderer(
 		const Mesh* const mesh, 
 		const char* name = "MeshRenderer",
 		Spatial* parent = nullptr,
-		const bool visible = true,
+		Script<MeshRenderer>* script = new Script<MeshRenderer>,
 		const uint32 tag = 0
 	);
 
@@ -57,6 +58,8 @@ private:
 
 	SmartPointer<vulkan::GPUBuffer> m_vertexBuffer;
 	SmartPointer<vulkan::GPUBuffer> m_indexBuffer;
+
+	LYRA_NODE_SCRIPT_MEMBER(MeshRenderer)
 
 	/**
 	 * @brief create a vertex buffer

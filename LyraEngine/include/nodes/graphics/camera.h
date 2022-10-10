@@ -48,8 +48,6 @@ public:
 
 	// camera data
 	struct CameraData {
-		CameraData() { }
-
 		glm::mat4 model;
 		glm::mat4 proj;
 	};
@@ -59,6 +57,7 @@ public:
 	 *
 	 * @param name name of the object
 	 * @param parent parent Node of the object
+	 * @param script script of the object
 	 * @param visible visibility of the object
 	 * @param tag optional tag of the object
 	 * @param position position of the object
@@ -69,6 +68,7 @@ public:
 	Camera(
 		const char* name = "Camera",
 		Spatial* parent = nullptr,
+		Script<Camera>* script = new Script<Camera>,
 		const bool visible = true,
 		const uint32 tag = 0,
 		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -122,11 +122,14 @@ public:
 
 private:
 	std::vector<Material*> m_materials;
-	SmartPointer<GraphicsPipeline> m_renderPipeline;
+	SmartPointer<GraphicsPipeline> m_renderPipeline;  
 
 	float m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_depth = 1.0f;
 	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
 	Projection m_projection;
+	glm::mat4 m_projection_matrix;
+
+	LYRA_NODE_SCRIPT_MEMBER(Camera)
 
 	/**
 	 * @brief draw function

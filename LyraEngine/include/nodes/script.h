@@ -16,10 +16,14 @@
 namespace lyra {
 
 // script component
-template <Spatial* _Spatial> struct Script {
+template <class _Ty> struct Script {
 	virtual void init(void) { };
 	virtual void update(void) { };
-	virtual void physicsUpdate(void) { };
+	virtual void physics_update(void) { };
+
+	_Ty* node;
+
+	// this is the one time I'm gonna deviate from my normal naming conventions, but its for the users sake
 };
 
 } // namespace lyra

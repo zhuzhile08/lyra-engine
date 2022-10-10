@@ -16,10 +16,16 @@
 #include <glm.hpp>
 
 #include <core/decl.h>
+#include <core/util.h>
+
+#include <nodes/script.h>
 #include <nodes/node.h>
 
 namespace lyra {
 
+/**
+ * @brief basic 3d node with positions and matrices
+ */
 class Spatial : public Node<Spatial> {
 public:
 	// order of transformation the object should use
@@ -43,6 +49,7 @@ public:
 	 *
 	 * @param name name of the object
 	 * @param parent parent Node of the object
+	 * @param script script of the object
 	 * @param visible visibility of the object
 	 * @param tag optional tag of the object
 	 * @param position position of the object
@@ -53,19 +60,45 @@ public:
 	Spatial(
 		const char* name = "Game Object",
 		Spatial* parent = nullptr,
+		Script<Spatial>* script = new Script<Spatial>,
 		const bool visible = true,
 		const uint32 tag = 0,
 		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
 		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
 		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
-	) noexcept : Node(name, parent, visible, tag), m_position(position), m_rotation(rotation), m_scale(scale), m_rotationOrder(rotationOrder) { }
+	) noexcept : Node(name, parent, visible, tag), m_position(position), m_rotation(rotation), m_scale(scale), m_rotationOrder(rotationOrder), m_script(script) { m_script->init(); }
 
 	/**
-	 * @brief update function, which gets updated every frame
+	 * @brief construct a transform component
+	 * @brief this function is only meant for library internal use, please don't actually use this
+	 * @brief but hey, Here's a good meme for finding this goofy ahh function
+	 * @brief https://cdn.discordapp.com/attachments/841451660059869194/1028773573290119188/MemeFeedBot.mp4
+	 *
+	 * @param name name of the object
+	 * @param parent parent Node of the object
+	 * @param visible visibility of the object
+	 * @param tag optional tag of the object
+	 * @param position position of the object
+	 * @param rotation rotation of the object
+	 * @param scale scale of the object
+	 * @param rotationOrder order of the multiplication of the rotation matricies
+	 * @param script script of the object
 	 */
-	void update() override;
+	Spatial(
+		bool,
+		const char* name = "Game Object",
+		Spatial* parent = nullptr,
+		const bool visible = true,
+		const uint32 tag = 0,
+		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
+		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX,
+		Script<Spatial>* script = new Script<Spatial>
+	) noexcept : Node(name, parent, visible, tag), m_position(position), m_rotation(rotation), m_scale(scale), m_rotationOrder(rotationOrder), m_script(script) { m_script->init(); }
 
+	
 	/**
 	 * @brief move the object
 	 *
@@ -165,6 +198,8 @@ protected:
 	glm::vec3 m_position = { 0.0f, 0.0f, 0.0f }, m_rotation = { 0.0f, 0.0f, 0.0f }, m_scale = { 1.0f, 1.0f, 1.0f };
 	RotationOrder m_rotationOrder = RotationOrder::ROTATION_ZYX;
 	glm::mat4 m_localTransformMatrix = glm::mat4(1.0f);
+
+	LYRA_NODE_SCRIPT_MEMBER(Spatial)
 
 private:
 	/**

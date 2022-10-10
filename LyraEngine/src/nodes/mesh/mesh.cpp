@@ -48,35 +48,44 @@ Mesh::Mesh(
 	const uint16 index, 
 	const char* name, 
 	Spatial* parent, 
+	Script<Mesh>* script,
 	const bool visible, 
 	const uint32 tag, 
 	const glm::vec3 position, 
 	const glm::vec3 rotation, 
 	const glm::vec3 scale, 
 	const RotationOrder rotationOrder
-) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder) {
+) : Spatial(true, name, parent, visible, tag, position, rotation, scale, rotationOrder), m_script(script) {
 	Logger::log_info("Creating Mesh... ");
 
 	create_mesh(util::load_model(path), index);
+	m_script->node = this;
+	m_script->init();
 
-	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created mesh at address: ", get_address(this), "with path: ", path, "!", Logger::end_l());
 }
 
 Mesh::Mesh(
 	const std::vector <Vertex> vertices, 
 	const std::vector <uint32> indices, 
-	const char* name, Spatial* parent, 
+	const char* name, 
+	Spatial* parent, 
+	Script<Mesh>* script,
 	const bool visible, 
 	const uint32 tag, 
 	const glm::vec3 position, 
 	const glm::vec3 rotation, 
 	const glm::vec3 scale, 
 	const RotationOrder rotationOrder
-) : Spatial(name, parent, visible, tag, position, rotation, scale, rotationOrder), m_vertices(vertices), m_indices(indices) {
+) : Spatial(name, parent, nullptr, visible, tag, position, rotation, scale, rotationOrder), m_vertices(vertices), m_indices(indices), m_script(script) {
+	Logger::log_info("Creating Mesh... ");
+	
 	m_vertices = vertices;
 	m_indices = indices;
+	m_script->node = this;
+	m_script->init();
 
-	Logger::log_info("Successfully created mesh at ", get_address(this), "!", Logger::end_l());
+	Logger::log_info("Successfully created mesh at address: ", get_address(this), "!", Logger::end_l());
 }
 
 void Mesh::create_mesh(const util::LoadedModel& loaded, const uint16 index) {

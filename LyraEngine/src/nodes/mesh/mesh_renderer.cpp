@@ -14,10 +14,10 @@ MeshRenderer::MeshRenderer(
 	const Mesh* const mesh, 
 	const char* name,
 	Spatial* parent,
-	const bool visible,
+	Script<MeshRenderer>* script,
 	const uint32 tag
 ) :
-	m_mesh(mesh)
+	Spatial(true, name, parent, true, tag), m_mesh(mesh), m_script(script)
 {
 	Logger::log_info("Creating Mesh Renderer... ");
 
@@ -26,6 +26,9 @@ MeshRenderer::MeshRenderer(
 	m_indexBuffer = SmartPointer<vulkan::GPUBuffer>::create(sizeof(m_mesh->indices()[0]) * m_mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	create_vertex_buffer();
 	create_index_buffer();
+
+	m_script->node = this;
+	m_script->init();
 
 	Logger::log_info("Successfully created MeshRenderer at ", get_address(this), "!", Logger::end_l());
 }

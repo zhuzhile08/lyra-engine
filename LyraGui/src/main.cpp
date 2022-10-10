@@ -4,7 +4,6 @@
 #include <Jolt/Jolt.h>
 #include <core/logger.h>
 #include <core/application.h>
-#include <core/application.h>
 #include <core/rendering/material.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/vulkan_window.h>
@@ -30,7 +29,6 @@ public:
 		rotate({ 0.0f, 0.0f, lyra::Application::fps() * 90.0f });
 		look_at({ 0.0f, 0.0f, 0.0f });
 		data.model = m_localTransformMatrix;
-		draw(data);
 	}
 
 	void init(void) override {
@@ -40,6 +38,18 @@ public:
 	}
 };
  */
+
+class CameraScript : public lyra::Script<lyra::Camera> {
+	void init(void) override {
+		node->set_position({2.0f, 2.0f, 2.0f});
+		node->set_perspective();
+	}
+
+	void update(void) override {
+		node->rotate({ 0.0f, 0.0f, 60 * 90.0f });
+		node->look_at({ 0.0f, 0.0f, 0.0f });
+	}
+};
 
 class Application : public lyra::Application {
 	void init() override;
@@ -53,7 +63,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	lyra::Spatial scene("Root"); // I'm sorry godot devs
 
-	lyra::Camera camera("Camera", &scene);
+	lyra::Camera camera("Camera", &scene, new CameraScript());
 
 	lyra::Texture roomTexture("data/img/viking_room.png");
 
