@@ -181,7 +181,7 @@ void Renderer::begin_renderpass() const {
 			{ 0, 0 },
 			Application::renderSystem()->m_vulkanWindow.extent()
 		},
-		2, // hard coded
+		arr_size(clear),
 		clear
 	};
 
