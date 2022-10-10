@@ -20,6 +20,7 @@
 #include <vulkan/vulkan.h>
 
 #include <core/decl.h>
+#include <core/util.h>
 
 #include <res/loaders/load_model.h>
 
@@ -66,19 +67,27 @@ public:
 		NODISCARD static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
 	};
 
-	Mesh() { }
-
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
 	 * @param path path of the model
 	 * @param index index of the object in the model to load. Starts at 1, 0 is default
+	 * @param name name of the object
+	 * @param parent parent Node of the object
+	 * @param script script of the object
+	 * @param visible visibility of the object
+	 * @param tag optional tag of the object
+	 * @param position position of the object
+	 * @param rotation rotation of the object
+	 * @param scale scale of the object
+	 * @param rotationOrder order of the multiplication of the rotation matricies
 	 */
 	Mesh(
 		const char* path, 
 		const uint16 index = 0,
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
+		Script<Mesh>* script = new Script<Mesh>,
 		const bool visible = true,
 		const uint32 tag = 0,
 		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
@@ -92,12 +101,22 @@ public:
 	 *
 	 * @param vertices the new vertices
 	 * @param indices the new indices
+	 * @param name name of the object
+	 * @param parent parent Node of the object
+	 * @param script script of the object
+	 * @param visible visibility of the object
+	 * @param tag optional tag of the object
+	 * @param position position of the object
+	 * @param rotation rotation of the object
+	 * @param scale scale of the object
+	 * @param rotationOrder order of the multiplication of the rotation matricies
 	 */
 	Mesh(
 		const std::vector <Vertex> vertices, 
 		const std::vector <uint32> indices, 
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
+		Script<Mesh>* script = new Script<Mesh>,
 		const bool visible = true,
 		const uint32 tag = 0,
 		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
@@ -124,6 +143,8 @@ public:
 private:
 	std::vector <Vertex> m_vertices;
 	std::vector <uint32> m_indices;
+
+	LYRA_NODE_SCRIPT_MEMBER(Mesh)
 
 	/**
 	 * @brief create a mesh from a already loaded .obj file
