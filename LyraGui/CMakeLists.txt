@@ -15,6 +15,7 @@ set(TOL_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(JOLT_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(MANAGER_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 find_package(LYRA REQUIRED)
@@ -26,6 +27,7 @@ find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
+find_package(JOLT REQUIRED)
 find_package(Vulkan REQUIRED)
 
 include_directories(
@@ -49,4 +51,4 @@ add_executable(LyraGui
 	"src/main.cpp"
 )
 
-target_link_libraries(LyraGui ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)
+target_link_libraries(LyraGui ${SDL2_LIBRARIES} ${JOLT_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} ${LYRA_LIBRARIES} Vulkan::Vulkan)

@@ -1,22 +1,23 @@
 #define SDL_MAIN_HANDLED
 #define LYRA_LOG_FILE
 
+#include <Jolt/Jolt.h>
 #include <core/logger.h>
 #include <core/application.h>
 #include <core/application.h>
-#include <core/rendering/gui_renderer.h>
 #include <core/rendering/material.h>
 #include <core/rendering/vulkan/descriptor.h>
 #include <core/rendering/vulkan/vulkan_window.h>
 #include <core/rendering/graphics_pipeline.h>
 #include <core/rendering/vulkan/vulkan_shader.h>
 #include <core/rendering/vulkan/vulkan_pipeline.h>
+#include <core/rendering/gui_renderer.h>
 #include <nodes/mesh/mesh.h>
 #include <nodes/mesh/mesh_renderer.h>
 #include <nodes/graphics/camera.h>
 #include <nodes/spatial.h>
 #include <core/rendering/texture.h>
-#include <menus.h>
+#include <imgui.h>
 
 #include <array>
 /** 
@@ -51,6 +52,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	Application app;
 
 	lyra::Spatial scene("Root"); // I'm sorry godot devs
+
 	lyra::Camera camera("Camera", &scene);
 
 	lyra::Texture roomTexture("data/img/viking_room.png");
@@ -61,6 +63,9 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	// material
 	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(), &roomTexture);
+
+	lyra::gui::GUIRenderer guiRenderer;
+	guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
 	app.draw();
 

@@ -14,6 +14,7 @@ set(STB_DIR ${CMAKE_SOURCE_DIR}/cmake) # temporary
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(LZ4_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(JSON_DIR ${CMAKE_SOURCE_DIR}/cmake)
+set(JOLT_DIR ${CMAKE_SOURCE_DIR}/cmake)
 set(ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 # find path to libraries
@@ -25,6 +26,7 @@ find_package(TOL REQUIRED)
 find_package(IMGUI REQUIRED)
 find_package(LZ4 REQUIRED)
 find_package(JSON REQUIRED)
+find_package(JOLT REQUIRED)
 find_package(Vulkan REQUIRED)
 
 # includes
@@ -68,7 +70,7 @@ add_library(LyraEngine
 )
 
 # add_dependencies(LyraEngine build_shaders)
-target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} Vulkan::Vulkan)
+target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${JOLT_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} Vulkan::Vulkan)
 
 target_precompile_headers(LyraEngine
 PRIVATE
