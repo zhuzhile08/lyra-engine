@@ -1,18 +1,16 @@
 #include <rendering/window.h>
 
-#include <core/settings.h>
-
-#include <core/logger.h>
+#include <SDL_error.h>
 #include <backends/imgui_impl_sdl.h>
 
-#include <SDL_error.h>
+#include <core/settings.h>
+#include <core/logger.h>
+#include <core/util.h>
 
 namespace lyra {
 
 Window::Window() noexcept {
 	Logger::log_info("Creating SDL window...");
-
-	m_eventQueue = new CallQueue;
 
 	uint32 flags = SDL_WINDOW_VULKAN;
 
@@ -32,20 +30,19 @@ Window::Window() noexcept {
 Window::~Window() noexcept {
 	m_running = false;
 
-	delete m_eventQueue;
 	SDL_DestroyWindow(m_window);
 
 	Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
 }
 
 void Window::check_events(std::function<void()>&& function) {
-	m_eventQueue->add(std::move(function));
+	m_eventQueue.add(std::move(function));
 }
 
 void Window::events() noexcept {
 	if (SDL_PollEvent(&m_event)) {
 		m_changed = false;
-		m_eventQueue->flush();
+		m_eventQueue.flush();
 
 		// check for quitting
 		if (m_event.type == SDL_QUIT)

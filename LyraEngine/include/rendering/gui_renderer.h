@@ -4,7 +4,7 @@
 
 #include <core/decl.h>
 #include <core/util.h>
-#include <core/queue_types.h>
+#include <core/queue.h>
 
 #include <rendering/renderer.h>
 

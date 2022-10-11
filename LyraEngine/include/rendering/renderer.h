@@ -16,7 +16,7 @@
 #include <vulkan/vulkan.h>
 
 #include <core/decl.h>
-#include <core/queue_types.h>
+#include <core/queue.h>
 
 namespace lyra {
 

@@ -13,11 +13,12 @@
 
 #pragma once
 
-#include <core/decl.h>
-
 #include <functional>
 
 #include <SDL.h>
+
+#include <core/decl.h>
+#include <core/queue.h>
 
 namespace lyra {
 
@@ -58,14 +59,12 @@ public:
 	 * @param event that is occuring
 	 */
 	void events() noexcept;
-
 	/**
 	 * @brief add a function to the event queue
 	 *
 	 * @param function the function
 	*/
 	void check_events(std::function<void()>&& function);
-
 	/**
 	 * @brief wait until an event was detected
 	 */
@@ -100,7 +99,7 @@ private:
 	SDL_Window* m_window;
 	SDL_Event m_event;
 
-	CallQueue* m_eventQueue;
+	CallQueue m_eventQueue;
 
 	bool m_fullscreen = false;
 	bool m_running = true;

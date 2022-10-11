@@ -6,7 +6,7 @@
 
 #include <core/logger.h>
 
-#include <core/queue_types.h>
+#include <core/queue.h>
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>

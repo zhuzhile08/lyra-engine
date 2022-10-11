@@ -1,3 +1,14 @@
+/*************************
+ * @file queue.h
+ * @author zhuzhile08 (zhuzhile08@gmail.com)
+ * 
+ * @brief A function pointer queue that executes the functions from first to last added
+ * 
+ * @date 2022-06-09
+ * 
+ * @copyright Copyright (c) 2022
+ *************************/
+
 #pragma once
 
 #include <core/decl.h>

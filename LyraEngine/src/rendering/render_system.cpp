@@ -4,7 +4,7 @@
 #include <core/util.h>
 
 #include <core/settings.h>
-#include <core/queue_types.h>
+#include <core/queue.h>
 
 #include <rendering/window.h>
 #include <rendering/renderer.h>
