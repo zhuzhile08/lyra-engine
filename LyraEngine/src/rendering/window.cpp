@@ -35,27 +35,4 @@ Window::~Window() noexcept {
 	Logger::log_info("Successfully destroyed SDL window!", Logger::tab());
 }
 
-void Window::check_events(std::function<void()>&& function) {
-	m_eventQueue.add(std::move(function));
-}
-
-void Window::events() noexcept {
-	if (SDL_PollEvent(&m_event)) {
-		m_changed = false;
-		m_eventQueue.flush();
-
-		// check for quitting
-		if (m_event.type == SDL_QUIT)
-		{
-			m_running = false;
-		}
-
-		if (m_event.type == SDL_WINDOWEVENT) {
-			if (m_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				m_changed = true;
-			}
-		}
-	}
-}
-
 }
