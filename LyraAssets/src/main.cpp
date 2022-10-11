@@ -13,7 +13,7 @@ int main() {
 	std::string answerBuffer;
 
 	Logger::log_info("Lyra command line asset compression tool [Version ", VERSION, "]");
-	Logger::log_info("(c) 2022 Zhile Zhu", Logger::end_l());
+	Logger::log_info("(c) 2022", Logger::end_l());
 	ask_for_path(answerBuffer);
 }
 

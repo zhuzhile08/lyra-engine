@@ -1,6 +1,6 @@
 /***
  * @file log.h
- * @author Zhu Zhile (zhuzhile08@gmail.com)
+ * @author zhuzhile08 (zhuzhile08@gmail.com)
  *
  * @brief header with loggers
  * @brief function-esque macros for debugging

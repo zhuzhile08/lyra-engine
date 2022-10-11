@@ -1,4 +1,4 @@
-/**
+/*************************
  * @file rigidbody.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
@@ -7,7 +7,7 @@
  * @date 2022-10-10
  * 
  * @copyright Copyright (c) 2022
- */
+ *************************/
 
 #pragma once
 

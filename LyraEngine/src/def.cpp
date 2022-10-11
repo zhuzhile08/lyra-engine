@@ -6,7 +6,7 @@
  *
  * @date 2022-02-05
  *
- * @copyright Copyright (c) 2022 Zhile Zhu
+ * @copyright Copyright (c) 2022
  *************************/
 
 #include "core/logger.cpp"

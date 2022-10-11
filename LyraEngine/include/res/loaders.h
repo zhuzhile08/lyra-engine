@@ -6,7 +6,7 @@
  * 
  * @date 2022-03-05
  * 
- * @copyright Copyright (c) 2022 Zhile Zhu
+ * @copyright Copyright (c) 2022
  *************************/
 
 #pragma once
