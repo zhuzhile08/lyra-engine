@@ -18,7 +18,7 @@
 
 #include <glm.hpp>
 
-#include <core/util.h>
+#include <core/smart_pointer.h>
 #include <core/settings.h>
 
 #include <rendering/vulkan/GPU_buffer.h>

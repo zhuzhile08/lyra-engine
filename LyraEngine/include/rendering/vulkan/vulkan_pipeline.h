@@ -16,7 +16,7 @@
 #include <vulkan/vulkan.h>
 
 #include <core/decl.h>
-#include <core/util.h>
+#include <core/smart_pointer.h>
 
 namespace lyra {
 

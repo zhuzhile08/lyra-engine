@@ -3,7 +3,7 @@
 #include <functional>
 
 #include <core/decl.h>
-#include <core/util.h>
+#include <core/smart_pointer.h>
 #include <core/queue.h>
 
 #include <rendering/renderer.h>

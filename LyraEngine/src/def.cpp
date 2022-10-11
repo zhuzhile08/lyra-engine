@@ -33,3 +33,5 @@
 #include "rendering/renderer.cpp"
 #include "rendering/texture.cpp"
 #include "rendering/window.cpp"
+
+#include "core/benchmark.inl"
