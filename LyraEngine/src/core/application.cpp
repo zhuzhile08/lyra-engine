@@ -28,7 +28,6 @@ void Application::draw() {
 	while (m_window.running()) {
 		m_lastTime = std::move(m_currentTime);
 		
-		m_window.events();
 		Input::update();
 		m_renderSystem.update();
 		m_renderSystem.draw();
