@@ -49,7 +49,7 @@ class CameraScript : public lyra::Script<lyra::Camera> {
 	void update(void) override {
 		node->rotate({ 0.0f, 0.0f, 60 * 90.0f });
 		node->look_at({ 0.0f, 0.0f, 0.0f });
-		if (lyra::Input::check_keyboard(lyra::Input::Keyboard::KEYBOARD_e)) {
+		if (lyra::Input::check_keyboard(lyra::Input::Keyboard::KEYBOARD_E)) {
 			lyra::Logger::log_warning("how tf does this work");
 		}
 	}
