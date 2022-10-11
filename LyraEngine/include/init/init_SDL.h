@@ -2,7 +2,7 @@
  * @file init_SDL.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief initialize of quit the SDL2 libary (https://www.libsdl.org/download-2.0.php)
+ * @brief initialize and quit the SDL2 libary (https://www.libsdl.org/download-2.0.php)
  * 
  * @date 2022-02-03
  * 
