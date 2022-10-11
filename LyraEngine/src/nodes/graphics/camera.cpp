@@ -42,6 +42,7 @@ Camera::Camera(
 	// binding information
 	std::vector<vulkan::Pipeline::Binding> bindings{
 		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
 		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
 		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
 		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
@@ -51,20 +52,23 @@ Camera::Camera(
 		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1,Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
 	};
 
-	// push constants
-	std::vector<VkPushConstantRange> pushConstants {
-		{ VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(CameraData) }
-	};
-
 	// create the graphics pipeline
 	m_renderPipeline = SmartPointer<GraphicsPipeline>::create(
 		this,
 		shaders,
 		bindings,
-		pushConstants,
+		std::vector<VkPushConstantRange> {},
 		Application::renderSystem()->vulkanWindow()->extent(),
 		Application::renderSystem()->vulkanWindow()->extent()
 		);
+
+
+	// preallocate the memory for the buffer that sends the camera data to the shaders
+	m_buffers.reserve(Settings::Rendering::maxFramesInFlight);
+	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) { 
+		// create the buffers that send the camera information to the shaders and copy in the information
+		m_buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	}
 
 	m_script->node = this;
 	m_script->init();
@@ -91,17 +95,17 @@ void Camera::set_orthographic(glm::vec4 viewport, float near, float far) noexcep
 	m_projection_matrix[1][1] *= -1;
 }
 
-void Camera::draw() const {
+void Camera::draw() {
 	// update the script
 	m_script->update();
 	// check wich projection model the camera uses and calculate the projection data
 	CameraData data {mat_to_global(), m_projection_matrix};
 
 	// copy the data into the shader
-	Application::renderSystem()->currentCommandBuffer().pushConstants(m_renderPipeline->layout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(CameraData), &data);
+	m_buffers.at(Application::renderSystem()->currentFrame()).copy_data(&data);
 }
 
-void Camera::record_command_buffers() const {
+void Camera::record_command_buffers() {
 	// begin the renderpass
 	begin_renderpass();
 	// bind the default render pipeline

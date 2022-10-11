@@ -96,7 +96,7 @@ void GUIRenderer::add_draw_call(std::function<void()>&& func) {
 	m_drawQueue.add(std::move(func));
 }
 
-void GUIRenderer::record_command_buffers() const {
+void GUIRenderer::record_command_buffers() {
 	begin_renderpass();
 
 	// begin drawing

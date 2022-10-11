@@ -119,9 +119,16 @@ public:
 	 * @return const float
 	*/
 	NODISCARD const glm::vec4 viewport() const noexcept { return m_viewport; }
+	/**
+	 * @brief get the camera data buffers
+	 * 
+	 * @return const std::vector<vulkan::GPUBuffer>&
+	 */
+	NODISCARD const std::vector<vulkan::GPUBuffer>& buffers() const noexcept { return m_buffers; }
 
 private:
 	std::vector<Material*> m_materials;
+	std::vector<vulkan::GPUBuffer> m_buffers;
 	SmartPointer<GraphicsPipeline> m_renderPipeline;  
 
 	float m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_depth = 1.0f;
@@ -134,11 +141,11 @@ private:
 	/**
 	 * @brief draw function
 	*/
-	void draw() const;
+	void draw();
 	/**
 	 * @brief record the command buffer
 	 */
-	void record_command_buffers() const override;
+	void record_command_buffers() override;
 
 	friend class RenderSystem;
 	friend class Material;

@@ -40,7 +40,7 @@ private:
 	/**
 	 * @brief record the command buffer
 	 */
-	void record_command_buffers() const override;
+	void record_command_buffers() override;
 };
 
 } // namespace gui

@@ -72,7 +72,7 @@ protected:
 	 */
 	void end_renderpass() const;
 
-	virtual void record_command_buffers() const = 0;
+	virtual void record_command_buffers() = 0;
 
 	friend class RenderSystem;
 };

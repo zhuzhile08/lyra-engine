@@ -83,18 +83,20 @@ Material::Material(
 	// create the descriptor set
 	vulkan::Descriptor::Writer writer;
 	writer.add_writes({ // write the images
-		{ (m_normalMapTexture) ? m_normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (m_heightMapTexture) ? m_heightMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 2, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (m_albedoTexture) ? m_albedoTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 4, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (m_metallicTexture) ? m_metallicTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 5, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (m_emissionTexture) ? m_emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 6, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (m_occlusionMapTexture) ? m_occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_normalMapTexture) ? m_normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 2, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_heightMapTexture) ? m_heightMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 3, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_albedoTexture) ? m_albedoTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 5, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_metallicTexture) ? m_metallicTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 6, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_emissionTexture) ? m_emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_occlusionMapTexture) ? m_occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
 		});
 	writer.add_writes({ // write the buffers
 		{ m_vertShaderBuffers.at(0).get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		{ m_vertShaderBuffers.at(1).get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers.at(0).get_descriptor_buffer_info(), 3, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers.at(1).get_descriptor_buffer_info(), 3, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ camera->buffers().at(0).get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ camera->buffers().at(1).get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers.at(0).get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers.at(1).get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		});
 
 	// create the descriptors
@@ -109,8 +111,6 @@ void Material::draw() const {
 	Application::renderSystem()->currentCommandBuffer().bindDescriptorSet(camera->m_renderPipeline->bindPoint(), camera->m_renderPipeline->layout(), 0, 
 		m_descriptors.at(Application::renderSystem()->currentFrame()).get());
 
-	// then draw all the meshes
-	camera->draw();
 	for (int i = 0; i < m_meshRenderers.size(); i++) m_meshRenderers.at(i)->draw();
 }
 
