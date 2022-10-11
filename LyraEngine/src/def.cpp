@@ -9,10 +9,10 @@
  * @copyright Copyright (c) 2022 Zhile Zhu
  *************************/
 
-#include "logger.cpp"
-#include "settings.cpp"
+#include "core/logger.cpp"
+#include "core/settings.cpp"
 
-#include "application.cpp"
+#include "core/application.cpp"
 
 #include "rendering/vulkan/command_buffer.cpp"
 #include "rendering/vulkan/command_buffer.inl"
