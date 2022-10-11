@@ -20,25 +20,6 @@
 #include <imgui.h>
 
 #include <array>
-/** 
-class Camera : public lyra::Node, public lyra::Camera {
-public:
-	Camera() { init(); }
-
-	void update(void) override {
-		CameraData data;
-		rotate({ 0.0f, 0.0f, lyra::Application::fps() * 90.0f });
-		look_at({ 0.0f, 0.0f, 0.0f });
-		data.model = m_localTransformMatrix;
-	}
-
-	void init(void) override {
-		set_position({2.0f, 2.0f, 2.0f});
-		set_perspective();
-		add_to_update_queue(FUNC_PTR(update();));
-	}
-};
- */
 
 class CameraScript : public lyra::Script<lyra::Camera> {
 	void init(void) override {
@@ -49,8 +30,20 @@ class CameraScript : public lyra::Script<lyra::Camera> {
 	void update(void) override {
 		node->rotate({ 0.0f, 0.0f, 60 * 90.0f });
 		node->look_at({ 0.0f, 0.0f, 0.0f });
-		if (lyra::Input::check_keyboard(lyra::Input::Keyboard::KEYBOARD_E)) {
+		if (lyra::Input::check_key(lyra::Input::Keyboard::KEYBOARD_W)) {
 			lyra::Logger::log_warning("how tf does this work");
+		}
+		if (lyra::Input::check_key_down(lyra::Input::Keycode::KEYCODE_a)) {
+			lyra::Logger::log_warning("how tf does this work2");
+		}
+		if (lyra::Input::check_key_up(lyra::Input::Keycode::KEYCODE_d)) {
+			lyra::Logger::log_warning("how tf does this work3");
+		}
+		if (lyra::Input::check_mouse_button_down(lyra::Input::Mouse::MOUSE_LEFT)) {
+			lyra::Logger::log_warning("how tf does this work4");
+		}
+		if (lyra::Input::check_mouse_button(lyra::Input::MouseMask::MASK_MIDDLE)) {
+			lyra::Logger::log_warning("how tf does this work5");
 		}
 	}
 };

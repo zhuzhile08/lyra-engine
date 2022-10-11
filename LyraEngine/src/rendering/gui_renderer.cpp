@@ -5,8 +5,8 @@
 #include <backends/imgui_impl_sdl.h>
 
 #include <core/logger.h>
-
 #include <core/queue.h>
+#include <core/util.h>
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
@@ -80,8 +80,6 @@ GUIRenderer::GUIRenderer() : Renderer() {
 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
-	
-	const_cast<Window*>(Application::window())->check_events(FUNC_PTR( ImGui_ImplSDL2_ProcessEvent(&Application::window()->event()); ));
 
 	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
