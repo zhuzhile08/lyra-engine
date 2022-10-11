@@ -4,18 +4,18 @@
 #include <Jolt/Jolt.h>
 #include <core/logger.h>
 #include <core/application.h>
-#include <core/rendering/material.h>
-#include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/vulkan/vulkan_window.h>
-#include <core/rendering/graphics_pipeline.h>
-#include <core/rendering/vulkan/vulkan_shader.h>
-#include <core/rendering/vulkan/vulkan_pipeline.h>
-#include <core/rendering/gui_renderer.h>
+#include <rendering/material.h>
+#include <rendering/vulkan/descriptor.h>
+#include <rendering/vulkan/vulkan_window.h>
+#include <rendering/graphics_pipeline.h>
+#include <rendering/vulkan/vulkan_shader.h>
+#include <rendering/vulkan/vulkan_pipeline.h>
+#include <rendering/gui_renderer.h>
 #include <nodes/mesh/mesh.h>
 #include <nodes/mesh/mesh_renderer.h>
 #include <nodes/graphics/camera.h>
 #include <nodes/spatial.h>
-#include <core/rendering/texture.h>
+#include <rendering/texture.h>
 #include <imgui.h>
 
 #include <array>

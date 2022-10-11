@@ -13,7 +13,7 @@
 
 #include <nodes/spatial.h>
 
-#include <core/rendering/texture.h>
+#include <rendering/texture.h>
 #include <nodes/mesh/mesh.h>
 #include <nodes/mesh/mesh_renderer.h>
 
@@ -21,21 +21,20 @@
 
 namespace lyra {
 
+/**
 class Cubemap : public Spatial {
 public:
-	Cubemap() noexcept { }
-
-	/**
 	 * @brief construct a new cubemap
 	 * 
 	 * @param path paths of the images for the cubemap
-	 */
+
 	Cubemap(std::array<const char*, 6> path) { }
 
 private:
 	std::array<Texture, 6> textures;
-	Mesh cube;
-	MeshRenderer cubeRenderer;
+	// Mesh cube;
+	// MeshRenderer cubeRenderer;
 };
+*/
 
 } // namespace lyra

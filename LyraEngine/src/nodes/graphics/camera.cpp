@@ -7,12 +7,12 @@
 
 #include <nodes/script.h>
 
-#include <core/rendering/vulkan/vulkan_shader.h>
-#include <core/rendering/vulkan/vulkan_pipeline.h>
-#include <core/rendering/graphics_pipeline.h>
-#include <core/rendering/vulkan/descriptor.h>
-#include <core/rendering/material.h>
-#include <core/rendering/vulkan/vulkan_window.h>
+#include <rendering/vulkan/vulkan_shader.h>
+#include <rendering/vulkan/vulkan_pipeline.h>
+#include <rendering/graphics_pipeline.h>
+#include <rendering/vulkan/descriptor.h>
+#include <rendering/material.h>
+#include <rendering/vulkan/vulkan_window.h>
 
 #include <core/application.h>
 

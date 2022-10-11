@@ -21,8 +21,8 @@
 #include <core/util.h>
 #include <core/settings.h>
 
-#include <core/rendering/vulkan/GPU_buffer.h>
-#include <core/rendering/renderer.h>
+#include <rendering/vulkan/GPU_buffer.h>
+#include <rendering/renderer.h>
 
 #include <nodes/spatial.h>
 

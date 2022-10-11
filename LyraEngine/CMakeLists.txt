@@ -66,7 +66,7 @@ add_library(LyraEngine
 	"src/math/math.cpp"
 	"src/res/loaders.cpp"
 	"src/nodes/nodes.cpp" 
-	"src/core/def.cpp"
+	"src/def.cpp"
 )
 
 # add_dependencies(LyraEngine build_shaders)

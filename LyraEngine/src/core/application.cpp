@@ -1,9 +1,9 @@
 #include <core/application.h>
 
-#include <core/rendering/window.h>
-#include <core/rendering/render_system.h>
+#include <rendering/window.h>
+#include <rendering/render_system.h>
 
-#include <core/rendering/vulkan/devices.h>
+#include <rendering/vulkan/devices.h>
 
 #include <init/init_SDL.h>
 #include <core/logger.h>

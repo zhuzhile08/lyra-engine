@@ -12,8 +12,8 @@
 
 #pragma once
 
-#include <core/rendering/render_system.h>
-#include <core/rendering/window.h>
+#include <rendering/render_system.h>
+#include <rendering/window.h>
 
 namespace lyra {
 

@@ -2,8 +2,8 @@
 
 #include <nodes/mesh/mesh.h>
 
-#include <core/rendering/vulkan/command_buffer.h>
-#include <core/rendering/vulkan/GPU_buffer.h>
+#include <rendering/vulkan/command_buffer.h>
+#include <rendering/vulkan/GPU_buffer.h>
 
 #include <core/application.h>
 
