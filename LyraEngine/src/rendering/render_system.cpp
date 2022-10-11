@@ -1,10 +1,11 @@
 #include <rendering/render_system.h>
 
 #include <core/logger.h>
-#include <core/util.h>
-
 #include <core/settings.h>
 #include <core/queue.h>
+#include <core/util.h>
+
+#include <input/input.h>
 
 #include <rendering/window.h>
 #include <rendering/renderer.h>
@@ -113,7 +114,7 @@ void RenderSystem::present_device_queue() {
 		SDL_WindowFlags flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
 			flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
-			window->wait_events();
+			Input::wait_events();
 		}
 
 		m_vulkanWindow.recreate();
