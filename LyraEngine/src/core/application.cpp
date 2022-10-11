@@ -1,5 +1,7 @@
 #include <core/application.h>
 
+#include <input/input.h>
+
 #include <rendering/window.h>
 #include <rendering/render_system.h>
 
@@ -25,6 +27,8 @@ Application::~Application() {
 void Application::draw() {
 	while (m_window.running()) {
 		m_lastTime = std::move(m_currentTime);
+		
+		Input::update();
 
 		m_window.events();
 		m_renderSystem.update();

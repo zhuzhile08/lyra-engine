@@ -34,4 +34,6 @@
 #include "rendering/texture.cpp"
 #include "rendering/window.cpp"
 
+#include "input/input.cpp"
+
 #include "core/benchmark.inl"
