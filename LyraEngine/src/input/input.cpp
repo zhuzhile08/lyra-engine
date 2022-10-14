@@ -5,52 +5,45 @@
 namespace lyra {
 
 const bool Input::check_key(Keyboard event) {
-	if (m_keyboardState[static_cast<SDL_Scancode>(event)]) return true;
-	else return false;
+	return m_keyboardState[static_cast<SDL_Scancode>(event)];
 }
 
-const bool Input::check_key_down(Keycode event) {
-	if (m_events.type == SDL_KEYDOWN && m_events.key.keysym.sym == static_cast<SDL_Keycode>(event)) return true;
-	else return false;
+const bool Input::check_key_down(Keyboard event) {
+	return m_keyboardState[static_cast<SDL_Scancode>(event)] && !m_prevKeyboardState[static_cast<SDL_Scancode>(event)];
 }
 
-const bool Input::check_key_up(Keycode event) {
-	if (m_events.type == SDL_KEYUP && m_events.key.keysym.sym == static_cast<SDL_Keycode>(event)) return true;
-	else return false;
+const bool Input::check_key_up(Keyboard event) {
+	return !m_keyboardState[static_cast<SDL_Scancode>(event)] && m_prevKeyboardState[static_cast<SDL_Scancode>(event)];
 }
 
-const bool Input::check_mouse_button(MouseMask mouse) {
-	uint8 mouseEvents = SDL_GetMouseState(nullptr, nullptr);
-	if ((mouseEvents & static_cast<uint8>(mouse)) != 0) return true;
-	else return false;
+const bool Input::check_mouse_button(Mouse mouse) {
+	return (m_mouseState & static_cast<uint8>(mouse)) != 0;
 }
 
 const bool Input::check_mouse_button_down(Mouse mouse) {
-	if (m_events.type == SDL_MOUSEBUTTONDOWN && m_events.button.button == static_cast<uint8>(mouse)) return true;
-	else return false;
+	return (m_mouseState & static_cast<uint8>(mouse)) && !(m_prevMouseState & static_cast<uint8>(mouse));
 }
 
 const bool Input::check_mouse_button_up(Mouse mouse) {
-	if (m_events.type == SDL_MOUSEBUTTONUP && m_events.button.button == static_cast<uint8>(mouse)) return true;
-	else return false;
+	return !(m_mouseState & static_cast<uint8>(mouse)) && (m_prevMouseState & static_cast<uint8>(mouse));
 }
 
 const glm::vec2 Input::check_mouse_position() {
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	glm::vec2 mousePos = {x, y};
-	return mousePos;
-}
+	return m_mousePos;
+}	
 
 void Input::check_mouse_position(glm::vec2& mousePos) {
-	int x, y;
-	SDL_GetMouseState(&x, &y);
-	mousePos = {x, y};
+	mousePos = m_mousePos;
 }
 
 void Input::update() {
+	// get new events and set the passed events
+	memcpy(m_prevKeyboardState, m_keyboardState, m_keyCount);
+	m_prevMouseState = m_mouseState;
 	SDL_PumpEvents();
+	m_mouseState = SDL_GetMouseState(&m_mousePos.x, &m_mousePos.y);
 
+	// poll fixed events
 	while (SDL_PollEvent(&m_events)) {
 		Application::window()->m_changed = false;
 
@@ -67,7 +60,15 @@ void Input::update() {
 	}
 }
 
-const uint8* Input::m_keyboardState = SDL_GetKeyboardState(nullptr);
+int Input::m_keyCount;
+const uint8* Input::m_keyboardState = SDL_GetKeyboardState(&Input::m_keyCount);
+uint8* Input::m_prevKeyboardState = new uint8[Input::m_keyCount];
+
+glm::ivec2 Input::m_mousePos;
+
+uint32 Input::m_mouseState = SDL_GetMouseState(&Input::m_mousePos.x, &Input::m_mousePos.y);
+uint32 Input::m_prevMouseState = m_mouseState;
+
 SDL_Event Input::m_events;
 
 } // namespace lyra

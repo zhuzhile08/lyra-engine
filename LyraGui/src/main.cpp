@@ -30,20 +30,23 @@ class CameraScript : public lyra::Script<lyra::Camera> {
 	void update(void) override {
 		node->rotate({ 0.0f, 0.0f, 60 * 90.0f });
 		node->look_at({ 0.0f, 0.0f, 0.0f });
-		if (lyra::Input::check_key(lyra::Input::Keyboard::KEYBOARD_W)) {
-			lyra::Logger::log_warning("how tf does this work");
+		if (lyra::Input::check_key_down(lyra::Input::Keyboard::KEYBOARD_A)) {
+			lyra::Logger::log_warning("how tf does this work1");
 		}
-		if (lyra::Input::check_key_down(lyra::Input::Keycode::KEYCODE_a)) {
+		if (lyra::Input::check_key(lyra::Input::Keyboard::KEYBOARD_A)) {
 			lyra::Logger::log_warning("how tf does this work2");
 		}
-		if (lyra::Input::check_key_up(lyra::Input::Keycode::KEYCODE_d)) {
+		if (lyra::Input::check_key_up(lyra::Input::Keyboard::KEYBOARD_A)) {
 			lyra::Logger::log_warning("how tf does this work3");
 		}
 		if (lyra::Input::check_mouse_button_down(lyra::Input::Mouse::MOUSE_LEFT)) {
 			lyra::Logger::log_warning("how tf does this work4");
 		}
-		if (lyra::Input::check_mouse_button(lyra::Input::MouseMask::MASK_MIDDLE)) {
+		if (lyra::Input::check_mouse_button(lyra::Input::Mouse::MOUSE_LEFT)) {
 			lyra::Logger::log_warning("how tf does this work5");
+		}
+		if (lyra::Input::check_mouse_button_up(lyra::Input::Mouse::MOUSE_LEFT)) {
+			lyra::Logger::log_warning("how tf does this work6");
 		}
 	}
 };
