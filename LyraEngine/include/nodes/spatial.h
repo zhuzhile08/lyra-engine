@@ -38,12 +38,6 @@ public:
 		ROTATION_ZYX
 	};
 
-	// space to transform/rotate/scale the object
-	enum class Space {
-		SPACE_LOCAL,
-		SPACE_GLOBAL
-	};
-
 	/**
 	 * @brief construct a transform component
 	 *
@@ -72,7 +66,7 @@ public:
 	/**
 	 * @brief construct a transform component
 	 * @brief this function is only meant for library internal use, please don't actually use this
-	 * @brief but hey, Here's a good meme for finding this goofy ahh function
+	 * @brief but hey, Here's a good meme for finding this function
 	 * @brief https://cdn.discordapp.com/attachments/841451660059869194/1028773573290119188/MemeFeedBot.mp4
 	 *
 	 * @param name name of the object
@@ -98,55 +92,76 @@ public:
 		Script<Spatial>* script = new Script<Spatial>
 	) noexcept : Node(name, parent, visible, tag), m_position(position), m_rotation(rotation), m_scale(scale), m_rotationOrder(rotationOrder), m_script(script) { m_script->init(); }
 
-	
 	/**
-	 * @brief move the object
-	 *
-	 * @param velocity velocity to move the object
-	 * @param space space to translate the object in
+	 * @brief 
+	 * 
+	 * @param rotation 
 	 */
-	void translate(glm::vec3 velocity, Space space = Space::SPACE_LOCAL) { set_position(m_position + velocity, space); }
+	// void rotate_global(glm::vec3 rotation);
 	/**
-	 * @brief rotate the game object
-	 *
-	 * @param rotation rotation in degrees
-	 * @param space space to rotate the object in
+	 * @brief 
+	 * 
+	 * @param scale 
 	 */
-	void rotate(glm::vec3 rotation, Space space = Space::SPACE_LOCAL) {
-		set_rotation(m_rotation + rotation, space);
-	}
+	// void scale_global(glm::vec3 scale);
 	/**
-	 * @brief look at a position
-	 *
-	 * @param target target to look at
-	 * @param up up vector
+	 * @brief 
+	 * 
+	 * @param position 
+	 */
+	// void global_position(glm::vec3 position);
+	/**
+	 * @brief look at a target
+	 * 
+	 * @param target target position
+	 * @param up up vector, default z axis
 	 */
 	void look_at(glm::vec3 target, glm::vec3 up = { 0.0f, 0.0f, 1.0f });
-	
 	/**
-	 * @brief get the local position
-	 *
-	 * @return const glm::vec3
-	*/
-	NODISCARD const glm::vec3 position_global() const noexcept { return m_position + m_parent->position_global(); };
+	 * @brief look at a target from a new position
+	 * 
+	 * @param position position
+	 * @param target target position
+	 * @param up up vector
+	 */
+	void look_at_from_position(glm::vec3 position, glm::vec3 target, glm::vec3 up = { 0.0f, 0.0f, 1.0f });
 	/**
-	 * @brief get the global rotation
-	 *
-	 * @return const glm::vec3
-	*/
-	NODISCARD const glm::vec3 rotation_global() const noexcept { return m_rotation + ((m_parent == nullptr) ? glm::vec3(0.0f) : m_parent->rotation_global()); };
+	 * @brief rotate the object
+	 * 
+	 * @param rotation rotation
+	 */
+	void rotate(glm::vec3 rotation) { m_rotation += rotation; }
 	/**
-	 * @brief get the global scale
-	 *
-	 * @return const glm::vec3
-	*/
-	NODISCARD const glm::vec3 scale_global() const noexcept { return m_scale + ((m_parent == nullptr) ? glm::vec3(0.0f) : m_parent->scale_global()); };
+	 * @brief rotate around the x axis
+	 * 
+	 * @param x x rotation
+	 */
+	void rotate_x(float x) { m_rotation.x += x; }
+	/**
+	 * @brief rotate around the y axis
+	 * 
+	 * @param y y rotation
+	 */
+	void rotate_y(float y) { m_rotation.y += y; }
+	/**
+	 * @brief rotate around the z axis
+	 * 
+	 * @param z z rotation
+	 */
+	void rotate_z(float z) { m_rotation.z += z; }
+	/**
+	 * @brief translate the object by a certain amount
+	 * 
+	 * @param position 
+	 */
+	void translate(glm::vec3 position) { m_position += position; }
+
 	/**
 	 * @brief convert the local matrix to a global one
 	 *
 	 * @return const glm::vec4
 	*/
-	NODISCARD const glm::mat4 mat_to_global() const noexcept { return m_localTransformMatrix + ((m_parent == nullptr) ? glm::mat4(0.0f) : m_parent->mat_to_global()); };
+	NODISCARD const glm::mat4 mat_to_global() const noexcept { return m_localTransformMatrix * ((m_parent == nullptr) ? glm::mat4(0.0f) : m_parent->mat_to_global()); };
 
 	/**
 	 * @brief set the position
@@ -154,14 +169,14 @@ public:
 	 * @param newPosition new position
 	 * @param space space to move the object in
 	*/
-	void set_position(glm::vec3 newPosition, Space space = Space::SPACE_LOCAL) noexcept;
+	void set_position(glm::vec3 newPosition) noexcept { m_position = newPosition; }
 	/**
 	 * @brief set the rotation
 	 *
 	 * @param newRotation new rotation in degrees
 	 * @param space space to move the object in
 	*/
-	void set_rotation(glm::vec3 newRotation, Space space = Space::SPACE_LOCAL) noexcept;
+	void set_rotation(glm::vec3 newRotation) noexcept { m_rotation = newRotation; }
 	/**
 	 * @brief set the scale
 	 *
@@ -174,19 +189,19 @@ public:
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 position_local() const noexcept { return m_position; };
+	NODISCARD const glm::vec3 position() const noexcept { return m_position; };
 	/**
 	 * @brief get the local rotation
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 rotation_local() const noexcept { return m_rotation; };
+	NODISCARD const glm::vec3 rotation() const noexcept { return m_rotation; };
 	/**
 	 * @brief get the local scale
 	 *
 	 * @return const glm::vec3
 	*/
-	NODISCARD const glm::vec3 scale_local() const noexcept { return m_scale; };
+	NODISCARD const glm::vec3 scale() const noexcept { return m_scale; };
 	/**
 	 * @brief get the order of rotation
 	 *
@@ -195,13 +210,13 @@ public:
 	NODISCARD const RotationOrder rotationOrder() const noexcept { return m_rotationOrder; }
 
 protected:
+	// everything is local
 	glm::vec3 m_position = { 0.0f, 0.0f, 0.0f }, m_rotation = { 0.0f, 0.0f, 0.0f }, m_scale = { 1.0f, 1.0f, 1.0f };
 	RotationOrder m_rotationOrder = RotationOrder::ROTATION_ZYX;
 	glm::mat4 m_localTransformMatrix = glm::mat4(1.0f);
 
 	LYRA_NODE_SCRIPT_MEMBER(Spatial)
 
-private:
 	/**
 	 * @brief calculate the transformation matrix based on the parent rotation matrix and the current rotation
 	 */

@@ -22,7 +22,7 @@ layout(location = 0) out vec3 outColor;
 layout(location = 1) out vec2 outTexCoord;
 
 void main() {
-	gl_Position = ubo.proj * ubo.model * vec4(inPosition, 1.0f);
+	gl_Position = ubo.model * ubo.proj * vec4(inPosition, 1.0f);
 	outColor = inColor;
 	outTexCoord = inUV;
 }

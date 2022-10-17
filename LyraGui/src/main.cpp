@@ -24,30 +24,7 @@
 class CameraScript : public lyra::Script<lyra::Camera> {
 	void init(void) override {
 		node->set_position({2.0f, 2.0f, 2.0f});
-		node->set_perspective();
-	}
-
-	void update(void) override {
-		node->rotate({ 0.0f, 0.0f, 60 * 90.0f });
-		node->look_at({ 0.0f, 0.0f, 0.0f });
-		if (lyra::Input::check_key_down(lyra::Input::Keyboard::KEYBOARD_A)) {
-			lyra::Logger::log_warning("how tf does this work1");
-		}
-		if (lyra::Input::check_key(lyra::Input::Keyboard::KEYBOARD_A)) {
-			lyra::Logger::log_warning("how tf does this work2");
-		}
-		if (lyra::Input::check_key_up(lyra::Input::Keyboard::KEYBOARD_A)) {
-			lyra::Logger::log_warning("how tf does this work3");
-		}
-		if (lyra::Input::check_mouse_button_down(lyra::Input::Mouse::MOUSE_LEFT)) {
-			lyra::Logger::log_warning("how tf does this work4");
-		}
-		if (lyra::Input::check_mouse_button(lyra::Input::Mouse::MOUSE_LEFT)) {
-			lyra::Logger::log_warning("how tf does this work5");
-		}
-		if (lyra::Input::check_mouse_button_up(lyra::Input::Mouse::MOUSE_LEFT)) {
-			lyra::Logger::log_warning("how tf does this work6");
-		}
+		node->look_at({0.0f, 0.0f, 0.0f});
 	}
 };
 
@@ -63,7 +40,10 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	lyra::Spatial scene("Root"); // I'm sorry godot devs
 
-	lyra::Camera camera("Camera", &scene, new CameraScript());
+	lyra::gui::GUIRenderer guiRenderer;
+	guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
+
+	lyra::Camera camera(true, "Camera", &scene, new CameraScript());
 
 	lyra::Texture roomTexture("data/img/viking_room.png");
 
@@ -73,9 +53,6 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	// material
 	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(), &roomTexture);
-
-	lyra::gui::GUIRenderer guiRenderer;
-	guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
 	app.draw();
 

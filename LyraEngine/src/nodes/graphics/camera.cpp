@@ -19,6 +19,7 @@
 namespace lyra {
 
 Camera::Camera(
+	bool perspective,
 	const char* name, 
 	Spatial* parent,
 	Script<Camera>* script, 
@@ -70,6 +71,13 @@ Camera::Camera(
 		m_buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	}
 
+	// automatically set camera mode to perspective
+	if (perspective) 
+		set_perspective();
+	else 
+		set_orthographic();
+
+
 	m_script->node = this;
 	m_script->init();
 
@@ -98,6 +106,7 @@ void Camera::set_orthographic(glm::vec4 viewport, float near, float far) noexcep
 void Camera::draw() {
 	// update the script
 	m_script->update();
+	calculate_transform_mat();
 	// check wich projection model the camera uses and calculate the projection data
 	CameraData data {mat_to_global(), m_projection_matrix};
 

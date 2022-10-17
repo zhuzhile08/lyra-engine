@@ -55,6 +55,7 @@ public:
 	/**
 	 * @brief construct a camera node
 	 *
+	 * @param perspective check if perspective is true or not
 	 * @param name name of the object
 	 * @param parent parent Node of the object
 	 * @param script script of the object
@@ -66,6 +67,7 @@ public:
 	 * @param rotationOrder order of the multiplication of the rotation matricies
 	 */
 	Camera(
+		bool perspective = true,
 		const char* name = "Camera",
 		Spatial* parent = nullptr,
 		Script<Camera>* script = new Script<Camera>,

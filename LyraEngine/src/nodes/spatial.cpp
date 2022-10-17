@@ -6,21 +6,6 @@
 
 namespace lyra {
 
-void Spatial::set_position(glm::vec3 newPosition, Space space) noexcept {
-	if (space == Space::SPACE_LOCAL) {
-		m_position = newPosition;
-	}
-	else {
-		glm::vec4 tempVec = glm::vec4{ newPosition[0], newPosition[1], newPosition[2], 1.0f } *m_localTransformMatrix;
-		m_position = glm::vec3{ tempVec[0], tempVec[1], tempVec[2] };
-	}
-}
-
-void Spatial::set_rotation(glm::vec3 newRotation, Space space) noexcept {
-	if (space == Space::SPACE_LOCAL) m_rotation = newRotation;
-	else m_rotation = newRotation - rotation_global();
-}
-
 void Spatial::look_at(glm::vec3 target, glm::vec3 up) {
 	m_localTransformMatrix = glm::lookAt(m_position, target, up);
 
