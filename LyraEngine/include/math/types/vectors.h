@@ -11,11 +11,6 @@
 
 namespace lyra {
 
-// call this cursed, I don't care, just don't want to include more headers
-#define NODISCARD [[nodiscard]]
-#define CONSTEXPR constexpr
-typedef long unsigned int size_t;
-
 template <class _Ty> struct Vector2 {
 	/**
 	 * @brief constuct a new two dimensional vector
@@ -74,7 +69,7 @@ template <class _Ty> struct Vector2 {
 		y = vec.y;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator=(const Vector2<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator=(const Vector2<_BTy>& vec) {
 		*this = Vector2<_Ty>(vec);
 		return *this;
 	}
@@ -83,7 +78,7 @@ template <class _Ty> struct Vector2 {
 		y = scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator=(const _BTy& scalar) {
 		x = static_cast<_Ty>(scalar);
 		y = static_cast<_Ty>(scalar);
 		return *this;
@@ -94,7 +89,7 @@ template <class _Ty> struct Vector2 {
 		y += vec.y;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator+=(const Vector2<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator+=(const Vector2<_BTy>& vec) {
 		*this += Vector2<_Ty>(vec);
 		return *this;
 	}
@@ -103,7 +98,7 @@ template <class _Ty> struct Vector2 {
 		y += scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator+=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator+=(const _BTy& scalar) {
 		x += static_cast<_Ty>(scalar);
 		y += static_cast<_Ty>(scalar);
 		return *this;
@@ -114,7 +109,7 @@ template <class _Ty> struct Vector2 {
 		y -= vec.y;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator-=(const Vector2<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator-=(const Vector2<_BTy>& vec) {
 		*this -= Vector2<_Ty>(vec);
 		return *this;
 	}
@@ -123,7 +118,7 @@ template <class _Ty> struct Vector2 {
 		y -= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator-=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator-=(const _BTy& scalar) {
 		x -= static_cast<_Ty>(scalar);
 		y -= static_cast<_Ty>(scalar);
 		return *this;
@@ -134,7 +129,7 @@ template <class _Ty> struct Vector2 {
 		y *= vec.y;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator*=(const Vector2<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator*=(const Vector2<_BTy>& vec) {
 		*this *= Vector2<_Ty>(vec);
 		return *this;
 	}
@@ -143,7 +138,7 @@ template <class _Ty> struct Vector2 {
 		y *= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator*=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator*=(const _BTy& scalar) {
 		x *= static_cast<_Ty>(scalar);
 		y *= static_cast<_Ty>(scalar);
 		return *this;
@@ -154,7 +149,7 @@ template <class _Ty> struct Vector2 {
 		y /= vec.y;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator/=(const Vector2<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator/=(const Vector2<_BTy>& vec) {
 		*this /= Vector2<_Ty>(vec);
 		return *this;
 	}
@@ -163,7 +158,7 @@ template <class _Ty> struct Vector2 {
 		y /= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator/=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator/=(const _BTy& scalar) {
 		x /= static_cast<_Ty>(scalar);
 		y /= static_cast<_Ty>(scalar);
 		return *this;
@@ -174,7 +169,7 @@ template <class _Ty> struct Vector2 {
 		y %= vec.y;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator%=(const Vector2<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator%=(const Vector2<_BTy>& vec) {
 		*this %= Vector2<_Ty>(vec);
 		return *this;
 	}
@@ -183,7 +178,7 @@ template <class _Ty> struct Vector2 {
 		y %= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector2<_Ty>& operator%=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator%=(const _BTy& scalar) {
 		x %= static_cast<_Ty>(scalar);
 		y %= static_cast<_Ty>(scalar);
 		return *this;
@@ -213,10 +208,10 @@ template <class _Ty> struct Vector2 {
 
 	/** boolean operators **/
 
-	NODISCARD CONSTEXPR bool operator==(const Vector2<_BTy>& vec) {
+	NODISCARD CONSTEXPR bool operator==(const Vector2<_Ty>& vec) {
 		return x == vec.x && y == vec.y;
 	}
-	NODISCARD CONSTEXPR bool operator!=(const Vector2<_BTy>& vec) {
+	NODISCARD CONSTEXPR bool operator!=(const Vector2<_Ty>& vec) {
 		return !(*this == vec);
 	}
 
@@ -238,7 +233,7 @@ template <class _Ty> struct Vector2 {
 #endif
 		}
 	}
-	NODISCARD CONSTEXPR const _Ty& operator[] (size_t index) {
+	NODISCARD CONSTEXPR const _Ty& operator[] (size_t index) const {
 		switch (index) {
 			case 0:
 				return x;
@@ -253,13 +248,6 @@ template <class _Ty> struct Vector2 {
 #endif
 		}
 	}
-
-	/**
-	 * @brief get the length of the vector
-	 * 
-	 * @return size_t
-	 */
-	NODISCARD CONSTEXPR size_t length() { return _Size; }
     
     _Ty x, y;
 	// this will also be one of the times where I will deviate from my normal naming conventions for readability's sake
@@ -328,7 +316,7 @@ template <class _Ty> struct Vector3 {
 		z = vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator=(const Vector3<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator=(const Vector3<_BTy>& vec) {
 		*this = Vector3<_Ty>(vec);
 		return *this;
 	}
@@ -338,7 +326,7 @@ template <class _Ty> struct Vector3 {
 		z = scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator=(const _BTy& scalar) {
 		x = static_cast<_Ty>(scalar);
 		y = static_cast<_Ty>(scalar);
 		z = static_cast<_Ty>(scalar);
@@ -351,7 +339,7 @@ template <class _Ty> struct Vector3 {
 		z += vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator+=(const Vector3<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator+=(const Vector3<_BTy>& vec) {
 		*this += Vector3<_Ty>(vec);
 		return *this;
 	}
@@ -361,7 +349,7 @@ template <class _Ty> struct Vector3 {
 		z += scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator+=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator+=(const _BTy& scalar) {
 		x += static_cast<_Ty>(scalar);
 		y += static_cast<_Ty>(scalar);
 		z += static_cast<_Ty>(scalar);
@@ -374,7 +362,7 @@ template <class _Ty> struct Vector3 {
 		z -= vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator-=(const Vector3<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator-=(const Vector3<_BTy>& vec) {
 		*this -= Vector3<_Ty>(vec);
 		return *this;
 	}
@@ -384,7 +372,7 @@ template <class _Ty> struct Vector3 {
 		z -= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator-=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator-=(const _BTy& scalar) {
 		x -= static_cast<_Ty>(scalar);
 		y -= static_cast<_Ty>(scalar);
 		z -= static_cast<_Ty>(scalar);
@@ -397,7 +385,7 @@ template <class _Ty> struct Vector3 {
 		z *= vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator*=(const Vector3<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator*=(const Vector3<_BTy>& vec) {
 		*this *= Vector3<_Ty>(vec);
 		return *this;
 	}
@@ -407,7 +395,7 @@ template <class _Ty> struct Vector3 {
 		z *= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator*=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator*=(const _BTy& scalar) {
 		x *= static_cast<_Ty>(scalar);
 		y *= static_cast<_Ty>(scalar);
 		z *= static_cast<_Ty>(scalar);
@@ -420,7 +408,7 @@ template <class _Ty> struct Vector3 {
 		z /= vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator/=(const Vector3<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator/=(const Vector3<_BTy>& vec) {
 		*this /= Vector3<_Ty>(vec);
 		return *this;
 	}
@@ -430,7 +418,7 @@ template <class _Ty> struct Vector3 {
 		z /= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator/=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator/=(const _BTy& scalar) {
 		x /= static_cast<_Ty>(scalar);
 		y /= static_cast<_Ty>(scalar);
 		z /= static_cast<_Ty>(scalar);
@@ -443,7 +431,7 @@ template <class _Ty> struct Vector3 {
 		z %= vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator%=(const Vector3<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator%=(const Vector3<_BTy>& vec) {
 		*this %= Vector3<_Ty>(vec);
 		return *this;
 	}
@@ -453,7 +441,7 @@ template <class _Ty> struct Vector3 {
 		z %= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector3<_Ty>& operator%=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator%=(const _BTy& scalar) {
 		x %= static_cast<_Ty>(scalar);
 		y %= static_cast<_Ty>(scalar);
 		z %= static_cast<_Ty>(scalar);
@@ -486,10 +474,10 @@ template <class _Ty> struct Vector3 {
 
 	/** boolean operators **/
 
-	NODISCARD CONSTEXPR bool operator==(const Vector3<_BTy>& vec) {
+	NODISCARD CONSTEXPR bool operator==(const Vector3<_Ty>& vec) {
 		return x == vec.x && y == vec.y && z == vec.z;
 	}
-	NODISCARD CONSTEXPR bool operator!=(const Vector3<_BTy>& vec) {
+	NODISCARD CONSTEXPR bool operator!=(const Vector3<_Ty>& vec) {
 		return !(*this == vec);
 	}
 
@@ -513,7 +501,7 @@ template <class _Ty> struct Vector3 {
 #endif
 		}
 	}
-	NODISCARD CONSTEXPR const _Ty& operator[] (const size_t& index) {
+	NODISCARD CONSTEXPR const _Ty& operator[] (const size_t& index) const {
 		switch (index) {
 			case 0:
 				return x;
@@ -531,13 +519,6 @@ template <class _Ty> struct Vector3 {
 		}
 	}
 
-	/**
-	 * @brief get the length of the vector
-	 * 
-	 * @return size_t
-	 */
-	NODISCARD CONSTEXPR size_t length() { return _Size; }
-    
     _Ty x, y, z;
 	// this will also be one of the times where I will deviate from my normal naming conventions for readability's sake
 };
@@ -599,7 +580,7 @@ template <class _Ty> struct Vector4 {
 	 * @param _w w value
 	 */
 	template <class X, class Y, class Z, class W> Vector4(const X& _x, const Y& _y, const Z& _z ,const W& _w) :
-		x(static_cast<_Ty>(_x)), y(static_cast<_Ty>(y)), z(static_cast<_Ty>(z)), w(static_cast<_Ty>(_w)))
+		x(static_cast<_Ty>(_x)), y(static_cast<_Ty>(_y)), z(static_cast<_Ty>(_z)), w(static_cast<_Ty>(_w))
 	{ }
 
 	/** unary operators **/
@@ -611,7 +592,7 @@ template <class _Ty> struct Vector4 {
 		w = vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator=(const Vector4<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator=(const Vector4<_BTy>& vec) {
 		*this = Vector4<_Ty>(vec);
 		return *this;
 	}
@@ -622,7 +603,7 @@ template <class _Ty> struct Vector4 {
 		w = scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator=(const _BTy& scalar) {
 		x = static_cast<_Ty>(scalar);
 		y = static_cast<_Ty>(scalar);
 		z = static_cast<_Ty>(scalar);
@@ -637,7 +618,7 @@ template <class _Ty> struct Vector4 {
 		w += vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+=(const Vector4<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+=(const Vector4<_BTy>& vec) {
 		*this += Vector4<_Ty>(vec);
 		return *this;
 	}
@@ -648,7 +629,7 @@ template <class _Ty> struct Vector4 {
 		w += scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+=(const _BTy& scalar) {
 		x += static_cast<_Ty>(scalar);
 		y += static_cast<_Ty>(scalar);
 		z += static_cast<_Ty>(scalar);
@@ -663,7 +644,7 @@ template <class _Ty> struct Vector4 {
 		w -= vec.z;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-=(const Vector4<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-=(const Vector4<_BTy>& vec) {
 		*this -= Vector4<_Ty>(vec);
 		return *this;
 	}
@@ -674,7 +655,7 @@ template <class _Ty> struct Vector4 {
 		w -= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-=(const _BTy& scalar) {
 		x -= static_cast<_Ty>(scalar);
 		y -= static_cast<_Ty>(scalar);
 		z -= static_cast<_Ty>(scalar);
@@ -689,7 +670,7 @@ template <class _Ty> struct Vector4 {
 		w *= vec.w;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*=(const Vector4<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*=(const Vector4<_BTy>& vec) {
 		*this *= Vector4<_Ty>(vec);
 		return *this;
 	}
@@ -700,7 +681,7 @@ template <class _Ty> struct Vector4 {
 		w *= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*=(const _BTy& scalar) {
 		x *= static_cast<_Ty>(scalar);
 		y *= static_cast<_Ty>(scalar);
 		z *= static_cast<_Ty>(scalar);
@@ -715,7 +696,7 @@ template <class _Ty> struct Vector4 {
 		w /= vec.w;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/=(const Vector4<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/=(const Vector4<_BTy>& vec) {
 		*this /= Vector4<_Ty>(vec);
 		return *this;
 	}
@@ -726,7 +707,7 @@ template <class _Ty> struct Vector4 {
 		w /= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/=(const _BTy& scalar) {
 		x /= static_cast<_Ty>(scalar);
 		y /= static_cast<_Ty>(scalar);
 		z /= static_cast<_Ty>(scalar);
@@ -741,7 +722,7 @@ template <class _Ty> struct Vector4 {
 		w %= vec.w;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%=(const Vector4<_BTy>& vec) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator%=(const Vector4<_BTy>& vec) {
 		*this %= Vector4<_Ty>(vec);
 		return *this;
 	}
@@ -752,7 +733,7 @@ template <class _Ty> struct Vector4 {
 		w %= scalar;
 		return *this;
 	}
-	template<class _Bty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%=(const _BTy& scalar) {
+	template<class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator%=(const _BTy& scalar) {
 		x %= static_cast<_Ty>(scalar);
 		y %= static_cast<_Ty>(scalar);
 		z %= static_cast<_Ty>(scalar);
@@ -788,10 +769,10 @@ template <class _Ty> struct Vector4 {
 
 	/** boolean operators **/
 
-	NODISCARD CONSTEXPR bool operator==(const Vector4<_BTy>& vec) {
+	NODISCARD CONSTEXPR bool operator==(const Vector4<_Ty>& vec) {
 		return x == vec.x && y == vec.y && z == vec.z && w = vec.w;
 	}
-	NODISCARD CONSTEXPR bool operator!=(const Vector4<_BTy>& vec) {
+	NODISCARD CONSTEXPR bool operator!=(const Vector4<_Ty>& vec) {
 		return !(*this == vec);
 	}
 
@@ -817,7 +798,7 @@ template <class _Ty> struct Vector4 {
 #endif
 		}
 	}
-	NODISCARD CONSTEXPR const _Ty& operator[] (const size_t& index) {
+	NODISCARD CONSTEXPR const _Ty& operator[] (const size_t& index) const {
 		switch (index) {
 			case 0:
 				return x;
@@ -836,186 +817,183 @@ template <class _Ty> struct Vector4 {
 #endif
 		}
 	}
-
-	/**
-	 * @brief get the length of the vector
-	 * 
-	 * @return size_t
-	 */
-	NODISCARD CONSTEXPR size_t length() { return _Size; }
     
     _Ty x, y, z, w;
 	// this will also be one of the times where I will deviate from my normal naming conventions for readability's sake
 };
 
+// color
+typedef Vector4<uint8> Color;
+// bri'ish colour
+typedef Color Colour;
 
 /** Vector 2 **/
 
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator+(const Vector2<_Ty>& vec, const Vector2<_Ty>& vec2) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x + vec2.x,
 		vec.y + vec2.y
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator+(const Vector2<_Ty>& vec, const Vector2<_BTy>& vec2) {
-	return Vector2<_ty>(vec + Vector2<_Ty>(vec2));
+	return Vector2<_Ty>(vec + Vector2<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator+(const Vector2<_Ty>& vec, const _Ty& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x + scalar,
 		vec.y + scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator+(const Vector2<_Ty>& vec, const _BTy& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x + static_cast<_Ty>(scalar),
 		vec.y + static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator+(const _Ty& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x + scalar,
 		vec.y + scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator+(const _BTy& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x + static_cast<_Ty>(scalar),
 		vec.y + static_cast<_Ty>(scalar)
 	);
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator-(const Vector2<_Ty>& vec, const Vector2<_Ty>& vec2) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x - vec2.x,
 		vec.y - vec2.y
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator-(const Vector2<_Ty>& vec, const Vector2<_BTy>& vec2) {
-	return Vector2<_ty>(vec - Vector2<_Ty>(vec2));
+	return Vector2<_Ty>(vec - Vector2<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator-(const Vector2<_Ty>& vec, const _Ty& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x - scalar,
 		vec.y - scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator-(const Vector2<_Ty>& vec, const _BTy& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x - static_cast<_Ty>(scalar),
 		vec.y - static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator-(const _Ty& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x - scalar,
 		vec.y - scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator-(const _BTy& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x - static_cast<_Ty>(scalar),
 		vec.y - static_cast<_Ty>(scalar)
 	);
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator*(const Vector2<_Ty>& vec, const Vector2<_Ty>& vec2) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x * vec2.x,
 		vec.y * vec2.y
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator*(const Vector2<_Ty>& vec, const Vector2<_BTy>& vec2) {
-	return Vector2<_ty>(vec * Vector2<_Ty>(vec2));
+	return Vector2<_Ty>(vec * Vector2<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator*(const Vector2<_Ty>& vec, const _Ty& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x * scalar,
 		vec.y * scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator*(const Vector2<_Ty>& vec, const _BTy& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x * static_cast<_Ty>(scalar),
 		vec.y * static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator*(const _Ty& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x * scalar,
 		vec.y * scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator*(const _BTy& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x * static_cast<_Ty>(scalar),
 		vec.y * static_cast<_Ty>(scalar)
 	);
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator/(const Vector2<_Ty>& vec, const Vector2<_Ty>& vec2) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x / vec2.x,
 		vec.y / vec2.y
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator/(const Vector2<_Ty>& vec, const Vector2<_BTy>& vec2) {
-	return Vector2<_ty>(vec / Vector2<_Ty>(vec2));
+	return Vector2<_Ty>(vec / Vector2<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator/(const Vector2<_Ty>& vec, const _Ty& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x / scalar,
 		vec.y / scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator/(const Vector2<_Ty>& vec, const _BTy& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x / static_cast<_Ty>(scalar),
 		vec.y / static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator/(const _Ty& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x / scalar,
 		vec.y / scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator/(const _BTy& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x / static_cast<_Ty>(scalar),
 		vec.y / static_cast<_Ty>(scalar)
 	);
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(const Vector2<_Ty>& vec, const Vector2<_Ty>& vec2) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x % vec2.x,
 		vec.y % vec2.y
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(const Vector2<_Ty>& vec, const Vector2<_BTy>& vec2) {
-	return Vector2<_ty>(vec % Vector2<_Ty>(vec2));
+	return Vector2<_Ty>(vec % Vector2<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(const Vector2<_Ty>& vec, const _Ty& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x % scalar,
 		vec.y % scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(const Vector2<_Ty>& vec, const _BTy& scalar) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x % static_cast<_Ty>(scalar),
 		vec.y % static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(const _Ty& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x % scalar,
 		vec.y % scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(const _BTy& scalar, const Vector2<_Ty>& vec) {
-	return Vector2<_ty>(
+	return Vector2<_Ty>(
 		vec.x % static_cast<_Ty>(scalar),
 		vec.y % static_cast<_Ty>(scalar)
 	);
@@ -1024,38 +1002,38 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector2<_Ty>& operator%(cons
 /** Vector 3 **/
 
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(const Vector3<_Ty>& vec, const Vector3<_Ty>& vec2) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x + vec2.x,
 		vec.y + vec2.y,
 		vec.z + vec2.z
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(const Vector3<_Ty>& vec, const Vector3<_BTy>& vec2) {
-	return Vector3<_ty>(vec + Vector3<_Ty>(vec2));
+	return Vector3<_Ty>(vec + Vector3<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(const Vector3<_Ty>& vec, const _Ty& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x + scalar,
 		vec.y + scalar,
 		vec.z + scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(const Vector3<_Ty>& vec, const _BTy& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x + static_cast<_Ty>(scalar),
 		vec.y + static_cast<_Ty>(scalar),
 		vec.z + static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(const _Ty& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x + scalar,
 		vec.y + scalar,
 		vec.z + scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(const _BTy& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x + static_cast<_Ty>(scalar),
 		vec.y + static_cast<_Ty>(scalar),
 		vec.z + static_cast<_Ty>(scalar)
@@ -1063,38 +1041,38 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator+(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(const Vector3<_Ty>& vec, const Vector3<_Ty>& vec2) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x - vec2.x,
 		vec.y - vec2.y,
 		vec.z - vec2.z
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(const Vector3<_Ty>& vec, const Vector3<_BTy>& vec2) {
-	return Vector3<_ty>(vec - Vector3<_Ty>(vec2));
+	return Vector3<_Ty>(vec - Vector3<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(const Vector3<_Ty>& vec, const _Ty& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x - scalar,
 		vec.y - scalar,
 		vec.z - scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(const Vector3<_Ty>& vec, const _BTy& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x - static_cast<_Ty>(scalar),
 		vec.y - static_cast<_Ty>(scalar),
 		vec.z - static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(const _Ty& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x - scalar,
 		vec.y - scalar,
 		vec.z - scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(const _BTy& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x - static_cast<_Ty>(scalar),
 		vec.y - static_cast<_Ty>(scalar),
 		vec.z - static_cast<_Ty>(scalar)
@@ -1102,38 +1080,38 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator-(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(const Vector3<_Ty>& vec, const Vector3<_Ty>& vec2) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x * vec2.x,
 		vec.y * vec2.y,
 		vec.z * vec2.z
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(const Vector3<_Ty>& vec, const Vector3<_BTy>& vec2) {
-	return Vector3<_ty>(vec * Vector3<_Ty>(vec2));
+	return Vector3<_Ty>(vec * Vector3<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(const Vector3<_Ty>& vec, const _Ty& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x * scalar,
 		vec.y * scalar,
 		vec.z * scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(const Vector3<_Ty>& vec, const _BTy& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x * static_cast<_Ty>(scalar),
 		vec.y * static_cast<_Ty>(scalar),
 		vec.z * static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(const _Ty& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x * scalar,
 		vec.y * scalar,
 		vec.z * scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(const _BTy& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x * static_cast<_Ty>(scalar),
 		vec.y * static_cast<_Ty>(scalar),
 		vec.z * static_cast<_Ty>(scalar)
@@ -1141,38 +1119,38 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator*(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(const Vector3<_Ty>& vec, const Vector3<_Ty>& vec2) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x / vec2.x,
 		vec.y / vec2.y,
 		vec.z / vec2.z
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(const Vector3<_Ty>& vec, const Vector3<_BTy>& vec2) {
-	return Vector3<_ty>(vec / Vector3<_Ty>(vec2));
+	return Vector3<_Ty>(vec / Vector3<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(const Vector3<_Ty>& vec, const _Ty& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x / scalar,
 		vec.y / scalar,
 		vec.z / scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(const Vector3<_Ty>& vec, const _BTy& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x / static_cast<_Ty>(scalar),
 		vec.y / static_cast<_Ty>(scalar),
 		vec.z / static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(const _Ty& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x / scalar,
 		vec.y / scalar,
 		vec.z / scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(const _BTy& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x / static_cast<_Ty>(scalar),
 		vec.y / static_cast<_Ty>(scalar),
 		vec.z / static_cast<_Ty>(scalar)
@@ -1180,38 +1158,38 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator/(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(const Vector3<_Ty>& vec, const Vector3<_Ty>& vec2) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x % vec2.x,
 		vec.y % vec2.y,
 		vec.z % vec2.z
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(const Vector3<_Ty>& vec, const Vector3<_BTy>& vec2) {
-	return Vector3<_ty>(vec % Vector3<_Ty>(vec2));
+	return Vector3<_Ty>(vec % Vector3<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(const Vector3<_Ty>& vec, const _Ty& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x % scalar,
 		vec.y % scalar,
 		vec.z % scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(const Vector3<_Ty>& vec, const _BTy& scalar) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x % static_cast<_Ty>(scalar),
 		vec.y % static_cast<_Ty>(scalar),
 		vec.z % static_cast<_Ty>(scalar)
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(const _Ty& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x % scalar,
 		vec.y % scalar,
 		vec.z % scalar
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(const _BTy& scalar, const Vector3<_Ty>& vec) {
-	return Vector3<_ty>(
+	return Vector3<_Ty>(
 		vec.x % static_cast<_Ty>(scalar),
 		vec.y % static_cast<_Ty>(scalar),
 		vec.z % static_cast<_Ty>(scalar)
@@ -1222,7 +1200,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector3<_Ty>& operator%(cons
 /** Vector 4 **/
 
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const Vector4<_Ty>& vec, const Vector4<_Ty>& vec2) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x + vec2.x,
 		vec.y + vec2.y,
 		vec.z + vec2.z,
@@ -1230,10 +1208,10 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const Vector4<_Ty>& vec, const Vector4<_BTy>& vec2) {
-	return Vector4<_ty>(vec + Vector4<_Ty>(vec2));
+	return Vector4<_Ty>(vec + Vector4<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const Vector4<_Ty>& vec, const _Ty& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x + scalar,
 		vec.y + scalar,
 		vec.z + scalar,
@@ -1241,7 +1219,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const Vector4<_Ty>& vec, const _BTy& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x + static_cast<_Ty>(scalar),
 		vec.y + static_cast<_Ty>(scalar),
 		vec.z + static_cast<_Ty>(scalar),
@@ -1249,7 +1227,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(cons
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const _Ty& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x + scalar,
 		vec.y + scalar,
 		vec.z + scalar,
@@ -1257,7 +1235,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const _Ty& scala
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(const _BTy& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x + static_cast<_Ty>(scalar),
 		vec.y + static_cast<_Ty>(scalar),
 		vec.z + static_cast<_Ty>(scalar),
@@ -1266,7 +1244,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator+(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const Vector4<_Ty>& vec, const Vector4<_Ty>& vec2) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x - vec2.x,
 		vec.y - vec2.y,
 		vec.z - vec2.z,
@@ -1274,10 +1252,10 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const Vector4<_Ty>& vec, const Vector4<_BTy>& vec2) {
-	return Vector4<_ty>(vec - Vector4<_Ty>(vec2));
+	return Vector4<_Ty>(vec - Vector4<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const Vector4<_Ty>& vec, const _Ty& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x - scalar,
 		vec.y - scalar,
 		vec.z - scalar,
@@ -1285,7 +1263,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const Vector4<_Ty>& vec, const _BTy& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x - static_cast<_Ty>(scalar),
 		vec.y - static_cast<_Ty>(scalar),
 		vec.z - static_cast<_Ty>(scalar),
@@ -1293,7 +1271,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(cons
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const _Ty& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x - scalar,
 		vec.y - scalar,
 		vec.z - scalar,
@@ -1301,7 +1279,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const _Ty& scala
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(const _BTy& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x - static_cast<_Ty>(scalar),
 		vec.y - static_cast<_Ty>(scalar),
 		vec.z - static_cast<_Ty>(scalar),
@@ -1310,7 +1288,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator-(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const Vector4<_Ty>& vec, const Vector4<_Ty>& vec2) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x * vec2.x,
 		vec.y * vec2.y,
 		vec.z * vec2.z,
@@ -1318,10 +1296,10 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const Vector4<_Ty>& vec, const Vector4<_BTy>& vec2) {
-	return Vector4<_ty>(vec * Vector4<_Ty>(vec2));
+	return Vector4<_Ty>(vec * Vector4<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const Vector4<_Ty>& vec, const _Ty& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x * scalar,
 		vec.y * scalar,
 		vec.z * scalar,
@@ -1329,7 +1307,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const Vector4<_Ty>& vec, const _BTy& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x * static_cast<_Ty>(scalar),
 		vec.y * static_cast<_Ty>(scalar),
 		vec.z * static_cast<_Ty>(scalar),
@@ -1337,7 +1315,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(cons
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const _Ty& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x * scalar,
 		vec.y * scalar,
 		vec.z * scalar,
@@ -1345,7 +1323,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const _Ty& scala
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(const _BTy& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x * static_cast<_Ty>(scalar),
 		vec.y * static_cast<_Ty>(scalar),
 		vec.z * static_cast<_Ty>(scalar),
@@ -1354,7 +1332,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator*(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const Vector4<_Ty>& vec, const Vector4<_Ty>& vec2) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x / vec2.x,
 		vec.y / vec2.y,
 		vec.z / vec2.z,
@@ -1362,10 +1340,10 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const Vector4<_Ty>& vec, const Vector4<_BTy>& vec2) {
-	return Vector4<_ty>(vec / Vector4<_Ty>(vec2));
+	return Vector4<_Ty>(vec / Vector4<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const Vector4<_Ty>& vec, const _Ty& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x / scalar,
 		vec.y / scalar,
 		vec.z / scalar,
@@ -1373,7 +1351,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const Vector4<_Ty>& vec, const _BTy& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x / static_cast<_Ty>(scalar),
 		vec.y / static_cast<_Ty>(scalar),
 		vec.z / static_cast<_Ty>(scalar),
@@ -1381,7 +1359,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(cons
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const _Ty& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x / scalar,
 		vec.y / scalar,
 		vec.z / scalar,
@@ -1389,7 +1367,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const _Ty& scala
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(const _BTy& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x / static_cast<_Ty>(scalar),
 		vec.y / static_cast<_Ty>(scalar),
 		vec.z / static_cast<_Ty>(scalar),
@@ -1398,7 +1376,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator/(cons
 }
 
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const Vector4<_Ty>& vec, const Vector4<_Ty>& vec2) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x % vec2.x,
 		vec.y % vec2.y,
 		vec.z % vec2.z,
@@ -1406,10 +1384,10 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const Vector4<_Ty>& vec, const Vector4<_BTy>& vec2) {
-	return Vector4<_ty>(vec % Vector4<_Ty>(vec2));
+	return Vector4<_Ty>(vec % Vector4<_Ty>(vec2));
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const Vector4<_Ty>& vec, const _Ty& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x % scalar,
 		vec.y % scalar,
 		vec.z % scalar,
@@ -1417,7 +1395,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const Vector4<_T
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const Vector4<_Ty>& vec, const _BTy& scalar) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x % static_cast<_Ty>(scalar),
 		vec.y % static_cast<_Ty>(scalar),
 		vec.z % static_cast<_Ty>(scalar),
@@ -1425,7 +1403,7 @@ template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(cons
 	);
 }
 template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const _Ty& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x % scalar,
 		vec.y % scalar,
 		vec.z % scalar,
@@ -1433,7 +1411,7 @@ template<class _Ty> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const _Ty& scala
 	);
 }
 template<class _Ty, class _BTy> NODISCARD CONSTEXPR Vector4<_Ty>& operator%(const _BTy& scalar, const Vector4<_Ty>& vec) {
-	return Vector4<_ty>(
+	return Vector4<_Ty>(
 		vec.x % static_cast<_Ty>(scalar),
 		vec.y % static_cast<_Ty>(scalar),
 		vec.z % static_cast<_Ty>(scalar),

@@ -31,13 +31,6 @@ using int64 = int64_t;
 
 typedef uintptr_t uptr;
 
-// color
-struct Color {
-	uint8 r = 0, g = 0, b = 0, a = 0;
-};
-
-typedef Color Colour;
-
 // core vulkan wrappers
 
 namespace vulkan {
@@ -126,6 +119,7 @@ class AudioFilter;
 // utility macros
 
 #define NODISCARD [[nodiscard]]
+#define CONSTEXPR constexpr
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 

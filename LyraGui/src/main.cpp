@@ -4,6 +4,7 @@
 #include <Jolt/Jolt.h>
 
 #include <lyra.h>
+#include <math/types/vectors.h>
 #include <core/application.h>
 #include <rendering/material.h>
 #include <rendering/vulkan/descriptor.h>
@@ -53,7 +54,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	lyra::MeshRenderer roomRenderer(&roomMesh, "MeshRenderer", &room);
 
 	// material
-	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(), &roomTexture);
+	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(0, 0, 0, 0), &roomTexture);
 
 	app.draw();
 
