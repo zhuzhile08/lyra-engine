@@ -13,7 +13,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <core/decl.h>
 #include <rendering/vulkan/GPU_memory.h>
 
 namespace lyra {

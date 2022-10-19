@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <core/decl.h>
 #include <core/smart_pointer.h>
 
 #include <nodes/node.h>

@@ -16,7 +16,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <core/decl.h>
 
 #ifdef __APPLE__
 #pragma clang diagnostic push

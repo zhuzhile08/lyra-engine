@@ -1,6 +1,6 @@
 #include <rendering/vulkan/vulkan_image.h>
 
-#include <core/logger.h>
+
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>

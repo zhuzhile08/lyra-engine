@@ -12,8 +12,6 @@
 
 #pragma once
 
-#include <core/decl.h>
-
 #include <vector>
 #include <glm.hpp>
 

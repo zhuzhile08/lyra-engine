@@ -14,7 +14,6 @@
 
 #include <rendering/vulkan/vulkan_pipeline.h>
 #include <rendering/renderer.h>
-#include <core/decl.h>
 
 #include <vector>
 

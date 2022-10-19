@@ -14,7 +14,6 @@
 #include <imgui.h>
 #include <core/application.h>
 
-#include <core/decl.h>
 
 #include <vector>
 

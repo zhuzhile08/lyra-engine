@@ -15,7 +15,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <core/decl.h>
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>

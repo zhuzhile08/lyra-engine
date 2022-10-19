@@ -3,7 +3,7 @@
 #include <vector>
 #include <tiny_obj_loader.h>
 
-#include <core/util.h>
+
 
 namespace lyra {
 

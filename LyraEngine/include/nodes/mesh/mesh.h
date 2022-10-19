@@ -19,8 +19,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <core/decl.h>
-#include <core/util.h>
+
 
 #include <res/loaders/load_model.h>
 

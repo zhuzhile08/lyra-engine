@@ -13,10 +13,7 @@
 
 #pragma once
 
-#include <core/decl.h>
-
 #include <math/math.h>
-#include <core/logger.h>
 
 namespace lyra {
 

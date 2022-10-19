@@ -1,6 +1,6 @@
 #include <rendering/vulkan/vulkan_shader.h>
 
-#include <core/util.h>
+
 
 #include <res/loaders/load_file.h>
 #include <core/application.h>

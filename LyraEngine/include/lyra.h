@@ -80,10 +80,54 @@ class LinearAllocator;
 class StackAllocator;
 class PoolAllocator;
 
+// nodes
+
+template <class> class Script;
+class Spatial;
+
+class Mesh;
+class MeshRenderer;
+class Text;
+class TextRenderer;
+
+class Rigidbody;
+class Collider;
+class BoxCollider;
+class SphereCollider;
+class CapsuleCollider;
+class TaperedCapsuleCollider;
+class CylinderCollider;
+class MeshCollider;
+class Joint;
+class Cloth;
+class Raycast;
+
+class Camera;
+class Light;
+class LightProbe;
+class Skybox;
+class MoviePlayer;
+
+class ParticleSystem;
+class LineRenderer;
+
+class Animation;
+class Animator;
+
+class AudioSource;
+class AudioListener;
+class AudioFilter;
+
+// easily define a script member for any class
+#define LYRA_NODE_SCRIPT_MEMBER(class) lyra::SmartPointer<lyra::Script<class>> m_script; // please don't kill me C++ gods
+
+} // namespace lyra
+
 // utility macros
 
 #define NODISCARD [[nodiscard]]
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 
-} // namespace lyra
+#include <core/logger.h>
+#include <core/util.h>

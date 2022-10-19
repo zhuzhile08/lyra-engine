@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <core/decl.h>
 #include <deque>
 #include <functional>
 

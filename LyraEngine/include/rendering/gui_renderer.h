@@ -2,7 +2,6 @@
 
 #include <functional>
 
-#include <core/decl.h>
 #include <core/smart_pointer.h>
 #include <core/queue.h>
 

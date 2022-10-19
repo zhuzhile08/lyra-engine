@@ -15,7 +15,7 @@
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/vulkan_pipeline.h>
 #include <rendering/vulkan/vulkan_shader.h>
-#include <core/logger.h>
+
 #include <core/application.h>
 
 #include <vector>

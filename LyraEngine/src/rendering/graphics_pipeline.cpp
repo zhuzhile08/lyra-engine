@@ -7,7 +7,7 @@
 #include <nodes/mesh/mesh.h>
 #include <nodes/graphics/camera.h>
 #include <core/application.h>
-#include <core/logger.h>
+
 
 namespace lyra {
 

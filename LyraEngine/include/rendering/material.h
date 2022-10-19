@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <core/decl.h>
 #include <nodes/node.h>
 
 #include <rendering/vulkan/GPU_buffer.h>

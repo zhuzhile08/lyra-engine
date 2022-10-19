@@ -2,8 +2,6 @@
 
 #include <filesystem>
 
-#include <core/util.h>
-
 namespace lyra {
 
 namespace util {

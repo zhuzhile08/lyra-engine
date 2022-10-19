@@ -4,8 +4,6 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-#include <core/decl.h>
-
 namespace lyra {
 
 struct Settings {

@@ -9,6 +9,8 @@
  * @copyright Copyright (c) 2022
  *************************/
 
+#include <lyra.h>
+
 #include "core/logger.cpp"
 #include "core/settings.cpp"
 
@@ -33,6 +35,15 @@
 #include "rendering/renderer.cpp"
 #include "rendering/texture.cpp"
 #include "rendering/window.cpp"
+
+#include "init/init_SDL.cpp"
+#include "init/single_header_init.cpp"
+
+#include "math/math.cpp"
+
+#include "res/loaders.cpp"
+
+#include "nodes/nodes.cpp" 
 
 #include "input/input.cpp"
 

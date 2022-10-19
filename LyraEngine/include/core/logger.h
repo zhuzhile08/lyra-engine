@@ -21,8 +21,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <core/decl.h>
-
 namespace lyra {
 
 class Logger {

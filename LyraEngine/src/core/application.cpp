@@ -8,7 +8,7 @@
 #include <rendering/vulkan/devices.h>
 
 #include <init/init_SDL.h>
-#include <core/logger.h>
+
 
 #ifdef _WIN32
 #include <windows.h>

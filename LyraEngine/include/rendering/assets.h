@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <core/decl.h>
 #include <core/smart_pointer.h>
 
 #include <res/loaders/load_assets.h>

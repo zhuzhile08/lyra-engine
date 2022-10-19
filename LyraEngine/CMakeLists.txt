@@ -61,11 +61,6 @@ endif()
 
 # building the library
 add_library(LyraEngine
-	"src/init/init_SDL.cpp"					# engine
-	"src/init/single_header_init.cpp"
-	"src/math/math.cpp"
-	"src/res/loaders.cpp"
-	"src/nodes/nodes.cpp" 
 	"src/def.cpp"
 )
 

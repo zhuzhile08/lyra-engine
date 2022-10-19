@@ -2,7 +2,8 @@
 #define LYRA_LOG_FILE
 
 #include <Jolt/Jolt.h>
-#include <core/logger.h>
+
+#include <lyra.h>
 #include <core/application.h>
 #include <rendering/material.h>
 #include <rendering/vulkan/descriptor.h>

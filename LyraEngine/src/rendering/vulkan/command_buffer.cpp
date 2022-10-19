@@ -1,7 +1,5 @@
 #include <rendering/vulkan/command_buffer.h>
 
-#include <core/logger.h>
-#include <core/util.h>
 #include <core/settings.h>
 
 #include <rendering/vulkan/devices.h>

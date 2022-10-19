@@ -14,50 +14,8 @@
 #include <string>
 #include <unordered_map>
 
-#include <core/decl.h>
 
 namespace lyra {
-
-// easily define a script member for any class
-#define LYRA_NODE_SCRIPT_MEMBER(class) lyra::SmartPointer<lyra::Script<class>> m_script; // please don't kill me C++ gods
-
-// nodes
-
-template <class> class Script;
-class Spatial;
-
-class Mesh;
-class MeshRenderer;
-class Text;
-class TextRenderer;
-
-class Rigidbody;
-class Collider;
-class BoxCollider;
-class SphereCollider;
-class CapsuleCollider;
-class TaperedCapsuleCollider;
-class CylinderCollider;
-class MeshCollider;
-class Joint;
-class Cloth;
-class Raycast;
-
-class Camera;
-class Light;
-class LightProbe;
-class Skybox;
-class MoviePlayer;
-
-class ParticleSystem;
-class LineRenderer;
-
-class Animation;
-class Animator;
-
-class AudioSource;
-class AudioListener;
-class AudioFilter;
 
 /**
  * @brief a base class for a node

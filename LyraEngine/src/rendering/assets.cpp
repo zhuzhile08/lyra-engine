@@ -1,6 +1,6 @@
 #include <rendering/assets.h>
 
-#include <core/logger.h>
+
 
 #include <rendering/texture.h>
 

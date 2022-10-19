@@ -5,8 +5,8 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
-#include <core/util.h>
-#include <core/logger.h>
+
+
 #include <core/settings.h>
 
 #include <rendering/vulkan/devices.h>

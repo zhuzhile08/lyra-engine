@@ -11,8 +11,7 @@
 
 #pragma once
 
-#include <core/decl.h>
-#include <core/logger.h>
+
 
 #include <vulkan/vulkan.h>
 

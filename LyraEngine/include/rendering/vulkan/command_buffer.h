@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <core/decl.h>
 
 #include <unordered_map>
 #include <vulkan/vulkan.h>

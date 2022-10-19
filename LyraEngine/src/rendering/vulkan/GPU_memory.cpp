@@ -1,6 +1,6 @@
 #include <rendering/vulkan/GPU_memory.h>
 
-#include <core/logger.h>
+
 
 #include <core/application.h>
 #include <rendering/vulkan/devices.h>

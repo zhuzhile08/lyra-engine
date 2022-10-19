@@ -2,8 +2,8 @@
 
 #include <gtc/matrix_transform.hpp>
 
-#include <core/logger.h>
-#include <core/util.h>
+
+
 
 #include <nodes/script.h>
 

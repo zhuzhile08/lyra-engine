@@ -13,7 +13,6 @@
 
 #include <vector>
 
-#include <core/decl.h>
 
 #include <vulkan/vulkan.h>
 

@@ -1,6 +1,6 @@
 #include <nodes/mesh/mesh.h>
 
-#include <core/util.h>
+
 
 namespace lyra {
 

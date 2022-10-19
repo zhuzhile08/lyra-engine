@@ -15,8 +15,7 @@
 
 #include <glm.hpp>
 
-#include <core/decl.h>
-#include <core/util.h>
+
 
 #include <nodes/script.h>
 #include <nodes/node.h>

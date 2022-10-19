@@ -15,7 +15,6 @@
 
 #include <vulkan/vulkan.h>
 
-#include <core/decl.h>
 
 #include <rendering/vulkan/GPU_memory.h>
 #include <rendering/vulkan/vulkan_image.h>

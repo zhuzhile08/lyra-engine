@@ -54,7 +54,7 @@ void Spatial::calculate_transform_mat() {
 	} // yeah, the maximum amount of if statements this has to go through is 4. Every. Single. Frame.
 
 	// calculate the translation
-	m_localTransformMatrix *= glm::translate(glm::mat4(1.0f), m_position);
+	m_localTransformMatrix = glm::translate(m_localTransformMatrix, m_position);
 }
 
 } // namespace lyra

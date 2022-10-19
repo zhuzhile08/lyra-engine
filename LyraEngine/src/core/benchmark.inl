@@ -1,8 +1,5 @@
 #include <core/benchmark.h>
 
-#include <core/util.h>
-#include <core/logger.h>
-
 namespace lyra {
 
 Benchmark::Benchmark() : m_start(std::chrono::high_resolution_clock::now()) { 

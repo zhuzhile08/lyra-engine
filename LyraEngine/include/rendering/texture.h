@@ -12,8 +12,8 @@
 #pragma once
 
 #include <core/application.h>
-#include <core/util.h>
-#include <core/logger.h>
+
+
 #include <rendering/vulkan/GPU_memory.h>
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/vulkan/command_buffer.h>

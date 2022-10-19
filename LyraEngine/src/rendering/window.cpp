@@ -4,8 +4,8 @@
 #include <backends/imgui_impl_sdl.h>
 
 #include <core/settings.h>
-#include <core/logger.h>
-#include <core/util.h>
+
+
 
 namespace lyra {
 

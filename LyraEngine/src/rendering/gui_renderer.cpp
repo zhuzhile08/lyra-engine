@@ -4,9 +4,9 @@
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_sdl.h>
 
-#include <core/logger.h>
+
 #include <core/queue.h>
-#include <core/util.h>
+
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
