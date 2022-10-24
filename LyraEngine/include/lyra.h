@@ -11,6 +11,7 @@
 
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 
 namespace lyra {
@@ -30,6 +31,16 @@ using int64 = int64_t;
 // pointer types
 
 typedef uintptr_t uptr;
+
+// color type
+struct Color {
+    constexpr Color() = default;
+    constexpr Color(uint8 r, uint8 g, uint8 b, uint8 a) : r(r), g(g), b(b), a(a) { }
+    constexpr Color(const Color& col) : r(col.r), g(col.g), b(col.b), a(col.a) { }
+    constexpr Color& operator=(const Color& col) { r = col.r; g = col.g; b = col.b; a = col.a; return *this; }
+    uint8 r, g, b, a;
+};
+typedef Color Colour;
 
 // core vulkan wrappers
 
@@ -119,7 +130,6 @@ class AudioFilter;
 // utility macros
 
 #define NODISCARD [[nodiscard]]
-#define CONSTEXPR constexpr
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 
