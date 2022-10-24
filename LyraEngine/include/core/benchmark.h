@@ -22,7 +22,7 @@ class Benchmark {
 public:
 	// initialize and start the timer
 	Benchmark();
-    
+	
 	// destruct and stop the timer
 	~Benchmark();
 

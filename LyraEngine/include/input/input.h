@@ -29,51 +29,51 @@ public:
 	// if you want documentation for the enums, please refer to the official SDL2 docs, since everything here is just modified SDL source code
 
 	enum class InputType {
-		TYPE_WINDOWEVENT    = 0x200, /**< Window state change */
-		TYPE_SYSTEMEVENT,             /**< System specific event */
+		TYPE_WINDOWEVENT	= 0x200, /**< Window state change */
+		TYPE_SYSTEMEVENT,			 /**< System specific event */
 
 		/* Keyboard events */
-		TYPE_KEYDOWN        = 0x300, /**< Key pressed */
-		TYPE_KEYUP,                  /**< Key released */
-		TYPE_TEXTEDITING,            /**< Keyboard text editing (composition) */
-		TYPE_TEXTINPUT,              /**< Keyboard text input */
-		TYPE_TEXTEDITING_EXT,       /**< Extended keyboard text editing (composition) */
+		TYPE_KEYDOWN		= 0x300, /**< Key pressed */
+		TYPE_KEYUP,				  /**< Key released */
+		TYPE_TEXTEDITING,			/**< Keyboard text editing (composition) */
+		TYPE_TEXTINPUT,			  /**< Keyboard text input */
+		TYPE_TEXTEDITING_EXT,	   /**< Extended keyboard text editing (composition) */
 
 		/* Mouse events */
-		TYPE_MOUSEMOTION    = 0x400, /**< Mouse moved */
-		TYPE_MOUSEBUTTONDOWN,        /**< Mouse button pressed */
-		TYPE_MOUSEBUTTONUP,          /**< Mouse button released */
-		TYPE_MOUSEWHEEL,             /**< Mouse wheel motion */
+		TYPE_MOUSEMOTION	= 0x400, /**< Mouse moved */
+		TYPE_MOUSEBUTTONDOWN,		/**< Mouse button pressed */
+		TYPE_MOUSEBUTTONUP,		  /**< Mouse button released */
+		TYPE_MOUSEWHEEL,			 /**< Mouse wheel motion */
 
 		/* Joystick events */
 		TYPE_JOYAXISMOTION  = 0x600, /**< Joystick axis motion */
-		TYPE_JOYBALLMOTION,          /**< Joystick trackball motion */
-		TYPE_JOYHATMOTION,           /**< Joystick hat position change */
-		TYPE_JOYBUTTONDOWN,          /**< Joystick button pressed */
-		TYPE_JOYBUTTONUP,            /**< Joystick button released */
-		TYPE_JOYDEVICEADDED,         /**< A new joystick has been inserted into the system */
-		TYPE_JOYDEVICEREMOVED,       /**< An opened joystick has been removed */
+		TYPE_JOYBALLMOTION,		  /**< Joystick trackball motion */
+		TYPE_JOYHATMOTION,		   /**< Joystick hat position change */
+		TYPE_JOYBUTTONDOWN,		  /**< Joystick button pressed */
+		TYPE_JOYBUTTONUP,			/**< Joystick button released */
+		TYPE_JOYDEVICEADDED,		 /**< A new joystick has been inserted into the system */
+		TYPE_JOYDEVICEREMOVED,	   /**< An opened joystick has been removed */
 
 		/* Game controller events */
 		TYPE_CONTROLLERAXISMOTION  = 0x650, /**< Game controller axis motion */
-		TYPE_CONTROLLERBUTTONDOWN,          /**< Game controller button pressed */
-		TYPE_CONTROLLERBUTTONUP,            /**< Game controller button released */
-		TYPE_CONTROLLERDEVICEADDED,         /**< A new Game controller has been inserted into the system */
-		TYPE_CONTROLLERDEVICEREMOVED,       /**< An opened Game controller has been removed */
-		TYPE_CONTROLLERDEVICEREMAPPED,      /**< The controller mapping was updated */
-		TYPE_CONTROLLERTOUCHPADDOWN,        /**< Game controller touchpad was touched */
-		TYPE_CONTROLLERTOUCHPADMOTION,      /**< Game controller touchpad finger was moved */
-		TYPE_CONTROLLERTOUCHPADUP,          /**< Game controller touchpad finger was lifted */
-		TYPE_CONTROLLERSENSORUPDATE,        /**< Game controller sensor was updated */
+		TYPE_CONTROLLERBUTTONDOWN,		  /**< Game controller button pressed */
+		TYPE_CONTROLLERBUTTONUP,			/**< Game controller button released */
+		TYPE_CONTROLLERDEVICEADDED,		 /**< A new Game controller has been inserted into the system */
+		TYPE_CONTROLLERDEVICEREMOVED,	   /**< An opened Game controller has been removed */
+		TYPE_CONTROLLERDEVICEREMAPPED,	  /**< The controller mapping was updated */
+		TYPE_CONTROLLERTOUCHPADDOWN,		/**< Game controller touchpad was touched */
+		TYPE_CONTROLLERTOUCHPADMOTION,	  /**< Game controller touchpad finger was moved */
+		TYPE_CONTROLLERTOUCHPADUP,		  /**< Game controller touchpad finger was lifted */
+		TYPE_CONTROLLERSENSORUPDATE,		/**< Game controller sensor was updated */
 
 		/* Clipboard events */
 		TYPE_CLIPBOARDUPDATE = 0x900, /**< The clipboard changed */
 
 		/* Drag and drop events */
-		TYPE_DROPFILE        = 0x1000, /**< The system requests a file open */
-		TYPE_DROPTEXT,                 /**< text/plain drag-and-drop event */
-		TYPE_DROPBEGIN,                /**< A new set of drops is beginning (NULL filename) */
-		TYPE_DROPCOMPLETE,             /**< Current set of drops is now complete (NULL filename) */
+		TYPE_DROPFILE		= 0x1000, /**< The system requests a file open */
+		TYPE_DROPTEXT,				 /**< text/plain drag-and-drop event */
+		TYPE_DROPBEGIN,				/**< A new set of drops is beginning (NULL filename) */
+		TYPE_DROPCOMPLETE,			 /**< Current set of drops is now complete (NULL filename) */
 
 		TYPE_UNKNOWN = 0xFFFF
 	};
@@ -268,9 +268,9 @@ public:
 		KEYBOARD_VOLUMEUP = 128,
 		KEYBOARD_VOLUMEDOWN = 129,
 	/* not sure whether there's a reason to enable these */
-	/*     KEYBOARD_LOCKINGCAPSLOCK = 130,  */
-	/*     KEYBOARD_LOCKINGNUMLOCK = 131, */
-	/*     KEYBOARD_LOCKINGSCROLLLOCK = 132, */
+	/*	 KEYBOARD_LOCKINGCAPSLOCK = 130,  */
+	/*	 KEYBOARD_LOCKINGNUMLOCK = 131, */
+	/*	 KEYBOARD_LOCKINGSCROLLLOCK = 132, */
 		KEYBOARD_KP_COMMA = 133,
 		KEYBOARD_KP_EQUALSAS400 = 134,
 
@@ -363,7 +363,7 @@ public:
 		KEYBOARD_RALT = 230, /**< alt gr, option */
 		KEYBOARD_RGUI = 231, /**< windows, command (apple), meta */
 
-		KEYBOARD_MODE = 257,    /**< I'm not sure if this is really not covered
+		KEYBOARD_MODE = 257,	/**< I'm not sure if this is really not covered
 									*   by any of the above, but since there's a
 									*   special KMOD_MODE for it I'm adding it here
 									*/
@@ -459,7 +459,7 @@ public:
 		SDL_CONTROLLER_BUTTON_DPAD_DOWN,
 		SDL_CONTROLLER_BUTTON_DPAD_LEFT,
 		SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
-		SDL_CONTROLLER_BUTTON_MISC1,    /* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
+		SDL_CONTROLLER_BUTTON_MISC1,	/* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
 		SDL_CONTROLLER_BUTTON_PADDLE1,  /* Xbox Elite paddle P1 */
 		SDL_CONTROLLER_BUTTON_PADDLE2,  /* Xbox Elite paddle P3 */
 		SDL_CONTROLLER_BUTTON_PADDLE3,  /* Xbox Elite paddle P2 */
@@ -517,7 +517,7 @@ public:
 	/**
 	 * @brief get the mouse position via return
 	 * 
-	 * @return const glm::vec2
+	 * @return const lyra::glm::vec2
 	 */
 	NODISCARD static const glm::vec2 check_mouse_position();
 	/**
@@ -525,7 +525,7 @@ public:
 	 * 
 	 * @param mousePos empty mouse position vector
 	 */
-	static void check_mouse_position(glm::vec2& mousePos);
+	static void check_mouse_position(glm::ivec2& mousePos);
 
 	/**
 	 * @brief update the keys. Called every frame
