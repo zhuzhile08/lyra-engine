@@ -2,9 +2,6 @@
 
 #include <gtc/matrix_transform.hpp>
 
-
-
-
 #include <nodes/script.h>
 
 #include <rendering/vulkan/vulkan_shader.h>
