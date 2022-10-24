@@ -21,7 +21,9 @@
 #include "rendering/vulkan/descriptor.cpp"
 #include "rendering/vulkan/devices.cpp"
 #include "rendering/vulkan/GPU_buffer.cpp"
+#ifndef NDEBUG
 #include "rendering/vulkan/GPU_memory.cpp"
+#endif
 #include "rendering/vulkan/vulkan_image.cpp"
 #include "rendering/vulkan/vulkan_pipeline.cpp"
 #include "rendering/vulkan/vulkan_shader.cpp"
