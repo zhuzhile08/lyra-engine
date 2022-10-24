@@ -37,7 +37,7 @@ void CommandPool::reset() {
 }
 
 // command buffer
-CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const CommandPool* const commandPool, const VkCommandBufferLevel level) :
+CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const CommandPool* const commandPool, const VkCommandBufferLevel& level) :
 	commandPool(commandPool)
 {
 	Logger::log_debug(Logger::tab(), "Creating Vulkan command buffer...");
@@ -64,7 +64,7 @@ CommandBufferManager::VulkanCommandBuffer::~VulkanCommandBuffer() noexcept {
 }
 
 // manager
-CommandBufferManager::CommandBufferManager(const VkCommandBufferLevel level) : m_commandPool() {
+CommandBufferManager::CommandBufferManager(const VkCommandBufferLevel& level) : m_commandPool() {
 	Logger::log_info("Creating command buffer manager...");
 
 	m_commandBufferData.reserve(Settings::Memory::maxCommandBuffers);
@@ -83,7 +83,7 @@ CommandBufferManager::~CommandBufferManager() noexcept {
 	Logger::log_info("Successfully destroyed a command buffer manager!");
 }
 
-void CommandBuffer::begin(const VkCommandBufferUsageFlags usage) {
+void CommandBuffer::begin(const VkCommandBufferUsageFlags& usage) {
 	commandBufferManager->m_commandBuffers.find(m_index)->second = CommandBufferManager::CommandBufferUsage::COMMAND_BUFFER_USED; // set that command buffer as in use
 
 	// some info about the recording
@@ -98,13 +98,13 @@ void CommandBuffer::begin(const VkCommandBufferUsageFlags usage) {
 	vassert(vkBeginCommandBuffer(*m_commandBuffer, &beginInfo), "start recording Vulkan command buffer");
 }
 
-void CommandBuffer::reset(const VkCommandBufferResetFlags flags) {
+void CommandBuffer::reset(const VkCommandBufferResetFlags& flags) {
 	commandBufferManager->m_commandBuffers.find(m_index)->second = CommandBufferManager::CommandBufferUsage::COMMAND_BUFFER_UNUSED; // set that command buffer as unused
 
 	vassert(vkResetCommandBuffer(*m_commandBuffer, flags), "reset command buffer"); // reset the command buffer
 }
 
-void CommandBuffer::submitQueue(const VkQueue queue) {
+void CommandBuffer::submitQueue(const VkQueue& queue) {
 	// queue submission info
 	VkSubmitInfo submitInfo = {
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,

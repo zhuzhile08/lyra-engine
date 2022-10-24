@@ -63,15 +63,15 @@ void Window::recreate() {
 	Logger::log_info("Successfully recreated Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
 
-void Window::wait(const uint32 fenceIndex) const {
+void Window::wait(const uint32& fenceIndex) const {
 	vassert(Application::renderSystem()->device()->waitForFences(1, m_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
 }
 
-void Window::reset(const uint32 fenceIndex) const {
+void Window::reset(const uint32& fenceIndex) const {
 	vassert(Application::renderSystem()->device()->resetFences(1, m_inFlightFences.at(fenceIndex)), "reset Vulkan fences");
 }
 
-void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities) {
+void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities) {
 	int width, height;
 	SDL_Vulkan_GetDrawableSize(Application::window()->get(), &width, &height);
 
@@ -105,7 +105,7 @@ const VkSurfaceFormatKHR Window::get_optimal_format() {
 	return availableFormats.at(0);
 }
 
-const VkPresentModeKHR Window::get_optimal_present_mode() {
+const VkPresentModeKHR Window::get_optimal_present_mode() const {
 	uint32 availablePresentModeCount = 0;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availablePresentModeCount, nullptr);
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);

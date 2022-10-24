@@ -11,7 +11,6 @@
 
 #pragma once
 
-
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -23,7 +22,7 @@ namespace vulkan {
  * @brief wrapper around vulkan images
  */
 struct Image {
-	Image() { }
+	constexpr Image() = default;
 	/**
 	* @brief destructor of the image
 	**/
@@ -49,17 +48,17 @@ struct Image {
 	 * @param samples configure multi sample anti-aliasing
 	 * @param tiling how to store the image in the GPU memory
 	 * 
-	 * @return const VkImageCreateInfo
+	 * @return constexpr VkImageCreateInfo
 	 */
-	NODISCARD const VkImageCreateInfo get_image_create_info(
-		const VkFormat format,
-		const VkExtent3D extent,
-		const VkImageUsageFlags usage,
-		const uint32 mipLevels = 1,
-		const VkImageType imageType = VK_IMAGE_TYPE_2D,
-		const uint32 arrayLayers = 1,
-		const VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
-		const VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
+	NODISCARD constexpr VkImageCreateInfo get_image_create_info(
+		const VkFormat& format,
+		const VkExtent3D& extent,
+		const VkImageUsageFlags& usage,
+		const uint32& mipLevels = 1,
+		const VkImageType& imageType = VK_IMAGE_TYPE_2D,
+		const uint32& arrayLayers = 1,
+		const VkSampleCountFlagBits& samples = VK_SAMPLE_COUNT_1_BIT,
+		const VkImageTiling& tiling = VK_IMAGE_TILING_OPTIMAL
 	) noexcept;
 
 	/**
@@ -71,10 +70,10 @@ struct Image {
 	 * @param colorComponents color modulation of the image
 	 */
 	void create_view(
-		const VkFormat format,
-		const VkImageSubresourceRange subresourceRange,
-		const VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
-		const VkComponentMapping colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
+		const VkFormat& format,
+		const VkImageSubresourceRange& subresourceRange,
+		const VkImageViewType& viewType = VK_IMAGE_VIEW_TYPE_2D,
+		const VkComponentMapping& colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
 	);
 
 	/**
@@ -88,16 +87,16 @@ struct Image {
 	 * @param dstQueueFamily the queue family to transfer ownership to
 	 * @param subresourceRange some data about the image
 	 *
-	 * @return const VkImageMemoryBarrier
+	 * @return constexpr VkImageMemoryBarrier
 	*/
-	NODISCARD const VkImageMemoryBarrier get_image_memory_barrier(
-		const VkAccessFlags srcAccessMask,
-		const VkAccessFlags dstAccessMask,
-		const VkImageLayout srcLayout,
-		const VkImageLayout dstLayout,
-		const VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
-		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		const uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	NODISCARD constexpr VkImageMemoryBarrier get_image_memory_barrier(
+		const VkAccessFlags& srcAccessMask,
+		const VkAccessFlags& dstAccessMask,
+		const VkImageLayout& srcLayout,
+		const VkImageLayout& dstLayout,
+		const VkImageSubresourceRange& subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
+		const uint32& srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32& dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
 	) const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -123,10 +122,10 @@ struct Image {
 	 * @param aspect purpose of the image
 	*/
 	void transition_layout(
-		const VkImageLayout oldLayout,
-		const VkImageLayout newLayout,
-		const VkFormat format,
-		const VkImageSubresourceRange subresourceRange
+		const VkImageLayout& oldLayout,
+		const VkImageLayout& newLayout,
+		const VkFormat& format,
+		const VkImageSubresourceRange& subresourceRange
 	) const;
 
 	/**
@@ -136,9 +135,9 @@ struct Image {
 	 * @param features what type the image is
 	 * @param tiling tiling mode of the image
 	 *
-	 * @return const VkFormat
+	 * @return constexpr VkFormat
 	*/
-	NODISCARD const VkFormat get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling = VK_IMAGE_TILING_MAX_ENUM) const;
+	NODISCARD constexpr VkFormat get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling = VK_IMAGE_TILING_MAX_ENUM) const;
 
 	VkImage m_image = VK_NULL_HANDLE;
 	VkImageView m_view = VK_NULL_HANDLE;

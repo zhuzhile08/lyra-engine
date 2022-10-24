@@ -43,7 +43,7 @@ public:
 	/**
 	 * @brief destroy the game object
 	 */
-	~Node() { for (auto& [name, child] : m_children) child->set_parent(m_parent); }
+	virtual ~Node() { for (auto& [name, child] : m_children) child->set_parent(m_parent); }
 
 	/**
 	 * @brief show the object
@@ -64,11 +64,23 @@ public:
 		m_children[newChild->name()] = newChild;
 	}
 	/**
+	 * @brief add a child object via the addition operator
+	 * 
+	 * @param newChild 
+	 * @return Node<_Ty>
+	 */
+	constexpr Node<_Ty> operator+(_Ty* newChild) {
+		newChild->m_parent = this;
+		m_children[newChild->name()] = newChild;
+		return *this;
+	}
+
+	/**
 	 * @brief add the game object to the front of a tree
 	 *
 	 * @param root the game object that is going to be behind this one
 	 */
-	void add_to_beginning(_Ty root) noexcept {
+	void add_to_beginning(_Ty& root) noexcept {
 		m_parent = nullptr;
 		root.m_parent = this;
 	}
@@ -96,7 +108,7 @@ public:
 	 *
 	 * @param tag new tag
 	 */
-	void set_tag(const uint32 tag) noexcept { m_tag = tag; }
+	void set_tag(const uint32& tag) noexcept { m_tag = tag; }
 	/**
 	 * @brief set the parent
 	 *
@@ -105,25 +117,25 @@ public:
 	void set_parent(_Ty* newParent) noexcept { m_parent = newParent; }
 
 	/**
-	 * @brief get the child by name
+	 * @brief get the child by name via the [] operator
 	 *
 	 * @param name name of the child to find
-	 * @return const Node* const
+	 * @return const _Ty* const
 	 */
-	NODISCARD _Ty* const get_child_by_name(const std::string name) const { return m_children.at(m_name); }
+	constexpr _Ty* const operator[](const std::string& name) const { return m_children.at(m_name); }
 
 	/**
 	 * @brief get if the object is visible or not
 	 *
-	 * @return const bool
+	 * @return constexpr bool
 	*/
-	NODISCARD const bool visibility() const noexcept { return m_visible; }
+	NODISCARD constexpr bool visibility() const noexcept { return m_visible; }
 	/**
 	 * @brief get if the object is visible or not
 	 *
-	 * @return const uint32_t
+	 * @return constexpr uint32_t
 	*/
-	NODISCARD const uint32 tag() const noexcept { return m_tag; }
+	NODISCARD constexpr uint32 tag() const noexcept { return m_tag; }
 	/**
 	 * @brief get the name
 	 *
@@ -133,15 +145,15 @@ public:
 	/**
 	 * @brief get the children
 	 *
-	 * @return const std::unordered_map <std::string, Node*>* cosnt
+	 * @return constexpr std::unordered_map <std::string, Node*>* cosnt
 	 */
-	NODISCARD const std::unordered_map <std::string, Node*>* const children() const noexcept { return &m_children; }
+	NODISCARD constexpr std::unordered_map <std::string, Node*>* const children() const noexcept { return &m_children; }
 	/**
 	 * @brief get the parent
 	 *
-	 * @return const _Ty* const
+	 * @return constexpr _Ty* const
 	 */
-	NODISCARD const _Ty* const parent() const noexcept { return m_parent; }
+	NODISCARD constexpr _Ty* const parent() const noexcept { return m_parent; }
 
 protected:
 	bool m_visible = true;

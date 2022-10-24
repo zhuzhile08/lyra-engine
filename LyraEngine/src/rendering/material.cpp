@@ -12,23 +12,23 @@ namespace lyra {
 
 Material::Material(
 	const Camera* const camera,
-	const std::vector<MeshRenderer*> meshRenderers,
-	const Color albedoColor,
+	const std::vector<MeshRenderer*>& meshRenderers,
+	const Color& albedoColor,
 	const Texture* const albedoTexture,
-	const uint8 metallic,
-	const uint8 roughness,
-	const uint8 specular,
+	const uint8& metallic,
+	const uint8& roughness,
+	const uint8& specular,
 	const Texture* const metallicTexture,
-	const bool emissionEnabled,
-	const Color emissionColor,
+	const bool& emissionEnabled,
+	const Color& emissionColor,
 	const Texture* const emissionTexture,
-	const uint8 emissionEnergy,
+	const uint8& emissionEnergy,
 	const Texture* const normalMapTexture,
-	const int8 normalMapValue,
+	const int8& normalMapValue,
 	const Texture* const heightMapTexture,
-	const uint8 heightMapValue,
+	const uint8& heightMapValue,
 	const Texture* const  occlusionMapTexture,
-	const uint8 occlusionMapValue
+	const uint8& occlusionMapValue
 ) : m_meshRenderers(meshRenderers),
 	m_albedoColor(albedoColor),
 	m_albedoTexture(albedoTexture),
@@ -91,12 +91,12 @@ Material::Material(
 		{ (m_occlusionMapTexture) ? m_occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
 		});
 	writer.add_writes({ // write the buffers
-		{ m_vertShaderBuffers.at(0).get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_vertShaderBuffers.at(1).get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ camera->buffers().at(0).get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ camera->buffers().at(1).get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers.at(0).get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers.at(1).get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_vertShaderBuffers[0].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_vertShaderBuffers[1].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ camera->buffers()[0].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ camera->buffers()[1].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers[0].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers[1].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		});
 
 	// create the descriptors

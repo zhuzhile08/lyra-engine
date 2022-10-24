@@ -4,7 +4,7 @@
 
 namespace lyra {
 
-Texture::Texture(const char* path, const VkFormat format)
+Texture::Texture(const char* path, const VkFormat& format)
 : m_path(path) {
 	Logger::log_info("Creating Vulkan texture and image sampler... ");
 
@@ -29,7 +29,7 @@ Texture::~Texture() noexcept {
 	Logger::log_info("Successfully destroyed Texture!");
 }
 
-void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat format) {
+void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat& format) {
 	Logger::log_debug(Logger::tab(), "path: ", m_path);
 	Logger::log_debug(Logger::tab(), "width: ", m_width, " and height: ", m_height);
 	Logger::log_debug(Logger::tab(), "mipmapping levels: ", m_mipmap);
@@ -69,7 +69,7 @@ void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat format
 	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(textureInfo.dimension));
 }
 
-void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter magnifiedTexel, const VkFilter minimizedTexel, const VkSamplerMipmapMode mipmapMode) {
+void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &properties);
 
@@ -180,7 +180,7 @@ void Texture::generate_mipmaps() const {
 	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
 }
 
-void Texture::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D extent) {
+void Texture::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent) {
 	// temporary command buffer for copying
 	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
 	// begin recording

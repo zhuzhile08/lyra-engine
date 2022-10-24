@@ -26,7 +26,7 @@ namespace vulkan {
  */
 class Pipeline {
 public:
-	Pipeline() { }
+	Pipeline() = default;
 
 	/**
 	 * @brief descriptor and shader information
@@ -58,49 +58,45 @@ public:
 	 * @brief destructor of the pipeline
 	 */
 	virtual ~Pipeline() noexcept;
-	/**
-	 * @brief destroy the pipeline
-	 */
-	virtual void destroy() noexcept { this->~Pipeline(); };
 
 	Pipeline operator=(const Pipeline&) const noexcept = delete;
 
 	/**
 	 * @brief get the descriptor set layout
 	 *
-	 * @return const DescriptorSetLayout* const
+	 * @return constexpr DescriptorSetLayout* const
 	*/
-	NODISCARD const DescriptorSetLayout* const descriptorSetLayout() const noexcept { return m_descriptorSetLayout; }
+	NODISCARD constexpr DescriptorSetLayout* const descriptorSetLayout() const noexcept { return m_descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor pool
 	 *
-	 * @return const DescriptorPool* const
+	 * @return constexpr DescriptorPool* const
 	*/
-	NODISCARD const DescriptorPool* const descriptorPool() const noexcept { return m_descriptorPool; }
+	NODISCARD constexpr DescriptorPool* const descriptorPool() const noexcept { return m_descriptorPool; }
 	/**
 	 * @brief get the pipeline
 	 *
-	 * @return const VkPipeline&
+	 * @return constexpr VkPipeline
 	*/
-	NODISCARD const VkPipeline& pipeline() const noexcept { return m_pipeline; }
+	NODISCARD constexpr VkPipeline pipeline() const noexcept { return m_pipeline; }
 	/**
 	 * @brief get the pipeline layout
 	 *
-	 * @return const VkPipelineLayout&
+	 * @return constexpr VkPipelineLayout
 	*/
-	NODISCARD const VkPipelineLayout& layout() const noexcept { return m_layout; }
+	NODISCARD constexpr VkPipelineLayout layout() const noexcept { return m_layout; }
 	/**
 	 * @brief get the shaders
 	 *
-	 * @return const std::vector<Shader>&
+	 * @return const std::vector<Shader>
 	*/
-	NODISCARD const std::vector<Shader>& shaders() const noexcept { return m_shaders; }
+	NODISCARD const std::vector<Shader> shaders() const noexcept { return m_shaders; }
 	/**
 	 * @brief get the shaders
 	 *
-	 * @return const VkPipelineBindPoint&
+	 * @return constexpr VkPipelineBindPoint
 	*/
-	NODISCARD const VkPipelineBindPoint& bindPoint() const noexcept { return m_bindPoint; }
+	NODISCARD constexpr VkPipelineBindPoint bindPoint() const noexcept { return m_bindPoint; }
 
 protected:
 	VkPipeline m_pipeline = VK_NULL_HANDLE;
@@ -117,7 +113,7 @@ protected:
 	 * 
 	 * @param pushConstants push constant data
 	 */
-	void create_layout(std::vector<VkPushConstantRange> pushConstants); // first time I've used a default Vulkan struct in an exposed part of the API
+	void create_layout(const std::vector<VkPushConstantRange>& pushConstants); // first time I've used a default Vulkan struct in an exposed part of the API
 	/**
 	 * @brief create stuff related to descriptors
 	 * 
@@ -125,13 +121,13 @@ protected:
 	 * @param poolFlags descriptor pool additional flags
 	 * @param maxSets maximum number of descriptor sets
 	*/
-	void create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags = 0);
+	void create_descriptor_stuff(const std::vector<Binding>& bindings, const VkDescriptorPoolCreateFlags& poolFlags = 0);
 	/**
 	 * @brief create all the shaders
 	 *
 	 * @param shaders shader information
 	 */
-	void create_shaders(std::vector<ShaderInfo> shaders);
+	void create_shaders(const std::vector<ShaderInfo>& shaders);
 };
 
 } // namespace vulkan

@@ -32,11 +32,11 @@ namespace lyra {
  * @tparam _Ty type of array
  * @param array the array
  * 
- * @return uint32_t
+ * @return constexpr uint32_t
 */
-template<typename _Ty> NODISCARD inline uint32 arr_size(const _Ty* array); 
+template<typename _Ty> NODISCARD constexpr uint32 arr_size(const _Ty* array); 
 
-template<typename _Ty> uint32 arr_size(const _Ty* array) {
+template<typename _Ty> constexpr uint32 arr_size(const _Ty* array) {
 	// return sizeof(array) / sizeof(array[0]);
 	return static_cast<uint32>(*(&array + 1) - array); // if you won't take my normal and understandable code, take this instead!
 }
@@ -47,11 +47,11 @@ template<typename _Ty> uint32 arr_size(const _Ty* array) {
  * @tparam _Ty type of pointer
  * @param type the pointer
  * 
- * @return std::string 
+ * @return constexpr const void*
 */
-template<typename _Ty> NODISCARD inline const void* get_address(const _Ty type);
+template<typename _Ty> NODISCARD constexpr const void* get_address(const _Ty type);
 
-template<typename _Ty> const void* get_address(const _Ty type) {
+template<typename _Ty> constexpr const void* get_address(const _Ty type) {
 	return static_cast<const void*>(type);
 }
 

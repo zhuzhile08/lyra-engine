@@ -34,12 +34,6 @@ public:
 	 * @brief destructor of the swapchain
 	 */
 	virtual ~Window() noexcept;
-	/**
-	 * @brief destroy the swapchain
-	 */
-	void destroy() noexcept {
-		this->~Window();
-	}
 
 	Window operator=(const Window&) const noexcept = delete;
 
@@ -53,74 +47,74 @@ public:
 	 *
 	 * @param fenceIndex index of the fence
 	 */
-	void wait(const uint32 fenceIndex) const;
+	void wait(const uint32& fenceIndex) const;
 	/**
 	 * @brief reset Vulkan fences
 	 *
 	 * @param fenceIndex index of fence to reset
 	 */
-	void reset(const uint32 imageIndex) const;
+	void reset(const uint32& imageIndex) const;
 
 	/**
 	 * @brief get the Vulkan surface
 	 *
-	 * @return const VkSurfaceKHR&
+	 * @return constexpr VkSurfaceKHR
 	 */
-	NODISCARD const VkSurfaceKHR& surface() const noexcept { return m_surface; }
+	NODISCARD constexpr VkSurfaceKHR surface() const noexcept { return m_surface; }
 	/**
 	 * @brief get the swapchain
 	 *
-	 * @return const VkSwapchainKHR&
+	 * @return constexpr const VkSwapchainKHR&
 	*/
-	NODISCARD const VkSwapchainKHR& swapchain() const noexcept { return m_swapchain; }
+	NODISCARD constexpr const VkSwapchainKHR& swapchain() const noexcept { return m_swapchain; }
 	/**
 	 * @brief get the swapchain images
 	 * 
-	 * @return const std::vector<VkImage>&
+	 * @return const std::vector<VkImage>
 	 */
-	NODISCARD const std::vector<VkImage>& images() const noexcept { return m_images; }
+	NODISCARD const std::vector<VkImage> images() const noexcept { return m_images; }
 	/**
 	 * @brief get the image views of the swapchain images
 	 *
-	 * @return const std::vector<VkImageView>&
+	 * @return const std::vector<VkImageView>
 	 */
-	NODISCARD const std::vector<VkImageView>& views() const noexcept { return m_views; }
+	NODISCARD const std::vector<VkImageView> views() const noexcept { return m_views; }
 	/**
 	 * @brief get the format
 	 *
-	 * @return const VkFormat&
+	 * @return constexpr VkFormat
 	*/
-	NODISCARD const VkFormat& format() const noexcept { return m_format; }
+	NODISCARD constexpr VkFormat format() const noexcept { return m_format; }
 	/**
 	 * @brief get the extent
 	 *
-	 * @return const VkExtent2D&
+	 * @return constexpr VkExtent2D
 	*/
-	NODISCARD const VkExtent2D& extent() const noexcept { return m_extent; }
+	NODISCARD constexpr VkExtent2D extent() const noexcept { return m_extent; }
 	/**
 	 * @brief get the color resources image
 	 *
-	 * @return const Image* const
+	 * @return constexpr const Image* const
 	 */
-	NODISCARD const Image* const colorImage() const noexcept { return &m_colorImage; }
+	NODISCARD constexpr const Image* const colorImage() const noexcept { return &m_colorImage; }
 	/**
 	 * @brief get the maximum amout of samples
 	 *
-	 * @return const VkSampleCountFlagBits
+	 * @return constexpr VkSampleCountFlagBits
 	 */
-	NODISCARD const VkSampleCountFlagBits& maxMultisamples() const noexcept { return m_maxMultisamples; }
+	NODISCARD constexpr VkSampleCountFlagBits maxMultisamples() const noexcept { return m_maxMultisamples; }
 	/**
 	 * @brief get the depth buffer image
 	 *
-	 * @return const Image* const
+	 * @return constexpr const Image* const
 	 */
-	NODISCARD const Image* const depthImage() const noexcept { return &m_depthImage; }
+	NODISCARD constexpr const Image* const depthImage() const noexcept { return &m_depthImage; }
 	/**
 	 * @brief get the depth buffer format
 	 *
-	 * @return const VkFormat&
+	 * @return constexpr VkFormat&
 	*/
-	NODISCARD const VkFormat& depthBufferFormat() const noexcept { return m_depthBufferFormat; }
+	NODISCARD constexpr VkFormat depthBufferFormat() const noexcept { return m_depthBufferFormat; }
 	/**
 	 * @brief get the image available semaphores
 	 *
@@ -174,7 +168,7 @@ private:
 	 *
 	 * @return const VkPresentModeKHR
 	*/
-	NODISCARD const VkPresentModeKHR get_optimal_present_mode();
+	NODISCARD const VkPresentModeKHR get_optimal_present_mode() const;
 	/**
 	 * @brief get the maximum amout of samples
 	 *
@@ -194,7 +188,7 @@ private:
 	 *
 	 * @param surfaceCapabilities capabilities of the swapchain
 	 */
-	void create_swapchain_extent(const VkSurfaceCapabilitiesKHR surfaceCapabilities);
+	void create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 
 	/**
 	 * @brief create a Vulkan window surface

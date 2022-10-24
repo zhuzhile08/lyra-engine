@@ -43,7 +43,7 @@ enum OpenMode {
  * @param mode mode to open the file
  * @param file the file
  */
-void load_file(const char* path, const int mode, std::ifstream& file);
+void load_file(const char* path, const int& mode, std::ifstream& file);
 
 /**
  * @brief load a file and store all of its contents into a string-like container
@@ -54,7 +54,7 @@ void load_file(const char* path, const int mode, std::ifstream& file);
  * @param fileContainer container to copy the file into
  */
 template<class _Ty>
-void load_file(const char* path, const int mode, _Ty& fileContainer) {
+void load_file(const char* path, const int& mode, _Ty& fileContainer) {
 	// load the binary
 	std::ifstream file;
 	load_file(path, mode, file);
@@ -78,7 +78,7 @@ void load_file(const char* path, const int mode, _Ty& fileContainer) {
  * @param fileContainer container to copy the file into
  */
 template<class _Ty> 
-void load_file(const char* path, const int mode, std::vector<_Ty>& fileContainer) {
+void load_file(const char* path, const int& mode, std::vector<_Ty>& fileContainer) {
 	// load the binary
 	std::ifstream file;
 	load_file(path, mode, file);

@@ -11,8 +11,6 @@
 
 #pragma once
 
-
-
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -59,7 +57,6 @@ public:
 		TYPE_MESH = 0x00000080,
 	}; // I totally didn't steal these names from the API, why would I?
 
-	Shader() { }
 	/**
 	 * @brief create a shader
 	 *
@@ -67,7 +64,7 @@ public:
 	 * @param entry name of the entrance point of the shader
 	 * @param type type of the shader
 	 */
-	Shader(const char* path, const char* entry, Type type);
+	Shader(const char* path, const char* entry, const Type& type);
 	/**
 	* @brief destructor of the shader
 	**/
@@ -78,9 +75,9 @@ public:
 	/**
 	 * @brief get the shader loading information
 	 *
-	 * @return const VkPipelineShaderStageCreateInfo
+	 * @return constexpr const VkPipelineShaderStageCreateInfo
 	*/
-	NODISCARD const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
+	NODISCARD constexpr const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
@@ -95,15 +92,15 @@ public:
 	/**
 	 * @brief get the shader module
 	 * 
-	 * @return const VkShaderModule&
+	 * @return constexpr const VkShaderModule&
 	*/
-	NODISCARD const VkShaderModule& module() const noexcept { return m_module; }
+	NODISCARD constexpr const VkShaderModule& module() const noexcept { return m_module; }
 	/**
 	 * @brief get the entry point of the shader
 	 * 
-	 * @return const string
+	 * @return constexpr const string
 	*/
-	NODISCARD const char* const entry() const noexcept { return m_entry; }
+	NODISCARD constexpr const char* const entry() const noexcept { return m_entry; }
 
 private:
 	VkShaderModule m_module = VK_NULL_HANDLE;

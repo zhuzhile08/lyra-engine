@@ -41,13 +41,6 @@ public:
 	**/
 	virtual ~Window() noexcept;
 
-	/**
-	 * @brief destroy the window
-	 */
-	void destroy() noexcept {
-		this->~Window();
-	}
-
 	Window(const Window&) noexcept = delete;
 	Window operator=(const Window&) const noexcept = delete;
 
@@ -62,13 +55,13 @@ public:
 	* 
 	* @return const bool
 	**/
-	NODISCARD const bool running() const noexcept { return m_running; }
+	NODISCARD constexpr bool running() const noexcept { return m_running; }
 	/**
 	* @brief get if window was changed and set it back to false
 	* 
 	* @return const bool
 	**/
-	NODISCARD const bool changed() noexcept { return m_changed; }
+	NODISCARD constexpr bool changed() noexcept { return m_changed; }
 
 private:
 	SDL_Window* m_window;

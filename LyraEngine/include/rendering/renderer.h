@@ -33,15 +33,15 @@ public:
 	/**
 	 * @brief get the render pass
 	 *
-	 * @return const VkRenderPass&
+	 * @return constexpr VkRenderPass
 	*/
-	NODISCARD const VkRenderPass& renderPass() const noexcept { return m_renderPass; }
+	NODISCARD constexpr VkRenderPass renderPass() const noexcept { return m_renderPass; }
 	/**
 	 * @brief get the framebuffers
 	 *
-	 * @return const std::vector <VkFramebuffer>&
+	 * @return const std::vector <VkFramebuffer>
 	*/
-	NODISCARD const std::vector <VkFramebuffer>& framebuffers() const noexcept { return m_framebuffers; }
+	NODISCARD const std::vector <VkFramebuffer> framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
 	VkRenderPass m_renderPass = VK_NULL_HANDLE;

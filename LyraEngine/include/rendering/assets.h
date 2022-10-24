@@ -69,15 +69,15 @@ public:
 	/**
 	 * @brief return the raw image data
 	 * 
-	 * @return const lyra::util::AssetFile&
+	 * @return const lyra::util::AssetFile
 	 */
-	NODISCARD static const util::AssetFile& images() noexcept { return m_images; }
+	NODISCARD static const util::AssetFile images() noexcept { return m_images; }
 	/**
 	 * @brief return the null texture
 	 * 
 	 * @reutrn const lyra::Texture* const 
 	 */
-	NODISCARD static const Texture* const nullTexture() noexcept { return m_nullTexture; }
+	NODISCARD  static const Texture* const nullTexture() noexcept { return m_nullTexture; }
 	/**
 	 * @brief return the null normal map texture
 	 *

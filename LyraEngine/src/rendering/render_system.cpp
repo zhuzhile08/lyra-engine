@@ -34,7 +34,7 @@ void RenderSystem::update() const {
 	for (int i = 0; i < m_renderers.size(); i++) m_renderers.at(i)->m_updateQueue.flush();
 }
 
-void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily queue) const {
+void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily& queue) const {
 	vassert(vkQueueWaitIdle(queue.queue), "wait for device queue");
 }
 
@@ -79,7 +79,7 @@ void RenderSystem::draw() {
 	update_frame_count();
 }
 
-void RenderSystem::submit_device_queue(const VkPipelineStageFlags stageFlags) const {
+void RenderSystem::submit_device_queue(const VkPipelineStageFlags& stageFlags) const {
 	VkSubmitInfo submitInfo {
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
 	   nullptr,

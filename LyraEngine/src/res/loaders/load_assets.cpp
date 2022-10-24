@@ -4,7 +4,7 @@ namespace lyra {
 
 namespace util {
 
-const AssetFile load_assets(const std::string binPath) {
+const AssetFile load_assets(const std::string& binPath) {
 	AssetFile loadedAsset;
 
 	// check
@@ -57,7 +57,7 @@ const AssetFile load_assets(const std::string binPath) {
 	return loadedAsset;
 }
 
-char* const unpack_file(const char* const data, const uint32 jsonLength, const uint32 jsonSize) {
+constexpr char* const unpack_file(const char* const data, const uint32& jsonLength, const uint32& jsonSize) {
 	char* result = { };
 	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
 	return result;

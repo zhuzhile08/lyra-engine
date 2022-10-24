@@ -21,7 +21,7 @@ Pipeline::~Pipeline() noexcept {
 	Logger::log_info("Successfully destroyed Vulkan pipeline!");
 }
 
-void Pipeline::create_layout(std::vector<VkPushConstantRange> pushConstants) {
+void Pipeline::create_layout(const std::vector<VkPushConstantRange>& pushConstants) {
 	// create the pipeline layout
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -36,7 +36,7 @@ void Pipeline::create_layout(std::vector<VkPushConstantRange> pushConstants) {
 	vassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout), "create Vulkan graphics pipeline layout");
 }
 
-void Pipeline::create_shaders(std::vector<ShaderInfo> shaders) {
+void Pipeline::create_shaders(const std::vector<ShaderInfo>& shaders) {
 	m_shaders.reserve(shaders.size());
 
 	// create the shaders in the vector
@@ -47,24 +47,24 @@ void Pipeline::create_shaders(std::vector<ShaderInfo> shaders) {
 	}
 }
 
-void Pipeline::create_descriptor_stuff(std::vector<Binding> bindings, VkDescriptorPoolCreateFlags poolFlags) {
+void Pipeline::create_descriptor_stuff(const std::vector<Binding>& bindings, const VkDescriptorPoolCreateFlags& poolFlags) {
 	// configure the builders using the custom pipeline builder
 	DescriptorSetLayout::Builder layoutBuilder; // layout
 	DescriptorPool::Builder poolBuilder; // pool
 
 	for (uint32 i = 0; i < bindings.size(); i++) {
 		// add the information to the layout builder first
-		layoutBuilder.add_bindings({ std::make_tuple(
+		layoutBuilder.add_bindings({ {
 			i,
 			bindings.at(i).descriptorType,
 			bindings.at(i).shaderType,
 			bindings.at(i).descriptorCount
-		)});
+		} });
 		// then add the information to the pool builder
-		poolBuilder.add_pool_sizes( {{
+		poolBuilder.add_pool_sizes({ {
 			bindings.at(i).descriptorType,
 			bindings.at(i).descriptorAllocCount
-		}});
+		} });
 		// update the count of descriptor sets
 		poolBuilder.maxSets += bindings.at(i).descriptorAllocCount;
 	}

@@ -27,7 +27,6 @@ namespace lyra {
  */
 class RenderSystem {
 public:
-	RenderSystem() { }
 	/**
 	 * @brief create the renderer
 	 *
@@ -47,7 +46,7 @@ public:
 	 *
 	 * @param queue queue to wait for
 	 */
-	void wait_device_queue(const vulkan::Device::QueueFamily queue) const;
+	void wait_device_queue(const vulkan::Device::QueueFamily& queue) const;
 
 	/**
 	 * @brief take the recorded commands and draw everything
@@ -126,7 +125,7 @@ private:
 	 *
 	 * @param stageFlags pipeline shader stage flags
 	 */
-	void submit_device_queue(const VkPipelineStageFlags stageFlags) const;
+	void submit_device_queue(const VkPipelineStageFlags& stageFlags) const;
 	
 	/// @todo
 	/**

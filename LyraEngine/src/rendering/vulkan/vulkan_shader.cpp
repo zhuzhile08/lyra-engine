@@ -1,7 +1,5 @@
 #include <rendering/vulkan/vulkan_shader.h>
 
-
-
 #include <res/loaders/load_file.h>
 #include <core/application.h>
 #include <rendering/vulkan/devices.h>
@@ -10,7 +8,7 @@ namespace lyra {
 
 namespace vulkan {
 
-Shader::Shader(const char* path, const char* entry, Type type) : m_entry(entry), m_type(type) {
+Shader::Shader(const char* path, const char* entry, const Type& type) : m_entry(entry), m_type(type) {
 	Logger::log_info("Loading and creating Vulkan shader...");
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);

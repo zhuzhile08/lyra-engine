@@ -87,58 +87,54 @@ public:
 	 * @param path path
 	 * @param format format of the image
 	 */
-	Texture(const char* path, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const char* path, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief destructor of the texture
 	 */
 	virtual ~Texture() noexcept;
-	/**
-	 * @brief destroy the texture
-	 */
-	void destroy() noexcept {
-		this->~Texture();
-	}
 
 	Texture operator=(const Texture&) const noexcept = delete;
 
 	/**
 	 * @brief get the information to bind to a descriptor
 	 * 
-	 * @return const VkDescriptorImageInfo
+	 * @param layout image layout
+	 * 
+	 * @return constexpr VkDescriptorImageInfo
 	*/
-	NODISCARD const VkDescriptorImageInfo get_descriptor_image_info() const noexcept {
+	NODISCARD constexpr VkDescriptorImageInfo get_descriptor_image_info(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
 		return {
 			m_sampler,
 			m_view,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			layout
 		};
 	}
 
 	/**
 	 * @brief get the image
 	 * 
-	 * @return const lyra::vulkan::Image&
+	 * @return constexpr lyra::vulkan::Image
 	*/
-	NODISCARD const VkImageView& view() const noexcept { return m_view; }
+	NODISCARD constexpr VkImageView view() const noexcept { return m_view; }
 	/**
-	 * @brief get the sampler
+	 * @brief get the	 sampler
 	 * 
-	 * @return const VkSampler&
+	 * @return consexprt VkSampler
 	*/
-	NODISCARD const VkSampler& sampler() const noexcept { return m_sampler; }
+	NODISCARD constexpr VkSampler sampler() const noexcept { return m_sampler; }
 	/**
 	 * @brief get the memory
 	 * 
-	 * @return const VmaAllocation&
+	 * @return constexpr VmaAllocation
 	*/
-	NODISCARD const VmaAllocation& memory() const noexcept { return m_memory; }
+	NODISCARD constexpr VmaAllocation memory() const noexcept { return m_memory; }
 	/**
 	* @brief get the path of the image
 	* 
-	* @return const char* const
+	* @return constexpr const char* const
 	**/
-	NODISCARD const char* const path() const noexcept { return m_path; }
+	NODISCARD constexpr const char* const path() const noexcept { return m_path; }
 
 private:
 	VkSampler m_sampler = VK_NULL_HANDLE;
@@ -153,7 +149,7 @@ private:
 	 * @param stagingBuffer buffer
 	 * @param extent size of the image
 	 */
-	void copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D extent);
+	void copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent);
 
 	/**
 	 * load a image from a path
@@ -161,7 +157,7 @@ private:
 	 * @param textureInfo texture information
 	 * @param format format of the image
 	 */
-	void load_image(Assets::TextureInfo& textureInfo, const VkFormat format = VK_FORMAT_R8G8B8A8_SRGB);
+	void load_image(Assets::TextureInfo& textureInfo, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief create the image sampler
@@ -173,9 +169,9 @@ private:
 	 */
 	void create_sampler(
 		Assets::TextureInfo& textureInfo,
-		const VkFilter magnifiedTexel = VK_FILTER_LINEAR,
-		const VkFilter minimizedTexel = VK_FILTER_LINEAR,
-		const VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
+		const VkFilter& magnifiedTexel = VK_FILTER_LINEAR,
+		const VkFilter& minimizedTexel = VK_FILTER_LINEAR,
+		const VkSamplerMipmapMode& mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
 	);
 
 	/**

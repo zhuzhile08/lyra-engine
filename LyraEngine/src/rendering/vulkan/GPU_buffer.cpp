@@ -1,8 +1,5 @@
 #include <rendering/vulkan/GPU_buffer.h>
 
-
-
-
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
 
@@ -12,7 +9,7 @@ namespace lyra {
 
 namespace vulkan {
 
-GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsage, VmaMemoryUsage const memUsage) : m_size(size) {
+constexpr GPUBuffer::GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage) : m_size(size) {
 	Logger::log_info("Creating Vulkan GPU memory buffer...");
 
 	// log debugging messages
@@ -39,14 +36,16 @@ GPUBuffer::GPUBuffer(VkDeviceSize const size, VkBufferUsageFlags const bufferUsa
 	Logger::log_info("Successfully created Vulkan GPU buffer at ", get_address(this), "!", Logger::end_l());
 }
 
+#ifndef NDEBUG
 GPUBuffer::~GPUBuffer() noexcept {
 	// destroy the buffer
 	vkDestroyBuffer(Application::renderSystem()->device()->device(), m_buffer, nullptr);
 
 	Logger::log_info("Successfully destroyed Vulkan GPU buffer!");
 }
+#endif
 
-void GPUBuffer::copy_data(const void* const src, const size_t copySize) {
+void GPUBuffer::copy_data(const void* const src, const size_t& copySize) {
 	// map the memory
 	void* data;
 	lassert(Application::renderSystem()->device()->mapMemory(m_memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(m_memory), "!");

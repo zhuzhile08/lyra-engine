@@ -31,20 +31,27 @@ public:
 	 * @brief a builder to make the creation of the descriptor layout easier
 	 */
 	struct Builder {
-		Builder() { }
+		struct Data {
+			const uint32& binding;
+			const int& type;
+			const int& shaderType;
+			const uint32& count;
+		};
+
+		Builder() = default;
 
 		/**
 		 * @brief add a binding to the vector of bindings
 		 *
 		 * @param newBindings a vector with the data for a binding. Consists of the binding index, the type of descriptor to bind, the shader behind that descriptor and the number bindings of that type
 		 */
-		void add_bindings(std::vector<std::tuple<const uint32, const int, const int, const uint32>> newBindings) noexcept {
-			for (const auto& [binding, type, shaderType, count] : newBindings) {
+		void add_bindings(const std::vector<Data>& newBindings) noexcept {
+			for (uint32 i = 0; i < newBindings.size(); i++) {
 				bindings.push_back({
-					binding,
-					static_cast<VkDescriptorType>(type),
-					count,
-					static_cast<VkShaderStageFlags>(shaderType),
+					newBindings.at(i).binding,
+					static_cast<VkDescriptorType>(newBindings.at(i).type),
+					newBindings.at(i).count,
+					static_cast<VkShaderStageFlags>(newBindings.at(i).shaderType),
 					nullptr
 				});
 			}
@@ -59,33 +66,27 @@ public:
 	 *
 	 * @param builder the builder containing all the creation data
 	 */
-	DescriptorSetLayout(const Builder builder);
+	DescriptorSetLayout(const Builder& builder);
 
 	/**
 	 * @brief destructor of the descriptor set layout
 	 */
 	~DescriptorSetLayout() noexcept;
-	/**
-	 * @brief destroy the descriptor set layout
-	 */
-	void destroy() noexcept {
-		this->~DescriptorSetLayout();
-	}
 
 	DescriptorSetLayout operator=(const DescriptorSetLayout&) const noexcept = delete;
 
 	/**
 	 * @brief get the descriptor set layout
 	 *
-	 * @return const VkDescriptorSetLayout&
+	 * @return constexpr VkDescriptorSetLayout
 	 */
-	NODISCARD const VkDescriptorSetLayout& get() const noexcept { return m_descriptorSetLayout; }
+	NODISCARD constexpr VkDescriptorSetLayout get() const noexcept { return m_descriptorSetLayout; }
 	/**
 	 * @brief get the descriptor set layout as pointers
 	 *
 	 * @return const VkDescriptorSetLayout* const
 	 */
-	NODISCARD const VkDescriptorSetLayout* const get_ptr() const noexcept { return &m_descriptorSetLayout; }
+	NODISCARD constexpr const VkDescriptorSetLayout* const get_ptr() const noexcept { return &m_descriptorSetLayout; }
 
 private:
 	VkDescriptorSetLayout m_descriptorSetLayout = VK_NULL_HANDLE;
@@ -102,27 +103,33 @@ public:
 	 * @brief a builder to make the creation of the descriptor pool easier
 	 */
 	struct Builder {
-		Builder() { };
+		struct Data {
+			const int& type;
+			const uint32& size;
+		};
+
+		Builder() = default;
 
 		/**
 		 * @brief set a struct to define wwhat type and how many types of descriptors a set is going to contain
 		 *
 		 * @param sizes all the sizes and types of descriptors contained inside of a pair inside of an vector. Pair consists of the type of the descriptor and the number of descriptors for that type
 		 */
-		void add_pool_sizes(std::vector<std::pair<const int, const uint32>> sizes) noexcept {
-			for (const auto& [type, size] : sizes) {
+		void add_pool_sizes(const std::vector<Data>& sizes) noexcept {
+			for (uint32 i = 0; i < sizes.size(); i++) {
 				poolSizes.push_back({
-					static_cast<VkDescriptorType>(type),
-					size
+					static_cast<VkDescriptorType>(sizes.at(i).type),
+					sizes.at(i).size
 				});
 			}
 		}
-		/**
+
+		/**	
 		 * @brief set the number of maximum possible allocatable sets
 		 *
 		 * @param m_maxSets the number to set to
 		 */
-		void set_max_sets(const uint32 m_maxSets) noexcept {
+		void set_max_sets(const uint32& m_maxSets) noexcept {
 			maxSets = m_maxSets;
 		}
 		/**
@@ -130,7 +137,7 @@ public:
 		 *
 		 * @param m_poolFlags
 		 */
-		void set_pool_flags(const VkDescriptorPoolCreateFlags m_poolFlags) noexcept {
+		void set_pool_flags(const VkDescriptorPoolCreateFlags& m_poolFlags) noexcept {
 			poolFlags = m_poolFlags;
 		}
 
@@ -139,33 +146,26 @@ public:
 		uint32 maxSets = 1000;
 	};
 
-	DescriptorPool() { }
 	/**
 	 * @brief create a descriptor pool to allocate the descriptor sets
 	 *
 	 * @param swapchain swapchain
 	 */
-	DescriptorPool(const Builder builder);
+	DescriptorPool(const Builder& builder);
 
 	/**
 	 * @brief destructor of the descriptor pool
 	 */
 	~DescriptorPool() noexcept;
-	/**
-	 * @brief destroy the descriptor pool
-	 */
-	void destroy() noexcept {
-		this->~DescriptorPool();
-	}
 
 	DescriptorPool operator=(const DescriptorPool&) const noexcept = delete;
 
 	/**
 	 * @brief get the descriptor pool
 	 *
-	 * @return const VkDescriptorPool&
+	 * @return constexpr VkDescriptorPool
 	 */
-	NODISCARD const VkDescriptorPool& get() const noexcept { return m_descriptorPool; }
+	NODISCARD constexpr VkDescriptorPool get() const noexcept { return m_descriptorPool; }
 
 private:
 	VkDescriptorPool m_descriptorPool = VK_NULL_HANDLE;
@@ -210,24 +210,43 @@ public:
 	 * @brief struct to configure what will be written into the descriptor sets
 	 */
 	struct Writer {
-		Writer() { }
+		struct Data {
+			const VkDescriptorImageInfo& imageInfo;
+			const VkDescriptorBufferInfo& bufferInfo;
+			const uint16& binding;
+			const Type& type;
+		};
+
+		struct DataI {
+			const VkDescriptorImageInfo& imageInfo;
+			const uint16& binding;
+			const Type& type;
+		};
+
+		struct DataB {
+			const VkDescriptorBufferInfo& bufferInfo;
+			const uint16& binding;
+			const Type& type;
+		};
+
+		Writer() = default;
 
 		/**
 		 * @brief add image writes
 		 *
 		 * @param newWrites Writes to add to the buffer. Consists of a image information, the binding and a type
 		 */
-		void add_writes(std::vector<std::tuple<const VkDescriptorImageInfo&, const uint16, const Type>> newWrites) noexcept {
-			for (const auto &[image_info, binding, type] : newWrites) {
+		void add_writes(const std::vector<DataI>& newWrites) noexcept {
+			for (uint32 i = 0; i < newWrites.size(); i++) {
 				writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
 					VK_NULL_HANDLE,
-					binding,
+					newWrites.at(i).binding,
 					0,
 					1,
-					static_cast<VkDescriptorType>(type),
-					&image_info,
+					static_cast<VkDescriptorType>(newWrites.at(i).type),
+					&newWrites.at(i).imageInfo,
 					nullptr,
 					nullptr
 				});
@@ -238,18 +257,18 @@ public:
 		 *
 		 * @param newWrites Writes to add to the buffer. Consists of a buffer information, the binding and a type
 		 */
-		void add_writes(std::vector<std::tuple<const VkDescriptorBufferInfo&, const uint16, const Type>> newWrites) noexcept {
-			for (const auto& [buffer_info, binding, type] : newWrites) {
+		void add_writes(const std::vector<DataB>& newWrites) noexcept {
+			for (uint32 i = 0; i < newWrites.size(); i++) {
 				writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
 					VK_NULL_HANDLE,
-					binding,
+					newWrites.at(i).binding,
 					0,
 					1,
-					static_cast<VkDescriptorType>(type),
+					static_cast<VkDescriptorType>(newWrites.at(i).type),
 					nullptr,
-					&buffer_info,
+					&newWrites.at(i).bufferInfo,
 					nullptr
 				});
 			}
@@ -259,7 +278,7 @@ public:
 		 *
 		 * @param newWrites Writes to add to the buffer. Consists of a image information, a buffer information, the binding and a type
 		 */
-		void add_writes(std::vector<std::tuple<const VkDescriptorImageInfo&, const VkDescriptorBufferInfo&, const uint16, const Type>> newWrites) noexcept {
+		void add_writes(const std::vector<Data>& newWrites) noexcept {
 			for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
 				writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -279,7 +298,6 @@ public:
 		std::vector<VkWriteDescriptorSet> writes;
 	};
 
-	Descriptor() { }
 	/**
 	 * @brief construct new Vulkan descriptors
 	 *
@@ -287,23 +305,23 @@ public:
 	 * @param pool descriptor pool
 	 * @param writer data to be written into the descriptor
 	 */
-	Descriptor(const DescriptorSetLayout* const layout, const DescriptorPool* const pool, Writer writer);
+	Descriptor(const DescriptorSetLayout* const layout, const DescriptorPool* const pool, Writer& writer);
 
 	Descriptor operator=(const Descriptor&) const noexcept = delete;
 
 	/**
 	 * @brief get the descriptor set
 	 *
-	 * @return const VkDescriptorSet&
+	 * @return constexpr VkDescriptorSet
 	 */
-	NODISCARD const VkDescriptorSet& get() const noexcept { return m_descriptorSet; }
+	NODISCARD constexpr VkDescriptorSet get() const noexcept { return m_descriptorSet; }
 
 	/**
 	 * @brief get the descriptor set
 	 *
-	 * @return const VkDescriptorSet* const
+	 * @return constexpr const VkDescriptorSet* const
 	 */
-	NODISCARD const VkDescriptorSet* const get_ptr() const noexcept { return &m_descriptorSet; }
+	NODISCARD constexpr const VkDescriptorSet* const get_ptr() const noexcept { return &m_descriptorSet; }
 
 private:
 	VkDescriptorSet m_descriptorSet = VK_NULL_HANDLE;

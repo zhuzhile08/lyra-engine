@@ -5,8 +5,6 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
-
-
 #include <core/settings.h>
 
 #include <rendering/window.h>

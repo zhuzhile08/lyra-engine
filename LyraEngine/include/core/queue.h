@@ -19,11 +19,11 @@ namespace lyra {
 /**
  * @brief a queue of functions to be executed
  *
- * @tparam Tp type of functions to queue
+ * @tparam Ty type of functions to queue
  */
 class CallQueue {
 public:
-	CallQueue() { }
+	CallQueue() = default;
 
 	/**
 	 * @brief add a function to the queue
@@ -38,7 +38,7 @@ public:
 	 *
 	 * @param index index of the function to remove
 	 */
-	void remove(int index) {
+	void remove(const int& index) {
 		m_queue.erase(m_queue.begin() + index);
 	}
 

@@ -46,27 +46,27 @@ public:
 	/**
 	 * @brief get the fps
 	 *
-	 * @return const float
+	 * @return constexpr float
 	 */
-	NODISCARD const float fps() const noexcept { return m_fps; }
+	NODISCARD constexpr float fps() const noexcept { return m_fps; }
 	/**
 	 * @brief get the deltatime
 	 *
 	 * @return const float
 	 */
-	NODISCARD const float deltaTime() const noexcept { return m_deltaTime; }
+	NODISCARD constexpr float deltaTime() const noexcept { return m_deltaTime; }
 	/**
 	 * @brief get the window
 	 *
-	 * @return const lyra::Window* const
+	 * @return constexpr lyra::Window* const
 	 */
-	NODISCARD static Window* const window() noexcept { return &m_window; }
+	NODISCARD constexpr static Window* const window() noexcept { return &m_window; }
 	/**
 	 * @brief get the render system
 	 *
-	 * @return const lyra::RenderSystem* const
+	 * @return constexpr lyra::RenderSystem* const
 	 */
-	NODISCARD static RenderSystem* const renderSystem() noexcept { return &m_renderSystem; }
+	NODISCARD constexpr static RenderSystem* const renderSystem() noexcept { return &m_renderSystem; }
 	
 protected:
 	float m_fps;

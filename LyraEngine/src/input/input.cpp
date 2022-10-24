@@ -32,7 +32,7 @@ const glm::vec2 Input::check_mouse_position() {
 	return m_mousePos;
 }	
 
-void Input::check_mouse_position(glm::vec2& mousePos) {
+void Input::check_mouse_position(glm::ivec2& mousePos) {
 	mousePos = m_mousePos;
 }
 

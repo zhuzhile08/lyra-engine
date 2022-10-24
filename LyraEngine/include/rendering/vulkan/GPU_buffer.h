@@ -13,6 +13,9 @@
 
 #include <vulkan/vulkan.h>
 
+#ifdef NDEBUG
+#include <rendering/vulkan/devices.h>
+#endif
 #include <rendering/vulkan/GPU_memory.h>
 
 namespace lyra {
@@ -24,7 +27,6 @@ namespace vulkan {
  */
 class GPUBuffer : private GPUMemory {
 public:
-	GPUBuffer() { }
 	/**
 	 * @brief create the buffer
 	 *
@@ -32,18 +34,18 @@ public:
 	 * @param bufferUsage way to use the buffer
 	 * @param memUsage way to use the memory
 	 */
-	GPUBuffer(const VkDeviceSize size, const VkBufferUsageFlags bufferUsage, const VmaMemoryUsage memUsage);
+	constexpr GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage);
 
 	/**
 	 * @brief destructor of the buffer
 	 */
+#ifndef NDEBUG
 	virtual ~GPUBuffer() noexcept;
-	/**
-	 * @brief destroy the buffer
-	 */
-	void destroy() noexcept {
-		this->~GPUBuffer();
+#else
+	virtual ~GPUBuffer() noexcept {
+		vkDestroyBuffer(Application::renderSystem()->device()->device(), m_buffer, nullptr);
 	}
+#endif
 
 	GPUBuffer operator=(const GPUBuffer&) const noexcept = delete;
 
@@ -63,16 +65,18 @@ public:
 	 * @param src data to copy into the buffer
 	 * @param copySize size of the data to copy, default is the size of the buffer memory
 	 */
-	void copy_data(const void* const src, const size_t copySize = 0);
+	void copy_data(const void* const src, const size_t& copySize = 0);
 
 	/**
 	 * @brief get the information in a buffer for descriptor sets
 	 * 
-	 * @return const VkDescriptorBufferInfo
+	 * @return constexpr VkDescriptorBufferInfo
 	*/
-	NODISCARD const VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
+	NODISCARD constexpr VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
 		return {
-			m_buffer, 0, m_size
+			m_buffer, 
+			0, 
+			m_size
 		};
 	}
 	/**
@@ -83,9 +87,9 @@ public:
 	 * @param srcQueueFamily the original queue family of the buffer
 	 * @param dstQueueFamily the queue family to transfer ownership to
 	 *
-	 * @return const VkBufferMemoryBarrier
+	 * @return constexpr VkBufferMemoryBarrier
 	*/
-	NODISCARD const VkBufferMemoryBarrier get_buffer_memory_barrier(
+	NODISCARD constexpr VkBufferMemoryBarrier get_buffer_memory_barrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
 		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
@@ -107,21 +111,21 @@ public:
 	/**
 	 * @brief get the buffer
 	 * 
-	 * @return const VkBuffer&
+	 * @return constexpr VkBuffer
 	*/
-	NODISCARD const VkBuffer& buffer() const noexcept { return m_buffer; }
+	NODISCARD constexpr VkBuffer buffer() const noexcept { return m_buffer; }
 	/**
 	 * @brief get the memory
 	 * 
-	 * @return const VmaAllocation&
+	 * @return constexpr VmaAllocation
 	*/
-	NODISCARD const VmaAllocation& memory() const noexcept { return m_memory; };
+	NODISCARD constexpr VmaAllocation memory() const noexcept { return m_memory; };
 	/**
 	 * @brief get the size of the buffer
 	 * 
-	 * @return const VkDeviceSize&
+	 * @return constexpr VkDeviceSize
 	*/
-	NODISCARD const VkDeviceSize& size() const noexcept { return m_size; };
+	NODISCARD constexpr VkDeviceSize size() const noexcept { return m_size; };
 
 private:
 	VkBuffer m_buffer = VK_NULL_HANDLE;

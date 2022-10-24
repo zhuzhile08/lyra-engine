@@ -20,8 +20,6 @@ namespace lyra {
 
 class Material {
 public:
-	Material() { }
-
 	/**
 	 * @brief Construct a new Material object
 	 * 
@@ -46,23 +44,23 @@ public:
 	 */
 	Material(
 		const Camera* const camera,
-		const std::vector<MeshRenderer*> meshRenderers,
-		const Color albedoColor = Color(),
+		const std::vector<MeshRenderer*>& meshRenderers,
+		const Color& albedoColor = Color(),
 		const Texture* const albedoTexture = nullptr,
-		const uint8 metallic = 0,
-		const uint8 roughness = 0,
-		const uint8 specular = 0,
+		const uint8& metallic = 0,
+		const uint8& roughness = 0,
+		const uint8& specular = 0,
 		const Texture* const metallicTexture = nullptr,
-		const bool emissionEnabled = false,
-		const Color emissionColor = Color(),
+		const bool& emissionEnabled = false,
+		const Color& emissionColor = Color(),
 		const Texture* const emissionTexture = nullptr,
-		const uint8 emissionEnergy = 0,
+		const uint8& emissionEnergy = 0,
 		const Texture* const normalMapTexture = nullptr,
-		const int8 normalMapValue = 0,
+		const int8& normalMapValue = 0,
 		const Texture* const heightMapTexture = nullptr,
-		const uint8 heightMapValue = 0,
+		const uint8& heightMapValue = 0,
 		const Texture* const occlusionMapTexture = nullptr,
-		const uint8 occlusionMapValue = 0
+		const uint8& occlusionMapValue = 0
 	);
 
 	/**

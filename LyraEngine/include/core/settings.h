@@ -33,12 +33,12 @@ struct Settings {
 	NODISCARD static std::string init_json();
 
 	// json containing the variables
-	static nlohmann::json json;
+	static const nlohmann::json json;
 
 	// generell application settings
 	struct Application {
-		static char* description;
-		static int fps;
+		static const char* description;
+		static const int fps;
 
 	private: 
 		Application() noexcept = delete;
@@ -46,13 +46,13 @@ struct Settings {
 
 	// debug settings
 	struct Debug {
-		static DebugMode debug;
-		static DisableLog disableLog;
-		static bool printFPS;
-		static bool stdioSync;
+		static const DebugMode debug;
+		static const DisableLog disableLog;
+		static const bool printFPS;
+		static const bool stdioSync;
 
-		static std::vector <const char*> requestedDeviceExtensions;
-		static std::vector <const char*> requestedValidationLayers;
+		static const std::vector <const char*> requestedDeviceExtensions;
+		static const std::vector <const char*> requestedValidationLayers;
 
 	private:
 		Debug() noexcept = delete;
@@ -60,14 +60,14 @@ struct Settings {
 
 	// rendering settings
 	struct Rendering {
-		static uint8 maxFramesInFlight;
-		static float fov;
+		static const uint8 maxFramesInFlight;
+		static const float fov;
 		
-		static PolygonFrontFace polygonFrontFace;
+		static const PolygonFrontFace polygonFrontFace;
 
-		static bool anistropy;
-		static float anistropyStrength;
-		static float resolution;
+		static const bool anistropy;
+		static const float anistropyStrength;
+		static const float resolution;
 
 	private:
 		Rendering() noexcept = delete;
@@ -75,30 +75,30 @@ struct Settings {
 
 	// window settings
 	struct Window {
-		static std::string title;
-		static std::string iconPath;
+		static const std::string title;
+		static const std::string iconPath;
 
-		static uint32 width; // renderer width and height
-		static uint32 height;
-		static uint32 wWidth; // window width and height
-		static uint32 wHeight;
+		static const uint32 width; // renderer width and height
+		static const uint32 height;
+		static const uint32 wWidth; // window width and height
+		static const uint32 wHeight;
 		
-		static bool resizable;
-		static bool maximized;
-		static bool borderless;
-		static bool fullscreen;
-		static bool alwaysOnTop;
-		static bool vSync;
+		static const bool resizable;
+		static const bool maximized;
+		static const bool borderless;
+		static const bool fullscreen;
+		static const bool alwaysOnTop;
+		static const bool vSync;
 
 	private:
 		Window() noexcept = delete;
 	};
 
 	struct Memory {
-		static uint32 maxComponentCount;
-		static uint32 maxEntityCount;
+		static const uint32 maxComponentCount;
+		static const uint32 maxEntityCount;
 
-		static uint32 maxCommandBuffers; // caution: these only define the maximum amount of command buffers per pool
+		static const uint32 maxCommandBuffers; // caution: these only define the maximum amount of command buffers per pool
 	};
 
 	struct Gui {

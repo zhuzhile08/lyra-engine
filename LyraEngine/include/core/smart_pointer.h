@@ -25,19 +25,19 @@ namespace lyra {
 template <class _Ty, class _DTy = std::default_delete<_Ty>> class SmartPointer {
 public:
 	// defalut constructor
-	SmartPointer() noexcept { }
+	constexpr SmartPointer() = default;
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param pointer raw pointer
 	 */
-	SmartPointer(_Ty* pointer) : m_pointer(pointer) { }
+	constexpr SmartPointer(_Ty* pointer) : m_pointer(pointer) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param right pointer to copy from
 	 */
-	SmartPointer(SmartPointer<_Ty, _DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter) {}
+	constexpr SmartPointer(SmartPointer<_Ty, _DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter) {}
 
 	/**
 	 * @brief destructor of the pointer
@@ -76,7 +76,7 @@ public:
 	 *
 	 * @return _Ty*
 	 */
-	NODISCARD inline _Ty* operator->() const noexcept {
+	constexpr inline _Ty* operator->() const noexcept {
 		return m_pointer;
 	}
 	/**
@@ -84,58 +84,58 @@ public:
 	 *
 	 * @return _Ty&
 	 */
-	NODISCARD inline _Ty& operator*() const noexcept {
+	constexpr inline _Ty& operator*() const noexcept {
 		return *m_pointer;
 	}
 
 	/**
 	 * @brief get the internal raw pointer
 	 *
-	 * @return _Ty*
+	 * @return constexpr _Ty*
 	 */
-	NODISCARD inline _Ty* get() const noexcept {
+	NODISCARD constexpr inline _Ty* get() const noexcept {
 		return m_pointer;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return const _DTy& 
+	 * @return constexpr _DTy& 
 	 */
-	NODISCARD inline const _DTy& deleter() const noexcept {
+	NODISCARD constexpr inline const _DTy& deleter() const noexcept {
 		return m_deleter;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * _DTy&
+	 * @return constexpr _DTy&
 	 */
-	NODISCARD inline _DTy& deleter() noexcept {
+	NODISCARD constexpr inline _DTy& deleter() noexcept {
 		return m_deleter;
 	}
 
 	/**
 	 * @brief check if pointer is empty
 	 *
-	 * @return const bool
+	 * @return constexpr bool
 	 */
-	NODISCARD inline const bool empty() const noexcept {
+	NODISCARD constexpr inline const bool empty() const noexcept {
 		return m_pointer == nullptr;
 	}
 	/**
 	 * @brief check if pointer is referencing a object
 	 * 
-	 * @return bool
+	 * @return constexpr bool
 	 */
-	inline operator bool() const noexcept {
+	constexpr inline operator bool() const noexcept {
 		return m_pointer != nullptr;
 	}
 
 	/**
 	 * @brief release a pointer to the internal raw pointer and reset it
 	 *
-	 * @return _Ty*
+	 * @return constexpr _Ty*
 	 */
-	NODISCARD inline _Ty* release() noexcept {
+	NODISCARD constexpr inline _Ty* release() noexcept {
 		return std::exchange(m_pointer, nullptr);
 	}
 	/**
@@ -159,9 +159,9 @@ public:
 	/**
 	 * @brief cast the type to its internal pointer
 	 * 
-	 * @return _Ty*
+	 * @return constexpr _Ty*
 	 */
-	inline operator _Ty* () const noexcept {
+	constexpr inline operator _Ty* () const noexcept {
 		return m_pointer;
 	}
 

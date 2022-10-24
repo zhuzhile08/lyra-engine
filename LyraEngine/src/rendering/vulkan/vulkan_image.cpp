@@ -1,7 +1,5 @@
 #include <rendering/vulkan/vulkan_image.h>
 
-
-
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
 
@@ -20,15 +18,15 @@ Image::~Image() {
 	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
 }
 
-const VkImageCreateInfo Image::get_image_create_info(
-	const VkFormat format,
-	const VkExtent3D extent,
-	const VkImageUsageFlags usage,
-	const uint32 mipLevels,
-	const VkImageType imageType,
-	const uint32 arrayLayers,
-	const VkSampleCountFlagBits samples,
-	const VkImageTiling tiling
+constexpr VkImageCreateInfo Image::get_image_create_info(
+	const VkFormat& format,
+	const VkExtent3D& extent,
+	const VkImageUsageFlags& usage,
+	const uint32& mipLevels,
+	const VkImageType& imageType,
+	const uint32& arrayLayers,
+	const VkSampleCountFlagBits& samples,
+	const VkImageTiling& tiling
 ) noexcept {
 	m_tiling = tiling;
 
@@ -51,7 +49,7 @@ const VkImageCreateInfo Image::get_image_create_info(
 	};
 }
 
-void Image::create_view(const VkFormat format, const VkImageSubresourceRange subresourceRange, const VkImageViewType viewType, const VkComponentMapping colorComponents) {
+void Image::create_view(const VkFormat& format, const VkImageSubresourceRange& subresourceRange, const VkImageViewType& viewType, const VkComponentMapping& colorComponents) {
 	// image view creation info
 	VkImageViewCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -71,10 +69,10 @@ void Image::create_view(const VkFormat format, const VkImageSubresourceRange sub
 }
 
 void Image::transition_layout(
-	const VkImageLayout oldLayout,
-	const VkImageLayout newLayout,
-	const VkFormat format,
-	const VkImageSubresourceRange subresourceRange
+	const VkImageLayout& oldLayout,
+	const VkImageLayout& newLayout,
+	const VkFormat& format,
+	const VkImageSubresourceRange& subresourceRange
 ) const {
 	// get a command buffer for setting up memory barrier
 	CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
@@ -124,7 +122,7 @@ void Image::transition_layout(
 	cmdBuff.reset();
 }
 
-const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, const VkFormatFeatureFlags features, const VkImageTiling tiling) const {
+constexpr VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling) const {
 	// check which tiling mode to use
 	VkImageTiling tiling_; // screw naming conventions, I don't care
 	if (m_tiling == VK_IMAGE_TILING_MAX_ENUM) 
@@ -147,10 +145,7 @@ const VkFormat Image::get_best_format(const std::vector<VkFormat> candidates, co
 
 	}
 
-#ifndef NDEBUG
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
-#endif
-
 	// return error case
 	return VK_FORMAT_MAX_ENUM;
 }

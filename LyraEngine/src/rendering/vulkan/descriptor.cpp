@@ -1,8 +1,5 @@
 #include <rendering/vulkan/descriptor.h>
 
-
-
-
 #include <rendering/vulkan/vulkan_shader.h>
 
 #include <core/application.h>
@@ -11,7 +8,7 @@ namespace lyra {
 
 namespace vulkan {
 
-DescriptorSetLayout::DescriptorSetLayout(const Builder builder) {
+DescriptorSetLayout::DescriptorSetLayout(const Builder& builder) {
 	Logger::log_info("Creating Vulkan descriptor set layout...");
 
 	// create the descriptor set
@@ -36,7 +33,7 @@ DescriptorSetLayout::~DescriptorSetLayout() noexcept {
 }
 
 // descriptor pool
-DescriptorPool::DescriptorPool(const Builder builder) {
+DescriptorPool::DescriptorPool(const Builder& builder) {
 	Logger::log_info("Creating Vulkan descriptor pool...");
 
 	// create the descriptor pool
@@ -62,7 +59,7 @@ DescriptorPool::~DescriptorPool() noexcept {
 }
 
 // descriptors
-Descriptor::Descriptor(const DescriptorSetLayout* const layout, const DescriptorPool* const pool, Writer writer) {
+Descriptor::Descriptor(const DescriptorSetLayout* const layout, const DescriptorPool* const pool, Writer& writer) {
 	Logger::log_info("Creating Vulkan descriptor sets...");
 
 	// create the descriptor set

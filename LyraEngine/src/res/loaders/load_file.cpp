@@ -6,7 +6,7 @@ namespace lyra {
 
 namespace util {
 
-void load_file(const char* path, const int mode, std::ifstream& file) {
+void load_file(const char* path, const int& mode, std::ifstream& file) {
 	// get the absolute path of the relative path
 	std::filesystem::path absPath(get_executable_path() / path);
 
