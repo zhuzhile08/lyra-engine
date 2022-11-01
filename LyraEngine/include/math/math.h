@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <vector>
 // #include <math/vectors.h>
 // #include <math/matrices.h>
@@ -206,27 +207,25 @@ typedef Matrix<4, 4, uint64> Mat4u44;
 typedef Matrix<4, 4, uint64> Mat4u64;
 */
 
-
 /**
- * @brief an implementation of pythagoras theorem
+ * @brief an implementation of the pythagorean theorum
  * 
- * @param a the first vector
- * @param b the second vector
- * @cond the placement of the vectors don't matter
+ * @tparam _Size size of the vectors
+ * @tparam _Ty type stored in the vectors
+ * @param a first vector
+ * @param b second vector
  * 
- * @return double 
+ * @return _Ty 
  */
-NODISCARD float pyth(const glm::vec2 a, const glm::vec2 b);
+template<size_t _Size, class _Ty> NODISCARD _Ty pythagoras(const glm::vec<_Size, _Ty, glm::defaultp>& a, const glm::vec<_Size, _Ty, glm::defaultp>& b);
 
-/**
- * @brief an implementation of pythagoras theorem, but in 3D
- * 
- * @param a the first vector
- * @param b the second vector
- * 
- * @return double 
- */
-NODISCARD float pyth3(const glm::vec3 a, const glm::vec3 b);
+template<size_t _Size, class _Ty> _Ty pythagoras(const glm::vec<_Size, _Ty, glm::defaultp>& a, const glm::vec<_Size, _Ty, glm::defaultp>& b) {
+	_Ty result;
+	for (uint8 x = 0; x < _Size; x++) {
+		result += pow(a[x] - b[x], 2);
+	}
+	return sqrt(result);
+}
 
 /**
  * @brief get the position on a line based on a normalized value
@@ -262,6 +261,16 @@ template<class Ty> NODISCARD Ty bezier(std::vector<Ty> points, float value);
  * @return float
  */
 NODISCARD float randFloat(const float x, const float y);
+
+/**
+ * @brief decompose the transformation matrix
+ * 
+ * @param matrix matrix to decompose
+ * @param translation translation vector
+ * @param rotation rotation vector
+ * @param scale scale vector
+ */
+void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale);
 
 // pointer alignment mode
 enum AlignMode : uint8 {
