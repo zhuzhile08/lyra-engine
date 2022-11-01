@@ -52,10 +52,10 @@ if (WIN32)
 	)
 elseif (APPLE)
 	# shaders
-	# add_custom_target(build_shaders ALL
-	#	COMMAND "${CMAKE_SOURCE_DIR}/compileShader.sh"
-	#	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-	# )
+	add_custom_target(build_shaders ALL
+		COMMAND "${CMAKE_SOURCE_DIR}/compileShader.sh"
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	)
 endif()
 
 
@@ -64,7 +64,7 @@ add_library(LyraEngine
 	"src/def.cpp"
 )
 
-# add_dependencies(LyraEngine build_shaders)
+add_dependencies(LyraEngine build_shaders)
 target_link_libraries(LyraEngine ${SDL2_LIBRARIES} ${JOLT_LIBRARIES} ${LZ4_LIBRARIES} ${IMGUI_LIBRARIES} Vulkan::Vulkan)
 
 target_precompile_headers(LyraEngine
