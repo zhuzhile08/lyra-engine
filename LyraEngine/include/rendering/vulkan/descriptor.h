@@ -13,7 +13,6 @@
 
 #include <vector>
 
-
 #include <vulkan/vulkan.h>
 
 namespace lyra {

@@ -14,7 +14,6 @@
 #include <string>
 #include <unordered_map>
 
-
 namespace lyra {
 
 /**
@@ -36,8 +35,8 @@ public:
 	Node(
 		const char* name = "Game Object",
 		_Ty* parent = nullptr,
-		const bool visible = true,
-		const uint32 tag = 0
+		const bool& visible = true,
+		const uint32& tag = 0
 	) noexcept : m_name(name), m_parent(parent), m_visible(visible), m_tag(tag) { }
 
 	/**

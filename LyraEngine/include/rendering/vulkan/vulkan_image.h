@@ -30,7 +30,7 @@ struct Image {
 	/**
 	 * @brief destroy the image
 	 */
-	virtual void destroy() {
+	void destroy() {
 		this->~Image();
 	}
 
