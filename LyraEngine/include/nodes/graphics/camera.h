@@ -55,28 +55,22 @@ public:
 	/**
 	 * @brief construct a camera node
 	 *
+	 * @param script script of the object
 	 * @param perspective check if perspective is true or not
 	 * @param name name of the object
 	 * @param parent parent Node of the object
-	 * @param script script of the object
 	 * @param visible visibility of the object
 	 * @param tag optional tag of the object
-	 * @param position position of the object
-	 * @param rotation rotation of the object
-	 * @param scale scale of the object
-	 * @param rotationOrder order of the multiplication of the rotation matricies
+	 * @param transform transform of the object
 	 */
 	Camera(
-		bool perspective = true,
+		Script* script = new Script,
+		const bool& perspective = true,
 		const char* name = "Camera",
 		Spatial* parent = nullptr,
-		Script<Camera>* script = new Script<Camera>,
-		const bool visible = true,
-		const uint32 tag = 0,
-		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
-		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
-		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
-		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+		const bool& visible = true,
+		const uint32& tag = 0,
+		const Transform& transform = Transform()
 	);
 
 	Camera operator=(const Camera&) const noexcept = delete;
@@ -137,8 +131,6 @@ private:
 	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
 	Projection m_projection;
 	glm::mat4 m_projection_matrix;
-
-	LYRA_NODE_SCRIPT_MEMBER(Camera)
 
 	/**
 	 * @brief draw function

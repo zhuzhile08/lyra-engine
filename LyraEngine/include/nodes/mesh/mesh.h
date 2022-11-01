@@ -19,8 +19,6 @@
 
 #include <vulkan/vulkan.h>
 
-
-
 #include <res/loaders/load_model.h>
 
 #include <nodes/node.h>
@@ -49,7 +47,7 @@ public:
 		 * @param normal vertex normals
 		 * @param color the new color
 		 */
-		Vertex(glm::vec3 pos, glm::vec3 normal, glm::vec2 uv, glm::vec3 color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uv(uv) { }
+		Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uv(uv) { }
 
 		/**
 		 * @brief returns a static vertex binding
@@ -69,30 +67,24 @@ public:
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
+	 * @param script script of the object
 	 * @param path path of the model
 	 * @param index index of the object in the model to load. Starts at 1, 0 is default
 	 * @param name name of the object
 	 * @param parent parent Node of the object
-	 * @param script script of the object
 	 * @param visible visibility of the object
 	 * @param tag optional tag of the object
-	 * @param position position of the object
-	 * @param rotation rotation of the object
-	 * @param scale scale of the object
-	 * @param rotationOrder order of the multiplication of the rotation matricies
+	 * @param transform transform of the object
 	 */
 	Mesh(
 		const char* path, 
-		const uint16 index = 0,
+		Script* script = new Script,
+		const uint16& index = 0,
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
-		Script<Mesh>* script = new Script<Mesh>,
-		const bool visible = true,
-		const uint32 tag = 0,
-		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
-		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+		const bool& visible = true,
+		const uint32& tag = 0,
+		const Transform& transform = Transform()
 	);
 
 	/**
@@ -100,28 +92,22 @@ public:
 	 *
 	 * @param vertices the new vertices
 	 * @param indices the new indices
+	 * @param script script of the object
 	 * @param name name of the object
 	 * @param parent parent Node of the object
-	 * @param script script of the object
 	 * @param visible visibility of the object
 	 * @param tag optional tag of the object
-	 * @param position position of the object
-	 * @param rotation rotation of the object
-	 * @param scale scale of the object
-	 * @param rotationOrder order of the multiplication of the rotation matricies
+	 * @param transform transform of the object
 	 */
 	Mesh(
-		const std::vector <Vertex> vertices, 
-		const std::vector <uint32> indices, 
+		const std::vector <Vertex>& vertices, 
+		const std::vector <uint32>& indices, 
+		Script* script = new Script,
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
-		Script<Mesh>* script = new Script<Mesh>,
-		const bool visible = true,
-		const uint32 tag = 0,
-		const glm::vec3 position = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 rotation = { 0.0f, 0.0f, 0.0f },
-		const glm::vec3 scale = { 1.0f, 1.0f, 1.0f },
-		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
+		const bool& visible = true,
+		const uint32& tag = 0,
+		const Transform& transform = Transform()
 	);
 
 	Mesh operator=(const Mesh&) const noexcept = delete;
@@ -143,15 +129,13 @@ private:
 	std::vector <Vertex> m_vertices;
 	std::vector <uint32> m_indices;
 
-	LYRA_NODE_SCRIPT_MEMBER(Mesh)
-
 	/**
 	 * @brief create a mesh from a already loaded .obj file
 	 *
 	 * @param load an already loaded model
 	 * @param index load the model with the following index if a file has more than just one object. Will load everything on default
 	 */
-	void create_mesh(const util::LoadedModel& loaded, const uint16 index = UINT16_MAX);
+	void create_mesh(const util::LoadedModel& loaded, const uint16& index = UINT16_MAX);
 };
 
 } // namespace lyra
