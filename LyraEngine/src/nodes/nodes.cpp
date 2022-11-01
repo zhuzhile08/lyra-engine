@@ -14,5 +14,3 @@
 
 #include "mesh/mesh.cpp"
 #include "mesh/mesh_renderer.cpp"
-
-#include "spatial.cpp"
