@@ -82,7 +82,7 @@ public:
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	*/
-	void set_perspective(float fov = 45.0f, float near = 0.1f, float far = 20.0f) noexcept;
+	void set_perspective(float fov = 90.0f, float near = 0.1f, float far = 20.0f) noexcept;
 	/**
 	 * @brief set the projection of the camera in orthographic mode
 	 *

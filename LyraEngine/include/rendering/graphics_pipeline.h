@@ -96,8 +96,6 @@ public:
 		CULLING_ALL = 0x00000003
 	};
 
-	GraphicsPipeline() { }
-
 	/**
 	 * @brief construct a new graphics pipeline
 	 * 
