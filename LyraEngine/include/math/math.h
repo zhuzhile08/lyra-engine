@@ -240,6 +240,10 @@ template<size_t _Size, class _Ty> _Ty pythagoras(const glm::vec<_Size, _Ty, glm:
 */
 template<class Ty> NODISCARD Ty point_on_line(Ty first, Ty second, float value);
 
+template <class Ty> Ty point_on_line(Ty first, Ty second, float value) {
+	return first + (second - first) * value;
+}
+
 /**
  * @brief get a point on a bezier curve
  * 
@@ -251,6 +255,16 @@ template<class Ty> NODISCARD Ty point_on_line(Ty first, Ty second, float value);
  * @return Ty 
 */
 template<class Ty> NODISCARD Ty bezier(std::vector<Ty> points, float value);
+
+template<class Ty> Ty bezier(std::vector<Ty> points, float value) {
+	std::vector<Ty> remaining_points;
+
+	for (int i = 0; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
+	
+	if (remaining_points.size() == 2) return point_on_line<Ty>(points.at(0), points.at(1), value);
+
+	bezier<Ty>(remaining_points, value);
+}
 
 /**
  * @brief randomly generate a floating point number
