@@ -86,7 +86,7 @@ class PoolAllocator;
 
 // nodes
 
-template <class> class Script;
+class Script;
 class Spatial;
 
 class Mesh;
@@ -121,9 +121,6 @@ class Animator;
 class AudioSource;
 class AudioListener;
 class AudioFilter;
-
-// easily define a script member for any class
-#define LYRA_NODE_SCRIPT_MEMBER(class) lyra::SmartPointer<lyra::Script<class>> m_script; // please don't kill me C++ gods
 
 } // namespace lyra
 
