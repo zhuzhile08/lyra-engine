@@ -1,7 +1,5 @@
 #include <nodes/mesh/mesh.h>
 
-
-
 namespace lyra {
 
 // vertex
@@ -45,17 +43,14 @@ const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribu
 // mesh
 Mesh::Mesh(
 	const char* path, 
-	const uint16 index, 
-	const char* name, 
-	Spatial* parent, 
-	Script<Mesh>* script,
-	const bool visible, 
-	const uint32 tag, 
-	const glm::vec3 position, 
-	const glm::vec3 rotation, 
-	const glm::vec3 scale, 
-	const RotationOrder rotationOrder
-) : Spatial(true, name, parent, visible, tag, position, rotation, scale, rotationOrder), m_script(script) {
+	Script* script,
+	const uint16& index,
+	const char* name,
+	Spatial* parent,
+	const bool& visible,
+	const uint32& tag,
+	const Transform& transform
+) : Spatial(nullptr, name, parent, visible, tag, transform) {
 	Logger::log_info("Creating Mesh... ");
 
 	create_mesh(util::load_model(path), index);
@@ -66,18 +61,15 @@ Mesh::Mesh(
 }
 
 Mesh::Mesh(
-	const std::vector <Vertex> vertices, 
-	const std::vector <uint32> indices, 
-	const char* name, 
-	Spatial* parent, 
-	Script<Mesh>* script,
-	const bool visible, 
-	const uint32 tag, 
-	const glm::vec3 position, 
-	const glm::vec3 rotation, 
-	const glm::vec3 scale, 
-	const RotationOrder rotationOrder
-) : Spatial(name, parent, nullptr, visible, tag, position, rotation, scale, rotationOrder), m_vertices(vertices), m_indices(indices), m_script(script) {
+	const std::vector <Vertex>& vertices, 
+	const std::vector <uint32>& indices, 
+	Script* script,
+	const char* name,
+	Spatial* parent,
+	const bool& visible,
+	const uint32& tag,
+	const Transform& transform
+) : Spatial(nullptr, name, parent, visible, tag, transform), m_vertices(vertices), m_indices(indices) {
 	Logger::log_info("Creating Mesh... ");
 	
 	m_vertices = vertices;
@@ -88,7 +80,7 @@ Mesh::Mesh(
 	Logger::log_info("Successfully created mesh at address: ", get_address(this), "!", Logger::end_l());
 }
 
-void Mesh::create_mesh(const util::LoadedModel& loaded, const uint16 index) {
+void Mesh::create_mesh(const util::LoadedModel& loaded, const uint16& index) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on
 	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this
 

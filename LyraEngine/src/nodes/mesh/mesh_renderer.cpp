@@ -12,12 +12,12 @@ namespace lyra {
 // mesh renderer
 MeshRenderer::MeshRenderer(
 	const Mesh* const mesh, 
+	Script* script,
 	const char* name,
 	Spatial* parent,
-	Script<MeshRenderer>* script,
-	const uint32 tag
+	const uint32& tag
 ) :
-	Spatial(true, name, parent, true, tag), m_mesh(mesh), m_script(script)
+	Spatial(nullptr, name, parent, true, tag), m_mesh(mesh)
 {
 	Logger::log_info("Creating Mesh Renderer... ");
 

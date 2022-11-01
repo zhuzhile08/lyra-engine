@@ -16,18 +16,15 @@
 namespace lyra {
 
 Camera::Camera(
-	bool perspective,
-	const char* name, 
+	Script* script,
+	const bool& perspective,
+	const char* name,
 	Spatial* parent,
-	Script<Camera>* script, 
-	const bool visible, 
-	const uint32 tag, 
-	const glm::vec3 position, 
-	const glm::vec3 rotation, 
-	const glm::vec3 scale, 
-	const RotationOrder rotationOrder
+	const bool& visible,
+	const uint32& tag,
+	const Transform& transform
 ) :
-	Spatial(true, name, parent, visible, tag, position, rotation, scale, rotationOrder), Renderer(), m_script(script)
+	Spatial(script, name, parent, visible, tag, transform), Renderer()
 {
 	Logger::log_info("Creating Camera... ");
 	
@@ -103,7 +100,6 @@ void Camera::set_orthographic(glm::vec4 viewport, float near, float far) noexcep
 void Camera::draw() {
 	// update the script
 	m_script->update();
-	calculate_transform_mat();
 	// check wich projection model the camera uses and calculate the projection data
 	CameraData data {mat_to_global(), m_projection_matrix};
 
