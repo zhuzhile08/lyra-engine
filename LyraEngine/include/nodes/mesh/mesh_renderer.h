@@ -19,24 +19,28 @@ namespace lyra {
 
 /**
  * @brief a mesh renderer to render (multiple) meshes
+ * 
+ * @tparam _STy script type
  */
 class MeshRenderer : public Spatial {
 public:
 	/**
 	 * @brief construct a mesh renderer
 	 * 
+	 * @tparam MSTy script type for the mesh
+	 * 
 	 * @param mesh mesh
+	 * @param script script of the object
 	 * @param name name of the object
 	 * @param parent parent of the object
-	 * @param script script of the object
 	 * @param tag optional tag of the object
 	 */
 	MeshRenderer(
 		const Mesh* const mesh, 
+		Script* script = new Script,
 		const char* name = "MeshRenderer",
 		Spatial* parent = nullptr,
-		Script<MeshRenderer>* script = new Script<MeshRenderer>,
-		const uint32 tag = 0
+		const uint32& tag = 0
 	);
 
 	MeshRenderer operator=(const MeshRenderer&) const noexcept = delete;
@@ -44,23 +48,21 @@ public:
 	/**
 	 * @brief get the vertex buffer
 	 *
-	 * @return const vulkan::GPUBuffer>
+	 * @return constexpr const vulkan::GPUBuffer* const
 	*/
-	NODISCARD const vulkan::GPUBuffer* const vertexBuffer() const noexcept { return m_vertexBuffer; }
+	NODISCARD constexpr const vulkan::GPUBuffer* const vertexBuffer() const noexcept { return m_vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 *
-	 * @return const vulkan::GPUBuffer>
+	 * @return constexpr const vulkan::GPUBuffer* const
 	*/
-	NODISCARD const vulkan::GPUBuffer* const indexBuffer() const noexcept { return m_indexBuffer; }
+	NODISCARD constexpr const vulkan::GPUBuffer* const indexBuffer() const noexcept { return m_indexBuffer; }
 
 private:
 	const Mesh* m_mesh;
 
 	SmartPointer<vulkan::GPUBuffer> m_vertexBuffer;
 	SmartPointer<vulkan::GPUBuffer> m_indexBuffer;
-
-	LYRA_NODE_SCRIPT_MEMBER(MeshRenderer)
 
 	/**
 	 * @brief create a vertex buffer
