@@ -78,7 +78,7 @@ public:
 	 */
 	Mesh(
 		const char* path, 
-		Script* script = new Script,
+		Script* script,
 		const uint16& index = 0,
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
@@ -102,7 +102,7 @@ public:
 	Mesh(
 		const std::vector <Vertex>& vertices, 
 		const std::vector <uint32>& indices, 
-		Script* script = new Script,
+		Script* script,
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
 		const bool& visible = true,

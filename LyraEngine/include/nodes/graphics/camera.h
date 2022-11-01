@@ -64,7 +64,7 @@ public:
 	 * @param transform transform of the object
 	 */
 	Camera(
-		Script* script = new Script,
+		Script* script,
 		const bool& perspective = true,
 		const char* name = "Camera",
 		Spatial* parent = nullptr,

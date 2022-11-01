@@ -54,8 +54,6 @@ Mesh::Mesh(
 	Logger::log_info("Creating Mesh... ");
 
 	create_mesh(util::load_model(path), index);
-	m_script->node = this;
-	m_script->init();
 
 	Logger::log_info("Successfully created mesh at address: ", get_address(this), "with path: ", path, "!", Logger::end_l());
 }
@@ -69,16 +67,7 @@ Mesh::Mesh(
 	const bool& visible,
 	const uint32& tag,
 	const Transform& transform
-) : Spatial(nullptr, name, parent, visible, tag, transform), m_vertices(vertices), m_indices(indices) {
-	Logger::log_info("Creating Mesh... ");
-	
-	m_vertices = vertices;
-	m_indices = indices;
-	m_script->node = this;
-	m_script->init();
-
-	Logger::log_info("Successfully created mesh at address: ", get_address(this), "!", Logger::end_l());
-}
+) : Spatial(nullptr, name, parent, visible, tag, transform), m_vertices(vertices), m_indices(indices) { }
 
 void Mesh::create_mesh(const util::LoadedModel& loaded, const uint16& index) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on

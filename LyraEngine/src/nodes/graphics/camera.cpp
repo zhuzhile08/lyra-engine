@@ -71,10 +71,6 @@ Camera::Camera(
 	else 
 		set_orthographic();
 
-
-	m_script->node = this;
-	m_script->init();
-
 	// add the update and draw functions into the queues
 	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
 }

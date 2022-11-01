@@ -37,7 +37,7 @@ public:
 	 */
 	MeshRenderer(
 		const Mesh* const mesh, 
-		Script* script = new Script,
+		Script* script,
 		const char* name = "MeshRenderer",
 		Spatial* parent = nullptr,
 		const uint32& tag = 0

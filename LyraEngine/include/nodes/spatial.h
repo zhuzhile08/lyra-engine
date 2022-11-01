@@ -38,13 +38,18 @@ public:
 	 * @param transform transform of the object
 	 */
 	Spatial(
-		Script* script = new Script,
+		Script* script,
 		const char* name = "Game Object",
 		Spatial* parent = nullptr,
 		const bool& visible = true,
 		const uint32& tag = 0,
 		const Transform& transform = Transform()
-	) noexcept : Node<Spatial>(name, parent, visible, tag), transform(transform), m_script(script) { m_script->init(); }
+	) noexcept : Node<Spatial>(name, parent, visible, tag), transform(transform), m_script(script) { 
+		if (script != nullptr) {
+			m_script->node = this; 
+			m_script->init(); 
+		}
+	}
 
 	/**
 	 * @brief convert the local matrix to a global one

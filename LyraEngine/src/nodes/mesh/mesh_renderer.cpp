@@ -27,9 +27,6 @@ MeshRenderer::MeshRenderer(
 	create_vertex_buffer();
 	create_index_buffer();
 
-	m_script->node = this;
-	m_script->init();
-
 	Logger::log_info("Successfully created MeshRenderer at ", get_address(this), "!", Logger::end_l());
 }
 
