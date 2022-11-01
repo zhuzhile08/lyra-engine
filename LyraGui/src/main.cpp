@@ -4,7 +4,7 @@
 #include <Jolt/Jolt.h>
 
 #include <lyra.h>
-#include <math/types/vectors.h>
+#include <math/math.h>
 #include <core/application.h>
 #include <rendering/material.h>
 #include <rendering/vulkan/descriptor.h>
@@ -23,10 +23,9 @@
 
 #include <array>
 
-class CameraScript : public lyra::Script<lyra::Camera> {
+class CameraScript : public lyra::Script {
 	void init(void) override {
-		node->set_position({2.0f, 2.0f, 2.0f});
-		node->look_at({0.0f, 0.0f, 0.0f});
+		node->transform.look_at({0.0f, 0.0f, 0.0f});
 	}
 };
 
@@ -40,18 +39,18 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// init application
 	Application app;
 
-	lyra::Spatial scene("Root"); // I'm sorry godot devs
+	lyra::Spatial scene(nullptr, "Root"); // I'm sorry godot devs
 
 	lyra::gui::GUIRenderer guiRenderer;
 	guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
-	lyra::Camera camera(true, "Camera", &scene, new CameraScript());
+	lyra::Camera camera(new CameraScript(), true, "Camera", &scene);
 
 	lyra::Texture roomTexture("data/img/viking_room.png");
 
-	lyra::Spatial room("Room", &scene);
-	lyra::Mesh roomMesh("data/model/viking_room.obj", 0, "RoomMesh", &room);
-	lyra::MeshRenderer roomRenderer(&roomMesh, "MeshRenderer", &room);
+	lyra::Spatial room(nullptr, "Room", &scene);
+	lyra::Mesh roomMesh("data/model/viking_room.obj", nullptr, 0, "RoomMesh", &room);
+	lyra::MeshRenderer roomRenderer(&roomMesh, nullptr, "MeshRenderer", &room);
 
 	// material
 	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(0, 0, 0, 0), &roomTexture);
