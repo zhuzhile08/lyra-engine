@@ -17,7 +17,6 @@
 #include "core/application.cpp"
 
 #include "rendering/vulkan/command_buffer.cpp"
-#include "rendering/vulkan/command_buffer.inl"
 #include "rendering/vulkan/descriptor.cpp"
 #include "rendering/vulkan/devices.cpp"
 #include "rendering/vulkan/GPU_buffer.cpp"
@@ -42,6 +41,7 @@
 #include "init/single_header_init.cpp"
 
 #include "math/math.cpp"
+#include "math/transform.cpp"
 
 #include "res/loaders.cpp"
 

@@ -11,7 +11,6 @@
 
 #pragma once
 
-
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 
@@ -111,7 +110,15 @@ public:
 	 * 
 	 * @return const uint32_t
 	 */
-	NODISCARD const uint32 get_unused() const;
+	NODISCARD const uint32 get_unused() const {
+		for (auto& it : m_commandBuffers) 
+			if (it.second == CommandBufferUsage::COMMAND_BUFFER_UNUSED) 
+				return it.first; 
+	#ifndef NDEBUG
+		Logger::log_exception("Failed to get an unused command buffer from the command buffer manager at: ", get_address(this), "!");
+	#endif
+		return 0;
+	};
 
 	/**
 	 * @brief get a command buffer at a specific index
@@ -197,7 +204,9 @@ struct CommandBuffer {
 		const uint32& firstSet,
 		const VkDescriptorSet pDescriptorSets[],
 		const uint32 pDynamicOffsets[]
-	);
+	) {
+		vkCmdBindDescriptorSets(*m_commandBuffer, pipelineBindPoint, layout, firstSet, arr_size(pDescriptorSets), pDescriptorSets, arr_size(pDynamicOffsets), pDynamicOffsets);
+	}
 	void bindIndexBuffer(const VkBuffer& buffer, const VkDeviceSize& offset, const VkIndexType indexType) {
 		vkCmdBindIndexBuffer(*m_commandBuffer, buffer, offset, indexType);
 	}
@@ -213,37 +222,54 @@ struct CommandBuffer {
 	void blitImage(const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageBlit& pRegion, const VkFilter& filter) {
 		vkCmdBlitImage(*m_commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, 1, &pRegion, filter);
 	}
-	void blitImages(const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageBlit pRegions[], const VkFilter& filter);
+	void blitImages(const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageBlit pRegions[], const VkFilter& filter) {
+		vkCmdBlitImage(*m_commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, arr_size(pRegions), pRegions, filter);
+	}
 	void clearAttachments(const uint32& attachmentCount, const VkClearAttachment& pAttachment, const VkClearRect& pRect) {
 		vkCmdClearAttachments(*m_commandBuffer, attachmentCount, &pAttachment, 1, &pRect);
 	}
-	void clearAttachments(const uint32& attachmentCount, const VkClearAttachment* pAttachments, const VkClearRect* pRects);
-	void clearAttachments(const uint32& attachmentCount, const VkClearAttachment& pAttachment, const VkClearRect* pRects);
+	void clearAttachments(const uint32& attachmentCount, const VkClearAttachment* pAttachments, const VkClearRect* pRects) {
+		vkCmdClearAttachments(*m_commandBuffer, attachmentCount, pAttachments, arr_size(pRects), pRects);
+	}
+	void clearAttachments(const uint32& attachmentCount, const VkClearAttachment& pAttachment, const VkClearRect* pRects) {
+		vkCmdClearAttachments(*m_commandBuffer, attachmentCount, &pAttachment, arr_size(pRects), pRects);
+	}
 	void clearColorImage(const VkImage&image, const VkImageLayout& imageLayout, const VkClearColorValue& pColor, const VkImageSubresourceRange& pRange) {
 		vkCmdClearColorImage(*m_commandBuffer, image, imageLayout, &pColor, 1, &pRange);
 	}
-	void clearColorImage (const VkImage& image, const VkImageLayout& imageLayout, const VkClearColorValue& pColor, const VkImageSubresourceRange pRanges[]);
+	void clearColorImage (const VkImage& image, const VkImageLayout& imageLayout, const VkClearColorValue& pColor, const VkImageSubresourceRange pRanges[]) {
+		vkCmdClearColorImage(*m_commandBuffer, image, imageLayout, &pColor, arr_size(pRanges), pRanges);
+	}
 	void clearDepthStencilImage (const VkImage& image, const VkImageLayout& imageLayout, const VkClearDepthStencilValue& pDepthStencil, const VkImageSubresourceRange& pRange) {
 		vkCmdClearDepthStencilImage(*m_commandBuffer, image, imageLayout, &pDepthStencil, 1, &pRange);
 	}
-	void clearDepthStencilImage (const VkImage&image, const VkImageLayout& imageLayout, const VkClearDepthStencilValue& pDepthStencil, const VkImageSubresourceRange pRanges[]);
-
+	void clearDepthStencilImage (const VkImage&image, const VkImageLayout& imageLayout, const VkClearDepthStencilValue& pDepthStencil, const VkImageSubresourceRange pRanges[]) {
+		vkCmdClearDepthStencilImage(*m_commandBuffer, image, imageLayout, &pDepthStencil, arr_size(pRanges), pRanges);
+	}
 	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkBufferCopy& pRegion) {
 		vkCmdCopyBuffer(*m_commandBuffer, srcBuffer, dstBuffer, 1, &pRegion);
 	}
-	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkBufferCopy pRegions[]);
+	void copyBuffer(const VkBuffer& srcBuffer, const VkBuffer& dstBuffer, const VkBufferCopy pRegions[]) {
+		vkCmdCopyBuffer(*m_commandBuffer, srcBuffer, dstBuffer, arr_size(pRegions), pRegions);
+	}
 	void copyBufferToImage(const VkBuffer& srcBuffer, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkBufferImageCopy& pRegion) {
 		vkCmdCopyBufferToImage(*m_commandBuffer, srcBuffer, dstImage, dstImageLayout, 1, &pRegion);
 	}
-	void copyBufferToImage(const VkBuffer& srcBuffer, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkBufferImageCopy pRegions[]);
+	void copyBufferToImage(const VkBuffer& srcBuffer, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkBufferImageCopy pRegions[]) {
+		vkCmdCopyBufferToImage(*m_commandBuffer, srcBuffer, dstImage, dstImageLayout, arr_size(pRegions), pRegions);
+	}
 	void copyImage (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageCopy& pRegion) {
 		vkCmdCopyImage(*m_commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, 1, &pRegion);
 	}
-	void copyImage (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageCopy pRegions[]);
+	void copyImage (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageCopy pRegions[]) {
+		vkCmdCopyImage(*m_commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, arr_size(pRegions), pRegions);
+	}
 	void copyImageToBuffer (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkBuffer& dstBuffer, const VkBufferImageCopy& pRegion) {
 		vkCmdCopyImageToBuffer(*m_commandBuffer, srcImage, srcImageLayout, dstBuffer, 1, &pRegion);
 	}
-	void copyImageToBuffer (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkBuffer& dstBuffer, const VkBufferImageCopy pRegions[]);
+	void copyImageToBuffer (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkBuffer& dstBuffer, const VkBufferImageCopy pRegions[]) {
+		vkCmdCopyImageToBuffer(*m_commandBuffer, srcImage, srcImageLayout, dstBuffer, arr_size(pRegions), pRegions);
+	}
 	void copyQueryPoolResults(
 		const VkQueryPool queryPool,
 		const uint32& firstQuery,
@@ -281,7 +307,9 @@ struct CommandBuffer {
 	void executeCommands(const VkCommandBuffer& pCommandBuffer) {
 		vkCmdExecuteCommands(*m_commandBuffer, 1, &pCommandBuffer);
 	}
-	void executeCommands(const VkCommandBuffer pCommandBuffers[]);
+	void executeCommands(const VkCommandBuffer pCommandBuffers[]) {
+		vkCmdExecuteCommands(*m_commandBuffer, arr_size(pCommandBuffers), pCommandBuffers);
+	}
 	void fillBuffer(const VkBuffer& dstBuffer, const VkDeviceSize& dstOffset, const VkDeviceSize& size, const uint32& data) {
 		vkCmdFillBuffer(*m_commandBuffer, dstBuffer, dstOffset, size, data);
 	}
@@ -316,7 +344,20 @@ struct CommandBuffer {
 		const VkBufferMemoryBarrier buffer[] = { },
 		const VkImageMemoryBarrier image[] = { },
 		const VkDependencyFlags& dependency = 0
-	);
+	) {
+		vkCmdPipelineBarrier(
+			*m_commandBuffer,
+			srcStageFlags,
+			dstStageFlags,
+			dependency,
+			arr_size(memory),
+			memory,
+			arr_size(buffer),
+			buffer,
+			arr_size(image),
+			image
+		);
+	}
 	void pushConstants(const VkPipelineLayout& layout, const VkShaderStageFlags& stageFlags, const uint32& offset, const uint32& size, const void* pValues) {
 		vkCmdPushConstants(*m_commandBuffer, layout, stageFlags, offset, size, pValues);
 	}
@@ -329,7 +370,9 @@ struct CommandBuffer {
 	void resolveImage (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageResolve& pRegion) {
 		vkCmdResolveImage(*m_commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, 1, &pRegion);
 	}
-	void resolveImage (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageResolve pRegions[]);
+	void resolveImage (const VkImage& srcImage, const VkImageLayout& srcImageLayout, const VkImage& dstImage, const VkImageLayout& dstImageLayout, const VkImageResolve pRegions[]) {
+		vkCmdResolveImage(*m_commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, arr_size(pRegions), pRegions);
+	}
 	void setBlendConstants(const float blendConstants[4]) {
 		vkCmdSetBlendConstants(*m_commandBuffer, blendConstants);
 	}
@@ -348,7 +391,9 @@ struct CommandBuffer {
 	void setScissor(const uint32& firstScissor, const VkRect2D& pScissor) {
 		vkCmdSetScissor(*m_commandBuffer, firstScissor, 1, &pScissor);
 	}
-	void setScissor(const uint32& firstScissor, const VkRect2D pScissors[]);
+	void setScissor(const uint32& firstScissor, const VkRect2D pScissors[]) {
+		vkCmdSetScissor(*m_commandBuffer, firstScissor, arr_size(pScissors), pScissors);
+	}
 	void setStencilCompareMask(const VkStencilFaceFlags& faceMask, const uint32& compareMask) {
 		vkCmdSetStencilCompareMask(*m_commandBuffer, faceMask, compareMask);
 	}
@@ -361,7 +406,9 @@ struct CommandBuffer {
 	void setViewport(const uint32& firstViewport, const VkViewport& pViewport) {
 		vkCmdSetViewport(*m_commandBuffer, firstViewport, 1, &pViewport);
 	}
-	void setViewport(const uint32& firstViewport, const VkViewport pViewports[]);
+	void setViewport(const uint32& firstViewport, const VkViewport pViewports[]) {
+		vkCmdSetViewport(*m_commandBuffer, firstViewport, arr_size(pViewports), pViewports);
+	}
 	void updateBuffer(const VkBuffer& dstBuffer, const VkDeviceSize& dstOffset, const VkDeviceSize& dataSize, const void* pData) {
 		vkCmdUpdateBuffer(*m_commandBuffer, dstBuffer, dstOffset, dataSize, pData);
 	}
@@ -394,7 +441,21 @@ struct CommandBuffer {
 		const VkMemoryBarrier pMemoryBarriers[] = { },
 		const VkBufferMemoryBarrier pBufferMemoryBarriers[] = { },
 		const VkImageMemoryBarrier pImageMemoryBarriers[] = { }
-	);
+	) {
+		vkCmdWaitEvents(
+			*m_commandBuffer, 
+			arr_size(pEvents), 
+			pEvents, 
+			srcStageMask, 
+			dstStageMask, 
+			arr_size(pMemoryBarriers), 
+			pMemoryBarriers, 
+			arr_size(pBufferMemoryBarriers), 
+			pBufferMemoryBarriers, 
+			arr_size(pImageMemoryBarriers), 
+			pImageMemoryBarriers
+		);
+	}
 	void writeTimestamp(const VkPipelineStageFlagBits pipelineStage, const VkQueryPool queryPool, const uint32& query) {
 		vkCmdWriteTimestamp(*m_commandBuffer, pipelineStage, queryPool, query);
 	}
