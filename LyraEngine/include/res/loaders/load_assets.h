@@ -1,15 +1,13 @@
 #pragma once
 
-#include <res/loaders/load_file.h>
-
-
-
-
 #include <fstream>
 #include <string>
 #include <vector>
-#include <nlohmann/json.hpp>
+
+#include <json.hpp>
 #include <lz4.h>
+
+#include <res/loaders/load_file.h>
 
 namespace lyra {
 
