@@ -78,11 +78,7 @@ template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>
 NODISCARD inline std::filesystem::path get_executable_path();
 
 std::filesystem::path get_executable_path() {
-#ifdef _WIN32
-	wchar_t buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, sizeof(buffer));
-	return std::filesystem::path(buffer).parent_path();
-#elif __APPLE__
+#ifdef __APPLE__
 	char buffer [PATH_MAX];
 	uint32_t bufsize = PATH_MAX;
 	if(!_NSGetExecutablePath(buffer, &bufsize))
