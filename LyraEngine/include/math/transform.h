@@ -349,31 +349,19 @@ public:
 	 * 
 	 * @return constexpr glm::vec3
 	 */
-	NODISCARD constexpr glm::vec3 translation() noexcept { 
-		// check if the vectors are m_dirty, if so, recalculate them
-		if (m_dirty) decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
-		return m_translation; 
-	}
+	NODISCARD constexpr glm::vec3 translation() noexcept;
 	/**
 	 * @brief get the local rotation
 	 * 
 	 * @return constexpr glm::vec3
 	 */
-	NODISCARD constexpr glm::vec3 rotation() noexcept { 
-		// check if the vectors are m_dirty, if so, recalculate them
-		if (m_dirty) decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
-		return m_rotation;
-	}
+	NODISCARD constexpr glm::vec3 rotation() noexcept;
 	/**
 	 * @brief get the local scale
 	 * 
 	 * @return constexpr glm::vec3
 	 */
-	NODISCARD constexpr glm::vec3 scale() noexcept { 
-		// check if the vectors are m_dirty, if so, recalculate them
-		if (m_dirty) decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
-		return m_scale; 
-	}
+	NODISCARD constexpr glm::vec3 scale() noexcept;
 	/**
 	 * @brief get the local matrix
 	 * 
