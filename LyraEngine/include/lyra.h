@@ -89,7 +89,7 @@ class PoolAllocator;
 
 // nodes
 
-class Script;
+struct Script;
 class Spatial;
 
 class Mesh;
