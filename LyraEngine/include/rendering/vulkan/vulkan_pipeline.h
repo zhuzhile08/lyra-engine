@@ -33,13 +33,13 @@ public:
 	 */
 	struct Binding {
 		// type of descriptor
-		int descriptorType;
+		const int& descriptorType;
 		// number of this type of descriptor needed in the shader
-		uint32 descriptorCount;
+		const uint32& descriptorCount;
 		// number of descriptors to allocate
-		uint32 descriptorAllocCount;
+		const uint32& descriptorAllocCount;
 		// shader type
-		const int shaderType;
+		const int& shaderType;
 	};
 
 	/**
@@ -47,7 +47,7 @@ public:
 	 */
 	struct ShaderInfo {
 		// shader type
-		const int type;
+		const int& type;
 		// path of shader
 		const char* path;
 		// shader entry point

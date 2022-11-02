@@ -196,7 +196,7 @@ struct CommandBuffer {
 		const VkDescriptorSet& pDescriptorSet,
 		const uint32& pDynamicOffset = UINT32_MAX
 	) {
-		vkCmdBindDescriptorSets(*m_commandBuffer, pipelineBindPoint, layout, firstSet, 1, &pDescriptorSet, (pDynamicOffset == UINT32_MAX) ? 0 : 1, &pDynamicOffset);
+		vkCmdBindDescriptorSets(*m_commandBuffer, pipelineBindPoint, layout, firstSet, 1, &pDescriptorSet, (pDynamicOffset == UINT32_MAX) ? 0 : 1, (pDynamicOffset == UINT32_MAX) ? nullptr : &pDynamicOffset);
 	}
 	void bindDescriptorSets(
 		const VkPipelineBindPoint& pipelineBindPoint,

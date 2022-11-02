@@ -13,7 +13,6 @@
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
-
 #include <vector>
 
 #include <glm.hpp>
@@ -21,10 +20,10 @@
 #include <core/smart_pointer.h>
 #include <core/settings.h>
 
+#include <nodes/spatial.h>
+
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/renderer.h>
-
-#include <nodes/spatial.h>
 
 namespace lyra {
 
@@ -48,8 +47,8 @@ public:
 
 	// camera data
 	struct CameraData {
-		glm::mat4 model;
-		glm::mat4 proj;
+		alignas(16) const glm::mat4& model;
+		alignas(16) const glm::mat4& proj;
 	};
 	
 	/**

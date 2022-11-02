@@ -35,7 +35,7 @@ void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat& forma
 	Logger::log_debug(Logger::tab(), "mipmapping levels: ", m_mipmap);
 
 	// calculate the mipmap levels of the image
-	// m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
+	m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
 
 	// calculate the size of the staging buffer
 	VkDeviceSize imageMemSize = static_cast<uint64>(m_width * m_height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
@@ -87,14 +87,14 @@ void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter& m
 		static_cast<uint32>(textureInfo.anistropy),
 		properties.limits.maxSamplerAnisotropy * Settings::Rendering::anistropy,
 		VK_FALSE,
-		VK_COMPARE_OP_NEVER,
+		VK_COMPARE_OP_ALWAYS,
 		0.0f,
 		static_cast<float>(m_mipmap),
 		static_cast<VkBorderColor>(textureInfo.alpha),
 		VK_FALSE
 	};
 
-	vassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler");
+	vassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
 
 	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }

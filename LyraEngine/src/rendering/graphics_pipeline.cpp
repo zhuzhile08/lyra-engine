@@ -13,16 +13,16 @@ namespace lyra {
 
 GraphicsPipeline::GraphicsPipeline(
 	const Renderer* const renderer,
-	const std::vector<ShaderInfo> shaders,
-	const std::vector<Binding> bindings,
-	const std::vector<VkPushConstantRange> pushConstants,
-	const VkExtent2D size,
-	const VkExtent2D area,
-	const ColorBlending&& colorBlending,
-	const Tessellation&& tessellation,
-	const Multisampling&& multisampling,
-	const RenderMode&& renderMode,
-	const Culling&& culling
+	const std::vector<ShaderInfo>& shaders,
+	const std::vector<Binding>& bindings,
+	const std::vector<VkPushConstantRange>& pushConstants,
+	const VkExtent2D& size,
+	const VkExtent2D& area,
+	const ColorBlending& colorBlending,
+	const Tessellation& tessellation,
+	const Multisampling& multisampling,
+	const RenderMode& renderMode,
+	const Culling& culling
 ) {
 	Logger::log_info("Creating Vulkan graphics pipeline...");
 
@@ -32,19 +32,19 @@ GraphicsPipeline::GraphicsPipeline(
 	// crate shaders
 	create_shaders(shaders);
 	// create stuff relating to descriptors
-	create_descriptor_stuff(std::move(bindings)); // yes, I know, very good naming
+	create_descriptor_stuff(bindings); // yes, I know, very good naming
 
 	// create the pipeline
 	create_pipeline(
-		std::move(renderer),
-		std::move(pushConstants),
-		std::move(size),
-		std::move(area), 
-		std::move(colorBlending), 
-		std::move(tessellation), 
-		std::move(multisampling), 
-		std::move(renderMode), 
-		std::move(culling)
+		renderer,
+		pushConstants,
+		size,
+		area, 
+		colorBlending, 
+		tessellation, 
+		multisampling, 
+		renderMode, 
+		culling
 	);
 
 	Logger::log_info("Successfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
@@ -52,19 +52,19 @@ GraphicsPipeline::GraphicsPipeline(
 
 void GraphicsPipeline::create_pipeline(
 	const Renderer* const renderer,
-	const std::vector<VkPushConstantRange> pushConstants,
-	const VkExtent2D size,
-	const VkExtent2D area,
-	const ColorBlending colorBlending,
-	const Tessellation tessellation,
-	const Multisampling multisampling,
-	const RenderMode renderMode,
-	const Culling culling
+	const std::vector<VkPushConstantRange>& pushConstants,
+	const VkExtent2D& size,
+	const VkExtent2D& area,
+	const ColorBlending& colorBlending,
+	const Tessellation& tessellation,
+	const Multisampling& multisampling,
+	const RenderMode& renderMode,
+	const Culling& culling
 ) {
 	// add all the shader stage creation information into a vector
 	std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
 	shaderStages.resize(m_shaders.size());
-	for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages.at(i) = m_shaders.at(i).get_stage_create_info();
+	for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages[i] = m_shaders[i].get_stage_create_info();
 
 	auto temp = Mesh::Vertex::get_binding_description(); // i loooove c++
 	auto temp2 = Mesh::Vertex::get_attribute_descriptions();
@@ -131,11 +131,7 @@ void GraphicsPipeline::create_pipeline(
 			nullptr,
 			0,
 			Application::renderSystem()->vulkanWindow()->maxMultisamples(),
-			VK_TRUE,				// currently set to false
-			0.2f,
-			nullptr,
-			VK_FALSE,
-			VK_FALSE
+			VK_FALSE				// currently set to false
 		},
 		{	// depth buffering
 			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -145,11 +141,7 @@ void GraphicsPipeline::create_pipeline(
 			VK_TRUE,
 			VK_COMPARE_OP_LESS,
 			VK_FALSE,
-			VK_FALSE,
-			{ },
-			{ },
-			0.0f,
-			0.1f
+			VK_FALSE
 		},
 		{	// configure color blending
 			VK_FALSE,
@@ -185,7 +177,7 @@ void GraphicsPipeline::create_pipeline(
 			nullptr
 		}
 	};
-
+	
 	// create the pipeline layout
 	create_layout(pushConstants);
 

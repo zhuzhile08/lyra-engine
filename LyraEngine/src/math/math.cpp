@@ -26,12 +26,12 @@ void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation,
 	mat[1] /= scale.y;
 	mat[2] /= scale.z;
 	// get the rotation in euler angles
-	rotation.y = asin(-mat[0][2]); 	
+	rotation.y = glm::degrees(asin(-mat[0][2])); 	
 	if (cos(rotation.y) != 0) {
-		rotation.x = atan2(mat[1][2], mat[2][2]);
-		rotation.z = atan2(mat[0][1], mat[0][0]);
+		rotation.x = glm::degrees(atan2(mat[1][2], mat[2][2]));
+		rotation.z = glm::degrees(atan2(mat[0][1], mat[0][0]));
 	} else {
-		rotation.x = atan2(-mat[2][0], mat[1][1]);
+		rotation.x = glm::degrees(atan2(-mat[2][0], mat[1][1]));
 		rotation.z = 0;
 	}
 }

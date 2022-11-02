@@ -54,7 +54,9 @@ public:
 	 *
 	 * @return const lyra::glm::mat4
 	*/
-	NODISCARD const glm::mat4 mat_to_global() const noexcept { return transform.localTransformMatrix() * ((this->m_parent == nullptr) ? glm::mat4(0.0f) : this->m_parent->mat_to_global()); };
+	NODISCARD const glm::mat4 mat_to_global() const noexcept { 
+		return transform.localTransformMatrix() * ((this->m_parent == nullptr) ? glm::mat4(1.0f) : this->m_parent->mat_to_global()); 
+	};
 
 	Transform transform;
 

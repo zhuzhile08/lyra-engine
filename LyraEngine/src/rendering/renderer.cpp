@@ -2,9 +2,6 @@
 
 #include <array>
 
-
-
-
 #include <core/queue.h>
 
 #include <rendering/vulkan/devices.h>
@@ -65,7 +62,7 @@ void Renderer::create_render_pass() {
 		Application::renderSystem()->m_vulkanWindow.depthBufferFormat(),
 		Application::renderSystem()->m_vulkanWindow.maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
-		VK_ATTACHMENT_STORE_OP_STORE,
+		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_IMAGE_LAYOUT_UNDEFINED,
@@ -164,7 +161,7 @@ void Renderer::create_framebuffers() {
 			1
 		};
 
-		vassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers.at(i)), "create a framebuffer");
+		vassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers[i]), "create a framebuffer");
 	}
 }
 

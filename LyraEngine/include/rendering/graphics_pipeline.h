@@ -113,16 +113,16 @@ public:
 	 */
 	GraphicsPipeline(
 		const Renderer* const renderer,
-		const std::vector<ShaderInfo> shaders,
-		const std::vector<Binding> bindings,
-		const std::vector<VkPushConstantRange> pushConstants,
-		const VkExtent2D size,
-		const VkExtent2D area,
-		const ColorBlending&& colorBlending = ColorBlending::BLEND_ENABLE,
-		const Tessellation&& tessellation = Tessellation::TESSELLATION_ENABLE,
-		const Multisampling&& multisampling = Multisampling::MULTISAMPLING_ENABLE,
-		const RenderMode&& renderMode = RenderMode::MODE_FILL,
-		const Culling&& culling = Culling::CULLING_BACK
+		const std::vector<ShaderInfo>& shaders,
+		const std::vector<Binding>& bindings,
+		const std::vector<VkPushConstantRange>& pushConstants,
+		const VkExtent2D& size,
+		const VkExtent2D& area,
+		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
+		const Tessellation& tessellation = Tessellation::TESSELLATION_ENABLE,
+		const Multisampling& multisampling = Multisampling::MULTISAMPLING_ENABLE,
+		const RenderMode& renderMode = RenderMode::MODE_FILL,
+		const Culling& culling = Culling::CULLING_BACK
 	);
 
 private:
@@ -141,14 +141,14 @@ private:
 	 */
 	void create_pipeline(
 		const Renderer* const renderer,
-		const std::vector<VkPushConstantRange> pushConstants,
-		const VkExtent2D size,
-		const VkExtent2D area,
-		const ColorBlending colorBlending,
-		const Tessellation tessellation,
-		const Multisampling multisampling,
-		const RenderMode renderMode,
-		const Culling culling
+		const std::vector<VkPushConstantRange>& pushConstants,
+		const VkExtent2D& size,
+		const VkExtent2D& area,
+		const ColorBlending& colorBlending,
+		const Tessellation& tessellation,
+		const Multisampling& multisampling,
+		const RenderMode& renderMode,
+		const Culling& culling
 	);
 };
 

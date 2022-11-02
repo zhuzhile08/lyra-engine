@@ -102,19 +102,19 @@ private:
 	const Camera* camera;
 
 	struct MaterialVertexData {
-		uint32 m_normalMapValue;
-		int32 m_heightMapValue;
+		alignas(8) const uint32& m_normalMapValue;
+		alignas(8) const int32& m_heightMapValue;
 	};
 
 	struct MaterialFragmentData {
-		Color m_albedoColor;
-		uint32 m_metallic;
-		uint32 m_roughness;
-		uint32 m_specular;
-		bool m_emissionEnabled;
-		Color m_emissionColor;
-		uint32 m_emissionEnergy;
-		uint32 m_occlusionMapValue;
+		alignas(16) const glm::vec4& m_albedoColor;
+		alignas(16) const glm::vec4& m_emissionColor;
+		alignas(8) const uint32& m_metallic;
+		alignas(8) const uint32& m_roughness;
+		alignas(8) const uint32& m_specular;
+		alignas(8) const bool& m_emissionEnabled;
+		alignas(8) const uint32& m_emissionEnergy;
+		alignas(8) const uint32& m_occlusionMapValue;
 	};
 
 	/**

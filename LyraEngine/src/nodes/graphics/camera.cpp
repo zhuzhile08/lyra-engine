@@ -37,14 +37,14 @@ Camera::Camera(
 	// binding information
 	std::vector<vulkan::Pipeline::Binding> bindings{
 		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1,Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
+		// { vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+		// { vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
+		//{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		//{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
+		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 1,Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
 	};
 
 	// create the graphics pipeline
@@ -98,18 +98,17 @@ void Camera::draw() {
 	m_script->update();
 	// check wich projection model the camera uses and calculate the projection data
 	CameraData data {mat_to_global(), m_projection_matrix};
-
 	// copy the data into the shader
 	m_buffers.at(Application::renderSystem()->currentFrame()).copy_data(&data);
 }
 
 void Camera::record_command_buffers() {
+	// calculate the camera matrices
+	draw();
 	// begin the renderpass
 	begin_renderpass();
 	// bind the default render pipeline
 	Application::renderSystem()->currentCommandBuffer().bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
-	// calculate the camera matrices
-	draw();
 	// loop through the materials and draw their meshes
 	for (int i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
 	// end renderpass
