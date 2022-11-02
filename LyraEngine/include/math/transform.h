@@ -27,7 +27,11 @@ public:
 	 * @param rotation rotation of the object
 	 * @param scale scale of the object 
 	 */
+#ifdef _WIN32
+	Transform(
+#else
 	constexpr Transform(
+#endif
 		const glm::vec3& translation = glm::vec3(0.0f, 0.0f, 0.0f), 
 		const glm::vec3& rotation = glm::vec3(0.0f, 0.0f, 0.0f), 
 		const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f)
@@ -42,7 +46,11 @@ public:
 	 * @param mat transformation matrix
 	 * @param rotationOrder order to calculate the rotations in
 	 */
+#ifdef _WIN32
+	Transform(
+#else
 	constexpr Transform(
+#endif
 		const glm::mat4& mat
 	) : m_localTransformMatrix(mat), m_dirty(false) { 
 		decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale); 
@@ -54,7 +62,12 @@ public:
 	 * @param transform the other transform
 	 * @return constexpr Transform& 
 	 */
-	constexpr Transform& operator=(const Transform& transform) {
+#ifdef _WIN32
+	Transform& 
+#else
+	constexpr Transform&(
+#endif
+	operator=(const Transform& transform) {
 		m_localTransformMatrix = transform.m_localTransformMatrix;
 		decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
 		m_dirty = false;

@@ -143,7 +143,12 @@ struct CommandBuffer {
 	 *
 	 * @param commandBufferManager command buffer manager to retrieve the command buffer from
 	 */
-	constexpr CommandBuffer(CommandBufferManager* const commandBufferManager) : 
+#ifdef _WIN32
+	CommandBuffer(
+#else
+	constexpr CommandBuffer(
+#endif
+		CommandBufferManager* const commandBufferManager) :
 		m_index(commandBufferManager->get_unused()), 
 		m_commandBuffer(&commandBufferManager->m_commandBufferData.at(m_index).commandBuffer),
 		commandBufferManager(commandBufferManager) { }
