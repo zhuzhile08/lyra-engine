@@ -8,7 +8,6 @@
 #include <nodes/graphics/camera.h>
 #include <core/application.h>
 
-
 namespace lyra {
 
 GraphicsPipeline::GraphicsPipeline(
@@ -63,8 +62,8 @@ void GraphicsPipeline::create_pipeline(
 ) {
 	// add all the shader stage creation information into a vector
 	std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
-	shaderStages.resize(m_shaders.size());
-	for (uint32 i = 0; i < shaderStages.size(); i++) shaderStages[i] = m_shaders[i].get_stage_create_info();
+	shaderStages.reserve(m_shaders.size());
+	for (uint32 i = 0; i < m_shaders.size(); i++) shaderStages.push_back(m_shaders[i].get_stage_create_info());
 
 	auto temp = Mesh::Vertex::get_binding_description(); // i loooove c++
 	auto temp2 = Mesh::Vertex::get_attribute_descriptions();
@@ -118,8 +117,8 @@ void GraphicsPipeline::create_pipeline(
 			VK_FALSE,
 			VK_FALSE,
 			static_cast<VkPolygonMode>(renderMode),
-			static_cast<VkCullModeFlags>(culling),
-			static_cast<VkFrontFace>(Settings::Rendering::polygonFrontFace),
+			VK_CULL_MODE_BACK_BIT,
+			VK_FRONT_FACE_CLOCKWISE,
 			VK_FALSE,
 			0.0f,
 			0.0f,
