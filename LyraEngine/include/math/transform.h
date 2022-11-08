@@ -65,7 +65,7 @@ public:
 #ifdef _WIN32
 	Transform& 
 #else
-	constexpr Transform&(
+	constexpr Transform&
 #endif
 	operator=(const Transform& transform) {
 		m_localTransformMatrix = transform.m_localTransformMatrix;
