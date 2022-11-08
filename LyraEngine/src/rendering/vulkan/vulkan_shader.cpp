@@ -9,7 +9,7 @@ namespace lyra {
 namespace vulkan {
 
 Shader::Shader(const char* path, const char* entry, const Type& type) : m_entry(entry), m_type(type) {
-	Logger::log_info("Loading and creating Vulkan shader...");
+	Logger::log_debug(Logger::tab(), "Loading and creating Vulkan shader...");
 
 	Logger::log_debug(Logger::tab(), "Path: ", path);
 	Logger::log_debug(Logger::tab(), "Entry point: ", entry);
@@ -29,14 +29,16 @@ Shader::Shader(const char* path, const char* entry, const Type& type) : m_entry(
 
 	vassert(vkCreateShaderModule(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_module), "create a Vulkan shader module");
 
-	Logger::log_info(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
+	Logger::log_debug(Logger::tab(), "Successfully created Vulkan shader from at: ", get_address(this), "!");
 }
 
+#ifndef ndebug
 Shader::~Shader() {
 	vkDestroyShaderModule(Application::renderSystem()->device()->device(), m_module, nullptr);
 
-	Logger::log_info("Successfully destroyed loaded Vulkan shader!");
+	Logger::log_debug("Successfully destroyed loaded Vulkan shader!");
 }
+#endif
 
 } // namespace vulkan
 
