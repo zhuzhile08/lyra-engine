@@ -38,10 +38,10 @@ void Pipeline::create_shaders(const std::vector<ShaderInfo>& shaders) {
 	m_shaders.reserve(shaders.size());
 
 	// create the shaders in the vector
-	for (int index = 0; index < shaders.size(); index++) {
-		m_shaders.emplace_back(shaders[index].path, shaders[index].entry,
-			static_cast<Shader::Type>(shaders[index].type));
-		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&m_shaders[index]), " with flag: ", shaders[index].type, "!");
+	for (uint32 i = 0; i < shaders.size(); i++) {
+		m_shaders.emplace_back(shaders[i].path, shaders[i].entry,
+			static_cast<Shader::Type>(shaders[i].type));
+		Logger::log_info("Successfully created Vulkan shader at: ", get_address(&m_shaders[i]), " with flag: ", shaders[i].type, "!");
 	}
 }
 
