@@ -43,7 +43,7 @@ public:
 	 * @param occlusionMapValue occlusion map value
 	 */
 	Material(
-		const Camera* const camera,
+		Camera* const camera,
 		const std::vector<MeshRenderer*>& meshRenderers,
 		const Color& albedoColor = Color(),
 		const Texture* const albedoTexture = nullptr,
@@ -99,7 +99,7 @@ private:
 	std::vector<vulkan::GPUBuffer> m_fragShaderBuffers;
 	std::vector<vulkan::GPUBuffer> m_vertShaderBuffers;
 
-	const Camera* camera;
+	Camera* const camera;
 
 	struct MaterialVertexData {
 		alignas(8) const uint32& m_normalMapValue;
