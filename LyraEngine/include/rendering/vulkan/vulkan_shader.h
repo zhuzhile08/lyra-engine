@@ -68,7 +68,13 @@ public:
 	/**
 	* @brief destructor of the shader
 	**/
+#ifndef ndebug
 	virtual ~Shader();
+#else
+	virtual ~Shader() {
+		vkDestroyShaderModule(Application::renderSystem()->device()->device(), m_module, nullptr);
+	}
+#endif
 
 	Shader operator=(const Shader&) const noexcept = delete;
 
