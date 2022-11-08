@@ -33,9 +33,7 @@ MeshRenderer::MeshRenderer(
 void MeshRenderer::create_vertex_buffer() {
 	// create the staging buffer
 	vulkan::GPUBuffer stagingBuffer(sizeof(m_mesh->vertices()[0]) * m_mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
 	stagingBuffer.copy_data(m_mesh->vertices().data());
-
 	// copy the buffer
 	m_vertexBuffer->copy(&stagingBuffer);
 }
@@ -43,9 +41,7 @@ void MeshRenderer::create_vertex_buffer() {
 void MeshRenderer::create_index_buffer() {
 	// create the staging buffer
 	vulkan::GPUBuffer stagingBuffer(sizeof(m_mesh->indices()[0]) * m_mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	
 	stagingBuffer.copy_data(m_mesh->indices().data());
-
 	// copy the buffer
 	m_indexBuffer->copy(&stagingBuffer);
 }
