@@ -47,7 +47,7 @@ void Input::update() {
 	while (SDL_PollEvent(&m_events)) {
 		Application::window()->m_changed = false;
 
-		ImGui_ImplSDL2_ProcessEvent(&m_events);
+		// ImGui_ImplSDL2_ProcessEvent(&m_events);
 
 		// default events that are always checked
 		switch (m_events.type) {

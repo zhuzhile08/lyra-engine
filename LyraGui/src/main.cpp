@@ -46,8 +46,8 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	lyra::Spatial scene(nullptr, "Root"); // I'm sorry godot devs
 
-	lyra::gui::GUIRenderer guiRenderer;
-	guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
+	// lyra::gui::GUIRenderer guiRenderer;
+	// guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
 	lyra::Camera camera(new CameraScript, true, "Camera", &scene);
 
