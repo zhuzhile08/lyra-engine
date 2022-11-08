@@ -11,7 +11,7 @@
 namespace lyra {
 
 Material::Material(
-	const Camera* const camera,
+	Camera* const camera,
 	const std::vector<MeshRenderer*>& meshRenderers,
 	const Color& albedoColor,
 	const Texture* const albedoTexture,
@@ -102,6 +102,8 @@ Material::Material(
 	// create the descriptors
 	m_descriptors.reserve(Settings::Rendering::maxFramesInFlight);
 	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) m_descriptors.emplace_back(camera->m_renderPipeline->descriptorSetLayout(), camera->m_renderPipeline->descriptorPool(), writer);
+
+	this->camera->m_materials.push_back(this);
 
 	Logger::log_info("Successfully created material with address:", get_address(this), "!");
 }
