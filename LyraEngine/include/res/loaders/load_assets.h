@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <lz4.h>
 
 #include <res/loaders/load_file.h>
