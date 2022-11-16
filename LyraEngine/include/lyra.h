@@ -112,6 +112,7 @@ class Raycast;
 class Camera;
 class Light;
 class LightProbe;
+class Cubemap;
 class Skybox;
 class MoviePlayer;
 
