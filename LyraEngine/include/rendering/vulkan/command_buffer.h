@@ -45,7 +45,7 @@ public:
 	NODISCARD constexpr VkCommandPool commandPool() const noexcept { return m_commandPool; }
 
 private:
-	VkCommandPool m_commandPool = VK_NULL_HANDLE;
+	VkCommandPool m_commandPool;
 };
 
 /**
@@ -80,7 +80,7 @@ private:
 
 		VulkanCommandBuffer operator=(const VulkanCommandBuffer&) const noexcept = delete;
 
-		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+		VkCommandBuffer commandBuffer;
 	
 	private:
 		const CommandPool* commandPool;
