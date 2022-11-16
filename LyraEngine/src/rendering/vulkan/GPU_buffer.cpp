@@ -45,7 +45,7 @@ GPUBuffer::~GPUBuffer() noexcept {
 }
 #endif
 
-void GPUBuffer::copy_data(const void* const src, const size_t& copySize) {
+void GPUBuffer::copy_data(const void* src, const size_t& copySize) {
 	// map the memory
 	void* data;
 	lassert(Application::renderSystem()->device()->mapMemory(m_memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(m_memory), "!");
@@ -62,6 +62,21 @@ void GPUBuffer::copy_data(const void* const src, const size_t& copySize) {
 
 	data = std::move(d);
 #endif
+
+	// unmap the memory
+	Application::renderSystem()->device()->unmapMemory(m_memory);
+}
+
+void GPUBuffer::copy_data(const void** src, const uint32& arraySize, const size_t& elementSize) {
+	// map the memory
+	char* data;
+	lassert(Application::renderSystem()->device()->mapMemory(m_memory, (void**)&data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(m_memory), "!");
+
+	// loop through the array
+	for (uint32 i = 0; i < arraySize; i++) {
+		// copy the data into the mapped memory
+		memcpy(static_cast<void*>(data + elementSize * i), src[i], elementSize);
+	}
 
 	// unmap the memory
 	Application::renderSystem()->device()->unmapMemory(m_memory);

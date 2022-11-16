@@ -65,7 +65,15 @@ public:
 	 * @param src data to copy into the buffer
 	 * @param copySize size of the data to copy, default is the size of the buffer memory
 	 */
-	void copy_data(const void* const src, const size_t& copySize = 0);
+	void copy_data(const void* src, const size_t& copySize = 0);
+	/**
+	 * @brief copy data from an array into the buffer element by element
+	 * 
+	 * @param src source array
+	 * @param arraySize size of the array
+	 * @param elementSize size a single array element
+	 */
+	void copy_data(const void** src, const uint32& arraySize, const size_t& elementSize = 0);
 
 	/**
 	 * @brief get the information in a buffer for descriptor sets
@@ -128,7 +136,7 @@ public:
 	NODISCARD constexpr VkDeviceSize size() const noexcept { return m_size; };
 
 private:
-	VkBuffer m_buffer = VK_NULL_HANDLE;
+	VkBuffer m_buffer;
 	VkDeviceSize m_size = 0;
 };
 
