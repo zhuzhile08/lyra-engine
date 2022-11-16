@@ -286,6 +286,19 @@ NODISCARD float randFloat(const float x, const float y);
  */
 void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale);
 
+/**
+ * @brief get a vulkan perspective matrix
+ * 
+ * @param fov field of view in degrees
+ * @param width window width
+ * @param height window height
+ * @param near near clipping plane
+ * @param far far clipping plane
+ * 
+ * @return constexpr glm::mat4
+ */
+NODISCARD constexpr glm::mat4 perspective_matrix(const float& fov, const float& width, const float& height, const float& near, const float& far);
+
 // pointer alignment mode
 enum AlignMode : uint8 {
 	ALIGN_FORWARD,
