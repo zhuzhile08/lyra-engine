@@ -6,70 +6,63 @@ namespace lyra {
 
 Texture::Texture(const char* path, const VkFormat& format)
 : m_path(path) {
-	Logger::log_info("Creating Vulkan texture and image sampler... ");
-
-	Assets::TextureInfo textureInfo;
-	textureInfo = Assets::unpack_texture(path);
+	Assets::ImageData imageData;
+	imageData = Assets::unpack_texture(path);
 
 	// assign some variables
-	m_width = textureInfo.width; 
-	m_height = textureInfo.height;
-	m_mipmap = textureInfo.mipmap;
+	m_width = imageData.width; 
+	m_height = imageData.height;
+	m_mipmap = imageData.mipmap;
 	m_path = path;
 
-	load_image(textureInfo, format);
-	create_sampler(textureInfo);
-
-	Logger::log_info("Successfully created Vulkan texture with path: ", path, " with image sampler at: ", get_address(this), Logger::end_l());
-}
-
-Texture::~Texture() noexcept {
-	vkDestroySampler(Application::renderSystem()->device()->device(), m_sampler, nullptr);
-
-	Logger::log_info("Successfully destroyed Texture!");
-}
-
-void Texture::load_image(Assets::TextureInfo& textureInfo, const VkFormat& format) {
 	Logger::log_debug(Logger::tab(), "path: ", m_path);
 	Logger::log_debug(Logger::tab(), "width: ", m_width, " and height: ", m_height);
 	Logger::log_debug(Logger::tab(), "mipmapping levels: ", m_mipmap);
 
-	// calculate the mipmap levels of the image
-	m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
+	{
+		// calculate the mipmap levels of the image
+		m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
 
-	// calculate the size of the staging buffer
-	VkDeviceSize imageMemSize = static_cast<uint64>(m_width * m_height * 4); /// @todo I don't know, the tutorial said 4 bytes per pixel, but T'm not to sure about it. Probably will make it a bit more dynamic
-	// create a staging buffer
-	vulkan::GPUBuffer stagingBuffer(imageMemSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+		// create a staging buffer
+		vulkan::GPUBuffer stagingBuffer(m_width * m_height * 4, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+		// copy the image data into the staging buffer
+		stagingBuffer.copy_data(imageData.data);
 
-	// copy the image data into the staging buffer
-	stagingBuffer.copy_data(textureInfo.data);
+		// extent (size) of the image
+		VkExtent3D imageExtent = { m_width, m_height, 1 };
 
-	// create the image and allocate its memory
-	vassert(Application::renderSystem()->device()->createImage(
-		get_image_create_info(
-			format, 
-			{ static_cast<uint32>(m_width), static_cast<uint32>(m_height), 1 },
-			VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-			m_mipmap,
-			static_cast<VkImageType>(textureInfo.dimension)
-		),
-		get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
-		m_image, 
-		m_memory
-	), std::string(std::string("load image from path: ") + m_path));
+		// create the image and allocate its memory
+		vassert(Application::renderSystem()->device()->createImage(
+			get_image_create_info(
+				format, 
+				imageExtent,
+				VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+				m_mipmap,
+				static_cast<VkImageType>(imageData.dimension)
+			),
+			get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
+			m_image, 
+			m_memory
+		), std::string(std::string("load image from path: ") + m_path));
 
-	// convert the image layout and copy it from the buffer
-	transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
-	copy_from_buffer(&stagingBuffer, { static_cast<uint32>(m_width), static_cast<uint32>(m_height), 1 });
-	// generate the mipmaps
-	generate_mipmaps();
+		// convert the image layout and copy it from the buffer
+		transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
+		copy_from_buffer(&stagingBuffer, imageExtent);
+		// generate the mipmaps
+		if (m_mipmap != 0) generate_mipmaps();
+	}
 
 	// create the image view
-	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(textureInfo.dimension));
+	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(imageData.dimension));
+	// finally create the image sampler
+	create_sampler(imageData);
 }
 
-void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
+Texture::~Texture() noexcept {
+	vkDestroySampler(Application::renderSystem()->device()->device(), m_sampler, nullptr);
+}
+
+void Texture::create_sampler(Assets::ImageData& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &properties);
 
@@ -80,23 +73,21 @@ void Texture::create_sampler(Assets::TextureInfo& textureInfo, const VkFilter& m
 		magnifiedTexel,
 		minimizedTexel,
 		mipmapMode,
-		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
-		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
-		static_cast<VkSamplerAddressMode>(textureInfo.wrap),
+		static_cast<VkSamplerAddressMode>(imageData.wrap),
+		static_cast<VkSamplerAddressMode>(imageData.wrap),
+		static_cast<VkSamplerAddressMode>(imageData.wrap),
 		0.0f,
-		static_cast<uint32>(textureInfo.anistropy),
+		static_cast<uint32>(imageData.anistropy),
 		properties.limits.maxSamplerAnisotropy * Settings::Rendering::anistropy,
 		VK_FALSE,
 		VK_COMPARE_OP_ALWAYS,
 		0.0f,
 		static_cast<float>(m_mipmap),
-		static_cast<VkBorderColor>(textureInfo.alpha),
+		static_cast<VkBorderColor>(imageData.alpha),
 		VK_FALSE
 	};
 
 	vassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
-
-	Logger::log_debug(Logger::tab(), "Created image sampler at: ", get_address(this));
 }
 
 void Texture::generate_mipmaps() const {
@@ -176,33 +167,6 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
 	// reset command buffer
 	cmdBuff.reset();
-
-	Logger::log_debug(Logger::tab(), "Created image mipmaps!");
-}
-
-void Texture::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent) {
-	// temporary command buffer for copying
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
-	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-
-	// copy image in buffer to the image
-	VkBufferImageCopy imageCopy {
-		0,
-		0,
-		0,
-		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
-		{0, 0, 0},
-		extent
-	};
-	cmdBuff.copyBufferToImage(stagingBuffer->buffer(), m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
-
-	// end recording
-	cmdBuff.end();
-	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
-
-	Logger::log_debug(Logger::tab(), "Copied image data from buffer to image at: ", get_address(this));
 }
 
 } // namespace lyra

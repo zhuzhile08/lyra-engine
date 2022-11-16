@@ -14,6 +14,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+#include <rendering/vulkan/GPU_buffer.h>
+
 namespace lyra {
 
 namespace vulkan {
@@ -57,6 +59,7 @@ struct Image {
 		const uint32& mipLevels = 1,
 		const VkImageType& imageType = VK_IMAGE_TYPE_2D,
 		const uint32& arrayLayers = 1,
+		const VkImageCreateFlags& flags = 0,
 		const VkSampleCountFlagBits& samples = VK_SAMPLE_COUNT_1_BIT,
 		const VkImageTiling& tiling = VK_IMAGE_TILING_OPTIMAL
 	) noexcept;
@@ -115,11 +118,10 @@ struct Image {
 	/**
 	 * @brief transition the image layout to an another one
 	 * 
-	 * @param commandBufferManager command buffer manager
 	 * @param oldLayout old layout
 	 * @param newLayout new layout
 	 * @param format format of the image
-	 * @param aspect purpose of the image
+	 * @param subresourceRange some data about the image
 	*/
 	void transition_layout(
 		const VkImageLayout& oldLayout,
@@ -127,6 +129,7 @@ struct Image {
 		const VkFormat& format,
 		const VkImageSubresourceRange& subresourceRange
 	) const;
+	
 
 	/**
 	 * @brief get the best format out of a vector of requested ones for a certain situation
@@ -139,8 +142,17 @@ struct Image {
 	*/
 	NODISCARD constexpr VkFormat get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling = VK_IMAGE_TILING_MAX_ENUM) const;
 
-	VkImage m_image = VK_NULL_HANDLE;
-	VkImageView m_view = VK_NULL_HANDLE;
+	/**
+	 * @brief copy the contents of a buffer into the image
+	 * 
+	 * @param stagingBuffer staging buffer containing the data
+	 * @param extent image dimensions
+	 * @param layerCount "number" of "images" in the image, only reserved for cubemaps
+	 */
+	void copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent, const uint32 layerCount = 1);
+
+	VkImage m_image;
+	VkImageView m_view;
 
 private:
 	VkImageTiling m_tiling = VK_IMAGE_TILING_MAX_ENUM;

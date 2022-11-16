@@ -25,6 +25,7 @@ constexpr VkImageCreateInfo Image::get_image_create_info(
 	const uint32& mipLevels,
 	const VkImageType& imageType,
 	const uint32& arrayLayers,
+	const VkImageCreateFlags& flags,
 	const VkSampleCountFlagBits& samples,
 	const VkImageTiling& tiling
 ) noexcept {
@@ -33,7 +34,7 @@ constexpr VkImageCreateInfo Image::get_image_create_info(
 	return {
 		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
 		nullptr,
-		0,
+		flags,
 		imageType,
 		format,
 		extent,
@@ -148,6 +149,29 @@ constexpr VkFormat Image::get_best_format(const std::vector<VkFormat>& candidate
 	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
 	// return error case
 	return VK_FORMAT_MAX_ENUM;
+}
+
+void Image::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent, const uint32 layerCount) {
+	// temporary command buffer for copying
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
+	// begin recording
+	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	// copy image in buffer to the image
+	VkBufferImageCopy imageCopy {
+		0,
+		0,
+		0,
+		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layerCount},
+		{0, 0, 0},
+		extent
+	};
+	cmdBuff.copyBufferToImage(stagingBuffer->buffer(), m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
+
+	// end recording
+	cmdBuff.end();
+	// submit queues after recording
+	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
 }
 
 } // namespace vulkan

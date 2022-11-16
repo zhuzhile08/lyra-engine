@@ -13,7 +13,6 @@
 
 #include <core/application.h>
 
-
 #include <rendering/vulkan/GPU_memory.h>
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/vulkan/command_buffer.h>
@@ -79,8 +78,6 @@ public:
 		// disable anistropic filtering
 		ANISTROPY_ENABLE = 1U
 	};
-
-	Texture() { }
 	/**
 	 * @brief create the texture and the sampler
 	 *
@@ -114,11 +111,11 @@ public:
 	/**
 	 * @brief get the image
 	 * 
-	 * @return constexpr lyra::vulkan::Image
+	 * @return constexpr VkImageView
 	*/
 	NODISCARD constexpr VkImageView view() const noexcept { return m_view; }
 	/**
-	 * @brief get the	 sampler
+	 * @brief get the sampler
 	 * 
 	 * @return consexprt VkSampler
 	*/
@@ -137,38 +134,22 @@ public:
 	NODISCARD constexpr const char* const path() const noexcept { return m_path; }
 
 private:
-	VkSampler m_sampler = VK_NULL_HANDLE;
+	VkSampler m_sampler;
 	uint32 m_width;
 	uint32 m_height;
 	uint32 m_mipmap;
 	const char* m_path;
 
 	/**
-	 * @brief copy raw image data from a buffer into the image
-	 *
-	 * @param stagingBuffer buffer
-	 * @param extent size of the image
-	 */
-	void copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent);
-
-	/**
-	 * load a image from a path
-	 *
-	 * @param textureInfo texture information
-	 * @param format format of the image
-	 */
-	void load_image(Assets::TextureInfo& textureInfo, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
-
-	/**
 	 * @brief create the image sampler
 	 *
-	 * @param textureInfo texture information
+	 * @param imageData texture information
 	 * @param magnifiedTexel how to filter the image if a pixel is smaller than a texel
 	 * @param minimizedTexel how to filter the image if a pixel is bigger than a texel
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
-		Assets::TextureInfo& textureInfo,
+		Assets::ImageData& imageData,
 		const VkFilter& magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter& minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode& mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
