@@ -135,8 +135,8 @@ public:
 	NODISCARD const std::vector <VkFence>& inFlightFences() const noexcept { return m_inFlightFences; }
 
 private:
-	VkSurfaceKHR m_surface = VK_NULL_HANDLE;
-	VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
+	VkSurfaceKHR m_surface;
+	VkSwapchainKHR m_swapchain;
 	VkFormat m_format;
 	VkExtent2D m_extent;
 

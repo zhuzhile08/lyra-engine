@@ -43,7 +43,7 @@ public:
 	NODISCARD const std::vector <VkFramebuffer> framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
-	VkRenderPass m_renderPass = VK_NULL_HANDLE;
+	VkRenderPass m_renderPass;
 	std::vector <VkFramebuffer> m_framebuffers;
 
 	CallQueue m_updateQueue;

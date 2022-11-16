@@ -81,7 +81,7 @@ struct GPUMemory {
 		}; // the rest is absolutely useless
 	}
 
-	VmaAllocation m_memory = VK_NULL_HANDLE;
+	VmaAllocation m_memory;
 };
 
 } // namespace vulkan

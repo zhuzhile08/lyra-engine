@@ -41,7 +41,7 @@ public:
 	 * @brief queue families
 	 */
 	struct QueueFamily {
-		VkQueue queue = VK_NULL_HANDLE;
+		VkQueue queue;
 		uint32  familyIndex = 0;
 	};
 
@@ -311,14 +311,14 @@ public:
 	NODISCARD const VmaAllocator& allocator() const noexcept { return m_allocator; }
 
 private:
-	VkInstance m_instance = VK_NULL_HANDLE;
-	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-	VkDevice m_device = VK_NULL_HANDLE;
+	VkInstance m_instance;
+	VkPhysicalDevice m_physicalDevice;
+	VkDevice m_device;
 
 	QueueFamily m_graphicsQueue;
 	QueueFamily m_presentQueue;
 
-	VmaAllocator m_allocator = VK_NULL_HANDLE;
+	VmaAllocator m_allocator;
 
 	/**
 	 * @brief check if a vector of user requested Vulkan validation layers is actually available

@@ -109,7 +109,7 @@ public:
 	NODISCARD constexpr const char* const entry() const noexcept { return m_entry; }
 
 private:
-	VkShaderModule m_module = VK_NULL_HANDLE;
+	VkShaderModule m_module;
 	Type m_type;
 	const char* m_entry;
 };
