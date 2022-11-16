@@ -89,12 +89,12 @@ void Transform::rotate(const float& x, const float& y, const float& z, const Rot
 void Transform::look_at(const glm::vec3& target, const glm::vec3& up) {
 	glm::vec3 temp_translation(m_translation);
 	if(m_dirty) {
-		m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up);
+		m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up) * m_localTransformMatrix;
 		decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
 		m_translation = temp_translation;
 		m_dirty = false;
 	} else {
-		m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up);
+		m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up) * m_localTransformMatrix;
 		decompose_transform_matrix(m_localTransformMatrix, temp_translation, m_rotation, m_scale);
 	}
 }
@@ -102,7 +102,7 @@ void Transform::look_at(const glm::vec3& target, const glm::vec3& up) {
 void Transform::translate_and_look_at(const glm::vec3& translate, const glm::vec3& target, const glm::vec3& up) {
 	this->translate(translate);
 	glm::vec3 temp_translation(translate);
-	m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up);
+	m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up) * m_localTransformMatrix;
 	decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
 	m_translation = temp_translation;
 	m_dirty = false;
@@ -123,11 +123,7 @@ void Transform::set_rotation(const glm::vec3& rotation) {
 	(*this) = Transform(m_translation, rotation, m_scale);
 	m_rotation = rotation;
 }
-/**
- * @brief set the scale of the matrix
- * 
- * @param scale new scale
- */
+
 void Transform::set_scale(const glm::vec3& scale) {
 	if (m_dirty) {
 		decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);

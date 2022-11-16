@@ -101,7 +101,7 @@ void RenderSystem::present_device_queue() {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1,
-		&m_vulkanWindow.renderFinishedSemaphores().at(m_currentFrame),
+		&m_vulkanWindow.renderFinishedSemaphores()[m_currentFrame],
 		1,
 		&m_vulkanWindow.swapchain(),
 		&m_imageIndex
@@ -109,7 +109,7 @@ void RenderSystem::present_device_queue() {
 
 	VkResult result = std::move(vkQueuePresentKHR(m_device.presentQueue().queue, &presentInfo));
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || const_cast<Window*>(window)->changed()) {
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->changed()) {
 		// check if window was minimized, if true, then loop until otherwise
 		SDL_WindowFlags flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
@@ -118,7 +118,7 @@ void RenderSystem::present_device_queue() {
 		}
 
 		m_vulkanWindow.recreate();
-		for (int i = 0; i < m_renderers.size(); i++) m_renderers.at(i)->recreate();
+		for (int i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
 	}
 }
 
