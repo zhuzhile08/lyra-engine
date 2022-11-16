@@ -16,6 +16,7 @@
 #include <nodes/mesh/mesh.h>
 #include <nodes/mesh/mesh_renderer.h>
 #include <nodes/graphics/camera.h>
+#include <nodes/graphics/cubemap.h>
 #include <nodes/spatial.h>
 #include <rendering/texture.h>
 #include <input/input.h>
@@ -25,12 +26,13 @@
 
 struct CameraScript : public lyra::Script {
 	void init(void) override {
-		node->transform.set_translation({2.0f, 2.0f, 2.0f});
+		// node->transform.set_translation({2.0f, 2.0f, 2.0f});
 	}
 
 	void update(void) override {
-		node->transform.rotate_z(10.0f);
-		node->transform.look_at({0.0f, 0.0f, 0.0f});
+		// node->transform.rotate_z(10.0f);
+		//node->transform.set_translation({2.0f, 2.0f, 2.0f});
+		//node->transform.look_at({0.0f, 0.0f, 0.0f});
 	}
 };
 
@@ -50,6 +52,16 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
 	lyra::Camera camera(new CameraScript, true, "Camera", &scene);
+
+	lyra::Skybox cameraSkybox(
+		{
+			"data/img/skybox.png",
+			"data/img/skybox.png",
+			"data/img/skybox.png",
+			"data/img/skybox.png",
+			"data/img/skybox.png",
+			"data/img/skybox.png",
+		}, &camera);
 
 	lyra::Texture roomTexture("data/img/viking_room.png");
 
