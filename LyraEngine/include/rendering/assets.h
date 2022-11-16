@@ -21,7 +21,7 @@ namespace lyra {
 class Assets {
 public:
 	// decompressed texture information
-	struct TextureInfo {
+	struct ImageData {
 		// texture width
 		uint32 width;
 		// texture height
@@ -63,9 +63,9 @@ public:
 	 * 
 	 * @param path path of the texture
 	 * 
-	 * @return const lyra::Assets::TextureInfo&
+	 * @return const lyra::Assets::ImageData&
 	 */
-	NODISCARD static const TextureInfo unpack_texture(const char* path);
+	NODISCARD static const ImageData unpack_texture(const char* path);
 	/**
 	 * @brief return the raw image data
 	 * 
