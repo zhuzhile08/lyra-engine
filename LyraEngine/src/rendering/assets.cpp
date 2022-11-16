@@ -8,7 +8,7 @@
 
 namespace lyra {
 
-const Assets::TextureInfo Assets::unpack_texture(const char* path) {
+const Assets::ImageData Assets::unpack_texture(const char* path) {
 	/**  
 	const auto& begin = m_images.binary.begin() + m_images.json.at(path).at("begin");
 	const auto& end = begin + m_images.json.at(path).at("data_length"); // IMPORTANT!!! Remember to add one to the length of the data, or else everything will be screwed up
@@ -17,7 +17,7 @@ const Assets::TextureInfo Assets::unpack_texture(const char* path) {
 
 	LZ4_decompress_safe(compImageData.data(), imageData.data(), m_images.json.at(path).at("data_length"), m_images.json.at(path).at("size"));
 
-	nlohmann::json jsonTextureInfo = nlohmann::json::parse(imageData);
+	nlohmann::json jsonImageData = nlohmann::json::parse(imageData);
 
 	*/
 
@@ -25,20 +25,20 @@ const Assets::TextureInfo Assets::unpack_texture(const char* path) {
 	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
 	if (imagePixelData == nullptr) Logger::log_exception("Failed to load image from path: ", path, "!");
 
-	Assets::TextureInfo textureInfo{
-		(uint32) width, // jsonTextureInfo.at("width"),
-		(uint32) height, // jsonTextureInfo.at("height"),
-		0, // jsonTextureInfo.at("length"),
-		1, // jsonTextureInfo.at("mipmap"),
-		0, // jsonTextureInfo.at("type"),
-		1, // jsonTextureInfo.at("alpha"),
-		1, // jsonTextureInfo.at("dimension"),
-		1, // jsonTextureInfo.at("wrap"),
-		1, // jsonTextureInfo.at("anistropy"),
-		imagePixelData // (void*)&jsonTextureInfo.at("data")
+	Assets::ImageData imageData{
+		(uint32) width, // jsonImageData.at("width"),
+		(uint32) height, // jsonImageData.at("height"),
+		0, // jsonImageData.at("length"),
+		1, // jsonImageData.at("mipmap"),
+		0, // jsonImageData.at("type"),
+		1, // jsonImageData.at("alpha"),
+		1, // jsonImageData.at("dimension"),
+		1, // jsonImageData.at("wrap"),
+		1, // jsonImageData.at("anistropy"),
+		imagePixelData // (void*)&jsonImageData.at("data")
 	};
 
-	return textureInfo;
+	return imageData;
 }
 
 util::AssetFile Assets::m_images; // = util::load_assets("data/images/images.ldat");
