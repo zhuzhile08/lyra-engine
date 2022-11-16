@@ -14,6 +14,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <vector>
+#include <array>
 
 #include <glm.hpp>
 
@@ -22,6 +23,7 @@
 
 #include <nodes/spatial.h>
 
+#include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/renderer.h>
 
@@ -55,6 +57,7 @@ public:
 	 * @brief construct a camera node
 	 *
 	 * @param script script of the object
+	 * @param skybox skybox for the camera
 	 * @param perspective check if perspective is true or not
 	 * @param name name of the object
 	 * @param parent parent Node of the object
@@ -75,13 +78,18 @@ public:
 	Camera operator=(const Camera&) const noexcept = delete;
 
 	/**
+	 * @brief recreate the camera
+	 */
+	void recreate();
+
+	/**
 	 * @brief set the projection of the camera in perspective mode
 	 * 
 	 * @param fov field of view
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	*/
-	void set_perspective(float fov = 90.0f, float near = 0.1f, float far = 20.0f) noexcept;
+	void set_perspective(const float& fov = 45.0f, const float& near = 0.1f, const float& far = 10.0f) noexcept;
 	/**
 	 * @brief set the projection of the camera in orthographic mode
 	 *
@@ -89,7 +97,7 @@ public:
 	 * @param near near clipping plane
 	 * @param far far clipping plane
 	*/
-	void set_orthographic(glm::vec4 viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, float near = 0.1f, float far = 20.0f) noexcept;
+	void set_orthographic(const glm::vec4& viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, const float& near = 0.1f, const float& far = 20.0f) noexcept;
 	/**
 	 * @brief get the field of view of the camera
 	 *
@@ -124,7 +132,9 @@ public:
 private:
 	std::vector<Material*> m_materials;
 	std::vector<vulkan::GPUBuffer> m_buffers;
+	std::vector<vulkan::Descriptor> m_descriptors;
 	SmartPointer<GraphicsPipeline> m_renderPipeline;  
+	Skybox* m_skybox;
 
 	float m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_depth = 1.0f;
 	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
@@ -140,6 +150,8 @@ private:
 	 */
 	void record_command_buffers() override;
 
+	friend class CubemapBase;
+	friend class Skybox;
 	friend class RenderSystem;
 	friend class Material;
 	friend class Mesh;
