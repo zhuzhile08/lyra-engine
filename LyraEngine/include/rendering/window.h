@@ -66,8 +66,6 @@ public:
 private:
 	SDL_Window* m_window;
 
-	CallQueue m_eventQueue;
-
 	bool m_fullscreen = false;
 	bool m_running = true;
 	bool m_changed = false;
