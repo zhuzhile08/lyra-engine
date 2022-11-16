@@ -79,6 +79,7 @@ private:
 	void draw() const noexcept;
 
 	friend class Material;
+	friend class CubemapBase;
 };
 
 } // namespace lyra
