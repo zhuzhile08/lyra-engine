@@ -90,18 +90,24 @@ Material::Material(
 		// { (m_emissionTexture) ? m_emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
 		// { (m_occlusionMapTexture) ? m_occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
 		});
+	/**
 	writer.add_writes({ // write the buffers
-		{ camera->buffers()[0].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ camera->buffers()[1].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER }
-		// { m_vertShaderBuffers[0].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		// { m_vertShaderBuffers[1].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		// { m_fragShaderBuffers[0].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		// { m_fragShaderBuffers[1].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_vertShaderBuffers[0].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_vertShaderBuffers[1].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers[0].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers[1].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		});
+	*/
 
 	// create the descriptors
 	m_descriptors.reserve(Settings::Rendering::maxFramesInFlight);
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) m_descriptors.emplace_back(camera->m_renderPipeline->descriptorSetLayout(), camera->m_renderPipeline->descriptorPool(), writer);
+	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) 
+		m_descriptors.emplace_back(
+			camera->m_renderPipeline->descriptorSetLayout(),
+			1,
+			camera->m_renderPipeline->descriptorPool(), 
+			writer
+		);
 
 	this->camera->m_materials.push_back(this);
 
@@ -110,8 +116,12 @@ Material::Material(
 
 void Material::draw() const {
 	// bind the descriptor set first
-	Application::renderSystem()->currentCommandBuffer().bindDescriptorSet(camera->m_renderPipeline->bindPoint(), camera->m_renderPipeline->layout(), 0, 
-		m_descriptors.at(Application::renderSystem()->currentFrame()).get());
+	Application::renderSystem()->currentCommandBuffer().bindDescriptorSet(
+		camera->m_renderPipeline->bindPoint(), 
+		camera->m_renderPipeline->layout(), 
+		1, 
+		m_descriptors.at(Application::renderSystem()->currentFrame()).get()
+	);
 
 	for (uint32 i = 0; i < m_meshRenderers.size(); i++) m_meshRenderers.at(i)->draw();
 }
