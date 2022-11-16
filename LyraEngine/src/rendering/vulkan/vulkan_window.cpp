@@ -19,36 +19,29 @@ namespace lyra {
 namespace vulkan {
 
 Window::Window() {
-	Logger::log_info("Creating Vulkan swapchain...");
-
 	create_window_surface();
 	create_swapchain();
 	create_sync_objects();
-
-	Logger::log_info("Successfully created Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
 
 Window::~Window() noexcept {
 	for (int i = 0; i < m_imageAvailableSemaphores.size(); i++) { // sync objects
-		vkDestroySemaphore(Application::renderSystem()->device()->device(), m_renderFinishedSemaphores.at(i), nullptr);
-		vkDestroySemaphore(Application::renderSystem()->device()->device(), m_imageAvailableSemaphores.at(i), nullptr);
-		vkDestroyFence(Application::renderSystem()->device()->device(), m_inFlightFences.at(i), nullptr);
+		vkDestroySemaphore(Application::renderSystem()->device()->device(), m_renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(Application::renderSystem()->device()->device(), m_imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(Application::renderSystem()->device()->device(), m_inFlightFences[i], nullptr);
 	}
-	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem()->device()->device(), m_views.at(i), nullptr);
+	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem()->device()->device(), m_views[i], nullptr);
 	vkDestroySwapchainKHR(Application::renderSystem()->device()->device(), m_swapchain, nullptr); // swapchain and old swapchain
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem()->device()->device(), *m_oldSwapchain, nullptr);
 	vkDestroySurfaceKHR(Application::renderSystem()->device()->instance(), m_surface, nullptr); // window surface
-
-	Logger::log_info("Successfully destroyed Vulkan swapchain!");
 }
 
 void Window::recreate() {
-	Logger::log_info("Recreating Vulkan swapchain...");
 	// wait until all commands are done executing
 	vkDeviceWaitIdle(Application::renderSystem()->device()->device());
 
 	// destroy the images
-	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem()->device()->device(), m_views.at(i), nullptr);
+	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem()->device()->device(), m_views[i], nullptr);
 	m_depthImage.destroy();
 	m_colorImage.destroy();
 	m_depthMem.destroy();
@@ -59,8 +52,6 @@ void Window::recreate() {
 
 	// recreate the swapchain
 	create_swapchain();
-
-	Logger::log_info("Successfully recreated Vulkan swapchain at ", get_address(this), "!", Logger::end_l());
 }
 
 void Window::wait(const uint32& fenceIndex) const {
@@ -84,8 +75,6 @@ void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapa
 	newExtent.height = std::clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
 
 	m_extent = newExtent;
-
-	Logger::log_debug(Logger::tab(), "width is ", width, " and the height is ", height);
 }
 
 const VkSurfaceFormatKHR Window::get_optimal_format() {
@@ -95,14 +84,14 @@ const VkSurfaceFormatKHR Window::get_optimal_format() {
 	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availableFormatCount, availableFormats.data());
 	// check the formats
 	for (uint32 i = 0; i < availableFormats.size(); i++) {
-		if (availableFormats.at(i).format == VK_FORMAT_B8G8R8A8_SRGB && availableFormats.at(i).colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-			m_format = availableFormats.at(i).format;
-			return availableFormats.at(i);
+		if (availableFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB && availableFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			m_format = availableFormats[i].format;
+			return availableFormats[i];
 		}
 	}
 
-	m_format = availableFormats.at(0).format;
-	return availableFormats.at(0);
+	m_format = availableFormats[0].format;
+	return availableFormats[0];
 }
 
 const VkPresentModeKHR Window::get_optimal_present_mode() const {
@@ -112,8 +101,8 @@ const VkPresentModeKHR Window::get_optimal_present_mode() const {
 	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availablePresentModeCount, availablePresentModes.data());
 	// check the presentation modess
 	for (uint32 i = 0; i < availablePresentModes.size(); i++) {
-		if (availablePresentModes.at(i) == VK_PRESENT_MODE_MAILBOX_KHR) {
-			return availablePresentModes.at(i);
+		if (availablePresentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+			return availablePresentModes[i];
 			break;
 		}
 	}
@@ -158,8 +147,6 @@ void Window::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabil
 void Window::create_window_surface() {
 	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
 	lassert(SDL_Vulkan_CreateSurface(Application::window()->get(), Application::renderSystem()->device()->instance(), &m_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
-
-	Logger::log_debug(Logger::tab(), "Successfully created window surface");
 }
 
 void Window::create_swapchain_images() {
@@ -177,7 +164,7 @@ void Window::create_swapchain_images() {
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 			nullptr,
 			0,
-			m_images.at(i),
+			m_images[i],
 			VK_IMAGE_VIEW_TYPE_2D,
 			m_format,
 			{ VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY },
@@ -201,6 +188,7 @@ void Window::create_depth_buffer() {
 			1,
 			VK_IMAGE_TYPE_2D,
 			1,
+			0,
 			m_maxMultisamples
 		),
 		m_depthMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
@@ -227,6 +215,7 @@ void Window::create_color_resources() {
 			1,
 			VK_IMAGE_TYPE_2D,
 			1,
+			0,
 			m_maxMultisamples
 		),
 		m_colorMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
@@ -285,8 +274,6 @@ void Window::create_swapchain() {
 	create_swapchain_images();
 	create_color_resources();
 	create_depth_buffer();
-
-	Logger::log_debug(Logger::tab(), "Successfully created Vulkan swapchain");
 }
 
 void Window::create_sync_objects() {
@@ -302,15 +289,13 @@ void Window::create_sync_objects() {
 	};
 
 	for (int i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
-		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores.at(i)),
+		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
 			"create Vulkan Synchronization Objects");
-		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores.at(i)),
+		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),
 			"create Vulkan Synchronization Objects");
-		vassert(vkCreateFence(Application::renderSystem()->device()->device(), &fenceInfo, nullptr, &m_inFlightFences.at(i)),
+		vassert(vkCreateFence(Application::renderSystem()->device()->device(), &fenceInfo, nullptr, &m_inFlightFences[i]),
 			"create Vulkan Synchronization Objects");
 	}
-
-	Logger::log_debug(Logger::tab(), "Successfully created Vulkan synchronizaton objects");
 }
 
 } // namespace vulkan
