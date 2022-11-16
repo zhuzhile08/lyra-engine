@@ -52,10 +52,13 @@ public:
 	/**
 	 * @brief convert the local matrix to a global one
 	 *
-	 * @return const lyra::glm::mat4
+	 * @return constexpr lyra::glm::mat4
 	*/
-	NODISCARD const glm::mat4 mat_to_global() const noexcept { 
-		return transform.localTransformMatrix() * ((this->m_parent == nullptr) ? glm::mat4(1.0f) : this->m_parent->mat_to_global()); 
+	NODISCARD constexpr glm::mat4 mat_to_global() const noexcept { 
+		if (this->m_parent != nullptr)
+			return transform.localTransformMatrix() * this->m_parent->mat_to_global();
+		else
+			return transform.localTransformMatrix();
 	};
 
 	Transform transform;
