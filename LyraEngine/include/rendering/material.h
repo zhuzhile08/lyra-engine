@@ -66,9 +66,9 @@ public:
 	/**
 	 * @brief get the descriptor sets
 	 *
-	 * @return const std::vector<vulkan::Descriptor>&
+	 * @return const std::vector<vulkan::Descriptor>
 	*/
-	NODISCARD const std::vector<vulkan::Descriptor>& descriptor() const noexcept { return m_descriptors; }
+	NODISCARD const std::vector<vulkan::Descriptor> descriptor() const noexcept { return m_descriptors; }
 
 private:
 	Color m_albedoColor;
