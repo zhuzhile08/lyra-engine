@@ -32,10 +32,10 @@ public:
 	 * @brief descriptor and shader information
 	 */
 	struct Binding {
+		// the descriptor set layout this binding belongs to
+		const uint32& descriptorSetLayoutIndex;
 		// type of descriptor
 		const int& descriptorType;
-		// number of this type of descriptor needed in the shader
-		const uint32& descriptorCount;
 		// number of descriptors to allocate
 		const uint32& descriptorAllocCount;
 		// shader type
@@ -99,8 +99,8 @@ public:
 	NODISCARD constexpr VkPipelineBindPoint bindPoint() const noexcept { return m_bindPoint; }
 
 protected:
-	VkPipeline m_pipeline = VK_NULL_HANDLE;
-	VkPipelineLayout m_layout = VK_NULL_HANDLE;
+	VkPipeline m_pipeline;
+	VkPipelineLayout m_layout;
 	SmartPointer<DescriptorSetLayout> m_descriptorSetLayout;
 	SmartPointer<DescriptorPool> m_descriptorPool;
 
