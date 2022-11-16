@@ -15,6 +15,39 @@ GraphicsPipeline::GraphicsPipeline(
 	const std::vector<ShaderInfo>& shaders,
 	const std::vector<Binding>& bindings,
 	const std::vector<VkPushConstantRange>& pushConstants,
+	const ColorBlending& colorBlending,
+	const Tessellation& tessellation,
+	const Multisampling& multisampling,
+	const RenderMode& renderMode,
+	const Culling& culling
+) {
+	// define what type of pipeline this is
+	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+	// crate shaders
+	create_shaders(shaders);
+	// create stuff relating to descriptors
+	create_descriptor_stuff(bindings); // yes, I know, very good naming
+
+	// create the pipeline
+	create_pipeline(
+		renderer,
+		pushConstants,
+		Application::renderSystem()->vulkanWindow()->extent(),
+		Application::renderSystem()->vulkanWindow()->extent(), 
+		colorBlending, 
+		tessellation, 
+		multisampling, 
+		renderMode, 
+		culling
+	);
+}
+
+GraphicsPipeline::GraphicsPipeline(
+	const Renderer* const renderer,
+	const std::vector<ShaderInfo>& shaders,
+	const std::vector<Binding>& bindings,
+	const std::vector<VkPushConstantRange>& pushConstants,
 	const VkExtent2D& size,
 	const VkExtent2D& area,
 	const ColorBlending& colorBlending,
@@ -23,8 +56,6 @@ GraphicsPipeline::GraphicsPipeline(
 	const RenderMode& renderMode,
 	const Culling& culling
 ) {
-	Logger::log_info("Creating Vulkan graphics pipeline...");
-
 	// define what type of pipeline this is
 	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
@@ -45,8 +76,6 @@ GraphicsPipeline::GraphicsPipeline(
 		renderMode, 
 		culling
 	);
-
-	Logger::log_info("Successfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
 }
 
 void GraphicsPipeline::create_pipeline(

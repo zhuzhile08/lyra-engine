@@ -103,6 +103,31 @@ public:
 	 * @param shaders shader creation information
 	 * @param bindings descriptor binding information
 	 * @param pushConstants push constant information
+	 * @param colorBlending enable color blending
+	 * @param tessellation enable tessellation
+	 * @param multisampling enable multisampling
+	 * @param renderMode polygon rendering mode
+	 * @param culling culling mode
+	 */
+	GraphicsPipeline(
+		const Renderer* const renderer,
+		const std::vector<ShaderInfo>& shaders,
+		const std::vector<Binding>& bindings,
+		const std::vector<VkPushConstantRange>& pushConstants,
+		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
+		const Tessellation& tessellation = Tessellation::TESSELLATION_ENABLE,
+		const Multisampling& multisampling = Multisampling::MULTISAMPLING_ENABLE,
+		const RenderMode& renderMode = RenderMode::MODE_FILL,
+		const Culling& culling = Culling::CULLING_BACK
+	);
+
+	/**
+	 * @brief construct a new graphics pipeline
+	 * 
+	 * @param renderer renderer to render the pipeline
+	 * @param shaders shader creation information
+	 * @param bindings descriptor binding information
+	 * @param pushConstants push constant information
 	 * @param size draw size
 	 * @param area draw area
 	 * @param colorBlending enable color blending
