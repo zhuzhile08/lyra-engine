@@ -11,10 +11,11 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vector>
 
 #include <vulkan/vulkan.h>
-
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
@@ -59,24 +60,6 @@ public:
 	void update() const;
 
 	/**
-	 * @brief get the device
-	 * 
-	 * @return const vulkan::Device* const
-	*/
-	NODISCARD vulkan::Device* const device() noexcept { return &m_device; }
-	/**
-	 * @brief get the command buffers
-	 *
-	 * @return lyra::vulkan::CommandBufferManager* const
-	*/
-	NODISCARD vulkan::CommandBufferManager* const commandBuffers() noexcept { return &m_commandBuffers; }
-	/**
-	 * @brief get the vulkan window
-	 *
-	 * @return const lyra::vulkan::Window* const
-	*/
-	NODISCARD const vulkan::Window* const vulkanWindow() const noexcept { return &m_vulkanWindow; }
-	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
@@ -88,19 +71,14 @@ public:
 	 * @return const uint32
 	*/
 	NODISCARD const uint32 imageIndex() const noexcept { return m_imageIndex; }
-	/**
-	 * @brief get the current active command buffer
-	 *
-	 * @return const lyra::vulkan::CommandBuffer
-	*/
-	NODISCARD vulkan::CommandBuffer& currentCommandBuffer() noexcept { return m_currentCommandBuffer; }
+
+	vulkan::Device device;
+	vulkan::CommandBufferManager commandBuffers;
+	vulkan::Window vulkanWindow;
+
+	vulkan::CommandBuffer currentCommandBuffer;
 
 private:
-	vulkan::Device m_device;
-	vulkan::CommandBufferManager m_commandBuffers;
-	vulkan::Window m_vulkanWindow;
-
-	vulkan::CommandBuffer m_currentCommandBuffer;
 
 	std::vector<Renderer*> m_renderers;
 
