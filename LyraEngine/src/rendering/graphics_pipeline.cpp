@@ -33,8 +33,8 @@ GraphicsPipeline::GraphicsPipeline(
 	create_pipeline(
 		renderer,
 		pushConstants,
-		Application::renderSystem()->vulkanWindow()->extent(),
-		Application::renderSystem()->vulkanWindow()->extent(), 
+		Application::renderSystem.vulkanWindow.extent(),
+		Application::renderSystem.vulkanWindow.extent(), 
 		colorBlending, 
 		tessellation, 
 		multisampling, 
@@ -158,7 +158,7 @@ void GraphicsPipeline::create_pipeline(
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			Application::renderSystem()->vulkanWindow()->maxMultisamples(),
+			Application::renderSystem.vulkanWindow.maxMultisamples(),
 			VK_FALSE				// currently set to false
 		},
 		{	// depth buffering
@@ -232,7 +232,7 @@ void GraphicsPipeline::create_pipeline(
 		0
 	};
 
-	vassert(vkCreateGraphicsPipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "create Vulkan pipeline");
+	vassert(vkCreateGraphicsPipelines(Application::renderSystem.device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "create Vulkan pipeline");
 }
 
 } // namespace lyra

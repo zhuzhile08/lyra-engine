@@ -4,9 +4,7 @@
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_sdl.h>
 
-
 #include <core/queue.h>
-
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
@@ -21,9 +19,7 @@ namespace lyra {
 
 namespace gui {
 
-GUIRenderer::GUIRenderer() : Renderer() {
-	Logger::log_info("Creating context for the GUI... ");
-
+GUIRenderer::GUIRenderer() {
 	// information about the descriptor pool
 	vulkan::DescriptorPool::Builder builder;
 	builder.add_pool_sizes({
@@ -47,26 +43,26 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	// initialize ImGui
 	ImGui::CreateContext();
 	// initialize ImGui for SDL
-	ImGui_ImplSDL2_InitForVulkan(Application::window()->get());
+	ImGui_ImplSDL2_InitForVulkan(Application::window.get());
 	// initialization information
 	ImGui_ImplVulkan_InitInfo initInfo{
-		Application::renderSystem()->device()->instance(),
-		Application::renderSystem()->device()->physicalDevice(),
-		Application::renderSystem()->device()->device(),
-		Application::renderSystem()->device()->graphicsQueue().familyIndex,
-		Application::renderSystem()->device()->graphicsQueue().queue,
+		Application::renderSystem.device.instance(),
+		Application::renderSystem.device.physicalDevice(),
+		Application::renderSystem.device.device(),
+		Application::renderSystem.device.graphicsQueue().familyIndex,
+		Application::renderSystem.device.graphicsQueue().queue,
 		VK_NULL_HANDLE,
 		m_descriptorPool->get(),
 		0,
 		3,
 		3,
-		Application::renderSystem()->vulkanWindow()->maxMultisamples()
+		Application::renderSystem.vulkanWindow.maxMultisamples()
 	};
 	// initialize ImGui for Vulkan
 	ImGui_ImplVulkan_Init(&initInfo, m_renderPass);
 
 	// get a command buffer for creating the font textures
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
 	// start recording the command buffer
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	// create the textures
@@ -74,20 +70,16 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	// end recording the command buffer
 	cmdBuff.end();
 	// submit the commands
-	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
 	// reset the command buffer
 	cmdBuff.reset();
 
 	// destroy font data after creating
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
-
-	Logger::log_info("Successfully created a GUI context at: ", get_address(this));
 }
 
 GUIRenderer::~GUIRenderer() {
 	ImGui_ImplVulkan_Shutdown();
-
-	lyra::Logger::log_info("Successfully destroyed GUI context!");
 }
 
 void GUIRenderer::add_draw_call(std::function<void()>&& func) {
@@ -99,7 +91,7 @@ void GUIRenderer::record_command_buffers() {
 
 	// begin drawing
 	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame(Application::window()->get());
+	ImGui_ImplSDL2_NewFrame(Application::window.get());
 	ImGui::NewFrame();
 
 	// flush all draw commands
@@ -107,7 +99,7 @@ void GUIRenderer::record_command_buffers() {
 
 	// render
 	ImGui::Render();
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *Application::renderSystem()->currentCommandBuffer().m_commandBuffer);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *Application::renderSystem.currentCommandBuffer.m_commandBuffer);
 
 	end_renderpass();
 }

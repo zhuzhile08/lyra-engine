@@ -28,7 +28,7 @@ const bool Input::check_mouse_button_up(Mouse mouse) {
 	return !(m_mouseState & static_cast<uint8>(mouse)) && (m_prevMouseState & static_cast<uint8>(mouse));
 }
 
-const glm::vec2 Input::check_mouse_position() {
+const glm::ivec2 Input::check_mouse_position() {
 	return m_mousePos;
 }	
 
@@ -45,17 +45,17 @@ void Input::update() {
 
 	// poll fixed events
 	while (SDL_PollEvent(&m_events)) {
-		Application::window()->m_changed = false;
+		Application::window.m_changed = false;
 
 		// ImGui_ImplSDL2_ProcessEvent(&m_events);
 
 		// default events that are always checked
 		switch (m_events.type) {
 			case SDL_QUIT: // quitting
-				Application::window()->m_running = false;
+				Application::window.m_running = false;
 			case SDL_WINDOWEVENT: // window events like resizing
 				if (m_events.window.event == SDL_WINDOWEVENT_RESIZED)
-					Application::window()->m_changed = true;
+					Application::window.m_changed = true;
 		}
 	}
 }

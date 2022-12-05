@@ -9,7 +9,6 @@
 
 #include <init/init_SDL.h>
 
-
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -25,12 +24,12 @@ Application::~Application() {
 }
 
 void Application::draw() {
-	while (m_window.running()) {
+	while (window.running()) {
 		m_lastTime = std::move(m_currentTime);
 		
 		Input::update();
-		m_renderSystem.update();
-		m_renderSystem.draw();
+		renderSystem.update();
+		renderSystem.draw();
 
 		m_currentTime = SDL_GetTicks64();
 
@@ -39,7 +38,7 @@ void Application::draw() {
 		m_fps = 1.0f / (float)m_deltaTime;
 	}
 
-	m_renderSystem.device()->wait();
+	renderSystem.device.wait();
 }
 
 void init(void) {
@@ -61,7 +60,7 @@ void init(void) {
 #endif
 }
 
-Window Application::m_window;
-RenderSystem Application::m_renderSystem(&m_window);
+Window Application::window;
+RenderSystem Application::renderSystem(&window);
 
 } // namespace lyra

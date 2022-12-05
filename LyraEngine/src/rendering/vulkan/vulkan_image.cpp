@@ -11,11 +11,9 @@ namespace vulkan {
 
 Image::~Image() {
 	// destroy the image view
-	vkDestroyImageView(Application::renderSystem()->device()->device(), m_view, nullptr);
+	vkDestroyImageView(Application::renderSystem.device.device(), m_view, nullptr);
 	// destroy the image
-	vkDestroyImage(Application::renderSystem()->device()->device(), m_image, nullptr);
-
-	Logger::log_debug(Logger::tab(), "Successfully destroyed Vulkan images!");
+	vkDestroyImage(Application::renderSystem.device.device(), m_image, nullptr);
 }
 
 constexpr VkImageCreateInfo Image::get_image_create_info(
@@ -64,9 +62,7 @@ void Image::create_view(const VkFormat& format, const VkImageSubresourceRange& s
 	};
 
 	// create the view
-	vassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_view), "create Vulkan image views");
-
-	Logger::log_debug(Logger::tab(), "Successfully created Vulkan image view at ", get_address(this), "!");
+	vassert(vkCreateImageView(Application::renderSystem.device.device(), &createInfo, nullptr, &m_view), "create Vulkan image views");
 }
 
 void Image::transition_layout(
@@ -76,7 +72,7 @@ void Image::transition_layout(
 	const VkImageSubresourceRange& subresourceRange
 ) const {
 	// get a command buffer for setting up memory barrier
-	CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
+	CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -118,7 +114,7 @@ void Image::transition_layout(
 	// end recording
 	cmdBuff.end();
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
 	// reset the command buffer
 	cmdBuff.reset();
 }
@@ -139,7 +135,7 @@ constexpr VkFormat Image::get_best_format(const std::vector<VkFormat>& candidate
 	// check which of the canditates is the best choice
 	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(Application::renderSystem()->device()->physicalDevice(), candidates.at(i), &props);
+		vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), candidates.at(i), &props);
 
 		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
 		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
@@ -153,7 +149,7 @@ constexpr VkFormat Image::get_best_format(const std::vector<VkFormat>& candidate
 
 void Image::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent, const uint32 layerCount) {
 	// temporary command buffer for copying
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -171,7 +167,7 @@ void Image::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExt
 	// end recording
 	cmdBuff.end();
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
 }
 
 } // namespace vulkan

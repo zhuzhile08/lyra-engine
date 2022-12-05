@@ -39,14 +39,14 @@ CubemapBase::CubemapBase(
 		),
 	m_cubeMesh(
 		{
-			Mesh::Vertex({-1.0f,	-1.0f,	1.0f}, glm::vec3(), glm::vec2()),
-			Mesh::Vertex({1.0f, 	-1.0f,  1.0f}, glm::vec3(), glm::vec2()),
-			Mesh::Vertex({1.0f, 	-1.0f, 	-1.0f}, glm::vec3(), glm::vec2()),
-			Mesh::Vertex({-1.0f, 	-1.0f, 	-1.0f}, glm::vec3(), glm::vec2()),
-			Mesh::Vertex({-1.0f,	1.0f,  	1.0f}, glm::vec3(), glm::vec2()),
-			Mesh::Vertex({1.0f,  	1.0f,  	1.0f}, glm::vec3(), glm::vec2()),
-			Mesh::Vertex{{1.0f,  	1.0f, 	-1.0f}, glm::vec3(), glm::vec2()},
-			Mesh::Vertex({-1.0f, 	1.0f, 	-1.0f}, glm::vec3(), glm::vec2())
+			Mesh::Vertex({-1.0f,	-1.0f,	1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({1.0f, 	-1.0f,  1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({1.0f, 	-1.0f, 	-1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({-1.0f, 	-1.0f, 	-1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({-1.0f,	1.0f,  	1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({1.0f,  	1.0f,  	1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex{{1.0f,  	1.0f, 	-1.0f}, glm::vec3(), glm::vec3()},
+			Mesh::Vertex({-1.0f, 	1.0f, 	-1.0f}, glm::vec3(), glm::vec3())
 		},
 		{
 			1, 2, 6,
@@ -98,7 +98,7 @@ CubemapBase::CubemapBase(
 		stagingBuffer.copy_data(combinedImageData, 6, width * height * 4);
 
 		// create the image
-		vassert(Application::renderSystem()->device()->createImage(
+		vassert(Application::renderSystem.device.createImage(
 			get_image_create_info(
 				format,
 				imageExtent,
@@ -123,7 +123,7 @@ CubemapBase::CubemapBase(
 
 	{ // create a sampler for the image
 		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &properties);
+		vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &properties);
 
 		VkSamplerCreateInfo samplerInfo {
 			VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -146,7 +146,7 @@ CubemapBase::CubemapBase(
 			VK_FALSE
 		};
 
-		vassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
+		vassert(vkCreateSampler(Application::renderSystem.device.device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
 	}
 
 	{ // next, create the descriptors
@@ -172,12 +172,12 @@ CubemapBase::CubemapBase(
 }
 
 void CubemapBase::draw() const {
-	Application::renderSystem()->currentCommandBuffer().bindPipeline(bindPoint(), pipeline());
-	Application::renderSystem()->currentCommandBuffer().bindDescriptorSet(
+	Application::renderSystem.currentCommandBuffer.bindPipeline(bindPoint(), pipeline());
+	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(
 		bindPoint(), 
 		layout(),
 		0, 
-		m_descriptors[Application::renderSystem()->currentFrame()].get());
+		m_descriptors[Application::renderSystem.currentFrame()].get());
 	m_cubeMeshRenderer.draw();
 }
 

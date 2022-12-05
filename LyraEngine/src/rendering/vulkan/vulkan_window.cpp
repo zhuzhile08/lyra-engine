@@ -5,8 +5,6 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
-
-
 #include <core/settings.h>
 
 #include <rendering/vulkan/devices.h>
@@ -26,45 +24,45 @@ Window::Window() {
 
 Window::~Window() noexcept {
 	for (int i = 0; i < m_imageAvailableSemaphores.size(); i++) { // sync objects
-		vkDestroySemaphore(Application::renderSystem()->device()->device(), m_renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(Application::renderSystem()->device()->device(), m_imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(Application::renderSystem()->device()->device(), m_inFlightFences[i], nullptr);
+		vkDestroySemaphore(Application::renderSystem.device.device(), m_renderFinishedSemaphores[i], nullptr);
+		vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphores[i], nullptr);
+		vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFences[i], nullptr);
 	}
-	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem()->device()->device(), m_views[i], nullptr);
-	vkDestroySwapchainKHR(Application::renderSystem()->device()->device(), m_swapchain, nullptr); // swapchain and old swapchain
-	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem()->device()->device(), *m_oldSwapchain, nullptr);
-	vkDestroySurfaceKHR(Application::renderSystem()->device()->instance(), m_surface, nullptr); // window surface
+	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem.device.device(), m_views[i], nullptr);
+	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr); // swapchain and old swapchain
+	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
+	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr); // window surface
 }
 
 void Window::recreate() {
 	// wait until all commands are done executing
-	vkDeviceWaitIdle(Application::renderSystem()->device()->device());
+	vkDeviceWaitIdle(Application::renderSystem.device.device());
 
 	// destroy the images
-	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem()->device()->device(), m_views[i], nullptr);
+	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem.device.device(), m_views[i], nullptr);
 	m_depthImage.destroy();
 	m_colorImage.destroy();
 	m_depthMem.destroy();
 	m_colorMem.destroy();
 	// destroy the swapchain
-	vkDestroySwapchainKHR(Application::renderSystem()->device()->device(), m_swapchain, nullptr);
-	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem()->device()->device(), *m_oldSwapchain, nullptr);
+	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr);
+	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
 
 	// recreate the swapchain
 	create_swapchain();
 }
 
 void Window::wait(const uint32& fenceIndex) const {
-	vassert(Application::renderSystem()->device()->waitForFences(1, m_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
+	vassert(Application::renderSystem.device.waitForFences(1, m_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
 }
 
 void Window::reset(const uint32& fenceIndex) const {
-	vassert(Application::renderSystem()->device()->resetFences(1, m_inFlightFences.at(fenceIndex)), "reset Vulkan fences");
+	vassert(Application::renderSystem.device.resetFences(1, m_inFlightFences.at(fenceIndex)), "reset Vulkan fences");
 }
 
 void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities) {
 	int width, height;
-	SDL_Vulkan_GetDrawableSize(Application::window()->get(), &width, &height);
+	SDL_Vulkan_GetDrawableSize(Application::window.get(), &width, &height);
 
 	VkExtent2D newExtent = {
 		static_cast<uint32>(width),
@@ -79,9 +77,9 @@ void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapa
 
 const VkSurfaceFormatKHR Window::get_optimal_format() {
 	uint32 availableFormatCount = 0;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availableFormatCount, nullptr);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availableFormatCount, nullptr);
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availableFormatCount, availableFormats.data());
+	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availableFormatCount, availableFormats.data());
 	// check the formats
 	for (uint32 i = 0; i < availableFormats.size(); i++) {
 		if (availableFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB && availableFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -96,9 +94,9 @@ const VkSurfaceFormatKHR Window::get_optimal_format() {
 
 const VkPresentModeKHR Window::get_optimal_present_mode() const {
 	uint32 availablePresentModeCount = 0;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availablePresentModeCount, nullptr);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availablePresentModeCount, nullptr);
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &availablePresentModeCount, availablePresentModes.data());
+	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availablePresentModeCount, availablePresentModes.data());
 	// check the presentation modess
 	for (uint32 i = 0; i < availablePresentModes.size(); i++) {
 		if (availablePresentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -112,7 +110,7 @@ const VkPresentModeKHR Window::get_optimal_present_mode() const {
 
 const VkSampleCountFlagBits Window::get_max_samples() const noexcept {
 	VkPhysicalDeviceProperties physicalDeviceProperties;
-	vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &physicalDeviceProperties);
+	vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &physicalDeviceProperties);
 
 	VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts & physicalDeviceProperties.limits.framebufferDepthSampleCounts;
 	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
@@ -126,7 +124,7 @@ const VkSampleCountFlagBits Window::get_max_samples() const noexcept {
 }
 
 void Window::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabilities) const {
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Application::renderSystem()->device()->physicalDevice(), m_surface, &surfaceCapabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &surfaceCapabilities);
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
 		surfaceCapabilities.currentExtent.width = Settings::Window::width;
@@ -146,15 +144,15 @@ void Window::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabil
 
 void Window::create_window_surface() {
 	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
-	lassert(SDL_Vulkan_CreateSurface(Application::window()->get(), Application::renderSystem()->device()->instance(), &m_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
+	lassert(SDL_Vulkan_CreateSurface(Application::window.get(), Application::renderSystem.device.instance(), &m_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
 }
 
 void Window::create_swapchain_images() {
 	// get the number of images
 	uint32 imageCount;
-	vassert(vkGetSwapchainImagesKHR(Application::renderSystem()->device()->device(), m_swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
+	vassert(vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
 	m_images.resize(imageCount); m_views.resize(imageCount);
-	vkGetSwapchainImagesKHR(Application::renderSystem()->device()->device(), m_swapchain, &imageCount, m_images.data());
+	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, m_images.data());
 
 	// I hate this bro why C++
 	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
@@ -172,7 +170,7 @@ void Window::create_swapchain_images() {
 		};
 
 		// create the view
-		vassert(vkCreateImageView(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_views.at(i)), "create Vulkan image views");
+		vassert(vkCreateImageView(Application::renderSystem.device.device(), &createInfo, nullptr, &m_views.at(i)), "create Vulkan image views");
 	}
 }
 
@@ -180,7 +178,7 @@ void Window::create_depth_buffer() {
 	m_depthBufferFormat = m_depthImage.get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
-	vassert(Application::renderSystem()->device()->createImage(
+	vassert(Application::renderSystem.device.createImage(
 		m_depthImage.get_image_create_info(
 			m_depthBufferFormat,
 			{ m_extent.width, m_extent.height, 1 },
@@ -207,7 +205,7 @@ void Window::create_color_resources() {
 	m_maxMultisamples = get_max_samples();
 
 	// create memory and image
-	vassert(Application::renderSystem()->device()->createImage(
+	vassert(Application::renderSystem.device.createImage(
 		m_colorImage.get_image_create_info(
 			m_format,
 			{ m_extent.width, m_extent.height, 1 },
@@ -228,7 +226,7 @@ void Window::create_color_resources() {
 }
 
 void Window::create_swapchain() {
-	Logger::log_debug(Logger::tab(), "Swapchain configurations are: ");
+	Logger::log_info("Swapchain configurations are: ");
 
 	// get the optimal format
 	VkSurfaceFormatKHR format = get_optimal_format();
@@ -245,8 +243,8 @@ void Window::create_swapchain() {
 	create_swapchain_extent(surfaceCapabilities);
 
 	// create the swapchain
-	const auto temp = Application::renderSystem()->device()->graphicsQueue().familyIndex;
-	const auto cond = (Application::renderSystem()->device()->graphicsQueue().familyIndex != Application::renderSystem()->device()->presentQueue().familyIndex);
+	const auto temp = Application::renderSystem.device.graphicsQueue().familyIndex;
+	const auto cond = (Application::renderSystem.device.graphicsQueue().familyIndex != Application::renderSystem.device.presentQueue().familyIndex);
 
 	VkSwapchainCreateInfoKHR createInfo = {
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
@@ -269,7 +267,7 @@ void Window::create_swapchain() {
 		(m_oldSwapchain != nullptr) ? *m_oldSwapchain : VK_NULL_HANDLE
 	};
 
-	vassert(vkCreateSwapchainKHR(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_swapchain), "create Vulkan swapchain");
+	vassert(vkCreateSwapchainKHR(Application::renderSystem.device.device(), &createInfo, nullptr, &m_swapchain), "create Vulkan swapchain");
 
 	create_swapchain_images();
 	create_color_resources();
@@ -289,11 +287,11 @@ void Window::create_sync_objects() {
 	};
 
 	for (int i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
-		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
+		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
 			"create Vulkan Synchronization Objects");
-		vassert(vkCreateSemaphore(Application::renderSystem()->device()->device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),
+		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),
 			"create Vulkan Synchronization Objects");
-		vassert(vkCreateFence(Application::renderSystem()->device()->device(), &fenceInfo, nullptr, &m_inFlightFences[i]),
+		vassert(vkCreateFence(Application::renderSystem.device.device(), &fenceInfo, nullptr, &m_inFlightFences[i]),
 			"create Vulkan Synchronization Objects");
 	}
 }

@@ -21,14 +21,14 @@ DescriptorSetLayout::DescriptorSetLayout(const std::vector<Builder>& builders) {
 			builders.at(i).bindings.data()
 		};
 
-		vassert(vkCreateDescriptorSetLayout(Application::renderSystem()->device()->device(), &layoutInfo, nullptr, &m_descriptorSetLayouts[i]),
+		vassert(vkCreateDescriptorSetLayout(Application::renderSystem.device.device(), &layoutInfo, nullptr, &m_descriptorSetLayouts[i]),
 			"create descriptor set layout");
 	}
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() noexcept {
 	for (uint32 i = 0; i < m_descriptorSetLayouts.size(); i++)
-		vkDestroyDescriptorSetLayout(Application::renderSystem()->device()->device(), m_descriptorSetLayouts[i], nullptr);
+		vkDestroyDescriptorSetLayout(Application::renderSystem.device.device(), m_descriptorSetLayouts[i], nullptr);
 }
 
 // descriptor pool
@@ -43,12 +43,12 @@ DescriptorPool::DescriptorPool(const Builder& builder) {
 		builder.poolSizes.data()
 	};
 
-	vassert(vkCreateDescriptorPool(Application::renderSystem()->device()->device(), &poolInfo, nullptr, &m_descriptorPool),
+	vassert(vkCreateDescriptorPool(Application::renderSystem.device.device(), &poolInfo, nullptr, &m_descriptorPool),
 		"create descriptor pool");
 }
 
 DescriptorPool::~DescriptorPool() noexcept {
-	vkDestroyDescriptorPool(Application::renderSystem()->device()->device(), m_descriptorPool, nullptr);
+	vkDestroyDescriptorPool(Application::renderSystem.device.device(), m_descriptorPool, nullptr);
 }
 
 // descriptors
@@ -62,11 +62,11 @@ Descriptor::Descriptor(const DescriptorSetLayout* const layout, const uint32& la
 		&layout->m_descriptorSetLayouts.at(layoutIndex)
 	};
 
-	vassert(vkAllocateDescriptorSets(Application::renderSystem()->device()->device(), &allocInfo, &m_descriptorSet), "allocate descriptor sets");
+	vassert(vkAllocateDescriptorSets(Application::renderSystem.device.device(), &allocInfo, &m_descriptorSet), "allocate descriptor sets");
 
 	for(uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = m_descriptorSet;
 
-	vkUpdateDescriptorSets(Application::renderSystem()->device()->device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
+	vkUpdateDescriptorSets(Application::renderSystem.device.device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
 }
 
 } // namespace vulkan

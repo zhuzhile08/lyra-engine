@@ -3,8 +3,6 @@
 namespace lyra {
 
 void ComputePipeline::create(const CreateInfo info) {
-	Logger::log_info("Creating Vulkan compute pipeline...");
-
 	m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
 
 	create_shaders({ info.shaderCreationInfo });
@@ -12,8 +10,6 @@ void ComputePipeline::create(const CreateInfo info) {
 	create_descriptor_stuff(info.builder);
 
 	create_pipeline(info);
-
-	Logger::log_info("Successfully created Vulkan pipeline at ", get_address(this), "!", Logger::end_l());
 }
 
 void ComputePipeline::create_pipeline(const CreateInfo info) {
@@ -35,7 +31,7 @@ void ComputePipeline::create_pipeline(const CreateInfo info) {
 	};
 
 	// create the pipelines
-	vkCreateComputePipelines(Application::renderSystem()->device()->device(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pipeline);
+	vkCreateComputePipelines(Application::renderSystem.device.device(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pipeline);
 }
 
 } // namespace lyra

@@ -15,29 +15,23 @@
 namespace lyra {
 
 Renderer::Renderer() {
-	Logger::log_info("Creating Renderer...");
-
 	// create the framebuffers
 	create_render_pass();
 	create_framebuffers();
 
 	// add the renderer to the render system
-	Application::renderSystem()->add_renderer(this);
-
-	Logger::log_info("Successfully created Renderer at: ", get_address(this), "!");
+	Application::renderSystem.add_renderer(this);
 }
 
 Renderer::~Renderer() {
 	// destrpy the framebuffer
-	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem()->m_device.device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
-	vkDestroyRenderPass(Application::renderSystem()->m_device.device(), m_renderPass, nullptr);
-
-	Logger::log_info("Successfully destroyed a renderer!");
+	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
+	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 }
 
 void Renderer::recreate() {
-	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem()->m_device.device(), framebuffer, nullptr);
-	vkDestroyRenderPass(Application::renderSystem()->m_device.device(), m_renderPass, nullptr);
+	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr);
+	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();
 }
@@ -46,8 +40,8 @@ void Renderer::create_render_pass() {
 	// define what to do with an image during rendering
 	VkAttachmentDescription colorAttachmentDescriptions{
 		0,
-		Application::renderSystem()->m_vulkanWindow.format(),
-		Application::renderSystem()->m_vulkanWindow.maxMultisamples(),
+		Application::renderSystem.vulkanWindow.format(),
+		Application::renderSystem.vulkanWindow.maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_STORE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -59,8 +53,8 @@ void Renderer::create_render_pass() {
 	// depth buffers
 	VkAttachmentDescription	depthBufferAttachmentDescriptions{
 		0,
-		Application::renderSystem()->m_vulkanWindow.depthBufferFormat(),
-		Application::renderSystem()->m_vulkanWindow.maxMultisamples(),
+		Application::renderSystem.vulkanWindow.depthBufferFormat(),
+		Application::renderSystem.vulkanWindow.maxMultisamples(),
 		VK_ATTACHMENT_LOAD_OP_CLEAR,
 		VK_ATTACHMENT_STORE_OP_DONT_CARE,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -72,7 +66,7 @@ void Renderer::create_render_pass() {
 	// "finalise" the image to render
 	VkAttachmentDescription colorAttachmentFinalDescriptions{ // Nanashi became Dagdas personal game engine programmer
 		0,
-		Application::renderSystem()->m_vulkanWindow.format(),
+		Application::renderSystem.vulkanWindow.format(),
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		VK_ATTACHMENT_STORE_OP_STORE,
@@ -135,17 +129,17 @@ void Renderer::create_render_pass() {
 		&dependencies
 	};
 
-	vassert(vkCreateRenderPass(Application::renderSystem()->m_device.device(), &renderPassInfo, nullptr, &m_renderPass), "create Vulkan render pass");
+	vassert(vkCreateRenderPass(Application::renderSystem.device.device(), &renderPassInfo, nullptr, &m_renderPass), "create Vulkan render pass");
 }
 
 void Renderer::create_framebuffers() {
-	m_framebuffers.resize(Application::renderSystem()->m_vulkanWindow.images().size());
+	m_framebuffers.resize(Application::renderSystem.vulkanWindow.images().size());
 
-	for (int i = 0; i < Application::renderSystem()->m_vulkanWindow.images().size(); i++) {
+	for (uint32 i = 0; i < Application::renderSystem.vulkanWindow.images().size(); i++) {
 		std::array<VkImageView, 3> attachments = {
-			Application::renderSystem()->m_vulkanWindow.colorImage()->m_view,
-			Application::renderSystem()->m_vulkanWindow.depthImage()->m_view,
-			Application::renderSystem()->m_vulkanWindow.views().at(i)
+			Application::renderSystem.vulkanWindow.colorImage()->m_view,
+			Application::renderSystem.vulkanWindow.depthImage()->m_view,
+			Application::renderSystem.vulkanWindow.views().at(i)
 		};
 
 		// create the frame buffers
@@ -156,12 +150,12 @@ void Renderer::create_framebuffers() {
 			m_renderPass,
 			static_cast<uint32>(attachments.size()),
 			attachments.data(),
-			Application::renderSystem()->m_vulkanWindow.extent().width,
-			Application::renderSystem()->m_vulkanWindow.extent().height,
+			Application::renderSystem.vulkanWindow.extent().width,
+			Application::renderSystem.vulkanWindow.extent().height,
 			1
 		};
 
-		vassert(vkCreateFramebuffer(Application::renderSystem()->m_device.device(), &framebufferInfo, nullptr, &m_framebuffers[i]), "create a framebuffer");
+		vassert(vkCreateFramebuffer(Application::renderSystem.device.device(), &framebufferInfo, nullptr, &m_framebuffers[i]), "create a framebuffer");
 	}
 }
 
@@ -173,20 +167,20 @@ void Renderer::begin_renderpass() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		m_renderPass,
-		m_framebuffers.at(Application::renderSystem()->m_imageIndex),
+		m_framebuffers.at(Application::renderSystem.m_imageIndex),
 		{	// rendering area
 			{ 0, 0 },
-			Application::renderSystem()->m_vulkanWindow.extent()
+			Application::renderSystem.vulkanWindow.extent()
 		},
-		arr_size(clear),
+		2,
 		clear
 	};
 
-	Application::renderSystem()->currentCommandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	Application::renderSystem.currentCommandBuffer.beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void Renderer::end_renderpass() const { 
-	Application::renderSystem()->currentCommandBuffer().endRenderPass();
+	Application::renderSystem.currentCommandBuffer.endRenderPass();
 }
 
 } // namespace lyra

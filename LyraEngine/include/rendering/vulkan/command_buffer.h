@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 
@@ -40,9 +42,9 @@ public:
 	/**
 	 * @brief get the command pool
 	 *
-	 * @return const VkCommandPool
+	 * @return constexpr const VkCommandPool&
 	 */
-	NODISCARD constexpr VkCommandPool commandPool() const noexcept { return m_commandPool; }
+	NODISCARD constexpr const VkCommandPool& commandPool() const noexcept { return m_commandPool; }
 
 private:
 	VkCommandPool m_commandPool;
@@ -125,9 +127,9 @@ public:
 	 *
 	 * @param index index of the command buffer
 	 * 
-	 * @return const lyra::vulkan::VulkanCommandBuffer* const
+	 * @return const lyra::vulkan::VulkanCommandBuffer&
 	 */
-	NODISCARD const VulkanCommandBuffer* const commandBuffer(const uint32& index) const noexcept { return &m_commandBufferData.at(index); }
+	NODISCARD const VulkanCommandBuffer& commandBuffer(const uint32& index) const noexcept { return m_commandBufferData.at(index); }
 
 private:
 	CommandPool m_commandPool;
@@ -148,10 +150,10 @@ struct CommandBuffer {
 #else
 	constexpr CommandBuffer(
 #endif
-		CommandBufferManager* const commandBufferManager) :
-		m_index(commandBufferManager->get_unused()), 
-		m_commandBuffer(&commandBufferManager->m_commandBufferData.at(m_index).commandBuffer),
-		commandBufferManager(commandBufferManager) { }
+	CommandBufferManager& commandBufferManager) :
+	m_index(commandBufferManager.get_unused()), 
+	m_commandBuffer(&commandBufferManager.m_commandBufferData.at(m_index).commandBuffer),
+	commandBufferManager(&commandBufferManager) { }
 
 	/**
 	 * @brief construct the command buffer wrapper
@@ -161,21 +163,17 @@ struct CommandBuffer {
 	 * @param commandBuffer command buffer to execute the commands
 	 * @param index optional index of the command buffer
 	 */
-	constexpr CommandBuffer(const VkCommandBuffer* commandBuffer, const uint32& index = UINT32_MAX) :
+	constexpr CommandBuffer(const VkCommandBuffer& commandBuffer, const uint32& index = UINT32_MAX) :
 		m_index(index),
-		m_commandBuffer(commandBuffer),
+		m_commandBuffer(&commandBuffer),
 		commandBufferManager(nullptr) { }
 
 	/**
-	 * @brief copy command buffer
-	 * 
-	 * @param src source command buffer
-	 * @return lyra::vulkan::CommandBuffer& 
+	 * @brief get a new unused command buffer from the command buffer manager
 	 */
-	CommandBuffer& operator=(const CommandBuffer& src) {
-		CommandBuffer temporary(src.m_commandBuffer, src.m_index);
-		temporary.commandBufferManager = std::move(commandBufferManager);
-		return *this;
+	void find_new_commandBuffer() {
+		m_index = commandBufferManager->get_unused();
+		m_commandBuffer = &commandBufferManager->m_commandBufferData.at(m_index).commandBuffer;
 	}
 
 	/**
@@ -468,10 +466,12 @@ struct CommandBuffer {
 	void submitQueue(const VkQueue& queue);
 
 	uint32 m_index;
-	const VkCommandBuffer* m_commandBuffer;
 
 private:
-	CommandBufferManager* commandBufferManager;
+	CommandBufferManager* const commandBufferManager;
+
+public:
+	const VkCommandBuffer* m_commandBuffer;
 
 	friend struct CommandBuffer;
 };
