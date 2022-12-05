@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vulkan/vulkan.h>
 
 #ifdef NDEBUG
@@ -39,13 +41,9 @@ public:
 	/**
 	 * @brief destructor of the buffer
 	 */
-#ifndef NDEBUG
-	virtual ~GPUBuffer() noexcept;
-#else
 	virtual ~GPUBuffer() noexcept {
-		vkDestroyBuffer(Application::renderSystem()->device()->device(), m_buffer, nullptr);
+		vkDestroyBuffer(Application::renderSystem.device.device(), m_buffer, nullptr);
 	}
-#endif
 
 	GPUBuffer operator=(const GPUBuffer&) const noexcept = delete;
 

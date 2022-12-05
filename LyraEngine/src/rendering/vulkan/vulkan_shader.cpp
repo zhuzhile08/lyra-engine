@@ -21,14 +21,8 @@ Shader::Shader(const char* path, const char* entry, const Type& type) : m_entry(
 		reinterpret_cast<const uint32*>(shaderSrc.data())
 	};
 
-	vassert(vkCreateShaderModule(Application::renderSystem()->device()->device(), &createInfo, nullptr, &m_module), "create a Vulkan shader module");
+	vassert(vkCreateShaderModule(Application::renderSystem.device.device(), &createInfo, nullptr, &m_module), "create a Vulkan shader module");
 }
-
-#ifndef ndebug
-Shader::~Shader() {
-	vkDestroyShaderModule(Application::renderSystem()->device()->device(), m_module, nullptr);
-}
-#endif
 
 } // namespace vulkan
 

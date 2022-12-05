@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #ifdef __APPLE__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -30,7 +32,6 @@
 #include <rendering/vulkan/devices.h>
 #endif
 
-
 namespace lyra {
 
 namespace vulkan {
@@ -44,13 +45,9 @@ struct GPUMemory {
 	/**
 	 * @brief destructor of the memory
 	 */
-	#ifndef NDEBUG
-	virtual ~GPUMemory();
-	#else
 	virtual ~GPUMemory() {
-		Application::renderSystem()->device()->freeMemory(m_memory);
+		Application::renderSystem.device.freeMemory(m_memory);
 	}
-	#endif
 	/**
 	 * @brief manually destroy the memory
 	 */
