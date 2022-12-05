@@ -1,4 +1,4 @@
-/**
+/*************************
  * @file smart_pointer.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
@@ -7,7 +7,7 @@
  * @date 2022-10-11
  * 
  * @copyright Copyright (c) 2022
- */
+ *************************/
 
 #pragma once
 
@@ -86,6 +86,17 @@ public:
 	 */
 	constexpr inline _Ty& operator*() const noexcept {
 		return *m_pointer;
+	}
+
+	/**
+	 * @brief return a smart pointer of a type which the internal pointer can cast to
+	 * 
+	 * @tparam _BTy castable type
+	 * 
+	 * @return SmartPointer<_BTy> 
+	 */
+	template<class _CTy> constexpr inline operator SmartPointer<_CTy>() const noexcept {
+		return SmartPointer<_CTy>(m_pointer);
 	}
 
 	/**
