@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <rendering/render_system.h>
 #include <rendering/window.h>
 
@@ -55,18 +57,9 @@ public:
 	 * @return const float
 	 */
 	NODISCARD constexpr float deltaTime() const noexcept { return m_deltaTime; }
-	/**
-	 * @brief get the window
-	 *
-	 * @return constexpr lyra::Window* const
-	 */
-	NODISCARD constexpr static Window* const window() noexcept { return &m_window; }
-	/**
-	 * @brief get the render system
-	 *
-	 * @return constexpr lyra::RenderSystem* const
-	 */
-	NODISCARD constexpr static RenderSystem* const renderSystem() noexcept { return &m_renderSystem; }
+	
+	static Window window;
+	static RenderSystem renderSystem;
 	
 protected:
 	float m_fps;
@@ -74,9 +67,6 @@ protected:
 
 	uint64 m_lastTime;
 	uint64 m_currentTime;
-
-	static Window m_window;
-	static RenderSystem m_renderSystem;
 
 	virtual void init() { }
 };
