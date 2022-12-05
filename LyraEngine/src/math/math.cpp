@@ -37,12 +37,12 @@ void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation,
 }
 
 constexpr glm::mat4 perspective_matrix(const float& fov, const float& width, const float& height, const float& near, const float& far) {
-	float tanHalfFov = tan(glm::radians(fov) / 2);
+	float tanHalfFov = 1/tan(glm::radians(fov) / 2);
 
 	return glm::mat4 {
-		1.0f / ((width / height) * tanHalfFov),	0.0f, 				0.0f, 							0.0f,
-		0.0f, 									-1.0f / tanHalfFov, 	0.0f, 							0.0f, 
-		0.0f, 									0.0f, 				-(far + near) / (far - near), 			-(2 * near * far) / (far - near),
+		(width / height) / tanHalfFov,	0.0f, 				0.0f, 							0.0f,
+		0.0f, 									-(width / height), 	0.0f, 							0.0f, 
+		0.0f, 									0.0f, 				(near) / (far - near), 			(near * far) / (far - near),
 		0.0f, 									0.0f, 				1.0f, 	0.0f
 	};
 }

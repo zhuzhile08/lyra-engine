@@ -1,4 +1,4 @@
-/**
+/*************************
  * @file transform.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
@@ -7,9 +7,11 @@
  * @date 2022-10-23
  * 
  * @copyright Copyright (c) 2022
- */
+ *************************/
 
 #pragma once
+
+#include <lyra.h>
 
 #include <glm.hpp>
 #include <gtx/matrix_decompose.hpp>
@@ -325,7 +327,7 @@ public:
 	 * @param target target translation
 	 * @param up up vector
 	 */
-	void translate_and_look_at(const glm::vec3& translate, const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 0.0f, 1.0f));
+	void look_at_from_position(const glm::vec3& translation, const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 0.0f, 1.0f));
 	/**
 	 * @brief look at a target from a new translation
 	 * 

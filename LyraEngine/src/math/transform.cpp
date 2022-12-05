@@ -99,10 +99,10 @@ void Transform::look_at(const glm::vec3& target, const glm::vec3& up) {
 	}
 }
 
-void Transform::translate_and_look_at(const glm::vec3& translate, const glm::vec3& target, const glm::vec3& up) {
-	this->translate(translate);
-	glm::vec3 temp_translation(translate);
-	m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up) * m_localTransformMatrix;
+void Transform::look_at_from_position(const glm::vec3& translation, const glm::vec3& target, const glm::vec3& up) {
+	glm::vec3 temp_translation(translation);
+	m_localTransformMatrix[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	m_localTransformMatrix = glm::lookAt(translation, target, up) * m_localTransformMatrix;
 	decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
 	m_translation = temp_translation;
 	m_dirty = false;

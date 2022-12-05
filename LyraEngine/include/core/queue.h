@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <deque>
 #include <functional>
 
@@ -38,7 +40,7 @@ public:
 	 *
 	 * @param index index of the function to remove
 	 */
-	void remove(const int& index) {
+	void remove(const uint32& index) {
 		m_queue.erase(m_queue.begin() + index);
 	}
 

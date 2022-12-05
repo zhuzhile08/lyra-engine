@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <glm.hpp>
 #include <Jolt/Jolt.h>
 
@@ -26,40 +28,40 @@ namespace lyra {
  */
 class Collider : public Spatial{
 public:
-    Collider(
+	Collider(
 		Rigidbody* parent,
-        const char* name = "BaseCollider",
+		const char* name = "BaseCollider",
 		const uint32 tag = 0,
-        const bool active = true,
+		const bool active = true,
 		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
 		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
 		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
-    ) : Spatial(name, parent, true, tag, position, rotation, scale, rotationOrder), 
-        _parent(parent), 
-        _active(active) { }
+	) : Spatial(name, parent, true, tag, position, rotation, scale, rotationOrder), 
+		_parent(parent), 
+		_active(active) { }
 
 private:
-    bool _active;
-    const Rigidbody* _parent;
+	bool _active;
+	const Rigidbody* _parent;
 };
 
 class BoxCollider : Collider {
 public:
-    BoxCollider(
-        Rigidbody* parent,
-        const char* name = "BoxCollider",
-        const glm::vec3 dimensions = glm::vec3(1.0f, 1.0f, 1.0f),
-        const bool active = true,
+	BoxCollider(
+		Rigidbody* parent,
+		const char* name = "BoxCollider",
+		const glm::vec3 dimensions = glm::vec3(1.0f, 1.0f, 1.0f),
+		const bool active = true,
 		const uint32 tag = 0,
 		const glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
 		const glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f),
 		const glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f),
 		const RotationOrder rotationOrder = RotationOrder::ROTATION_ZYX
-    );
+	);
 
 private:
-    glm::vec3 _dimensions;
+	glm::vec3 _dimensions;
 };
 
 } // namespace lyra
