@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <nodes/node.h>
 
 #include <rendering/vulkan/GPU_buffer.h>
@@ -37,8 +39,8 @@ public:
 	 * @param emissionEnergy light energy value if enabled
 	 * @param normalMapTexture normal map texture
 	 * @param normalMapValue normal map strength
-	 * @param heightMapTexture height map texture
-	 * @param heightMapValue height map strength
+	 * @param displacementMapTexture height map texture
+	 * @param displacementMapValue height map strength
 	 * @param occlusionMapTexture occlusion map texture
 	 * @param occlusionMapValue occlusion map value
 	 */
@@ -57,8 +59,8 @@ public:
 		const uint8& emissionEnergy = 0,
 		const Texture* const normalMapTexture = nullptr,
 		const int8& normalMapValue = 0,
-		const Texture* const heightMapTexture = nullptr,
-		const uint8& heightMapValue = 0,
+		const Texture* const displacementMapTexture = nullptr,
+		const uint8& displacementMapValue = 0,
 		const Texture* const occlusionMapTexture = nullptr,
 		const uint8& occlusionMapValue = 0
 	);
@@ -87,8 +89,8 @@ private:
 	const Texture* m_normalMapTexture;
 	int8 m_normalMapValue;
 
-	const Texture* m_heightMapTexture;
-	uint8 m_heightMapValue;
+	const Texture* m_displacementMapTexture;
+	uint8 m_displacementMapValue;
 
 	const Texture* m_occlusionMapTexture;
 	uint8 m_occlusionMapValue;
@@ -103,7 +105,7 @@ private:
 
 	struct MaterialVertexData {
 		alignas(8) const uint32& m_normalMapValue;
-		alignas(8) const int32& m_heightMapValue;
+		alignas(8) const int32& m_displacementMapValue;
 	};
 
 	struct MaterialFragmentData {

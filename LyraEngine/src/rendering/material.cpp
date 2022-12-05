@@ -25,8 +25,8 @@ Material::Material(
 	const uint8& emissionEnergy,
 	const Texture* const normalMapTexture,
 	const int8& normalMapValue,
-	const Texture* const heightMapTexture,
-	const uint8& heightMapValue,
+	const Texture* const displacementMapTexture,
+	const uint8& displacementMapValue,
 	const Texture* const  occlusionMapTexture,
 	const uint8& occlusionMapValue
 ) : m_meshRenderers(meshRenderers),
@@ -42,13 +42,12 @@ Material::Material(
 	m_emissionEnergy(emissionEnergy),
 	m_normalMapTexture(normalMapTexture),
 	m_normalMapValue(normalMapValue),
-	m_heightMapTexture(heightMapTexture),
-	m_heightMapValue(heightMapValue),
+	m_displacementMapTexture(displacementMapTexture),
+	m_displacementMapValue(displacementMapValue),
 	m_occlusionMapTexture(occlusionMapTexture),
 	m_occlusionMapValue(occlusionMapValue),
 	camera(camera)
 {
-	Logger::log_info("Creating material...");
 
 	// preallocate the memory for the vertex and fragment shaders
 	m_vertShaderBuffers.reserve(Settings::Rendering::maxFramesInFlight);
@@ -56,7 +55,7 @@ Material::Material(
 
 	// uniform data to send to the vertex shader
 	MaterialVertexData vertDat{
-		m_heightMapValue, m_normalMapValue
+		m_displacementMapValue, m_normalMapValue
 	};
 
 	// uniform data to send to the fragment shader
@@ -83,21 +82,19 @@ Material::Material(
 	// create the descriptor set
 	vulkan::Descriptor::Writer writer;
 	writer.add_writes({ // write the images
-		// { (m_normalMapTexture) ? m_normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 2, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		// { (m_heightMapTexture) ? m_heightMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 3, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (m_albedoTexture) ? m_albedoTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER}
-		// { (m_metallicTexture) ? m_metallicTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 6, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		// { (m_emissionTexture) ? m_emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		// { (m_occlusionMapTexture) ? m_occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_normalMapTexture) ? m_normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 3, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_displacementMapTexture) ? m_displacementMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 4, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_albedoTexture) ? m_albedoTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 2, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_metallicTexture) ? m_metallicTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 6, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_emissionTexture) ? m_emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+		{ (m_occlusionMapTexture) ? m_occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
 		});
-	/**
 	writer.add_writes({ // write the buffers
 		{ m_vertShaderBuffers[0].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		{ m_vertShaderBuffers[1].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers[0].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers[1].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers[0].get_descriptor_buffer_info(), 5, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
+		{ m_fragShaderBuffers[1].get_descriptor_buffer_info(), 5, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER }
 		});
-	*/
 
 	// create the descriptors
 	m_descriptors.reserve(Settings::Rendering::maxFramesInFlight);
@@ -110,17 +107,15 @@ Material::Material(
 		);
 
 	this->camera->m_materials.push_back(this);
-
-	Logger::log_info("Successfully created material with address:", get_address(this), "!");
 }
 
 void Material::draw() const {
 	// bind the descriptor set first
-	Application::renderSystem()->currentCommandBuffer().bindDescriptorSet(
+	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(
 		camera->m_renderPipeline->bindPoint(), 
 		camera->m_renderPipeline->layout(), 
 		1, 
-		m_descriptors.at(Application::renderSystem()->currentFrame()).get()
+		m_descriptors.at(Application::renderSystem.currentFrame()).get()
 	);
 
 	for (uint32 i = 0; i < m_meshRenderers.size(); i++) m_meshRenderers.at(i)->draw();

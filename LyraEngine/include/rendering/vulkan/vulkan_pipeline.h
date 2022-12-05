@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -32,14 +34,16 @@ public:
 	 * @brief descriptor and shader information
 	 */
 	struct Binding {
+		// shader type
+		const int& shaderType;
 		// the descriptor set layout this binding belongs to
 		const uint32& descriptorSetLayoutIndex;
 		// type of descriptor
 		const int& descriptorType;
 		// number of descriptors to allocate
 		const uint32& descriptorAllocCount;
-		// shader type
-		const int& shaderType;
+		// number of descriptors in that slot (array)
+		const uint32& arraySize = 1;
 	};
 
 	/**

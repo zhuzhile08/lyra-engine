@@ -30,8 +30,6 @@ Camera::Camera(
 ) :
 	Spatial(script, name, parent, visible, tag, transform), Renderer(), m_projection_matrix(glm::mat4(1.0f))
 {
-	Logger::log_info("Creating Camera... ");
-	
 	// shader information
 	std::vector<vulkan::Pipeline::ShaderInfo> shaders{
 		{ vulkan::Shader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
@@ -40,15 +38,15 @@ Camera::Camera(
 
 	// binding information
 	std::vector<vulkan::Pipeline::Binding> bindings{
-		{ 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		// { vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-		// { vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		{ 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
-		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT },
-		// { vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER,Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
+		{ vulkan::Shader::Type::TYPE_VERTEX, 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight},
+		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight }
 	};
 
 	// create the graphics pipeline
@@ -71,10 +69,6 @@ Camera::Camera(
 	writer.add_writes({ // write the buffers
 		{ m_buffers[0].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		{ m_buffers[1].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER }
-		// { m_vertShaderBuffers[0].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		// { m_vertShaderBuffers[1].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		// { m_fragShaderBuffers[0].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		// { m_fragShaderBuffers[1].get_descriptor_buffer_info(), 4, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
 		});
 
 	// create the descriptors themselves
@@ -92,14 +86,11 @@ Camera::Camera(
 		set_perspective();
 	else 
 		set_orthographic();
-
-	// add the update and draw functions into the queues
-	Logger::log_info("Successfully created Camera at ", get_address(this), "!", Logger::end_l());
 }
 
 void Camera::recreate() {
-	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem()->m_device.device(), framebuffer, nullptr);
-	vkDestroyRenderPass(Application::renderSystem()->m_device.device(), m_renderPass, nullptr);
+	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr);
+	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();
 
@@ -113,19 +104,19 @@ void Camera::recreate() {
 
 void Camera::set_perspective(const float& fov, const float& near, const float& far) noexcept {
 	m_projection = Projection::PROJECTION_PERSPECTIVE;
+	/**
 	m_fov = fov;
 	m_near = near;
 	m_far = far;
-	m_projection_matrix = glm::perspective(m_fov, Application::renderSystem()->vulkanWindow()->extent().width/(float)Application::renderSystem()->vulkanWindow()->extent().height, m_near, m_far); 
-	/** 
-	perspective_matrix(
+	m_projection_matrix = glm::perspective(glm::radians(fov), Application::renderSystem.vulkanWindow.extent().width/(float)Application::renderSystem.vulkanWindow.extent().height, m_near, m_far); 
+	*/
+	m_projection_matrix = perspective_matrix(
 		m_fov,  
-		Application::renderSystem()->vulkanWindow()->extent().width,
-		Application::renderSystem()->vulkanWindow()->extent().height,
+		Application::renderSystem.vulkanWindow.extent().width,
+		Application::renderSystem.vulkanWindow.extent().height,
 		m_near,
 		m_far
 	);
-	*/
 	m_projection_matrix[1][1] *= -1;
 }
 
@@ -140,11 +131,19 @@ void Camera::set_orthographic(const glm::vec4& viewport, const float& near, cons
 
 void Camera::draw() {
 	// update the script
-	m_script->update();
+	//m_script->update();
 	// check wich projection model the camera uses and calculate the projection data
-	CameraData data {mat_to_global(), m_projection_matrix};
+	//CameraData data {mat_to_global(), m_projection_matrix};
+
+	glm::mat4 model = glm::mat4(1.0f), view = glm::mat4(1.0f), proj;
+	model = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    proj = glm::perspective(glm::radians(45.0f), Application::renderSystem.vulkanWindow.extent().width/(float)Application::renderSystem.vulkanWindow.extent().height, 0.1f, 10.0f);
+
+	CameraData data {model * view, proj};
+
 	// copy the data into the shader
-	m_buffers[Application::renderSystem()->currentFrame()].copy_data(&data);
+	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
 }
 
 void Camera::record_command_buffers() {
@@ -155,12 +154,12 @@ void Camera::record_command_buffers() {
 	// draw the skybox first as background
 	if (m_skybox != nullptr) m_skybox->draw();
 	// bind the default render pipeline
-	Application::renderSystem()->currentCommandBuffer().bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
-	Application::renderSystem()->currentCommandBuffer().bindDescriptorSet(
+	Application::renderSystem.currentCommandBuffer.bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
+	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(
 		m_renderPipeline->bindPoint(), 
 		m_renderPipeline->layout(),
 		0, 
-		m_descriptors[Application::renderSystem()->currentFrame()].get());
+		m_descriptors[Application::renderSystem.currentFrame()].get());
 	// loop through the materials and draw their meshes
 	for (int i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
 	// end renderpass

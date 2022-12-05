@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -31,12 +33,14 @@ public:
 	 */
 	struct Builder {
 		struct Data {
-			// binding index
-			const uint32& binding;
-			// type of descriptor to bind
-			const int& type;
 			// type of shader to bind the descriptor in
 			const int& shaderType;
+			// binding index
+			const uint32& binding;
+			// number of descriptors in the array
+			const uint32& arraySize;
+			// type of descriptor to bind
+			const int& type;
 		};
 
 		Builder() = default;
@@ -50,7 +54,7 @@ public:
 			bindings.push_back({
 				newBinding.binding,
 				static_cast<VkDescriptorType>(newBinding.type),
-				1, // newBinding.count,
+				newBinding.arraySize,
 				static_cast<VkShaderStageFlags>(newBinding.shaderType),
 				nullptr
 			});

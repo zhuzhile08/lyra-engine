@@ -13,8 +13,8 @@ namespace vulkan {
 
 Pipeline::~Pipeline() noexcept {
 	// destroy pipeline and layout
-	vkDestroyPipeline(Application::renderSystem()->device()->device(), m_pipeline, nullptr);
-	vkDestroyPipelineLayout(Application::renderSystem()->device()->device(), m_layout, nullptr);
+	vkDestroyPipeline(Application::renderSystem.device.device(), m_pipeline, nullptr);
+	vkDestroyPipelineLayout(Application::renderSystem.device.device(), m_layout, nullptr);
 }
 
 void Pipeline::create_layout(const std::vector<VkPushConstantRange>& pushConstants) {
@@ -29,7 +29,7 @@ void Pipeline::create_layout(const std::vector<VkPushConstantRange>& pushConstan
 		pushConstants.data()
 	};
 
-	vassert(vkCreatePipelineLayout(Application::renderSystem()->device()->device(), &pipelineLayoutInfo, nullptr, &m_layout), "create Vulkan graphics pipeline layout");
+	vassert(vkCreatePipelineLayout(Application::renderSystem.device.device(), &pipelineLayoutInfo, nullptr, &m_layout), "create Vulkan graphics pipeline layout");
 }
 
 void Pipeline::create_shaders(const std::vector<ShaderInfo>& shaders) {
@@ -55,9 +55,10 @@ void Pipeline::create_descriptor_stuff(const std::vector<Binding>& bindings, con
 			layoutBuilders.resize(currentDescIndex + 1);
 		}
 		layoutBuilders[currentDescIndex].add_binding({
+			bindings[i].shaderType,
 			i,
+			bindings[i].arraySize,
 			bindings[i].descriptorType,
-			bindings[i].shaderType
 		});
 		// then add the information to the pool builder
 		poolBuilder.add_pool_size({
