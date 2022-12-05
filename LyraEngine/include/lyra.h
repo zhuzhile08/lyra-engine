@@ -110,7 +110,11 @@ class Cloth;
 class Raycast;
 
 class Camera;
-class Light;
+class PointLight;
+class DirectionalLight;
+class SpotLight;
+class PointLight;
+class AmbientLight;
 class LightProbe;
 class Cubemap;
 class Skybox;
@@ -133,6 +137,8 @@ class AudioFilter;
 #define NODISCARD [[nodiscard]]
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
+
+#define GLM_FORCE_RADIANS
 
 #include <core/logger.h>
 #include <core/util.h>
