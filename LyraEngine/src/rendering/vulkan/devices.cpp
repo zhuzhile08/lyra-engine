@@ -15,22 +15,16 @@ namespace lyra {
 namespace vulkan {
 
 Device::Device() {
-	Logger::log_info("Creating Vulkan device...");
-
 	create_instance();
 	pick_physical_device();
 	create_logical_device();
 	create_allocator();
-
-	Logger::log_info("Successfully created Vulkan device and allocated GPU at ", get_address(this), "!", Logger::end_l());
 }
 
 Device::~Device() {
 	vmaDestroyAllocator(m_allocator);
 	vkDestroyDevice(m_device, nullptr);
 	vkDestroyInstance(m_instance, nullptr);
-
-	Logger::log_info("Successfully destroyed Vulkan device!");
 }
 
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
@@ -69,7 +63,7 @@ void Device::check_requested_validation_layers(const std::vector <VkLayerPropert
 	}
 }
 
-void Device::find_family_index(QueueFamily* const queue, const VkPhysicalDevice device) noexcept {
+void Device::find_family_index(QueueFamily& queue, const VkPhysicalDevice device) noexcept {
 	uint32 queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -77,7 +71,7 @@ void Device::find_family_index(QueueFamily* const queue, const VkPhysicalDevice 
 
 	for (uint32 i = 0; i < queueFamilies.size(); i++) {
 		if (queueFamilies.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			queue->familyIndex = i;
+			queue.familyIndex = i;
 			break;
 		}
 	}
@@ -137,8 +131,8 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 	map.insert(std::make_pair(score, device));
 }
 
-void Device::create_queue(QueueFamily* const queue) noexcept {
-	getDeviceQueue(queue->familyIndex, 0, queue->queue);
+void Device::create_queue(QueueFamily& queue) noexcept {
+	getDeviceQueue(queue.familyIndex, 0, queue.queue);
 }
 
 void Device::create_instance() {
@@ -154,9 +148,9 @@ void Device::create_instance() {
 	// get all extensions
 	uint32 SDLExtensionCount = 0;
 
-	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window.get(), &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
 	std::vector<const char*> SDLExtensions(SDLExtensionCount);
-	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window()->get(), &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window.get(), &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 	SDLExtensions.push_back("VK_KHR_get_physical_device_properties2");
 	SDLExtensions.push_back("VK_KHR_portability_enumeration");
 
@@ -261,10 +255,10 @@ void Device::create_logical_device() {
 	// create the device and retrieve the graphics and presentation queue handles
 	vassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device), "create logical device");
 
-	find_family_index(&m_graphicsQueue, m_physicalDevice);
-	find_family_index(&m_presentQueue, m_physicalDevice);
-	create_queue(&m_graphicsQueue);
-	create_queue(&m_presentQueue);
+	find_family_index(m_graphicsQueue, m_physicalDevice);
+	find_family_index(m_presentQueue, m_physicalDevice);
+	create_queue(m_graphicsQueue);
+	create_queue(m_presentQueue);
 }
 
 void Device::create_allocator() {

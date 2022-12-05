@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vector>
 #include <map>
 
@@ -82,7 +84,7 @@ public:
 	 * @brief please refer to the official Vulkan documentation (preferably at https://devdocs.io/vulkan/ and https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/) for the documentation of these functions
 	 */
 
-	
+		
 	VkResult createPool(const VmaPoolCreateInfo& pCreateInfo, VmaPool& pPool) {
 		return vmaCreatePool(m_allocator, &pCreateInfo, &pPool);
 	}
@@ -342,7 +344,7 @@ private:
 	 * @param device device to find the family index of the queue of
 	 * @return QueueFamily
 	 */
-	void find_family_index(QueueFamily* const queue, const VkPhysicalDevice device) noexcept;
+	void find_family_index(QueueFamily& queue, const VkPhysicalDevice device) noexcept;
 
 	/**
 	 * @brief rate a physical device by its features
@@ -357,7 +359,7 @@ private:
 	 *
 	 * @return QueueFamily
 	 */
-	void create_queue(QueueFamily* const queue) noexcept;
+	void create_queue(QueueFamily& queue) noexcept;
 	
 	/**
 	 * @brief create a Vulkan instance
