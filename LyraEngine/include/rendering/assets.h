@@ -12,6 +12,10 @@
 
 #pragma once
 
+#include <lyra.h>
+
+#include <unordered_map>
+
 #include <core/smart_pointer.h>
 
 #include <res/loaders/load_assets.h>
@@ -59,13 +63,22 @@ public:
 	Assets operator=(const Assets&) const noexcept = delete;
 
 	/**
-	 * @brief unpack the texture data based on the path of the texture
+	 * @brief get an already loaded texture from the map
 	 * 
 	 * @param path path of the texture
-	 * 
-	 * @return const lyra::Assets::ImageData&
+	 * @return const Texture* const 
 	 */
-	NODISCARD static const ImageData unpack_texture(const char* path);
+	const Texture* const at(const char* path) const {
+		return &m_textures.at(path);
+	}
+	/**
+	 * @brief get an already loaded texture from the map
+	 * 
+	 * @param path path of the texture
+	 * @return Texture* 
+	 */
+	const Texture* const operator[](const char* path);
+
 	/**
 	 * @brief return the raw image data
 	 * 
@@ -87,8 +100,23 @@ public:
 
 private:
 	static util::AssetFile m_images;
+
+	static std::unordered_map<const char*, Texture> m_textures;
+
 	static SmartPointer<Texture> m_nullTexture;
 	static SmartPointer<Texture> m_nullNormal;
+
+	/**
+	 * @brief unpack the texture data based on the path of the texture
+	 * 
+	 * @param path path of the texture
+	 * 
+	 * @return const lyra::Assets::ImageData&
+	 */
+	NODISCARD static const ImageData unpack_texture(const char* path);
+
+	friend class Texture;
+	friend class CubemapBase;
 };
 
 } // namespace lyra
