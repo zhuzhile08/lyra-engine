@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <array>
 
 #include <rendering/vulkan/descriptor.h>

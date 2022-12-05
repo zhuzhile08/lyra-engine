@@ -13,6 +13,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <functional>
 
 #include <SDL.h>

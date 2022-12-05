@@ -1,7 +1,6 @@
 #include <res/loaders/load_model.h>
 
 
-
 namespace lyra {
 
 namespace util {

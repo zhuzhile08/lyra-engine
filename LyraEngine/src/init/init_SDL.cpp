@@ -2,8 +2,9 @@
 
 #include <SDL.h>
 
-
 #include <SDL_error.h>
+
+#include <lyra.h>
 
 namespace lyra {
 

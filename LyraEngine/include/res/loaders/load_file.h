@@ -5,8 +5,6 @@
 #include <sstream>
 #include <limits> // should have seen the look on my face then I found out that I would have to include another goofy ahh standard libary JUST to count the file size
 
-
-
 namespace lyra {
 
 namespace util {

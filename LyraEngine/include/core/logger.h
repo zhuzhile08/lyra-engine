@@ -23,6 +23,8 @@
 
 namespace lyra {
 
+#define NODISCARD [[nodiscard]]
+
 class Logger {
 private:
 	/**

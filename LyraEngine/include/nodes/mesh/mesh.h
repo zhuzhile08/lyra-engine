@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vector>
 #include <array>
 
@@ -29,14 +31,14 @@ namespace lyra {
 /**
  * @brief A mesh struct containing vertices, indecies and vertex and index buffers
  */
-class Mesh : public Spatial {
+class  Mesh : public Spatial {
 public:
 	// vertex
 	struct Vertex {
 		glm::vec3 pos = glm::vec3(1.0f);
 		glm::vec3 normal = glm::vec3(1.0f);
 		glm::vec3 color = glm::vec3(1.0f);
-		glm::vec2 uv = glm::vec2(1.0f);
+		glm::vec3 uvw = glm::vec3(1.0f);
 
 		Vertex() { }
 
@@ -47,7 +49,7 @@ public:
 		 * @param normal vertex normals
 		 * @param color the new color
 		 */
-		Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec2& uv, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uv(uv) { }
+		Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& uvw, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uvw(uvw) { }
 
 		/**
 		 * @brief returns a static vertex binding
@@ -67,9 +69,8 @@ public:
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
-	 * @param script script of the object
 	 * @param path path of the model
-	 * @param index index of the object in the model to load. Starts at 1, 0 is default
+	 * @param script script of the object
 	 * @param name name of the object
 	 * @param parent parent Node of the object
 	 * @param visible visibility of the object
@@ -79,7 +80,6 @@ public:
 	Mesh(
 		const char* path, 
 		Script* script,
-		const uint16& index = 0,
 		const char* name = "Mesh",
 		Spatial* parent = nullptr,
 		const bool& visible = true,
@@ -133,9 +133,8 @@ private:
 	 * @brief create a mesh from a already loaded .obj file
 	 *
 	 * @param load an already loaded model
-	 * @param index load the model with the following index if a file has more than just one object. Will load everything on default
 	 */
-	void create_mesh(const util::LoadedModel& loaded, const uint16& index = UINT16_MAX);
+	void create_mesh(const util::LoadedModel& loaded);
 };
 
 } // namespace lyra

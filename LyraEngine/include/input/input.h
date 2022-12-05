@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <functional>
 
 #include <SDL.h>
@@ -517,9 +519,9 @@ public:
 	/**
 	 * @brief get the mouse position via return
 	 * 
-	 * @return const lyra::glm::vec2
+	 * @return const lyra::glm::ivec2
 	 */
-	NODISCARD static const glm::vec2 check_mouse_position();
+	NODISCARD static const glm::ivec2 check_mouse_position();
 	/**
 	 * @brief get the mouse position via reference
 	 * 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <lyra.h>
+
 #include <functional>
 
 #include <core/smart_pointer.h>

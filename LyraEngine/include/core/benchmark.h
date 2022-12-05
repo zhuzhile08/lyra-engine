@@ -1,4 +1,4 @@
-/**
+/*************************
  * @file benchmark.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
@@ -7,7 +7,7 @@
  * @date 2022-10-11
  * 
  * @copyright Copyright (c) 2022
- */
+ *************************/
 
 #pragma once
 

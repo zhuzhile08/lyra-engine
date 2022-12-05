@@ -58,7 +58,6 @@ elseif (APPLE)
 	)
 endif()
 
-
 # building the library
 add_library(LyraEngine
 	"src/def.cpp"

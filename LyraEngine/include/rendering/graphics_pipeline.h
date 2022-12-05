@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <rendering/vulkan/vulkan_pipeline.h>
 #include <rendering/renderer.h>
 

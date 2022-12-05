@@ -1,5 +1,7 @@
 #pragma once
 
+#include <lyra.h>
+
 #include <fstream>
 #include <string>
 #include <vector>

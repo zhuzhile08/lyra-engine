@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 
 #include <nodes/node.h>
 #include <nodes/spatial.h>

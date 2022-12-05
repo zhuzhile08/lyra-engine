@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <vector>
 #include <vulkan/vulkan.h>
 

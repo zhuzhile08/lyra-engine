@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #ifdef _WIN32
 #include <wchar.h>
 #include <Windows.h>
@@ -21,8 +23,6 @@
 
 #include <vector>
 #include <filesystem>
-
-
 
 namespace lyra {
 

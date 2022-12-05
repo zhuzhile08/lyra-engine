@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/vulkan_pipeline.h>
 #include <rendering/vulkan/vulkan_shader.h>

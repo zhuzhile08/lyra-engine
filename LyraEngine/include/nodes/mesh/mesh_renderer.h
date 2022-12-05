@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <core/smart_pointer.h>
 
 #include <nodes/node.h>

@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <core/application.h>
 
 #include <rendering/vulkan/GPU_memory.h>
