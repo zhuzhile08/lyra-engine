@@ -15,10 +15,6 @@ Texture::Texture(const char* path, const VkFormat& format)
 	m_mipmap = imageData.mipmap;
 	m_path = path;
 
-	Logger::log_debug(Logger::tab(), "path: ", m_path);
-	Logger::log_debug(Logger::tab(), "width: ", m_width, " and height: ", m_height);
-	Logger::log_debug(Logger::tab(), "mipmapping levels: ", m_mipmap);
-
 	{
 		// calculate the mipmap levels of the image
 		m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
@@ -32,7 +28,7 @@ Texture::Texture(const char* path, const VkFormat& format)
 		VkExtent3D imageExtent = { m_width, m_height, 1 };
 
 		// create the image and allocate its memory
-		vassert(Application::renderSystem()->device()->createImage(
+		vassert(Application::renderSystem.device.createImage(
 			get_image_create_info(
 				format, 
 				imageExtent,
@@ -59,12 +55,12 @@ Texture::Texture(const char* path, const VkFormat& format)
 }
 
 Texture::~Texture() noexcept {
-	vkDestroySampler(Application::renderSystem()->device()->device(), m_sampler, nullptr);
+	vkDestroySampler(Application::renderSystem.device.device(), m_sampler, nullptr);
 }
 
 void Texture::create_sampler(Assets::ImageData& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
 	VkPhysicalDeviceProperties properties;
-	vkGetPhysicalDeviceProperties(Application::renderSystem()->device()->physicalDevice(), &properties);
+	vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &properties);
 
 	VkSamplerCreateInfo samplerInfo {
 		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -87,17 +83,17 @@ void Texture::create_sampler(Assets::ImageData& imageData, const VkFilter& magni
 		VK_FALSE
 	};
 
-	vassert(vkCreateSampler(Application::renderSystem()->device()->device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
+	vassert(vkCreateSampler(Application::renderSystem.device.device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
 }
 
 void Texture::generate_mipmaps() const {
 	// check if image supports linear filtering
 	VkFormatProperties formatProperties;
-	vkGetPhysicalDeviceFormatProperties(Application::renderSystem()->device()->physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
+	vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
 	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", Logger::end_l());
 
 	// temporary command buffer for generating midmaps
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem()->commandBuffers());
+	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
 	// begin recording
 	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 
@@ -164,7 +160,7 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.end();
 
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem()->device()->graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
 	// reset command buffer
 	cmdBuff.reset();
 }
