@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <lyra.h>
+
 #include <glm.hpp>
 
 #include <math/transform.h>
