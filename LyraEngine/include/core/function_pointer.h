@@ -11,21 +11,18 @@
 
 #pragma once
 
-#include <tuple>
-
 namespace lyra {
 
 /**
  * @brief a basic function pointer wrapper
  * 
- * @tparam _Ty function pointer type
- * @tparam _Args function arguments 
+ * @tparam Ty function pointer type
+ * @tparam Args function arguments 
  */
-template<class _Ty, class... _Args> class Function {
+template<class Ty, class... Args> class Function {
 public:
     // internal function pointer type
-    typedef _Ty(*callable)(_Args...);
-    typedef std::tuple<_Args...> arguments;
+    typedef Ty(*callable_type)(Args...);
 
     /**
      * @brief constuct a new function using another function pointer wrapper
@@ -38,23 +35,15 @@ public:
      * 
      * @param callable the other callable
      */
-    constexpr Function(const callable&& callable) noexcept : function(callable) { }
-    /**
-     * @brief constuct a new function using another function pointer wrapper
-     * 
-     * @param function the other function
-     * @param args function arguments
-     */
-    constexpr Function(const Function& function, _Args&&... args)
-         : function(function.function), args(std::make_tuple(std::forward<_Args>(args)...)) { }
+    constexpr Function(const callable_type&& callable) noexcept : function(callable) { }
     /**
      * @brief constuct a new function using another callable
      * 
+     * @tparam FPtr callable type
+     * 
      * @param callable the other callable
-     * @param args function arguments
      */
-    constexpr Function(const callable&& callable, _Args&&... args)
-         : function(callable), args(std::make_tuple(std::forward<_Args>(args)...)) { }
+    template<class FPtr> constexpr Function(const FPtr&& callable) noexcept : function(callable) { }
 
     /**
      * @brief copy the internal callable of another function into the current one
@@ -71,7 +60,7 @@ public:
      * @param callable the callable
      * @return Function& 
      */
-    constexpr Function& operator=(const callable&& callable) noexcept {
+    constexpr Function& operator=(const callable_type&& callable) noexcept {
         this->function = callable;
     }
 
@@ -88,7 +77,7 @@ public:
      * 
      * @param second second function pointer
      */
-    void swap(callable& second) noexcept {
+    void swap(callable_type& second) noexcept {
         std::swap(this->function, second);
     }
 
@@ -106,23 +95,14 @@ public:
      * @brief call the internal function
      * 
      * @param args function arguments if necceceary
-     * @return _Ty 
+     * @return Ty 
      */
-    constexpr _Ty operator()(_Args... args) const {
-        return (*function)(args...);
-    }
-    /**
-     * @brief call the internal function
-     * 
-     * @return _Ty 
-     */
-    constexpr _Ty operator()() const {
-        return std::apply(function, args);
+    constexpr Ty operator()(Args&&... arguments) const {
+        return (*function)(std::forward<Args>(arguments)...);
     }
 
 private:
-    callable function = nullptr;
-    arguments args;
+    callable_type function = nullptr;;
 };
 
 } // namespace lyra
