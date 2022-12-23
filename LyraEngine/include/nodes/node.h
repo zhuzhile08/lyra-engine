@@ -19,10 +19,10 @@ namespace lyra {
 /**
  * @brief a base class for a node
  * 
- * @tparam _Ty type of children/parent
+ * @tparam Ty type of children/parent
  * @tparam _Script script to bind to the node
  */
-template <class _Ty> class Node {
+template <class Ty> class Node {
 public:
 	/**
 	 * @brief construct a game object
@@ -34,7 +34,7 @@ public:
 	 */
 	Node(
 		const char* name = "Game Object",
-		_Ty* parent = nullptr,
+		Ty* parent = nullptr,
 		const bool& visible = true,
 		const uint32& tag = 0
 	) noexcept : m_name(name), m_parent(parent), m_visible(visible), m_tag(tag) { }
@@ -58,7 +58,7 @@ public:
 	 *
 	 * @param newChild
 	 */
-	void add_child(_Ty* newChild) {
+	void add_child(Ty* newChild) {
 		newChild->m_parent = this;
 		m_children[newChild->name()] = newChild;
 	}
@@ -66,9 +66,9 @@ public:
 	 * @brief add a child object via the addition operator
 	 * 
 	 * @param newChild 
-	 * @return Node<_Ty>
+	 * @return Node<Ty>
 	 */
-	constexpr Node<_Ty> operator+(_Ty* newChild) {
+	constexpr Node<Ty> operator+(Ty* newChild) {
 		newChild->m_parent = this;
 		m_children[newChild->name()] = newChild;
 		return *this;
@@ -79,7 +79,7 @@ public:
 	 *
 	 * @param root the game object that is going to be behind this one
 	 */
-	void add_to_beginning(_Ty& root) noexcept {
+	void add_to_beginning(Ty& root) noexcept {
 		m_parent = nullptr;
 		root.m_parent = this;
 	}
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @param newParent the new parent of the Node
 	 */
-	void add_to(_Ty* newParent) noexcept { m_parent = newParent; }
+	void add_to(Ty* newParent) noexcept { m_parent = newParent; }
 
 	/**
 	 * @brief add a game object between two game object
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @param front the new game object that is supposed be in front
 	 */
-	void add_between(_Ty* front) {
+	void add_between(Ty* front) {
 		m_parent = front->m_parent;
 		add_child(front);
 	}
@@ -113,15 +113,15 @@ public:
 	 *
 	 * @param newParent the parent
 	 */
-	void set_parent(_Ty* newParent) noexcept { m_parent = newParent; }
+	void set_parent(Ty* newParent) noexcept { m_parent = newParent; }
 
 	/**
 	 * @brief get the child by name via the [] operator
 	 *
 	 * @param name name of the child to find
-	 * @return const _Ty* const
+	 * @return const Ty* const
 	 */
-	constexpr _Ty* const operator[](const std::string& name) const { return m_children.at(m_name); }
+	constexpr Ty* const operator[](const std::string& name) const { return m_children.at(m_name); }
 
 	/**
 	 * @brief get if the object is visible or not
@@ -150,9 +150,9 @@ public:
 	/**
 	 * @brief get the parent
 	 *
-	 * @return constexpr _Ty* const
+	 * @return constexpr Ty* const
 	 */
-	NODISCARD constexpr _Ty* const parent() const noexcept { return m_parent; }
+	NODISCARD constexpr Ty* const parent() const noexcept { return m_parent; }
 
 protected:
 	bool m_visible = true;
@@ -161,8 +161,8 @@ protected:
 
 	std::string m_name = "Node";
 
-	_Ty* m_parent = nullptr;
-	std::unordered_map <std::string, _Ty*> m_children;
+	Ty* m_parent = nullptr;
+	std::unordered_map <std::string, Ty*> m_children;
 };
 
 } // namespace lyra

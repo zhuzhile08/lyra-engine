@@ -18,7 +18,7 @@
 #include <vector>
 // #include <math/vectors.h>
 // #include <math/matrices.h>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace lyra {
 
@@ -202,16 +202,16 @@ typedef Matrix<4, 4, uint64> Mat4u64;
  * @brief an implementation of the pythagorean theorum
  * 
  * @tparam _Size size of the vectors
- * @tparam _Ty type stored in the vectors
+ * @tparam Ty type stored in the vectors
  * @param a first vector
  * @param b second vector
  * 
- * @return _Ty 
+ * @return Ty 
  */
-template<size_t _Size, class _Ty> NODISCARD _Ty pythagoras(const glm::vec<_Size, _Ty, glm::defaultp>& a, const glm::vec<_Size, _Ty, glm::defaultp>& b);
+template<size_t _Size, class Ty> NODISCARD Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b);
 
-template<size_t _Size, class _Ty> _Ty pythagoras(const glm::vec<_Size, _Ty, glm::defaultp>& a, const glm::vec<_Size, _Ty, glm::defaultp>& b) {
-	_Ty result;
+template<size_t _Size, class Ty> Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b) {
+	Ty result;
 	for (uint8 x = 0; x < _Size; x++) {
 		result += pow(a[x] - b[x], 2);
 	}

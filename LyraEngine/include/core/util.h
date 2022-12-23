@@ -29,14 +29,14 @@ namespace lyra {
 /**
  * @brief get the size of an array
  * 
- * @tparam _Ty type of array
+ * @tparam Ty type of array
  * @param array the array
  * 
  * @return constexpr uint32_t
 */
-template<typename _Ty> NODISCARD constexpr uint32 arr_size(const _Ty* array); 
+template<typename Ty> NODISCARD constexpr uint32 arr_size(const Ty* array); 
 
-template<typename _Ty> constexpr uint32 arr_size(const _Ty* array) {
+template<typename Ty> constexpr uint32 arr_size(const Ty* array) {
 	// return sizeof(array) / sizeof(array[0]);
 	return static_cast<uint32>(*(&array + 1) - array); // if you won't take my normal and understandable code, take this instead!
 }
@@ -44,28 +44,28 @@ template<typename _Ty> constexpr uint32 arr_size(const _Ty* array) {
 /**
  * @brief get the address of a pointer
  * 
- * @tparam _Ty type of pointer
+ * @tparam Ty type of pointer
  * @param type the pointer
  * 
  * @return constexpr const void*
 */
-template<typename _Ty> NODISCARD constexpr const void* get_address(const _Ty type);
+template<typename Ty> NODISCARD constexpr const void* get_address(const Ty type);
 
-template<typename _Ty> constexpr const void* get_address(const _Ty type) {
+template<typename Ty> constexpr const void* get_address(const Ty type) {
 	return static_cast<const void*>(type);
 }
 
 /**
  * @brief move a element of a vector to another
  * 
- * @tparam _Ty type of vector
+ * @tparam Ty type of vector
  * @param src source vector
  * @param dst destination vector
  * @param index index of the element
  */
-template<typename _Ty> inline void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index);
+template<typename Ty> inline void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, int index);
 
-template<typename _Ty> void move_element(std::vector<_Ty>& src, std::vector<_Ty>& dst, int index) {
+template<typename Ty> void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, int index) {
 	dst.push_back(std::move(src.at(index)));
 	src.erase(src.begin() + index);
 }

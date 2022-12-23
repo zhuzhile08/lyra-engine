@@ -20,9 +20,9 @@ namespace lyra {
 /**
  * @brief A smart pointer implementation
  *
- * @tparam _Ty pointer type
+ * @tparam Ty pointer type
  */
-template <class _Ty, class _DTy = std::default_delete<_Ty>> class SmartPointer {
+template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
 	// defalut constructor
 	constexpr SmartPointer() = default;
@@ -31,13 +31,13 @@ public:
 	 *
 	 * @param pointer raw pointer
 	 */
-	constexpr SmartPointer(_Ty* pointer) : m_pointer(pointer) { }
+	constexpr SmartPointer(Ty* pointer) : m_pointer(pointer) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param right pointer to copy from
 	 */
-	constexpr SmartPointer(SmartPointer<_Ty, _DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter) {}
+	constexpr SmartPointer(SmartPointer<Ty, DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter) {}
 
 	/**
 	 * @brief destructor of the pointer
@@ -51,9 +51,9 @@ public:
 	 *
 	 * @param right pointer to copy from
 	 *
-	 * @return SmartPointer<_Ty>&
+	 * @return SmartPointer<Ty>&
 	 */
-	inline SmartPointer<_Ty, _DTy>& operator=(SmartPointer<_Ty, _DTy>&& right) {
+	inline SmartPointer<Ty, DTy>& operator=(SmartPointer<Ty, DTy>&& right) {
 		assign(right.release());
 		return *this;
 	}
@@ -65,26 +65,26 @@ public:
 	 *
 	 * @param args arguments to construct the type
 	 *
-	 * @return SmartPointer<_Ty>
+	 * @return SmartPointer<Ty>
 	 */
-	template <class ... Args> NODISCARD static SmartPointer<_Ty> create(Args&&... args) {
-		return SmartPointer<_Ty>(new _Ty(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static SmartPointer<Ty> create(Args&&... args) {
+		return SmartPointer<Ty>(new Ty(std::forward<Args>(args)...));
 	}
 
 	/**
 	 * @brief access the internal pointer
 	 *
-	 * @return _Ty*
+	 * @return Ty*
 	 */
-	constexpr inline _Ty* operator->() const noexcept {
+	constexpr inline Ty* operator->() const noexcept {
 		return m_pointer;
 	}
 	/**
 	 * @brief dereference the internal pointer and return the value
 	 *
-	 * @return _Ty&
+	 * @return Ty&
 	 */
-	constexpr inline _Ty& operator*() const noexcept {
+	constexpr inline Ty& operator*() const noexcept {
 		return *m_pointer;
 	}
 
@@ -93,18 +93,18 @@ public:
 	 * 
 	 * @tparam _BTy castable type
 	 * 
-	 * @return SmartPointer<_BTy> 
+	 * @return SmartPointer<BTy> 
 	 */
-	template<class _CTy> constexpr inline operator SmartPointer<_CTy>() const noexcept {
-		return SmartPointer<_CTy>(m_pointer);
+	template<class CTy> constexpr inline operator SmartPointer<CTy>() const noexcept {
+		return SmartPointer<CTy>(m_pointer);
 	}
 
 	/**
 	 * @brief get the internal raw pointer
 	 *
-	 * @return constexpr _Ty*
+	 * @return constexpr Ty*
 	 */
-	NODISCARD constexpr inline _Ty* get() const noexcept {
+	NODISCARD constexpr inline Ty* get() const noexcept {
 		return m_pointer;
 	}
 	/**
@@ -112,7 +112,7 @@ public:
 	 * 
 	 * @return constexpr _DTy& 
 	 */
-	NODISCARD constexpr inline const _DTy& deleter() const noexcept {
+	NODISCARD constexpr inline const DTy& deleter() const noexcept {
 		return m_deleter;
 	}
 	/**
@@ -120,7 +120,7 @@ public:
 	 * 
 	 * @return constexpr _DTy&
 	 */
-	NODISCARD constexpr inline _DTy& deleter() noexcept {
+	NODISCARD constexpr inline DTy& deleter() noexcept {
 		return m_deleter;
 	}
 
@@ -144,9 +144,9 @@ public:
 	/**
 	 * @brief release a pointer to the internal raw pointer and reset it
 	 *
-	 * @return constexpr _Ty*
+	 * @return constexpr Ty*
 	 */
-	NODISCARD constexpr inline _Ty* release() noexcept {
+	NODISCARD constexpr inline Ty* release() noexcept {
 		return std::exchange(m_pointer, nullptr);
 	}
 	/**
@@ -154,7 +154,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	inline void swap(SmartPointer<_Ty>& second) {
+	inline void swap(SmartPointer<Ty>& second) {
 		std::swap(m_pointer, second.m_pointer);
 	}
 	/**
@@ -162,17 +162,17 @@ public:
 	 *
 	 * @param ptr pointer
 	 */
-	inline void assign(_Ty* ptr = nullptr) noexcept {
-		_Ty* old = std::exchange(m_pointer, ptr);
+	inline void assign(Ty* ptr = nullptr) noexcept {
+		Ty* old = std::exchange(m_pointer, ptr);
 		if (old) m_deleter(old);
 	}
 
 	/**
 	 * @brief cast the type to its internal pointer
 	 * 
-	 * @return constexpr _Ty*
+	 * @return constexpr Ty*
 	 */
-	constexpr inline operator _Ty* () const noexcept {
+	constexpr inline operator Ty* () const noexcept {
 		return m_pointer;
 	}
 
@@ -180,8 +180,8 @@ public:
 	SmartPointer& operator=(const SmartPointer&) = delete;
 
 private:
-	_Ty* m_pointer = nullptr;
-	_DTy m_deleter;
+	Ty* m_pointer = nullptr;
+	DTy m_deleter;
 
 	template <class, class>
 	friend class SmartPointer;

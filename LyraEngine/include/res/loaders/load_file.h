@@ -46,13 +46,13 @@ void load_file(const char* path, const int& mode, std::ifstream& file);
 /**
  * @brief load a file and store all of its contents into a string-like container
  *
- * @tparam _Ty type of container
+ * @tparam Ty type of container
  * @param path path
  * @param mode mode to open the file
  * @param fileContainer container to copy the file into
  */
-template<class _Ty>
-void load_file(const char* path, const int& mode, _Ty& fileContainer) {
+template<class Ty>
+void load_file(const char* path, const int& mode, Ty& fileContainer) {
 	// load the binary
 	std::ifstream file;
 	load_file(path, mode, file);
@@ -70,19 +70,19 @@ void load_file(const char* path, const int& mode, _Ty& fileContainer) {
 /**
  * @brief load a file and store all of its contents into a vector
  * 
- * @tparam _Ty type to store in the container
+ * @tparam Ty type to store in the container
  * @param path path
  * @param mode mode to open the file
  * @param fileContainer container to copy the file into
  */
-template<class _Ty> 
-void load_file(const char* path, const int& mode, std::vector<_Ty>& fileContainer) {
+template<class Ty> 
+void load_file(const char* path, const int& mode, std::vector<Ty>& fileContainer) {
 	// load the binary
 	std::ifstream file;
 	load_file(path, mode, file);
 
 	// read the value into a single buffer and push it into the container
-	_Ty buffer;
+	Ty buffer;
 	while(file.get(buffer)) fileContainer.push_back(std::move(buffer));
 
 	// close the file

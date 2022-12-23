@@ -121,53 +121,53 @@ public:
 	/**
 	 * @brief allocate unitinialized memory
 	 *
-	 * @tparam _Ty type to allocate
+	 * @tparam Ty type to allocate
 	 * @param allocator the allocator to allocate the memory
 	 */
-	template <class _Ty> NODISCARD static _Ty* allocate(BaseAllocator* allocator) {
-		return new(allocator->alloc(sizeof(_Ty), m__alignof(_Ty))) _Ty;
+	template <class Ty> NODISCARD static Ty* allocate(BaseAllocator* allocator) {
+		return new(allocator->alloc(sizeof(Ty), m__alignof(Ty))) Ty;
 	}
 
 	/**
 	 * @brief allocate inialized memory
 	 *
-	 * @tparam _Ty type to allocate
+	 * @tparam Ty type to allocate
 	 * @param allocator the allocator to allocate the memory
 	 * @param value to initialize the memory
 	 */
-	template <class _Ty> NODISCARD static _Ty* allocate(BaseAllocator* allocator, _Ty value) {
-		return new (allocator->alloc(sizeof(_Ty), m__alignof(_Ty))) _Ty(value);
+	template <class Ty> NODISCARD static Ty* allocate(BaseAllocator* allocator, Ty value) {
+		return new (allocator->alloc(sizeof(Ty), m__alignof(Ty))) Ty(value);
 	}
 
 	/**
 	 * @brief deallocate memory
 	 *
-	 * @tparam _Ty type to allocate
+	 * @tparam Ty type to allocate
 	 * @param allocator the allocator to allocate the memory
 	 * @param object object to deallocate
 	 */
-	template <class _Ty> static void deallocate(BaseAllocator* allocator, _Ty object) {
-		object.~_Ty();
+	template <class Ty> static void deallocate(BaseAllocator* allocator, Ty object) {
+		object.~Ty();
 		allocator->dealloc(object);
 	}
 
 	/**
 	 * @brief allocate array
 	 *
-	 * @tparam _Ty type to allocate
+	 * @tparam Ty type to allocate
 	 * @param allocator the allocator to allocate the memory
 	 * @param length length of the array
 	 */
-	template <class _Ty> NODISCARD static _Ty* allocate_array(BaseAllocator* allocator, size_t length) {
+	template <class Ty> NODISCARD static Ty* allocate_array(BaseAllocator* allocator, size_t length) {
 		lassert(length == 0, "Attemted to allocate an array with a length of 0!");
-		uint32 headerSize{ sizeof(size_t) / sizeof(_Ty) };
+		uint32 headerSize{ sizeof(size_t) / sizeof(Ty) };
 
-		if (sizeof(size_t) % sizeof(_Ty) > 0) headerSize += 1;
+		if (sizeof(size_t) % sizeof(Ty) > 0) headerSize += 1;
 
-		_Ty* p = ((_Ty)allocator->alloc(sizeof(_Ty) * (length + headerSize), m__alignof(_Ty))) + headerSize;
+		Ty* p = ((Ty)allocator->alloc(sizeof(Ty) * (length + headerSize), m__alignof(Ty))) + headerSize;
 		*(((size_t*)p) - 1) = length;
 
-		for (int i = 0; i < length; i++) new (&p) _Ty;
+		for (int i = 0; i < length; i++) new (&p) Ty;
 
 		return p;
 	}
@@ -175,18 +175,18 @@ public:
 	/**
 	 * @brief deallocate array
 	 *
-	 * @tparam _Ty type to allocate
+	 * @tparam Ty type to allocate
 	 * @param allocator the allocator to allocate the memory
 	 * @param array array to deallocate
 	 */
-	template <class _Ty> static void deallocate_array(BaseAllocator* allocator, _Ty* array) {
+	template <class Ty> static void deallocate_array(BaseAllocator* allocator, Ty* array) {
 		lassert(array == nullptr, "Attemted to deallocate an array which is a nullpointer!");
 		size_t length = *(((size_t*)array) - 1);
 
-		for (size_t i = 0; i < length; i++) array.~_Ty();
+		for (size_t i = 0; i < length; i++) array.~Ty();
 
-		uint32 headerSize = sizeof(size_t) / sizeof(_Ty);
-		if (sizeof(size_t) % sizeof(_Ty) > 0) headerSize += 1;
+		uint32 headerSize = sizeof(size_t) / sizeof(Ty);
+		if (sizeof(size_t) % sizeof(Ty) > 0) headerSize += 1;
 
 		allocator.dealloc(array - headerSize);
 	}
