@@ -1,6 +1,3 @@
-[submodule "3rdParty/sdl2"]
-	path = 3rdParty/sdl2
-	url = https://github.com/libsdl-org/SDL
 [submodule "3rdParty/lz4"]
 	path = 3rdParty/lz4
 	url = https://github.com/lz4/lz4
@@ -28,5 +25,3 @@
 [submodule "3rdParty/bullet"]
 	path = 3rdParty/bullet
 	url = https://github.com/bulletphysics/bullet3
-[submodule "./3rdParty/sdl2/"]
-	branch = SDL2
