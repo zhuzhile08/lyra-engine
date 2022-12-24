@@ -27,11 +27,6 @@
 
 #include <vulkan/vulkan.h>
 
-#ifdef NDEBUG
-#include <core/application.h>
-#include <rendering/vulkan/devices.h>
-#endif
-
 namespace lyra {
 
 namespace vulkan {
@@ -45,9 +40,7 @@ struct GPUMemory {
 	/**
 	 * @brief destructor of the memory
 	 */
-	virtual ~GPUMemory() {
-		Application::renderSystem.device.freeMemory(m_memory);
-	}
+	virtual ~GPUMemory();
 	/**
 	 * @brief manually destroy the memory
 	 */

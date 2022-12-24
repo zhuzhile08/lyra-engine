@@ -15,9 +15,6 @@
 
 #include <vulkan/vulkan.h>
 
-#ifdef NDEBUG
-#include <rendering/vulkan/devices.h>
-#endif
 #include <rendering/vulkan/GPU_memory.h>
 
 namespace lyra {
@@ -41,9 +38,7 @@ public:
 	/**
 	 * @brief destructor of the buffer
 	 */
-	virtual ~GPUBuffer() noexcept {
-		vkDestroyBuffer(Application::renderSystem.device.device(), m_buffer, nullptr);
-	}
+	virtual ~GPUBuffer() noexcept;
 
 	GPUBuffer operator=(const GPUBuffer&) const noexcept = delete;
 

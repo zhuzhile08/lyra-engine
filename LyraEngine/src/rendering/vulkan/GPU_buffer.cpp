@@ -27,6 +27,10 @@ constexpr GPUBuffer::GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlag
 		"create Vulkan GPU memory buffer");
 }
 
+GPUBuffer::~GPUBuffer() noexcept {
+	vkDestroyBuffer(Application::renderSystem.device.device(), m_buffer, nullptr);
+}
+
 void GPUBuffer::copy_data(const void* src, const size_t& copySize) {
 	// map the memory
 	void* data;
