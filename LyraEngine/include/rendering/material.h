@@ -66,42 +66,58 @@ public:
 	);
 
 	/**
+	 * @brief copy a material
+	 * 
+	 * @param other the other material
+	 * @return lyra::Material& 
+	 */
+	Material& operator=(const Material& other);
+	/**
+	 * @brief copy a material
+	 * 
+	 * @param other the other material
+	 * @return Material& 
+	 */
+	Material& operator=(Material&& other);
+
+	/**
 	 * @brief get the descriptor sets
 	 *
 	 * @return const std::vector<vulkan::Descriptor>
 	*/
 	NODISCARD const std::vector<vulkan::Descriptor> descriptor() const noexcept { return m_descriptors; }
 
-private:
-	Color m_albedoColor;
-	const Texture* m_albedoTexture;
+	Color albedoColor;
+	const Texture* albedoTexture;
 
-	uint8 m_metallic;
-	uint8 m_roughness;
-	uint8 m_specular;
-	const Texture* m_metallicTexture;
+	uint8 metallic;
+	uint8 roughness;
+	uint8 specular;
+	const Texture* metallicTexture;
 
-	bool m_emissionEnabled;
-	Color m_emissionColor;
-	const Texture* m_emissionTexture;
-	uint8 m_emissionEnergy;
+	bool emissionEnabled;
+	Color emissionColor;
+	const Texture* emissionTexture;
+	uint8 emissionEnergy;
 	
-	const Texture* m_normalMapTexture;
-	int8 m_normalMapValue;
+	const Texture* normalMapTexture;
+	int8 normalMapValue;
 
-	const Texture* m_displacementMapTexture;
-	uint8 m_displacementMapValue;
+	const Texture* displacementMapTexture;
+	uint8 displacementMapValue;
 
-	const Texture* m_occlusionMapTexture;
-	uint8 m_occlusionMapValue;
+	const Texture* occlusionMapTexture;
+	uint8 occlusionMapValue;
+	
+
+private:
+	Camera* const camera;
 
 	std::vector<MeshRenderer*> m_meshRenderers;
 
 	std::vector<vulkan::Descriptor> m_descriptors;
 	std::vector<vulkan::GPUBuffer> m_fragShaderBuffers;
 	std::vector<vulkan::GPUBuffer> m_vertShaderBuffers;
-
-	Camera* const camera;
 
 	struct MaterialVertexData {
 		alignas(8) const uint32& m_normalMapValue;
