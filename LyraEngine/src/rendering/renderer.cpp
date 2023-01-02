@@ -1,6 +1,6 @@
 #include <rendering/renderer.h>
 
-#include <array>
+#include <core/array.h>
 
 #include <core/queue.h>
 
@@ -91,7 +91,7 @@ void Renderer::create_render_pass() {
 		VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 	};
 
-	std::array<VkAttachmentDescription, 3> attachments = { colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions };
+	Array<VkAttachmentDescription, 3> attachments = {{ colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions }};
 
 	VkSubpassDescription subpassDescriptions{
 		0,
@@ -136,11 +136,11 @@ void Renderer::create_framebuffers() {
 	m_framebuffers.resize(Application::renderSystem.vulkanWindow.images().size());
 
 	for (uint32 i = 0; i < Application::renderSystem.vulkanWindow.images().size(); i++) {
-		std::array<VkImageView, 3> attachments = {
+		Array<VkImageView, 3> attachments = {{
 			Application::renderSystem.vulkanWindow.colorImage()->m_view,
 			Application::renderSystem.vulkanWindow.depthImage()->m_view,
 			Application::renderSystem.vulkanWindow.views().at(i)
-		};
+		}};
 
 		// create the frame buffers
 		VkFramebufferCreateInfo framebufferInfo{

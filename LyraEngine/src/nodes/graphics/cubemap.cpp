@@ -13,7 +13,7 @@
 namespace lyra {
 
 CubemapBase::CubemapBase(
-	const std::array<const char*, 6>& paths,
+	const Array<const char*, 6>& paths,
 	const char* vertexShaderPath,
 	const char* fragShaderPath,
 	Camera* const camera,
@@ -70,13 +70,8 @@ CubemapBase::CubemapBase(
 {
 	{ // stuff for creating images
 		// load all the images raw first
-		std::array<Assets::ImageData, 6> imageData;
-		imageData[0] = Assets::unpack_texture(paths[0]);
-		imageData[1] = Assets::unpack_texture(paths[1]);
-		imageData[2] = Assets::unpack_texture(paths[2]);
-		imageData[3] = Assets::unpack_texture(paths[3]);
-		imageData[4] = Assets::unpack_texture(paths[4]);
-		imageData[5] = Assets::unpack_texture(paths[5]);
+		Array<Assets::ImageData, 6> imageData;
+		for (uint32 i; i < 6; i++) imageData[i] = Assets::unpack_texture(paths[i]);
 
 		// get the size of one of the images for future use
 		auto width = imageData[0].width, height = imageData[0].height;

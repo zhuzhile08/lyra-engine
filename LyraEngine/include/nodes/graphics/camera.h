@@ -16,7 +16,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <vector>
-#include <array>
+#include <core/array.h>
 
 #include <glm.hpp>
 

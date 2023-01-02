@@ -15,7 +15,7 @@
 #include <lyra.h>
 
 #include <vector>
-#include <array>
+#include <core/array.h>
 
 #include <glm.hpp>
 
@@ -61,9 +61,9 @@ public:
 		/**
 		 * @brief returns a static vertex input attribute
 		 *
-		 * @return std::array<VkVertexInputAttributeDescription, 4>
+		 * @return Array<VkVertexInputAttributeDescription, 4>
 		 */
-		NODISCARD static const std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
+		NODISCARD static const Array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
 	};
 
 	/**

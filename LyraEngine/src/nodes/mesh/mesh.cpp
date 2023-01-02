@@ -11,7 +11,7 @@ const VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() no
 	};
 }
 
-const std::array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() noexcept {
+const Array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() noexcept {
 	return {
 		{{
 			0,

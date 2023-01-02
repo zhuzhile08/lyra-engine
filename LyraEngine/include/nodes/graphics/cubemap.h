@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-#include <array>
+#include <core/array.h>
 
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/vulkan_image.h>
@@ -29,7 +29,7 @@ namespace lyra {
 class CubemapBase : private vulkan::Image, private vulkan::GPUMemory, public GraphicsPipeline {
 public:	
 	CubemapBase(
-		const std::array<const char*, 6>& paths,
+		const Array<const char*, 6>& paths,
 		const char* vertexShaderPath,
 		const char* fragShaderPath,
 		Camera* const camera,
@@ -91,7 +91,7 @@ private:
 class Cubemap : public CubemapBase {
 public:
 	Cubemap(
-		const std::array<const char*, 6>& paths,
+		const Array<const char*, 6>& paths,
 		Script* script,
 		Camera* const camera,
 		const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB,
@@ -105,7 +105,7 @@ public:
 class Skybox : public CubemapBase {
 public:
 	Skybox(
-		const std::array<const char*, 6>& paths,
+		const Array<const char*, 6>& paths,
 		Camera* const camera,
 		const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB,
 		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
