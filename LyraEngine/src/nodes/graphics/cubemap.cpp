@@ -70,8 +70,8 @@ CubemapBase::CubemapBase(
 {
 	{ // stuff for creating images
 		// load all the images raw first
-		Array<Assets::ImageData, 6> imageData;
-		for (uint32 i; i < 6; i++) imageData[i] = Assets::unpack_texture(paths[i]);
+		Array<util::ImageData, 6> imageData;
+		for (uint32 i = 0; i < 6; i++) imageData[i] = Assets::unpack_texture(paths[i]);
 
 		// get the size of one of the images for future use
 		auto width = imageData[0].width, height = imageData[0].height;

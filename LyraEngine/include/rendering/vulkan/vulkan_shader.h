@@ -102,7 +102,7 @@ public:
 	 * 
 	 * @return constexpr const string
 	*/
-	NODISCARD constexpr const char* const entry() const noexcept { return m_entry; }
+	NODISCARD constexpr const char* entry() const noexcept { return m_entry; }
 
 private:
 	VkShaderModule m_module;

@@ -32,13 +32,13 @@ void Pipeline::create_layout(const std::vector<VkPushConstantRange>& pushConstan
 	vassert(vkCreatePipelineLayout(Application::renderSystem.device.device(), &pipelineLayoutInfo, nullptr, &m_layout), "create Vulkan graphics pipeline layout");
 }
 
-void Pipeline::create_shaders(const std::vector<ShaderInfo>& shaders) {
-	m_shaders.reserve(shaders.size());
+void Pipeline::create_shaders(const std::vector<ShaderInfo>& shaderInfo) {
+	m_shaders.reserve(shaderInfo.size());
 
 	// create the shaders in the vector
-	for (uint32 i = 0; i < shaders.size(); i++) {
-		m_shaders.emplace_back(shaders[i].path, shaders[i].entry,
-			static_cast<Shader::Type>(shaders[i].type));
+	for (uint32 i = 0; i < shaderInfo.size(); i++) {
+		m_shaders.emplace_back(shaderInfo[i].path, shaderInfo[i].entry,
+			static_cast<Shader::Type>(shaderInfo[i].type));
 	}
 }
 

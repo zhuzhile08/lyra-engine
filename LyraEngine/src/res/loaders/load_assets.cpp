@@ -57,11 +57,13 @@ const AssetFile load_assets(const std::string& binPath) {
 	return loadedAsset;
 }
 
-constexpr char* const unpack_file(const char* const data, const uint32& jsonLength, const uint32& jsonSize) {
+#ifdef _WIN32
+char* const unpack_file(const char* data, const uint32& length, const uint32& size) {
 	char* result = { };
-	LZ4_decompress_safe(data, result, jsonLength, jsonSize);
+	LZ4_decompress_safe(data, result, length, size);
 	return result;
 }
+#endif
 
 } // util
 

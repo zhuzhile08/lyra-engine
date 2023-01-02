@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include <core/logger.h>
+
 namespace lyra {
 
 namespace util {

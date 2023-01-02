@@ -19,6 +19,8 @@
 
 #include <core/smart_pointer.h>
 
+#include <rendering/vulkan/vulkan_shader.h>
+
 namespace lyra {
 
 namespace vulkan {
@@ -127,9 +129,9 @@ protected:
 	/**
 	 * @brief create all the shaders
 	 *
-	 * @param shaders shader information
+	 * @param shaderInfo shader information
 	 */
-	void create_shaders(const std::vector<ShaderInfo>& shaders);
+	void create_shaders(const std::vector<ShaderInfo>& shaderInfo);
 };
 
 } // namespace vulkan
