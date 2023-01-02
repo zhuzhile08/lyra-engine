@@ -1,9 +1,6 @@
 [submodule "3rdParty/lz4"]
 	path = 3rdParty/lz4
 	url = https://github.com/lz4/lz4
-[submodule "3rdParty/djson"]
-	path = 3rdParty/djson
-	url = https://github.com/karnkaul/djson
 [submodule "3rdParty/vma"]
 	path = 3rdParty/vma
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
@@ -29,3 +26,6 @@
 	path = 3rdParty/sdl2
 	url = https://github.com/libsdl-org/SDL
 	branch = SDL2
+[submodule "3rdParty/rapidjson"]
+	path = 3rdParty/rapidjson
+	url = https://github.com/Tencent/rapidjson
