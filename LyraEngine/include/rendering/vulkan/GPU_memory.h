@@ -35,8 +35,6 @@ namespace vulkan {
  * @brief wrapper around the VMA GPU allocations
  */
 struct GPUMemory {
-	constexpr GPUMemory() = default;
-
 	/**
 	 * @brief destructor of the memory
 	 */

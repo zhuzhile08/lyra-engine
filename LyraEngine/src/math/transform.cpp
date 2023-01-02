@@ -88,7 +88,7 @@ void Transform::rotate(const float& x, const float& y, const float& z, const Rot
 
 void Transform::look_at(const glm::vec3& target, const glm::vec3& up) {
 	glm::vec3 temp_translation(m_translation);
-	if(m_dirty) {
+	if (m_dirty) {
 		m_localTransformMatrix = glm::lookAt(glm::vec3(m_localTransformMatrix[3]), target, up) * m_localTransformMatrix;
 		decompose_transform_matrix(m_localTransformMatrix, m_translation, m_rotation, m_scale);
 		m_translation = temp_translation;

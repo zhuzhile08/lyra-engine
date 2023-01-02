@@ -51,7 +51,7 @@ void load_file(const char* path, const int& mode, std::ifstream& file);
  * @param mode mode to open the file
  * @param fileContainer container to copy the file into
  */
-template<class Ty>
+template <class Ty>
 void load_file(const char* path, const int& mode, Ty& fileContainer) {
 	// load the binary
 	std::ifstream file;
@@ -75,7 +75,7 @@ void load_file(const char* path, const int& mode, Ty& fileContainer) {
  * @param mode mode to open the file
  * @param fileContainer container to copy the file into
  */
-template<class Ty> 
+template <class Ty> 
 void load_file(const char* path, const int& mode, std::vector<Ty>& fileContainer) {
 	// load the binary
 	std::ifstream file;
@@ -83,7 +83,7 @@ void load_file(const char* path, const int& mode, std::vector<Ty>& fileContainer
 
 	// read the value into a single buffer and push it into the container
 	Ty buffer;
-	while(file.get(buffer)) fileContainer.push_back(std::move(buffer));
+	while (file.get(buffer)) fileContainer.push_back(std::move(buffer));
 
 	// close the file
 	file.close();

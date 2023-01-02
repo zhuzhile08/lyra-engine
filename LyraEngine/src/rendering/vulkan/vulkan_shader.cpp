@@ -24,6 +24,10 @@ Shader::Shader(const char* path, const char* entry, const Type& type) : m_entry(
 	vassert(vkCreateShaderModule(Application::renderSystem.device.device(), &createInfo, nullptr, &m_module), "create a Vulkan shader module");
 }
 
+Shader::~Shader() {
+	vkDestroyShaderModule(Application::renderSystem.device.device(), m_module, nullptr);
+}
+
 } // namespace vulkan
 
 } // namespace lyra

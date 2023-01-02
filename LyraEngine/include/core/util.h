@@ -34,9 +34,9 @@ namespace lyra {
  * 
  * @return constexpr uint32_t
 */
-template<typename Ty> NODISCARD constexpr uint32 arr_size(const Ty* array); 
+template <typename Ty> NODISCARD constexpr uint32 arr_size(const Ty* array); 
 
-template<typename Ty> constexpr uint32 arr_size(const Ty* array) {
+template <typename Ty> constexpr uint32 arr_size(const Ty* array) {
 	// return sizeof(array) / sizeof(array[0]);
 	return static_cast<uint32>(*(&array + 1) - array); // if you won't take my normal and understandable code, take this instead!
 }
@@ -49,9 +49,9 @@ template<typename Ty> constexpr uint32 arr_size(const Ty* array) {
  * 
  * @return constexpr const void*
 */
-template<typename Ty> NODISCARD constexpr const void* get_address(const Ty type);
+template <typename Ty> NODISCARD constexpr const void* get_address(const Ty type);
 
-template<typename Ty> constexpr const void* get_address(const Ty type) {
+template <typename Ty> constexpr const void* get_address(const Ty type) {
 	return static_cast<const void*>(type);
 }
 
@@ -63,9 +63,9 @@ template<typename Ty> constexpr const void* get_address(const Ty type) {
  * @param dst destination vector
  * @param index index of the element
  */
-template<typename Ty> inline void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, int index);
+template <typename Ty> inline void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, int index);
 
-template<typename Ty> void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, int index) {
+template <typename Ty> void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, int index) {
 	dst.push_back(std::move(src.at(index)));
 	src.erase(src.begin() + index);
 }
@@ -81,7 +81,7 @@ std::filesystem::path get_executable_path() {
 #ifdef __APPLE__
 	char buffer [PATH_MAX];
 	uint32_t bufsize = PATH_MAX;
-	if(!_NSGetExecutablePath(buffer, &bufsize))
+	if (!_NSGetExecutablePath(buffer, &bufsize))
 		puts(buffer);
 	return std::filesystem::path(buffer).parent_path();
 #elif linux

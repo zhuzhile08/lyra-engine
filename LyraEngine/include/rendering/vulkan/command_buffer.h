@@ -66,7 +66,6 @@ private:
 	 */
 	struct VulkanCommandBuffer {
 	public:
-		VulkanCommandBuffer() = default;
 		/**
 		 * @brief create the Vulkan command buffers
 		 *

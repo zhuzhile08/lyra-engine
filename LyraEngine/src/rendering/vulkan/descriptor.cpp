@@ -64,7 +64,7 @@ Descriptor::Descriptor(const DescriptorSetLayout* const layout, const uint32& la
 
 	vassert(vkAllocateDescriptorSets(Application::renderSystem.device.device(), &allocInfo, &m_descriptorSet), "allocate descriptor sets");
 
-	for(uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = m_descriptorSet;
+	for (uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = m_descriptorSet;
 
 	vkUpdateDescriptorSets(Application::renderSystem.device.device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
 }

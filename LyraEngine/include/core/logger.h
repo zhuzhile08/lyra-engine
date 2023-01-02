@@ -105,7 +105,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template<typename ... Args> static void log(Args... message) {
+	template <typename ... Args> static void log(Args... message) {
 #ifndef NDEBUG
 		// print the message
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -121,7 +121,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template<typename ... Args> static void log_debug(Args... message) {
+	template <typename ... Args> static void log_debug(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::GRY);
@@ -143,7 +143,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template<typename ... Args> static void log_info(Args... message) {
+	template <typename ... Args> static void log_info(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::GRN);
@@ -165,7 +165,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template<typename ... Args> static void log_warning(Args... message) {
+	template <typename ... Args> static void log_warning(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::YEL);
@@ -187,7 +187,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template<typename ... Args> static void log_error(Args... message) {
+	template <typename ... Args> static void log_error(Args... message) {
 		// set the color and font of the message
 		ANSI(Font::NON, Color::RED);
 		// print the message
@@ -207,7 +207,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template<typename ... Args> static void log_exception(Args... message) {
+	template <typename ... Args> static void log_exception(Args... message) {
 		// set the color and font of the message
 		ANSI(Font::BLD, Color::RED);
 		// print the message
@@ -258,7 +258,7 @@ private:
  * @param condition condition to check if false
  * @param message exception message
  */
-template<typename ... Args> static void lassert(bool condition, Args... message) {
+template <typename ... Args> static void lassert(bool condition, Args... message) {
 #ifndef NDEBUG
 	if (!condition) (Logger::log_exception(message), ...);
 #endif
@@ -270,7 +270,7 @@ template<typename ... Args> static void lassert(bool condition, Args... message)
  * @param function Vulkan function to check
  * @param purpose Purpose of the function
  */
-template<typename Arg> static void vassert(VkResult function, Arg purpose) {
+template <typename Arg> static void vassert(VkResult function, Arg purpose) {
 #ifndef NDEBUG
 	if (function != VkResult::VK_SUCCESS) (Logger::log_exception("Failed to ", purpose, " with error code: ", function, "!"));
 #endif

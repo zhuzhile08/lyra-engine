@@ -19,7 +19,7 @@ namespace lyra {
  * @tparam Ty function pointer type
  * @tparam Args function arguments 
  */
-template<class Ty, class... Args> class Function {
+template <class Ty, class... Args> class Function {
 public:
     // internal function pointer type
     typedef Ty(*callable_type)(Args...);
@@ -43,7 +43,7 @@ public:
      * 
      * @param callable the other callable
      */
-    template<class FPtr> constexpr Function(const FPtr&& callable) noexcept : function(callable) { }
+    template <class FPtr> constexpr Function(const FPtr&& callable) noexcept : function(callable) { }
 
     /**
      * @brief copy the internal callable of another function into the current one

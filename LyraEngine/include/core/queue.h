@@ -25,8 +25,6 @@ namespace lyra {
  */
 class CallQueue {
 public:
-	CallQueue() = default;
-
 	/**
 	 * @brief add a function to the queue
 	 *

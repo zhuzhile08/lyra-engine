@@ -161,7 +161,7 @@ void Camera::record_command_buffers() {
 		0, 
 		m_descriptors[Application::renderSystem.currentFrame()].get());
 	// loop through the materials and draw their meshes
-	for (int i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
+	for (uint32 i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
 	// end renderpass
 	end_renderpass();
 }

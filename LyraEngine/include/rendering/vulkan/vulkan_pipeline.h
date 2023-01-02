@@ -28,8 +28,6 @@ namespace vulkan {
  */
 class Pipeline {
 public:
-	Pipeline() = default;
-
 	/**
 	 * @brief descriptor and shader information
 	 */

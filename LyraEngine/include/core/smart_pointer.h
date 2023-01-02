@@ -24,8 +24,6 @@ namespace lyra {
  */
 template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
-	// defalut constructor
-	constexpr SmartPointer() = default;
 	/**
 	 * @brief construct the smart pointer
 	 *
@@ -95,7 +93,7 @@ public:
 	 * 
 	 * @return SmartPointer<BTy> 
 	 */
-	template<class CTy> constexpr inline operator SmartPointer<CTy>() const noexcept {
+	template <class CTy> constexpr inline operator SmartPointer<CTy>() const noexcept {
 		return SmartPointer<CTy>(m_pointer);
 	}
 

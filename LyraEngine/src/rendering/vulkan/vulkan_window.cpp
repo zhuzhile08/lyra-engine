@@ -23,7 +23,7 @@ Window::Window() {
 }
 
 Window::~Window() noexcept {
-	for (int i = 0; i < m_imageAvailableSemaphores.size(); i++) { // sync objects
+	for (uint32 i = 0; i < m_imageAvailableSemaphores.size(); i++) { // sync objects
 		vkDestroySemaphore(Application::renderSystem.device.device(), m_renderFinishedSemaphores[i], nullptr);
 		vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFences[i], nullptr);
@@ -286,7 +286,7 @@ void Window::create_sync_objects() {
 		VK_FENCE_CREATE_SIGNALED_BIT
 	};
 
-	for (int i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
+	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
 		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
 			"create Vulkan Synchronization Objects");
 		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),

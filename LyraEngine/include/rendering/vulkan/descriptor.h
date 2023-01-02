@@ -43,8 +43,6 @@ public:
 			const int& type;
 		};
 
-		Builder() = default;
-
 		/**
 		 * @brief add a binding to the vector of bindings
 		 *
@@ -114,8 +112,6 @@ public:
 			const uint32& size;
 		};
 
-		Builder() = default;
-
 		/**
 		 * @brief set a struct to define what type and how many types of descriptors a set is going to contain
 		 *
@@ -129,7 +125,7 @@ public:
 		}
 
 		void add_pool_sizes(const std::vector<Data>& sizes) noexcept {
-			for(int i = 0; i < sizes.size(); i++) 
+			for (uint32 i = 0; i < sizes.size(); i++) 
 				poolSizes.push_back({
 					static_cast<VkDescriptorType>(sizes.at(i).type),
 					sizes.at(i).size
@@ -250,8 +246,6 @@ public:
 			// type of shader to bind these to
 			const Type& type;
 		};
-
-		Writer() = default;
 
 		/**
 		 * @brief add image writes

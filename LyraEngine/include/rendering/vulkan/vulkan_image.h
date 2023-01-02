@@ -26,7 +26,6 @@ namespace vulkan {
  * @brief wrapper around vulkan images
  */
 struct Image {
-	constexpr Image() = default;
 	/**
 	* @brief destructor of the image
 	**/
@@ -64,7 +63,27 @@ struct Image {
 		const VkImageCreateFlags& flags = 0,
 		const VkSampleCountFlagBits& samples = VK_SAMPLE_COUNT_1_BIT,
 		const VkImageTiling& tiling = VK_IMAGE_TILING_OPTIMAL
-	) noexcept;
+	) noexcept {
+		m_tiling = tiling;
+
+		return {
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+			nullptr,
+			flags,
+			imageType,
+			format,
+			extent,
+			mipLevels,
+			arrayLayers,
+			samples,
+			tiling,
+			usage,
+			VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
+			0,
+			0,
+			VK_IMAGE_LAYOUT_UNDEFINED
+		};
+	}
 
 	/**
 	 * @brief create the image view only
@@ -140,9 +159,9 @@ struct Image {
 	 * @param features what type the image is
 	 * @param tiling tiling mode of the image
 	 *
-	 * @return constexpr VkFormat
+	 * @return VkFormat
 	*/
-	NODISCARD constexpr VkFormat get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling = VK_IMAGE_TILING_MAX_ENUM) const;
+	NODISCARD VkFormat get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling = VK_IMAGE_TILING_MAX_ENUM) const;
 
 	/**
 	 * @brief copy the contents of a buffer into the image

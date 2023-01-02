@@ -167,7 +167,7 @@ public:
 		Ty* p = ((Ty)allocator->alloc(sizeof(Ty) * (length + headerSize), m__alignof(Ty))) + headerSize;
 		*(((size_t*)p) - 1) = length;
 
-		for (int i = 0; i < length; i++) new (&p) Ty;
+		for (uint32 i = 0; i < length; i++) new (&p) Ty;
 
 		return p;
 	}

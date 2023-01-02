@@ -44,7 +44,7 @@ void GPUBuffer::copy_data(const void* src, const size_t& copySize) {
 	const char* s = (char*)src;
 	char* d = (char*)data;
 
-	for(size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(m_size) : copySize; i++) d[i] = s[i];
+	for (size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(m_size) : copySize; i++) d[i] = s[i];
 
 	data = std::move(d);
 #endif

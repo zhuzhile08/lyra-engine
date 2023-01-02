@@ -18,7 +18,7 @@
 #include <vector>
 // #include <math/vectors.h>
 // #include <math/matrices.h>
-#include <glm/glm.hpp>
+#include <glm.hpp>
 
 namespace lyra {
 
@@ -208,9 +208,9 @@ typedef Matrix<4, 4, uint64> Mat4u64;
  * 
  * @return Ty 
  */
-template<size_t _Size, class Ty> NODISCARD Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b);
+template <size_t _Size, class Ty> NODISCARD Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b);
 
-template<size_t _Size, class Ty> Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b) {
+template <size_t _Size, class Ty> Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b) {
 	Ty result;
 	for (uint8 x = 0; x < _Size; x++) {
 		result += pow(a[x] - b[x], 2);
@@ -229,7 +229,7 @@ template<size_t _Size, class Ty> Ty pythagoras(const glm::vec<_Size, Ty, glm::de
  * 
  * @return Ty
 */
-template<class Ty> NODISCARD Ty point_on_line(Ty first, Ty second, float value);
+template <class Ty> NODISCARD Ty point_on_line(Ty first, Ty second, float value);
 
 template <class Ty> Ty point_on_line(Ty first, Ty second, float value) {
 	return first + (second - first) * value;
@@ -245,12 +245,12 @@ template <class Ty> Ty point_on_line(Ty first, Ty second, float value) {
  * 
  * @return Ty 
 */
-template<class Ty> NODISCARD Ty bezier(std::vector<Ty> points, float value);
+template <class Ty> NODISCARD Ty bezier(std::vector<Ty> points, float value);
 
-template<class Ty> Ty bezier(std::vector<Ty> points, float value) {
+template <class Ty> Ty bezier(std::vector<Ty> points, float value) {
 	std::vector<Ty> remaining_points;
 
-	for (int i = 0; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
+	for (uint32 i = 0; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
 	
 	if (remaining_points.size() == 2) return point_on_line<Ty>(points.at(0), points.at(1), value);
 
