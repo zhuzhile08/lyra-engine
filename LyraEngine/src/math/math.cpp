@@ -36,17 +36,6 @@ void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation,
 	}
 }
 
-constexpr glm::mat4 perspective_matrix(const float& fov, const float& width, const float& height, const float& near, const float& far) {
-	float tanHalfFov = 1/tan(glm::radians(fov) / 2);
-
-	return glm::mat4 {
-		(width / height) / tanHalfFov,	0.0f, 				0.0f, 							0.0f,
-		0.0f, 									-(width / height), 	0.0f, 							0.0f, 
-		0.0f, 									0.0f, 				(near) / (far - near), 			(near * far) / (far - near),
-		0.0f, 									0.0f, 				1.0f, 	0.0f
-	};
-}
-
 void alignPointer(void* address, const uint8_t alignment, const uint8_t mode) {
 	address = (mode == 1) ? (void*)((reinterpret_cast<uintptr_t>(address) + static_cast<uintptr_t>(alignment - 1)) & static_cast<uintptr_t>(~(alignment - 1))) :
 		(void*)(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(~(alignment - 1)));

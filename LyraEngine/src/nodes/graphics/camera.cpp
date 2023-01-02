@@ -104,19 +104,10 @@ void Camera::recreate() {
 
 void Camera::set_perspective(const float& fov, const float& near, const float& far) noexcept {
 	m_projection = Projection::PROJECTION_PERSPECTIVE;
-	/**
 	m_fov = fov;
 	m_near = near;
 	m_far = far;
 	m_projection_matrix = glm::perspective(glm::radians(fov), Application::renderSystem.vulkanWindow.extent().width/(float)Application::renderSystem.vulkanWindow.extent().height, m_near, m_far); 
-	*/
-	m_projection_matrix = perspective_matrix(
-		m_fov,  
-		Application::renderSystem.vulkanWindow.extent().width,
-		Application::renderSystem.vulkanWindow.extent().height,
-		m_near,
-		m_far
-	);
 	m_projection_matrix[1][1] *= -1;
 }
 
