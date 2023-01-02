@@ -16,7 +16,7 @@
 
 #include <vector>
 #include <string>
-#include <document.h>
+#include <nlohmann/json.hpp>
 
 namespace lyra {
 
@@ -47,7 +47,7 @@ struct Settings {
 	NODISCARD static std::string init_json();
 
 	// json containing the variables
-	static const rapidjson::Document json;	
+	static const nlohmann::json json;
 
 	// generell application settings
 	struct Application {
