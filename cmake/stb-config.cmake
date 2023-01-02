@@ -1,1 +1,0 @@
-set(STB_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include/stb/")
