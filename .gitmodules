@@ -1,12 +1,6 @@
-[submodule "3rdParty/lz4"]
-	path = 3rdParty/lz4
-	url = https://github.com/lz4/lz4
 [submodule "3rdParty/vma"]
 	path = 3rdParty/vma
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-[submodule "3rdParty/imgui"]
-	path = 3rdParty/imgui
-	url = https://github.com/zhuzhile08/imgui
 [submodule "3rdParty/openal-soft"]
 	path = 3rdParty/openal-soft
 	url = https://github.com/kcat/openal-soft
@@ -19,9 +13,6 @@
 [submodule "3rdParty/tol"]
 	path = 3rdParty/tol
 	url = https://github.com/tinyobjloader/tinyobjloader
-[submodule "3rdParty/bullet"]
-	path = 3rdParty/bullet
-	url =https://github.com/zhuzhile08/bullet3
 [submodule "3rdParty/sdl2"]
 	path = 3rdParty/sdl2
 	url = https://github.com/libsdl-org/SDL
