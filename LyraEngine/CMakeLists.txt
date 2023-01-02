@@ -1,12 +1,9 @@
-cmake_minimum_required(VERSION 3.25.0)
+cmake_minimum_required(VERSION 3.24.0)
 project(LyraEngine VERSION 0.5.0)
 
 # debug build
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD 20)
-
-# set some variables
-set(LIBRARY_PATH ../3rdParty)
 
 # set local include directory
 set(LOCAL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/)
@@ -36,7 +33,7 @@ PUBLIC
 	${LIBRARY_PATH}/stb
 	${LIBRARY_PATH}/tol
 	${LIBRARY_PATH}/lz4/lib
-	${LIBRARY_PATH}/rapidjson/include/rapidjson
+	${LIBRARY_PATH}/nlohmann/include
 	${LIBRARY_PATH}/vma/include
 )
 
@@ -78,7 +75,9 @@ add_library(LyraEngine
 	"src/math/math.cpp"
 	"src/math/transform.cpp"
 
-	"src/res/loaders.cpp"
+	"src/res/loaders/load_assets.cpp"
+	"src/res/loaders/load_file.cpp"
+	"src/res/loaders/load_model.cpp"
 
 	"src/nodes/nodes.cpp" 
 
