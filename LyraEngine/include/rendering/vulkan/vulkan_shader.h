@@ -70,9 +70,7 @@ public:
 	/**
 	* @brief destructor of the shader
 	**/
-	virtual ~Shader() {
-		vkDestroyShaderModule(Application::renderSystem.device.device(), m_module, nullptr);
-	}
+	virtual ~Shader();
 
 	Shader operator=(const Shader&) const noexcept = delete;
 

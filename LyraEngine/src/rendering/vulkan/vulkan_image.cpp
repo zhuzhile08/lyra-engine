@@ -16,38 +16,6 @@ Image::~Image() {
 	vkDestroyImage(Application::renderSystem.device.device(), m_image, nullptr);
 }
 
-constexpr VkImageCreateInfo Image::get_image_create_info(
-	const VkFormat& format,
-	const VkExtent3D& extent,
-	const VkImageUsageFlags& usage,
-	const uint32& mipLevels,
-	const VkImageType& imageType,
-	const uint32& arrayLayers,
-	const VkImageCreateFlags& flags,
-	const VkSampleCountFlagBits& samples,
-	const VkImageTiling& tiling
-) noexcept {
-	m_tiling = tiling;
-
-	return {
-		VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-		nullptr,
-		flags,
-		imageType,
-		format,
-		extent,
-		mipLevels,
-		arrayLayers,
-		samples,
-		tiling,
-		usage,
-		VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
-		0,
-		0,
-		VK_IMAGE_LAYOUT_UNDEFINED
-	};
-}
-
 void Image::create_view(const VkFormat& format, const VkImageSubresourceRange& subresourceRange, const VkImageViewType& viewType, const VkComponentMapping& colorComponents) {
 	// image view creation info
 	VkImageViewCreateInfo createInfo{
@@ -119,30 +87,20 @@ void Image::transition_layout(
 	cmdBuff.reset();
 }
 
-constexpr VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling) const {
+VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling) const {
 	// check which tiling mode to use
-	VkImageTiling tiling_; // screw naming conventions, I don't care
-	if (m_tiling == VK_IMAGE_TILING_MAX_ENUM) 
-		tiling_ = tiling;
-	else if (tiling == VK_IMAGE_TILING_MAX_ENUM) 
-		tiling_ = m_tiling;
-	else if (m_tiling == VK_IMAGE_TILING_MAX_ENUM && tiling == VK_IMAGE_TILING_MAX_ENUM) 
-		Logger::log_exception("No tiling mode was defined whilst attempting to find the best format for image: ", get_address(this), "!");
-	else if (m_tiling != VK_IMAGE_TILING_MAX_ENUM && tiling != VK_IMAGE_TILING_MAX_ENUM) {
-		tiling_ = tiling;
-	}
+	VkImageTiling finalTilingMode = (tiling == VK_IMAGE_TILING_MAX_ENUM) ? m_tiling : tiling;
 
 	// check which of the canditates is the best choice
 	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), candidates.at(i), &props);
 
-		if (tiling_ == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
-		else if (tiling_ == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
-
+		if (finalTilingMode == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
+		else if (finalTilingMode == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
 	}
 
-	Logger::log_exception("Failed to find supported format out of user-defined formats for image at: ", get_address(this), "!");
+	Logger::log_exception("Failed to find supported format out of user defined formats for image at: ", get_address(this), "!");
 	// return error case
 	return VK_FORMAT_MAX_ENUM;
 }
