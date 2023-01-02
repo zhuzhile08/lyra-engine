@@ -17,6 +17,7 @@
 
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/vulkan/descriptor.h>
+#include <rendering/assets.h>
 
 namespace lyra {
 

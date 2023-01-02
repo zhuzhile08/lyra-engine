@@ -4,17 +4,8 @@
 
 namespace lyra {
 
-Texture::Texture(const char* path, const VkFormat& format)
-: m_path(path) {
-	Assets::ImageData imageData;
-	imageData = Assets::unpack_texture(path);
-
-	// assign some variables
-	m_width = imageData.width; 
-	m_height = imageData.height;
-	m_mipmap = imageData.mipmap;
-	m_path = path;
-
+Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
+	: m_path(imageData.path), m_width(imageData.width), m_height(imageData.height), m_mipmap(imageData.mipmap) {
 	{
 		// calculate the mipmap levels of the image
 		m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
@@ -58,7 +49,7 @@ Texture::~Texture() noexcept {
 	vkDestroySampler(Application::renderSystem.device.device(), m_sampler, nullptr);
 }
 
-void Texture::create_sampler(Assets::ImageData& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
+void Texture::create_sampler(const util::ImageData& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &properties);
 

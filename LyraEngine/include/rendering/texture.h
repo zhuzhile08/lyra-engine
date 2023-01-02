@@ -15,11 +15,12 @@
 
 #include <core/application.h>
 
+#include <res/loaders/load_assets.h>
+
 #include <rendering/vulkan/GPU_memory.h>
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/vulkan/command_buffer.h>
 #include <rendering/vulkan/vulkan_image.h>
-#include <rendering/assets.h>
 
 #include <algorithm>
 #include <lz4.h>
@@ -83,10 +84,10 @@ public:
 	/**
 	 * @brief create the texture and the sampler
 	 *
-	 * @param path path
+	 * @param imageData image data and information
 	 * @param format format of the image
 	 */
-	Texture(const char* path, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const util::ImageData& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief destructor of the texture
@@ -131,9 +132,9 @@ public:
 	/**
 	* @brief get the path of the image
 	* 
-	* @return constexpr const char* const
+	* @return constexpr const char*
 	**/
-	NODISCARD constexpr const char* const path() const noexcept { return m_path; }
+	NODISCARD constexpr const char* path() const noexcept { return m_path; }
 
 private:
 	VkSampler m_sampler;
@@ -151,7 +152,7 @@ private:
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
-		Assets::ImageData& imageData,
+		const util::ImageData& imageData,
 		const VkFilter& magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter& minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode& mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR

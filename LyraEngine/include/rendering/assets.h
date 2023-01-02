@@ -20,39 +20,12 @@
 
 #include <res/loaders/load_assets.h>
 
+#include <rendering/texture.h>
+
 namespace lyra {
 
 class Assets {
 public:
-	// decompressed texture information
-	struct ImageData {
-		// texture width
-		uint32 width;
-		// texture height
-		uint32 height;
-		// texture length, exclusive to 3D images/textures
-		uint32 length;
-		// mipmapping levels
-		uint32 mipmap;
-		// type of texture
-		unsigned int type;
-		// how to treat the alpha value of the image
-		unsigned int alpha;
-		// how the UVs should read the image
-		unsigned int dimension;
-		// how to wrap the image if the UVs exceeds the border of the image
-		unsigned int wrap;
-		// anistropic filtering
-		unsigned int anistropy;
-		// image data
-		void* data;
-	}; // this also roughly represents the texture data file
-
-	// mesh information
-	struct MeshInfo {
-
-	};
-
 	/**
 	 * @brief destructor of the window
 	**/
@@ -75,7 +48,7 @@ public:
 	 * @brief get an already loaded texture from the map
 	 * 
 	 * @param path path of the texture
-	 * @return Texture* 
+	 * @return const Texture* const
 	 */
 	const Texture* const operator[](const char* path);
 
@@ -90,30 +63,30 @@ public:
 	 * 
 	 * @reutrn const lyra::Texture* const 
 	 */
-	NODISCARD  static const Texture* const nullTexture() noexcept { return m_nullTexture; }
+	NODISCARD static const Texture* const nullTexture() noexcept { return &m_nullTexture; }
 	/**
 	 * @brief return the null normal map texture
 	 *
 	 * @reutrn const lyra::Texture* const
 	 */
-	NODISCARD static const Texture* const nullNormal() noexcept { return m_nullNormal; }
+	NODISCARD static const Texture* const nullNormal() noexcept { return &m_nullNormal; }
 
 private:
 	static util::AssetFile m_images;
 
 	static std::unordered_map<const char*, Texture> m_textures;
 
-	static SmartPointer<Texture> m_nullTexture;
-	static SmartPointer<Texture> m_nullNormal;
+	static Texture m_nullTexture;
+	static Texture m_nullNormal;
 
 	/**
 	 * @brief unpack the texture data based on the path of the texture
 	 * 
 	 * @param path path of the texture
 	 * 
-	 * @return const lyra::Assets::ImageData&
+	 * @return lyra::util::ImageData
 	 */
-	NODISCARD static const ImageData unpack_texture(const char* path);
+	NODISCARD static util::ImageData unpack_texture(const char* path);
 
 	friend class Texture;
 	friend class CubemapBase;
