@@ -14,7 +14,6 @@
 #include <lyra.h>
 
 #include <glm.hpp>
-#include <Jolt/Jolt.h>
 
 #include <nodes/node.h>
 #include <nodes/spatial.h>

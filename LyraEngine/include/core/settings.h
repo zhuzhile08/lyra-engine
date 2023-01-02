@@ -1,10 +1,22 @@
+/*************************
+ * @file settings.h
+ * @author zhuzhile08 (zhuzhile08@gmail.com)
+ * 
+ * @brief a file containing engine and application settings
+ * 
+ * @version 0.1
+ * @date 2022-12-26
+ * 
+ * @copyright Copyright (c) 2022
+ *************************/
+
 #pragma once
 
 #include <lyra.h>
 
 #include <vector>
 #include <string>
-#include <nlohmann/json.hpp>
+#include <document.h>
 
 namespace lyra {
 
@@ -35,7 +47,7 @@ struct Settings {
 	NODISCARD static std::string init_json();
 
 	// json containing the variables
-	static const nlohmann::json json;
+	static const rapidjson::Document json;	
 
 	// generell application settings
 	struct Application {

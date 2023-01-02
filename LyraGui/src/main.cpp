@@ -1,7 +1,7 @@
 #define SDL_MAIN_HANDLED
 #define LYRA_LOG_FILE
 
-#include <Jolt/Jolt.h>
+#include <core/function_pointer.h>
 
 #include <lyra.h>
 #include <math/math.h>
@@ -25,22 +25,28 @@
 #include <array>
 
 struct CameraScript : public lyra::Script {
-	void init(void) override {
-		// node->transform.set_translation({2.0f, 2.0f, 2.0f});
+	void update(void) override {
+		//node->transform.rotate_z(10.0f);
+		//node->transform.look_at_from_translation({2.0f, 2.0f, 2.0f}, {0.0f, 0.0f, 0.0f});
+		
 	}
 
-	void update(void) override {
-		// node->transform.rotate_z(10.0f);
-		//node->transform.set_translation({2.0f, 2.0f, 2.0f});
-		//node->transform.look_at({0.0f, 0.0f, 0.0f});
-	}
+	float pos = 0;
+	float posy = 0;
 };
 
 class Application : public lyra::Application {
 	void init() override;
 };
 
+float foo(float a, int b) {
+	return a + b;
+}
+
 int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever you want to call this SMT reference
+	lyra::Function<float> bar([](){return foo(1, 2);});
+	lyra::Logger::log_warning(bar());
+
 	lyra::init();
 
 	// init application
@@ -53,20 +59,9 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	lyra::Camera camera(new CameraScript, true, "Camera", &scene);
 
-	lyra::Skybox cameraSkybox(
-		{
-			"data/img/skybox.png",
-			"data/img/skybox.png",
-			"data/img/skybox.png",
-			"data/img/skybox.png",
-			"data/img/skybox.png",
-			"data/img/skybox.png",
-		}, &camera);
-
-	lyra::Texture roomTexture("data/img/viking_room.png");
-
 	lyra::Spatial room(nullptr, "Room", &scene);
-	lyra::Mesh roomMesh("data/model/viking_room.obj", nullptr, 0, "RoomMesh", &room);
+	lyra::Texture roomTexture("data/img/viking_room.png");
+	lyra::Mesh roomMesh("data/model/viking_room.obj", nullptr, "RoomMesh", &room);
 	lyra::MeshRenderer roomRenderer(&roomMesh, nullptr, "MeshRenderer", &room);
 
 	// material
