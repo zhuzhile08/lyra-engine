@@ -26,6 +26,6 @@
 	path = 3rdParty/sdl2
 	url = https://github.com/libsdl-org/SDL
 	branch = SDL2
-[submodule "3rdParty/rapidjson"]
-	path = 3rdParty/rapidjson
-	url = https://github.com/Tencent/rapidjson
+[submodule "3rdParty/nlohmann"]
+	path = 3rdParty/nlohmann
+	url = https://github.com/nlohmann/json
