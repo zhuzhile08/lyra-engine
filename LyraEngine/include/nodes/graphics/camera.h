@@ -1,5 +1,5 @@
 /*************************
- * @file uniform_buffer.h
+ * @file camera.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief uniform buffer objects
@@ -76,6 +76,10 @@ public:
 		const uint32& tag = 0,
 		const Transform& transform = Transform()
 	);
+
+#ifndef _WIN32
+	~Camera() { }
+#endif
 
 	Camera operator=(const Camera&) const noexcept = delete;
 

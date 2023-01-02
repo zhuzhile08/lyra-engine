@@ -15,8 +15,8 @@
 #include <lyra.h>
 
 #ifdef _WIN32
-#include <wchar.h>
-#include <Windows.h>
+// #include <wchar.h>
+// #include <Windows.h>
 #elif __APPLE__
 #include <mach-o/dyld.h>
 #endif
