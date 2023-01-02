@@ -20,3 +20,12 @@
 [submodule "3rdParty/nlohmann"]
 	path = 3rdParty/nlohmann
 	url = https://github.com/nlohmann/json
+[submodule "3rdParty/lz4"]
+	path = 3rdParty/lz4
+	url = https://github.com/zhuzhile08/lz4
+[submodule "3rdParty/bullet"]
+	path = 3rdParty/bullet
+	url = https://github.com/zhuzhile08/bullet3
+[submodule "3rdParty/imgui"]
+	path = 3rdParty/imgui
+	url = https://github.com/zhuzhile08/imgui
