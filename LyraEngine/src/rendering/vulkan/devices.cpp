@@ -25,6 +25,7 @@ Device::~Device() {
 	vmaDestroyAllocator(m_allocator);
 	vkDestroyDevice(m_device, nullptr);
 	vkDestroyInstance(m_instance, nullptr);
+	wait();
 }
 
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
@@ -35,12 +36,12 @@ void Device::check_requested_extensions(const std::vector <VkExtensionProperties
 #endif
 	for (uint32 i = 0; i < requestedExtensions.size(); i++) {
 		bool found = false;
-			for (uint32 j = 0; j < extensions.size(); j++) {
-					if (strcmp(requestedExtensions.at(i), extensions.at(j).extensionName) == 0) {
-						found = true;
-						break;
-					}
-			}
+		for (uint32 j = 0; j < extensions.size(); j++) {
+				if (strcmp(requestedExtensions.at(i), extensions.at(j).extensionName) == 0) {
+					found = true;
+					break;
+				}
+		}
 		lassert(found, "User required Vulkan extensions weren't found!", requestedExtensions.at(i));
 	}
 }
