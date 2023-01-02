@@ -9,7 +9,12 @@ namespace lyra {
 
 namespace vulkan {
 
-constexpr GPUBuffer::GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage) : m_size(size) {
+#ifdef __APPLE__
+constexpr GPUBuffer::GPUBuffer(
+#elif _WIN32
+GPUBuffer::GPUBuffer(
+#endif
+	const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage) : m_size(size) {
 	// buffer creation info
 	VkBufferCreateInfo bufferInfo{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
