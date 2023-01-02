@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.0)
+cmake_minimum_required(VERSION 3.24.0)
 project(LyraGui VERSION 1.0.0)
 
 # set default to debug
