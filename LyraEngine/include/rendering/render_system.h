@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-#include <vector>
+#include <core/array.h>
 
 #include <vulkan/vulkan.h>
 
@@ -33,7 +33,7 @@ public:
 	 *
 	 * @param window the window
 	 */
-	RenderSystem(Window* const window);
+	RenderSystem(Window* const window) : window(window), currentCommandBuffer(commandBuffers) { }
 	/**
 	 * @brief destructor of the context
 	 */
@@ -55,11 +55,6 @@ public:
 	void draw();
 
 	/**
-	 * @brief update all the members
-	*/
-	void update() const;
-
-	/**
 	 * @brief get the current frame count
 	 * 
 	 * @return const uint8
@@ -79,8 +74,7 @@ public:
 	vulkan::CommandBuffer currentCommandBuffer;
 
 private:
-
-	std::vector<Renderer*> m_renderers;
+	Array<Renderer*, 16> m_renderers;
 
 	uint8 m_currentFrame = 0;
 	uint32 m_imageIndex;

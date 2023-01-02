@@ -9,6 +9,8 @@
 
 #include <init/init_SDL.h>
 
+#include <utility>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -28,17 +30,13 @@ void Application::draw() {
 		m_lastTime = std::move(m_currentTime);
 		
 		Input::update();
-		renderSystem.update();
+
 		renderSystem.draw();
 
 		m_currentTime = SDL_GetTicks64();
-
-		// framerate calculation
-		m_deltaTime = (m_currentTime - m_lastTime) * 0.001f;
-		m_fps = 1.0f / (float)m_deltaTime;
 	}
 
-	renderSystem.device.wait();
+	// renderSystem.device.wait();
 }
 
 void init(void) {

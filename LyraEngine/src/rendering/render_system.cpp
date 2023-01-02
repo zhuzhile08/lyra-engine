@@ -10,20 +10,12 @@
 
 namespace lyra {
 
-RenderSystem::RenderSystem(Window* const window) : window(window), currentCommandBuffer(commandBuffers) {
-	m_renderers.reserve(4);
-}
-
 RenderSystem::~RenderSystem() {
-	device.wait();
+	// device.wait();
 }
 
 void RenderSystem::add_renderer(Renderer* const renderer) {
-	m_renderers.push_back(renderer);
-}
-
-void RenderSystem::update() const {
-	for (int i = 0; i < m_renderers.size(); i++) m_renderers.at(i)->m_updateQueue.flush();
+	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i] = renderer;
 }
 
 void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily& queue) const {
@@ -31,13 +23,16 @@ void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily& queue) c
 }
 
 void RenderSystem::draw() {
+	// update the renderers
+	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->m_updateQueue.flush();
+
 	// wait for the already recorded stuff to finish executing
 	vulkanWindow.wait(m_currentFrame); 
 	
 	// get the next image to render on
 	if (vkAcquireNextImageKHR(device.device(), vulkanWindow.swapchain(), UINT64_MAX, vulkanWindow.imageAvailableSemaphores()[m_currentFrame], VK_NULL_HANDLE, &m_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		vulkanWindow.recreate();
-		for (int i = 0; i < m_renderers.size(); i++) m_renderers.at(i)->recreate();
+		for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
 		return;
 	}
 
@@ -53,7 +48,7 @@ void RenderSystem::draw() {
 	currentCommandBuffer.begin();
 
 	// call the draw calls
-	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers.at(i)->record_command_buffers();
+	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->record_command_buffers();
 
 	// end recording the command buffer
 	currentCommandBuffer.end();
@@ -108,7 +103,7 @@ void RenderSystem::present_device_queue() {
 		}
 
 		vulkanWindow.recreate();
-		for (int i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
+		for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
 	}
 }
 
