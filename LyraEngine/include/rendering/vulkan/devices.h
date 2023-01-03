@@ -290,7 +290,7 @@ public:
 	/**
 	 * @brief get the logical device
 	 * 
-	 * @return const VkLogicalDevice&
+	 * @return const VkDevice&
 	 */
 	NODISCARD const VkDevice& device() const noexcept { return m_device; }
 	/**
