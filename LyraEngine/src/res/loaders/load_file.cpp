@@ -4,6 +4,8 @@
 
 #include <core/logger.h>
 
+#include <core/util.h>
+
 namespace lyra {
 
 namespace util {
