@@ -59,13 +59,15 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	lyra::Camera camera(new CameraScript, true, "Camera", &scene);
 
+	lyra::Assets assets;
+
 	lyra::Spatial room(nullptr, "Room", &scene);
-	lyra::Texture roomTexture("data/img/viking_room.png");
+	lyra::Texture* roomTexture = assets["data/img/viking_room.png"];
 	lyra::Mesh roomMesh("data/model/viking_room.obj", nullptr, "RoomMesh", &room);
 	lyra::MeshRenderer roomRenderer(&roomMesh, nullptr, "MeshRenderer", &room);
 
 	// material
-	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(0, 0, 0, 0), &roomTexture);
+	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(0, 0, 0, 0), roomTexture);
 
 	app.draw();
 
