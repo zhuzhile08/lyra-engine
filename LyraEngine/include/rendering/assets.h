@@ -26,12 +26,17 @@ namespace lyra {
 
 class Assets {
 public:
-	/**
-	 * @brief destructor of the window
-	**/
-	~Assets() noexcept { }
+	Assets() = default;
 
-	Assets() noexcept = delete;
+	/**
+	 * @brief construct a Assets manager
+	 * 
+	 * @param imagepath path for an image asset file
+	 */
+	Assets(const char* imagePath) : m_images() { }
+	
+	~Assets() = default;
+
 	Assets(const Assets&) noexcept = delete;
 	Assets operator=(const Assets&) const noexcept = delete;
 
@@ -48,16 +53,23 @@ public:
 	 * @brief get an already loaded texture from the map
 	 * 
 	 * @param path path of the texture
+	 * @return Texture*
+	 */
+	Texture* operator[](const char* path);
+	/**
+	 * @brief get an already loaded texture from the map
+	 * 
+	 * @param path path of the texture
 	 * @return const Texture* const
 	 */
-	const Texture* const operator[](const char* path);
+	const Texture* const operator[](const char* path) const;
 
 	/**
 	 * @brief return the raw image data
 	 * 
 	 * @return const lyra::util::AssetFile
 	 */
-	NODISCARD static const util::AssetFile images() noexcept { return m_images; }
+	NODISCARD const util::AssetFile images() noexcept { return m_images; }
 	/**
 	 * @brief return the null texture
 	 * 
@@ -72,7 +84,7 @@ public:
 	NODISCARD static const Texture* const nullNormal() noexcept { return &m_nullNormal; }
 
 private:
-	static util::AssetFile m_images;
+	util::AssetFile m_images;
 
 	static std::unordered_map<const char*, Texture> m_textures;
 
