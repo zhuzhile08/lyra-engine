@@ -33,12 +33,7 @@ public:
 	 * @param bufferUsage way to use the buffer
 	 * @param memUsage way to use the memory
 	 */
-	#ifdef __APPLE__
-	constexpr GPUBuffer(
-	#elif _WIN32
-	GPUBuffer(
-	#endif
-		const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage);
+	GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage);
 
 	/**
 	 * @brief destructor of the buffer
