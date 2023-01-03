@@ -24,14 +24,14 @@ PUBLIC
 	${LIBRARY_PATH}/bullet/src/
 
 	# audio libraries
-	${LIBRARY_PATH}/openal-soft/include
+	${LIBRARY_PATH}/openal-soft/include/
 
 	# utility libraries
-	${LIBRARY_PATH}/stb
-	${LIBRARY_PATH}/tol
-	${LIBRARY_PATH}/lz4/lib
-	${LIBRARY_PATH}/nlohmann/include
-	${LIBRARY_PATH}/vma/include
+	${LIBRARY_PATH}/stb/
+	${LIBRARY_PATH}/tol/
+	${LIBRARY_PATH}/lz4/lib/
+	${LIBRARY_PATH}/nlohmann/include/
+	${LIBRARY_PATH}/vma/include/
 )
 
 # compile shaders to Vulkan's spirv format
@@ -87,7 +87,7 @@ add_dependencies(LyraEngine build_shaders)
 
 # link some libraries
 target_link_libraries(LyraEngine
-PUBLIC
+LINK_PUBLIC
 	# graphics and windowing libraries
 	Vulkan::Vulkan
 	sdl2

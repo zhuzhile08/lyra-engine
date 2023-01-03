@@ -9,7 +9,27 @@ find_package(Vulkan REQUIRED)
 
 include_directories(
 PRIVATE
+	# library local include directory
 	${LYRA_INCLUDE_DIR}
+
+	# graphics and windowing libraries
+	Vulkan::Headers
+	${LIBRARY_PATH}/sdl2/include/
+	${LIBRARY_PATH}/imgui/
+
+	# math and physics libraries
+	${LIBRARY_PATH}/glm/glm/
+	${LIBRARY_PATH}/bullet/src/
+
+	# audio libraries
+	${LIBRARY_PATH}/openal-soft/include/
+
+	# utility libraries
+	${LIBRARY_PATH}/stb/
+	${LIBRARY_PATH}/tol/
+	${LIBRARY_PATH}/lz4/lib/
+	${LIBRARY_PATH}/nlohmann/include/
+	${LIBRARY_PATH}/vma/include/
 )
 
 # build the content manager
