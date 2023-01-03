@@ -5,9 +5,6 @@ project(LyraEngine VERSION 0.5.0)
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD 20)
 
-# set local include directory
-set(LOCAL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-
 # find vulkan 
 find_package(Vulkan REQUIRED)
 
@@ -15,7 +12,7 @@ find_package(Vulkan REQUIRED)
 include_directories(
 PUBLIC
 	# library local include directory
-	${LOCAL_INCLUDE_DIR}
+	${LYRA_INCLUDE_DIR}
 
 	# graphics and windowing libraries
 	Vulkan::Headers

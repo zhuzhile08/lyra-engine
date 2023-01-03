@@ -13,7 +13,10 @@ project ("LyraEngineToolchain")
 # set some variables
 set(LIBRARY_PATH ${CMAKE_SOURCE_DIR}/3rdParty)
 
+# set the local include directory for the engine
+set(LYRA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/LyraEngine/include/)
+
 # Include sub-projects.
 add_subdirectory ("3rdParty")
 add_subdirectory ("LyraEngine")
-# add_subdirectory ("LyraGui")
+add_subdirectory ("LyraGui")

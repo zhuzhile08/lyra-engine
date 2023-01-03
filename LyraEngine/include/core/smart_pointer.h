@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <utility>
+#include <memory>
 
 namespace lyra {
 
@@ -24,9 +24,8 @@ namespace lyra {
  */
 template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
-#ifdef _WIN32
 	constexpr SmartPointer() = default;
-#endif
+
 	/**
 	 * @brief construct the smart pointer
 	 *
