@@ -51,7 +51,7 @@ add_library(LyraEngine
 	"src/rendering/vulkan/descriptor.cpp"
 	"src/rendering/vulkan/devices.cpp"
 	"src/rendering/vulkan/GPU_buffer.cpp"
-	"src/rendering/vulkan/GPU_memory.inl"
+	"src/rendering/vulkan/GPU_memory.cpp"
 	"src/rendering/vulkan/vulkan_image.cpp"
 	"src/rendering/vulkan/vulkan_pipeline.cpp"
 	"src/rendering/vulkan/vulkan_shader.cpp"
@@ -90,18 +90,18 @@ target_link_libraries(LyraEngine
 LINK_PUBLIC
 	# graphics and windowing libraries
 	Vulkan::Vulkan
-	sdl2
-	imgui
+	SDL2::SDL2-static
+	SDL2::SDL2main
+	ImGui
 
 	# math and physics libraries
-	bullet
+	# bullet holy crap is bullet a b to link. doing it when i actually need it
 
 	# audio libraries
-	openal-soft
+	OpenAL::OpenAL
 
 	# utility libraries
-	lz4
-	djson
+	lz4_static
 )
 
 target_precompile_headers(LyraEngine
