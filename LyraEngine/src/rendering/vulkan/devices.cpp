@@ -153,7 +153,9 @@ void Device::create_instance() {
 	std::vector<const char*> SDLExtensions(SDLExtensionCount);
 	lassert(SDL_Vulkan_GetInstanceExtensions(Application::window.get(), &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 	SDLExtensions.push_back("VK_KHR_get_physical_device_properties2");
+#ifdef __APPLE__
 	SDLExtensions.push_back("VK_KHR_portability_enumeration");
+#endif
 
 	// define some info for the application that will be used in instance creation
 	VkApplicationInfo appInfo{
@@ -170,7 +172,7 @@ void Device::create_instance() {
 	VkInstanceCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 		nullptr,
-#ifdef _WINDOWS
+#ifdef _WIN32
 		0,
 #elif __APPLE__
 		VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
