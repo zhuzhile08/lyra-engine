@@ -11,13 +11,13 @@ namespace lyra {
 Window::Window() noexcept {
 	uint32 flags = SDL_WINDOW_VULKAN;
 
-	if (Settings::Window::fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
-	if (Settings::Window::maximized) flags |= SDL_WINDOW_MAXIMIZED;
-	if (Settings::Window::resizable) flags |= SDL_WINDOW_RESIZABLE;
-	if (Settings::Window::alwaysOnTop) flags |= SDL_WINDOW_ALWAYS_ON_TOP;
-	if (Settings::Window::borderless) flags |= SDL_WINDOW_BORDERLESS;
+	if (settings().window.fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
+	if (settings().window.maximized) flags |= SDL_WINDOW_MAXIMIZED;
+	if (settings().window.resizable) flags |= SDL_WINDOW_RESIZABLE;
+	if (settings().window.alwaysOnTop) flags |= SDL_WINDOW_ALWAYS_ON_TOP;
+	if (settings().window.borderless) flags |= SDL_WINDOW_BORDERLESS;
 
-	m_window = SDL_CreateWindow(Settings::Window::title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::Window::wWidth, Settings::Window::wHeight, flags);
+	m_window = SDL_CreateWindow(settings().window.title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, settings().window.wWidth, settings().window.wHeight, flags);
 
 	lassert(m_window, "Failed to create SDL window with error: ", SDL_GetError());
 }

@@ -65,7 +65,7 @@ void Texture::create_sampler(const util::ImageData& imageData, const VkFilter& m
 		static_cast<VkSamplerAddressMode>(imageData.wrap),
 		0.0f,
 		static_cast<uint32>(imageData.anistropy),
-		properties.limits.maxSamplerAnisotropy * Settings::Rendering::anistropy,
+		properties.limits.maxSamplerAnisotropy * settings().rendering.anistropy,
 		VK_FALSE,
 		VK_COMPARE_OP_ALWAYS,
 		0.0f,

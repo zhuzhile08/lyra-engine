@@ -38,15 +38,15 @@ Camera::Camera(
 
 	// binding information
 	std::vector<vulkan::Pipeline::Binding> bindings{
-		{ vulkan::Shader::Type::TYPE_VERTEX, 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight},
-		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight }
+		{ vulkan::Shader::Type::TYPE_VERTEX, 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight},
+		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
+		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight }
 	};
 
 	// create the graphics pipeline
@@ -58,8 +58,8 @@ Camera::Camera(
 		);
 
 	// preallocate the memory for the buffer that sends the camera data to the shaders
-	m_buffers.reserve(Settings::Rendering::maxFramesInFlight);
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) { 
+	m_buffers.reserve(settings().rendering.maxFramesInFlight);
+	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) { 
 		// create the buffers that send the camera information to the shaders and copy in the information
 		m_buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	}
@@ -72,8 +72,8 @@ Camera::Camera(
 		});
 
 	// create the descriptors themselves
-	m_descriptors.reserve(Settings::Rendering::maxFramesInFlight);
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) 
+	m_descriptors.reserve(settings().rendering.maxFramesInFlight);
+	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) 
 		m_descriptors.emplace_back(
 			m_renderPipeline->descriptorSetLayout(), 
 			0,

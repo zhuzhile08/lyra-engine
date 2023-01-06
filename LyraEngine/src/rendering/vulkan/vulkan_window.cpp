@@ -127,10 +127,10 @@ void Window::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabil
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &surfaceCapabilities);
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
-		surfaceCapabilities.currentExtent.width = Settings::Window::width;
+		surfaceCapabilities.currentExtent.width = settings().window.width;
 		Logger::log_warning("Something went wrong whilst attempting getting the swapchain width!");
 	} if (surfaceCapabilities.currentExtent.height == 0xFFFFFFFF) {
-		surfaceCapabilities.currentExtent.height = Settings::Window::height;
+		surfaceCapabilities.currentExtent.height = settings().window.height;
 		Logger::log_warning("Something went wrong whilst attempting getting the swapchain height!");
 	} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
 		surfaceCapabilities.maxImageCount = 8;
@@ -275,9 +275,9 @@ void Window::create_swapchain() {
 }
 
 void Window::create_sync_objects() {
-	m_imageAvailableSemaphores.resize(Settings::Rendering::maxFramesInFlight);
-	m_renderFinishedSemaphores.resize(Settings::Rendering::maxFramesInFlight);
-	m_inFlightFences.resize(Settings::Rendering::maxFramesInFlight);
+	m_imageAvailableSemaphores.resize(settings().rendering.maxFramesInFlight);
+	m_renderFinishedSemaphores.resize(settings().rendering.maxFramesInFlight);
+	m_inFlightFences.resize(settings().rendering.maxFramesInFlight);
 
 	VkSemaphoreCreateInfo semaphoreInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 	VkFenceCreateInfo fenceInfo{
@@ -286,7 +286,7 @@ void Window::create_sync_objects() {
 		VK_FENCE_CREATE_SIGNALED_BIT
 	};
 
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
+	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) {
 		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
 			"create Vulkan Synchronization Objects");
 		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),

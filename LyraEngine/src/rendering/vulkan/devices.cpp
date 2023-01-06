@@ -91,7 +91,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 	VkPhysicalDeviceFeatures features;
 	vkGetPhysicalDeviceFeatures(device, &features);
 
-	check_requested_extensions(availableExtensions, Settings::Debug::requestedDeviceExtensions);
+	check_requested_extensions(availableExtensions, settings().debug.requestedDeviceExtensions);
 
 	int score = 1;
 
@@ -144,7 +144,7 @@ void Device::create_instance() {
 	std::vector <VkLayerProperties> availableLayers(availableLayerCount);
 	vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers.data());
 
-	check_requested_validation_layers(availableLayers, Settings::Debug::requestedValidationLayers);
+	check_requested_validation_layers(availableLayers, settings().debug.requestedValidationLayers);
 #endif
 	// get all extensions
 	uint32 SDLExtensionCount = 0;
@@ -159,7 +159,7 @@ void Device::create_instance() {
 	VkApplicationInfo appInfo{
 		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		nullptr,
-		Settings::Window::title.c_str(),
+		settings().window.title.c_str(),
 		VK_MAKE_VERSION(0, 0, 1),
 		"LyraEngine",
 		VK_MAKE_VERSION(0, 7, 0),
@@ -177,8 +177,8 @@ void Device::create_instance() {
 #endif
 		&appInfo,
 #ifndef NDEBUG
-		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
-		Settings::Debug::requestedValidationLayers.data(),
+		static_cast<uint32>(settings().debug.requestedValidationLayers.size()),
+		settings().debug.requestedValidationLayers.data(),
 #else
 		0,
 		nullptr,
@@ -242,14 +242,14 @@ void Device::create_logical_device() {
 		static_cast<uint32>(queueCreateInfos.size()),
 		queueCreateInfos.data(),
 #ifndef NDEBUG
-		static_cast<uint32>(Settings::Debug::requestedValidationLayers.size()),
-		Settings::Debug::requestedValidationLayers.data(),
+		static_cast<uint32>(settings().debug.requestedValidationLayers.size()),
+		settings().debug.requestedValidationLayers.data(),
 #else
 		0,
 		nullptr,
 #endif
-		static_cast<uint32>(Settings::Debug::requestedDeviceExtensions.size()),
-		Settings::Debug::requestedDeviceExtensions.data(),
+		static_cast<uint32>(settings().debug.requestedDeviceExtensions.size()),
+		settings().debug.requestedDeviceExtensions.data(),
 		&deviceFeatures
 	};
 

@@ -43,84 +43,140 @@ struct Settings {
 		FRONT_FACE_CLOCKWISE = 1
 	};
 
-	// initialize the variables
-	NODISCARD static std::string init_json();
-
-	// json containing the variables
-	static const nlohmann::json json;
-
 	// generell application settings
-	struct Application {
-		static const char* description;
-		static const int fps;
-
-	private: 
-		Application() noexcept = delete;
+	struct AppConfig {
+		const char* description;
+		const int fps;
 	};
 
 	// debug settings
-	struct Debug {
-		static const DebugMode debug;
-		static const DisableLog disableLog;
-		static const bool printFPS;
-		static const bool stdioSync;
+	struct DebugConfig {
+		const DebugMode debug;
+		const DisableLog disableLog;
+		const bool printFPS;
+		const bool stdioSync;
 
-		static const std::vector <const char*> requestedDeviceExtensions;
-		static const std::vector <const char*> requestedValidationLayers;
-
-	private:
-		Debug() noexcept = delete;
+		const std::vector <const char*> requestedDeviceExtensions;
+		const std::vector <const char*> requestedValidationLayers;
 	};
 
 	// rendering settings
-	struct Rendering {
-		static const uint8 maxFramesInFlight;
-		static const float fov;
+	struct RenderConfig {
+		const uint8 maxFramesInFlight;
+		const float fov;
 		
-		static const PolygonFrontFace polygonFrontFace;
+		const PolygonFrontFace polygonFrontFace;
 
-		static const bool anistropy;
-		static const float anistropyStrength;
-		static const float resolution;
-
-	private:
-		Rendering() noexcept = delete;
+		const bool anistropy;
+		const float anistropyStrength;
+		const float resolution;
 	};
 
 	// window settings
-	struct Window {
-		static const std::string title;
-		static const std::string iconPath;
+	struct WindowConfig {
+		const std::string title;
+		const std::string iconPath;
 
-		static const uint32 width; // renderer width and height
-		static const uint32 height;
-		static const uint32 wWidth; // window width and height
-		static const uint32 wHeight;
+		const uint32 width; // renderer width and height
+		const uint32 height;
+		const uint32 wWidth; // window width and height
+		const uint32 wHeight;
 		
-		static const bool resizable;
-		static const bool maximized;
-		static const bool borderless;
-		static const bool fullscreen;
-		static const bool alwaysOnTop;
-		static const bool vSync;
-
-	private:
-		Window() noexcept = delete;
+		const bool resizable;
+		const bool maximized;
+		const bool borderless;
+		const bool fullscreen;
+		const bool alwaysOnTop;
+		const bool vSync;
 	};
 
-	struct Memory {
-		static const uint32 maxComponentCount;
-		static const uint32 maxEntityCount;
+	// memory alloc config
+	struct MemConfig {
+		const uint32 maxComponentCount;
+		const uint32 maxEntityCount;
 
-		static const uint32 maxCommandBuffers; // caution: these only define the maximum amount of command buffers per pool
+		const uint32 maxCommandBuffers; // caution: these only define the maximum amount of command buffers per pool
 	};
 
-	struct Gui {
+	struct GUIConfig {
 
 	};
 
 private:
-	Settings() noexcept = delete;
+	/**
+	 * @brief load the json
+	 * 
+	 * @return std::string
+	 */
+	NODISCARD std::string init_json() const;
+
+	nlohmann::json json;
+
+public:
+	AppConfig application;
+	DebugConfig debug;
+	RenderConfig rendering;
+	WindowConfig window;
+	MemConfig memory;
+	GUIConfig gui;
+
+private:
+	Settings() noexcept :
+		json(init_json()),
+
+		application{
+			(char*)&json["application"]["description"],
+			(int)json["application"]["fps"]
+		},
+
+		debug{
+			static_cast<DebugMode>((int)json["debug"]["debug"]),
+			static_cast<DisableLog>((int)json["debug"]["disableLog"]),
+			(bool)json["debug"]["printFPS"],
+			(bool)json["debug"]["stdioSync"],
+			{ "VK_KHR_swapchain", "VK_KHR_portability_subset" },
+			{ "VK_LAYER_KHRONOS_validation" }
+		},
+
+		rendering{
+			(uint8)json["rendering"]["maxFramesInFlight"],
+			(float)json["rendering"]["fov"],
+			static_cast<PolygonFrontFace>((int)json["rendering"]["polygonFrontFace"]),
+			(bool)json["rendering"]["anistropy"],
+			(float)json["rendering"]["anistropyStrength"],
+			(float)json["rendering"]["resolution"]
+		},
+
+		window{
+			(std::string)json["window"]["title"],
+			(std::string)json["window"]["iconPath"],
+			(uint32)json["window"]["width"],
+			(uint32)json["window"]["height"],
+			(uint32)json["window"]["wWidth"],
+			(uint32)json["window"]["wHeight"],
+			(bool)json["window"]["resizable"],
+			(bool)json["window"]["maximized"],
+			(bool)json["window"]["borderless"],
+			(bool)json["window"]["fullscreen"],
+			(bool)json["window"]["alwaysOnTop"],
+			(bool)json["window"]["vSync"]
+		},
+
+		memory{
+			(uint32)json["memory"]["maxComponentCount"],
+			(uint32)json["memory"]["maxEntityCount"],
+			(uint32)json["memory"]["maxCommandBuffers"]
+		}
+	{ };
+
+	friend const Settings& settings();
 };
+
+/**
+ * @brief get a static settings object
+ * 
+ * @return const Settings& 
+ */
+const Settings& settings();
 
 } // namespace lyra

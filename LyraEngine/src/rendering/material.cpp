@@ -49,8 +49,8 @@ Material::Material(
 	camera(camera)
 {
 	// preallocate the memory for the vertex and fragment shaders
-	m_vertShaderBuffers.reserve(Settings::Rendering::maxFramesInFlight);
-	m_fragShaderBuffers.reserve(Settings::Rendering::maxFramesInFlight);
+	m_vertShaderBuffers.reserve(settings().rendering.maxFramesInFlight);
+	m_fragShaderBuffers.reserve(settings().rendering.maxFramesInFlight);
 
 	// uniform data to send to the vertex shader
 	MaterialVertexData vertDat{
@@ -69,7 +69,7 @@ Material::Material(
 		occlusionMapValue
 	};
 
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) { 
+	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) { 
 		// create the buffers that send information to the vertex shader and copy in the information
 		m_vertShaderBuffers.emplace_back(sizeof(MaterialVertexData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 		m_vertShaderBuffers.at(i).copy_data(&vertDat);
@@ -96,8 +96,8 @@ Material::Material(
 		});
 
 	// create the descriptors
-	m_descriptors.reserve(Settings::Rendering::maxFramesInFlight);
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) 
+	m_descriptors.reserve(settings().rendering.maxFramesInFlight);
+	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) 
 		m_descriptors.emplace_back(
 			camera->m_renderPipeline->descriptorSetLayout(),
 			1,
