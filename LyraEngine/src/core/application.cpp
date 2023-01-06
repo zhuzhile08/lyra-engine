@@ -11,30 +11,9 @@
 
 #include <utility>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 namespace lyra {
 
 Application::Application() {
-	// initialize SDL
-	init_SDL();
-
-#ifndef STDIO_SYNC
-	std::ios::sync_with_stdio(true);
-#endif
-
-#ifdef _WIN32
-	DWORD outMode = 0;
-	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	GetConsoleMode(stdoutHandle, &outMode);
-	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-	SetConsoleMode(stdoutHandle, outMode);
-#endif
-
 	this->init();
 }
 
@@ -54,25 +33,6 @@ void Application::draw() {
 	}
 
 	// renderSystem.device.wait();
-}
-
-void init(void) {
-	// initialize SDL
-	init_SDL();
-
-#ifndef STDIO_SYNC
-	std::ios::sync_with_stdio(true);
-#endif
-
-#ifdef _WIN32
-	DWORD outMode = 0;
-	HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	GetConsoleMode(stdoutHandle, &outMode);
-	outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-	SetConsoleMode(stdoutHandle, outMode);
-#endif
 }
 
 Window Application::window;

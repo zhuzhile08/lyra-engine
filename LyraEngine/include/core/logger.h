@@ -246,9 +246,7 @@ public:
 private:
 	std::ofstream m_logFile;
 
-	Logger() noexcept :
-		m_logFile("data/log/log.txt", std::ofstream::out | std::ofstream::trunc)
-	{ };
+	Logger();
 
 	friend Logger& log();
 };

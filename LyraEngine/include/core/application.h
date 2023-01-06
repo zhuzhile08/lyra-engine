@@ -68,9 +68,4 @@ protected:
 	virtual void init() { }
 };
 
-/**
- * @brief initialize lyra
- */
-void init(void);
-
 } // namespace lyra

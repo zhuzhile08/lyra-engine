@@ -47,8 +47,6 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	lyra::Function<float> bar([](){return foo(1, 2);});
 	lyra::log().warning(bar());
 
-	lyra::init();
-
 	// init application
 	Application app;
 
