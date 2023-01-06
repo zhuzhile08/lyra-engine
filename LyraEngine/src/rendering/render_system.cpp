@@ -108,7 +108,7 @@ void RenderSystem::present_device_queue() {
 }
 
 void RenderSystem::update_frame_count() noexcept {
-	m_currentFrame = (m_currentFrame + 1) % Settings::Rendering::maxFramesInFlight;
+	m_currentFrame = (m_currentFrame + 1) % settings().rendering.maxFramesInFlight;
 }
 
 } // namespace lyra

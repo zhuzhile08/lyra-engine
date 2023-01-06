@@ -17,7 +17,7 @@ BoxCollider::BoxCollider(
 	) : Collider(parent, name, tag, active, position, rotation, scale, rotationOrder), 
 		_dimensions(dimensions) { 
 #ifndef NDEBUG
-		Logger::log_warning("The parent Rigidbody of the BoxCollider at address: ", get_address(this), " has been specified as a nullptr. Please make the parent a valid Rigidbody. Therefore, physics will not be applied on this collider.");
+		log().warning("The parent Rigidbody of the BoxCollider at address: ", get_address(this), " has been specified as a nullptr. Please make the parent a valid Rigidbody. Therefore, physics will not be applied on this collider.");
 #endif
 	}
 

@@ -29,8 +29,8 @@ CubemapBase::CubemapBase(
 			{ vulkan::Shader::Type::TYPE_FRAGMENT, fragShaderPath, "main" }
 		}, 
 		{
-			{ 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-			{ 0, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, Settings::Rendering::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
+			{ 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+			{ 0, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
 		}, 
 		{},
 		colorBlending,
@@ -132,7 +132,7 @@ CubemapBase::CubemapBase(
 			VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
 			0.0f,
 			VK_FALSE,
-			1.0f, // properties.limits.maxSamplerAnisotropy * Settings::Rendering::anistropy,
+			1.0f, // properties.limits.maxSamplerAnisotropy * settings().rendering.anistropy,
 			VK_FALSE,
 			VK_COMPARE_OP_ALWAYS,
 			0.0f,
@@ -156,7 +156,7 @@ CubemapBase::CubemapBase(
 		});
 
 		// create both descriptors
-		for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) 
+		for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) 
 			m_descriptors.emplace_back(
 				m_descriptorSetLayout.get(),
 				0,

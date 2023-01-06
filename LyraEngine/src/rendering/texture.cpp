@@ -65,7 +65,7 @@ void Texture::create_sampler(const util::ImageData& imageData, const VkFilter& m
 		static_cast<VkSamplerAddressMode>(imageData.wrap),
 		0.0f,
 		static_cast<uint32>(imageData.anistropy),
-		properties.limits.maxSamplerAnisotropy * Settings::Rendering::anistropy,
+		properties.limits.maxSamplerAnisotropy * settings().rendering.anistropy,
 		VK_FALSE,
 		VK_COMPARE_OP_ALWAYS,
 		0.0f,
@@ -81,7 +81,7 @@ void Texture::generate_mipmaps() const {
 	// check if image supports linear filtering
 	VkFormatProperties formatProperties;
 	vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
-	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", Logger::end_l());
+	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", log().end_l());
 
 	// temporary command buffer for generating midmaps
 	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);

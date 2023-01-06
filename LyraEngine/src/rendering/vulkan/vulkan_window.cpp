@@ -127,14 +127,14 @@ void Window::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabil
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &surfaceCapabilities);
 
 	if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
-		surfaceCapabilities.currentExtent.width = Settings::Window::width;
-		Logger::log_warning("Something went wrong whilst attempting getting the swapchain width!");
+		surfaceCapabilities.currentExtent.width = settings().window.width;
+		log().warning("Something went wrong whilst attempting getting the swapchain width!");
 	} if (surfaceCapabilities.currentExtent.height == 0xFFFFFFFF) {
-		surfaceCapabilities.currentExtent.height = Settings::Window::height;
-		Logger::log_warning("Something went wrong whilst attempting getting the swapchain height!");
+		surfaceCapabilities.currentExtent.height = settings().window.height;
+		log().warning("Something went wrong whilst attempting getting the swapchain height!");
 	} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
 		surfaceCapabilities.maxImageCount = 8;
-		Logger::log_warning("Something went wrong whilst attempting getting the number of swapchain images!");
+		log().warning("Something went wrong whilst attempting getting the number of swapchain images!");
 	} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
 		surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
@@ -226,14 +226,14 @@ void Window::create_color_resources() {
 }
 
 void Window::create_swapchain() {
-	Logger::log_info("Swapchain configurations are: ");
+	log().info("Swapchain configurations are: ");
 
 	// get the optimal format
 	VkSurfaceFormatKHR format = get_optimal_format();
-	Logger::log_debug(Logger::tab(), "format is ", m_format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")");
+	log().debug(log().tab(), "format is ", m_format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")");
 	
 	VkPresentModeKHR presentMode = get_optimal_present_mode();
-	Logger::log_debug(Logger::tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")");
+	log().debug(log().tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")");
 
 	// set the surface capabilities if something went wrong
 	VkSurfaceCapabilitiesKHR surfaceCapabilities;
@@ -275,9 +275,9 @@ void Window::create_swapchain() {
 }
 
 void Window::create_sync_objects() {
-	m_imageAvailableSemaphores.resize(Settings::Rendering::maxFramesInFlight);
-	m_renderFinishedSemaphores.resize(Settings::Rendering::maxFramesInFlight);
-	m_inFlightFences.resize(Settings::Rendering::maxFramesInFlight);
+	m_imageAvailableSemaphores.resize(settings().rendering.maxFramesInFlight);
+	m_renderFinishedSemaphores.resize(settings().rendering.maxFramesInFlight);
+	m_inFlightFences.resize(settings().rendering.maxFramesInFlight);
 
 	VkSemaphoreCreateInfo semaphoreInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
 	VkFenceCreateInfo fenceInfo{
@@ -286,7 +286,7 @@ void Window::create_sync_objects() {
 		VK_FENCE_CREATE_SIGNALED_BIT
 	};
 
-	for (uint32 i = 0; i < Settings::Rendering::maxFramesInFlight; i++) {
+	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) {
 		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
 			"create Vulkan Synchronization Objects");
 		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),

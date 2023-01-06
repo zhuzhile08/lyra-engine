@@ -54,9 +54,9 @@ CommandBufferManager::VulkanCommandBuffer::~VulkanCommandBuffer() noexcept {
 
 // manager
 CommandBufferManager::CommandBufferManager(const VkCommandBufferLevel& level) : m_commandPool() {
-	m_commandBufferData.reserve(Settings::Memory::maxCommandBuffers);
+	m_commandBufferData.reserve(settings().memory.maxCommandBuffers);
 
-	for (uint32 i = 0; i < Settings::Memory::maxCommandBuffers; i++) {
+	for (uint32 i = 0; i < settings().memory.maxCommandBuffers; i++) {
 		m_commandBufferData.emplace_back(&m_commandPool, level);
 		m_commandBuffers.emplace(i, CommandBufferUsage::COMMAND_BUFFER_UNUSED);
 	}

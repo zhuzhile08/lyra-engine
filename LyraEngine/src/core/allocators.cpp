@@ -27,7 +27,7 @@ void* LinearAllocator::alloc(size_t size, uint8 alignment) {
 	m_currentPos = (void*)(alignedAddress + size);
 	m_usedMemory += size + adjustment;
 	if (m_usedMemory > size) {	// check if memory is still in bounds
-		Logger::log_exception("The allocator at: ", get_address(this), "was instructed to allocate memory with size: ", size, " but does not have enough space left!");
+		log().exception("The allocator at: ", get_address(this), "was instructed to allocate memory with size: ", size, " but does not have enough space left!");
 		return nullptr;
 	}
 	m_allocCount += 1;
@@ -43,7 +43,7 @@ void LinearAllocator::clear() {
 
 #ifndef NDEBUG
 void LinearAllocator::dealloc(void* p) {
-	Logger::log_error("This function is not available for linear allocators and does not exist in the release build. Please call the clear() function if you want to deallocate the memory!");
+	log().error("This function is not available for linear allocators and does not exist in the release build. Please call the clear() function if you want to deallocate the memory!");
 	clear(); // call the clear function automatically for the user
 }
 #endif
