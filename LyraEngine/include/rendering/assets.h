@@ -47,7 +47,7 @@ public:
 	 * @return const Texture* const 
 	 */
 	const Texture* const at(const char* path) const {
-		return &m_textures.at(path);
+		return m_textures.at(path);
 	}
 	/**
 	 * @brief get an already loaded texture from the map
@@ -86,7 +86,7 @@ public:
 private:
 	util::AssetFile m_images;
 
-	static std::unordered_map<const char*, Texture> m_textures;
+	static std::unordered_map<const char*, SmartPointer<Texture>> m_textures;
 
 	static Texture m_nullTexture;
 	static Texture m_nullNormal;

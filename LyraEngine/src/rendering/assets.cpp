@@ -44,19 +44,19 @@ util::ImageData Assets::unpack_texture(const char* path) {
 
 Texture* Assets::operator[](const char* path) {
 	if (!m_textures.contains(path)) {
-		m_textures.emplace(std::make_pair(path, Texture(unpack_texture(path))));
+		m_textures.emplace(std::make_pair(path, SmartPointer<Texture>::create(unpack_texture(path))));
 	}
-	return &m_textures.at(path);
+	return m_textures.at(path);
 }
 
 const Texture* const Assets::operator[](const char* path) const {
 	if (!m_textures.contains(path)) {
-		m_textures.emplace(std::make_pair(path, Texture(unpack_texture(path))));
+		m_textures.emplace(std::make_pair(path, SmartPointer<Texture>::create(unpack_texture(path))));
 	}
-	return &m_textures.at(path);
+	return m_textures.at(path);
 }
 
-std::unordered_map<const char*, Texture> Assets::m_textures;
+std::unordered_map<const char*, SmartPointer<Texture>> Assets::m_textures;
 Texture Assets::m_nullTexture(unpack_texture("data/img/Default.bmp"));
 Texture Assets::m_nullNormal(unpack_texture("data/img/Normal.bmp"));
 
