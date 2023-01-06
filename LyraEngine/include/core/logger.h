@@ -60,7 +60,6 @@ private:
 		BLU = 34,
 		MAG = 35,
 		CYN = 36,
-		WHT = 97,
 		GRY = 90,
 		B_RED = 91,
 		B_GRN = 92,
@@ -68,6 +67,7 @@ private:
 		B_BLU = 94,
 		B_MAG = 95,
 		B_CYN = 96,
+		WHT = 97,
 		DEF = WHT
 	};
 

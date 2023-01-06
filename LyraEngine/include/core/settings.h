@@ -104,13 +104,13 @@ struct Settings {
 
 private:
 	/**
-	 * @brief load the json
+	 * @brief load the m_json
 	 * 
 	 * @return std::string
 	 */
 	NODISCARD std::string init_json() const;
 
-	nlohmann::json json;
+	nlohmann::json m_json;
 
 public:
 	AppConfig application;
@@ -122,50 +122,50 @@ public:
 
 private:
 	Settings() noexcept :
-		json(init_json()),
+		m_json(nlohmann::json::parse(init_json().c_str())),
 
 		application{
-			(char*)&json["application"]["description"],
-			(int)json["application"]["fps"]
+			(char*)&m_json["application"]["description"],
+			(int)m_json["application"]["fps"]
 		},
 
 		debug{
-			static_cast<DebugMode>((int)json["debug"]["debug"]),
-			static_cast<DisableLog>((int)json["debug"]["disableLog"]),
-			(bool)json["debug"]["printFPS"],
-			(bool)json["debug"]["stdioSync"],
+			static_cast<DebugMode>((int)m_json["debug"]["debug"]),
+			static_cast<DisableLog>((int)m_json["debug"]["disableLog"]),
+			(bool)m_json["debug"]["printFPS"],
+			(bool)m_json["debug"]["stdioSync"],
 			{ "VK_KHR_swapchain", "VK_KHR_portability_subset" },
 			{ "VK_LAYER_KHRONOS_validation" }
 		},
 
 		rendering{
-			(uint8)json["rendering"]["maxFramesInFlight"],
-			(float)json["rendering"]["fov"],
-			static_cast<PolygonFrontFace>((int)json["rendering"]["polygonFrontFace"]),
-			(bool)json["rendering"]["anistropy"],
-			(float)json["rendering"]["anistropyStrength"],
-			(float)json["rendering"]["resolution"]
+			(uint8)m_json["rendering"]["maxFramesInFlight"],
+			(float)m_json["rendering"]["fov"],
+			static_cast<PolygonFrontFace>((int)m_json["rendering"]["polygonFrontFace"]),
+			(bool)m_json["rendering"]["anistropy"],
+			(float)m_json["rendering"]["anistropyStrength"],
+			(float)m_json["rendering"]["resolution"]
 		},
 
 		window{
-			(std::string)json["window"]["title"],
-			(std::string)json["window"]["iconPath"],
-			(uint32)json["window"]["width"],
-			(uint32)json["window"]["height"],
-			(uint32)json["window"]["wWidth"],
-			(uint32)json["window"]["wHeight"],
-			(bool)json["window"]["resizable"],
-			(bool)json["window"]["maximized"],
-			(bool)json["window"]["borderless"],
-			(bool)json["window"]["fullscreen"],
-			(bool)json["window"]["alwaysOnTop"],
-			(bool)json["window"]["vSync"]
+			(std::string)m_json["window"]["title"],
+			(std::string)m_json["window"]["iconPath"],
+			(uint32)m_json["window"]["width"],
+			(uint32)m_json["window"]["height"],
+			(uint32)m_json["window"]["wWidth"],
+			(uint32)m_json["window"]["wHeight"],
+			(bool)m_json["window"]["resizable"],
+			(bool)m_json["window"]["maximized"],
+			(bool)m_json["window"]["borderless"],
+			(bool)m_json["window"]["fullscreen"],
+			(bool)m_json["window"]["alwaysOnTop"],
+			(bool)m_json["window"]["vSync"]
 		},
 
 		memory{
-			(uint32)json["memory"]["maxComponentCount"],
-			(uint32)json["memory"]["maxEntityCount"],
-			(uint32)json["memory"]["maxCommandBuffers"]
+			(uint32)m_json["memory"]["maxComponentCount"],
+			(uint32)m_json["memory"]["maxEntityCount"],
+			(uint32)m_json["memory"]["maxCommandBuffers"]
 		}
 	{ };
 
