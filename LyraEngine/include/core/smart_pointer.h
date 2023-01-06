@@ -37,7 +37,7 @@ public:
 	 *
 	 * @param right pointer to copy from
 	 */
-	constexpr SmartPointer(SmartPointer<Ty, DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter) {}
+	constexpr SmartPointer(SmartPointer<Ty, DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter()) {}
 
 	/**
 	 * @brief destructor of the pointer
