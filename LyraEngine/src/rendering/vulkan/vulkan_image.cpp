@@ -62,7 +62,7 @@ void Image::transition_layout(
 		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else Logger::log_exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
+	else log().exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
 
 	// use a memory barrier to transition the layout
 	cmdBuff.pipelineBarrier(
@@ -100,7 +100,7 @@ VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const V
 		else if (finalTilingMode == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
 	}
 
-	Logger::log_exception("Failed to find supported format out of user defined formats for image at: ", get_address(this), "!");
+	log().exception("Failed to find supported format out of user defined formats for image at: ", get_address(this), "!");
 	// return error case
 	return VK_FORMAT_MAX_ENUM;
 }

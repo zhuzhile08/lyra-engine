@@ -45,7 +45,7 @@ private:
 	 * 
 	 * @return constexpr int
 	 */
-	NODISCARD constexpr static int font_cast(Font font) {
+	NODISCARD constexpr int font_cast(Font font) {
 		return static_cast<int>(font);
 	}
 
@@ -78,7 +78,7 @@ private:
 	 * 
 	 * @return constexpr int
 	 */
-	NODISCARD constexpr static int color_cast(Color color) {
+	NODISCARD constexpr int color_cast(Color color) {
 		return static_cast<int>(color);
 	}
 
@@ -88,13 +88,13 @@ private:
 	 * @param font font
 	 * @param color color
 	 */
-	static void ANSI(Font font, Color color) {
+	void ANSI(Font font, Color color) {
 		std::cout << "\033[" << font_cast(font) << ";" << color_cast(color) << "m";
 	}
 	/**
 	 * @brief set the color to default
 	 */
-	static void set_color_default() {
+	void set_color_default() {
 		ANSI(Font::NON, Color::WHT);
 	}
 
@@ -105,7 +105,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> static void log(Args... message) {
+	template <typename ... Args> void log(Args... message) {
 #ifndef NDEBUG
 		// print the message
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -121,7 +121,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> static void log_debug(Args... message) {
+	template <typename ... Args> void debug(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::GRY);
@@ -143,7 +143,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> static void log_info(Args... message) {
+	template <typename ... Args> void info(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::GRN);
@@ -165,7 +165,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> static void log_warning(Args... message) {
+	template <typename ... Args> void warning(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::YEL);
@@ -187,7 +187,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> static void log_error(Args... message) {
+	template <typename ... Args> void error(Args... message) {
 		// set the color and font of the message
 		ANSI(Font::NON, Color::RED);
 		// print the message
@@ -207,33 +207,31 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> static void log_exception(Args... message) {
+	template <typename ... Args> void exception(Args... message) {
 		// set the color and font of the message
 		ANSI(Font::BLD, Color::RED);
 		// print the message
 		std::cout << "[EXCEPTION]: ";
-		(std::cout << ... << std::forward<Args>(message)) << end_l();
+		(std::cerr << ... << std::forward<Args>(message)) << end_l();
 #ifdef LYRA_LOG_FILE
 		m_logFile << "[EXCEPTION]: ";
 		(m_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
 		// reset color
 		set_color_default();
-		// abourt the program
-		std::abort();
 	}
 
 	/**
 	 * @brief clear the termial buffer
 	*/
-	static void clear_buffer();
+	void clear_buffer();
 
 	/**
 	 * @brief tab escape character
 	 * 
 	 * @return const char*
 	 */
-	NODISCARD static const char* tab() {
+	NODISCARD const char* tab() {
 		return "\t";
 	}
 	/**
@@ -241,15 +239,26 @@ public:
 	 * 
 	 * @return const char*
 	 */
-	NODISCARD static const char* end_l() {
+	NODISCARD const char* end_l() {
 		return "\n";
 	}
 
 private:
-	static std::ofstream m_logFile;
+	std::ofstream m_logFile;
 
-	Logger() noexcept = delete;
+	Logger() noexcept :
+		m_logFile("data/log/log.txt", std::ofstream::out | std::ofstream::trunc)
+	{ };
+
+	friend Logger& log();
 };
+
+/**
+ * @brief return a static instance of the Logger
+ * 
+ * @return Logger& 
+ */
+Logger& log();
 
 /**
  * @brief custom assert function to check if a condition is false
@@ -258,9 +267,9 @@ private:
  * @param condition condition to check if false
  * @param message exception message
  */
-template <typename ... Args> static void lassert(bool condition, Args... message) {
+template <typename ... Args> void lassert(bool condition, Args... message) {
 #ifndef NDEBUG
-	if (!condition) (Logger::log_exception(message), ...);
+	if (!condition) (log().exception(message), ...);
 #endif
 }
 /**
@@ -270,9 +279,9 @@ template <typename ... Args> static void lassert(bool condition, Args... message
  * @param function Vulkan function to check
  * @param purpose Purpose of the function
  */
-template <typename Arg> static void vassert(VkResult function, Arg purpose) {
+template <typename Arg> void vassert(VkResult function, Arg purpose) {
 #ifndef NDEBUG
-	if (function != VkResult::VK_SUCCESS) (Logger::log_exception("Failed to ", purpose, " with error code: ", function, "!"));
+	if (function != VkResult::VK_SUCCESS) (log().exception("Failed to ", purpose, " with error code: ", function, "!"));
 #endif
 }
 

@@ -23,7 +23,7 @@ util::ImageData Assets::unpack_texture(const char* path) {
 
 	int width, height, channels;
 	stbi_uc* imagePixelData = stbi_load(path, &width, &height, &channels, STBI_rgb_alpha);
-	if (imagePixelData == nullptr) Logger::log_exception("Failed to load image from path: ", path, "!");
+	if (imagePixelData == nullptr) log().exception("Failed to load image from path: ", path, "!");
 
 	util::ImageData imageData{
 		path,

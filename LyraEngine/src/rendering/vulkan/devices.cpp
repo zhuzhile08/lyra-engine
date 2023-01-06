@@ -31,8 +31,8 @@ Device::~Device() {
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
 #ifndef NDEBUG
-	Logger::log_info("Available device extensions:");
-	for (uint32 j = 0; j < extensions.size(); j++) Logger::log_debug(Logger::tab(), extensions.at(j).extensionName);
+	log().info("Available device extensions:");
+	for (uint32 j = 0; j < extensions.size(); j++) log().debug(log().tab(), extensions.at(j).extensionName);
 #endif
 	for (uint32 i = 0; i < requestedExtensions.size(); i++) {
 		bool found = false;
@@ -50,10 +50,10 @@ void Device::check_requested_validation_layers(const std::vector <VkLayerPropert
 	// go through every requested layers and see if they are available
 	for (uint32 i = 0; i < requestedLayers.size(); i++) {
 		bool found = false;
-		Logger::log_info("Available layers:");
+		log().info("Available layers:");
 
 		for (uint32 j = 0; j < layers.size(); j++) {
-			Logger::log_debug(Logger::tab(), layers.at(j).layerName, ": ", layers.at(j).description);
+			log().debug(log().tab(), layers.at(j).layerName, ": ", layers.at(j).description);
 			if (strcmp(requestedLayers.at(i), layers.at(j).layerName) == 0) {
 				found = true;
 				break;
@@ -100,35 +100,35 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 #ifdef DRAW_INDIRECT
 	if (!features.geometryShader || !features.multiDrawIndirect) {
 		score = 0;
-		Logger::log_warning("GPU does not have some required features!");
+		log().warning("GPU does not have some required features!");
 	}
 #else
 	if (!features.geometryShader) {
 		score = 0;
-		Logger::log_warning("GPU does not have some required features!");
+		log().warning("GPU does not have some required features!");
 	}
 #endif
 #endif
 
-	Logger::log_info("Available device features and properties: ");
+	log().info("Available device features and properties: ");
 
 	// the actuall scoring system
 	if (score > 0) {
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
 			score += 10;
-			Logger::log_debug(Logger::tab(), "Discrete GPU");
+			log().debug(log().tab(), "Discrete GPU");
 		} if (features.multiDrawIndirect) { // indirect drawing
 			score += 6;
-			Logger::log_debug(Logger::tab(), "Supports indirect drawing");
+			log().debug(log().tab(), "Supports indirect drawing");
 #ifndef DRAW_INDIRECT
-			Logger::log_warning("Indirect draw calls are not enabled, but are supported. Please turn indirect drawing on if you want better performance.");
+			log().warning("Indirect draw calls are not enabled, but are supported. Please turn indirect drawing on if you want better performance.");
 #endif
 		} if (features.samplerAnisotropy) {
 			score += 4;
-			Logger::log_debug(Logger::tab(), "Supports anistropic filtering");
+			log().debug(log().tab(), "Supports anistropic filtering");
 		}
 	}
-	Logger::log_info("Score: ", score, Logger::end_l());
+	log().info("Score: ", score, log().end_l());
 	map.insert(std::make_pair(score, device));
 }
 
@@ -202,12 +202,12 @@ void Device::pick_physical_device() {
 	std::multimap <int, VkPhysicalDevice> possibleDevices;
 
 	for (uint32 i = 0; i < devices.size(); i++) {
-		Logger::log_info("GPU " + std::to_string(i + 1) + ": ");
+		log().info("GPU " + std::to_string(i + 1) + ": ");
 		rate_physical_device(devices.at(i), possibleDevices);
 	}
 
 	if (possibleDevices.begin()->first <= 0) {
-		Logger::log_exception("Failed to find GPU with enough features");
+		log().exception("Failed to find GPU with enough features");
 	}
 
 	m_physicalDevice = possibleDevices.begin()->second;

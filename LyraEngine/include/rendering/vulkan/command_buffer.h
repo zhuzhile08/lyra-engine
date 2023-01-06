@@ -116,7 +116,7 @@ public:
 			if (it.second == CommandBufferUsage::COMMAND_BUFFER_UNUSED) 
 				return it.first; 
 	#ifndef NDEBUG
-		Logger::log_exception("Failed to get an unused command buffer from the command buffer manager at: ", get_address(this), "!");
+		log().exception("Failed to get an unused command buffer from the command buffer manager at: ", get_address(this), "!");
 	#endif
 		return 0;
 	};
