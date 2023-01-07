@@ -44,9 +44,6 @@ float foo(float a, int b) {
 }
 
 int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever you want to call this SMT reference
-	lyra::Function<float> bar([](){return foo(1, 2);});
-	lyra::log().warning(bar());
-
 	// init application
 	Application app;
 
