@@ -31,8 +31,6 @@ void Application::draw() {
 
 		m_currentTime = SDL_GetTicks64();
 	}
-
-	// renderSystem.device.wait();
 }
 
 Window Application::window;

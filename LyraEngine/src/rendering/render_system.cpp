@@ -10,10 +10,6 @@
 
 namespace lyra {
 
-RenderSystem::~RenderSystem() {
-	// device.wait();
-}
-
 void RenderSystem::add_renderer(Renderer* const renderer) {
 	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i] = renderer;
 }

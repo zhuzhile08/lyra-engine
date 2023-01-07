@@ -34,10 +34,6 @@ public:
 	 * @param window the window
 	 */
 	RenderSystem(Window* const window) : window(window), currentCommandBuffer(commandBuffers) { }
-	/**
-	 * @brief destructor of the context
-	 */
-	~RenderSystem();
 
 	RenderSystem(const RenderSystem&) noexcept = delete;
 	RenderSystem operator=(const RenderSystem&) const noexcept = delete;

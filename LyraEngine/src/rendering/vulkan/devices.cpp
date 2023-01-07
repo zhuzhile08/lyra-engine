@@ -22,10 +22,10 @@ Device::Device() {
 }
 
 Device::~Device() {
+	wait();
 	vmaDestroyAllocator(m_allocator);
 	vkDestroyDevice(m_device, nullptr);
 	vkDestroyInstance(m_instance, nullptr);
-	wait();
 }
 
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
