@@ -1,5 +1,7 @@
 #include <res/loaders/load_assets.h>
 
+#include <res/loaders/load_file.h>
+
 namespace lyra {
 
 namespace util {

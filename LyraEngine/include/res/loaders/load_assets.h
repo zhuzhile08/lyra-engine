@@ -9,8 +9,6 @@
 #include <nlohmann/json.hpp>
 #include <lz4.h>
 
-#include <res/loaders/load_file.h>
-
 namespace lyra {
 
 namespace util {
@@ -35,15 +33,15 @@ struct ImageData {
 	// mipmapping levels
 	uint32 mipmap;
 	// type of texture
-	unsigned int type;
+	uint32 type;
 	// how to treat the alpha value of the image
-	unsigned int alpha;
+	uint32 alpha;
 	// how the UVs should read the image
-	unsigned int dimension;
+	uint32 dimension;
 	// how to wrap the image if the UVs exceeds the border of the image
-	unsigned int wrap;
+	uint32 wrap;
 	// anistropic filtering
-	unsigned int anistropy;
+	uint32 anistropy;
 	// image data
 	void* data;
 }; // this also roughly represents the texture data file
