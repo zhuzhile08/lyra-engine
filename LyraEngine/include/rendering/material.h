@@ -121,19 +121,19 @@ private:
 	std::vector<vulkan::GPUBuffer> m_vertShaderBuffers;
 
 	struct MaterialVertexData {
-		alignas(8) const uint32& m_normalMapValue;
-		alignas(8) const int32& m_displacementMapValue;
+		alignas(8) const uint32 m_normalMapValue;
+		alignas(8) const int32 m_displacementMapValue;
 	};
 
 	struct MaterialFragmentData {
-		alignas(16) const glm::vec4& m_albedoColor;
-		alignas(16) const glm::vec4& m_emissionColor;
-		alignas(8) const uint32& m_metallic;
-		alignas(8) const uint32& m_roughness;
-		alignas(8) const uint32& m_specular;
-		alignas(8) const bool& m_emissionEnabled;
-		alignas(8) const uint32& m_emissionEnergy;
-		alignas(8) const uint32& m_occlusionMapValue;
+		alignas(16) const glm::vec4 m_albedoColor;
+		alignas(16) const glm::vec4 m_emissionColor;
+		alignas(8) const uint32 m_metallic;
+		alignas(8) const uint32 m_roughness;
+		alignas(8) const uint32 m_specular;
+		alignas(8) const bool m_emissionEnabled;
+		alignas(8) const uint32 m_emissionEnergy;
+		alignas(8) const uint32 m_occlusionMapValue;
 	};
 
 	/**

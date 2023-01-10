@@ -123,17 +123,9 @@ void Camera::set_orthographic(const glm::vec4& viewport, const float& near, cons
 
 void Camera::draw() {
 	// update the script
-	//m_script->update();
+	m_script->update();
 	// check wich projection model the camera uses and calculate the projection data
-	//CameraData data {mat_to_global(), m_projection_matrix};
-
-	glm::mat4 model = glm::mat4(1.0f), view = glm::mat4(1.0f), proj;
-	model = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    proj = glm::perspective(glm::radians(45.0f), Application::renderSystem.vulkanWindow.extent().width/(float)Application::renderSystem.vulkanWindow.extent().height, 0.1f, 10.0f);
-
-	CameraData data {view * model, proj};
-
+	CameraData data{ mat_to_global(), m_projection_matrix };
 	// copy the data into the shader
 	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
 }
