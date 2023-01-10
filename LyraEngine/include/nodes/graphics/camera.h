@@ -51,8 +51,8 @@ public:
 
 	// camera data
 	struct CameraData {
-		alignas(16) const glm::mat4& model;
-		alignas(16) const glm::mat4& proj;
+		alignas(16) const glm::mat4 model;
+		alignas(16) const glm::mat4 proj;
 	};
 	
 	/**

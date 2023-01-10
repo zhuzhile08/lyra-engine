@@ -126,12 +126,11 @@ void Camera::draw() {
 	// check wich projection model the camera uses and calculate the projection data
 	//CameraData data {mat_to_global(), m_projection_matrix};
 
-	glm::mat4 model = glm::mat4(1.0f), view = glm::mat4(1.0f), proj;
+	glm::mat4 model = glm::mat4(1.0f), view = glm::mat4(1.0f);
 	model = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    proj = glm::perspective(glm::radians(45.0f), Application::renderSystem.vulkanWindow.extent().width/(float)Application::renderSystem.vulkanWindow.extent().height, 0.1f, 10.0f);
 
-	CameraData data {model * view, proj};
+	CameraData data {model * view, m_projection_matrix};
 
 	// copy the data into the shader
 	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
