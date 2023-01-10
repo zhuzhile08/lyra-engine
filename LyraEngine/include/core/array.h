@@ -179,26 +179,24 @@ template <class Ty, size_t Size> struct Array {
      * @return constexpr value_type*
      */
     NODISCARD constexpr value_type* data() noexcept { return m_array; }
-
     /**
      * @brief get the raw array
      * 
-     * @return constexpr const value_type* const
+     * @return constexpr const value_type*
      */
-    NODISCARD constexpr const value_type* const data() const noexcept { return m_array; }
+    NODISCARD constexpr const value_type* data() const noexcept { return m_array; }
     /**
      * @brief cast the wrapper to the raw array
      * 
      * @return constexpr value_type*
      */
     NODISCARD constexpr operator value_type* () noexcept { return m_array; }
-
     /**
      * @brief cast the wrapper to the raw array
      * 
-     * @return constexpr const value_type* const
+     * @return constexpr const value_type*
      */
-    NODISCARD constexpr operator const value_type* const () const noexcept { return m_array; }
+    NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
     array_type m_array;
 };
