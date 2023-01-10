@@ -69,6 +69,7 @@ public:
 	 */
 	Camera(
 		Script* script,
+		Skybox* skybox = nullptr,
 		const bool& perspective = true,
 		const char* name = "Camera",
 		Spatial* parent = nullptr,

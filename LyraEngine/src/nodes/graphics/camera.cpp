@@ -21,6 +21,7 @@ namespace lyra {
 
 Camera::Camera(
 	Script* script,
+	Skybox* skybox,
 	const bool& perspective,
 	const char* name,
 	Spatial* parent,
@@ -28,7 +29,7 @@ Camera::Camera(
 	const uint32& tag,
 	const Transform& transform
 ) :
-	Spatial(script, name, parent, visible, tag, transform), Renderer(), m_projection_matrix(glm::mat4(1.0f))
+	Spatial(script, name, parent, visible, tag, transform), Renderer(), m_skybox(skybox), m_projection_matrix(glm::mat4(1.0f))
 {
 	// shader information
 	std::vector<vulkan::Pipeline::ShaderInfo> shaders{
@@ -131,7 +132,7 @@ void Camera::draw() {
     view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     proj = glm::perspective(glm::radians(45.0f), Application::renderSystem.vulkanWindow.extent().width/(float)Application::renderSystem.vulkanWindow.extent().height, 0.1f, 10.0f);
 
-	CameraData data {model * view, proj};
+	CameraData data {view * model, proj};
 
 	// copy the data into the shader
 	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
@@ -143,7 +144,7 @@ void Camera::record_command_buffers() {
 	// begin the renderpass
 	begin_renderpass();
 	// draw the skybox first as background
-	if (m_skybox != nullptr) m_skybox->draw();
+	if (m_skybox) m_skybox->draw();
 	// bind the default render pipeline
 	Application::renderSystem.currentCommandBuffer.bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
 	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(

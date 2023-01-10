@@ -52,7 +52,7 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// lyra::gui::GUIRenderer guiRenderer;
 	// guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
-	lyra::Camera camera(new CameraScript, true, "Camera", &scene);
+	lyra::Camera camera(new CameraScript, nullptr, true, "Camera", &scene);
 
 	lyra::Assets assets;
 
