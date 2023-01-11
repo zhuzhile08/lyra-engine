@@ -26,13 +26,10 @@
 
 struct CameraScript : public lyra::Script {
 	void update(void) override {
-		//node->transform.rotate_z(10.0f);
-		//node->transform.look_at_from_translation({2.0f, 2.0f, 2.0f}, {0.0f, 0.0f, 0.0f});
+		node->transform.rotate_z(10.0f);
+		node->transform.look_at_from_translation({2.0f, 2.0f, 2.0f}, {0.0f, 0.0f, 0.0f});
 		
 	}
-
-	float pos = 0;
-	float posy = 0;
 };
 
 class Application : public lyra::Application {

@@ -147,7 +147,7 @@ void GraphicsPipeline::create_pipeline(
 			VK_FALSE,
 			static_cast<VkPolygonMode>(renderMode),
 			VK_CULL_MODE_BACK_BIT,
-			VK_FRONT_FACE_CLOCKWISE,
+			static_cast<VkFrontFace>(settings().rendering.polygonFrontFace),
 			VK_FALSE,
 			0.0f,
 			0.0f,
