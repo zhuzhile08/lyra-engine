@@ -50,13 +50,13 @@ public:
 	 *
 	 * @return constexpr float
 	 */
-	NODISCARD constexpr float fps() const noexcept { return 1.0f / (float)(m_currentTime - m_lastTime) * 0.001f; }
+	NODISCARD constexpr float fps() const noexcept { return 1000.0f / (float)(m_currentTime - m_lastTime); }
 	/**
 	 * @brief get the deltatime
 	 *
 	 * @return const float
 	 */
-	NODISCARD constexpr float deltaTime() const noexcept { return (m_currentTime - m_lastTime) * 0.001f; }
+	NODISCARD constexpr float deltaTime() const noexcept { return (float)(m_currentTime - m_lastTime); }
 	
 	static Window window;
 	static RenderSystem renderSystem;
