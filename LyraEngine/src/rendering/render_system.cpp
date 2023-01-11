@@ -11,7 +11,7 @@
 namespace lyra {
 
 void RenderSystem::add_renderer(Renderer* const renderer) {
-	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i] = renderer;
+	m_renderers.push_back(renderer);
 }
 
 void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily& queue) const {

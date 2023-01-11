@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-#include <core/array.h>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 
@@ -70,7 +70,7 @@ public:
 	vulkan::CommandBuffer currentCommandBuffer;
 
 private:
-	Array<Renderer*, 16> m_renderers;
+	std::vector<Renderer*> m_renderers;
 
 	uint8 m_currentFrame = 0;
 	uint32 m_imageIndex;
