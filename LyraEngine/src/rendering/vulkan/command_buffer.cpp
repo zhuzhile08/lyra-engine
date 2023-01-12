@@ -49,7 +49,7 @@ CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const CommandPool
 }
 
 CommandBufferManager::VulkanCommandBuffer::~VulkanCommandBuffer() noexcept {
-	Application::renderSystem.device.freeCommandBuffers(commandPool->commandPool(), 1, commandBuffer);
+	Application::renderSystem.device.freeCommandBuffer(commandPool->commandPool(), commandBuffer);
 }
 
 // manager
@@ -58,7 +58,6 @@ CommandBufferManager::CommandBufferManager(const VkCommandBufferLevel& level) : 
 
 	for (uint32 i = 0; i < settings().memory.maxCommandBuffers; i++) {
 		m_commandBufferData.emplace_back(&m_commandPool, level);
-		m_commandBuffers.emplace(i, CommandBufferUsage::COMMAND_BUFFER_UNUSED);
 	}
 }
 

@@ -118,8 +118,11 @@ public:
 	void destroyImage(const VkImage& image, const VmaAllocation& allocation) {
 		vmaDestroyImage(m_allocator, image, allocation);
 	}
-	void freeCommandBuffers(VkCommandPool commandPool, const uint32& commandBufferCount, const VkCommandBuffer& pCommandBuffers) {
-		vkFreeCommandBuffers(m_device, commandPool, commandBufferCount, &pCommandBuffers);
+	void freeCommandBuffer(VkCommandPool commandPool, const VkCommandBuffer& pCommandBuffers) {
+		vkFreeCommandBuffers(m_device, commandPool, 1, &pCommandBuffers);
+	}
+	void freeCommandBuffers(VkCommandPool commandPool, const uint32& commandBufferCount, const VkCommandBuffer* pCommandBuffers) {
+		vkFreeCommandBuffers(m_device, commandPool, commandBufferCount, pCommandBuffers);
 	}
 	VkResult freeDescriptorSets(const VkDescriptorPool& descriptorPool, const uint32& descriptorSetCount, const VkDescriptorSet& pDescriptorSets) {
 		return vkFreeDescriptorSets(m_device, descriptorPool, descriptorSetCount, &pDescriptorSets);

@@ -55,12 +55,6 @@ private:
  */
 class CommandBufferManager {
 private:
-	// enum to see if command buffer is used or not
-	enum class CommandBufferUsage : unsigned int {
-		COMMAND_BUFFER_USED,
-		COMMAND_BUFFER_UNUSED
-	};
-
 	/**
 	 * @brief command buffer
 	 */
@@ -93,8 +87,6 @@ public:
 	/**
 	 * @brief create the command buffer manager
 	 *
-	 * @param device device
-	 * @param commandPool command pool
 	 * @param level level of the command buffers in the manager
 	 */
 	CommandBufferManager(const VkCommandBufferLevel& level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -107,21 +99,6 @@ public:
 	CommandBufferManager operator=(const CommandBufferManager&) const noexcept = delete;
 
 	/**
-	 * @brief return the index of an unused pipeline
-	 * 
-	 * @return const uint32_t
-	 */
-	NODISCARD const uint32 get_unused() const {
-		for (auto& it : m_commandBuffers) 
-			if (it.second == CommandBufferUsage::COMMAND_BUFFER_UNUSED) 
-				return it.first; 
-	#ifndef NDEBUG
-		log().exception("Failed to get an unused command buffer from the command buffer manager at: ", get_address(this), "!");
-	#endif
-		return 0;
-	};
-
-	/**
 	 * @brief get a command buffer at a specific index
 	 *
 	 * @param index index of the command buffer
@@ -129,11 +106,18 @@ public:
 	 * @return const lyra::vulkan::VulkanCommandBuffer&
 	 */
 	NODISCARD const VulkanCommandBuffer& commandBuffer(const uint32& index) const noexcept { return m_commandBufferData.at(index); }
+	/**
+	 * @brief get a render command buffer at a specific index
+	 *
+	 * @param index index of the command buffer
+	 *
+	 * @return lyra::vulkan::VulkanCommandBuffer&
+	 */
+	NODISCARD VulkanCommandBuffer& renderCommandBuffer(const uint32& index) noexcept { return m_commandBufferData[index]; }
 
 private:
 	CommandPool m_commandPool;
 	std::vector<VulkanCommandBuffer> m_commandBufferData;
-	std::unordered_map<uint32, CommandBufferUsage> m_commandBuffers;
 
 	friend struct CommandBuffer;
 };
