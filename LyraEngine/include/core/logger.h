@@ -266,9 +266,7 @@ Logger& log();
  * @param message exception message
  */
 template <typename ... Args> void lassert(bool condition, Args... message) {
-#ifndef NDEBUG
 	if (!condition) (log().exception(message), ...);
-#endif
 }
 /**
  * @brief Vulkan function assert
@@ -278,9 +276,7 @@ template <typename ... Args> void lassert(bool condition, Args... message) {
  * @param purpose Purpose of the function
  */
 template <typename Arg> void vassert(VkResult function, Arg purpose) {
-#ifndef NDEBUG
 	if (function != VkResult::VK_SUCCESS) (log().exception("Failed to ", purpose, " with error code: ", function, "!"));
-#endif
 }
 
 } // namespace lyra
