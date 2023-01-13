@@ -14,10 +14,35 @@
 
 namespace lyra {
 
+void Renderer::Frame::create_sync_objects() {
+	// semaphore create info
+	VkSemaphoreCreateInfo semaphoreInfo{
+		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+	};
+
+	// create both semaphores
+	vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphore),
+		"create Vulkan Synchronization Objects");
+	vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphore),
+		"create Vulkan Synchronization Objects");
+
+	// fence create info
+	VkFenceCreateInfo fenceInfo{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		nullptr,
+		VK_FENCE_CREATE_SIGNALED_BIT
+	};
+
+	// create the fence
+	vassert(vkCreateFence(Application::renderSystem.device.device(), &fenceInfo, nullptr, &m_inFlightFence),
+		"create Vulkan Synchronization Objects");
+}
+
 Renderer::Renderer() {
-	// create the framebuffers
+	// create the renderpass
 	create_render_pass();
-	create_framebuffers();
+	
+	// create the virtual frames
 
 	// add the renderer to the render system
 	Application::renderSystem.add_renderer(this);
@@ -25,15 +50,13 @@ Renderer::Renderer() {
 
 Renderer::~Renderer() {
 	// destrpy the framebuffer
-	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr); // Yes, I've just probably broken some C++ convention rules or something, but since the context is a friend anyway, this should boost the performance by just a little bit
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 }
 
 void Renderer::recreate() {
-	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr);
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
-	create_framebuffers();
+	for (auto& frame : m_frames) frame.recreate();
 }
 
 void Renderer::create_render_pass() {
@@ -167,7 +190,7 @@ void Renderer::begin_renderpass() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		m_renderPass,
-		m_framebuffers.at(Application::renderSystem.m_imageIndex),
+		m_frames.at(Application::renderSystem.m_imageIndex).m_framebuffer,
 		{	// rendering area
 			{ 0, 0 },
 			Application::renderSystem.vulkanWindow.extent()

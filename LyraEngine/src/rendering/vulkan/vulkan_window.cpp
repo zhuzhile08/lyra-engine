@@ -19,7 +19,6 @@ namespace vulkan {
 Window::Window() {
 	create_window_surface();
 	create_swapchain();
-	create_sync_objects();
 }
 
 Window::~Window() noexcept {
@@ -28,7 +27,6 @@ Window::~Window() noexcept {
 		vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphores[i], nullptr);
 		vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFences[i], nullptr);
 	}
-	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem.device.device(), m_views[i], nullptr);
 	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr); // swapchain and old swapchain
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
 	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr); // window surface
@@ -39,14 +37,16 @@ void Window::recreate() {
 	vkDeviceWaitIdle(Application::renderSystem.device.device());
 
 	// destroy the images
-	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem.device.device(), m_views[i], nullptr);
 	m_depthImage.destroy();
 	m_colorImage.destroy();
 	m_depthMem.destroy();
 	m_colorMem.destroy();
-	// destroy the swapchain
-	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr);
+
+	// destroy the old swapchain
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
+
+	// reassign the old swapchain
+	m_oldSwapchain = &this->m_swapchain;
 
 	// recreate the swapchain
 	create_swapchain();
@@ -148,30 +148,17 @@ void Window::create_window_surface() {
 }
 
 void Window::create_swapchain_images() {
+	// I have to do this because vkGetSwapchainImagesKHR isn't very usable with my image wrapper
+	std::vector<VkImage&> images;
 	// get the number of images
 	uint32 imageCount;
 	vassert(vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
-	m_images.resize(imageCount); m_views.resize(imageCount);
-	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, m_images.data());
+	m_images.resize(imageCount); images.resize(imageCount);
+	for (uint32 i = 0; i <= m_images.size(); i++) images[i] = m_images[i].m_image;
+	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, images.data());
 
-	// I hate this bro why C++
-	// this code stems from the disability to have a vector with my own image type, because then vkGetSwapchainImagesKHR won't work properly, so I had to separate everything again
-	for (uint32 i = 0; i < imageCount; i++) {
-		// image view creation info
-		VkImageViewCreateInfo createInfo{
-			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-			nullptr,
-			0,
-			m_images[i],
-			VK_IMAGE_VIEW_TYPE_2D,
-			m_format,
-			{ VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY },
-			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
-		};
-
-		// create the view
-		vassert(vkCreateImageView(Application::renderSystem.device.device(), &createInfo, nullptr, &m_views.at(i)), "create Vulkan image views");
-	}
+	// create the image views
+	for (auto& image : m_images) image.create_view(m_format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 }
 
 void Window::create_depth_buffer() {
@@ -272,28 +259,6 @@ void Window::create_swapchain() {
 	create_swapchain_images();
 	create_color_resources();
 	create_depth_buffer();
-}
-
-void Window::create_sync_objects() {
-	m_imageAvailableSemaphores.resize(settings().rendering.maxFramesInFlight);
-	m_renderFinishedSemaphores.resize(settings().rendering.maxFramesInFlight);
-	m_inFlightFences.resize(settings().rendering.maxFramesInFlight);
-
-	VkSemaphoreCreateInfo semaphoreInfo{ VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-	VkFenceCreateInfo fenceInfo{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-		nullptr,
-		VK_FENCE_CREATE_SIGNALED_BIT
-	};
-
-	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) {
-		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphores[i]),
-			"create Vulkan Synchronization Objects");
-		vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphores[i]),
-			"create Vulkan Synchronization Objects");
-		vassert(vkCreateFence(Application::renderSystem.device.device(), &fenceInfo, nullptr, &m_inFlightFences[i]),
-			"create Vulkan Synchronization Objects");
-	}
 }
 
 } // namespace vulkan

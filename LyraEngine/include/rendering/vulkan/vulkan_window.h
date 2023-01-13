@@ -70,16 +70,22 @@ public:
 	NODISCARD constexpr const VkSwapchainKHR& swapchain() const noexcept { return m_swapchain; }
 	/**
 	 * @brief get the swapchain images
-	 * 
-	 * @return const std::vector<VkImage>
-	 */
-	NODISCARD const std::vector<VkImage> images() const noexcept { return m_images; }
-	/**
-	 * @brief get the image views of the swapchain images
 	 *
-	 * @return const std::vector<VkImageView>
+	 * @return const std::vector<lyra::vulkan::Image>
 	 */
-	NODISCARD const std::vector<VkImageView> views() const noexcept { return m_views; }
+	NODISCARD const std::vector<Image> images() const noexcept { return m_images; }
+	/**
+	 * @brief get the depth buffer image
+	 *
+	 * @return constexpr const Image* const
+	 */
+	NODISCARD constexpr const Image* const depthImage() const noexcept { return &m_depthImage; }
+	/**
+	 * @brief get the color resources image
+	 *
+	 * @return constexpr const Image* const
+	 */
+	NODISCARD constexpr const Image* const colorImage() const noexcept { return &m_colorImage; }
 	/**
 	 * @brief get the format
 	 *
@@ -93,47 +99,17 @@ public:
 	*/
 	NODISCARD constexpr VkExtent2D extent() const noexcept { return m_extent; }
 	/**
-	 * @brief get the color resources image
-	 *
-	 * @return constexpr const Image* const
-	 */
-	NODISCARD constexpr const Image* const colorImage() const noexcept { return &m_colorImage; }
-	/**
 	 * @brief get the maximum amout of samples
 	 *
 	 * @return constexpr VkSampleCountFlagBits
 	 */
 	NODISCARD constexpr VkSampleCountFlagBits maxMultisamples() const noexcept { return m_maxMultisamples; }
 	/**
-	 * @brief get the depth buffer image
-	 *
-	 * @return constexpr const Image* const
-	 */
-	NODISCARD constexpr const Image* const depthImage() const noexcept { return &m_depthImage; }
-	/**
 	 * @brief get the depth buffer format
 	 *
 	 * @return constexpr VkFormat&
 	*/
 	NODISCARD constexpr VkFormat depthBufferFormat() const noexcept { return m_depthBufferFormat; }
-	/**
-	 * @brief get the image available semaphores
-	 *
-	 * @return const std::vector <VkSemaphore>&
-	*/
-	NODISCARD const std::vector <VkSemaphore>& imageAvailableSemaphores() const noexcept { return m_imageAvailableSemaphores; }
-	/**
-	 * @brief get the render finished semaphores
-	 *
-	 * @return const std::vector <VkSemaphore>&
-	*/
-	NODISCARD const std::vector <VkSemaphore>& renderFinishedSemaphores() const noexcept { return m_renderFinishedSemaphores; }
-	/**
-	 * @brief get the in flight fences
-	 *
-	 * @return const std::vector <VkFence>&
-	*/
-	NODISCARD const std::vector <VkFence>& inFlightFences() const noexcept { return m_inFlightFences; }
 
 private:
 	VkSurfaceKHR m_surface;
@@ -141,8 +117,7 @@ private:
 	VkFormat m_format;
 	VkExtent2D m_extent;
 
-	std::vector<VkImage> m_images;
-	std::vector<VkImageView> m_views;
+	std::vector<Image> m_images;
 	
 	Image m_colorImage;
 	GPUMemory m_colorMem;
@@ -151,10 +126,6 @@ private:
 	Image m_depthImage;
 	GPUMemory m_depthMem;
 	VkFormat m_depthBufferFormat;
-
-	std::vector <VkSemaphore> m_imageAvailableSemaphores;
-	std::vector <VkSemaphore> m_renderFinishedSemaphores;
-	std::vector <VkFence> m_inFlightFences;
 
 	VkSwapchainKHR* m_oldSwapchain = nullptr;
 
@@ -211,10 +182,6 @@ private:
 	 * @brief create the swapchain
 	 */
 	void create_swapchain();
-	/**
-	 * @brief create the syncronisation objects
-	 */
-	void create_sync_objects();
 };
 
 } // namespace vulkan
