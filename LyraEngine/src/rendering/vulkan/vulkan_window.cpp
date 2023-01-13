@@ -36,7 +36,7 @@ Window::~Window() noexcept {
 
 void Window::recreate() {
 	// wait until all commands are done executing
-	vkDeviceWaitIdle(Application::renderSystem.device.device());
+	Application::renderSystem.device.wait();
 
 	// destroy the images
 	for (uint32 i = 0; i < m_views.size(); i++) vkDestroyImageView(Application::renderSystem.device.device(), m_views[i], nullptr);
