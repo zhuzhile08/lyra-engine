@@ -34,7 +34,7 @@ Window::~Window() noexcept {
 
 void Window::recreate() {
 	// wait until all commands are done executing
-	vkDeviceWaitIdle(Application::renderSystem.device.device());
+	Application::renderSystem.device.wait();
 
 	// destroy the images
 	m_depthImage.destroy();
