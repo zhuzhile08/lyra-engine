@@ -66,7 +66,7 @@ Descriptor::Descriptor(const DescriptorSetLayout* const layout, const uint32& la
 
 	for (uint32 i = 0; i < writer.writes.size(); i++) writer.writes.at(i).dstSet = m_descriptorSet;
 
-	vkUpdateDescriptorSets(Application::renderSystem.device.device(), static_cast<uint32>(writer.writes.size()), writer.writes.data(), 0, nullptr);
+	Application::renderSystem.device.updateDescriptorSets(static_cast<uint32>(writer.writes.size()), writer.writes.data());
 }
 
 } // namespace vulkan
