@@ -14,6 +14,20 @@
 
 namespace lyra {
 
+Renderer::Frame::~Frame() {
+	vkDestroySemaphore(Application::renderSystem.device.device(), m_renderFinishedSemaphore, nullptr);
+	vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphore, nullptr);
+	vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFence, nullptr);
+}
+
+void Renderer::Frame::wait() const {
+	vassert(Application::renderSystem.device.waitForFence(m_inFlightFence, VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
+}
+
+void Renderer::Frame::reset() const {
+	vassert(Application::renderSystem.device.resetFence(m_inFlightFence), "reset Vulkan fences");
+}
+
 void Renderer::Frame::create_sync_objects() {
 	// semaphore create info
 	VkSemaphoreCreateInfo semaphoreInfo{
@@ -162,7 +176,7 @@ void Renderer::create_framebuffers() {
 		Array<VkImageView, 3> attachments = {{
 			Application::renderSystem.vulkanWindow.colorImage()->m_view,
 			Application::renderSystem.vulkanWindow.depthImage()->m_view,
-			Application::renderSystem.vulkanWindow.views().at(i)
+			Application::renderSystem.vulkanWindow.images().at(i).m_view
 		}};
 
 		// create the frame buffers

@@ -33,16 +33,14 @@ private:
 		 * 
 		 * @param index index of the frame in the renderer
 		 */
-		Frame() 
-		{
+		Frame() {
 			// create the synchronisation objects
 			create_sync_objects();
 		}
 		/**
 		 * @brief destruct the frame
 		 */
-		~Frame();
-
+		virtual ~Frame();
 		/**
 		 * @brief recreate the frame
 		 *
@@ -52,6 +50,15 @@ private:
 			// create the synchronisation objects
 			create_sync_objects();
 		}
+		
+		/**
+		 * @brief wait for Vulkan fences
+		 */
+		void wait() const;
+		/**
+		 * @brief reset Vulkan fences
+		 */
+		void reset() const;
 
 		/**
 		 * @brief get the framebuffers

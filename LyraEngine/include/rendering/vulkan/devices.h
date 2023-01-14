@@ -260,8 +260,11 @@ public:
 	VkResult resetEvent(const VkEvent& event) {
 		return vkResetEvent(m_device, event);
 	}
-	VkResult resetFences(const uint32& fenceCount, const VkFence& pFences) {
-		return vkResetFences(m_device, fenceCount, &pFences);
+	VkResult resetFence(const VkFence& pFence) {
+		return vkResetFences(m_device, 1, &pFence);
+	}
+	VkResult resetFences(const uint32& fenceCount, const VkFence* pFences) {
+		return vkResetFences(m_device, fenceCount, pFences);
 	}
 	VkResult setEvent(const VkEvent& event) {
 		return vkSetEvent(m_device, event);
@@ -269,11 +272,20 @@ public:
 	void unmapMemory(const VmaAllocation& allocation) {
 		vmaUnmapMemory(m_allocator, allocation);
 	}
-	void updateDescriptorSets(const uint32& descriptorWriteCount, const VkWriteDescriptorSet& pDescriptorWrites, const uint32& descriptorCopyCount, const VkCopyDescriptorSet& pDescriptorCopies) {
-		vkUpdateDescriptorSets(m_device, descriptorWriteCount, &pDescriptorWrites, descriptorCopyCount, &pDescriptorCopies);
+	void updateDescriptorSet(const VkWriteDescriptorSet& pDescriptorWrite, const VkCopyDescriptorSet& pDescriptorCopy) {
+		vkUpdateDescriptorSets(m_device, 1, &pDescriptorWrite, 1, &pDescriptorCopy);
 	}
-	VkResult waitForFences(const uint32& fenceCount, const VkFence& pFences, const VkBool32& waitAll, uint64 timeout) {
-		return vkWaitForFences(m_device, fenceCount, &pFences, waitAll, timeout);
+	void updateDescriptorSets(const uint32& descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites) {
+		vkUpdateDescriptorSets(m_device, descriptorWriteCount, pDescriptorWrites, 0, nullptr);
+	}
+	void updateDescriptorSets(const uint32& descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites, const uint32& descriptorCopyCount, const VkCopyDescriptorSet* pDescriptorCopies) {
+		vkUpdateDescriptorSets(m_device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+	}
+	VkResult waitForFence(const VkFence& pFences, const VkBool32& waitAll, uint64 timeout) {
+		return vkWaitForFences(m_device, 1, &pFences, waitAll, timeout);
+	}
+	VkResult waitForFences(const uint32& fenceCount, const VkFence* pFences, const VkBool32& waitAll, uint64 timeout) {
+		return vkWaitForFences(m_device, fenceCount, pFences, waitAll, timeout);
 	}
 
 	// don't ask me how long this took
