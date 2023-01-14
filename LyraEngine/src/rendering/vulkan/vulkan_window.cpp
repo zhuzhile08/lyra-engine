@@ -22,11 +22,6 @@ Window::Window() {
 }
 
 Window::~Window() noexcept {
-	for (uint32 i = 0; i < m_imageAvailableSemaphores.size(); i++) { // sync objects
-		vkDestroySemaphore(Application::renderSystem.device.device(), m_renderFinishedSemaphores[i], nullptr);
-		vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphores[i], nullptr);
-		vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFences[i], nullptr);
-	}
 	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr); // swapchain and old swapchain
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
 	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr); // window surface
@@ -50,14 +45,6 @@ void Window::recreate() {
 
 	// recreate the swapchain
 	create_swapchain();
-}
-
-void Window::wait(const uint32& fenceIndex) const {
-	vassert(Application::renderSystem.device.waitForFences(1, m_inFlightFences.at(fenceIndex), VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
-}
-
-void Window::reset(const uint32& fenceIndex) const {
-	vassert(Application::renderSystem.device.resetFences(1, m_inFlightFences.at(fenceIndex)), "reset Vulkan fences");
 }
 
 void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities) {
