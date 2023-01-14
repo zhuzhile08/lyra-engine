@@ -61,7 +61,7 @@ template <class Ty, size_t Size> struct Array {
      * 
      * @param array array wrapper to fill with
      */
-    void fill(const wrapper_type array) {
+    void fill(const wrapper_type& array) {
         for (size_t i; i < Size; i++) m_array[i] = array[i];
     }
     /**
@@ -71,8 +71,8 @@ template <class Ty, size_t Size> struct Array {
      * 
      * @param array array wrapper to fill with
      */
-    template <size_t OtherSize> void fill(const Array<Ty, OtherSize> array) {
-        for (size_t i; i < ( Size < array.size ) ? Size : array.size; i++) m_array[i] = array[i];
+    template <size_t OtherSize> void fill(const Array<Ty, OtherSize>& array) {
+        for (size_t i; i < ( Size < array.size() ) ? Size : array.size(); i++) m_array[i] = array[i];
     }
 
     /**
