@@ -19,14 +19,15 @@ namespace lyra {
 // basic C-array wrapper implementation
 template <class Ty, size_t Size> struct Array {
     typedef Ty value_type;
-    typedef Ty array_type[Size];
-    typedef Array<Ty, Size> wrapper_type;
+    typedef value_type array_type[Size];
+    typedef Array<value_type, Size> wrapper_type;
 
     /**
      * @brief copy assignment operator
      * 
      * @param right the array to copy from
-     * @return wrapper_type& 
+     * 
+     * @return lyra::Array::wrapper_type& 
      */
     wrapper_type& operator=(const wrapper_type& right) {
         for (size_t i; i < Size; i++) m_array[i] = right.m_array[i];
@@ -71,7 +72,7 @@ template <class Ty, size_t Size> struct Array {
      * 
      * @param array array wrapper to fill with
      */
-    template <size_t OtherSize> void fill(const Array<Ty, OtherSize>& array) {
+    template <size_t OtherSize> void fill(const Array<value_type, OtherSize>& array) {
         for (size_t i; i < ( Size < array.size() ) ? Size : array.size(); i++) m_array[i] = array[i];
     }
 
@@ -87,33 +88,33 @@ template <class Ty, size_t Size> struct Array {
     /**
      * @brief get the first element of the array
      * 
-     * @return constexpr Ty&
+     * @return constexpr lyra::Array::value_type&
      */
-    NODISCARD constexpr Ty& begin() noexcept {
+    NODISCARD constexpr value_type& begin() noexcept {
         return m_array[0];
     }
     /**
      * @brief get the first element of the array
      * 
-     * @return constexpr Ty& const
+     * @return constexpr lyra::Array::value_type& const
      */
-    NODISCARD constexpr const Ty& begin() const noexcept {
+    NODISCARD constexpr const value_type& begin() const noexcept {
         return m_array[0];
     }
     /**
      * @brief get the last element of the array
      * 
-     * @return constexpr Ty&
+     * @return constexpr lyra::Array::value_type&
      */
-    NODISCARD constexpr Ty& end() noexcept {
+    NODISCARD constexpr value_type& end() noexcept {
         return m_array[Size - 1];
     }
     /**
      * @brief get the last element of the array
      * 
-     * @return constexpr const Ty& 
+     * @return constexpr const lyra::Array::value_type& 
      */
-    NODISCARD constexpr const Ty& end() const noexcept {
+    NODISCARD constexpr const value_type& end() const noexcept {
         return m_array[Size - 1];
     }
 
@@ -121,27 +122,27 @@ template <class Ty, size_t Size> struct Array {
      * @brief get an element of the array
      * 
      * @param index index of the element
-     * @return constexpr Ty&
+     * @return constexpr lyra::Array::value_type&
      */
-    NODISCARD constexpr Ty& operator[](const size_t& index) noexcept {
+    NODISCARD constexpr value_type& operator[](const size_t& index) noexcept {
         return m_array[index];
     }
     /**
      * @brief get an element of the array
      * 
      * @param index index of the element
-     * @return constexpr const Ty&
+     * @return constexpr const lyra::Array::value_type&
      */
-    NODISCARD constexpr const Ty& operator[](const size_t& index) const noexcept {
+    NODISCARD constexpr const value_type& operator[](const size_t& index) const noexcept {
         return m_array[index];
     }
     /**
      * @brief get an element of the array with no UB posibility
      * 
      * @param index index of the element
-     * @return constexpr Ty&
+     * @return constexpr lyra::Array::value_type&
      */
-    NODISCARD constexpr Ty& at(const size_t& index) noexcept {
+    NODISCARD constexpr value_type& at(const size_t& index) noexcept {
         if (index >= Size) return m_array[Size - 1];
         return m_array[index];
     }
@@ -149,9 +150,9 @@ template <class Ty, size_t Size> struct Array {
      * @brief get an element of the array with no UB posibility
      * 
      * @param index index of the element
-     * @return constexpr const Ty&
+     * @return constexpr const lyra::Array::value_type&
      */
-    NODISCARD constexpr const Ty& at(const size_t& index) const noexcept {
+    NODISCARD constexpr const value_type& at(const size_t& index) const noexcept {
         if (index >= Size) return m_array[Size - 1];
         return m_array[index];
     }
@@ -176,25 +177,25 @@ template <class Ty, size_t Size> struct Array {
     /**
      * @brief get the raw array
      * 
-     * @return constexpr value_type*
+     * @return constexpr lyra::Array::value_type*
      */
     NODISCARD constexpr value_type* data() noexcept { return m_array; }
     /**
      * @brief get the raw array
      * 
-     * @return constexpr const value_type*
+     * @return constexpr const lyra::Array::value_type*
      */
     NODISCARD constexpr const value_type* data() const noexcept { return m_array; }
     /**
      * @brief cast the wrapper to the raw array
      * 
-     * @return constexpr value_type*
+     * @return constexpr lyra::Array::value_type*
      */
     NODISCARD constexpr operator value_type* () noexcept { return m_array; }
     /**
      * @brief cast the wrapper to the raw array
      * 
-     * @return constexpr const value_type*
+     * @return constexpr const lyra::Array::value_type*
      */
     NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
