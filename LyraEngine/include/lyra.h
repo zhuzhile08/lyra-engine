@@ -36,12 +36,12 @@ typedef uintptr_t uptr;
 
 // color type
 struct Color {
-    constexpr Color() = default;
-    constexpr Color(uint8 r, uint8 g, uint8 b, uint8 a) : r(r), g(g), b(b), a(a) { }
-    constexpr Color(const Color& col) : r(col.r), g(col.g), b(col.b), a(col.a) { }
-    constexpr Color& operator=(const Color& col) { r = col.r; g = col.g; b = col.b; a = col.a; return *this; }
-    constexpr glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
-    uint8 r, g, b, a;
+	constexpr Color() = default;
+	constexpr Color(uint8 r, uint8 g, uint8 b, uint8 a) : r(r), g(g), b(b), a(a) { }
+	constexpr Color(const Color& col) : r(col.r), g(col.g), b(col.b), a(col.a) { }
+	constexpr Color& operator=(const Color& col) { r = col.r; g = col.g; b = col.b; a = col.a; return *this; }
+	constexpr glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
+	uint8 r, g, b, a;
 };
 typedef Color Colour;
 

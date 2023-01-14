@@ -6,7 +6,7 @@ namespace lyra {
 namespace vulkan {
 
 GPUMemory::~GPUMemory() {
-    Application::renderSystem.device.freeMemory(m_memory);
+	Application::renderSystem.device.freeMemory(m_memory);
 }
 
 } // namespace vulkan

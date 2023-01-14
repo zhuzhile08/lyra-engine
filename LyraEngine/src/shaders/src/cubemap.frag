@@ -7,5 +7,5 @@ layout (set = 0, binding = 1) uniform samplerCube cubeMap;
 layout (location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(cubeMap, inUVW);
+	outColor = texture(cubeMap, inUVW);
 }
