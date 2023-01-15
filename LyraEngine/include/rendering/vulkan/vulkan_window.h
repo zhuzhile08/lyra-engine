@@ -13,6 +13,7 @@
 
 #include <lyra.h>
 
+#include <core/dynarray.h>
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -99,6 +100,8 @@ public:
 	NODISCARD constexpr VkFormat depthBufferFormat() const noexcept { return m_depthBufferFormat; }
 
 private:
+	constexpr static size_t maxSwapchainImages = 8;
+
 	VkSurfaceKHR m_surface;
 	VkSwapchainKHR m_swapchain;
 	VkFormat m_format;
