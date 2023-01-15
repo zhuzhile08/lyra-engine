@@ -71,9 +71,9 @@ void GPUBuffer::copy_data(const void** src, const uint32& arraySize, const size_
 
 void GPUBuffer::copy(const GPUBuffer* const srcBuffer) {
 	// get a unused command buffer
-	CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
+	CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
 	// start recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin();
 
 	// transfer the contents of the sorce to the destination buffer
 	VkBufferCopy copyRegion{

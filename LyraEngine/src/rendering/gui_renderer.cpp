@@ -62,9 +62,9 @@ GUIRenderer::GUIRenderer() {
 	ImGui_ImplVulkan_Init(&initInfo, m_renderPass);
 
 	// get a command buffer for creating the font textures
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
+	vulkan::CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
 	// start recording the command buffer
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin();
 	// create the textures
 	ImGui_ImplVulkan_CreateFontsTexture(*cmdBuff.m_commandBuffer);
 	// end recording the command buffer

@@ -40,9 +40,9 @@ void Image::transition_layout(
 	const VkImageSubresourceRange& subresourceRange
 ) const {
 	// get a command buffer for setting up memory barrier
-	CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
+	CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
 	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin();
 
 	// goofy ahh check to see which image layout to use
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
@@ -107,9 +107,9 @@ VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const V
 
 void Image::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent, const uint32 layerCount) {
 	// temporary command buffer for copying
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
+	vulkan::CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
 	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin();
 
 	// copy image in buffer to the image
 	VkBufferImageCopy imageCopy {

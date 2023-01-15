@@ -31,59 +31,39 @@ void CommandPool::reset() {
 }
 
 // command buffer
-CommandBufferManager::VulkanCommandBuffer::VulkanCommandBuffer(const CommandPool* const commandPool, const VkCommandBufferLevel& level) :
-	commandPool(commandPool)
-{
-
+CommandBuffer::CommandBuffer(const Usage& usage, const VkCommandBufferLevel& level) : m_usage(usage), m_commandPool(Application::renderSystem.commandPools[static_cast<uint32>(usage)]) {
 	// locate the memory
 	VkCommandBufferAllocateInfo allocInfo{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		nullptr,
-		commandPool->commandPool(),
+		m_commandPool.commandPool(),
 		level,
 		1
 	};
 
 	// create the command buffers
-	vassert(vkAllocateCommandBuffers(Application::renderSystem.device.device(), &allocInfo, &commandBuffer), "create Vulkan command buffer");
+	vassert(vkAllocateCommandBuffers(Application::renderSystem.device.device(), &allocInfo, &m_commandBuffer), "create Vulkan command buffer");
 }
 
-CommandBufferManager::VulkanCommandBuffer::~VulkanCommandBuffer() noexcept {
-	Application::renderSystem.device.freeCommandBuffer(commandPool->commandPool(), commandBuffer);
+CommandBuffer::~CommandBuffer() {
+	Application::renderSystem.device.freeCommandBuffer(m_commandPool.commandPool(), m_commandBuffer);
 }
 
-// manager
-CommandBufferManager::CommandBufferManager(const VkCommandBufferLevel& level) : m_commandPool() {
-	m_commandBufferData.reserve(settings().memory.maxCommandBuffers);
-
-	for (uint32 i = 0; i < settings().memory.maxCommandBuffers; i++) {
-		m_commandBufferData.emplace_back(&m_commandPool, level);
-	}
-}
-
-CommandBufferManager::~CommandBufferManager() noexcept {
-	m_commandBufferData.clear();
-}
-
-void CommandBuffer::begin(const VkCommandBufferUsageFlags& usage) {
-	commandBufferManager->m_commandBuffers.find(m_index)->second = CommandBufferManager::CommandBufferUsage::COMMAND_BUFFER_USED; // set that command buffer as in use
-
+void CommandBuffer::begin() {
 	// some info about the recording
 	VkCommandBufferBeginInfo beginInfo{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
 		nullptr,
-		usage,
+		static_cast<VkCommandBufferUsageFlags>(m_usage),
 		nullptr
 	};
 
 	// start recording
-	vassert(vkBeginCommandBuffer(*m_commandBuffer, &beginInfo), "start recording Vulkan command buffer");
+	vassert(vkBeginCommandBuffer(m_commandBuffer, &beginInfo), "start recording Vulkan command buffer");
 }
 
 void CommandBuffer::reset(const VkCommandBufferResetFlags& flags) {
-	commandBufferManager->m_commandBuffers.find(m_index)->second = CommandBufferManager::CommandBufferUsage::COMMAND_BUFFER_UNUSED; // set that command buffer as unused
-
-	vassert(vkResetCommandBuffer(*m_commandBuffer, flags), "reset command buffer"); // reset the command buffer
+	vassert(vkResetCommandBuffer(m_commandBuffer, flags), "reset command buffer"); // reset the command buffer
 }
 
 void CommandBuffer::submitQueue(const VkQueue& queue) {
@@ -95,7 +75,7 @@ void CommandBuffer::submitQueue(const VkQueue& queue) {
 		nullptr,
 		nullptr,
 		1,
-		m_commandBuffer,
+		&m_commandBuffer,
 		0,
 		nullptr
 	};

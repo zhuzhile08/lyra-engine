@@ -84,9 +84,9 @@ void Texture::generate_mipmaps() const {
 	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", log().end_l());
 
 	// temporary command buffer for generating midmaps
-	vulkan::CommandBuffer cmdBuff(Application::renderSystem.commandBuffers);
+	vulkan::CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
 	// begin recording
-	cmdBuff.begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+	cmdBuff.begin();
 
 	int32 mipWidth = m_width, mipHeight = m_height;
 

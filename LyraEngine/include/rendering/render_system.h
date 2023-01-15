@@ -14,6 +14,7 @@
 #include <lyra.h>
 
 #include <vector>
+#include <core/array.h>
 
 #include <vulkan/vulkan.h>
 
@@ -33,7 +34,7 @@ public:
 	 *
 	 * @param window the window
 	 */
-	RenderSystem(Window* const window) : window(window), currentCommandBuffer(commandBuffers) { }
+	RenderSystem(Window* const window) : window(window) { }
 
 	RenderSystem(const RenderSystem&) noexcept = delete;
 	RenderSystem operator=(const RenderSystem&) const noexcept = delete;
@@ -64,10 +65,8 @@ public:
 	NODISCARD const uint32 imageIndex() const noexcept { return m_imageIndex; }
 
 	vulkan::Device device;
-	vulkan::CommandBufferManager commandBuffers;
+	Array<vulkan::CommandPool, 4> commandPools;
 	vulkan::Window vulkanWindow;
-
-	vulkan::CommandBuffer currentCommandBuffer;
 
 private:
 	std::vector<Renderer*> m_renderers;
