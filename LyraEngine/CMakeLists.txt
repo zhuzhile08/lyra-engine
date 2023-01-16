@@ -81,7 +81,7 @@ add_library(LyraEngine
 	"src/input/input.cpp"
 
 	"src/core/benchmark.inl"
-)
+ "src/rendering/vulkan/frame.cpp")
 
 add_dependencies(LyraEngine build_shaders)
 

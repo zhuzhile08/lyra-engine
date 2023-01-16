@@ -30,11 +30,8 @@ private:
 	public:
 		/**
 		 * @brief construct the frame
-		 * 
-		 * @param index index of the frame in the renderer
 		 */
 		Frame() {
-			// create the synchronisation objects
 			create_sync_objects();
 		}
 		/**
@@ -46,10 +43,7 @@ private:
 		 *
 		 * @param index index of the frame in the renderer
 		 */
-		void recreate() {
-			// create the synchronisation objects
-			create_sync_objects();
-		}
+		void recreate();
 		
 		/**
 		 * @brief wait for Vulkan fences
@@ -60,12 +54,6 @@ private:
 		 */
 		void reset() const;
 
-		/**
-		 * @brief get the framebuffers
-		 * 
-		 * @return VkFramebuffer&
-		 */
-		NODISCARD const VkFramebuffer& framebuffer() const noexcept { return m_framebuffer; }
 		/** 
 		 * @brief get the image available semaphores
 		 *
@@ -86,8 +74,6 @@ private:
 		NODISCARD const VkFence& inFlightFences() const noexcept { return m_inFlightFence; }
 
 	private:
-		VkFramebuffer m_framebuffer;
-
 		VkSemaphore m_imageAvailableSemaphore;
 		VkSemaphore m_renderFinishedSemaphore;
 		VkFence m_inFlightFence;
@@ -96,12 +82,6 @@ private:
 		 * @brief create the syncronisation objects
 		 */
 		void create_sync_objects();
-		/**
-		 * @brief create the framebuffer
-		 */
-		void create_framebuffer();
-
-		friend class Renderer;
 	};
 
 public:
@@ -132,7 +112,6 @@ public:
 
 protected:
 	VkRenderPass m_renderPass;
-	std::vector <Frame> m_frames;
 	std::vector <VkFramebuffer> m_framebuffers;
 
 	CallQueue m_updateQueue;

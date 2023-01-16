@@ -14,44 +14,6 @@
 
 namespace lyra {
 
-Renderer::Frame::~Frame() {
-	vkDestroySemaphore(Application::renderSystem.device.device(), m_renderFinishedSemaphore, nullptr);
-	vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphore, nullptr);
-	vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFence, nullptr);
-}
-
-void Renderer::Frame::wait() const {
-	vassert(Application::renderSystem.device.waitForFence(m_inFlightFence, VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
-}
-
-void Renderer::Frame::reset() const {
-	vassert(Application::renderSystem.device.resetFence(m_inFlightFence), "reset Vulkan fences");
-}
-
-void Renderer::Frame::create_sync_objects() {
-	// semaphore create info
-	VkSemaphoreCreateInfo semaphoreInfo{
-		VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
-	};
-
-	// create both semaphores
-	vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphore),
-		"create Vulkan Synchronization Objects");
-	vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphore),
-		"create Vulkan Synchronization Objects");
-
-	// fence create info
-	VkFenceCreateInfo fenceInfo{
-		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-		nullptr,
-		VK_FENCE_CREATE_SIGNALED_BIT
-	};
-
-	// create the fence
-	vassert(vkCreateFence(Application::renderSystem.device.device(), &fenceInfo, nullptr, &m_inFlightFence),
-		"create Vulkan Synchronization Objects");
-}
-
 Renderer::Renderer() {
 	// create the renderpass
 	create_render_pass();
@@ -70,7 +32,7 @@ Renderer::~Renderer() {
 void Renderer::recreate() {
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
-	for (auto& frame : m_frames) frame.recreate();
+	create_framebuffers();
 }
 
 void Renderer::create_render_pass() {
@@ -204,7 +166,7 @@ void Renderer::begin_renderpass() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		m_renderPass,
-		m_frames.at(Application::renderSystem.m_imageIndex).m_framebuffer,
+		m_framebuffers.at(Application::renderSystem.m_imageIndex),
 		{	// rendering area
 			{ 0, 0 },
 			Application::renderSystem.vulkanWindow.extent()
@@ -212,12 +174,11 @@ void Renderer::begin_renderpass() const {
 		2,
 		clear
 	};
-
-	Application::renderSystem.currentCommandBuffer.beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandbuffer.beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void Renderer::end_renderpass() const { 
-	Application::renderSystem.currentCommandBuffer.endRenderPass();
+	Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandbuffer.endRenderPass();
 }
 
 } // namespace lyra

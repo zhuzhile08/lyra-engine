@@ -67,6 +67,7 @@ public:
 	vulkan::Device device;
 	Array<vulkan::CommandPool, 4> commandPools;
 	vulkan::Window vulkanWindow;
+	Array<vulkan::Frame, 4> frames;
 
 private:
 	std::vector<Renderer*> m_renderers;
