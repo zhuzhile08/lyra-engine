@@ -175,11 +175,11 @@ void Renderer::begin_renderpass() const {
 		2,
 		clear
 	};
-		Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandbuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void Renderer::end_renderpass() const { 
-	Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandbuffer().endRenderPass();
+	Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandBuffer().endRenderPass();
 }
 
 } // namespace lyra
