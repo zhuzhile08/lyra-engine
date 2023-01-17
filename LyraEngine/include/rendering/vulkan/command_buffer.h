@@ -86,7 +86,7 @@ public:
 	void beginQuery(const VkQueryPool& queryPool, const uint32& query, const VkQueryControlFlags& flags) {
 		vkCmdBeginQuery(m_commandBuffer, queryPool, query, flags);
 	}
-	void beginRenderPass(const VkRenderPassBeginInfo& pRenderPassBegin, const VkSubpassContents& contents) {
+	void beginRenderPass(const VkRenderPassBeginInfo& pRenderPassBegin, const VkSubpassContents& contents) const {
 		vkCmdBeginRenderPass(m_commandBuffer, &pRenderPassBegin, contents);
 	}
 	void bindDescriptorSet(
