@@ -120,7 +120,7 @@ Material& Material::operator=(Material&& other) {
 
 void Material::draw() const {
 	// bind the descriptor set first
-	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
 		camera->m_renderPipeline->bindPoint(), 
 		camera->m_renderPipeline->layout(), 
 		1, 

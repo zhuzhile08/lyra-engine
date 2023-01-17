@@ -138,8 +138,8 @@ void Camera::record_command_buffers() {
 	// draw the skybox first as background
 	if (m_skybox) m_skybox->draw();
 	// bind the default render pipeline
-	Application::renderSystem.currentCommandBuffer.bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
-	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
 		m_renderPipeline->bindPoint(), 
 		m_renderPipeline->layout(),
 		0, 

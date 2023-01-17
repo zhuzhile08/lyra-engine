@@ -50,6 +50,6 @@ void Frame::recreate() {
 	create_sync_objects();
 }
 
-}
+} // namespace vulkan
 
-}
+} // namespace lyra

@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-#include <vector>
+#include <core/dynarray.h>
 #include <vulkan/vulkan.h>
 
 #include <core/queue.h>
@@ -40,13 +40,13 @@ public:
 	/**
 	 * @brief get the framebuffers
 	 *
-	 * @return const std::vector <VkFramebuffers>&
+	 * @return const Dynarray <VkFramebuffers, 8>&
 	*/
-	NODISCARD const std::vector <VkFramebuffer>& framebuffers() const noexcept { return m_framebuffers; }
+	NODISCARD const Dynarray <VkFramebuffer, 8>& framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
 	VkRenderPass m_renderPass;
-	std::vector <VkFramebuffer> m_framebuffers;
+	Dynarray <VkFramebuffer, 8> m_framebuffers;
 
 	CallQueue m_updateQueue;
 

@@ -44,10 +44,10 @@ void MeshRenderer::create_index_buffer() {
 
 void MeshRenderer::draw() const noexcept {
 	// bind index and vertex buffer
-	Application::renderSystem.currentCommandBuffer.bindVertexBuffer(0, 1, m_vertexBuffer->buffer(), 0);
-	Application::renderSystem.currentCommandBuffer.bindIndexBuffer(m_indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindVertexBuffer(0, 1, m_vertexBuffer->buffer(), 0);
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindIndexBuffer(m_indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
 	// draw
-	Application::renderSystem.currentCommandBuffer.drawIndexed(static_cast<uint32>(m_mesh->indices().size()), 1, 0, 0, 0);
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().drawIndexed(static_cast<uint32>(m_mesh->indices().size()), 1, 0, 0, 0);
 }
 
 } // namespace lyra

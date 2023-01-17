@@ -167,8 +167,8 @@ CubemapBase::CubemapBase(
 }
 
 void CubemapBase::draw() const {
-	Application::renderSystem.currentCommandBuffer.bindPipeline(bindPoint(), pipeline());
-	Application::renderSystem.currentCommandBuffer.bindDescriptorSet(
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindPipeline(bindPoint(), pipeline());
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
 		bindPoint(), 
 		layout(),
 		0, 

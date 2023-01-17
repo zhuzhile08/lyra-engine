@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-#include <core/dynarray.h>
+// #include <core/dynarray.h>
 #include <vector>
 
 #include <vulkan/vulkan.h>

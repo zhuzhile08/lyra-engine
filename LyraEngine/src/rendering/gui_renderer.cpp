@@ -66,7 +66,7 @@ GUIRenderer::GUIRenderer() {
 	// start recording the command buffer
 	cmdBuff.begin();
 	// create the textures
-	ImGui_ImplVulkan_CreateFontsTexture(*cmdBuff.m_commandBuffer);
+	ImGui_ImplVulkan_CreateFontsTexture(cmdBuff.commandBuffer());
 	// end recording the command buffer
 	cmdBuff.end();
 	// submit the commands
@@ -99,7 +99,7 @@ void GUIRenderer::record_command_buffers() {
 
 	// render
 	ImGui::Render();
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *Application::renderSystem.currentCommandBuffer.m_commandBuffer);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().commandBuffer());
 
 	end_renderpass();
 }
