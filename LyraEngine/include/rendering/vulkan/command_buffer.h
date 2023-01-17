@@ -201,7 +201,7 @@ public:
 	void endQuery(const VkQueryPool& queryPool, const uint32& query) {
 		vkCmdEndQuery(m_commandBuffer, queryPool, query);
 	}
-	void endRenderPass() {
+	void endRenderPass() const {
 		vkCmdEndRenderPass(m_commandBuffer);
 	}
 	void executeCommands(const VkCommandBuffer& pCommandBuffer) {
