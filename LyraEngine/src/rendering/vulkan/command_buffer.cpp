@@ -49,7 +49,7 @@ CommandBuffer::~CommandBuffer() {
 	Application::renderSystem.device.freeCommandBuffer(m_commandPool.commandPool(), m_commandBuffer);
 }
 
-void CommandBuffer::begin() {
+void CommandBuffer::begin() const {
 	// some info about the recording
 	VkCommandBufferBeginInfo beginInfo{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -62,11 +62,11 @@ void CommandBuffer::begin() {
 	vassert(vkBeginCommandBuffer(m_commandBuffer, &beginInfo), "start recording Vulkan command buffer");
 }
 
-void CommandBuffer::reset(const VkCommandBufferResetFlags& flags) {
+void CommandBuffer::reset(const VkCommandBufferResetFlags& flags) const {
 	vassert(vkResetCommandBuffer(m_commandBuffer, flags), "reset command buffer"); // reset the command buffer
 }
 
-void CommandBuffer::submitQueue(const VkQueue& queue) {
+void CommandBuffer::submitQueue(const VkQueue& queue) const {
 	// queue submission info
 	VkSubmitInfo submitInfo = {
 		VK_STRUCTURE_TYPE_SUBMIT_INFO,

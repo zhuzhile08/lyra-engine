@@ -19,6 +19,7 @@
 #include <vulkan/vulkan.h>
 
 #include <rendering/vulkan/devices.h>
+#include <rendering/vulkan/frame.h>
 #include <rendering/vulkan/command_buffer.h>
 #include <rendering/vulkan/vulkan_window.h>
 
@@ -67,12 +68,13 @@ public:
 	vulkan::Device device;
 	Array<vulkan::CommandPool, 4> commandPools;
 	vulkan::Window vulkanWindow;
-	Array<vulkan::Frame, 4> frames;
+	Array<vulkan::Frame, 2> frames;
 
 private:
 	std::vector<Renderer*> m_renderers;
 
 	uint8 m_currentFrame = 0;
+	uint8 m_pastFrame;
 	uint32 m_imageIndex;
 
 	Window* window;

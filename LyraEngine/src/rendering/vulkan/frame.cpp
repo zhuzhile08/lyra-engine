@@ -18,6 +18,7 @@ void Frame::wait() const {
 
 void Frame::reset() const {
 	vassert(Application::renderSystem.device.resetFence(m_inFlightFence), "reset Vulkan fences");
+	m_commandBuffer.reset();
 }
 
 void Frame::create_sync_objects() {

@@ -23,31 +23,26 @@ void RenderSystem::draw() {
 	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->m_updateQueue.flush();
 
 	// wait for the already recorded stuff to finish executing
-	vulkanWindow.wait(m_currentFrame); 
+	frames[m_pastFrame].wait(); 
 	
 	// get the next image to render on
-	if (vkAcquireNextImageKHR(device.device(), vulkanWindow.swapchain(), UINT64_MAX, vulkanWindow.imageAvailableSemaphores()[m_currentFrame], VK_NULL_HANDLE, &m_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
+	if (vkAcquireNextImageKHR(device.device(), vulkanWindow.swapchain(), UINT64_MAX, frames[m_currentFrame].imageAvailableSemaphores(), VK_NULL_HANDLE, &m_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		vulkanWindow.recreate();
 		for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
 		return;
 	}
 
 	// reset the semaphores and fences
-	vulkanWindow.reset(m_currentFrame);
-	// reset command buffer after everything has been executed
-	currentCommandBuffer.reset();
-
-	// get a fresh command buffer
-	currentCommandBuffer.find_new_commandBuffer();
+	frames[m_pastFrame].reset();
 
 	// begin recording the command buffer
-	currentCommandBuffer.begin();
+	frames[m_currentFrame].commandBuffer().begin();
 
 	// call the draw calls
 	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->record_command_buffers();
 
 	// end recording the command buffer
-	currentCommandBuffer.end();
+	frames[m_currentFrame].commandBuffer().end();
 
 	// signal the synchronization objects to wait until drawing is finished
 	submit_device_queue(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
@@ -65,16 +60,16 @@ void RenderSystem::submit_device_queue(const VkPipelineStageFlags& stageFlags) c
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
 	   nullptr,
 	   1,
-	   &vulkanWindow.imageAvailableSemaphores().at(m_currentFrame),
+	   &frames[m_currentFrame].imageAvailableSemaphores(),
 	   &stageFlags,
 	   1,
-	   currentCommandBuffer.m_commandBuffer,
+	   &frames[m_currentFrame].commandBuffer().commandBuffer(),
 	   1,
-	   &vulkanWindow.renderFinishedSemaphores().at(m_currentFrame)
+	   &frames[m_currentFrame].renderFinishedSemaphores()
 	};
 
 	// submit the queue
-	vkQueueSubmit(device.presentQueue().queue, 1, &submitInfo, vulkanWindow.inFlightFences().at(m_currentFrame));
+	vkQueueSubmit(device.presentQueue().queue, 1, &submitInfo, frames[m_currentFrame].inFlightFences());
 }
 
 void RenderSystem::present_device_queue() {
@@ -82,7 +77,7 @@ void RenderSystem::present_device_queue() {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1,
-		&vulkanWindow.renderFinishedSemaphores()[m_currentFrame],
+		&frames[m_currentFrame].renderFinishedSemaphores(),
 		1,
 		&vulkanWindow.swapchain(),
 		&m_imageIndex
@@ -104,6 +99,7 @@ void RenderSystem::present_device_queue() {
 }
 
 void RenderSystem::update_frame_count() noexcept {
+	m_pastFrame = m_currentFrame;
 	m_currentFrame = (m_currentFrame + 1) % settings().rendering.maxFramesInFlight;
 }
 

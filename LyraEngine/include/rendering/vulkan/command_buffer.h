@@ -79,7 +79,7 @@ public:
 	 * @brief please refer to the official Vulkan documentation (preferably at https://devdocs.io/vulkan/ for the documentation of these functions
 	 */
 
-	void begin();
+	void begin() const;
 	void end() const {
 		vassert(vkEndCommandBuffer(m_commandBuffer), "stop recording command buffer");
 	}
@@ -359,8 +359,15 @@ public:
 	void writeTimestamp(const VkPipelineStageFlagBits pipelineStage, const VkQueryPool queryPool, const uint32& query) {
 		vkCmdWriteTimestamp(m_commandBuffer, pipelineStage, queryPool, query);
 	}
-	void reset(const VkCommandBufferResetFlags& flags = 0);
-	void submitQueue(const VkQueue& queue);
+	void reset(const VkCommandBufferResetFlags& flags = 0) const;
+	void submitQueue(const VkQueue& queue) const;
+
+	/**
+	 * @brief get the command buffer
+	 * 
+	 * @return const VkCommandBuffer&
+	 */
+	NODISCARD const VkCommandBuffer& commandBuffer() const noexcept { return m_commandBuffer; }
 
 private:
 	Usage m_usage;
