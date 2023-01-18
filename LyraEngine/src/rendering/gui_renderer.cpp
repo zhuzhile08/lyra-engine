@@ -19,7 +19,7 @@ namespace lyra {
 
 namespace gui {
 
-GUIRenderer::GUIRenderer() {
+GUIRenderer::GUIRenderer() : Renderer() {
 	// information about the descriptor pool
 	vulkan::DescriptorPool::Builder builder;
 	builder.add_pool_sizes({

@@ -25,6 +25,10 @@
 
 namespace lyra {
 
+namespace gui {
+	class GUIRenderer;
+}
+
 /**
  * @brief a vulkan context containing everything needed for an application
  */
@@ -110,6 +114,7 @@ private:
 	void update_frame_count() noexcept;
 
 	friend class Renderer;
+	friend class gui::GUIRenderer;
 	friend class Camera;
 };
 

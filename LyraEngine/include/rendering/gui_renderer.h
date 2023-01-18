@@ -41,7 +41,7 @@ private:
 	/**
 	 * @brief record the command buffer
 	 */
-	void record_command_buffers() override;
+	virtual void record_command_buffers() override;
 };
 
 } // namespace gui
