@@ -161,7 +161,7 @@ void Renderer::create_framebuffers() {
 	}
 }
 
-void Renderer::begin_renderpass() {
+void Renderer::begin_renderpass() const {
 	VkClearValue clear[2]{};
 	clear[0].color = { {0.0f, 0.0f, 0.0f, 0.0f} };
 	clear[1].depthStencil = { 1.0f, 0 };
@@ -180,7 +180,7 @@ void Renderer::begin_renderpass() {
 		Application::renderSystem.frames[Application::renderSystem.imageIndex()].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }  
 
-void Renderer::end_renderpass() { 
+void Renderer::end_renderpass() const { 
 	Application::renderSystem.frames[Application::renderSystem.imageIndex()].commandBuffer().endRenderPass();
 }
 
