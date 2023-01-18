@@ -98,7 +98,7 @@ LINK_PUBLIC
 	# bullet holy crap is bullet a b to link. doing it when i actually need it
 
 	# audio libraries
-	OpenAL::OpenAL
+	# OpenAL::OpenAL
 
 	# utility libraries
 	lz4_static

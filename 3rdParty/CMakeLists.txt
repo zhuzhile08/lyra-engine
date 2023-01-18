@@ -6,7 +6,7 @@ set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD 20)
 
 # add all libraries that need to be built
-add_subdirectory("openal-soft")
+# add_subdirectory("openal-soft")
 add_subdirectory("sdl2")
 add_subdirectory("lz4")
 add_subdirectory("bullet")
