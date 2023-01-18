@@ -26,7 +26,9 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
-	// destrpy the framebuffer
+	// destroy the framebuffers
+	for (uint32 i = 0; i < m_framebuffers.size(); i++) vkDestroyFramebuffer(Application::renderSystem.device.device(), m_framebuffers[i], nullptr);
+	// destroy the renderpass
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 }
 
@@ -159,7 +161,7 @@ void Renderer::create_framebuffers() {
 	}
 }
 
-void Renderer::begin_renderpass() const {
+void Renderer::begin_renderpass() {
 	VkClearValue clear[2]{};
 	clear[0].color = { {0.0f, 0.0f, 0.0f, 0.0f} };
 	clear[1].depthStencil = { 1.0f, 0 };
@@ -167,7 +169,7 @@ void Renderer::begin_renderpass() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		m_renderPass,
-		m_framebuffers.at(Application::renderSystem.m_imageIndex),
+		m_framebuffers.at(Application::renderSystem.imageIndex()),
 		{	// rendering area
 			{ 0, 0 },
 			Application::renderSystem.vulkanWindow.extent()
@@ -175,11 +177,11 @@ void Renderer::begin_renderpass() const {
 		2,
 		clear
 	};
-		Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
-}
+		Application::renderSystem.frames[Application::renderSystem.imageIndex()].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}  
 
-void Renderer::end_renderpass() const { 
-	Application::renderSystem.frames[Application::renderSystem.m_imageIndex].commandBuffer().endRenderPass();
+void Renderer::end_renderpass() { 
+	Application::renderSystem.frames[Application::renderSystem.imageIndex()].commandBuffer().endRenderPass();
 }
 
 } // namespace lyra
