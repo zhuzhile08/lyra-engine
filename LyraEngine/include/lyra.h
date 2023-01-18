@@ -135,6 +135,7 @@ class AudioFilter;
 // utility macros
 
 #define NODISCARD [[nodiscard]]
+#define DEPRICATED [[depricated]]
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 
