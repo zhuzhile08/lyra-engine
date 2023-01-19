@@ -138,10 +138,10 @@ void Renderer::create_framebuffers() {
 	m_framebuffers.resize(Application::renderSystem.vulkanWindow.images().size());
 
 	for (uint32 i = 0; i < Application::renderSystem.vulkanWindow.images().size(); i++) {
-		Array<VkImageView, 3> attachments = {{
+		Array<VkImageView, 3> attachments = { {
 			Application::renderSystem.vulkanWindow.colorImage()->m_view,
 			Application::renderSystem.vulkanWindow.depthImage()->m_view,
-			Application::renderSystem.vulkanWindow.images().at(i).m_view
+			Application::renderSystem.vulkanWindow.imageViews()[i]
 		}};
 
 		// create the frame buffers
