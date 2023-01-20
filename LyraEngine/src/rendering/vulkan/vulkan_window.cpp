@@ -135,17 +135,29 @@ void Window::create_window_surface() {
 }
 
 void Window::create_swapchain_images() {
-	// I have to do this because vkGetSwapchainImagesKHR isn't very usable with my image wrapper
-	std::vector<VkImage&> images;
 	// get the number of images
 	uint32 imageCount;
 	vassert(vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
-	m_images.resize(imageCount); images.resize(imageCount);
-	for (uint32 i = 0; i <= m_images.size(); i++) images[i] = m_images[i].m_image;
-	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, images.data());
+	m_images.resize(imageCount); m_imageViews.resize(imageCount);
+	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, m_images.data());
 
 	// create the image views
-	for (auto& image : m_images) image.create_view(m_format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+	for (uint32 i = 0; i < m_images.size(); i++) {
+		// image view creation info
+		VkImageViewCreateInfo createInfo{
+			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			nullptr,
+			0,
+			m_images[i],
+			VK_IMAGE_VIEW_TYPE_2D,
+			m_format,
+			{ VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY },
+			{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+		};
+
+		// create the view
+		vassert(vkCreateImageView(Application::renderSystem.device.device(), &createInfo, nullptr, &m_imageViews[i]), "create Vulkan image views");
+	}
 }
 
 void Window::create_depth_buffer() {

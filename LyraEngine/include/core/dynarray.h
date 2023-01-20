@@ -12,16 +12,18 @@
 #pragma once
 
 #include <type_traits>
+#include <span>
 
 #include <core/array.h>
 
 #define NODISCARD [[nodiscard]]
+#define DEPRECATED [[deprecated]]
 
 namespace lyra {
 
 // allowed dynamic array internal type
 template <typename Type>
-concept DynarrayValueType = std::is_default_constructible_v<Type> && std::is_copy_assignable_v<Type> && std::is_default_constructible_v<Type>;
+concept DynarrayValueType = std::is_move_assignable_v<Type> && std::is_default_constructible_v<Type>;
 
 // very dangerous dynamic array implementation, only store contents <= 4 bytes with less than 16 capacity
 template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
@@ -31,6 +33,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	typedef size_t size_type;
 	typedef Array<value_type, capacity> array_type;
 	typedef Dynarray<value_type, capacity> wrapper_type;
+	typedef std::span<value_type> span_type;
 
 	/**
 	 * @brief copy assignment operator
@@ -101,7 +104,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param index index of the element
 	 * @return constexpr lyra::Dynarray::iterator
 	 */
-	NODISCARD constexpr iterator at(const size_t& index) noexcept {
+	DEPRECATED NODISCARD constexpr iterator at(const size_t& index) noexcept {
 		if (index >= m_size) return m_array[m_size - 1];
 		return m_array[index];
 	}
@@ -111,7 +114,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param index index of the element
 	 * @return constexpr lyra::Dynarray::const_iterator
 	 */
-	NODISCARD constexpr const_iterator at(const size_t& index) const noexcept {
+	DEPRECATED NODISCARD constexpr const_iterator at(const size_t& index) const noexcept {
 		if (index >= m_size) return m_array[m_size - 1];
 		return m_array[index];
 	}
@@ -121,14 +124,14 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param value value to fill with
 	 */
-	void fill(const value_type& value) { for (size_t i; i < m_size; i++) m_array[i] = value; }
+	void fill(const value_type& value) { for (size_t i; i < m_size; i++) m_array[i] = std::move(value); }
 	/**
 	 * @brief fill the array with the same value
 	 * 
 	 * @param value value to fill with
 	 */
 	void fill(value_type&& value) { 
-		for (size_t i; i < m_size; i++) m_array[i] = std::forward<value_type>(value); 
+		for (size_t i; i < m_size; i++) m_array[i] = std::move(value); 
 	}
 	/**
 	 * @brief fill the array with elements from a C-array
@@ -137,7 +140,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param size size of the C-array
 	 */
 	void fill(const value_type* const array, const size_t& size) {
-		for (size_t i; i < ( m_size < size ) ? m_size : size; i++) m_array[i] = array[i];
+		for (size_t i; i < ( m_size < size ) ? m_size : size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
 	 * @brief fill the array with elements from another array wrapper
@@ -145,7 +148,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param array array wrapper to fill with
 	 */
 	void fill(const wrapper_type& array) {
-		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = array[i];
+		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
 	 * @brief fill the array with elements from a differently sized array wrapper
@@ -155,7 +158,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param array array wrapper to fill with
 	 */
 	template <size_t other_size> void fill(const Dynarray<Ty, other_size>& array) {
-		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = array[i];
+		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = std::move(array[i]);
 	}
 
 	/**
@@ -172,7 +175,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param value value to insert
 	 */
 	void insert(const size_t& index, const value_type& value) { 
-		m_array[index] = value;
+		m_array[index] = std::move(value);
 	}
 	/**
 	 * @brief insert an element into a specified index
@@ -181,7 +184,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param value value to insert
 	 */
 	void insert(const size_t& index, value_type&& value) {
-		m_array[index] = std::forward(value);
+		m_array[index] = std::move(value);
 	}
 	/**
 	 * @brief insert an element into a part of the array
@@ -191,7 +194,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param value value to insert
 	 */
 	void insert(const size_t& begin, const size_t& end, const value_type& value) {
-		for (size_t i = begin; i <= end; i++) m_array[i] = value;
+		for (size_t i = begin; i <= end; i++) m_array[i] = std::move(value);
 	}
 
 	/**
@@ -202,7 +205,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param value value to insert
 	 */
 	void insert(const size_t& begin, const size_t& end, value_type&& value) {
-		for (size_t i = begin; i <= end; i++) m_array[i] = std::forward(value);
+		for (size_t i = begin; i <= end; i++) m_array[i] = std::move(value);
 	}
 	/**
 	 * @brief push back a value into the array
@@ -210,7 +213,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param value value to insert
 	 */
 	void push_back(const value_type& value) {
-		m_array[m_size] = value;
+		m_array[m_size] = std::move(value);
 		m_size++;
 	}
 	/**
@@ -219,14 +222,14 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param value value to insert
 	 */
 	void push_back(value_type&& value) {
-		m_array[m_size] = std::forward(value);
+		m_array[m_size] = std::move(value);
 		m_size++;
 	}
 	/**
 	 * @brief remove the last element in the array
 	 */
 	void pop_back() {
-		end() = value_type();
+		end() = std::move(value_type());
 		m_size--;
 	}
 	/**
@@ -273,11 +276,29 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	}
 
 	/**
+	 * @brief get the used part of the array
+	 *
+	 * @return constexpr lyra::Dynarray::value_type*
+	 */
+	NODISCARD constexpr value_type* data() noexcept { 
+		span_type span{ m_array.data(), m_size };
+		return span.data();
+	}
+	/**
+	 * @brief get the used part of the array
+	 *
+	 * @return constexpr const lyra::Dynarray::value_type*
+	 */
+	NODISCARD constexpr const value_type* data() const noexcept { 
+		span_type span{ m_array.data(), m_size };
+		return span.data();
+	}
+	/**
 	 * @brief get the raw array
 	 * 
 	 * @return constexpr lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr value_type* data() noexcept { 
+	NODISCARD constexpr value_type* all_data() noexcept { 
 		return m_array; 
 	}
 	/**
@@ -285,7 +306,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @return constexpr const lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr const value_type* data() const noexcept { return m_array; }
+	NODISCARD constexpr const value_type* all_data() const noexcept { return m_array; }
 	/**
 	 * @brief cast the wrapper to the raw array
 	 * 

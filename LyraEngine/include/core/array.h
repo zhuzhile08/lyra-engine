@@ -14,7 +14,7 @@
 #include <algorithm>
 
 #define NODISCARD [[nodiscard]]
-#define DEPRICATED [[depricated]]
+#define DEPRECATED [[deprecated]]
 
 namespace lyra {
 
@@ -129,7 +129,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::iterator
 	 */
 	NODISCARD constexpr iterator operator[](const size_t& index) noexcept {
-		return m_array[std::clamp(index, 0, Size)];
+		return m_array[std::clamp(index, size_t(0), Size - 1)];
 	}
 	/**
 	 * @brief get an element of the array
@@ -138,7 +138,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::const_iterator
 	 */
 	NODISCARD constexpr const_iterator operator[](const size_t& index) const noexcept {
-		return m_array[std::clamp(index, 0, Size)];
+		return m_array[std::clamp(index, size_t(0), Size - 1)];
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
@@ -146,8 +146,8 @@ template <class Ty, size_t Size> struct Array {
 	 * @param index index of the element
 	 * @return constexpr lyra::Array::iterator
 	 */
-	DEPRICATED NODISCARD constexpr iterator at(const size_t& index) noexcept {
-		return m_array[std::clamp(index, 0, Size)];
+	DEPRECATED NODISCARD constexpr iterator at(const size_t& index) noexcept {
+		return m_array[std::clamp(index, size_t(0), Size - 1)];
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
@@ -155,8 +155,8 @@ template <class Ty, size_t Size> struct Array {
 	 * @param index index of the element
 	 * @return constexpr lyra::Array::const_iterator
 	 */
-	DEPRICATED NODISCARD constexpr const_iterator at(const size_t& index) const noexcept {
-		return m_array[std::clamp(index, 0, Size)];
+	DEPRECATED NODISCARD constexpr const_iterator at(const size_t& index) const noexcept {
+		return m_array[std::clamp(index, size_t(0), Size - 1)];
 	}
 
 	/**

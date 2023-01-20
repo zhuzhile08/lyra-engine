@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-// #include <core/dynarray.h>
+#include <core/dynarray.h>
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -30,6 +30,8 @@ namespace vulkan {
  */
 class Window {
 public:
+	constexpr static size_t maxSwapchainImages = 8;
+
 	Window();
 
 	/**
@@ -59,9 +61,15 @@ public:
 	/**
 	 * @brief get the swapchain images
 	 *
-	 * @return const std::vector<lyra::vulkan::Image>
+	 * @return const lyra::Dynarray<VkImage, lyra::vulkan::Window::maxSwapchainImages>
 	 */
-	NODISCARD const std::vector<Image> images() const noexcept { return m_images; }
+	NODISCARD const Dynarray<VkImage, maxSwapchainImages> images() const noexcept { return m_images; }
+	/**
+	 * @brief get the swapchain images
+	 *
+	 * @return const lyra::Dynarray<VkImageView, lyra::vulkan::Window::maxSwapchainImages>
+	 */
+	NODISCARD const Dynarray<VkImageView, maxSwapchainImages> imageViews() const noexcept { return m_imageViews; }
 	/**
 	 * @brief get the depth buffer image
 	 *
@@ -100,14 +108,14 @@ public:
 	NODISCARD constexpr VkFormat depthBufferFormat() const noexcept { return m_depthBufferFormat; }
 
 private:
-	constexpr static size_t maxSwapchainImages = 8;
 
 	VkSurfaceKHR m_surface;
 	VkSwapchainKHR m_swapchain;
 	VkFormat m_format;
 	VkExtent2D m_extent;
 
-	std::vector<Image> m_images;
+	Dynarray<VkImage, maxSwapchainImages> m_images;
+	Dynarray<VkImageView, maxSwapchainImages> m_imageViews;
 	
 	Image m_colorImage;
 	GPUMemory m_colorMem;
