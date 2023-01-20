@@ -22,9 +22,11 @@ Window::Window() {
 }
 
 Window::~Window() noexcept {
-	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr); // swapchain and old swapchain
+	// destroy both the current swapchain and the old swapchain if present
+	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr);
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
-	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr); // window surface
+	// destroy the window surface
+	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr);
 }
 
 void Window::recreate() {

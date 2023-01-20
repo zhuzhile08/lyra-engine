@@ -90,7 +90,7 @@ Camera::Camera(
 }
 
 void Camera::recreate() {
-	for (auto framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr);
+	for (uint32 i = 0; i < m_framebuffers.size(); i++) vkDestroyFramebuffer(Application::renderSystem.device.device(), m_framebuffers[i], nullptr);
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();

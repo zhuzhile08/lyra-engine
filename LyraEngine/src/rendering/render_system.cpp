@@ -33,7 +33,7 @@ void RenderSystem::draw() {
 	}
 
 	// reset the semaphores and fences
-	frames[m_pastFrame].reset();
+	frames[m_currentFrame].reset();
 
 	// begin recording the command buffer
 	frames[m_currentFrame].commandBuffer().begin();

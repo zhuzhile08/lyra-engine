@@ -19,7 +19,8 @@ Renderer::Renderer() {
 	// create the renderpass
 	create_render_pass();
 	
-	// create the virtual frames
+	// create the framebuffers
+	create_framebuffers();
 
 	// add the renderer to the render system
 	Application::renderSystem.add_renderer(this);
@@ -177,11 +178,11 @@ void Renderer::begin_renderpass() const {
 		2,
 		clear
 	};
-		Application::renderSystem.frames[Application::renderSystem.imageIndex()].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }  
 
 void Renderer::end_renderpass() const { 
-	Application::renderSystem.frames[Application::renderSystem.imageIndex()].commandBuffer().endRenderPass();
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().endRenderPass();
 }
 
 } // namespace lyra
