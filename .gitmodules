@@ -1,18 +1,23 @@
 [submodule "3rdParty/vma"]
 	path = 3rdParty/vma
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+	branch = master
 [submodule "3rdParty/openal-soft"]
 	path = 3rdParty/openal-soft
 	url = https://github.com/kcat/openal-soft
+	branch = master
 [submodule "3rdParty/glm"]
 	path = 3rdParty/glm
 	url = https://github.com/g-truc/glm
+	branch = master
 [submodule "3rdParty/stb"]
 	path = 3rdParty/stb
 	url = https://github.com/nothings/stb
+	branch = master
 [submodule "3rdParty/tol"]
 	path = 3rdParty/tol
 	url = https://github.com/tinyobjloader/tinyobjloader
+	branch = release
 [submodule "3rdParty/sdl2"]
 	path = 3rdParty/sdl2
 	url = https://github.com/libsdl-org/SDL
@@ -20,12 +25,16 @@
 [submodule "3rdParty/nlohmann"]
 	path = 3rdParty/nlohmann
 	url = https://github.com/nlohmann/json
+	branch = master
 [submodule "3rdParty/lz4"]
 	path = 3rdParty/lz4
-	url = https://github.com/zhuzhile08/lz4
+	url = https://github.com/lz4/lz4
+	branch = release
 [submodule "3rdParty/bullet"]
 	path = 3rdParty/bullet
 	url = https://github.com/zhuzhile08/bullet3
+	branch = master
 [submodule "3rdParty/imgui"]
 	path = 3rdParty/imgui
 	url = https://github.com/zhuzhile08/imgui
+	branch = master
