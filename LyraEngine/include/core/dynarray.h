@@ -30,6 +30,8 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	typedef Ty value_type;
 	typedef value_type iterator;
 	typedef const value_type const_iterator;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
 	typedef size_t size_type;
 	typedef Array<value_type, capacity> array_type;
 	typedef Dynarray<value_type, capacity> wrapper_type;
@@ -50,33 +52,33 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	/**
 	 * @brief get the first element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::iterator
+	 * @return constexpr lyra::Dynarray::reference 
 	 */
-	NODISCARD constexpr iterator begin() noexcept {
+	NODISCARD constexpr reference begin() noexcept {
 		return m_array[0];
 	}
 	/**
 	 * @brief get the first element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::iterator const
+	 * @return constexpr lyra::Dynarray::reference const
 	 */
-	NODISCARD constexpr const_iterator begin() const noexcept {
+	NODISCARD constexpr const_reference begin() const noexcept {
 		return m_array[0];
 	}
 	/**
 	 * @brief get the last element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::iterator
+	 * @return constexpr lyra::Dynarray::reference 
 	 */
-	NODISCARD constexpr iterator end() noexcept {
+	NODISCARD constexpr reference end() noexcept {
 		return m_array[m_size - 1];
 	}
 	/**
 	 * @brief get the last element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::const_iterator
+	 * @return constexpr lyra::Dynarray::const_reference 
 	 */
-	NODISCARD constexpr const_iterator end() const noexcept {
+	NODISCARD constexpr const_reference end() const noexcept {
 		return m_array[m_size - 1];
 	}
 
@@ -84,27 +86,27 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @brief get an element of the array
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::iterator
+	 * @return constexpr lyra::Dynarray::reference 
 	 */
-	NODISCARD constexpr iterator operator[](const size_t& index) noexcept {
+	NODISCARD constexpr reference operator[](const size_t& index) noexcept {
 		return m_array[index];
 	}
 	/**
 	 * @brief get an element of the array
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::const_iterator
+	 * @return constexpr lyra::Dynarray::const_reference 
 	 */
-	NODISCARD constexpr const_iterator operator[](const size_t& index) const noexcept {
+	NODISCARD constexpr const_reference operator[](const size_t& index) const noexcept {
 		return m_array[index];
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::iterator
+	 * @return constexpr lyra::Dynarray::reference 
 	 */
-	DEPRECATED NODISCARD constexpr iterator at(const size_t& index) noexcept {
+	DEPRECATED NODISCARD constexpr reference at(const size_t& index) noexcept {
 		if (index >= m_size) return m_array[m_size - 1];
 		return m_array[index];
 	}
@@ -112,9 +114,9 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @brief get an element of the array with no UB posibility
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::const_iterator
+	 * @return constexpr lyra::Dynarray::const_reference 
 	 */
-	DEPRECATED NODISCARD constexpr const_iterator at(const size_t& index) const noexcept {
+	DEPRECATED NODISCARD constexpr const_reference at(const size_t& index) const noexcept {
 		if (index >= m_size) return m_array[m_size - 1];
 		return m_array[index];
 	}
@@ -124,7 +126,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param value value to fill with
 	 */
-	void fill(const value_type& value) { for (size_t i; i < m_size; i++) m_array[i] = std::move(value); }
+	void fill(const_reference value) { for (size_t i; i < m_size; i++) m_array[i] = std::move(value); }
 	/**
 	 * @brief fill the array with the same value
 	 * 
@@ -174,12 +176,12 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param index index to insert into
 	 * @param value value to insert
 	 */
-	void insert(const size_t& index, const value_type& value) { 
+	void insert(const size_t& index, const_reference value) { 
 		m_array[index] = std::move(value);
 	}
 	/**
 	 * @brief insert an element into a specified index
-	 *
+	 *const 
 	 * @param index index to insert into
 	 * @param value value to insert
 	 */
@@ -193,7 +195,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param end ending index
 	 * @param value value to insert
 	 */
-	void insert(const size_t& begin, const size_t& end, const value_type& value) {
+	void insert(const size_t& begin, const size_t& end, const_reference value) {
 		for (size_t i = begin; i <= end; i++) m_array[i] = std::move(value);
 	}
 
@@ -212,7 +214,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 *
 	 * @param value value to insert
 	 */
-	void push_back(const value_type& value) {
+	void push_back(const_reference value) {
 		m_array[m_size] = std::move(value);
 		m_size++;
 	}
