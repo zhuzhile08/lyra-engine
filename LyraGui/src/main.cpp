@@ -27,7 +27,7 @@
 struct CameraScript : public lyra::Script {
 	void update(void) override {
 		node->transform.rotate_z(10.0f);
-		node->transform.look_at_from_translation({2.0f, 2.0f, 2.0f}, {0.0f, 0.0f, 0.0f});
+		node->transform.look_at_from_translation({3.0f, 3.0f, 7.0f}, {0.0f, 0.0f, 1.0f});
 		
 	}
 };
@@ -54,8 +54,8 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	lyra::Assets assets;
 
 	lyra::Spatial room(nullptr, "Room", &scene);
-	lyra::Texture* roomTexture = assets["data/img/viking_room.png"];
-	lyra::Mesh roomMesh("data/model/viking_room.obj", nullptr, "RoomMesh", &room);
+	lyra::Texture* roomTexture = assets["data/img/p3_femc_sees_tex.png"];
+	lyra::Mesh roomMesh("data/model/femc.obj", nullptr, "RoomMesh", &room);
 	lyra::MeshRenderer roomRenderer(&roomMesh, nullptr, "MeshRenderer", &room);
 
 	// material
