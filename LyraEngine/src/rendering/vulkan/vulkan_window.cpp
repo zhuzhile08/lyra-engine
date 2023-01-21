@@ -22,6 +22,9 @@ Window::Window() {
 }
 
 Window::~Window() noexcept {
+	// destroy the image views
+	for (uint32 i = 0; i < m_imageViews.size(); i++) 
+		vkDestroyImageView(Application::renderSystem.device.device(), m_imageViews[i], nullptr);
 	// destroy both the current swapchain and the old swapchain if present
 	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr);
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
