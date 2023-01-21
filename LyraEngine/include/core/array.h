@@ -113,7 +113,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::reference
 	 */
 	NODISCARD constexpr reference end() noexcept {
-		return m_array[std::clamp(Size - 1, 0, Size - 1)];
+		return m_array[std::clamp(Size - 1, size_t(0), Size - 1)];
 	}
 	/**
 	 * @brief get the last element of the array
