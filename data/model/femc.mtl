@@ -1,0 +1,22 @@
+# Blender 3.3.0 MTL File: 'None'
+# www.blender.org
+
+newmtl texture_atlas
+Ns 19.607841
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.000000
+illum 1
+map_Kd /Users/zhilezhu/Documents/3D Models/Cracks/p3_femc_sees_v2.1/D:/Users/Jin/Development/Blender/_Custom Characters/P3 FeMC/SEES/p3 femc - sees - texture atlas.png
+
+newmtl texture_atlas_-_no_line
+Ns 19.607841
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 0.000000
+illum 1
+map_Kd /Users/zhilezhu/Documents/3D Models/Cracks/p3_femc_sees_v2.1/D:/Users/Jin/Development/Blender/_Custom Characters/P3 FeMC/SEES/p3 femc - sees - texture atlas.png
