@@ -35,7 +35,7 @@ namespace gui {
 class RenderSystem {
 public:
 	/**
-	 * @brief create the renderer
+	 * @brief create the render system
 	 *
 	 * @param window the window
 	 */

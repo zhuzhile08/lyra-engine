@@ -31,6 +31,9 @@ void Application::draw() {
 
 		m_currentTime = SDL_GetTicks64();
 	}
+
+	// wait for everything to finish before destruction
+	renderSystem.device.wait();
 }
 
 Window Application::window;

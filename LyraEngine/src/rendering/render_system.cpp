@@ -23,7 +23,7 @@ void RenderSystem::draw() {
 	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->m_updateQueue.flush();
 
 	// wait for the already recorded stuff to finish executing
-	frames[m_pastFrame].wait(); 
+	frames[m_currentFrame].wait(); 
 	
 	// get the next image to render on
 	if (vkAcquireNextImageKHR(device.device(), vulkanWindow.swapchain(), UINT64_MAX, frames[m_currentFrame].imageAvailableSemaphores(), VK_NULL_HANDLE, &m_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -51,8 +51,6 @@ void RenderSystem::draw() {
 
 	// update the frame
 	update_frame_count();
-
-	wait_device_queue(device.presentQueue());
 }
 
 void RenderSystem::submit_device_queue(const VkPipelineStageFlags& stageFlags) const {

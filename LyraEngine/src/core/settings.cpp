@@ -24,7 +24,7 @@ Settings::Settings() :
 #elif __APPLE__
 			, "VK_KHR_portability_subset" },
 #endif
-		{ "VK_LAYER_KHRONOS_validation" }
+		{  }
 	},
 
 	rendering{
