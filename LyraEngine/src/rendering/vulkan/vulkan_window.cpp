@@ -25,18 +25,16 @@ Window::~Window() noexcept {
 	// destroy the image views
 	for (uint32 i = 0; i < m_imageViews.size(); i++) 
 		vkDestroyImageView(Application::renderSystem.device.device(), m_imageViews[i], nullptr);
-	// destroy both the current swapchain and the old swapchain if present
+	// destroy the current swapchain
 	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr);
-	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
 	// destroy the window surface
 	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr);
 }
 
 void Window::recreate() {
-	// wait until all commands are done executing
-	Application::renderSystem.device.wait();
-
-	// destroy the images
+	// destroy the images and views
+	for (uint32 i = 0; i < m_imageViews.size(); i++)
+		vkDestroyImageView(Application::renderSystem.device.device(), m_imageViews[i], nullptr);
 	m_depthImage.destroy();
 	m_colorImage.destroy();
 	m_depthMem.destroy();
@@ -46,7 +44,7 @@ void Window::recreate() {
 	if (m_oldSwapchain != nullptr) vkDestroySwapchainKHR(Application::renderSystem.device.device(), *m_oldSwapchain, nullptr);
 
 	// reassign the old swapchain
-	m_oldSwapchain = &this->m_swapchain;
+	m_oldSwapchain = std::move(&this->m_swapchain);
 
 	// recreate the swapchain
 	create_swapchain();
