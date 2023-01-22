@@ -26,9 +26,7 @@
 
 struct CameraScript : public lyra::Script {
 	void update(void) override {
-		node->transform.rotate_z(10.0f);
-		node->transform.look_at_from_translation({3.0f, 3.0f, 7.0f}, {0.0f, 0.0f, 1.0f});
-		
+		node->transform.look_at_from_translation({3.0f, 5.0f, 3.0f}, {0.0f, 2.2f, 0.0f});
 	}
 };
 
