@@ -319,7 +319,7 @@ public:
 	 * @param target target translation
 	 * @param up up vector, default z axis
 	 */
-	void look_at(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 0.0f, 1.0f));
+	void look_at(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 	/**
 	 * @brief move to a new position and look at an object from there
 	 * 
@@ -327,7 +327,7 @@ public:
 	 * @param target target translation
 	 * @param up up vector
 	 */
-	void look_at_from_position(const glm::vec3& translation, const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 0.0f, 1.0f));
+	void look_at_from_position(const glm::vec3& translation, const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 	/**
 	 * @brief look at a target from a new translation
 	 * 
@@ -335,7 +335,7 @@ public:
 	 * @param target target translation
 	 * @param up up vector
 	 */
-	void look_at_from_translation(const glm::vec3& translation, const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 0.0f, 1.0f)) {
+	void look_at_from_translation(const glm::vec3& translation, const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f)) {
 		m_localTransformMatrix = glm::lookAt(translation, target, up);
 		m_dirty = true;
 	}
