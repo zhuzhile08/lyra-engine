@@ -75,7 +75,7 @@ public:
 	Array<vulkan::Frame, 2> frames;
 
 private:
-	std::vector<Renderer*> m_renderers;
+	Dynarray<Renderer*, 16> m_renderers;
 
 	uint8 m_currentFrame = 0;
 	uint8 m_pastFrame;
