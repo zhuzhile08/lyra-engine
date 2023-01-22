@@ -34,6 +34,9 @@ Renderer::~Renderer() {
 }
 
 void Renderer::recreate() {
+	// destroy the framebuffers
+	for (uint32 i = 0; i < m_framebuffers.size(); i++) vkDestroyFramebuffer(Application::renderSystem.device.device(), m_framebuffers[i], nullptr);
+	// destroy the renderpass
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();
@@ -170,7 +173,7 @@ void Renderer::begin_renderpass() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		m_renderPass,
-		m_framebuffers.at(Application::renderSystem.imageIndex()),
+		m_framebuffers[Application::renderSystem.imageIndex()],
 		{	// rendering area
 			{ 0, 0 },
 			Application::renderSystem.vulkanWindow.extent()

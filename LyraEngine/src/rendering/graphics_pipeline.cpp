@@ -159,7 +159,8 @@ void GraphicsPipeline::create_pipeline(
 			nullptr,
 			0,
 			Application::renderSystem.vulkanWindow.maxMultisamples(),
-			VK_FALSE				// currently set to false
+			VK_TRUE,
+			0.9f
 		},
 		{	// depth buffering
 			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
