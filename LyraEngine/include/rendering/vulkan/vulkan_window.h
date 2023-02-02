@@ -30,8 +30,6 @@ namespace vulkan {
  */
 class Window {
 public:
-	constexpr static size_t maxSwapchainImages = 8;
-
 	Window();
 
 	/**
@@ -63,13 +61,13 @@ public:
 	 *
 	 * @return const lyra::Dynarray<VkImage, lyra::vulkan::Window::maxSwapchainImages>
 	 */
-	NODISCARD const Dynarray<VkImage, maxSwapchainImages> images() const noexcept { return m_images; }
+	NODISCARD const Dynarray<VkImage, Settings::RenderConfig::maxSwapchainImages> images() const noexcept { return m_images; }
 	/**
 	 * @brief get the swapchain images
 	 *
 	 * @return const lyra::Dynarray<VkImageView, lyra::vulkan::Window::maxSwapchainImages>
 	 */
-	NODISCARD const Dynarray<VkImageView, maxSwapchainImages> imageViews() const noexcept { return m_imageViews; }
+	NODISCARD const Dynarray<VkImageView, Settings::RenderConfig::maxSwapchainImages> imageViews() const noexcept { return m_imageViews; }
 	/**
 	 * @brief get the depth buffer image
 	 *
@@ -114,8 +112,8 @@ private:
 	VkFormat m_format;
 	VkExtent2D m_extent;
 
-	Dynarray<VkImage, maxSwapchainImages> m_images;
-	Dynarray<VkImageView, maxSwapchainImages> m_imageViews;
+	Dynarray<VkImage, Settings::RenderConfig::maxSwapchainImages> m_images;
+	Dynarray<VkImageView, Settings::RenderConfig::maxSwapchainImages> m_imageViews;
 	
 	Image m_colorImage;
 	GPUMemory m_colorMem;

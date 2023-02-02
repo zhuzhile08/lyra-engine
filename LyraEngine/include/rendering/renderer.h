@@ -13,6 +13,8 @@
 
 #include <lyra.h>
 
+#include <core/settings.h>
+
 #include <core/dynarray.h>
 #include <vulkan/vulkan.h>
 
@@ -40,13 +42,13 @@ public:
 	/**
 	 * @brief get the framebuffers
 	 *
-	 * @return const Dynarray <VkFramebuffers, 8>&
+	 * @return const Dynarray <VkFramebuffers, Settings::RenderConfig::maxSwapchainImages>&
 	*/
-	NODISCARD const Dynarray <VkFramebuffer, 8>& framebuffers() const noexcept { return m_framebuffers; }
+	NODISCARD const Dynarray <VkFramebuffer, Settings::RenderConfig::maxSwapchainImages>& framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
 	VkRenderPass m_renderPass;
-	Dynarray <VkFramebuffer, 8> m_framebuffers;
+	Dynarray <VkFramebuffer, Settings::RenderConfig::maxSwapchainImages> m_framebuffers;
 
 	CallQueue m_updateQueue;
 

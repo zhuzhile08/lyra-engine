@@ -20,7 +20,8 @@
 
 namespace lyra {
 
-struct Settings {
+class Settings {
+public:
 	// debug mode enum
 	enum class DebugMode : int {
 		MODE_DEBUG = 1,
@@ -62,7 +63,10 @@ struct Settings {
 
 	// rendering settings
 	struct RenderConfig {
-		const uint8 maxFramesInFlight;
+		constexpr static size_t maxFramesInFlight = 2;
+		constexpr static size_t maxSwapchainImages = 8;
+		constexpr static size_t maxConcurrentRenderers = 16;
+
 		const float fov;
 		
 		const PolygonFrontFace polygonFrontFace;
@@ -92,10 +96,11 @@ struct Settings {
 
 	// memory alloc config
 	struct MemConfig {
+		constexpr static size_t maxDescriptorSetLayouts = 6;
+		constexpr static size_t maxDescriptorTypePerPool = 32;
+
 		const uint32 maxComponentCount;
 		const uint32 maxEntityCount;
-
-		const uint32 maxCommandBuffers; // caution: these only define the maximum amount of command buffers per pool
 	};
 
 	struct GUIConfig {

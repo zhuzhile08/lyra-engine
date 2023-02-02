@@ -18,6 +18,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <core/settings.h>
+
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/frame.h>
 #include <rendering/vulkan/command_buffer.h>
@@ -72,10 +74,10 @@ public:
 	vulkan::Device device;
 	Array<vulkan::CommandPool, 4> commandPools;
 	vulkan::Window vulkanWindow;
-	Array<vulkan::Frame, 2> frames;
+	Array<vulkan::Frame, Settings::RenderConfig::maxFramesInFlight> frames;
 
 private:
-	Dynarray<Renderer*, 16> m_renderers;
+	Dynarray<Renderer*, Settings::RenderConfig::maxConcurrentRenderers> m_renderers;
 
 	uint8 m_currentFrame = 0;
 	uint8 m_pastFrame;
