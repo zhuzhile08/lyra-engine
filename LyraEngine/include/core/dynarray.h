@@ -22,8 +22,8 @@
 namespace lyra {
 
 // allowed dynamic array internal type
-template <typename Type>
-concept DynarrayValueType = std::is_move_assignable_v<Type> && std::is_default_constructible_v<Type>;
+template <typename Ty>
+concept DynarrayValueType = std::is_move_assignable_v<Ty> && std::is_default_constructible_v<Ty>;
 
 // very dangerous dynamic array implementation, only store contents <= 4 bytes with less than 16 capacity
 template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
