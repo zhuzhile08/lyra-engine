@@ -20,6 +20,7 @@
 #include <core/smart_pointer.h>
 
 #include <rendering/vulkan/vulkan_shader.h>
+#include <rendering/vulkan/descriptor.h>
 
 namespace lyra {
 
@@ -40,8 +41,8 @@ public:
 		const uint32& descriptorSetLayoutIndex;
 		// type of descriptor
 		const int& descriptorType;
-		// number of descriptors to allocate
-		const uint32& descriptorAllocCount;
+		// multiplier for the number of descriptors to allocate
+		const uint32& descriptorAllocCountMultiplier;
 		// number of descriptors in that slot (array)
 		const uint32& arraySize = 1;
 	};
@@ -66,17 +67,11 @@ public:
 	Pipeline operator=(const Pipeline&) const noexcept = delete;
 
 	/**
-	 * @brief get the descriptor set layout
+	 * @brief get the descriptor management system
 	 *
-	 * @return constexpr DescriptorSetLayout* const
+	 * @return constexpr const DescriptorSystem&
 	*/
-	NODISCARD constexpr DescriptorSetLayout* const descriptorSetLayout() const noexcept { return m_descriptorSetLayout; }
-	/**
-	 * @brief get the descriptor pool
-	 *
-	 * @return constexpr DescriptorPool* const
-	*/
-	NODISCARD constexpr DescriptorPool* const descriptorPool() const noexcept { return m_descriptorPool; }
+	NODISCARD constexpr const DescriptorSystem& descriptorSystem() const noexcept { return m_descriptorSystem; }
 	/**
 	 * @brief get the pipeline
 	 *
@@ -105,8 +100,7 @@ public:
 protected:
 	VkPipeline m_pipeline;
 	VkPipelineLayout m_layout;
-	SmartPointer<DescriptorSetLayout> m_descriptorSetLayout;
-	SmartPointer<DescriptorPool> m_descriptorPool;
+	DescriptorSystem m_descriptorSystem;
 
 	VkPipelineBindPoint m_bindPoint;
 

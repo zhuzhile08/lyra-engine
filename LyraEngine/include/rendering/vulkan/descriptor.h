@@ -14,6 +14,12 @@
 #include <lyra.h>
 
 #include <vector>
+#include <queue>
+#include <core/smart_pointer.h>
+#include <core/dynarray.h>
+#include <core/basic_pool.h>
+
+#include <core/settings.h>
 
 #include <vulkan/vulkan.h>
 
@@ -22,202 +28,163 @@ namespace lyra {
 namespace vulkan {
 
 /**
- * @brief wrapper around a Vulkan descriptor set layout
- *
- * @brief describe which type of descriptor will be used where
+ * @brief a wrapper class for provinding a better interface for the vulkan descriptor system
  */
-class DescriptorSetLayout {
-public:
+class DescriptorSystem {
+private:
 	/**
-	 * @brief a builder to make the creation of the descriptor layout easier
+	 * @brief wrapper around a Vulkan descriptor set layout
+	 *
+	 * @brief describe which type of descriptor will be used where
 	 */
-	struct Builder {
+	class DescriptorSetLayouts {
+	public:
+		// simplified creation data for a single descriptor set layout
 		struct Data {
+			const uint32& layoutIndex;
 			// type of shader to bind the descriptor in
-			const int& shaderType;
+			const uint32& shaderType;
 			// binding index
 			const uint32& binding;
 			// number of descriptors in the array
 			const uint32& arraySize;
 			// type of descriptor to bind
-			const int& type;
+			const uint32& type;
 		};
 
 		/**
-		 * @brief add a binding to the vector of bindings
+		 * @brief create the descriptor set layout
 		 *
-		 * @param newBinding the data for a binding to add
+		 * @param createInfo creation information
 		 */
-		void add_binding(const Data& newBinding) noexcept {
-			bindings.push_back({
-				newBinding.binding,
-				static_cast<VkDescriptorType>(newBinding.type),
-				newBinding.arraySize,
-				static_cast<VkShaderStageFlags>(newBinding.shaderType),
-				nullptr
-			});
-		}
+		DescriptorSetLayouts(const Dynarray<VkDescriptorSetLayoutCreateInfo, Settings::MemConfig::maxDescriptorSetLayouts>& createInfo);
 
-		std::vector<VkDescriptorSetLayoutBinding> bindings;
+		/**
+		 * @brief destructor of the descriptor set layout
+		 */
+		~DescriptorSetLayouts() noexcept;
+
+		DescriptorSetLayouts operator=(const DescriptorSetLayouts&) const noexcept = delete;
+
+		/**
+		 * @brief get the size of the internal dynarray
+		 * 
+		 * @return const size_t 
+		 */
+		NODISCARD const size_t size() const noexcept { return size(); }
+		/**
+		 * @brief cast to the internal dynarray
+		 *
+		 * @return const Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts>
+		 */
+		NODISCARD operator const Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts> () const noexcept { return m_descriptorSetLayouts; }
+		/**
+		 * @brief cast to the data of the internal dynarray
+		 *
+		 * @return const VkDescriptorSetLayout
+		 */
+		NODISCARD operator const VkDescriptorSetLayout* const () const noexcept { return m_descriptorSetLayouts.data(); }
+		/**
+		 * @brief get the descriptor set layout
+		 *
+		 * @return const lyra::Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts>
+		 */
+		NODISCARD const Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts> get() const noexcept { return m_descriptorSetLayouts; }
+		/**
+		 * @brief get the descriptor set layout
+		 *
+		 * @return const VkDescriptorSetLayout
+		 */
+		NODISCARD const VkDescriptorSetLayout* const data() const noexcept { return m_descriptorSetLayouts.data(); }
+
+	private:
+		Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts> m_descriptorSetLayouts;
+
+		friend class Descriptor;
 	};
-	
+
 	/**
-	 * @brief create the descriptor set layout
+	 * @brief wrapper around a Vulkan descriptor pool
 	 *
-	 * @param builders the builders containing all the creation data
+	 * @brief allocates large chunk of memory to allocate descriptor pools
 	 */
-	DescriptorSetLayout(const std::vector<Builder>& builders);
-
-	/**
-	 * @brief destructor of the descriptor set layout
-	 */
-	~DescriptorSetLayout() noexcept;
-
-	DescriptorSetLayout operator=(const DescriptorSetLayout&) const noexcept = delete;
-
-	/**
-	 * @brief get the descriptor set layout
-	 *
-	 * @return const std::vector<VkDescriptorSetLayout>
-	 */
-	NODISCARD const std::vector<VkDescriptorSetLayout> get() const noexcept { return m_descriptorSetLayouts; }
-	/**
-	 * @brief get the descriptor set layout
-	 *
-	 * @return const VkDescriptorSetLayout
-	 */
-	NODISCARD const VkDescriptorSetLayout* const data() const noexcept { return m_descriptorSetLayouts.data(); }
-
-private:
-	std::vector<VkDescriptorSetLayout> m_descriptorSetLayouts;
-
-	friend class Descriptor;
-};
-
-/**
- * @brief wrapper around a Vulkan descriptor pool
- *
- * @brief allocates large chunk of memory to allocate descriptor pools
- */
-class DescriptorPool {
-public:
-	/**
-	 * @brief a builder to make the creation of the descriptor pool easier
-	 */
-	struct Builder {
-		struct Data {
-			// type of the descriptor
-			const int& type;
-			// number of descriptors needed for this type
-			const uint32& size;
+	class DescriptorPool {
+	public:
+		// simplified size data
+		struct Size {
+			// type of descriptor
+			const uint32& type;
+			// multiplier for the descriptor allocation count
+			const uint32& multiplier;
 		};
 
 		/**
-		 * @brief set a struct to define what type and how many types of descriptors a set is going to contain
+		 * @brief create a descriptor pool to allocate the descriptor sets
 		 *
-		 * @param size data for a pool size
+		 * @param createInfo creation information
 		 */
-		void add_pool_size(const Data& size) noexcept {
-			poolSizes.push_back({
-				static_cast<VkDescriptorType>(size.type),
-				size.size
-			});
-		}
+		DescriptorPool(const VkDescriptorPoolCreateInfo& createInfo);
 
-		void add_pool_sizes(const std::vector<Data>& sizes) noexcept {
-			for (uint32 i = 0; i < sizes.size(); i++) 
-				poolSizes.push_back({
-					static_cast<VkDescriptorType>(sizes.at(i).type),
-					sizes.at(i).size
-				});
-		}
-
-		/**	
-		 * @brief set the number of maximum possible allocatable sets
-		 *
-		 * @param m_maxSets the number to set to
-		 */
-		void set_max_sets(const uint32& m_maxSets) noexcept {
-			maxSets = m_maxSets;
-		}
 		/**
-		 * @brief Set the pool flags object
-		 *
-		 * @param m_poolFlags
+		 * @brief destructor of the descriptor pool
 		 */
-		void set_pool_flags(const VkDescriptorPoolCreateFlags& m_poolFlags) noexcept {
-			poolFlags = m_poolFlags;
-		}
+		~DescriptorPool() noexcept;
 
-		std::vector<VkDescriptorPoolSize> poolSizes;
-		VkDescriptorPoolCreateFlags poolFlags = 0;
-		uint32 maxSets = 1000;
+		DescriptorPool operator=(const DescriptorPool&) const noexcept = delete;
+
+		/**
+		 * @brief cast to the the descriptor pool
+		 *
+		 * @return constexpr VkDescriptorPool
+		 */
+		NODISCARD constexpr operator VkDescriptorPool () const noexcept { return m_descriptorPool; }
+		/**
+		 * @brief get the descriptor pool
+		 *
+		 * @return constexpr VkDescriptorPool
+		 */
+		NODISCARD constexpr VkDescriptorPool get() const noexcept { return m_descriptorPool; }
+
+	private:
+		VkDescriptorPool m_descriptorPool;
 	};
 
 	/**
-	 * @brief create a descriptor pool to allocate the descriptor sets
-	 *
-	 * @param swapchain swapchain
+	 * @brief wrapper around the Vulkan descriptor set
 	 */
-	DescriptorPool(const Builder& builder);
-
-	/**
-	 * @brief destructor of the descriptor pool
-	 */
-	~DescriptorPool() noexcept;
-
-	DescriptorPool operator=(const DescriptorPool&) const noexcept = delete;
-
-	/**
-	 * @brief get the descriptor pool
-	 *
-	 * @return constexpr VkDescriptorPool
-	 */
-	NODISCARD constexpr VkDescriptorPool get() const noexcept { return m_descriptorPool; }
-
-private:
-	VkDescriptorPool m_descriptorPool;
-};
-
-/**
- * @brief wrapper around the Vulkan descriptor set
- */
-class Descriptor {
-public:
-	// descriptor types
-	enum Type : int {
-		// sampler
-		TYPE_SAMPLER = 0,
-		// image sampler
-		TYPE_IMAGE_SAMPLER = 1,
-		// sampled image
-		TYPE_SAMPLED_IMAGE = 2,
-		// image used for storage
-		TYPE_STORAGE_IMAGE = 3,
-		// texel uniform buffer
-		TYPE_UNIFORM_TEXEL_BUFFER = 4,
-		// texel storage buffer
-		TYPE_STORAGE_TEXEL_BUFFER = 5,
-		// uniform buffer
-		TYPE_UNIFORM_BUFFER = 6,
-		// storage buffer
-		TYPE_STORAGE_BUFFER = 7,
-		// dynamic uniform buffer
-		TYPE_UNIFORM_BUFFER_DYNAMIC = 8,
-		// dynamic storage buffer
-		TYPE_STORAGE_BUFFER_DYNAMIC = 9,
-		// image
-		TYPE_INPUT_ATTACHMENT = 10,
-		// uniform buffer, but inline
-		TYPE_INLINE_UNIFORM_BLOCK = 1000138000,
-		// mutables
-		TYPE_MUTABLE_VALVE = 1000351000,
-	}; // strongy typed enums suck and you know it
-
-	/**
-	 * @brief struct to configure what will be written into the descriptor sets
-	 */
-	struct Writer {
+	class DescriptorSet : public BasicPool<DescriptorSet>::ResourceBase {
+	public:
+		// descriptor types
+		enum class Type : uint32 {
+			// sampler
+			TYPE_SAMPLER = 0,
+			// image sampler
+			TYPE_IMAGE_SAMPLER = 1,
+			// sampled image
+			TYPE_SAMPLED_IMAGE = 2,
+			// image used for storage
+			TYPE_STORAGE_IMAGE = 3,
+			// texel uniform buffer
+			TYPE_UNIFORM_TEXEL_BUFFER = 4,
+			// texel storage buffer
+			TYPE_STORAGE_TEXEL_BUFFER = 5,
+			// uniform buffer
+			TYPE_UNIFORM_BUFFER = 6,
+			// storage buffer
+			TYPE_STORAGE_BUFFER = 7,
+			// dynamic uniform buffer
+			TYPE_UNIFORM_BUFFER_DYNAMIC = 8,
+			// dynamic storage buffer
+			TYPE_STORAGE_BUFFER_DYNAMIC = 9,
+			// image
+			TYPE_INPUT_ATTACHMENT = 10,
+			// uniform buffer, but inline
+			TYPE_INLINE_UNIFORM_BLOCK = 1000138000,
+			// mutables
+			TYPE_MUTABLE_VALVE = 1000351000,
+		}; 
+		
+		// creation data for a single descriptor with both image and buffer information
 		struct Data {
 			// image info
 			const VkDescriptorImageInfo& imageInfo;
@@ -229,7 +196,8 @@ public:
 			const Type& type;
 		};
 
-		struct DataI {
+		// creation data for a single descriptor with only image information
+		struct ImageOnlyData {
 			// image info
 			const VkDescriptorImageInfo& imageInfo;
 			// binding to bind these to
@@ -238,7 +206,8 @@ public:
 			const Type& type;
 		};
 
-		struct DataB {
+		// creation data for a single descriptor with only buffer information
+		struct BufferOnlyData {
 			// buffer info
 			const VkDescriptorBufferInfo& bufferInfo;
 			// binding to bind these to
@@ -246,18 +215,28 @@ public:
 			// type of shader to bind these to
 			const Type& type;
 		};
+
+		/**
+		 * @brief construct new Vulkan descriptors
+		 *
+		 * @param allocInfo descriptor set allocation information
+		 * @param pool the pool that this set belongs to
+		 */
+		DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo, BasicPool<DescriptorSet>& pool);
+
+		DescriptorSet operator=(const DescriptorSet&) const noexcept = delete;
 
 		/**
 		 * @brief add image writes
 		 *
 		 * @param newWrites image writes to add to the buffer
 		 */
-		void add_writes(const std::vector<DataI>& newWrites) noexcept {
+		void add_m_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
 			for (uint32 i = 0; i < newWrites.size(); i++) {
-				writes.push_back({
+				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
-					VK_NULL_HANDLE,
+					m_descriptorSet,
 					newWrites.at(i).binding,
 					0,
 					1,
@@ -273,12 +252,12 @@ public:
 		 *
 		 * @param newWrites buffer writes to add to the buffer
 		 */
-		void add_writes(const std::vector<DataB>& newWrites) noexcept {
+		void add_m_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
 			for (uint32 i = 0; i < newWrites.size(); i++) {
-				writes.push_back({
+				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
-					VK_NULL_HANDLE,
+					m_descriptorSet,
 					newWrites.at(i).binding,
 					0,
 					1,
@@ -290,16 +269,16 @@ public:
 			}
 		}
 		/**
-		 * @brief add writes of both types
+		 * @brief add m_writes of both types
 		 *
-		 * @param newWrites image and buffer writes to add to the buffer
+		 * @param newWrites image and buffer m_writes to add to the buffer
 		 */
-		void add_writes(const std::vector<Data>& newWrites) noexcept {
+		void add_m_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept {
 			for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
-				writes.push_back({
+				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
-					VK_NULL_HANDLE,
+					m_descriptorSet,
 					binding,
 					0,
 					1,
@@ -311,37 +290,179 @@ public:
 			}
 		}
 
-		std::vector<VkWriteDescriptorSet> writes;
+		/**
+		 * @brief write the updates into the descriptor set
+		 */
+		void update() const noexcept;
+
+		/**
+		 * @brief cast to the descriptor set
+		 *
+		 * @return constexpr VkDescriptorSet
+		 */
+		NODISCARD constexpr operator VkDescriptorSet () const noexcept { return m_descriptorSet; }
+		/**
+		 * @brief get the descriptor set
+		 *
+		 * @return constexpr VkDescriptorSet
+		 */
+		NODISCARD constexpr VkDescriptorSet get() const noexcept { return m_descriptorSet; }
+
+	private:
+		VkDescriptorSet m_descriptorSet;
+
+		std::vector<VkWriteDescriptorSet> m_writes;
+	};
+
+public:
+	/**
+	 * @brief a builder to make the creation of the descriptor layout easier
+	 */
+	class LayoutBuilder {
+	public:
+		/**
+		 * @brief add a binding to the vector of bindings
+		 *
+		 * @param newBinding the data for a binding to add
+		 */
+		void add_binding(const DescriptorSetLayouts::Data& newBinding);
+
+		/**
+		 * @brief build the creation info out of the bindings
+		 * 
+		 * @return const Dynarray<VkDescriptorSetLayoutCreateInfo, 6> 
+		 */
+		const Dynarray<VkDescriptorSetLayoutCreateInfo, 6> build_create_info() const;
+
+	private:
+		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, 6> m_bindings;
 	};
 
 	/**
-	 * @brief construct new Vulkan descriptors
-	 *
-	 * @param layout descriptor set layout
-	 * @param layoutIndex index of the descriptor set layout
-	 * @param pool descriptor pool
-	 * @param writer data to be written into the descriptor
+	 * @brief a builder to make the creation of the descriptor pool easier
 	 */
-	Descriptor(const DescriptorSetLayout* const layout, const uint32& layoutIndex, const DescriptorPool* const pool, Writer& writer);
+	class PoolBuilder {
+	public:
+		PoolBuilder() = default;
+		/**
+		 * @brief construct a pool builder from another pool builder
+		 * 
+		 * @param poolBuilder the other pool builder
+		 */
+		PoolBuilder(const PoolBuilder& poolBuilder)
+			 : m_poolSizes(poolBuilder.m_poolSizes), m_poolFlags(poolBuilder.m_poolFlags), m_maxSets(poolBuilder.m_maxSets) { }
+		
+		/**
+		 * @brief add one descriptor type to the descriptor pool
+		 *
+		 * @param newSize single simplified pool size structure
+		 */
+		void add_pool_size(const DescriptorPool::Size& newSize) noexcept {
+			// add the size according to the type
+			m_poolSizes.push_back({
+				static_cast<VkDescriptorType>(newSize.type),
+				uint32(newSize.multiplier * Settings::MemConfig::maxDescriptorTypePerPool)
+			});
 
-	Descriptor operator=(const Descriptor&) const noexcept = delete;
+			m_maxSets += Settings::MemConfig::maxDescriptorTypePerPool * newSize.multiplier;
+		}
+		/**
+		 * @brief add multiple types to the descriptor pool
+		 * 
+		 * @param newSzes multiple simplified pool size structures
+		 */
+		void add_pool_sizes(const std::vector<DescriptorPool::Size>& newSizes) noexcept {
+			// loop through all the types and create their respective sizes
+			for (const auto& newSize : newSizes) add_pool_size(newSize);
+		}
+
+		/**
+		 * @brief Set the pool flags object
+		 *
+		 * @param poolFlags pool creation flags
+		 */
+		void set_pool_flags(const VkDescriptorPoolCreateFlags& poolFlags) noexcept {
+			m_poolFlags = poolFlags;
+		}
+
+		/**
+		 * @brief build the creation info out of the bindings
+		 * 
+		 * @return const VkDescriptorPoolCreateInfo
+		 */
+		const VkDescriptorPoolCreateInfo build_create_info() const  {
+			// return the create info
+			return VkDescriptorPoolCreateInfo {
+				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+				nullptr,
+				m_poolFlags,
+				m_maxSets,
+				static_cast<uint32>(m_poolSizes.size()),
+				m_poolSizes.data()
+			};
+		}
+
+	private:
+		std::vector<VkDescriptorPoolSize> m_poolSizes;
+		VkDescriptorPoolCreateFlags m_poolFlags = 0;
+		uint32 m_maxSets;
+	};
 
 	/**
-	 * @brief get the descriptor set
-	 *
-	 * @return constexpr VkDescriptorSet
+	 * @brief create a descriptor set layout and return a pointer
+	 * 
+	 * @param layoutBuilder layout builder
+	 * 
+	 * @return lyra::vulkan::DescriptorSystem::DescriptorSetLayouts* const 
 	 */
-	NODISCARD constexpr VkDescriptorSet get() const noexcept { return m_descriptorSet; }
+	DescriptorSetLayouts* const create_descriptor_set_layout(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) {
+		m_layouts = m_layouts.create(layoutBuilder.build_create_info());
+		m_poolBuilder = m_poolBuilder.create(poolBuilder);
+	}
+
+	NODISCARD DescriptorSet& get_unused_set(const size_t& layoutIndex);
 
 	/**
-	 * @brief get the descriptor set
-	 *
-	 * @return constexpr const VkDescriptorSet* const
+	 * @brief get the descriptor set layout
+	 * 
+	 * @return const lyra::vulkan::DescriptorSystem::DescriptorSetLayouts&
 	 */
-	NODISCARD constexpr const VkDescriptorSet* const get_ptr() const noexcept { return &m_descriptorSet; }
+	NODISCARD const DescriptorSetLayouts& layouts() const noexcept { return *m_layouts; }
+	/**
+	 * @brief get the descriptor pools
+	 * 
+	 * @return const std::vector<lyra::vulkan::DescriptorSystem::DescriptorPool> 
+	 */
+	NODISCARD const std::vector<DescriptorPool> pools() const noexcept { return m_pools; }
+	/**
+	 * @brief get the descriptor sets
+	 * 
+	 * @return const Array<BasicPool<lyra::vulkan::DescriptorSystem::DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts>
+	 */
+	NODISCARD const Array<BasicPool<DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts> sets() const noexcept { return m_sets; }
+	/**
+	 * @brief get the descriptor sets
+	 * 
+	 * @param index index of the basic pool
+	 * 
+	 * @return const Array<BasicPool<lyra::vulkan::DescriptorSystem::DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts>
+	 */
+	NODISCARD const BasicPool<DescriptorSet> sets(const size_t& index) const noexcept { return m_sets[index]; }
 
 private:
-	VkDescriptorSet m_descriptorSet;
+	SmartPointer<DescriptorSetLayouts> m_layouts;
+	std::vector<DescriptorPool> m_pools;
+	Array<BasicPool<DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts> m_sets;
+
+	SmartPointer<PoolBuilder> m_poolBuilder;
+
+	/**
+	 * @brief create a descriptor pool and its respecting descriptor sets
+	 * 
+	 * @param layoutIndex index of the layout to create it's descriptor pools with
+	 */
+	void create_descriptor_pool(const uint32& layoutIndex);
+
 };
 
 } // namespace vulkan

@@ -23,8 +23,8 @@ void Pipeline::create_layout(const std::vector<VkPushConstantRange>& pushConstan
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
-		(uint32) m_descriptorSetLayout->get().size(),
-		m_descriptorSetLayout->data(),
+		(uint32) m_descriptorSystem.layouts().size(),
+		m_descriptorSystem.layouts(),
 		(uint32) pushConstants.size(),
 		pushConstants.data()
 	};
@@ -43,38 +43,31 @@ void Pipeline::create_shaders(const std::vector<ShaderInfo>& shaderInfo) {
 }
 
 void Pipeline::create_descriptor_stuff(const std::vector<Binding>& bindings, const VkDescriptorPoolCreateFlags& poolFlags) {
-	// configure the builders using the custom pipeline builder
-	std::vector<DescriptorSetLayout::Builder> layoutBuilders; // layout
-	DescriptorPool::Builder poolBuilder; // pool
+	// configure the builders
+	DescriptorSystem::LayoutBuilder layoutBuilder; // layout
+	DescriptorSystem::PoolBuilder poolBuilder; // pool
 
 	for (uint32 i = 0; i < bindings.size(); i++) {
 		// add the information to the layout builder first
-		auto currentDescIndex = bindings[i].descriptorSetLayoutIndex;
-
-		if (layoutBuilders.size() < (currentDescIndex + 1)) {
-			layoutBuilders.resize(currentDescIndex + 1);
-		}
-		layoutBuilders[currentDescIndex].add_binding({
+		layoutBuilder.add_binding({
+			bindings[i].descriptorSetLayoutIndex,
 			bindings[i].shaderType,
 			i,
 			bindings[i].arraySize,
-			bindings[i].descriptorType,
+			bindings[i].descriptorType
 		});
 		// then add the information to the pool builder
 		poolBuilder.add_pool_size({
 			bindings[i].descriptorType,
-			bindings[i].descriptorAllocCount
+			bindings[i].descriptorAllocCountMultiplier
 		});
-		// update the count of descriptor sets
-		poolBuilder.maxSets += bindings[i].descriptorAllocCount;
 	}
 
 	// set some remaining information about the pool
-	poolBuilder.poolFlags = poolFlags;
+	poolBuilder.set_pool_flags(poolFlags);
 
-	// create the descriptor layout and pool
-	m_descriptorSetLayout = SmartPointer<DescriptorSetLayout>::create(layoutBuilders);
-	m_descriptorPool = SmartPointer<DescriptorPool>::create(poolBuilder);
+	// create the descriptor system's layout
+	m_descriptorSystem.create_descriptor_set_layout(layoutBuilder, poolBuilder);
 }
 
 } // namespace vulkan
