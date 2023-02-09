@@ -24,7 +24,7 @@ namespace vulkan {
 class Shader {
 public:
 	// types of shaders
-	enum Type : int {
+	enum Type { // sadly, I cannot use enum classes for this one
 		// vertex shader
 		TYPE_VERTEX = 0x00000001,
 		// tessellation control shader
