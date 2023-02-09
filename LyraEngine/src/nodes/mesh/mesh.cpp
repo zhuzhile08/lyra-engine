@@ -2,44 +2,6 @@
 
 namespace lyra {
 
-// vertex
-const VkVertexInputBindingDescription Mesh::Vertex::get_binding_description() noexcept {
-	return {
-		0,
-		sizeof(Vertex),
-		VK_VERTEX_INPUT_RATE_VERTEX
-	};
-}
-
-const Array<VkVertexInputAttributeDescription, 4> Mesh::Vertex::get_attribute_descriptions() noexcept {
-	return {
-		{{
-			0,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, pos)
-		},
-		{
-			1,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, normal)
-		},
-		{
-			2,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, color)
-		},
-		{
-			3,
-			0,
-			VK_FORMAT_R32G32B32_SFLOAT,
-			offsetof(Vertex, uvw)
-		}}
-	};
-}
-
 // mesh
 Mesh::Mesh(
 	const char* path, 

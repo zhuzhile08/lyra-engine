@@ -54,16 +54,49 @@ public:
 		/**
 		 * @brief returns a static vertex binding
 		 *
-		 * @return VkVertexInputBindingDescription
+		 * @return const VkVertexInputBindingDescription
 		 */
-		NODISCARD static const VkVertexInputBindingDescription get_binding_description() noexcept;
+		NODISCARD static const VkVertexInputBindingDescription get_binding_description() noexcept {
+			return {
+				0,
+				sizeof(Vertex),
+				VK_VERTEX_INPUT_RATE_VERTEX
+			};
+		}
 
 		/**
 		 * @brief returns a static vertex input attribute
 		 *
-		 * @return Array<VkVertexInputAttributeDescription, 4>
+		 * @return const Array<VkVertexInputAttributeDescription, 4>&
 		 */
-		NODISCARD static const Array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept;
+		NODISCARD static const Array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept {
+			return {
+				{{
+					0,
+					0,
+					VK_FORMAT_R32G32B32_SFLOAT,
+					offsetof(Vertex, pos)
+				},
+				{
+					1,
+					0,
+					VK_FORMAT_R32G32B32_SFLOAT,
+					offsetof(Vertex, normal)
+				},
+				{
+					2,
+					0,
+					VK_FORMAT_R32G32B32_SFLOAT,
+					offsetof(Vertex, color)
+				},
+				{
+					3,
+					0,
+					VK_FORMAT_R32G32B32_SFLOAT,
+					offsetof(Vertex, uvw)
+				}}
+			};
+		}
 	};
 
 	/**
