@@ -78,9 +78,12 @@ public:
 		const Transform& transform = Transform()
 	);
 
-#ifndef _WIN32
-	~Camera() { }
-#endif
+	/**
+	 * @brief destroy the camera object
+	 */
+	~Camera() { 
+		for (uint32 i = 0; i < m_descriptorSets.size(); i++) m_descriptorSets[i]->recycle();
+	}
 
 	Camera operator=(const Camera&) const noexcept = delete;
 
@@ -129,17 +132,11 @@ public:
 	 * @return const float
 	*/
 	NODISCARD const glm::vec4 viewport() const noexcept { return m_viewport; }
-	/**
-	 * @brief get the camera data buffers
-	 * 
-	 * @return const std::vector<vulkan::GPUBuffer>&
-	 */
-	NODISCARD const std::vector<vulkan::GPUBuffer>& buffers() const noexcept { return m_buffers; }
 
 private:
 	std::vector<Material*> m_materials;
-	std::vector<vulkan::GPUBuffer> m_buffers;
-	std::vector<vulkan::Descriptor> m_descriptors;
+	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_buffers;
+	Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
 	SmartPointer<GraphicsPipeline> m_renderPipeline;  
 	Skybox* m_skybox;
 

@@ -9,6 +9,8 @@
 
 #include <rendering/renderer.h>
 
+#include <rendering/vulkan/descriptor.h>
+
 namespace lyra {
 
 namespace gui {
@@ -34,7 +36,7 @@ public:
 	void add_draw_call(std::function<void()>&& func);
 
 private:
-	SmartPointer<vulkan::DescriptorPool> m_descriptorPool;
+	SmartPointer<vulkan::DescriptorSystem::DescriptorPool> m_descriptorPool;
 
 	CallQueue m_drawQueue;
 

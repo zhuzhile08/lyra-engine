@@ -8,7 +8,6 @@
 
 #include <rendering/vulkan/devices.h>
 #include <rendering/vulkan/command_buffer.h>
-#include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/vulkan_window.h>
 
 #include <rendering/renderer.h>
@@ -21,24 +20,23 @@ namespace gui {
 
 GUIRenderer::GUIRenderer() : Renderer() {
 	// information about the descriptor pool
-	vulkan::DescriptorPool::Builder builder;
+	vulkan::DescriptorSystem::PoolBuilder builder;
 	builder.add_pool_sizes({
-		{ vulkan::Descriptor::Type::TYPE_SAMPLER, 500 },
-		{ vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, 500 },
-		{ vulkan::Descriptor::Type::TYPE_SAMPLED_IMAGE, 500 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_IMAGE, 500 },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_TEXEL_BUFFER, 500 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_TEXEL_BUFFER, 500 },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, 500 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER, 500 },
-		{ vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 500 },
-		{ vulkan::Descriptor::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 500 },
-		{ vulkan::Descriptor::Type::TYPE_INPUT_ATTACHMENT, 500 }
-		});
-	builder.set_max_sets(500); // I think this may be a bit too much, but welp, imgui tells me this is a good idea
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_SAMPLER, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_SAMPLED_IMAGE, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_IMAGE, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_TEXEL_BUFFER, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_TEXEL_BUFFER, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_BUFFER, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_INPUT_ATTACHMENT, 500 }
+	});
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	m_descriptorPool = SmartPointer<vulkan::DescriptorPool>::create(builder);
+	m_descriptorPool = SmartPointer<vulkan::DescriptorSystem::DescriptorPool>::create(builder.build_create_info());
 
 	// initialize ImGui
 	ImGui::CreateContext();

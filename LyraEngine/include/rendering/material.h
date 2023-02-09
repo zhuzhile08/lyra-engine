@@ -13,6 +13,9 @@
 
 #include <lyra.h>
 
+#include <core/array.h>
+#include <core/smart_pointer.h>
+
 #include <nodes/node.h>
 
 #include <rendering/vulkan/GPU_buffer.h>
@@ -65,6 +68,12 @@ public:
 		const Texture* const occlusionMapTexture = nullptr,
 		const uint8& occlusionMapValue = 0
 	);
+	/**
+	 * @brief destroy the material
+	 */
+	~Material() { 
+		for (uint32 i = 0; i < m_descriptorSets.size(); i++) m_descriptorSets[i]->recycle(); 
+	}
 
 	/**
 	 * @brief copy a material
@@ -72,21 +81,21 @@ public:
 	 * @param other the other material
 	 * @return lyra::Material& 
 	 */
-	Material& operator=(const Material& other);
+	// Material& operator=(const Material& other);
 	/**
 	 * @brief copy a material
 	 * 
 	 * @param other the other material
 	 * @return Material& 
 	 */
-	Material& operator=(Material&& other);
+	// Material& operator=(Material&& other);
 
 	/**
 	 * @brief get the descriptor sets
 	 *
-	 * @return const std::vector<vulkan::Descriptor>
+	 * @return const Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight>&
 	*/
-	NODISCARD const std::vector<vulkan::Descriptor> descriptor() const noexcept { return m_descriptors; }
+	NODISCARD const Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight>& descriptorSets() const noexcept { return m_descriptorSets; }
 
 	Color albedoColor;
 	const Texture* albedoTexture;
@@ -116,9 +125,9 @@ private:
 
 	std::vector<MeshRenderer*> m_meshRenderers;
 
-	std::vector<vulkan::Descriptor> m_descriptors;
-	std::vector<vulkan::GPUBuffer> m_fragShaderBuffers;
-	std::vector<vulkan::GPUBuffer> m_vertShaderBuffers;
+	Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
+	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_fragShaderBuffers;
+	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_vertShaderBuffers;
 
 	struct MaterialVertexData {
 		alignas(8) const uint32 m_normalMapValue;

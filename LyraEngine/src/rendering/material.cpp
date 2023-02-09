@@ -48,17 +48,13 @@ Material::Material(
 	occlusionMapValue(occlusionMapValue),
 	camera(camera)
 {
-	// preallocate the memory for the vertex and fragment shaders
-	m_vertShaderBuffers.reserve(settings().rendering.maxFramesInFlight);
-	m_fragShaderBuffers.reserve(settings().rendering.maxFramesInFlight);
-
 	// uniform data to send to the vertex shader
-	MaterialVertexData vertDat{
+	MaterialVertexData vertDat {
 		displacementMapValue, normalMapValue
 	};
 
 	// uniform data to send to the fragment shader
-	MaterialFragmentData fragDat{
+	MaterialFragmentData fragDat {
 		albedoColor.vec(),
 		emissionColor.vec(),
 		metallic,
@@ -69,54 +65,51 @@ Material::Material(
 		occlusionMapValue
 	};
 
-	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) { 
+	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) { 
 		// create the buffers that send information to the vertex shader and copy in the information
-		m_vertShaderBuffers.emplace_back(sizeof(MaterialVertexData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		m_vertShaderBuffers.at(i).copy_data(&vertDat);
+		m_vertShaderBuffers[i] = m_vertShaderBuffers[i].create(sizeof(MaterialVertexData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		m_vertShaderBuffers[i]->copy_data(&vertDat);
 		// create the buffers that send information to the fragment shader and copy in the information
-		m_fragShaderBuffers.emplace_back(sizeof(MaterialFragmentData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		m_fragShaderBuffers.at(i).copy_data(&fragDat);
+		m_fragShaderBuffers[i] =  m_vertShaderBuffers[i].create(sizeof(MaterialFragmentData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		m_fragShaderBuffers[i]->copy_data(&fragDat);
 	}
 
-	// create the descriptor set
-	vulkan::Descriptor::Writer writer;
-	writer.add_writes({ // write the images
-		{ (normalMapTexture) ? normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 3, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (displacementMapTexture) ? displacementMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 4, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (albedoTexture) ? albedoTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 2, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (metallicTexture) ? metallicTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 6, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (emissionTexture) ? emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
-		{ (occlusionMapTexture) ? occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER},
+	// create the descriptors themselves
+	// for (auto& descriptorSet : m_descriptorSets) {
+	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
+		// get a unused descriptor set and push back its pointer
+		m_descriptorSets[i] = &camera->m_renderPipeline->descriptorSystem().get_unused_set(1);
+		// add the writes
+		m_descriptorSets[i]->add_writes({ // write the images
+			{ (normalMapTexture) ? normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 3, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
+			{ (displacementMapTexture) ? displacementMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 4, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
+			{ (albedoTexture) ? albedoTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 2, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
+			{ (metallicTexture) ? metallicTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 6, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
+			{ (emissionTexture) ? emissionTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 7, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
+			{ (occlusionMapTexture) ? occlusionMapTexture->get_descriptor_image_info() : Assets::nullTexture()->get_descriptor_image_info(), 8, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
 		});
-	writer.add_writes({ // write the buffers
-		{ m_vertShaderBuffers[0].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_vertShaderBuffers[1].get_descriptor_buffer_info(), 1, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers[0].get_descriptor_buffer_info(), 5, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_fragShaderBuffers[1].get_descriptor_buffer_info(), 5, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER }
+		m_descriptorSets[i]->add_writes({ // write the buffers
+			{ m_vertShaderBuffers[0]->get_descriptor_buffer_info(), 1, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
+			{ m_vertShaderBuffers[1]->get_descriptor_buffer_info(), 1, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
+			{ m_fragShaderBuffers[0]->get_descriptor_buffer_info(), 5, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
+			{ m_fragShaderBuffers[1]->get_descriptor_buffer_info(), 5, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
 		});
-
-	// create the descriptors
-	m_descriptors.reserve(settings().rendering.maxFramesInFlight);
-	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) 
-		m_descriptors.emplace_back(
-			camera->m_renderPipeline->descriptorSetLayout(),
-			1,
-			camera->m_renderPipeline->descriptorPool(), 
-			writer
-		);
+		// update the descriptor set
+		m_descriptorSets[i]->update();
+	}
 
 	this->camera->m_materials.push_back(this);
 }
 
-Material& Material::operator=(const Material& other) {
+// Material& Material::operator=(const Material& other) {
 
-	return *this;
-}
+// 	return *this;
+// }
 
-Material& Material::operator=(Material&& other) {
+// Material& Material::operator=(Material&& other) {
 
-	return *this;
-}
+// 	return *this;
+// }
 
 void Material::draw() const {
 	// bind the descriptor set first
@@ -124,7 +117,7 @@ void Material::draw() const {
 		camera->m_renderPipeline->bindPoint(), 
 		camera->m_renderPipeline->layout(), 
 		1, 
-		m_descriptors.at(Application::renderSystem.currentFrame()).get()
+		*m_descriptorSets[Application::renderSystem.currentFrame()]
 	);
 
 	for (uint32 i = 0; i < m_meshRenderers.size(); i++) m_meshRenderers.at(i)->draw();

@@ -31,56 +31,51 @@ Camera::Camera(
 ) :
 	Spatial(script, name, parent, visible, tag, transform), Renderer(), m_skybox(skybox), m_projection_matrix(glm::mat4(1.0f))
 {
-	// shader information
-	std::vector<vulkan::Pipeline::ShaderInfo> shaders{
-		{ vulkan::Shader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" }
-	};
+	{
+		// the graphics pipeline builder
+		GraphicsPipeline::Builder pipelineBuilder(this);
+		pipelineBuilder.add_shader_infos({ // shaders
+			{ vulkan::Shader::Type::TYPE_VERTEX, "data/shader/vert.spv", "main" },
+			{ vulkan::Shader::Type::TYPE_FRAGMENT, "data/shader/frag.spv", "main" }
+		});
+		pipelineBuilder.add_binding_infos({ // descriptor bindings
+			{ vulkan::Shader::Type::TYPE_VERTEX, 0, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight},
+			{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight },
+			{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight }
+		});
+		pipelineBuilder.enable_sample_shading(0.9f); // also enable sample shading
 
-	// binding information
-	std::vector<vulkan::Pipeline::Binding> bindings{
-		{ vulkan::Shader::Type::TYPE_VERTEX, 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight},
-		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_VERTEX, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight },
-		{ vulkan::Shader::Type::TYPE_FRAGMENT, 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight }
-	};
-
-	// create the graphics pipeline
-	m_renderPipeline = SmartPointer<GraphicsPipeline>::create(
-		this,
-		shaders,
-		bindings,
-		std::vector<VkPushConstantRange> {}
-		);
-
-	// preallocate the memory for the buffer that sends the camera data to the shaders
-	m_buffers.reserve(settings().rendering.maxFramesInFlight);
-	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) { 
-		// create the buffers that send the camera information to the shaders and copy in the information
-		m_buffers.emplace_back(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		// create the graphics pipeline
+		m_renderPipeline = SmartPointer<GraphicsPipeline>::create(pipelineBuilder);
 	}
 
-	// create the descriptor sets
-	vulkan::Descriptor::Writer writer;
-	writer.add_writes({ // write the buffers
-		{ m_buffers[0].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-		{ m_buffers[1].get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER }
-		});
+
+	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) { 
+		// create the buffers that send the camera information to the shaders and copy in the information
+		m_buffers[i] = m_buffers[i].create(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	}
+
 
 	// create the descriptors themselves
-	m_descriptors.reserve(settings().rendering.maxFramesInFlight);
-	for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) 
-		m_descriptors.emplace_back(
-			m_renderPipeline->descriptorSetLayout(), 
-			0,
-			m_renderPipeline->descriptorPool(), 
-			writer
-		);
+	// for (auto& descriptorSet : m_descriptorSets) {
+	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
+		// get a unused descriptor set and push back its pointer
+		m_descriptorSets[i] = &m_renderPipeline->descriptorSystem().get_unused_set(0);
+		// add the writes
+		m_descriptorSets[i]->add_writes({
+			{ m_buffers[0]->get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
+			{ m_buffers[1]->get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
+		});
+		// update the descriptor set
+		m_descriptorSets[i]->update();
+	}
+
 
 	// automatically set camera mode to perspective
 	if (perspective) 
@@ -127,7 +122,7 @@ void Camera::draw() {
 	// check wich projection model the camera uses and calculate the projection data
 	CameraData data{ mat_to_global(), m_projection_matrix };
 	// copy the data into the shader
-	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
+	m_buffers[Application::renderSystem.currentFrame()]->copy_data(&data);
 }
 
 void Camera::record_command_buffers() {
@@ -143,7 +138,7 @@ void Camera::record_command_buffers() {
 		m_renderPipeline->bindPoint(), 
 		m_renderPipeline->layout(),
 		0, 
-		m_descriptors[Application::renderSystem.currentFrame()].get());
+		*m_descriptorSets[Application::renderSystem.currentFrame()]);
 	// loop through the materials and draw their meshes
 	for (uint32 i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
 	// end renderpass
