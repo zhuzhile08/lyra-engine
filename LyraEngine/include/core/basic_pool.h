@@ -51,7 +51,7 @@ public:
 		 */
 		ResourceBase(BasicPool& pool) : m_pool(pool) { }
 
-	private:
+	protected:
 		size_t m_index;
 		BasicPool& m_pool;
 
@@ -216,9 +216,9 @@ public:
 	/**
 	 * @brief return a formerly used resource back to the deque to be used again
 	 */
-	void return_used(const_reference resource) {
+	void recycle_used(const_reference resource) {
 		m_unused.push_back(m_used[resource.m_index]);
-		m_used.erase(resource.m_index);
+		m_used.erase(m_used.begin() + resource.m_index);
 	}
 	/**
 	 * @brief get the size of the deque of the unused resources
