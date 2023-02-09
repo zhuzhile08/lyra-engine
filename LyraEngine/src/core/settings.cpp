@@ -28,9 +28,7 @@ Settings::Settings() :
 	},
 
 	rendering{
-		(uint8)m_json["rendering"]["maxFramesInFlight"],
 		(float)m_json["rendering"]["fov"],
-		static_cast<PolygonFrontFace>((int)m_json["rendering"]["polygonFrontFace"]),
 		(bool)m_json["rendering"]["anistropy"],
 		(float)m_json["rendering"]["anistropyStrength"],
 		(float)m_json["rendering"]["resolution"]
@@ -53,8 +51,7 @@ Settings::Settings() :
 
 	memory{
 		(uint32)m_json["memory"]["maxComponentCount"],
-		(uint32)m_json["memory"]["maxEntityCount"],
-		(uint32)m_json["memory"]["maxCommandBuffers"]
+		(uint32)m_json["memory"]["maxEntityCount"]
 	}
 { };
 

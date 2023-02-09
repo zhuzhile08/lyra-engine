@@ -39,11 +39,6 @@ public:
 		DISABLE_ALL = 0x00000040
 	};
 
-	enum class PolygonFrontFace : int {
-		FRONT_FACE_COUNTER_CLOCKWISE = 0,
-		FRONT_FACE_CLOCKWISE = 1
-	};
-
 	// generell application settings
 	struct AppConfig {
 		const char* description;
@@ -68,8 +63,6 @@ public:
 		constexpr static size_t maxConcurrentRenderers = 16;
 
 		const float fov;
-		
-		const PolygonFrontFace polygonFrontFace;
 
 		const bool anistropy;
 		const float anistropyStrength;
