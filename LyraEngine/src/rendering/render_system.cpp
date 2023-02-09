@@ -98,7 +98,7 @@ void RenderSystem::present_device_queue() {
 
 void RenderSystem::update_frame_count() noexcept {
 	m_pastFrame = m_currentFrame;
-	m_currentFrame = (m_currentFrame + 1) % settings().rendering.maxFramesInFlight;
+	m_currentFrame = (m_currentFrame + 1) % Settings::RenderConfig::maxFramesInFlight;
 }
 
 } // namespace lyra
