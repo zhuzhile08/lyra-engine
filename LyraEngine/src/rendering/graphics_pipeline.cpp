@@ -10,103 +10,22 @@
 
 namespace lyra {
 
-GraphicsPipeline::GraphicsPipeline(
-	const Renderer* const renderer,
-	const std::vector<ShaderInfo>& shaders,
-	const std::vector<Binding>& bindings,
-	const std::vector<VkPushConstantRange>& pushConstants,
-	const ColorBlending& colorBlending,
-	const Tessellation& tessellation,
-	const Multisampling& multisampling,
-	const RenderMode& renderMode,
-	const Culling& culling
-) {
-	// define what type of pipeline this is
-	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+GraphicsPipeline::Builder::Builder(const Renderer* const renderer) : m_renderer(renderer) {
+	// temporary for mesh binding description
+	const auto meshBindingDescription = Mesh::Vertex::get_binding_description();
 
-	// crate shaders
-	create_shaders(shaders);
-	// create stuff relating to descriptors
-	create_descriptor_stuff(bindings); // yes, I know, very good naming
-
-	// create the pipeline
-	create_pipeline(
-		renderer,
-		pushConstants,
-		Application::renderSystem.vulkanWindow.extent(),
-		Application::renderSystem.vulkanWindow.extent(), 
-		colorBlending, 
-		tessellation, 
-		multisampling, 
-		renderMode, 
-		culling
-	);
-}
-
-GraphicsPipeline::GraphicsPipeline(
-	const Renderer* const renderer,
-	const std::vector<ShaderInfo>& shaders,
-	const std::vector<Binding>& bindings,
-	const std::vector<VkPushConstantRange>& pushConstants,
-	const VkExtent2D& size,
-	const VkExtent2D& area,
-	const ColorBlending& colorBlending,
-	const Tessellation& tessellation,
-	const Multisampling& multisampling,
-	const RenderMode& renderMode,
-	const Culling& culling
-) {
-	// define what type of pipeline this is
-	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-
-	// crate shaders
-	create_shaders(shaders);
-	// create stuff relating to descriptors
-	create_descriptor_stuff(bindings); // yes, I know, very good naming
-
-	// create the pipeline
-	create_pipeline(
-		renderer,
-		pushConstants,
-		size,
-		area, 
-		colorBlending, 
-		tessellation, 
-		multisampling, 
-		renderMode, 
-		culling
-	);
-}
-
-void GraphicsPipeline::create_pipeline(
-	const Renderer* const renderer,
-	const std::vector<VkPushConstantRange>& pushConstants,
-	const VkExtent2D& size,
-	const VkExtent2D& area,
-	const ColorBlending& colorBlending,
-	const Tessellation& tessellation,
-	const Multisampling& multisampling,
-	const RenderMode& renderMode,
-	const Culling& culling
-) {
-	// add all the shader stage creation information into a vector
-	std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
-	shaderStages.reserve(m_shaders.size());
-	for (uint32 i = 0; i < m_shaders.size(); i++) shaderStages.push_back(m_shaders[i].get_stage_create_info());
-
-	auto temp = Mesh::Vertex::get_binding_description(); // i loooove c++
-	auto temp2 = Mesh::Vertex::get_attribute_descriptions();
-
-	GraphicsPipelineCreateInfo createInfo = {
-		shaderStages, // create shaders
+	// setup the basic create info
+	m_createInfo = GraphicsPipelineCreateInfo {
+		// shader information
+		{ },
 		{	// describe how vertices are inputed into shaders
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 			nullptr,
 			0,
 			1,
-			&temp,
-			static_cast<uint32>(temp2.size()),
-			temp2.data()
+			&meshBindingDescription,
+			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
+			Mesh::Vertex::get_attribute_descriptions().data()
 		},
 		{	// describe how shaders are executed
 			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -121,23 +40,23 @@ void GraphicsPipeline::create_pipeline(
 		{	// define where the drawable area on the window is
 			0.0f,
 			0.0f,
-			(float) size.width,
-			(float) size.height,
+			static_cast<float>(Application::renderSystem.vulkanWindow.extent().width),
+			static_cast<float>(Application::renderSystem.vulkanWindow.extent().height),
 			0.0f,
 			1.0f
 		},
 		{	// define where you will acutally draw to
 			{0, 0},
-			area
+			Application::renderSystem.vulkanWindow.extent()
 		},
 		{
 			VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
 			nullptr,
 			0,
 			1,
-			&createInfo.viewport,
+			&m_createInfo.viewport,
 			1,
-			&createInfo.scissor
+			&m_createInfo.scissor
 		},
 		{	// create the rasteriser to create the fragments
 			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -145,9 +64,9 @@ void GraphicsPipeline::create_pipeline(
 			0,
 			VK_FALSE,
 			VK_FALSE,
-			static_cast<VkPolygonMode>(renderMode),
+			VK_POLYGON_MODE_FILL,
 			VK_CULL_MODE_BACK_BIT,
-			static_cast<VkFrontFace>(settings().rendering.polygonFrontFace),
+			VK_FRONT_FACE_COUNTER_CLOCKWISE,
 			VK_FALSE,
 			0.0f,
 			0.0f,
@@ -159,8 +78,8 @@ void GraphicsPipeline::create_pipeline(
 			nullptr,
 			0,
 			Application::renderSystem.vulkanWindow.maxMultisamples(),
-			VK_TRUE,
-			0.9f
+			VK_FALSE,
+			0.0f
 		},
 		{	// depth buffering
 			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
@@ -189,51 +108,48 @@ void GraphicsPipeline::create_pipeline(
 			VK_FALSE,
 			VK_LOGIC_OP_COPY,
 			1,
-			&createInfo.colorBlendAttachment,
+			&m_createInfo.colorBlendAttachment,
 			{
 				0.0f, 0.0f, 0.0f, 0.0f
 			}
 		},
-		{ 
-			// VK_DYNAMIC_STATE_VIEWPORT,
-			// VK_DYNAMIC_STATE_SCISSOR
-		},
+		// dynamic state config
+		{ },
 		{
 			VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 			nullptr,
 			0,
 			0,
 			nullptr
-		}
+		} 
 	};
+}
+
+void GraphicsPipeline::Builder::create_shader_stages(const GraphicsPipeline& graphicsPipeline) {
+	// add all the shader stage creation information into a vector
+	std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
+	shaderStages.reserve(graphicsPipeline.shaders().size());
+	for (const auto& shader : graphicsPipeline.shaders()) shaderStages.push_back(shader.get_stage_create_info());
+
+	// set the shader stages in the create info
+	m_createInfo.shaderStages = shaderStages;
+}
+
+GraphicsPipeline::GraphicsPipeline(Builder& builder) {
 	
+	// define what type of pipeline this is
+	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+	// crate shaders
+	create_shaders(&builder);
+	builder.create_shader_stages(*this);
+	// create stuff relating to descriptors
+	create_descriptor_stuff(&builder); // yes, I know, very good naming
 	// create the pipeline layout
-	create_layout(pushConstants);
+	create_layout(&builder);
 
-	// create the pipeline
-	VkGraphicsPipelineCreateInfo pipelineInfo = {
-		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
-		nullptr,
-		0,
-		(uint32) createInfo.shaderStages.size(),
-		createInfo.shaderStages.data(),
-		&createInfo.vertexInputInfo,
-		&createInfo.inputAssembly,
-		&createInfo.tesselation,
-		&createInfo.viewportState,
-		&createInfo.rasterizer,
-		&createInfo.multisampling,
-		&createInfo.depthStencilState,
-		&createInfo.colorBlending,
-		&createInfo.dynamicState,
-		m_layout,
-		renderer->renderPass(),
-		0,
-		VK_NULL_HANDLE,
-		0
-	};
-
-	vassert(vkCreateGraphicsPipelines(Application::renderSystem.device.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline), "create Vulkan pipeline");
+	const auto createInfo = builder.build_pipeline_create_info(*this);
+	vassert(vkCreateGraphicsPipelines(Application::renderSystem.device.device(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pipeline), "create Vulkan pipeline");
 }
 
 } // namespace lyra

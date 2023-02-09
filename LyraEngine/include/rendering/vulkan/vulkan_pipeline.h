@@ -32,31 +32,138 @@ namespace vulkan {
 class Pipeline {
 public:
 	/**
-	 * @brief descriptor and shader information
+	 * @brief A helper class to build the pipeline and its elements
 	 */
-	struct Binding {
-		// shader type
-		const int& shaderType;
-		// the descriptor set layout this binding belongs to
-		const uint32& descriptorSetLayoutIndex;
-		// type of descriptor
-		const int& descriptorType;
-		// multiplier for the number of descriptors to allocate
-		const uint32& descriptorAllocCountMultiplier;
-		// number of descriptors in that slot (array)
-		const uint32& arraySize = 1;
-	};
+	class Builder {
+	public:
+		/**
+		 * @brief struct holding creation information for a shader
+		 */
+		struct ShaderInfo {
+			// shader type
+			const uint32& type;
+			// path of shader
+			const char* path;
+			// shader entry point
+			const char* entry = "main";
+		};
 
-	/**
-	 * @brief struct holding creation information for a shader
-	 */
-	struct ShaderInfo {
-		// shader type
-		const int& type;
-		// path of shader
-		const char* path;
-		// shader entry point
-		const char* entry = "main";
+		/**
+		 * @brief simplified descriptor and shader information
+		 */
+		struct BindingInfo {
+			// shader type
+			const uint32& shaderType;
+			// the descriptor set layout this binding belongs to
+			const uint32& descriptorSetLayoutIndex;
+			// type of descriptor
+			const uint32& descriptorType;
+			// multiplier for the number of descriptors to allocate
+			const uint32& descriptorAllocCountMultiplier;
+			// number of descriptors in that slot (array)
+			const uint32& arraySize = 1;
+		};
+
+		/**
+		 * @brief structure containing information for push constants
+		 */
+		struct PushConstantInfo {
+			// type of shader
+			const Shader::Type shaderType;
+			// size of push constant
+    		const uint32& size;
+			// offset of the push constant
+    		const uint32& offset = 0;
+		};
+
+		/**
+		 * @brief add a single shader information to the internal vector
+		 * 
+		 * @param shaderInfo shader information
+		 */
+		void add_shader_info(const ShaderInfo& shaderInfo) {
+			m_shaderInfos.push_back(shaderInfo);
+		}
+		/**
+		 * @brief add multiple shader informations to the internal vector
+		 * 
+		 * @param shaderInfos vector of shader informations
+		 */
+		void add_shader_infos(const std::vector<ShaderInfo>& shaderInfos) {
+			for (const auto& shaderInfo : shaderInfos) add_shader_info(shaderInfo);
+		}
+
+		/**
+		 * @brief add a single descriptor binding information to the internal vector
+		 * 
+		 * @param bindingInfo descriptor binding information
+		 */
+		void add_binding_info(const BindingInfo& bindingInfo) {
+			m_bindingInfos.push_back(bindingInfo);
+		}
+		/**
+		 * @brief add multiple descriptor binding informations to the internal vector
+		 * 
+		 * @param bindingInfos vector of descriptor binding informations
+		 */
+		void add_binding_infos(const std::vector<BindingInfo>& bindingInfos) {
+			for (const auto& bindingInfo : bindingInfos) add_binding_info(bindingInfo);
+		}
+
+		/**
+		 * @brief add a single push constant information to the internal vector
+		 * 
+		 * @param pushConstantInfo push constant information
+		 */
+		void add_push_constant_info(const PushConstantInfo& pushConstantInfo) {
+			m_pushConstantInfos.push_back(pushConstantInfo);
+		}
+		/**
+		 * @brief add multiple push constant informations to the internal vector
+		 * 
+		 * @param pushConstantInfos vector of push constant informations
+		 */
+		void add_push_constant_infos(const std::vector<PushConstantInfo>& pushConstantInfos) {
+			for (const auto& pushConstantInfo : pushConstantInfos) add_push_constant_info(pushConstantInfo);
+		}
+
+		/**
+		 * @brief set the descriptor pool flags
+		 *
+		 * @param poolFlags pool creation flags
+		 */
+		void set_descriptor_pool_flags(const VkDescriptorPoolCreateFlags& poolFlags) noexcept {
+			m_poolFlags = poolFlags;
+		}
+
+	private:
+		std::vector<ShaderInfo> m_shaderInfos;
+		std::vector<BindingInfo> m_bindingInfos;
+		std::vector<PushConstantInfo> m_pushConstantInfos;
+		VkDescriptorPoolCreateFlags m_poolFlags = 0;
+
+		/**
+		 * @brief build the creation info for the pipeline layout
+		 * 
+		 * @param descriptorSystem descriptor system which contains the set layout for this pipeline
+		 * 
+		 * @return const VkPipelineLayoutCreateInfo 
+		 */
+		NODISCARD const VkPipelineLayoutCreateInfo build_layout_create_info(const DescriptorSystem& descriptorSystem) const noexcept;
+		/**
+		 * @brief build the builder for the descriptor set layout
+		 * 
+		 * @return const lyra::vulkan::DescriptorSystem::LayoutBuilder 
+		 */
+		NODISCARD const DescriptorSystem::LayoutBuilder build_set_layout_builder() const;
+		/**
+		 * @brief build the builder for the descriptor pool
+		 * 
+		 * @return const lyra::vulka DescriptorSystem::PoolBuilder 
+		 */
+		NODISCARD const DescriptorSystem::PoolBuilder build_pool_builder() const;
+
+		friend class Pipeline;
 	};
 
 	/**
@@ -69,9 +176,9 @@ public:
 	/**
 	 * @brief get the descriptor management system
 	 *
-	 * @return constexpr const DescriptorSystem&
+	 * @return constexpr lyra::vulkan::DescriptorSystem&
 	*/
-	NODISCARD constexpr const DescriptorSystem& descriptorSystem() const noexcept { return m_descriptorSystem; }
+	NODISCARD constexpr DescriptorSystem& descriptorSystem()noexcept { return m_descriptorSystem; }
 	/**
 	 * @brief get the pipeline
 	 *
@@ -107,25 +214,23 @@ protected:
 	std::vector<Shader> m_shaders;
 
 	/**
-	 * @brief create the pipeline layout
-	 * 
-	 * @param pushConstants push constant data
+	 * @brief create all the shaders
+	 *
+	 * @param builder containing the shader information
 	 */
-	void create_layout(const std::vector<VkPushConstantRange>& pushConstants); // first time I've used a default Vulkan struct in an exposed part of the API
+	void create_shaders(const Builder* const builder);
 	/**
 	 * @brief create stuff related to descriptors
 	 * 
-	 * @param bindings descriptorinformation. Have to be in their correct order
-	 * @param poolFlags descriptor pool additional flags
-	 * @param maxSets maximum number of descriptor sets
+	 * @param builder builder which contains the descriptor informations
 	*/
-	void create_descriptor_stuff(const std::vector<Binding>& bindings, const VkDescriptorPoolCreateFlags& poolFlags = 0);
+	void create_descriptor_stuff(const Builder* const builder);
 	/**
-	 * @brief create all the shaders
-	 *
-	 * @param shaderInfo shader information
+	 * @brief create the pipeline layout
+	 * 
+	 * @param builder builder containing the info necceceary to create the pipeline layout
 	 */
-	void create_shaders(const std::vector<ShaderInfo>& shaderInfo);
+	void create_layout(const Builder* const builder);
 };
 
 } // namespace vulkan

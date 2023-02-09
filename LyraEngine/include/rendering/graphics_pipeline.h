@@ -49,134 +49,159 @@ private:
 	};
 
 public:
-	// color blending mode
-	enum class ColorBlending {
-		// enable color blending
-		BLEND_ENABLE = 1U,
-		// disable color blending
-		BLEND_DISABLE = 0U
-	};
+	class Builder : public vulkan::Pipeline::Builder {
+	public:
+		// color blending mode
+		enum class ColorBlending {
+			// enable color blending
+			BLEND_ENABLE = 1U,
+			// disable color blending
+			BLEND_DISABLE = 0U
+		};
 
-	// color blending for the brits out there
-	typedef ColorBlending Colourblending;
+		// color blending for the brits out there
+		typedef ColorBlending Colourblending;
 
-	// tessellation mode
-	enum class Tessellation {
-		// enable tessellation
-		TESSELLATION_ENABLE = 1U,
-		// disable tessellation
-		TESSELLATION_DISABLE = 0U
-	};
+		// tessellation mode
+		enum class Tessellation {
+			// enable tessellation
+			TESSELLATION_ENABLE = 1U,
+			// disable tessellation
+			TESSELLATION_DISABLE = 0U
+		};
 
-	// multismpling mode
-	enum class Multisampling {
-		// enable multisampling
-		MULTISAMPLING_ENABLE = 1U,
-		// disable multisampling
-		MULTISAMPLING_DISABLE = 0U
-	};
+		// multismpling mode
+		enum class Multisampling {
+			// enable multisampling
+			MULTISAMPLING_ENABLE = 1U,
+			// disable multisampling
+			MULTISAMPLING_DISABLE = 0U
+		};
 
-	// polygon rendering mode
-	enum class RenderMode : int {
-		// fill polygons
-		MODE_FILL = 0,
-		// draw lines
-		MODE_LINE = 1,
-		// draw points
-		MODE_POINT = 2
-	};
+		// polygon rendering mode
+		enum class RenderMode : int {
+			// fill polygons
+			MODE_FILL = 0,
+			// draw lines
+			MODE_LINE = 1,
+			// draw points
+			MODE_POINT = 2
+		};
 
-	// culling mode 
-	enum class Culling {
-		// no culling
-		CULLING_NONE = 0x00000000,
-		// cull front face
-		CULLING_FRONT = 0x00000001,
-		// cull back face
-		CULLING_BACK = 0x00000002,
-		// cull all faces
-		CULLING_ALL = 0x00000003
+		// culling mode 
+		enum class Culling {
+			// no culling
+			CULLING_NONE = 0x00000000,
+			// cull front face
+			CULLING_FRONT = 0x00000001,
+			// cull back face
+			CULLING_BACK = 0x00000002,
+			// cull all faces
+			CULLING_ALL = 0x00000003
+		};
+
+		// polygon front face
+		enum class PolygonFrontFace : int {
+			// read the polygon counter clockwise
+			FRONT_FACE_COUNTER_CLOCKWISE = 0,
+			// read the polzgon clockwise
+			FRONT_FACE_CLOCKWISE = 1
+		};
+
+		/**
+		 * @brief Construct a new Builder object
+		 * 
+		 * @param graphicsPipeline the graphicsPipeline that it will create
+		 * @param renderer renderer the renderpass belongs to
+		 */
+		Builder(const Renderer* const renderer);
+
+		/**
+		 * @brief enable and configure sample shading
+		 * 
+		 * @param strength strength of the sample shading, from 0 to 1
+		 */
+		void enable_sample_shading(float strength) {
+			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
+			m_createInfo.multisampling.minSampleShading = strength;
+		}
+		/**
+		 * @brief set the culling mode
+		 * 
+		 * @param cullingMode culling mode
+		 */
+		void set_culling_mode(Culling cullingMode) {
+			m_createInfo.rasterizer.cullMode = static_cast<VkCullModeFlags>(cullingMode);
+		}
+		/**
+		 * @brief set the rendering mode
+		 * 
+		 * @param renderMode rendering mode
+		 */
+		void set_render_mode(RenderMode renderMode) {
+			m_createInfo.rasterizer.polygonMode = static_cast<VkPolygonMode>(renderMode);
+		}
+		/**
+		 * @brief set the polyon front face
+		 * 
+		 * @param frontFace polygon front face
+		 */
+		void set_polyon_front_face(PolygonFrontFace frontFace) {
+			m_createInfo.rasterizer.frontFace = static_cast<VkFrontFace>(frontFace);
+		}
+
+		/// @todo make color blending and dynamic state possible
+		/// @todo also make the scissor and viewport customizable
+
+	private:
+		GraphicsPipelineCreateInfo m_createInfo;
+		const Renderer* const m_renderer;
+
+		/**
+		 * @brief create the shader stages of the create info
+		 */
+		void create_shader_stages(const GraphicsPipeline& graphicsPipeline);
+
+		/**
+		 * @brief build the actual pipeline creation information
+		 * 
+		 * @param graphicsPipeline pipeline the pipeline layout belongs to
+		 * 
+		 * @return VkGraphicsPipelineCreateInfo 
+		 */
+		VkGraphicsPipelineCreateInfo build_pipeline_create_info(const GraphicsPipeline& graphicsPipeline) const noexcept {
+			return {
+				VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
+				nullptr,
+				0,
+				static_cast<uint32>(m_createInfo.shaderStages.size()),
+				m_createInfo.shaderStages.data(),
+				&m_createInfo.vertexInputInfo,
+				&m_createInfo.inputAssembly,
+				&m_createInfo.tesselation,
+				&m_createInfo.viewportState,
+				&m_createInfo.rasterizer,
+				&m_createInfo.multisampling,
+				&m_createInfo.depthStencilState,
+				&m_createInfo.colorBlending,
+				&m_createInfo.dynamicState,
+				graphicsPipeline.layout(),
+				m_renderer->renderPass(),
+				0,
+				VK_NULL_HANDLE,
+				0
+			};
+		}
+
+		friend class GraphicsPipeline;
 	};
 
 	/**
 	 * @brief construct a new graphics pipeline
 	 * 
-	 * @param renderer renderer to render the pipeline
-	 * @param shaders shader creation information
-	 * @param bindings descriptor binding information
-	 * @param pushConstants push constant information
-	 * @param colorBlending enable color blending
-	 * @param tessellation enable tessellation
-	 * @param multisampling enable multisampling
-	 * @param renderMode polygon rendering mode
-	 * @param culling culling mode
+	 * @param builder builder that contains the information to build the pipeline
 	 */
-	GraphicsPipeline(
-		const Renderer* const renderer,
-		const std::vector<ShaderInfo>& shaders,
-		const std::vector<Binding>& bindings,
-		const std::vector<VkPushConstantRange>& pushConstants,
-		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
-		const Tessellation& tessellation = Tessellation::TESSELLATION_ENABLE,
-		const Multisampling& multisampling = Multisampling::MULTISAMPLING_ENABLE,
-		const RenderMode& renderMode = RenderMode::MODE_FILL,
-		const Culling& culling = Culling::CULLING_BACK
-	);
-
-	/**
-	 * @brief construct a new graphics pipeline
-	 * 
-	 * @param renderer renderer to render the pipeline
-	 * @param shaders shader creation information
-	 * @param bindings descriptor binding information
-	 * @param pushConstants push constant information
-	 * @param size draw size
-	 * @param area draw area
-	 * @param colorBlending enable color blending
-	 * @param tessellation enable tessellation
-	 * @param multisampling enable multisampling
-	 * @param renderMode polygon rendering mode
-	 * @param culling culling mode
-	 */
-	GraphicsPipeline(
-		const Renderer* const renderer,
-		const std::vector<ShaderInfo>& shaders,
-		const std::vector<Binding>& bindings,
-		const std::vector<VkPushConstantRange>& pushConstants,
-		const VkExtent2D& size,
-		const VkExtent2D& area,
-		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
-		const Tessellation& tessellation = Tessellation::TESSELLATION_ENABLE,
-		const Multisampling& multisampling = Multisampling::MULTISAMPLING_ENABLE,
-		const RenderMode& renderMode = RenderMode::MODE_FILL,
-		const Culling& culling = Culling::CULLING_BACK
-	);
-
-private:
-	/**
-	 * @brief create a pipeline
-	 * 
-	 * @param renderer renderer to render the pipeline
-	 * @param pushConstants push constant information
-	 * @param size draw size
-	 * @param area draw area
-	 * @param colorBlending enable color blending
-	 * @param tessellation enable tessellation
-	 * @param multisampling enable multisampling
-	 * @param renderMode polygon rendering mode
-	 * @param culling culling mode
-	 */
-	void create_pipeline(
-		const Renderer* const renderer,
-		const std::vector<VkPushConstantRange>& pushConstants,
-		const VkExtent2D& size,
-		const VkExtent2D& area,
-		const ColorBlending& colorBlending,
-		const Tessellation& tessellation,
-		const Multisampling& multisampling,
-		const RenderMode& renderMode,
-		const Culling& culling
-	);
+	GraphicsPipeline(Builder& builder);
 };
 
 } // namespace lyra
