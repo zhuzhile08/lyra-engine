@@ -149,13 +149,14 @@ private:
 		VkDescriptorPool m_descriptorPool;
 	};
 
+public:
 	/**
 	 * @brief wrapper around the Vulkan descriptor set
 	 */
 	class DescriptorSet : public BasicPool<DescriptorSet>::ResourceBase {
 	public:
 		// descriptor types
-		enum class Type : uint32 {
+		enum Type : uint32 {
 			// sampler
 			TYPE_SAMPLER = 0,
 			// image sampler
@@ -231,7 +232,7 @@ private:
 		 *
 		 * @param newWrites image writes to add to the buffer
 		 */
-		void add_m_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
+		void add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
 			for (uint32 i = 0; i < newWrites.size(); i++) {
 				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -252,7 +253,7 @@ private:
 		 *
 		 * @param newWrites buffer writes to add to the buffer
 		 */
-		void add_m_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
+		void add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
 			for (uint32 i = 0; i < newWrites.size(); i++) {
 				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -273,7 +274,7 @@ private:
 		 *
 		 * @param newWrites image and buffer m_writes to add to the buffer
 		 */
-		void add_m_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept {
+		void add_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept {
 			for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
 				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -294,6 +295,12 @@ private:
 		 * @brief write the updates into the descriptor set
 		 */
 		void update() const noexcept;
+		/**
+		 * @brief mark this descriptor as usable again, consider this a destructor of sorts
+		 */
+		void recycle() {
+			m_pool.recycle_used(*this);
+		}
 
 		/**
 		 * @brief cast to the descriptor set
@@ -314,7 +321,6 @@ private:
 		std::vector<VkWriteDescriptorSet> m_writes;
 	};
 
-public:
 	/**
 	 * @brief a builder to make the creation of the descriptor layout easier
 	 */
@@ -377,7 +383,7 @@ public:
 		}
 
 		/**
-		 * @brief Set the pool flags object
+		 * @brief set the pool flags
 		 *
 		 * @param poolFlags pool creation flags
 		 */
@@ -463,6 +469,7 @@ private:
 	 */
 	void create_descriptor_pool(const uint32& layoutIndex);
 
+	friend class lyra::gui::GUIRenderer;
 };
 
 } // namespace vulkan
