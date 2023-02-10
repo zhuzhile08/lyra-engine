@@ -76,12 +76,17 @@ add_library(LyraEngine
 	"src/res/loaders/load_file.cpp"
 	"src/res/loaders/load_model.cpp"
 
-	"src/nodes/nodes.cpp" 
+	"src/nodes/graphics/camera.cpp"
+	# "src/nodes/graphics/cubemap.cpp"
+
+	"src/nodes/mesh/mesh.cpp"
+	"src/nodes/mesh/mesh_renderer.cpp"
 
 	"src/input/input.cpp"
 
 	"src/core/benchmark.inl"
- "src/rendering/vulkan/frame.cpp")
+ 	"src/rendering/vulkan/frame.cpp"
+)
 
 add_dependencies(LyraEngine build_shaders)
 
