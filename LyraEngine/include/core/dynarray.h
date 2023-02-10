@@ -36,6 +36,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	typedef Array<value_type, capacity> array_type;
 	typedef Dynarray<value_type, capacity> wrapper_type;
 	typedef std::span<value_type> span_type;
+	typedef std::span<const value_type> const_span_type;
 
 	/**
 	 * @brief copy assignment operator
@@ -292,7 +293,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return constexpr const lyra::Dynarray::value_type*
 	 */
 	NODISCARD constexpr const value_type* data() const noexcept { 
-		span_type span{ m_array.data(), m_size };
+		const_span_type span { m_array.data(), m_size };
 		return span.data();
 	}
 	/**
