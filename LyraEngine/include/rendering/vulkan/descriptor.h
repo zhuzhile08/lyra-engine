@@ -418,10 +418,8 @@ public:
 	 * @brief create a descriptor set layout and return a pointer
 	 * 
 	 * @param layoutBuilder layout builder
-	 * 
-	 * @return lyra::vulkan::DescriptorSystem::DescriptorSetLayouts* const 
 	 */
-	DescriptorSetLayouts* const create_descriptor_set_layout(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) {
+	void create_descriptor_set_layout(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) {
 		m_layouts = m_layouts.create(layoutBuilder.build_create_info());
 		m_poolBuilder = m_poolBuilder.create(poolBuilder);
 	}
