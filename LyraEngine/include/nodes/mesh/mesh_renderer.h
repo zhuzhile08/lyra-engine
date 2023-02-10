@@ -15,7 +15,7 @@
 
 #include <core/smart_pointer.h>
 
-#include <nodes/node.h>
+#include <nodes/spatial.h>
 
 namespace lyra {
 
