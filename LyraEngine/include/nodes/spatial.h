@@ -13,6 +13,8 @@
 
 #include <lyra.h>
 
+#include <core/smart_pointer.h>
+
 #include <glm.hpp>
 
 #include <math/transform.h>
