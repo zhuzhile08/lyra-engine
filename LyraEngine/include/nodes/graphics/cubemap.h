@@ -82,7 +82,7 @@ public:
 private:
 	VkSampler m_sampler;
 
-	std::vector<vulkan::Descriptor> m_descriptors;
+	std::vector<vulkan::Descriptor> m_descriptorSets;
 	Mesh m_cubeMesh;
 	MeshRenderer m_cubeMeshRenderer;
 };

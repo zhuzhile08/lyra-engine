@@ -29,8 +29,8 @@ CubemapBase::CubemapBase(
 			{ vulkan::Shader::Type::TYPE_FRAGMENT, fragShaderPath, "main" }
 		}, 
 		{
-			{ 0, vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER, settings().rendering.maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-			{ 0, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER, settings().rendering.maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
+			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, Settings::RenderConfig::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
+			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
 		}, 
 		{},
 		colorBlending,
@@ -146,21 +146,21 @@ CubemapBase::CubemapBase(
 
 	{ // next, create the descriptors
 		// write the bindings
-		vulkan::Descriptor::Writer writer;
+		vulkan::DescriptorSystem::DescriptorSet::Writer writer;
 		writer.add_writes({
-			{ get_descriptor_cubemap_info(), 1, vulkan::Descriptor::Type::TYPE_IMAGE_SAMPLER}
+			{ get_descriptor_cubemap_info(), 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER}
 		});
 		writer.add_writes({
-			{ camera->m_buffers.at(0).get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER },
-			{ camera->m_buffers.at(1).get_descriptor_buffer_info(), 0, lyra::vulkan::Descriptor::Type::TYPE_UNIFORM_BUFFER }
+			{ camera->m_buffers.at(0).get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
+			{ camera->m_buffers.at(1).get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
 		});
 
 		// create both descriptors
-		for (uint32 i = 0; i < settings().rendering.maxFramesInFlight; i++) 
-			m_descriptors.emplace_back(
-				m_descriptorSetLayout.get(),
+		for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) 
+			m_descriptorSets.emplace_back(
+				m_descriptorSetLayout,
 				0,
-				m_descriptorPool.get(), 
+				m_descriptorPool, 
 				writer
 			);
 	}
@@ -172,7 +172,7 @@ void CubemapBase::draw() const {
 		bindPoint(), 
 		layout(),
 		0, 
-		m_descriptors[Application::renderSystem.currentFrame()].get());
+		m_descriptorSets[Application::renderSystem.currentFrame()]);
 	m_cubeMeshRenderer.draw();
 }
 
