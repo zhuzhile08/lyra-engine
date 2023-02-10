@@ -107,7 +107,7 @@ void DescriptorSystem::create_descriptor_pool(const uint32& layoutIndex) {
 	};
 
 	for (uint32 i = 0; i <= Settings::MemConfig::maxDescriptorTypePerPool; i++) {
-		m_sets[layoutIndex].emplace_back(allocInfo);
+		m_sets[layoutIndex].emplace_back(allocInfo, m_sets[layoutIndex]);
 	}
 }
 
