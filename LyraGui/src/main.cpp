@@ -16,7 +16,7 @@
 #include <nodes/mesh/mesh.h>
 #include <nodes/mesh/mesh_renderer.h>
 #include <nodes/graphics/camera.h>
-#include <nodes/graphics/cubemap.h>
+// #include <nodes/graphics/cubemap.h>
 #include <nodes/spatial.h>
 #include <rendering/texture.h>
 #include <input/input.h>

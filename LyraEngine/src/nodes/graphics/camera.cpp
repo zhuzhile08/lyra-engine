@@ -13,7 +13,7 @@
 #include <rendering/material.h>
 #include <rendering/vulkan/vulkan_window.h>
 
-#include <nodes/graphics/cubemap.h>
+// #include <nodes/graphics/cubemap.h>
 
 #include <core/application.h>
 
@@ -131,7 +131,7 @@ void Camera::record_command_buffers() {
 	// begin the renderpass
 	begin_renderpass();
 	// draw the skybox first as background
-	if (m_skybox) m_skybox->draw();
+	// if (m_skybox) m_skybox->draw();
 	// bind the default render pipeline
 	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
 	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
