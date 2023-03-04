@@ -22,8 +22,6 @@ struct Script {
 	virtual void physics_update(void) { };
 
 	Spatial* node;
-
-	// this is the one time I'm gonna deviate from my normal naming conventions, but its for the users sake
 };
 
 } // namespace lyra

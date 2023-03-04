@@ -164,12 +164,14 @@ public:
 		friend class GraphicsPipeline;
 	};
 
+	GraphicsPipeline() = default;
 	/**
 	 * @brief construct a new graphics pipeline
 	 * 
 	 * @param builder builder that contains the information to build the pipeline
 	 */
 	GraphicsPipeline(const Builder& builder);
+	DEFINE_DEFAULT_MOVE(GraphicsPipeline)
 
 	friend class Builder;
 };

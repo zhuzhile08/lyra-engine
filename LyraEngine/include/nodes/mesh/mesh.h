@@ -99,6 +99,7 @@ public:
 		}
 	};
 
+	Mesh() = default;
 	/**
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
@@ -142,8 +143,6 @@ public:
 		const uint32& tag = 0,
 		const Transform& transform = Transform()
 	);
-
-	Mesh operator=(const Mesh&) const noexcept = delete;
 
 	/**
 	 * @brief get the vertices

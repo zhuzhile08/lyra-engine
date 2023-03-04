@@ -59,9 +59,7 @@ private:
 		 * @param createInfo creation information
 		 */
 		DescriptorSetLayout(const VkDescriptorSetLayoutCreateInfo& createInfo);
-
-		DescriptorSetLayout(DescriptorSetLayout&&) = default;
-		DescriptorSetLayout& operator=(DescriptorSetLayout&&) = default;
+		DEFINE_DEFAULT_MOVE(DescriptorSetLayout)
 
 		/**
 		 * @brief cast to the internal descriptor set layout
@@ -114,9 +112,7 @@ private:
 		 * @param createInfo creation information
 		 */
 		DescriptorPool(const VkDescriptorPoolCreateInfo& createInfo);
-
-		DescriptorPool(DescriptorPool&&) = default;
-		DescriptorPool& operator=(DescriptorPool&&) = default;
+		DEFINE_DEFAULT_MOVE(DescriptorPool)
 
 		/**
 		 * @brief get the capacity of the pool
@@ -457,8 +453,7 @@ public:
 	DescriptorSystem(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) : m_poolBuilder(poolBuilder) {
 		m_layout = DescriptorSetLayout(layoutBuilder.build_create_info());
 	}
-	DescriptorSystem(DescriptorSystem&&) = default;
-	DescriptorSystem& operator=(DescriptorSystem&&) = default;
+	DEFINE_DEFAULT_MOVE(DescriptorSystem)
 	
 	/**
 	 * @brief get an unused descriptor set

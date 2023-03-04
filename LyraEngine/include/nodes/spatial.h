@@ -29,6 +29,7 @@ namespace lyra {
  */
 class Spatial : public Node<Spatial> {
 public:
+	Spatial() = default;
 	/**
 	 * @brief construct a transform component
 	 *
@@ -75,7 +76,5 @@ protected:
 	 */
 	void calculate_transform_mat();
 };
-
-// @brief https://cdn.discordapp.com/attachments/841451660059869194/1028773573290119188/MemeFeedBot.mp4
 
 } // namespace lyra

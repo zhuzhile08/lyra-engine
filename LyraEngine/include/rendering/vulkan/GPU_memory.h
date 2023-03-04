@@ -37,6 +37,9 @@ namespace vulkan {
  */
 class GPUMemory {
 public:
+	constexpr GPUMemory() = default;
+	DEFINE_DEFAULT_MOVE(GPUMemory)
+
 	virtual ~GPUMemory() = default;
 	/**
 	 * @brief manually destroy the memory

@@ -29,6 +29,7 @@ namespace lyra {
 class Renderer {
 public:
 	Renderer();
+	DEFINE_DEFAULT_MOVE(Renderer)
 
 	/**
 	 * @brief get the render pass
@@ -41,7 +42,7 @@ public:
 	 *
 	 * @return const lyra::Dynarray<lyra::vulkan::vk::Framebuffer, lyra::Settings::RenderConfig::maxSwapchainImages>&
 	*/
-	NODISCARD constexpr const lyra::Dynarray<lyra::vulkan::vk::Framebuffer, Settings::RenderConfig::maxSwapchainImages>& framebuffers() const noexcept { return m_framebuffers; }
+	NODISCARD constexpr const lyra::Dynarray<vulkan::vk::Framebuffer, Settings::RenderConfig::maxSwapchainImages>& framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
 	vulkan::vk::RenderPass m_renderPass;
