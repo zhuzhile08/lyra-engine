@@ -26,6 +26,7 @@ namespace vulkan {
  */
 class GPUBuffer : public GPUMemory {
 public:
+	constexpr GPUBuffer() = default;
 	/**
 	 * @brief create the buffer
 	 *
@@ -34,16 +35,14 @@ public:
 	 * @param memUsage way to use the memory
 	 */
 	GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage);
+	DEFINE_DEFAULT_MOVE(GPUBuffer);
 
 	/**
 	 * @brief copy a buffer to another
 	 *
-	 * @param device device
-	 * @param commandBuffer command buffers
-	 * @param srcBuffer the buffer to copy
-	 * @param size the size of the buffer
+	 * @param srcBuffer buffer to copy the data from
 	 */
-	void copy(const GPUBuffer* const srcBuffer);
+	void copy(const GPUBuffer& srcBuffer);
 
 	/**
 	 * @brief map GPU memory to normal memory, copy some stuff in there and unmap it

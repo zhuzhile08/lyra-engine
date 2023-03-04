@@ -16,12 +16,11 @@ MeshRenderer::MeshRenderer(
 	const char* name,
 	Spatial* parent,
 	const uint32& tag
-) :
-	Spatial(nullptr, name, parent, true, tag), m_mesh(mesh)
+) : Spatial(nullptr, name, parent, true, tag), m_mesh(mesh),
+	m_vertexBuffer(sizeof(m_mesh->vertices()[0]) * m_mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU),
+	m_indexBuffer(sizeof(m_mesh->indices()[0]) * m_mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU)
 {
 	// create the vertex and index buffer
-	m_vertexBuffer = SmartPointer<vulkan::GPUBuffer>::create(sizeof(m_mesh->vertices()[0]) * m_mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	m_indexBuffer = SmartPointer<vulkan::GPUBuffer>::create(sizeof(m_mesh->indices()[0]) * m_mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	create_vertex_buffer();
 	create_index_buffer();
 }
@@ -31,7 +30,7 @@ void MeshRenderer::create_vertex_buffer() {
 	vulkan::GPUBuffer stagingBuffer(sizeof(m_mesh->vertices()[0]) * m_mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	stagingBuffer.copy_data(m_mesh->vertices().data());
 	// copy the buffer
-	m_vertexBuffer->copy(&stagingBuffer);
+	m_vertexBuffer.copy(stagingBuffer);
 }
 
 void MeshRenderer::create_index_buffer() {
@@ -39,13 +38,13 @@ void MeshRenderer::create_index_buffer() {
 	vulkan::GPUBuffer stagingBuffer(sizeof(m_mesh->indices()[0]) * m_mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	stagingBuffer.copy_data(m_mesh->indices().data());
 	// copy the buffer
-	m_indexBuffer->copy(&stagingBuffer);
+	m_indexBuffer.copy(stagingBuffer);
 }
 
 void MeshRenderer::draw() const noexcept {
 	// bind index and vertex buffer
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindVertexBuffer(0, 1, m_vertexBuffer->buffer(), 0);
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindIndexBuffer(m_indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindVertexBuffer(0, 1, m_vertexBuffer.buffer(), 0);
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindIndexBuffer(m_indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
 	// draw
 	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().drawIndexed(static_cast<uint32>(m_mesh->indices().size()), 1, 0, 0, 0);
 }

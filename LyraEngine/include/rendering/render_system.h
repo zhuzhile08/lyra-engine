@@ -43,9 +43,6 @@ public:
 	 */
 	RenderSystem(Window* const window) : window(window) { }
 
-	RenderSystem(const RenderSystem&) noexcept = delete;
-	RenderSystem operator=(const RenderSystem&) const noexcept = delete;
-
 	/**
 	 * @brief wait for queue to finish submitting
 	 *

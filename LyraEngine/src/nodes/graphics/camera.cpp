@@ -7,9 +7,6 @@
 #include <nodes/script.h>
 
 #include <rendering/vulkan/vulkan_shader.h>
-#include <rendering/vulkan/vulkan_pipeline.h>
-#include <rendering/graphics_pipeline.h>
-#include <rendering/vulkan/descriptor.h>
 #include <rendering/material.h>
 #include <rendering/vulkan/vulkan_window.h>
 
@@ -52,13 +49,13 @@ Camera::Camera(
 		pipelineBuilder.enable_sample_shading(0.9f); // also enable sample shading
 
 		// create the graphics pipeline
-		m_renderPipeline = SmartPointer<GraphicsPipeline>::create(pipelineBuilder);
+		m_renderPipeline = GraphicsPipeline(pipelineBuilder);
 	}
 
 
 	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) { 
 		// create the buffers that send the camera information to the shaders and copy in the information
-		m_buffers[i] = m_buffers[i].create(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		m_buffers[i] = vulkan::GPUBuffer(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	}
 
 
@@ -66,11 +63,11 @@ Camera::Camera(
 	// for (auto& descriptorSet : m_descriptorSets) {
 	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
 		// get a unused descriptor set and push back its pointer
-		m_descriptorSets[i] = m_renderPipeline->descriptorSystem(0).get_unused_set();
+		m_descriptorSets[i] = m_renderPipeline.descriptorSystem(0).get_unused_set();
 		// add the writes
 		m_descriptorSets[i]->add_writes({
-			{ m_buffers[0]->get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
-			{ m_buffers[1]->get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
+			{ m_buffers[0].get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
+			{ m_buffers[1].get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
 		});
 		// update the descriptor set
 		m_descriptorSets[i]->update();
@@ -122,7 +119,7 @@ void Camera::draw() {
 	// check wich projection model the camera uses and calculate the projection data
 	CameraData data{ mat_to_global(), m_projection_matrix };
 	// copy the data into the shader
-	m_buffers[Application::renderSystem.currentFrame()]->copy_data(&data);
+	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
 }
 
 void Camera::record_command_buffers() {
@@ -133,10 +130,10 @@ void Camera::record_command_buffers() {
 	// draw the skybox first as background
 	// if (m_skybox) m_skybox->draw();
 	// bind the default render pipeline
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindPipeline(m_renderPipeline->bindPoint(), m_renderPipeline->pipeline());
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindPipeline(m_renderPipeline.bindPoint(), m_renderPipeline.pipeline());
 	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
-		m_renderPipeline->bindPoint(), 
-		m_renderPipeline->layout(),
+		m_renderPipeline.bindPoint(), 
+		m_renderPipeline.layout(),
 		0, 
 		*m_descriptorSets[Application::renderSystem.currentFrame()]);
 	// loop through the materials and draw their meshes

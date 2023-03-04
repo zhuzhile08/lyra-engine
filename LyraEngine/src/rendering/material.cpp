@@ -78,7 +78,7 @@ Material::Material(
 	// for (auto& descriptorSet : m_descriptorSets) {
 	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
 		// get a unused descriptor set and push back its pointer
-		m_descriptorSets[i] = camera->m_renderPipeline->descriptorSystem(1).get_unused_set();
+		m_descriptorSets[i] = camera->m_renderPipeline.descriptorSystem(1).get_unused_set();
 		// add the writes
 		m_descriptorSets[i]->add_writes({ // write the images
 			{ (normalMapTexture) ? normalMapTexture->get_descriptor_image_info() : Assets::nullNormal()->get_descriptor_image_info(), 3, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
@@ -114,8 +114,8 @@ Material::Material(
 void Material::draw() const {
 	// bind the descriptor set first
 	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
-		camera->m_renderPipeline->bindPoint(), 
-		camera->m_renderPipeline->layout(), 
+		camera->m_renderPipeline.bindPoint(), 
+		camera->m_renderPipeline.layout(), 
 		1, 
 		*m_descriptorSets[Application::renderSystem.currentFrame()]
 	);

@@ -27,6 +27,7 @@
 
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/GPU_buffer.h>
+#include <rendering/graphics_pipeline.h>
 #include <rendering/renderer.h>
 
 namespace lyra {
@@ -55,6 +56,7 @@ public:
 		alignas(16) const glm::mat4 proj;
 	};
 	
+	Camera() = default;
 	/**
 	 * @brief construct a camera node
 	 *
@@ -77,8 +79,7 @@ public:
 		const uint32& tag = 0,
 		const Transform& transform = Transform()
 	);
-
-	Camera operator=(const Camera&) const noexcept = delete;
+	DEFINE_DEFAULT_MOVE(Camera)
 
 	/**
 	 * @brief recreate the camera
@@ -128,9 +129,9 @@ public:
 
 private:
 	std::vector<Material*> m_materials;
-	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_buffers;
+	Array<vulkan::GPUBuffer, Settings::RenderConfig::maxFramesInFlight> m_buffers;
 	Array<vulkan::DescriptorSystem::DescriptorSetResource, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
-	SmartPointer<GraphicsPipeline> m_renderPipeline;  
+	GraphicsPipeline m_renderPipeline;  
 	Skybox* m_skybox;
 
 	float m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_depth = 1.0f;

@@ -13,7 +13,7 @@
 
 #include <lyra.h>
 
-#include <core/smart_pointer.h>
+#include <rendering/vulkan/GPU_buffer.h>
 
 #include <nodes/spatial.h>
 
@@ -26,6 +26,7 @@ namespace lyra {
  */
 class MeshRenderer : public Spatial {
 public:
+	MeshRenderer() = default;
 	/**
 	 * @brief construct a mesh renderer
 	 * 
@@ -44,27 +45,26 @@ public:
 		Spatial* parent = nullptr,
 		const uint32& tag = 0
 	);
-
-	MeshRenderer operator=(const MeshRenderer&) const noexcept = delete;
+	DEFINE_DEFAULT_MOVE(MeshRenderer)
 
 	/**
 	 * @brief get the vertex buffer
 	 *
-	 * @return constexpr const vulkan::GPUBuffer* const
+	 * @return constexpr const vulkan::GPUBuffer&
 	*/
-	NODISCARD constexpr const vulkan::GPUBuffer* const vertexBuffer() const noexcept { return m_vertexBuffer; }
+	NODISCARD constexpr const vulkan::GPUBuffer& vertexBuffer() const noexcept { return m_vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 *
-	 * @return constexpr const vulkan::GPUBuffer* const
+	 * @return constexpr const vulkan::GPUBuffer&
 	*/
-	NODISCARD constexpr const vulkan::GPUBuffer* const indexBuffer() const noexcept { return m_indexBuffer; }
+	NODISCARD constexpr const vulkan::GPUBuffer& indexBuffer() const noexcept { return m_indexBuffer; }
 
 private:
 	const Mesh* m_mesh;
 
-	SmartPointer<vulkan::GPUBuffer> m_vertexBuffer;
-	SmartPointer<vulkan::GPUBuffer> m_indexBuffer;
+	vulkan::GPUBuffer m_vertexBuffer;
+	vulkan::GPUBuffer m_indexBuffer;
 
 	/**
 	 * @brief create a vertex buffer

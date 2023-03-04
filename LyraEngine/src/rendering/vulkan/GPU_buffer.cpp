@@ -70,7 +70,7 @@ void GPUBuffer::copy_data(const void** src, const uint32& arraySize, const size_
 	Application::renderSystem.device.unmapMemory(m_memory);
 }
 
-void GPUBuffer::copy(const GPUBuffer* const srcBuffer) {
+void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
 	// get a unused command buffer
 	CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
 	// start recording
@@ -82,7 +82,7 @@ void GPUBuffer::copy(const GPUBuffer* const srcBuffer) {
 		0,
 		m_size
 	};
-	cmdBuff.copyBuffer(srcBuffer->buffer(), m_buffer, copyRegion);
+	cmdBuff.copyBuffer(srcBuffer.buffer(), m_buffer, copyRegion);
 
 	// end recording
 	cmdBuff.end();
