@@ -172,9 +172,6 @@ void Window::create_depth_buffer() {
 
 	// create the image view
 	m_depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
-
-	// transition the image layout
-	m_depthImage.transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, m_format, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 }
 
 void Window::create_color_resources() {

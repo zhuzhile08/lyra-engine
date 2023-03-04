@@ -85,14 +85,16 @@ void RenderSystem::present_device_queue() {
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->changed()) {
 		// check if window was minimized, if true, then loop until otherwise
-		SDL_WindowFlags flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
+		SDL_WindowFlags flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
-			flags = std::move(static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get())));
+			flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
 			Input::wait_events();
 		}
 
 		vulkanWindow.recreate();
 		for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
+	} else {
+		vassert(result, "present device queue");
 	}
 }
 

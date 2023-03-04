@@ -34,10 +34,6 @@ class Application : public lyra::Application {
 	void init() override;
 };
 
-float foo(float a, int b) {
-	return a + b;
-}
-
 int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever you want to call this SMT reference
 	// init application
 	Application app;
@@ -51,13 +47,17 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 
 	lyra::Assets assets;
 
-	lyra::Spatial room(nullptr, "Room", &scene);
-	lyra::Texture* roomTexture = assets["data/img/p3_femc_sees_tex.png"];
-	lyra::Mesh roomMesh("data/model/femc.obj", nullptr, "RoomMesh", &room);
-	lyra::MeshRenderer roomRenderer(&roomMesh, nullptr, "MeshRenderer", &room);
+	lyra::Spatial femc(nullptr, "FEMC", &scene);
+	lyra::Texture* femcTexture = assets["data/img/p3_femc_sees_tex.png"];
+	lyra::Mesh femcMesh("data/model/femc.obj", nullptr, "FEMCMesh", &femc);
+	lyra::MeshRenderer femcRenderer(&femcMesh, nullptr, "FEMCRenderer", &femc);
+	lyra::Material femcMaterial(&camera, { &femcRenderer }, lyra::Color(0, 0, 0, 0), femcTexture);
 
-	// material
-	lyra::Material material(&camera, { &roomRenderer }, lyra::Color(0, 0, 0, 0), roomTexture);
+	lyra::Spatial room(nullptr, "Room", &scene);
+	lyra::Texture* roomTexture = assets["data/img/viking_room.png"];
+	lyra::Mesh roomMesh("data/model/viking_room.obj", nullptr, "RoomMesh", &room);
+	lyra::MeshRenderer roomRenderer(&roomMesh, nullptr, "MeshRenderer", &room);
+	lyra::Material roomMaterial(&camera, { &roomRenderer }, lyra::Color(0, 0, 0, 0), roomTexture);
 
 	app.draw();
 
