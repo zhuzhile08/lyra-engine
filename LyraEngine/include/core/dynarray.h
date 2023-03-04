@@ -38,6 +38,27 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	typedef std::span<value_type> span_type;
 	typedef std::span<const value_type> const_span_type;
 
+	constexpr Dynarray() = default;
+	/**
+	 * @brief construct a new dynarray
+	 * 
+	 * @param right the array to copy from
+	 */
+	constexpr Dynarray(const wrapper_type& right) {
+		m_size = right.m_size;
+		for (size_t i; i < m_size; i++) m_array[i] = right.m_array[i];
+		return *this;
+	}
+	/**
+	 * @brief construct a new dynarray
+	 * 
+	 * @param right the array to move from
+	 */
+	constexpr Dynarray(wrapper_type&& right) {
+		m_size = right.m_size;
+		for (size_t i; i < m_size; i++) m_array[i] = right.m_array[i];
+		return *this;
+	}
 	/**
 	 * @brief copy assignment operator
 	 * 
@@ -45,7 +66,20 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @return lyra::Dynarray::wrapper_type& 
 	 */
-	wrapper_type& operator=(const wrapper_type& right) {
+	constexpr wrapper_type& operator=(const wrapper_type& right) {
+		m_size = right.m_size;
+		for (size_t i; i < m_size; i++) m_array[i] = right.m_array[i];
+		return *this;
+	}
+	/**
+	 * @brief copy assignment operator
+	 * 
+	 * @param right the array to move from
+	 * 
+	 * @return lyra::Dynarray::wrapper_type& 
+	 */
+	constexpr wrapper_type& operator=(wrapper_type&& right) {
+		m_size = right.m_size;
 		for (size_t i; i < m_size; i++) m_array[i] = right.m_array[i];
 		return *this;
 	}
