@@ -136,6 +136,7 @@ class AudioFilter;
 #define DEPRECATED [[deprecated]]
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
+#define DEFINE_DEFAULT_MOVE(type) type(type&&) = default; type& operator=(type&&) = default;
 
 #define GLM_FORCE_RADIANS
 
