@@ -29,18 +29,6 @@ template <class Ty, size_t Size> struct Array {
 	typedef Array<value_type, Size> wrapper_type;
 
 	/**
-	 * @brief copy assignment operator
-	 * 
-	 * @param right the array to copy from
-	 * 
-	 * @return lyra::Array::wrapper_type& 
-	 */
-	wrapper_type& operator=(const wrapper_type& right) {
-		for (size_t i = 0; i < Size; i++) m_array[i] = right.m_array[i];
-		return *this;
-	}
-
-	/**
 	 * @brief fill the array with the same value
 	 * 
 	 * @param value value to fill with
