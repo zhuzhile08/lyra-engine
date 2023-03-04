@@ -1,4 +1,4 @@
-/**
+/************************
  * @file dynarray.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
@@ -7,7 +7,7 @@
  * @date 2023-01-14
  * 
  * @copyright Copyright (c) 2023
- */
+ ************************/
 
 #pragma once
 

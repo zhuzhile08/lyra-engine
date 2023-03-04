@@ -67,7 +67,7 @@ public:
 		/**
 		 * @brief returns a static vertex input attribute
 		 *
-		 * @return const Array<VkVertexInputAttributeDescription, 4>&
+		 * @return const Array<VkVertexInputAttributeDescription, 4>
 		 */
 		NODISCARD static const Array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept {
 			return {

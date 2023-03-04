@@ -36,7 +36,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return lyra::Array::wrapper_type& 
 	 */
 	wrapper_type& operator=(const wrapper_type& right) {
-		for (size_t i; i < Size; i++) m_array[i] = right.m_array[i];
+		for (size_t i = 0; i < Size; i++) m_array[i] = right.m_array[i];
 		return *this;
 	}
 

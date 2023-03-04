@@ -217,6 +217,7 @@ public:
 		m_logFile << "[EXCEPTION]: ";
 		(m_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
+		std::abort();
 		// reset color
 		set_color_default();
 	}
@@ -276,7 +277,7 @@ template <typename ... Args> void lassert(bool condition, Args... message) {
  * @param purpose Purpose of the function
  */
 template <typename Arg> void vassert(VkResult function, Arg purpose) {
-	if (function != VkResult::VK_SUCCESS) (log().exception("Failed to ", purpose, " with error code: ", function, "!"));
+	if (function != VkResult::VK_SUCCESS) (log().exception("Vulkan Esception: Failed to ", purpose, " with error code: ", function, "!"));
 }
 
 } // namespace lyra

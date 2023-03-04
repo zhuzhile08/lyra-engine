@@ -89,8 +89,8 @@ public:
 
 	// memory alloc config
 	struct MemConfig {
-		constexpr static size_t maxDescriptorSetLayouts = 6;
-		constexpr static size_t maxDescriptorTypePerPool = 32;
+		constexpr static size_t maxDescriptorSetLayouts = 4;
+		constexpr static size_t maxDescriptorTypePerPool = 8;
 
 		const uint32 maxComponentCount;
 		const uint32 maxEntityCount;
