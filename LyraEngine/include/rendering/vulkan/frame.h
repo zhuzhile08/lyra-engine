@@ -33,10 +33,6 @@ public:
 		create_sync_objects();
 	}
 	/**
-	 * @brief destruct the frame
-	 */
-	virtual ~Frame();
-	/**
 	 * @brief recreate the frame
 	 *
 	 * @param index index of the frame in the renderer
@@ -57,19 +53,19 @@ public:
 	 *
 	 * @return const VkSemaphor&
 	*/
-	NODISCARD const VkSemaphore& imageAvailableSemaphores() const noexcept { return m_imageAvailableSemaphore; }
+	NODISCARD constexpr const vk::Semaphore& imageAvailableSemaphores() const noexcept { return m_imageAvailableSemaphore; }
 	/**
 	 * @brief get the render finished semaphores
 	 *
 	 * @return const VkSemaphore&
 	*/
-	NODISCARD const VkSemaphore& renderFinishedSemaphores() const noexcept { return m_renderFinishedSemaphore; }
+	NODISCARD constexpr const vk::Semaphore& renderFinishedSemaphores() const noexcept { return m_renderFinishedSemaphore; }
 	/**
 	 * @brief get the in flight fences
 	 *
 	 * @return const VkFence&
 	*/
-	NODISCARD const VkFence& inFlightFences() const noexcept { return m_inFlightFence; }
+	NODISCARD constexpr const vk::Fence& inFlightFences() const noexcept { return m_inFlightFence; }
 	/**
 	 * @brief get the in flight fences
 	 *
@@ -78,9 +74,9 @@ public:
 	NODISCARD constexpr const CommandBuffer& commandBuffer() const noexcept { return m_commandBuffer; }
 
 private:
-	VkSemaphore m_imageAvailableSemaphore;
-	VkSemaphore m_renderFinishedSemaphore;
-	VkFence m_inFlightFence;
+	vk::Semaphore m_imageAvailableSemaphore;
+	vk::Semaphore m_renderFinishedSemaphore;
+	vk::Fence m_inFlightFence;
 
 	CommandBuffer m_commandBuffer;
 

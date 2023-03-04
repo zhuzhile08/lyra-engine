@@ -13,6 +13,7 @@
 
 #include <lyra.h>
 
+#include <vulkan/vulkan.h>
 #ifdef __APPLE__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -25,7 +26,7 @@
 #include <vk_mem_alloc.h>
 #endif
 
-#include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 namespace lyra {
 
@@ -34,19 +35,15 @@ namespace vulkan {
 /**
  * @brief wrapper around the VMA GPU allocations
  */
-struct GPUMemory {
-	/**
-	 * @brief destructor of the memory
-	 */
-	virtual ~GPUMemory();
+class GPUMemory {
+public:
+	virtual ~GPUMemory() = default;
 	/**
 	 * @brief manually destroy the memory
 	 */
 	void destroy() {
 		this->~GPUMemory();
 	}
-
-	GPUMemory operator=(const GPUMemory&) const noexcept = delete;
 
 	/**
 	 * @brief get the creation information of the allocation
@@ -56,7 +53,7 @@ struct GPUMemory {
 	 * 
 	 * @return constexpr VmaAllocationCreateInfo
 	 */
-	NODISCARD constexpr VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept {
+	NODISCARD constexpr static VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept {
 		return {
 			0,
 			usage,
@@ -69,7 +66,21 @@ struct GPUMemory {
 		}; // the rest is absolutely useless
 	}
 
-	VmaAllocation m_memory;
+	/**
+	 * @brief get the memory
+	 * 
+	 * @return constexpr lyra::vulkan::vma::Allocation&
+	*/
+	NODISCARD constexpr vma::Allocation& memory() noexcept { return m_memory; }
+	/**
+	 * @brief get the memory
+	 * 
+	 * @return constexpr const lyra::vulkan::vma::Allocation&
+	*/
+	NODISCARD constexpr const vma::Allocation& memory() const noexcept { return m_memory; }
+
+protected:
+	vma::Allocation m_memory;
 };
 
 } // namespace vulkan

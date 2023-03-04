@@ -21,13 +21,6 @@ Device::Device() {
 	create_allocator();
 }
 
-Device::~Device() {
-	wait();
-	vmaDestroyAllocator(m_allocator);
-	vkDestroyDevice(m_device, nullptr);
-	vkDestroyInstance(m_instance, nullptr);
-}
-
 void Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
 	// go through every requested extensions and see if they are available
 #ifndef NDEBUG
@@ -133,7 +126,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, std::multimap 
 }
 
 void Device::create_queue(QueueFamily& queue) noexcept {
-	getDeviceQueue(queue.familyIndex, 0, queue.queue);
+	queue.queue = vk::Queue(m_device, queue.familyIndex, 0);
 }
 
 void Device::create_instance() {
@@ -190,7 +183,7 @@ void Device::create_instance() {
 	};
 
 	// create the instance
-	vassert(vkCreateInstance(&createInfo, nullptr, &m_instance), "create Vulkan instance");
+	m_instance = vk::Instance(VK_NULL_HANDLE, createInfo);
 }
 
 void Device::pick_physical_device() {
@@ -212,7 +205,7 @@ void Device::pick_physical_device() {
 		log().exception("Failed to find GPU with enough features");
 	}
 
-	m_physicalDevice = possibleDevices.begin()->second;
+	m_physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.begin()->second, m_instance));
 }
 
 void Device::create_logical_device() {
@@ -256,7 +249,7 @@ void Device::create_logical_device() {
 	};
 
 	// create the device and retrieve the graphics and presentation queue handles
-	vassert(vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device), "create logical device");
+	m_device = vk::Device(m_physicalDevice, createInfo);
 
 	find_family_index(m_graphicsQueue, m_physicalDevice);
 	find_family_index(m_presentQueue, m_physicalDevice);
@@ -280,7 +273,7 @@ void Device::create_allocator() {
 	};
 
 	// create the allocator
-	vassert(vmaCreateAllocator(&createInfo, &m_allocator), "create VMA memory allocator");
+	m_allocator = vma::Allocator(m_instance, createInfo);
 }
 
 } // namespace vulkan

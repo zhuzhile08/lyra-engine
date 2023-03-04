@@ -66,7 +66,7 @@ Camera::Camera(
 	// for (auto& descriptorSet : m_descriptorSets) {
 	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
 		// get a unused descriptor set and push back its pointer
-		m_descriptorSets[i] = &m_renderPipeline->descriptorSystem().get_unused_set(0);
+		m_descriptorSets[i] = m_renderPipeline->descriptorSystem(0).get_unused_set();
 		// add the writes
 		m_descriptorSets[i]->add_writes({
 			{ m_buffers[0]->get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },

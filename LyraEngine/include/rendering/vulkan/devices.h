@@ -18,6 +18,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <rendering/vulkan/vulkan_raii.h>
+
 #ifdef __APPLE__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
@@ -43,7 +45,7 @@ public:
 	 * @brief queue families
 	 */
 	struct QueueFamily {
-		VkQueue queue;
+		vk::Queue queue;
 		uint32  familyIndex = 0;
 	};
 
@@ -54,24 +56,7 @@ public:
 	/**
 	* @brief destructor of the device
 	**/
-	virtual ~Device();
-	/**
-	 * @brief No copy constructors?
-	 * @param ⠀⣞⢽⢪⢣⢣⢣⢫⡺⡵⣝⡮⣗⢷⢽⢽⢽⣮⡷⡽⣜⣜⢮⢺⣜⢷⢽⢝⡽⣝
-	 * @param ⠸⡸⠜⠕⠕⠁⢁⢇⢏⢽⢺⣪⡳⡝⣎⣏⢯⢞⡿⣟⣷⣳⢯⡷⣽⢽⢯⣳⣫⠇
-	 * @param ⠀⠀⢀⢀⢄⢬⢪⡪⡎⣆⡈⠚⠜⠕⠇⠗⠝⢕⢯⢫⣞⣯⣿⣻⡽⣏⢗⣗⠏⠀
-	 * @param ⠀⠪⡪⡪⣪⢪⢺⢸⢢⢓⢆⢤⢀⠀⠀⠀⠀⠈⢊⢞⡾⣿⡯⣏⢮⠷⠁⠀⠀
-	 * @param ⠀⠀⠀⠈⠊⠆⡃⠕⢕⢇⢇⢇⢇⢇⢏⢎⢎⢆⢄⠀⢑⣽⣿⢝⠲⠉⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⠀⠀⡿⠂⠠⠀⡇⢇⠕⢈⣀⠀⠁⠡⠣⡣⡫⣂⣿⠯⢪⠰⠂⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⠀⡦⡙⡂⢀⢤⢣⠣⡈⣾⡃⠠⠄⠀⡄⢱⣌⣶⢏⢊⠂⠀⠀⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⠀⢝⡲⣜⡮⡏⢎⢌⢂⠙⠢⠐⢀⢘⢵⣽⣿⡿⠁⠁⠀⠀⠀⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⠀⠨⣺⡺⡕⡕⡱⡑⡆⡕⡅⡕⡜⡼⢽⡻⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⠀⣼⣳⣫⣾⣵⣗⡵⡱⡡⢣⢑⢕⢜⢕⡝⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⣴⣿⣾⣿⣿⣿⡿⡽⡑⢌⠪⡢⡣⣣⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	 * @param ⠀⠀⠀⡟⡾⣿⢿⢿⢵⣽⣾⣼⣘⢸⢸⣞⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	 * @param⠀⠀⠀⠀⠁⠇⠡⠩⡫⢿⣝⡻⡮⣒⢽⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-	 */
-	Device operator=(const Device&) const noexcept = delete;
+	virtual ~Device() { wait(); }
 
 	/**
 	 * @brief wait for the logical device to finish with whatever operations are still going on
@@ -85,43 +70,43 @@ public:
 	 */
 
 		
-	VkResult createPool(const VmaPoolCreateInfo& pCreateInfo, VmaPool& pPool) {
-		return vmaCreatePool(m_allocator, &pCreateInfo, &pPool);
+	DEPRECATED VkResult createPool(const VmaPoolCreateInfo& pCreateInfo, VmaPool& pPool) {
+		return vmaCreatePool(m_allocator, &pCreateInfo, &pPool); /// @todo
 	}
-	VkResult createBuffer(const VkBufferCreateInfo& pBufferCreateInfo, const VmaAllocationCreateInfo& pAllocationCreateInfo, VkBuffer& pBuffer, VmaAllocation& pAllocation, VmaAllocationInfo pAllocationInfo = VmaAllocationInfo{}) {
-		return vmaCreateBuffer(m_allocator, &pBufferCreateInfo, &pAllocationCreateInfo, &pBuffer, &pAllocation, &pAllocationInfo);
+	DEPRECATED VkResult createBuffer(const VkBufferCreateInfo& pBufferCreateInfo, const VmaAllocationCreateInfo& pAllocationCreateInfo, VkBuffer& pBuffer, VmaAllocation& pAllocation, VmaAllocationInfo pAllocationInfo = VmaAllocationInfo{}) {
+		return vmaCreateBuffer(m_allocator, &pBufferCreateInfo, &pAllocationCreateInfo, &pBuffer, &pAllocation, &pAllocationInfo); /// @todo
 	}
-	VkResult createBufferWithAlignment(const VkBufferCreateInfo& pBufferCreateInfo, const VmaAllocationCreateInfo& pAllocationCreateInfo, VkDeviceSize minAlignment, VkBuffer& pBuffer, VmaAllocation& pAllocation, VmaAllocationInfo& pAllocationInfo) {
-		return vmaCreateBufferWithAlignment(m_allocator, &pBufferCreateInfo, &pAllocationCreateInfo, minAlignment, &pBuffer, &pAllocation, &pAllocationInfo);
+	DEPRECATED VkResult createBufferWithAlignment(const VkBufferCreateInfo& pBufferCreateInfo, const VmaAllocationCreateInfo& pAllocationCreateInfo, VkDeviceSize minAlignment, VkBuffer& pBuffer, VmaAllocation& pAllocation, VmaAllocationInfo& pAllocationInfo) {
+		return vmaCreateBufferWithAlignment(m_allocator, &pBufferCreateInfo, &pAllocationCreateInfo, minAlignment, &pBuffer, &pAllocation, &pAllocationInfo); /// @todo
 	}
-	VkResult createAliasingBuffer(const VmaAllocation& allocation, const VkBufferCreateInfo& pBufferCreateInfo, VkBuffer& pBuffer) {
-		return vmaCreateAliasingBuffer(m_allocator, allocation, &pBufferCreateInfo, &pBuffer);
+	DEPRECATED VkResult createAliasingBuffer(const VmaAllocation& allocation, const VkBufferCreateInfo& pBufferCreateInfo, VkBuffer& pBuffer) {
+		return vmaCreateAliasingBuffer(m_allocator, allocation, &pBufferCreateInfo, &pBuffer); /// @todo
 	}
 	// VkResult createAliasingBuffer2(const VmaAllocation& allocation, VkDeviceSize allocationLocalOffset, const VkBufferCreateInfo& pBufferCreateInfo, VkBuffer& pBuffer) {
 	// 	vmaCreateAliasingBuffer2(m_allocator, allocation, allocationLocalOffset, &pBufferCreateInfo, &pBuffer);
 	// }
-	VkResult createImage(const VkImageCreateInfo& pImageCreateInfo, const VmaAllocationCreateInfo& pAllocationCreateInfo, VkImage& pImage, VmaAllocation& pAllocation, VmaAllocationInfo pAllocationInfo = VmaAllocationInfo{}) {
+	DEPRECATED VkResult createImage(const VkImageCreateInfo& pImageCreateInfo, const VmaAllocationCreateInfo& pAllocationCreateInfo, VkImage& pImage, VmaAllocation& pAllocation, VmaAllocationInfo pAllocationInfo = VmaAllocationInfo{}) {
 		return vmaCreateImage(m_allocator, &pImageCreateInfo, &pAllocationCreateInfo, &pImage, &pAllocation, &pAllocationInfo);
 	}
-	VkResult createAliasingImage(const VmaAllocation& allocation, const VkImageCreateInfo& pImageCreateInfo, VkImage& pImage) {
-		return vmaCreateAliasingImage(m_allocator, allocation, &pImageCreateInfo, &pImage);
+	DEPRECATED VkResult createAliasingImage(const VmaAllocation& allocation, const VkImageCreateInfo& pImageCreateInfo, VkImage& pImage) {
+		return vmaCreateAliasingImage(m_allocator, allocation, &pImageCreateInfo, &pImage); /// @todo
 	}
 	// VkResult createAliasingImage2(const VmaAllocation& allocation, VkDeviceSize allocationLocalOffset, const VkImageCreateInfo& pImageCreateInfo, VkImage& pImage) {
 	// 	vmaCreateAliasingImage2(m_allocator, allocationLocalOffset, &pImageCreateInfo, &pImage);
 	// }
-	void destroyPool(const VmaPool& pool) {
+	DEPRECATED void destroyPool(const VmaPool& pool) {
 		vmaDestroyPool(m_allocator, pool);
 	}
-	void destroyBuffer(const VkBuffer& buffer, const VmaAllocation& allocation) {
+	DEPRECATED void destroyBuffer(const VkBuffer& buffer, const VmaAllocation& allocation) {
 		vmaDestroyBuffer(m_allocator, buffer, allocation);
 	}
-	void destroyImage(const VkImage& image, const VmaAllocation& allocation) {
+	DEPRECATED void destroyImage(const VkImage& image, const VmaAllocation& allocation) {
 		vmaDestroyImage(m_allocator, image, allocation);
 	}
-	void freeCommandBuffer(VkCommandPool commandPool, const VkCommandBuffer& pCommandBuffers) {
+	DEPRECATED void freeCommandBuffer(VkCommandPool commandPool, const VkCommandBuffer& pCommandBuffers) {
 		vkFreeCommandBuffers(m_device, commandPool, 1, &pCommandBuffers);
 	}
-	void freeCommandBuffers(VkCommandPool commandPool, const uint32& commandBufferCount, const VkCommandBuffer* pCommandBuffers) {
+	DEPRECATED void freeCommandBuffers(VkCommandPool commandPool, const uint32& commandBufferCount, const VkCommandBuffer* pCommandBuffers) {
 		vkFreeCommandBuffers(m_device, commandPool, commandBufferCount, pCommandBuffers);
 	}
 	VkResult freeDescriptorSets(const VkDescriptorPool& descriptorPool, const uint32& descriptorSetCount, const VkDescriptorSet& pDescriptorSets) {
@@ -214,9 +199,6 @@ public:
 	VkResult flushMappedMemoryRanges(const uint32& memoryRangeCount, const VkMappedMemoryRange& pMemoryRanges) {
 		return vkFlushMappedMemoryRanges(m_device, memoryRangeCount, &pMemoryRanges);
 	}
-	void getDeviceQueue(const uint32& queueFamilyIndex, const uint32& queueIndex, VkQueue& pQueue) {
-		vkGetDeviceQueue(m_device, queueFamilyIndex, queueIndex, &pQueue);
-	}
 	VkResult getEventStatus(const VkEvent& event) {
 		return vkGetEventStatus(m_device, event);
 	}
@@ -293,49 +275,49 @@ public:
 	/**
 	 * @brief get the Vulkan instance
 	 *
-	 * @return const VkInstance&
+	 * @return const lyra::vulkan::vk::Instance&
 	 */
-	NODISCARD const VkInstance& instance() const noexcept { return m_instance; }
+	NODISCARD constexpr const vk::Instance& instance() const noexcept { return m_instance; }
 	/**
 	 * @brief get the GPU
 	 *
-	 * @return VkPhysicalDevice
+	 * @return const lyra::vulkan::vk::PhysicalDevice&
 	 */
-	NODISCARD const VkPhysicalDevice& physicalDevice() const noexcept { return m_physicalDevice;  }
+	NODISCARD constexpr const vk::PhysicalDevice& physicalDevice() const noexcept { return m_physicalDevice;  }
 	/**
 	 * @brief get the logical device
 	 * 
-	 * @return const VkDevice&
+	 * @return const lyra::vulkan::vk::VkDevice&
 	 */
-	NODISCARD const VkDevice& device() const noexcept { return m_device; }
+	NODISCARD constexpr const vk::Device& device() const noexcept { return m_device; }
 	/**
 	 * @brief get the graphics queue
 	 * 
 	 * @return const lyra::QueueFamily&
 	 */
-	NODISCARD const QueueFamily& graphicsQueue() const noexcept { return m_graphicsQueue; }
+	NODISCARD constexpr const QueueFamily& graphicsQueue() const noexcept { return m_graphicsQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
 	 * @return const lyra::QueueFamily&
 	 */
-	NODISCARD const QueueFamily& presentQueue() const noexcept { return m_presentQueue; }
+	NODISCARD constexpr const QueueFamily& presentQueue() const noexcept { return m_presentQueue; }
 	/**
 	 * @brief get the VMA memory allocator
 	 *
 	 * @return const VmaAllocator&
 	 */
-	NODISCARD const VmaAllocator& allocator() const noexcept { return m_allocator; }
+	NODISCARD constexpr const vma::Allocator& allocator() const noexcept { return m_allocator; }
 
 private:
-	VkInstance m_instance;
-	VkPhysicalDevice m_physicalDevice;
-	VkDevice m_device;
+	vk::Instance m_instance;
+	vk::PhysicalDevice m_physicalDevice;
+	vk::Device m_device;
 
 	QueueFamily m_graphicsQueue;
 	QueueFamily m_presentQueue;
 
-	VmaAllocator m_allocator;
+	vma::Allocator m_allocator;
 
 	/**
 	 * @brief check if a vector of user requested Vulkan validation layers is actually available

@@ -35,13 +35,6 @@ public:
 	Window();
 
 	/**
-	 * @brief destructor of the swapchain
-	 */
-	virtual ~Window() noexcept;
-
-	Window operator=(const Window&) const noexcept = delete;
-
-	/**
 	 * @brief create the swapchain
 	 */
 	void recreate();
@@ -49,39 +42,39 @@ public:
 	/**
 	 * @brief get the Vulkan surface
 	 *
-	 * @return constexpr VkSurfaceKHR
+	 * @return constexpr lyra::vulkan::vk::Surface&
 	 */
-	NODISCARD constexpr VkSurfaceKHR surface() const noexcept { return m_surface; }
+	NODISCARD constexpr const vk::SurfaceKHR& surface() const noexcept { return m_surface; }
 	/**
 	 * @brief get the swapchain
 	 *
-	 * @return constexpr const VkSwapchainKHR&
+	 * @return constexpr const lyra::vulkan::vk::SwapchainKHR&
 	*/
-	NODISCARD constexpr const VkSwapchainKHR& swapchain() const noexcept { return m_swapchain; }
+	NODISCARD constexpr const vk::Swapchain& swapchain() const noexcept { return m_swapchain; }
 	/**
 	 * @brief get the swapchain images
 	 *
-	 * @return const lyra::Dynarray<VkImage, lyra::vulkan::Window::maxSwapchainImages>
+	 * @return const lyra::Dynarray<lyra::vulkan::vk::Image, lyra::vulkan::Window::maxSwapchainImages>&
 	 */
-	NODISCARD const Dynarray<VkImage, Settings::RenderConfig::maxSwapchainImages> images() const noexcept { return m_images; }
+	NODISCARD const Dynarray<vk::Image, Settings::RenderConfig::maxSwapchainImages>& images() const noexcept { return m_images; }
 	/**
 	 * @brief get the swapchain images
 	 *
-	 * @return const lyra::Dynarray<VkImageView, lyra::vulkan::Window::maxSwapchainImages>
+	 * @return const lyra::Dynarray<yra::vulkan::vk::ImageView, lyra::vulkan::Window::maxSwapchainImages>&
 	 */
-	NODISCARD const Dynarray<VkImageView, Settings::RenderConfig::maxSwapchainImages> imageViews() const noexcept { return m_imageViews; }
+	NODISCARD const Dynarray<vk::ImageView, Settings::RenderConfig::maxSwapchainImages>& imageViews() const noexcept { return m_imageViews; }
 	/**
 	 * @brief get the depth buffer image
 	 *
-	 * @return constexpr const Image* const
+	 * @return constexpr const lyra::vulkan::Image& const
 	 */
-	NODISCARD constexpr const Image* const depthImage() const noexcept { return &m_depthImage; }
+	NODISCARD constexpr const Image& depthImage() const noexcept { return m_depthImage; }
 	/**
 	 * @brief get the color resources image
 	 *
-	 * @return constexpr const Image* const
+	 * @return constexpr const lyra::vulkan::Image& const
 	 */
-	NODISCARD constexpr const Image* const colorImage() const noexcept { return &m_colorImage; }
+	NODISCARD constexpr const Image& colorImage() const noexcept { return m_colorImage; }
 	/**
 	 * @brief get the format
 	 *
@@ -103,19 +96,19 @@ public:
 	/**
 	 * @brief get the depth buffer format
 	 *
-	 * @return constexpr VkFormat&
+	 * @return constexpr VkFormat
 	*/
 	NODISCARD constexpr VkFormat depthBufferFormat() const noexcept { return m_depthBufferFormat; }
 
 private:
+	vk::Surface m_surface;
+	vk::Swapchain m_swapchain;
 
-	VkSurfaceKHR m_surface;
-	VkSwapchainKHR m_swapchain;
 	VkFormat m_format;
 	VkExtent2D m_extent;
 
-	Dynarray<VkImage, Settings::RenderConfig::maxSwapchainImages> m_images;
-	Dynarray<VkImageView, Settings::RenderConfig::maxSwapchainImages> m_imageViews;
+	Dynarray<vk::Image, Settings::RenderConfig::maxSwapchainImages> m_images;
+	Dynarray<vk::ImageView, Settings::RenderConfig::maxSwapchainImages> m_imageViews;
 	
 	Image m_colorImage;
 	GPUMemory m_colorMem;
@@ -125,7 +118,7 @@ private:
 	GPUMemory m_depthMem;
 	VkFormat m_depthBufferFormat;
 
-	VkSwapchainKHR* m_oldSwapchain = nullptr;
+	vk::Swapchain* m_oldSwapchain = nullptr;
 
 	/**
 	 * @brief get the optimal format for the swapchain
@@ -160,10 +153,6 @@ private:
 	 */
 	void create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapabilities);
 
-	/**
-	 * @brief create a Vulkan window surface
-	 */
-	void create_window_surface();
 	/**
 	 * @brief create the swapchain images
 	 */

@@ -16,25 +16,14 @@ namespace lyra {
 
 namespace vulkan {
 
-Window::Window() {
-	create_window_surface();
+Window::Window() : m_surface(Application::renderSystem.device.instance(), Application::window.get()) {
 	create_swapchain();
-}
-
-Window::~Window() noexcept {
-	// destroy the image views
-	for (uint32 i = 0; i < m_imageViews.size(); i++) 
-		vkDestroyImageView(Application::renderSystem.device.device(), m_imageViews[i], nullptr);
-	// destroy the current swapchain
-	vkDestroySwapchainKHR(Application::renderSystem.device.device(), m_swapchain, nullptr);
-	// destroy the window surface
-	vkDestroySurfaceKHR(Application::renderSystem.device.instance(), m_surface, nullptr);
 }
 
 void Window::recreate() {
 	// destroy the images and views
 	for (uint32 i = 0; i < m_imageViews.size(); i++)
-		vkDestroyImageView(Application::renderSystem.device.device(), m_imageViews[i], nullptr);
+		m_imageViews[i].destroy();
 	m_depthImage.destroy();
 	m_colorImage.destroy();
 	m_depthMem.destroy();
@@ -132,20 +121,17 @@ void Window::check_surface_capabilities(VkSurfaceCapabilitiesKHR& surfaceCapabil
 	}
 }
 
-void Window::create_window_surface() {
-	// thankfully, SDL can handle the platform specific stuff for creating surfaces for me, which makes it all way easier
-	lassert(SDL_Vulkan_CreateSurface(Application::window.get(), Application::renderSystem.device.instance(), &m_surface) == SDL_TRUE, "Failed to create Vulkan window surface");
-}
-
 void Window::create_swapchain_images() {
+	std::vector<VkImage> tempImages;
 	// get the number of images
 	uint32 imageCount;
 	vassert(vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
-	m_images.resize(imageCount); m_imageViews.resize(imageCount);
-	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, m_images.data());
+	m_images.resize(imageCount); m_imageViews.resize(imageCount); tempImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, tempImages.data());
 
 	// create the image views
 	for (uint32 i = 0; i < m_images.size(); i++) {
+		m_images[i] = std::move(tempImages[i]);
 		// image view creation info
 		VkImageViewCreateInfo createInfo{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -159,15 +145,17 @@ void Window::create_swapchain_images() {
 		};
 
 		// create the view
-		vassert(vkCreateImageView(Application::renderSystem.device.device(), &createInfo, nullptr, &m_imageViews[i]), "create Vulkan image views");
+		m_imageViews[i] = vk::ImageView(Application::renderSystem.device.device(), createInfo);
 	}
 }
 
 void Window::create_depth_buffer() {
-	m_depthBufferFormat = m_depthImage.get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+	m_depthBufferFormat = Image::get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 	// create memory and image
-	vassert(Application::renderSystem.device.createImage(
+	m_depthImage.m_image = vk::Image(
+		Application::renderSystem.device.device(),
+		Application::renderSystem.device.allocator(), 
 		m_depthImage.get_image_create_info(
 			m_depthBufferFormat,
 			{ m_extent.width, m_extent.height, 1 },
@@ -178,10 +166,9 @@ void Window::create_depth_buffer() {
 			0,
 			m_maxMultisamples
 		),
-		m_depthMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
-		m_depthImage.m_image,
-		m_depthMem.m_memory
-	), "create Vulkan depth buffer");
+		GPUMemory::get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		m_depthMem.memory()
+	);
 
 	// create the image view
 	m_depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
@@ -193,8 +180,9 @@ void Window::create_depth_buffer() {
 void Window::create_color_resources() {
 	m_maxMultisamples = get_max_samples();
 
-	// create memory and image
-	vassert(Application::renderSystem.device.createImage(
+	m_colorImage.m_image = vk::Image(
+		Application::renderSystem.device.device(),
+		Application::renderSystem.device.allocator(), 
 		m_colorImage.get_image_create_info(
 			m_format,
 			{ m_extent.width, m_extent.height, 1 },
@@ -205,10 +193,9 @@ void Window::create_color_resources() {
 			0,
 			m_maxMultisamples
 		),
-		m_colorMem.get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
-		m_colorImage.m_image,
-		m_colorMem.m_memory
-	), "create Vulkan color resources");
+		GPUMemory::get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+		m_colorMem.memory()
+	);
 
 	// create the image view
 	m_colorImage.create_view(m_format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
@@ -232,7 +219,6 @@ void Window::create_swapchain() {
 	create_swapchain_extent(surfaceCapabilities);
 
 	// create the swapchain
-	const auto temp = Application::renderSystem.device.graphicsQueue().familyIndex;
 	const auto cond = (Application::renderSystem.device.graphicsQueue().familyIndex != Application::renderSystem.device.presentQueue().familyIndex);
 
 	VkSwapchainCreateInfoKHR createInfo = {
@@ -248,7 +234,7 @@ void Window::create_swapchain() {
 		surfaceCapabilities.supportedUsageFlags,
 		(cond) ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE,
 		static_cast<uint32>((cond) ? 2 : 0),
-		(cond) ? &temp : 0,
+		(cond) ? &Application::renderSystem.device.graphicsQueue().familyIndex : 0,
 		surfaceCapabilities.currentTransform,
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		presentMode,
@@ -256,7 +242,7 @@ void Window::create_swapchain() {
 		(m_oldSwapchain != nullptr) ? *m_oldSwapchain : VK_NULL_HANDLE
 	};
 
-	vassert(vkCreateSwapchainKHR(Application::renderSystem.device.device(), &createInfo, nullptr, &m_swapchain), "create Vulkan swapchain");
+	m_swapchain = vk::Swapchain(Application::renderSystem.device.device(), createInfo);
 
 	create_swapchain_images();
 	create_color_resources();

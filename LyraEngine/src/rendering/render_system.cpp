@@ -58,12 +58,12 @@ void RenderSystem::submit_device_queue(const VkPipelineStageFlags& stageFlags) c
 	   VK_STRUCTURE_TYPE_SUBMIT_INFO,
 	   nullptr,
 	   1,
-	   &frames[m_currentFrame].imageAvailableSemaphores(),
+	   &frames[m_currentFrame].imageAvailableSemaphores().get(),
 	   &stageFlags,
 	   1,
 	   &frames[m_currentFrame].commandBuffer().commandBuffer(),
 	   1,
-	   &frames[m_currentFrame].renderFinishedSemaphores()
+	   &frames[m_currentFrame].renderFinishedSemaphores().get()
 	};
 
 	// submit the queue
@@ -75,9 +75,9 @@ void RenderSystem::present_device_queue() {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
 		1,
-		&frames[m_currentFrame].renderFinishedSemaphores(),
+		&frames[m_currentFrame].renderFinishedSemaphores().get(),
 		1,
-		&vulkanWindow.swapchain(),
+		&vulkanWindow.swapchain().get(),
 		&m_imageIndex
 	};
 

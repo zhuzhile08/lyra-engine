@@ -12,7 +12,7 @@ namespace vulkan {
 GPUBuffer::GPUBuffer(
 	const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage) : m_size(size) {
 	// buffer creation info
-	VkBufferCreateInfo bufferInfo{
+	VkBufferCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 		nullptr,
 		0,
@@ -24,12 +24,13 @@ GPUBuffer::GPUBuffer(
 	};
 
 	// create buffer
-	vassert(Application::renderSystem.device.createBuffer(bufferInfo, get_alloc_create_info(memUsage), m_buffer, m_memory),
-		"create Vulkan GPU memory buffer");
-}
-
-GPUBuffer::~GPUBuffer() noexcept {
-	vkDestroyBuffer(Application::renderSystem.device.device(), m_buffer, nullptr);
+	m_buffer = vk::Buffer(
+		Application::renderSystem.device.device(), 
+		Application::renderSystem.device.allocator(), 
+		createInfo, 
+		get_alloc_create_info(memUsage), 
+		m_memory
+	);
 }
 
 void GPUBuffer::copy_data(const void* src, const size_t& copySize) {

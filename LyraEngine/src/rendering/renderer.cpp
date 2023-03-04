@@ -26,18 +26,11 @@ Renderer::Renderer() {
 	Application::renderSystem.add_renderer(this);
 }
 
-Renderer::~Renderer() {
-	// destroy the framebuffers
-	for (uint32 i = 0; i < m_framebuffers.size(); i++) vkDestroyFramebuffer(Application::renderSystem.device.device(), m_framebuffers[i], nullptr);
-	// destroy the renderpass
-	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
-}
-
 void Renderer::recreate() {
 	// destroy the framebuffers
-	for (uint32 i = 0; i < m_framebuffers.size(); i++) vkDestroyFramebuffer(Application::renderSystem.device.device(), m_framebuffers[i], nullptr);
+	for (uint32 i = 0; i < m_framebuffers.size(); i++) m_framebuffers[i].destroy();
 	// destroy the renderpass
-	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
+	m_renderPass.destroy();
 	create_render_pass();
 	create_framebuffers();
 }
@@ -123,7 +116,7 @@ void Renderer::create_render_pass() {
 	};
 
 	// create the render pass
-	VkRenderPassCreateInfo renderPassInfo{
+	VkRenderPassCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 		nullptr,
 		0,
@@ -135,7 +128,7 @@ void Renderer::create_render_pass() {
 		&dependencies
 	};
 
-	vassert(vkCreateRenderPass(Application::renderSystem.device.device(), &renderPassInfo, nullptr, &m_renderPass), "create Vulkan render pass");
+	m_renderPass = vulkan::vk::RenderPass(Application::renderSystem.device.device(), createInfo);
 }
 
 void Renderer::create_framebuffers() {
@@ -143,13 +136,13 @@ void Renderer::create_framebuffers() {
 
 	for (uint32 i = 0; i < Application::renderSystem.vulkanWindow.images().size(); i++) {
 		Array<VkImageView, 3> attachments = { {
-			Application::renderSystem.vulkanWindow.colorImage()->m_view,
-			Application::renderSystem.vulkanWindow.depthImage()->m_view,
+			Application::renderSystem.vulkanWindow.colorImage().view(),
+			Application::renderSystem.vulkanWindow.depthImage().view(),
 			Application::renderSystem.vulkanWindow.imageViews()[i]
 		}};
 
 		// create the frame buffers
-		VkFramebufferCreateInfo framebufferInfo{
+		VkFramebufferCreateInfo createInfo{
 			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 			nullptr,
 			0,
@@ -161,7 +154,7 @@ void Renderer::create_framebuffers() {
 			1
 		};
 
-		vassert(vkCreateFramebuffer(Application::renderSystem.device.device(), &framebufferInfo, nullptr, &m_framebuffers[i]), "create a framebuffer");
+		m_framebuffers[i] = vulkan::vk::Framebuffer(Application::renderSystem.device.device(), createInfo);
 	}
 }
 
@@ -181,7 +174,8 @@ void Renderer::begin_renderpass() const {
 		2,
 		clear
 	};
-		Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	
+	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }  
 
 void Renderer::end_renderpass() const { 

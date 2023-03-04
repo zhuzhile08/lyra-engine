@@ -13,15 +13,18 @@
 
 #include <lyra.h>
 
+#include <algorithm>
 #include <vector>
 #include <queue>
 #include <core/smart_pointer.h>
 #include <core/dynarray.h>
-#include <core/basic_pool.h>
+#include <core/resource_pool.h>
+#include <core/function_pointer.h>
 
 #include <core/settings.h>
 
 #include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 namespace lyra {
 
@@ -34,14 +37,11 @@ class DescriptorSystem {
 private:
 	/**
 	 * @brief wrapper around a Vulkan descriptor set layout
-	 *
-	 * @brief describe which type of descriptor will be used where
 	 */
-	class DescriptorSetLayouts {
+	class DescriptorSetLayout {
 	public:
 		// simplified creation data for a single descriptor set layout
 		struct Data {
-			const uint32& layoutIndex;
 			// type of shader to bind the descriptor in
 			const uint32& shaderType;
 			// binding index
@@ -52,61 +52,50 @@ private:
 			const uint32& type;
 		};
 
+		constexpr DescriptorSetLayout() = default;
 		/**
 		 * @brief create the descriptor set layout
 		 *
 		 * @param createInfo creation information
 		 */
-		DescriptorSetLayouts(const Dynarray<VkDescriptorSetLayoutCreateInfo, Settings::MemConfig::maxDescriptorSetLayouts>& createInfo);
+		DescriptorSetLayout(const VkDescriptorSetLayoutCreateInfo& createInfo);
+
+		DescriptorSetLayout(DescriptorSetLayout&&) = default;
+		DescriptorSetLayout& operator=(DescriptorSetLayout&&) = default;
 
 		/**
-		 * @brief destructor of the descriptor set layout
-		 */
-		~DescriptorSetLayouts() noexcept;
-
-		DescriptorSetLayouts operator=(const DescriptorSetLayouts&) const noexcept = delete;
-
-		/**
-		 * @brief get the size of the internal dynarray
-		 * 
-		 * @return const size_t 
-		 */
-		NODISCARD const size_t size() const noexcept { return size(); }
-		/**
-		 * @brief cast to the internal dynarray
+		 * @brief cast to the internal descriptor set layout
 		 *
-		 * @return const Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts>
+		 * @return lyra::vulkan::vk::DescriptorSetLayout&
 		 */
-		NODISCARD operator const Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts> () const noexcept { return m_descriptorSetLayouts; }
+		NODISCARD constexpr operator vk::DescriptorSetLayout& () noexcept { return m_descriptorSetLayout; }
 		/**
-		 * @brief cast to the data of the internal dynarray
+		 * @brief cast to the internal descriptor set layout
 		 *
-		 * @return const VkDescriptorSetLayout
+		 * @return const lyra::vulkan::vk::DescriptorSetLayout&
 		 */
-		NODISCARD operator const VkDescriptorSetLayout* const () const noexcept { return m_descriptorSetLayouts.data(); }
+		NODISCARD constexpr operator const vk::DescriptorSetLayout& () const noexcept { return m_descriptorSetLayout; }
 		/**
 		 * @brief get the descriptor set layout
 		 *
-		 * @return const lyra::Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts>
+		 * @return lyra::vulkan::vk::DescriptorSetLayout&
 		 */
-		NODISCARD const Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts> get() const noexcept { return m_descriptorSetLayouts; }
+		NODISCARD constexpr vk::DescriptorSetLayout& get() noexcept { return m_descriptorSetLayout; }
 		/**
 		 * @brief get the descriptor set layout
 		 *
-		 * @return const VkDescriptorSetLayout
+		 * @return const lyra::vulkan::vk::DescriptorSetLayout&
 		 */
-		NODISCARD const VkDescriptorSetLayout* const data() const noexcept { return m_descriptorSetLayouts.data(); }
+		NODISCARD constexpr const vk::DescriptorSetLayout& get() const noexcept { return m_descriptorSetLayout; }
 
 	private:
-		Dynarray<VkDescriptorSetLayout, Settings::MemConfig::maxDescriptorSetLayouts> m_descriptorSetLayouts;
+		vk::DescriptorSetLayout m_descriptorSetLayout;
 
 		friend class Descriptor;
 	};
 
 	/**
 	 * @brief wrapper around a Vulkan descriptor pool
-	 *
-	 * @brief allocates large chunk of memory to allocate descriptor pools
 	 */
 	class DescriptorPool {
 	public:
@@ -118,6 +107,7 @@ private:
 			const uint32& multiplier;
 		};
 
+		constexpr DescriptorPool() = default;
 		/**
 		 * @brief create a descriptor pool to allocate the descriptor sets
 		 *
@@ -125,35 +115,50 @@ private:
 		 */
 		DescriptorPool(const VkDescriptorPoolCreateInfo& createInfo);
 
+		DescriptorPool(DescriptorPool&&) = default;
+		DescriptorPool& operator=(DescriptorPool&&) = default;
+
 		/**
-		 * @brief destructor of the descriptor pool
+		 * @brief get the capacity of the pool
+		 * 
+		 * @return constexpr size_t
 		 */
-		~DescriptorPool() noexcept;
-
-		DescriptorPool operator=(const DescriptorPool&) const noexcept = delete;
-
+		NODISCARD constexpr size_t capacity() const noexcept { return m_capacity; }
 		/**
 		 * @brief cast to the the descriptor pool
 		 *
-		 * @return constexpr VkDescriptorPool
+		 * @return constexpr lyra::vulkan::vk::DescriptorPool&
 		 */
-		NODISCARD constexpr operator VkDescriptorPool () const noexcept { return m_descriptorPool; }
+		NODISCARD constexpr operator vk::DescriptorPool& () noexcept { return m_descriptorPool; }
+		/**
+		 * @brief cast to the the descriptor pool
+		 *
+		 * @return constexpr const lyra::vulkan::vk::DescriptorPool&
+		 */
+		NODISCARD constexpr operator const vk::DescriptorPool& () const noexcept { return m_descriptorPool; }
 		/**
 		 * @brief get the descriptor pool
 		 *
-		 * @return constexpr VkDescriptorPool
+		 * @return constexpr lyra::vulkan::vk::DescriptorPool&
 		 */
-		NODISCARD constexpr VkDescriptorPool get() const noexcept { return m_descriptorPool; }
+		NODISCARD constexpr vk::DescriptorPool& get() noexcept { return m_descriptorPool; }
+		/**
+		 * @brief get the descriptor pool
+		 *
+		 * @return constexpr const lyra::vulkan::vk::DescriptorPool&
+		 */
+		NODISCARD constexpr const vk::DescriptorPool& get() const noexcept { return m_descriptorPool; }
 
 	private:
-		VkDescriptorPool m_descriptorPool;
+		vk::DescriptorPool m_descriptorPool;
+		size_t m_capacity;
 	};
 
 public:
 	/**
 	 * @brief wrapper around the Vulkan descriptor set
 	 */
-	class DescriptorSet : public BasicPool<DescriptorSet>::ResourceBase {
+	class DescriptorSet {
 	public:
 		// descriptor types
 		enum Type : uint32 {
@@ -217,15 +222,35 @@ public:
 			const Type& type;
 		};
 
+		DescriptorSet() = default;
 		/**
-		 * @brief construct new Vulkan descriptors
+		 * @brief construct a new descriptor set wrapper
 		 *
 		 * @param allocInfo descriptor set allocation information
-		 * @param pool the pool that this set belongs to
 		 */
-		DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo, BasicPool<DescriptorSet>& pool);
-
-		DescriptorSet operator=(const DescriptorSet&) const noexcept = delete;
+		DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo);
+		/**
+		 * @brief move constructor of the descriptor set wrapper
+		 * 
+		 * @param movable descriptor set wrapper rvalue
+		 */
+		DescriptorSet(DescriptorSet&& movable) : 
+			m_descriptorSet(std::exchange(movable.m_descriptorSet, VkDescriptorSet { } )),
+			m_writes(movable.m_writes) { }
+		/**
+		 * @brief move operator of the descriptor set wrapper
+		 * 
+		 * @param movable descriptor set wrapper rvalue
+		 * 
+		 * @return DescriptorSet& 
+		 */
+		constexpr DescriptorSet& operator=(DescriptorSet&& movable) {
+			if (movable.m_descriptorSet != this->m_descriptorSet) {
+				m_descriptorSet = std::exchange(movable.m_descriptorSet, VkDescriptorSet { } );
+				m_writes = movable.m_writes;
+			}
+			return *this;
+		}
 
 		/**
 		 * @brief add image writes
@@ -295,31 +320,30 @@ public:
 		 * @brief write the updates into the descriptor set
 		 */
 		void update() const noexcept;
-		/**
-		 * @brief mark this descriptor as usable again, consider this a destructor of sorts
-		 */
-		void recycle() {
-			m_pool.recycle_used(*this);
-		}
 
 		/**
 		 * @brief cast to the descriptor set
 		 *
-		 * @return constexpr VkDescriptorSet
+		 * @return const VkDescriptorSet&
 		 */
-		NODISCARD constexpr operator VkDescriptorSet () const noexcept { return m_descriptorSet; }
+		NODISCARD constexpr operator const VkDescriptorSet& () const noexcept { return m_descriptorSet; }
 		/**
 		 * @brief get the descriptor set
 		 *
-		 * @return constexpr VkDescriptorSet
+		 * @return const VkDescriptorSet&
 		 */
-		NODISCARD constexpr VkDescriptorSet get() const noexcept { return m_descriptorSet; }
+		NODISCARD constexpr const VkDescriptorSet& get() const noexcept { return m_descriptorSet; }
 
 	private:
 		VkDescriptorSet m_descriptorSet;
 
 		std::vector<VkWriteDescriptorSet> m_writes;
 	};
+
+	/**
+	 * @brief descriptor resource type, annoying to type every time
+	 */
+	typedef ResourcePool<DescriptorSet>::resource_container_type DescriptorSetResource;
 
 	/**
 	 * @brief a builder to make the creation of the descriptor layout easier
@@ -331,17 +355,25 @@ public:
 		 *
 		 * @param newBinding the data for a binding to add
 		 */
-		void add_binding(const DescriptorSetLayouts::Data& newBinding);
+		void add_binding(const DescriptorSetLayout::Data& newBinding);
 
 		/**
 		 * @brief build the creation info out of the bindings
 		 * 
-		 * @return const Dynarray<VkDescriptorSetLayoutCreateInfo, 6> 
+		 * @return VkDescriptorSetLayoutCreateInfo
 		 */
-		const Dynarray<VkDescriptorSetLayoutCreateInfo, 6> build_create_info() const;
+		VkDescriptorSetLayoutCreateInfo build_create_info() const {
+			return VkDescriptorSetLayoutCreateInfo {
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+				nullptr,
+				0,
+				static_cast<uint32>(m_bindings.size()),
+				m_bindings.data()
+			};
+		}
 
 	private:
-		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, 6> m_bindings;
+		std::vector<VkDescriptorSetLayoutBinding> m_bindings;
 	};
 
 	/**
@@ -356,7 +388,7 @@ public:
 		 * @param poolBuilder the other pool builder
 		 */
 		PoolBuilder(const PoolBuilder& poolBuilder)
-			 : m_poolSizes(poolBuilder.m_poolSizes), m_poolFlags(poolBuilder.m_poolFlags), m_maxSets(poolBuilder.m_maxSets) { }
+			 : m_poolSizes(poolBuilder.m_poolSizes), m_poolFlags(poolBuilder.m_poolFlags) { } // , m_maxSets(poolBuilder.m_maxSets) { }
 		
 		/**
 		 * @brief add one descriptor type to the descriptor pool
@@ -370,7 +402,7 @@ public:
 				uint32(newSize.multiplier * Settings::MemConfig::maxDescriptorTypePerPool)
 			});
 
-			m_maxSets += Settings::MemConfig::maxDescriptorTypePerPool * newSize.multiplier;
+			// m_maxSets = Settings::MemConfig::maxDescriptorTypePerPool * newSize.multiplier;
 		}
 		/**
 		 * @brief add multiple types to the descriptor pool
@@ -394,15 +426,16 @@ public:
 		/**
 		 * @brief build the creation info out of the bindings
 		 * 
-		 * @return const VkDescriptorPoolCreateInfo
+		 * @return constexpr VkDescriptorPoolCreateInfo
 		 */
-		const VkDescriptorPoolCreateInfo build_create_info() const  {
+		constexpr VkDescriptorPoolCreateInfo build_create_info() const  {
 			// return the create info
 			return VkDescriptorPoolCreateInfo {
 				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 				nullptr,
 				m_poolFlags,
-				m_maxSets,
+				Settings::MemConfig::maxDescriptorTypePerPool,
+				// m_maxSets,
 				static_cast<uint32>(m_poolSizes.size()),
 				m_poolSizes.data()
 			};
@@ -411,63 +444,56 @@ public:
 	private:
 		std::vector<VkDescriptorPoolSize> m_poolSizes;
 		VkDescriptorPoolCreateFlags m_poolFlags = 0;
-		uint32 m_maxSets;
+		// uint32 m_maxSets;
 	};
 
+	DescriptorSystem() = default;
 	/**
-	 * @brief create a descriptor set layout and return a pointer
+	 * @brief construct a new descriptor system
 	 * 
-	 * @param layoutBuilder layout builder
+	 * @param layoutBuilder descriptor set layout builder to build the layout with
+	 * @param poolBuilder descriptor pool builder to build all future pools in the builder with
 	 */
-	void create_descriptor_set_layout(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) {
-		m_layouts = m_layouts.create(layoutBuilder.build_create_info());
-		m_poolBuilder = m_poolBuilder.create(poolBuilder);
+	DescriptorSystem(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) : m_poolBuilder(poolBuilder) {
+		m_layout = DescriptorSetLayout(layoutBuilder.build_create_info());
 	}
-
-	NODISCARD DescriptorSet& get_unused_set(const size_t& layoutIndex);
+	DescriptorSystem(DescriptorSystem&&) = default;
+	DescriptorSystem& operator=(DescriptorSystem&&) = default;
+	
+	/**
+	 * @brief get an unused descriptor set
+	 * 
+	 * @return lyra::vulkan::DescriptorSystem::DescriptorSetResource
+	 */
+	NODISCARD DescriptorSetResource get_unused_set();
 
 	/**
 	 * @brief get the descriptor set layout
 	 * 
-	 * @return const lyra::vulkan::DescriptorSystem::DescriptorSetLayouts&
+	 * @return const lyra::vulkan::DescriptorSystem::DescriptorSetLayout&
 	 */
-	NODISCARD const DescriptorSetLayouts& layouts() const noexcept { return *m_layouts; }
+	NODISCARD constexpr const DescriptorSetLayout& layout() const noexcept { return m_layout; }
 	/**
 	 * @brief get the descriptor pools
 	 * 
-	 * @return const std::vector<lyra::vulkan::DescriptorSystem::DescriptorPool> 
+	 * @return const lyra::vulkan::DescriptorSystem::DescriptorPool&
 	 */
-	NODISCARD const std::vector<DescriptorPool> pools() const noexcept { return m_pools; }
-	/**
-	 * @brief get the descriptor sets
-	 * 
-	 * @return const Array<BasicPool<lyra::vulkan::DescriptorSystem::DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts>
-	 */
-	NODISCARD const Array<BasicPool<DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts> sets() const noexcept { return m_sets; }
-	/**
-	 * @brief get the descriptor sets
-	 * 
-	 * @param index index of the basic pool
-	 * 
-	 * @return const Array<BasicPool<lyra::vulkan::DescriptorSystem::DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts>
-	 */
-	NODISCARD const BasicPool<DescriptorSet> sets(const size_t& index) const noexcept { return m_sets[index]; }
+	NODISCARD constexpr const std::vector<DescriptorPool>& pools() const noexcept { return m_pools; }
 
 private:
-	SmartPointer<DescriptorSetLayouts> m_layouts;
+	DescriptorSetLayout m_layout;
 	std::vector<DescriptorPool> m_pools;
-	Array<BasicPool<DescriptorSet>, Settings::MemConfig::maxDescriptorSetLayouts> m_sets;
+	ResourcePool<DescriptorSet> m_sets;
 
-	SmartPointer<PoolBuilder> m_poolBuilder;
+	PoolBuilder m_poolBuilder;
 
 	/**
 	 * @brief create a descriptor pool and its respecting descriptor sets
-	 * 
-	 * @param layoutIndex index of the layout to create it's descriptor pools with
 	 */
-	void create_descriptor_pool(const uint32& layoutIndex);
+	void create_descriptor_pool();
 
 	friend class lyra::gui::GUIRenderer;
+	friend class Pipeline;	
 };
 
 } // namespace vulkan

@@ -68,12 +68,6 @@ public:
 		const Texture* const occlusionMapTexture = nullptr,
 		const uint8& occlusionMapValue = 0
 	);
-	/**
-	 * @brief destroy the material
-	 */
-	~Material() { 
-		for (uint32 i = 0; i < m_descriptorSets.size(); i++) m_descriptorSets[i]->recycle(); 
-	}
 
 	/**
 	 * @brief copy a material
@@ -95,7 +89,7 @@ public:
 	 *
 	 * @return const Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight>&
 	*/
-	NODISCARD const Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight>& descriptorSets() const noexcept { return m_descriptorSets; }
+	NODISCARD const Array<vulkan::DescriptorSystem::DescriptorSetResource, Settings::RenderConfig::maxFramesInFlight>& descriptorSets() const noexcept { return m_descriptorSets; }
 
 	Color albedoColor;
 	const Texture* albedoTexture;
@@ -125,7 +119,7 @@ private:
 
 	std::vector<MeshRenderer*> m_meshRenderers;
 
-	Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
+	Array<vulkan::DescriptorSystem::DescriptorSetResource, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
 	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_fragShaderBuffers;
 	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_vertShaderBuffers;
 

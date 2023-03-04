@@ -14,6 +14,8 @@
 #include <lyra.h>
 
 #include <core/array.h>
+#include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 #include <rendering/vulkan/descriptor.h>
 #include <rendering/vulkan/vulkan_image.h>
@@ -26,7 +28,7 @@
 namespace lyra {
 
 // cubemap base class
-class CubemapBase : private vulkan::Image, private vulkan::GPUMemory, public GraphicsPipeline {
+class CubemapBase : public vulkan::Image, public vulkan::GPUMemory, public GraphicsPipeline {
 public:	
 	CubemapBase(
 		const Array<const char*, 6>& paths,
@@ -50,7 +52,7 @@ public:
 	 * 
 	 * @param layout image layout
 	 * 
-	 * @return constexpr VkDescriptorImageInfo
+	 * @return VkDescriptorImageInfo
 	*/
 	NODISCARD constexpr VkDescriptorImageInfo get_descriptor_cubemap_info(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
 		return {
@@ -61,26 +63,14 @@ public:
 	}
 
 	/**
-	 * @brief get the image
-	 * 
-	 * @return constexpr VkImageView
-	*/
-	NODISCARD constexpr VkImageView view() const noexcept { return m_view; }
-	/**
 	 * @brief get the sampler
 	 * 
-	 * @return consexprt VkSampler
+	 * @return consexprt const lyra::vulkan::vk::Sampler&
 	*/
-	NODISCARD constexpr VkSampler sampler() const noexcept { return m_sampler; }
-	/**
-	 * @brief get the memory
-	 * 
-	 * @return constexpr VmaAllocation
-	*/
-	NODISCARD constexpr VmaAllocation memory() const noexcept { return m_memory; }
+	NODISCARD constexpr const vulkan::vk::Sampler& sampler() const noexcept { return m_sampler; }
 
 private:
-	VkSampler m_sampler;
+	vulkan::vk::Sampler m_sampler;
 
 	std::vector<vulkan::Descriptor> m_descriptorSets;
 	Mesh m_cubeMesh;

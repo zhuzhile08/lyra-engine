@@ -11,21 +11,19 @@
 namespace lyra {
 
 GraphicsPipeline::Builder::Builder(const Renderer* const renderer) : m_renderer(renderer) {
-	// temporary for mesh binding description
-	const auto meshBindingDescription = Mesh::Vertex::get_binding_description();
-
 	// setup the basic create info
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information
-		{ },
+		Mesh::Vertex::get_binding_description(),
+		Mesh::Vertex::get_attribute_descriptions(),
 		{	// describe how vertices are inputed into shaders
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 			nullptr,
 			0,
 			1,
-			&meshBindingDescription,
-			static_cast<uint32>(Mesh::Vertex::get_attribute_descriptions().size()),
-			Mesh::Vertex::get_attribute_descriptions().data()
+			&m_createInfo.meshBindingDescription,
+			static_cast<uint32>(m_createInfo.meshAttributeDescriptions.size()),
+			m_createInfo.meshAttributeDescriptions.data()
 		},
 		{	// describe how shaders are executed
 			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -125,31 +123,49 @@ GraphicsPipeline::Builder::Builder(const Renderer* const renderer) : m_renderer(
 	};
 }
 
-void GraphicsPipeline::Builder::create_shader_stages(const GraphicsPipeline& graphicsPipeline) {
-	// add all the shader stage creation information into a vector
-	std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
-	shaderStages.reserve(graphicsPipeline.shaders().size());
-	for (const auto& shader : graphicsPipeline.shaders()) shaderStages.push_back(shader.get_stage_create_info());
+void GraphicsPipeline::Builder::build_graphics_pipeline(GraphicsPipeline* const graphicsPipeline) const {
+	// first, create all the shader stages
+	// vector of shader stages
+	std::vector <VkPipelineShaderStageCreateInfo> shaderStages(graphicsPipeline->m_shaders.size());
+	// add the shader stages
+	for (const auto& shader : graphicsPipeline->m_shaders) {
+		shaderStages.push_back(shader.get_stage_create_info());
+	}
+	
+	// setup the pipeline creation information
+	VkGraphicsPipelineCreateInfo createInfo {
+		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
+		nullptr,
+		0,
+		static_cast<uint32>(shaderStages.size()),
+		shaderStages.data(),
+		&m_createInfo.vertexInputInfo,
+		&m_createInfo.inputAssembly,
+		&m_createInfo.tesselation,
+		&m_createInfo.viewportState,
+		&m_createInfo.rasterizer,
+		&m_createInfo.multisampling,
+		&m_createInfo.depthStencilState,
+		&m_createInfo.colorBlending,
+		&m_createInfo.dynamicState,
+		graphicsPipeline->layout(),
+		m_renderer->renderPass(),
+		0,
+		VK_NULL_HANDLE,
+		0
+	};
 
-	// set the shader stages in the create info
-	m_createInfo.shaderStages = shaderStages;
+	// at last, create the graphics pipeline
+	graphicsPipeline->m_pipeline = vulkan::vk::GraphicsPipeline(Application::renderSystem.device.device(), VK_NULL_HANDLE, createInfo, { });
 }
 
-GraphicsPipeline::GraphicsPipeline(Builder& builder) {
-	
+GraphicsPipeline::GraphicsPipeline(const Builder& builder) {
 	// define what type of pipeline this is
 	m_bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
 	// crate shaders
-	create_shaders(&builder);
-	builder.create_shader_stages(*this);
-	// create stuff relating to descriptors
-	create_descriptor_stuff(&builder); // yes, I know, very good naming
-	// create the pipeline layout
-	create_layout(&builder);
-
-	const auto createInfo = builder.build_pipeline_create_info(*this);
-	vassert(vkCreateGraphicsPipelines(Application::renderSystem.device.device(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pipeline), "create Vulkan pipeline");
+	builder.build_pipeline_base(this);
+	builder.build_graphics_pipeline(this);
 }
 
 } // namespace lyra

@@ -9,13 +9,6 @@ namespace lyra {
 
 namespace vulkan {
 
-Image::~Image() {
-	// destroy the image view
-	vkDestroyImageView(Application::renderSystem.device.device(), m_view, nullptr);
-	// destroy the image
-	vkDestroyImage(Application::renderSystem.device.device(), m_image, nullptr);
-}
-
 void Image::create_view(const VkFormat& format, const VkImageSubresourceRange& subresourceRange, const VkImageViewType& viewType, const VkComponentMapping& colorComponents) {
 	// image view creation info
 	VkImageViewCreateInfo createInfo{
@@ -30,7 +23,7 @@ void Image::create_view(const VkFormat& format, const VkImageSubresourceRange& s
 	};
 
 	// create the view
-	vassert(vkCreateImageView(Application::renderSystem.device.device(), &createInfo, nullptr, &m_view), "create Vulkan image views");
+	m_view = vk::ImageView(Application::renderSystem.device.device(), createInfo);
 }
 
 void Image::transition_layout(
@@ -87,20 +80,17 @@ void Image::transition_layout(
 	cmdBuff.reset();
 }
 
-VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling) const {
-	// check which tiling mode to use
-	VkImageTiling finalTilingMode = (tiling == VK_IMAGE_TILING_MAX_ENUM) ? m_tiling : tiling;
-
+VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling) {
 	// check which of the canditates is the best choice
 	for (uint32 i = 0; i < candidates.size(); i++) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), candidates.at(i), &props);
 
-		if (finalTilingMode == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
-		else if (finalTilingMode == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
 	}
 
-	log().exception("Failed to find supported format out of user defined formats for image at: ", get_address(this), "!");
+	log().exception("lyra::vulkan::Image::get_best_format(): Failed to find supported format out of user defined formats!");
 	// return error case
 	return VK_FORMAT_MAX_ENUM;
 }

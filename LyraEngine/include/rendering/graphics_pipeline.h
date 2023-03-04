@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 namespace lyra {
 
@@ -32,7 +33,8 @@ private:
 	 * @brief creation information of a pipeline
 	 */
 	struct GraphicsPipelineCreateInfo {
-		std::vector <VkPipelineShaderStageCreateInfo> shaderStages;
+		VkVertexInputBindingDescription meshBindingDescription;
+		Array<VkVertexInputAttributeDescription, 4> meshAttributeDescriptions;
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo;
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly;
 		VkPipelineTessellationStateCreateInfo tesselation;
@@ -157,41 +159,7 @@ public:
 		GraphicsPipelineCreateInfo m_createInfo;
 		const Renderer* const m_renderer;
 
-		/**
-		 * @brief create the shader stages of the create info
-		 */
-		void create_shader_stages(const GraphicsPipeline& graphicsPipeline);
-
-		/**
-		 * @brief build the actual pipeline creation information
-		 * 
-		 * @param graphicsPipeline pipeline the pipeline layout belongs to
-		 * 
-		 * @return VkGraphicsPipelineCreateInfo 
-		 */
-		VkGraphicsPipelineCreateInfo build_pipeline_create_info(const GraphicsPipeline& graphicsPipeline) const noexcept {
-			return {
-				VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
-				nullptr,
-				0,
-				static_cast<uint32>(m_createInfo.shaderStages.size()),
-				m_createInfo.shaderStages.data(),
-				&m_createInfo.vertexInputInfo,
-				&m_createInfo.inputAssembly,
-				&m_createInfo.tesselation,
-				&m_createInfo.viewportState,
-				&m_createInfo.rasterizer,
-				&m_createInfo.multisampling,
-				&m_createInfo.depthStencilState,
-				&m_createInfo.colorBlending,
-				&m_createInfo.dynamicState,
-				graphicsPipeline.layout(),
-				m_renderer->renderPass(),
-				0,
-				VK_NULL_HANDLE,
-				0
-			};
-		}
+		void build_graphics_pipeline(GraphicsPipeline* const graphicsPipeline) const;
 
 		friend class GraphicsPipeline;
 	};
@@ -201,7 +169,9 @@ public:
 	 * 
 	 * @param builder builder that contains the information to build the pipeline
 	 */
-	GraphicsPipeline(Builder& builder);
+	GraphicsPipeline(const Builder& builder);
+
+	friend class Builder;
 };
 
 } // namespace lyra

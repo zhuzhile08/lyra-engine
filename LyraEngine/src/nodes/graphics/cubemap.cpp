@@ -141,7 +141,7 @@ CubemapBase::CubemapBase(
 			VK_FALSE
 		};
 
-		vassert(vkCreateSampler(Application::renderSystem.device.device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
+		m_sampler = vulkan::vk::Sampler(Application::renderSystem.device.device(), samplerInfo);
 	}
 
 	{ // next, create the descriptors

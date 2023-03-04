@@ -24,7 +24,7 @@ namespace vulkan {
 /**
  * @brief wrapper around the Vulkan buffer
  */
-class GPUBuffer : private GPUMemory {
+class GPUBuffer : public GPUMemory {
 public:
 	/**
 	 * @brief create the buffer
@@ -34,13 +34,6 @@ public:
 	 * @param memUsage way to use the memory
 	 */
 	GPUBuffer(const VkDeviceSize& size, const VkBufferUsageFlags& bufferUsage, const VmaMemoryUsage& memUsage);
-
-	/**
-	 * @brief destructor of the buffer
-	 */
-	virtual ~GPUBuffer() noexcept;
-
-	GPUBuffer operator=(const GPUBuffer&) const noexcept = delete;
 
 	/**
 	 * @brief copy a buffer to another
@@ -112,15 +105,9 @@ public:
 	/**
 	 * @brief get the buffer
 	 * 
-	 * @return constexpr VkBuffer
+	 * @return constexpr lyra::vulkan::vk::Buffer&
 	*/
-	NODISCARD constexpr VkBuffer buffer() const noexcept { return m_buffer; }
-	/**
-	 * @brief get the memory
-	 * 
-	 * @return constexpr VmaAllocation
-	*/
-	NODISCARD constexpr VmaAllocation memory() const noexcept { return m_memory; };
+	NODISCARD constexpr const vk::Buffer& buffer() const noexcept { return m_buffer; }
 	/**
 	 * @brief get the size of the buffer
 	 * 
@@ -129,7 +116,7 @@ public:
 	NODISCARD constexpr VkDeviceSize size() const noexcept { return m_size; };
 
 private:
-	VkBuffer m_buffer;
+	vk::Buffer m_buffer;
 	VkDeviceSize m_size = 0;
 };
 

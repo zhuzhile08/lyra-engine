@@ -26,18 +26,28 @@ namespace vulkan {
  * @brief wrapper around vulkan images
  */
 struct Image {
+	virtual ~Image() = default;
+
 	/**
-	* @brief destructor of the image
-	**/
-	virtual ~Image();
+	 * @brief get the image view
+	 * 
+	 * @return constexpr const lyra::vulkan::vk::Image&
+	*/
+	NODISCARD constexpr const vk::Image& image() const noexcept { return m_image; }
 	/**
-	 * @brief destroy the image
+	 * @brief get the image view
+	 * 
+	 * @return constexpr const lyra::vulkan::vk::ImageView&
+	*/
+	NODISCARD constexpr const vk::ImageView& view() const noexcept { return m_view; }
+
+protected:
+	/**
+	 * @brief destroy the image explicitly
 	 */
 	void destroy() {
 		this->~Image();
 	}
-
-	Image operator=(const Image&) const noexcept = delete;
 
 	/**
 	 * @brief create the image and image view
@@ -101,6 +111,32 @@ struct Image {
 	);
 
 	/**
+	 * @brief transition the image layout to an another one
+	 * 
+	 * @param oldLayout old layout
+	 * @param newLayout new layout
+	 * @param format format of the image
+	 * @param subresourceRange some data about the image
+	*/
+	void transition_layout(
+		const VkImageLayout& oldLayout,
+		const VkImageLayout& newLayout,
+		const VkFormat& format,
+		const VkImageSubresourceRange& subresourceRange
+	) const;
+	
+	/**
+	 * @brief get the best format out of a vector of requested ones for a certain situation
+	 *
+	 * @param candidates all candidates
+	 * @param features what type the image is
+	 * @param tiling tiling mode of the image
+	 *
+	 * @return VkFormat
+	*/
+	NODISCARD VkFormat static get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling);
+
+	/**
 	 * @brief return a memory barrier for this image
 	 *
 	 * @param srcAccessMask the original accessability for the image
@@ -137,33 +173,6 @@ struct Image {
 	}
 
 	/**
-	 * @brief transition the image layout to an another one
-	 * 
-	 * @param oldLayout old layout
-	 * @param newLayout new layout
-	 * @param format format of the image
-	 * @param subresourceRange some data about the image
-	*/
-	void transition_layout(
-		const VkImageLayout& oldLayout,
-		const VkImageLayout& newLayout,
-		const VkFormat& format,
-		const VkImageSubresourceRange& subresourceRange
-	) const;
-	
-
-	/**
-	 * @brief get the best format out of a vector of requested ones for a certain situation
-	 *
-	 * @param candidates all candidates
-	 * @param features what type the image is
-	 * @param tiling tiling mode of the image
-	 *
-	 * @return VkFormat
-	*/
-	NODISCARD VkFormat get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling = VK_IMAGE_TILING_MAX_ENUM) const;
-
-	/**
 	 * @brief copy the contents of a buffer into the image
 	 * 
 	 * @param stagingBuffer staging buffer containing the data
@@ -172,11 +181,13 @@ struct Image {
 	 */
 	void copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExtent3D& extent, const uint32 layerCount = 1);
 
-	VkImage m_image;
-	VkImageView m_view;
+	vk::Image m_image;
+	vk::ImageView m_view;
 
 private:
 	VkImageTiling m_tiling = VK_IMAGE_TILING_MAX_ENUM;
+
+	friend class Window;
 };
 
 } // namespace vulkan

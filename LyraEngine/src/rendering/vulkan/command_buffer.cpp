@@ -18,12 +18,7 @@ CommandPool::CommandPool() {
 		Application::renderSystem.device.graphicsQueue().familyIndex
 	};
 
-	vassert(vkCreateCommandPool(Application::renderSystem.device.device(), &createInfo, nullptr, &m_commandPool), "create Vulkan command pool");
-}
-
-// command pool
-CommandPool::~CommandPool() noexcept {
-	vkDestroyCommandPool(Application::renderSystem.device.device(), m_commandPool, nullptr);
+	m_commandPool = vk::CommandPool(Application::renderSystem.device.device(), createInfo);
 }
 
 void CommandPool::reset() {
@@ -31,22 +26,25 @@ void CommandPool::reset() {
 }
 
 // command buffer
-CommandBuffer::CommandBuffer(const Usage& usage, const VkCommandBufferLevel& level) : m_usage(usage), m_commandPool(Application::renderSystem.commandPools[static_cast<uint32>(usage)]) {
+CommandBuffer::CommandBuffer(const Usage& usage, const VkCommandBufferLevel& level) : 
+	m_usage(usage), 
+	m_commandPool(Application::renderSystem.commandPools[static_cast<uint32>(usage)].commandPool()),
+	m_device(Application::renderSystem.device.device()) {
 	// locate the memory
 	VkCommandBufferAllocateInfo allocInfo{
 		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		nullptr,
-		m_commandPool.commandPool(),
+		m_commandPool,
 		level,
 		1
 	};
 
 	// create the command buffers
-	vassert(vkAllocateCommandBuffers(Application::renderSystem.device.device(), &allocInfo, &m_commandBuffer), "create Vulkan command buffer");
+	vassert(vkAllocateCommandBuffers(m_device, &allocInfo, &m_commandBuffer), "create Vulkan command buffer");
 }
 
 CommandBuffer::~CommandBuffer() {
-	Application::renderSystem.device.freeCommandBuffer(m_commandPool.commandPool(), m_commandBuffer);
+	vkFreeCommandBuffers(m_device, m_commandPool, 1, &m_commandBuffer);
 }
 
 void CommandBuffer::begin() const {

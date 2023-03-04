@@ -13,8 +13,10 @@
 
 #include <lyra.h>
 
+#include <algorithm>
 #include <unordered_map>
 #include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 namespace lyra {
 
@@ -27,12 +29,7 @@ class CommandPool {
 public:
 	CommandPool();
 
-	/**
-	* @brief destructor of the command pool
-	**/
-	virtual ~CommandPool() noexcept;
-
-	CommandPool operator=(const CommandPool&) const noexcept = delete;
+	virtual ~CommandPool() = default;
 
 	/**
 	 * @brief reset the command buffer
@@ -42,12 +39,12 @@ public:
 	/**
 	 * @brief get the command pool
 	 *
-	 * @return constexpr const VkCommandPool&
+	 * @return constexpr const lyra::vulkan::vk::CommandPool&
 	 */
-	NODISCARD constexpr const VkCommandPool& commandPool() const noexcept { return m_commandPool; }
+	NODISCARD constexpr const vk::CommandPool& commandPool() const noexcept { return m_commandPool; }
 
 private:
-	VkCommandPool m_commandPool;
+	vk::CommandPool m_commandPool;
 };
 
 class CommandBuffer {
@@ -60,6 +57,7 @@ public:
 		USAGE_SIMULTANIOUS = 0x00000004
 	};
 
+	CommandBuffer() = default;
 	/**
 	 * @brief construct the command buffer wrapper
 	 *
@@ -67,11 +65,33 @@ public:
 	 */
 	CommandBuffer(const Usage& usage = Usage::USAGE_RENDERING_DEFAULT, const VkCommandBufferLevel& level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 	/**
-	 * @brief destructor of the command buffer
+	 * @brief construct the command buffer wrapper
+	 * 
+	 * @param movable command buffer to construct from
 	 */
-	virtual ~CommandBuffer();
-	
-	CommandBuffer operator=(const CommandBuffer& commandBuffer) const noexcept = delete;
+	CommandBuffer(CommandBuffer&& movable) : 
+		m_commandBuffer(std::exchange(movable.m_commandBuffer, VkCommandBuffer { } )), 
+		m_commandPool(std::exchange(movable.m_commandPool, VkCommandPool { } )),
+		m_device(std::exchange(movable.m_device, VkDevice { } )) { }
+	/**
+	 * @brief free the memory of the commandBuffer
+	 */
+	~CommandBuffer();
+
+	/**
+	 * @brief move assignment operator
+	 * 
+	 * @param container other container
+	 * @return lyra::vulkan::CommandBuffer& 
+	 */
+	CommandBuffer& operator=(CommandBuffer&& movable) {
+		if (&movable != this) {
+            m_commandBuffer = std::exchange(movable.m_commandBuffer, VkCommandBuffer { } );
+			m_commandPool = std::exchange(movable.m_commandPool, VkCommandPool { } );
+			m_device = std::exchange(movable.m_device, VkDevice { } );
+        }
+		return *this;
+	}
 
 	/**
 	 * @brief wrappers around the core Vulkan API command functions
@@ -371,9 +391,10 @@ public:
 
 private:
 	Usage m_usage;
-	VkCommandBuffer m_commandBuffer;
 
-	const CommandPool& m_commandPool;
+	VkCommandBuffer m_commandBuffer;
+	VkCommandPool m_commandPool;
+	VkDevice m_device;
 };
 
 } // namespace vulkan

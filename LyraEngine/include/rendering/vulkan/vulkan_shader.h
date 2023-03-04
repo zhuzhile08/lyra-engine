@@ -14,6 +14,7 @@
 #include <lyra.h>
 
 #include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 namespace lyra {
 
@@ -67,19 +68,13 @@ public:
 	 * @param type type of the shader
 	 */
 	Shader(const char* path, const char* entry, const Type& type);
-	/**
-	* @brief destructor of the shader
-	**/
-	virtual ~Shader();
-
-	Shader operator=(const Shader&) const noexcept = delete;
 
 	/**
 	 * @brief get the shader loading information
 	 *
-	 * @return constexpr const VkPipelineShaderStageCreateInfo
+	 * @return constexpr VkPipelineShaderStageCreateInfo
 	*/
-	NODISCARD constexpr const VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
+	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
@@ -94,9 +89,9 @@ public:
 	/**
 	 * @brief get the shader module
 	 * 
-	 * @return constexpr const VkShaderModule&
+	 * @return constexpr const lyra::vulkan::vk::ShaderModule&
 	*/
-	NODISCARD constexpr const VkShaderModule& module() const noexcept { return m_module; }
+	NODISCARD constexpr const vk::ShaderModule& module() const noexcept { return m_module; }
 	/**
 	 * @brief get the entry point of the shader
 	 * 
@@ -105,7 +100,7 @@ public:
 	NODISCARD constexpr const char* entry() const noexcept { return m_entry; }
 
 private:
-	VkShaderModule m_module;
+	vk::ShaderModule m_module;
 	Type m_type;
 	const char* m_entry;
 };

@@ -29,7 +29,7 @@
 namespace lyra {
 
 // Textures and images
-class Texture : private vulkan::Image, private vulkan::GPUMemory {
+class Texture : public vulkan::Image, public vulkan::GPUMemory {
 public:
 	// type of the image
 	enum Type : unsigned int {
@@ -90,18 +90,11 @@ public:
 	Texture(const util::ImageData& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
-	 * @brief destructor of the texture
-	 */
-	virtual ~Texture() noexcept;
-
-	Texture operator=(const Texture&) const noexcept = delete;
-
-	/**
 	 * @brief get the information to bind to a descriptor
 	 * 
 	 * @param layout image layout
 	 * 
-	 * @return constexpr VkDescriptorImageInfo
+	 * @return VkDescriptorImageInfo
 	*/
 	NODISCARD constexpr VkDescriptorImageInfo get_descriptor_image_info(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
 		return {
@@ -112,32 +105,20 @@ public:
 	}
 
 	/**
-	 * @brief get the image
-	 * 
-	 * @return constexpr VkImageView
-	*/
-	NODISCARD constexpr VkImageView view() const noexcept { return m_view; }
-	/**
 	 * @brief get the sampler
 	 * 
-	 * @return consexprt VkSampler
+	 * @return const lyra::vulkan::vk::Sampler&
 	*/
-	NODISCARD constexpr VkSampler sampler() const noexcept { return m_sampler; }
-	/**
-	 * @brief get the memory
-	 * 
-	 * @return constexpr VmaAllocation
-	*/
-	NODISCARD constexpr VmaAllocation memory() const noexcept { return m_memory; }
+	NODISCARD constexpr const vulkan::vk::Sampler& sampler() const noexcept { return m_sampler; }
 	/**
 	* @brief get the path of the image
 	* 
-	* @return constexpr const char*
+	* @return const char*
 	**/
 	NODISCARD constexpr const char* path() const noexcept { return m_path; }
 
 private:
-	VkSampler m_sampler;
+	vulkan::vk::Sampler m_sampler;
 	uint32 m_width;
 	uint32 m_height;
 	uint32 m_mipmap;

@@ -17,6 +17,7 @@
 
 #include <core/dynarray.h>
 #include <vulkan/vulkan.h>
+#include <rendering/vulkan/vulkan_raii.h>
 
 #include <core/queue.h>
 
@@ -28,27 +29,23 @@ namespace lyra {
 class Renderer {
 public:
 	Renderer();
-	/**
-	 * @brief destructor of the renderer
-	 */
-	virtual ~Renderer();
 
 	/**
 	 * @brief get the render pass
 	 *
-	 * @return constexpr const VkRenderPass&
+	 * @return constexpr const lyra::vulkan::vk::RenderPass&
 	*/
-	NODISCARD constexpr const VkRenderPass& renderPass() const noexcept { return m_renderPass; }
+	NODISCARD constexpr const vulkan::vk::RenderPass& renderPass() const noexcept { return m_renderPass; }
 	/**
 	 * @brief get the framebuffers
 	 *
-	 * @return const Dynarray <VkFramebuffers, Settings::RenderConfig::maxSwapchainImages>&
+	 * @return const lyra::Dynarray<lyra::vulkan::vk::Framebuffer, lyra::Settings::RenderConfig::maxSwapchainImages>&
 	*/
-	NODISCARD const Dynarray <VkFramebuffer, Settings::RenderConfig::maxSwapchainImages>& framebuffers() const noexcept { return m_framebuffers; }
+	NODISCARD constexpr const lyra::Dynarray<lyra::vulkan::vk::Framebuffer, Settings::RenderConfig::maxSwapchainImages>& framebuffers() const noexcept { return m_framebuffers; }
 
 protected:
-	VkRenderPass m_renderPass;
-	Dynarray <VkFramebuffer, Settings::RenderConfig::maxSwapchainImages> m_framebuffers;
+	vulkan::vk::RenderPass m_renderPass;
+	Dynarray <vulkan::vk::Framebuffer, Settings::RenderConfig::maxSwapchainImages> m_framebuffers;
 
 	CallQueue m_updateQueue;
 

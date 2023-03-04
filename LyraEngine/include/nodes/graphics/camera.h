@@ -78,13 +78,6 @@ public:
 		const Transform& transform = Transform()
 	);
 
-	/**
-	 * @brief destroy the camera object
-	 */
-	~Camera() { 
-		for (uint32 i = 0; i < m_descriptorSets.size(); i++) m_descriptorSets[i]->recycle();
-	}
-
 	Camera operator=(const Camera&) const noexcept = delete;
 
 	/**
@@ -136,7 +129,7 @@ public:
 private:
 	std::vector<Material*> m_materials;
 	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_buffers;
-	Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
+	Array<vulkan::DescriptorSystem::DescriptorSetResource, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
 	SmartPointer<GraphicsPipeline> m_renderPipeline;  
 	Skybox* m_skybox;
 

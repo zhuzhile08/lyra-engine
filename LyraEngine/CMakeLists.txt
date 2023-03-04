@@ -51,7 +51,6 @@ add_library(LyraEngine
 	"src/rendering/vulkan/descriptor.cpp"
 	"src/rendering/vulkan/devices.cpp"
 	"src/rendering/vulkan/GPU_buffer.cpp"
-	"src/rendering/vulkan/GPU_memory.cpp"
 	"src/rendering/vulkan/vulkan_image.cpp"
 	"src/rendering/vulkan/vulkan_pipeline.cpp"
 	"src/rendering/vulkan/vulkan_shader.cpp"

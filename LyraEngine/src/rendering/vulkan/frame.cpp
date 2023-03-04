@@ -6,12 +6,6 @@ namespace lyra {
 
 namespace vulkan {
 
-Frame::~Frame() {
-	vkDestroySemaphore(Application::renderSystem.device.device(), m_renderFinishedSemaphore, nullptr);
-	vkDestroySemaphore(Application::renderSystem.device.device(), m_imageAvailableSemaphore, nullptr);
-	vkDestroyFence(Application::renderSystem.device.device(), m_inFlightFence, nullptr);
-}
-
 void Frame::wait() const {
 	vassert(Application::renderSystem.device.waitForFence(m_inFlightFence, VK_TRUE, UINT64_MAX), "wait for Vulkan fences to finish");
 }
@@ -28,10 +22,8 @@ void Frame::create_sync_objects() {
 	};
 
 	// create both semaphores
-	vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_imageAvailableSemaphore),
-		"create Vulkan Synchronization Objects");
-	vassert(vkCreateSemaphore(Application::renderSystem.device.device(), &semaphoreInfo, nullptr, &m_renderFinishedSemaphore),
-		"create Vulkan Synchronization Objects");
+	m_imageAvailableSemaphore = vk::Semaphore(Application::renderSystem.device.device(), semaphoreInfo);
+	m_renderFinishedSemaphore = vk::Semaphore(Application::renderSystem.device.device(), semaphoreInfo);
 
 	// fence create info
 	VkFenceCreateInfo fenceInfo{
@@ -41,8 +33,7 @@ void Frame::create_sync_objects() {
 	};
 
 	// create the fence
-	vassert(vkCreateFence(Application::renderSystem.device.device(), &fenceInfo, nullptr, &m_inFlightFence),
-		"create Vulkan Synchronization Objects");
+	m_inFlightFence = vk::Fence(Application::renderSystem.device.device(), fenceInfo);
 }
 
 void Frame::recreate() {

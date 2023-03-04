@@ -19,7 +19,9 @@ Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
 		VkExtent3D imageExtent = { m_width, m_height, 1 };
 
 		// create the image and allocate its memory
-		vassert(Application::renderSystem.device.createImage(
+		m_image = vulkan::vk::Image(
+			Application::renderSystem.device.device(),
+			Application::renderSystem.device.allocator(),
 			get_image_create_info(
 				format, 
 				imageExtent,
@@ -28,9 +30,8 @@ Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
 				static_cast<VkImageType>(imageData.dimension)
 			),
 			get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
-			m_image, 
 			m_memory
-		), std::string(std::string("load image from path: ") + m_path));
+		);
 
 		// convert the image layout and copy it from the buffer
 		transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
@@ -43,10 +44,6 @@ Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
 	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(imageData.dimension));
 	// finally create the image sampler
 	create_sampler(imageData);
-}
-
-Texture::~Texture() noexcept {
-	vkDestroySampler(Application::renderSystem.device.device(), m_sampler, nullptr);
 }
 
 void Texture::create_sampler(const util::ImageData& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
@@ -74,7 +71,7 @@ void Texture::create_sampler(const util::ImageData& imageData, const VkFilter& m
 		VK_FALSE
 	};
 
-	vassert(vkCreateSampler(Application::renderSystem.device.device(), &samplerInfo, nullptr, &m_sampler), "create Vulkan image sampler!");
+	m_sampler = vulkan::vk::Sampler(Application::renderSystem.device.device(), samplerInfo);
 }
 
 void Texture::generate_mipmaps() const {
