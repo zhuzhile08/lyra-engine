@@ -24,37 +24,85 @@ namespace lyra {
  */
 template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
-	constexpr SmartPointer() = default;
+	typedef Ty value_type;
+	typedef Ty* pointer_type;
+	typedef DTy deleter_type;
+	typedef SmartPointer wrapper_type;
 
+	constexpr SmartPointer() = default;
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param pointer raw pointer
 	 */
-	constexpr SmartPointer(Ty* pointer) : m_pointer(pointer) { }
+	constexpr SmartPointer(pointer_type pointer) : m_pointer(pointer) { }
+	/**
+	 * @brief construct the smart pointer
+	 *
+	 * @param pointer raw pointer
+	 * @param deleter deleter function
+	 */
+	constexpr SmartPointer(pointer_type pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
+	/**
+	 * @brief construct the smart pointer
+	 *
+	 * @param pointer raw pointer
+	 * @param deleter deleter function
+	 */
+	constexpr SmartPointer(pointer_type pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param right pointer to copy from
 	 */
-	constexpr SmartPointer(SmartPointer<Ty, DTy>&& right) : m_pointer(right.release()), m_deleter(right.deleter()) {}
+	constexpr SmartPointer(SmartPointer<value_type, deleter_type>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	/**
+	 * @brief construct the smart pointer
+	 *
+	 * @param right pointer to copy from
+	 */
+	template <class P, class D> constexpr SmartPointer(SmartPointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 
 	/**
 	 * @brief destructor of the pointer
 	 */
-	inline ~SmartPointer() noexcept {
+	~SmartPointer() noexcept {
 		if (m_pointer) m_deleter(m_pointer);
 	}
 
 	/**
-	 * @brief copy the pointer from a rvalue reference with deleter
+	 * @brief copy the pointer from another smart pointer with same deleter
 	 *
 	 * @param right pointer to copy from
 	 *
-	 * @return SmartPointer<Ty>&
+	 * @return lyra::SmartPointer&
 	 */
-	inline SmartPointer<Ty, DTy>& operator=(SmartPointer<Ty, DTy>&& right) {
+	SmartPointer& operator=(SmartPointer&& right) {
 		assign(right.release());
+		m_deleter = std::forward<deleter_type>(right.m_deleter);
+		return *this;
+	}
+	/**
+	 * @brief copy the pointer from another smart pointer with same deleter
+	 *
+	 * @param right pointer to copy from
+	 *
+	 * @return lyra::SmartPointer&
+	 */
+	SmartPointer& operator=(SmartPointer& right) {
+		assign(right.release());
+		m_deleter = std::forward<deleter_type>(right.m_deleter);
+		return *this;
+	}
+	/**
+	 * @brief copy the pointer from a raw pointer
+	 *
+	 * @param right pointer to copy from
+	 *
+	 * @return lyra::SmartPointer&
+	 */
+	SmartPointer<value_type, deleter_type>& operator=(pointer_type right) {
+		assign(right);
 		return *this;
 	}
 
@@ -65,62 +113,62 @@ public:
 	 *
 	 * @param args arguments to construct the type
 	 *
-	 * @return SmartPointer<Ty>
+	 * @return lyra::SmartPointer
 	 */
-	template <class ... Args> NODISCARD static SmartPointer<Ty> create(Args&&... args) {
-		return SmartPointer<Ty>(new Ty(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static SmartPointer<value_type> create(Args&&... args) {
+		return SmartPointer<value_type>(new value_type(std::forward<Args>(args)...));
 	}
 
 	/**
 	 * @brief access the internal pointer
 	 *
-	 * @return Ty*
+	 * @return lyra::SmartPointer::pointer_type
 	 */
-	constexpr inline Ty* operator->() const noexcept {
+	constexpr pointer_type operator->() const noexcept {
 		return m_pointer;
 	}
 	/**
 	 * @brief dereference the internal pointer and return the value
 	 *
-	 * @return Ty&
+	 * @return lyra::SmartPointer::value_type&
 	 */
-	constexpr inline Ty& operator*() const noexcept {
+	constexpr value_type& operator*() const noexcept {
 		return *m_pointer;
 	}
 
 	/**
 	 * @brief return a smart pointer of a type which the internal pointer can cast to
 	 * 
-	 * @tparam _BTy castable type
+	 * @tparam P castable type
 	 * 
-	 * @return SmartPointer<BTy> 
+	 * @return SmartPointer<P> 
 	 */
-	template <class CTy> constexpr inline operator SmartPointer<CTy>() const noexcept {
-		return SmartPointer<CTy>(m_pointer);
+	template <class P> constexpr operator SmartPointer<P>() const noexcept {
+		return SmartPointer<P>(m_pointer);
 	}
 
 	/**
 	 * @brief get the internal raw pointer
 	 *
-	 * @return constexpr Ty*
+	 * @return constexpr lyra::SmartPointer::pointer_type
 	 */
-	NODISCARD constexpr inline Ty* get() const noexcept {
+	NODISCARD constexpr pointer_type get() const noexcept {
 		return m_pointer;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return constexpr _DTy& 
+	 * @return constexpr lyra::SmartPointer::deleter_type& 
 	 */
-	NODISCARD constexpr inline const DTy& deleter() const noexcept {
+	NODISCARD constexpr const deleter_type& deleter() const noexcept {
 		return m_deleter;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return constexpr _DTy&
+	 * @return constexpr lyra::SmartPointer::deleter_type&
 	 */
-	NODISCARD constexpr inline DTy& deleter() noexcept {
+	NODISCARD constexpr deleter_type& deleter() noexcept {
 		return m_deleter;
 	}
 
@@ -129,7 +177,7 @@ public:
 	 *
 	 * @return constexpr bool
 	 */
-	NODISCARD constexpr inline const bool empty() const noexcept {
+	NODISCARD constexpr const bool empty() const noexcept {
 		return m_pointer == nullptr;
 	}
 	/**
@@ -137,51 +185,83 @@ public:
 	 * 
 	 * @return constexpr bool
 	 */
-	constexpr inline operator bool() const noexcept {
+	constexpr operator bool() const noexcept {
 		return m_pointer != nullptr;
 	}
 
 	/**
 	 * @brief release a pointer to the internal raw pointer and reset it
 	 *
-	 * @return constexpr Ty*
+	 * @return constexpr lyra::SmartPointer::pointer_type
 	 */
-	NODISCARD constexpr inline Ty* release() noexcept {
+	NODISCARD constexpr pointer_type release() noexcept {
 		return std::exchange(m_pointer, nullptr);
+	}
+
+	/**
+	 * @brief swap the internal variables of the pointer with the ones of another
+	 *
+	 * @param second pointer to swap with
+	 */
+	void swap(SmartPointer<value_type>& second) {
+		std::swap(m_pointer, second.m_pointer);
 	}
 	/**
 	 * @brief swap the internal variables of the pointer with the ones of another
 	 *
 	 * @param second pointer to swap with
 	 */
-	inline void swap(SmartPointer<Ty>& second) {
-		std::swap(m_pointer, second.m_pointer);
+	void swap(SmartPointer<value_type>&& second) {
+		std::swap(m_pointer, std::move(second.m_pointer));
+	}
+	/**
+	 * @brief swap the internal variables of the pointer with the ones of another
+	 *
+	 * @param second pointer to swap with
+	 */
+	void swap(pointer_type& second) {
+		std::swap(m_pointer, second);
+	}
+	/**
+	 * @brief swap the internal variables of the pointer with the ones of another
+	 *
+	 * @param second pointer to swap with
+	 */
+	void swap(pointer_type&& second) {
+		std::swap(m_pointer, std::move(second));
+	}
+
+	/**
+	 * @brief assign the internal raw pointer to another raw pointer
+	 *
+	 * @param ptr pointer
+	 */
+	void assign(pointer_type& ptr = nullptr) noexcept {
+		pointer_type old = std::exchange(m_pointer, ptr);
+		if (old) m_deleter(old);
 	}
 	/**
 	 * @brief assign the internal raw pointer to another raw pointer
 	 *
 	 * @param ptr pointer
 	 */
-	inline void assign(Ty* ptr = nullptr) noexcept {
-		Ty* old = std::exchange(m_pointer, ptr);
-		if (old) m_deleter(old);
+	void assign(pointer_type&& ptr) noexcept {
+		pointer_type old = std::exchange(m_pointer, std::move(ptr));
+		if (old) m_deleter(std::move(old));
 	}
 
 	/**
 	 * @brief cast the type to its internal pointer
 	 * 
-	 * @return constexpr Ty*
+	 * @return constexpr lyra::SmartPointer::pointer_type
 	 */
-	constexpr inline operator Ty* () const noexcept {
+	constexpr operator pointer_type () const noexcept {
 		return m_pointer;
 	}
 
-	SmartPointer(const SmartPointer&) = delete;
-	SmartPointer& operator=(const SmartPointer&) = delete;
-
 private:
-	Ty* m_pointer = nullptr;
-	DTy m_deleter;
+	pointer_type m_pointer = nullptr;
+	deleter_type m_deleter;
 
 	template <class, class>
 	friend class SmartPointer;
