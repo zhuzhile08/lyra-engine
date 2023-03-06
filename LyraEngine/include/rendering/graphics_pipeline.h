@@ -62,7 +62,7 @@ public:
 		};
 
 		// color blending for the brits out there
-		typedef ColorBlending Colourblending;
+		using Colourblending = ColorBlending;
 
 		// tessellation mode
 		enum class Tessellation {
