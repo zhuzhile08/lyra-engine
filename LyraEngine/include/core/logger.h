@@ -105,7 +105,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> void log(Args... message) {
+	template <typename ... Args> constexpr void log(Args... message) {
 #ifndef NDEBUG
 		// print the message
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -121,7 +121,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> void debug(Args... message) {
+	template <typename ... Args> constexpr void debug(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::GRY);
@@ -143,7 +143,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> void info(Args... message) {
+	template <typename ... Args> constexpr void info(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::GRN);
@@ -165,7 +165,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> void warning(Args... message) {
+	template <typename ... Args> constexpr void warning(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
 		ANSI(Font::NON, Color::YEL);
@@ -187,7 +187,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> void error(Args... message) {
+	template <typename ... Args> constexpr void error(Args... message) {
 		// set the color and font of the message
 		ANSI(Font::NON, Color::RED);
 		// print the message
@@ -207,7 +207,7 @@ public:
 	 * @tparam ...Args types to print
 	 * @param ...message messages
 	*/
-	template <typename ... Args> void exception(Args... message) {
+	template <typename ... Args> constexpr void exception(Args... message) {
 		// set the color and font of the message
 		ANSI(Font::BLD, Color::RED);
 		// print the message
@@ -266,7 +266,7 @@ Logger& log();
  * @param condition condition to check if false
  * @param message exception message
  */
-template <typename ... Args> void lassert(bool condition, Args... message) {
+template <typename ... Args> constexpr void lassert(bool condition, Args... message) {
 	if (!condition) (log().exception(message), ...);
 }
 /**
@@ -276,7 +276,7 @@ template <typename ... Args> void lassert(bool condition, Args... message) {
  * @param function Vulkan function to check
  * @param purpose Purpose of the function
  */
-template <typename Arg> void vassert(VkResult function, Arg purpose) {
+template <typename Arg> constexpr void vassert(VkResult function, Arg purpose) {
 	if (function != VkResult::VK_SUCCESS) (log().exception("Vulkan Esception: Failed to ", purpose, " with error code: ", function, "!"));
 }
 
