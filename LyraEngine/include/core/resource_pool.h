@@ -16,6 +16,7 @@
 #include <deque>
 #include <core/smart_pointer.h>
 #include <core/function_pointer.h>
+#include <core/iterator_base.h>
 
 #define NODISCARD [[nodiscard]]
 #define DEPRECATED [[deprecated]]
@@ -29,18 +30,20 @@ namespace lyra {
  */
 template <class Ty> class ResourcePool {
 public:
-	typedef Ty value_type;
-	typedef const value_type const_value_type;
-	typedef size_t size_type;
-	typedef const size_type& index_type;
-	typedef value_type& reference;
-	typedef const value_type& const_reference;
-	typedef value_type* pointer;
-	typedef const value_type* const_pointer;
-	typedef value_type&& movable;
-	typedef ResourcePool<value_type> pool_type;
-	typedef SmartPointer<value_type> smart_pointer_type;
-	typedef std::deque<smart_pointer_type> deque_type;
+	using value_type = Ty;
+	using const_value_type = const value_type;
+	using size_type = size_t;
+	using index_type = const size_type&;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using pointer = value_type*;
+	using const_pointer = const value_type*;
+	using movable = value_type&&;
+	using pool_type = ResourcePool<value_type>;
+	using smart_pointer_type = SmartPointer<value_type>;
+	using deque_type = std::deque<smart_pointer_type>;
+	using iterator_type = typename deque_type::iterator;
+	using const_iterator_type = typename deque_type::const_iterator;
 
 	// a callable to handle returning a resource, used as deleter for the resource container
 	class ResourceReturner {
@@ -63,14 +66,13 @@ public:
 		};
 	};
 
-	typedef SmartPointer<value_type, ResourceReturner> resource_container_type;
-
+	using resource_container_type = SmartPointer<value_type, ResourceReturner>;
 
 	/**
 	 * @brief get an element of the array
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::reference 
+	 * @return constexpr lyra::ResourcePool::reference 
 	 */
 	NODISCARD constexpr reference operator[](index_type index) noexcept {
 		return *m_resources[index];
@@ -79,7 +81,7 @@ public:
 	 * @brief get an element of the array
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::const_reference 
+	 * @return constexpr lyra::ResourcePool::const_reference 
 	 */
 	NODISCARD constexpr const_reference operator[](index_type index) const noexcept {
 		return *m_resources[index];
@@ -88,7 +90,7 @@ public:
 	 * @brief get an element of the array with no UB posibility
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::reference 
+	 * @return constexpr lyra::ResourcePool::reference 
 	 */
 	DEPRECATED NODISCARD constexpr reference at(index_type index) noexcept {
 		return *m_resources.at(index);
@@ -97,42 +99,74 @@ public:
 	 * @brief get an element of the array with no UB posibility
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::Dynarray::reference 
+	 * @return constexpr lyra::ResourcePool::reference 
 	 */
 	DEPRECATED NODISCARD constexpr const_reference at(index_type index) const noexcept {
 		return *m_resources.at(index);
 	}
 	/**
-	 * @brief get an element of the array
+	 * @brief get the front element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::reference 
+	 * @return constexpr lyra::ResourcePool::reference
 	 */
 	NODISCARD constexpr reference front() {
 		return *m_resources.front();
 	}
 	/**
-	 * @brief get an element of the array
+	 * @brief get the front element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::const_reference 
+	 * @return constexpr lyra::ResourcePool::const_reference
 	 */
 	NODISCARD constexpr const_reference front() const {
 		return *m_resources.front();
 	}
 	/**
-	 * @brief get an element of the array
+	 * @brief get the back element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::reference 
+	 * @return constexpr lyra::ResourcePool::reference
 	 */
 	NODISCARD constexpr reference back() {
 		return *m_resources.back();
 	}
 	/**
-	 * @brief get an element of the array
+	 * @brief get the back element of the array
 	 *
-	 * @return constexpr lyra::Dynarray::const_reference 
+	 * @return constexpr lyra::ResourcePool::const_reference
 	 */
 	NODISCARD constexpr const_reference back() const {
 		return *m_resources.back();
+	}
+	/**
+	 * @brief get an iterator to the begin of the array
+	 *
+	 * @return constexpr lyra::ResourcePool::iterator_type
+	 */
+	NODISCARD constexpr iterator_type begin() {
+		return *m_resources.begin();
+	}
+	/**
+	 * @brief get an iterator to the begin of the array
+	 *
+	 * @return constexpr lyra::ResourcePool::const_iterator_type
+	 */
+	NODISCARD constexpr const_iterator_type begin() const {
+		return *m_resources.begin();
+	}
+	/**
+	 * @brief get an iterator to the end of the array
+	 *
+	 * @return constexpr lyra::ResourcePool::iterator_type
+	 */
+	NODISCARD constexpr iterator_type end() {
+		return *m_resources.end();
+	}
+	/**
+	 * @brief get an iterator to the begin of the array
+	 *
+	 * @return constexpr lyra::ResourcePool::const_iterator_type
+	 */
+	NODISCARD constexpr const_iterator_type end() const {
+		return *m_resources.end();
 	}
 
 
