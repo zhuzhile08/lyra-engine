@@ -161,13 +161,13 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param value value to fill with
 	 */
-	void fill(const_reference value) { for (size_t i; i < m_size; i++) m_array[i] = std::move(value); }
+	constexpr void fill(const_reference value) { for (size_t i; i < m_size; i++) m_array[i] = std::move(value); }
 	/**
 	 * @brief fill the array with the same value
 	 * 
 	 * @param value value to fill with
 	 */
-	void fill(value_type&& value) { 
+	constexpr void fill(value_type&& value) { 
 		for (size_t i; i < m_size; i++) m_array[i] = std::move(value); 
 	}
 	/**
@@ -176,7 +176,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param array C-array
 	 * @param size size of the C-array
 	 */
-	void fill(const value_type* const array, const size_t& size) {
+	constexpr void fill(const value_type* const array, const size_t& size) {
 		for (size_t i; i < ( m_size < size ) ? m_size : size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
@@ -184,7 +184,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param array array wrapper to fill with
 	 */
-	void fill(const wrapper_type& array) {
+	constexpr void fill(const wrapper_type& array) {
 		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
@@ -194,14 +194,14 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param array array wrapper to fill with
 	 */
-	template <size_t other_size> void fill(const Dynarray<Ty, other_size>& array) {
+	template <size_t other_size> constexpr void fill(const Dynarray<Ty, other_size>& array) {
 		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = std::move(array[i]);
 	}
 
 	/**
 	 * @brief clear all the members in the array and set size to 0
 	 */
-	void clear() {
+	constexpr void clear() {
 		m_array.fill(Ty());
 		m_size = 0;
 	}
@@ -211,7 +211,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param index index to insert into
 	 * @param value value to insert
 	 */
-	void insert(const size_t& index, const_reference value) { 
+	constexpr void insert(const size_t& index, const_reference value) { 
 		m_array[index] = std::move(value);
 	}
 	/**
@@ -220,7 +220,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param index index to insert into
 	 * @param value value to insert
 	 */
-	void insert(const size_t& index, value_type&& value) {
+	constexpr void insert(const size_t& index, value_type&& value) {
 		m_array[index] = std::move(value);
 	}
 	/**
@@ -230,7 +230,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param end ending index
 	 * @param value value to insert
 	 */
-	void insert(const size_t& begin, const size_t& end, const_reference value) {
+	constexpr void insert(const size_t& begin, const size_t& end, const_reference value) {
 		for (size_t i = begin; i <= end; i++) m_array[i] = std::move(value);
 	}
 
@@ -241,7 +241,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param end ending index
 	 * @param value value to insert
 	 */
-	void insert(const size_t& begin, const size_t& end, value_type&& value) {
+	constexpr void insert(const size_t& begin, const size_t& end, value_type&& value) {
 		for (size_t i = begin; i <= end; i++) m_array[i] = std::move(value);
 	}
 	/**
@@ -249,7 +249,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 *
 	 * @param value value to insert
 	 */
-	void push_back(const_reference value) {
+	constexpr void push_back(const_reference value) {
 		m_array[m_size] = std::move(value);
 		m_size++;
 	}
@@ -258,14 +258,14 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 *
 	 * @param value value to insert
 	 */
-	void push_back(value_type&& value) {
+	constexpr void push_back(value_type&& value) {
 		m_array[m_size] = std::move(value);
 		m_size++;
 	}
 	/**
 	 * @brief remove the last element in the array
 	 */
-	void pop_back() {
+	constexpr void pop_back() {
 		end() = std::move(value_type());
 		m_size--;
 	}
@@ -274,7 +274,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param size new size of the array
 	 */
-	void resize(const size_t& size) {
+	constexpr void resize(const size_t& size) {
 		if (m_size <= size) m_size = size;
 		else for ( ; m_size > size; m_size--) pop_back();
 	}
@@ -283,7 +283,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param array array to swap with
 	 */
-	void swap(const wrapper_type array) {
+	constexpr void swap(const wrapper_type array) {
 		std::swap(m_array, array.m_array);
 	}
 

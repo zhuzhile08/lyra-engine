@@ -203,7 +203,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	void swap(SmartPointer<value_type>& second) {
+	constexpr void swap(SmartPointer<value_type>& second) {
 		std::swap(m_pointer, second.m_pointer);
 	}
 	/**
@@ -211,7 +211,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	void swap(SmartPointer<value_type>&& second) {
+	constexpr void swap(SmartPointer<value_type>&& second) {
 		std::swap(m_pointer, std::move(second.m_pointer));
 	}
 	/**
@@ -219,7 +219,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	void swap(pointer_type& second) {
+	constexpr void swap(pointer_type& second) {
 		std::swap(m_pointer, second);
 	}
 	/**
@@ -227,7 +227,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	void swap(pointer_type&& second) {
+	constexpr void swap(pointer_type&& second) {
 		std::swap(m_pointer, std::move(second));
 	}
 
@@ -236,7 +236,7 @@ public:
 	 *
 	 * @param ptr pointer
 	 */
-	void assign(pointer_type& ptr = nullptr) noexcept {
+	constexpr void assign(pointer_type& ptr = nullptr) noexcept {
 		pointer_type old = std::exchange(m_pointer, ptr);
 		if (old) m_deleter(old);
 	}
@@ -245,7 +245,7 @@ public:
 	 *
 	 * @param ptr pointer
 	 */
-	void assign(pointer_type&& ptr) noexcept {
+	constexpr void assign(pointer_type&& ptr) noexcept {
 		pointer_type old = std::exchange(m_pointer, std::move(ptr));
 		if (old) m_deleter(std::move(old));
 	}

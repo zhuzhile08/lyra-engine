@@ -33,13 +33,13 @@ template <class Ty, size_t Size> struct Array {
 	 * 
 	 * @param value value to fill with
 	 */
-	void fill(const_reference value) { for (size_t i; i < Size; i++) m_array[i] = value; }
+	constexpr void fill(const_reference value) { for (size_t i; i < Size; i++) m_array[i] = value; }
 	/**
 	 * @brief fill the array with the same value
 	 * 
 	 * @param value value to fill with
 	 */
-	void fill(const value_type&& value) { 
+	constexpr void fill(const value_type&& value) { 
 		for (size_t i; i < Size; i++) m_array[i] = std::forward<value_type>(value); 
 	}
 	/**
@@ -48,7 +48,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @param array C-array
 	 * @param size size of the C-array
 	 */
-	void fill(const value_type* const array, const size_t& size) {
+	constexpr void fill(const value_type* const array, const size_t& size) {
 		for (size_t i; i < ( Size < size ) ? Size : size; i++) m_array[i] = array[i];
 	}
 	/**
@@ -56,7 +56,7 @@ template <class Ty, size_t Size> struct Array {
 	 * 
 	 * @param array array wrapper to fill with
 	 */
-	void fill(const wrapper_type& array) {
+	constexpr void fill(const wrapper_type& array) {
 		for (size_t i; i < Size; i++) m_array[i] = array[i];
 	}
 	/**
@@ -66,7 +66,7 @@ template <class Ty, size_t Size> struct Array {
 	 * 
 	 * @param array array wrapper to fill with
 	 */
-	template <size_t OtherSize> void fill(const Array<value_type, OtherSize>& array) {
+	template <size_t OtherSize> constexpr void fill(const Array<value_type, OtherSize>& array) {
 		for (size_t i; i < ( Size < array.size() ) ? Size : array.size(); i++) m_array[i] = array[i];
 	}
 
@@ -75,7 +75,7 @@ template <class Ty, size_t Size> struct Array {
 	 * 
 	 * @param array array to swap with
 	 */
-	void swap(const wrapper_type array) {
+	constexpr void swap(const wrapper_type array) {
 		std::swap(m_array, array.m_array);
 	}
 

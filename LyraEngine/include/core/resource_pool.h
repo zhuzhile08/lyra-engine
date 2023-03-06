@@ -58,7 +58,7 @@ public:
 		 * 
 		 * @param resource resource to return
 		 */
-		void operator() (pointer resource) {
+		constexpr void operator() (pointer resource) {
 			m_pool->emplace_back(resource);
 		};
 	};
@@ -173,7 +173,7 @@ public:
 	/**
 	 * @brief shrink the internal deque to free unused memory
 	 */
-	void shrink_to_fit() {
+	constexpr void shrink_to_fit() {
 		m_resources.shrink_to_fit();
 	}
 
@@ -183,7 +183,7 @@ public:
 	/**
 	 * @brief clear and destruct the smart pointers in the deque
 	 */
-	void clear() {
+	constexpr void clear() {
 		for (auto& resource : m_resources) delete resource.release();
 	}
 
@@ -228,7 +228,7 @@ public:
 	 * 
 	 * @param index index of resource to erase
 	 */
-	void erase(index_type index) {
+	constexpr void erase(index_type index) {
 		m_resources.erase(m_resources.begin() + index);
 	}
 	/**
@@ -237,7 +237,7 @@ public:
 	 * @param first index of first resource to erase
 	 * @param last index of last resource to erase
 	 */
-	void erase(index_type first, const size_type last) {
+	constexpr void erase(index_type first, const size_type last) {
 		m_resources.erase(m_resources.begin() + first, m_resources.begin() + last);
 	}
 
@@ -246,7 +246,7 @@ public:
 	 * 
 	 * @param value object to push to the back
 	 */
-	void push_back(const_reference value) {
+	constexpr void push_back(const_reference value) {
 		m_resources.push_back(value);
 	}
 	/**
@@ -254,7 +254,7 @@ public:
 	 * 
 	 * @param value object to push to the back
 	 */
-	void push_back(movable value) {
+	constexpr void push_back(movable value) {
 		m_resources.push_back(std::move(value));
 	}
 	/**
@@ -273,7 +273,7 @@ public:
 	/**
 	 * @brief pop and destruct the last resource
 	 */
-	void pop_back() {
+	constexpr void pop_back() {
 		m_resources.pop_back();
 	}
 
@@ -282,7 +282,7 @@ public:
 	 * 
 	 * @param value object to push to the front
 	 */
-	void push_front(const_reference value) {
+	constexpr void push_front(const_reference value) {
 		m_resources.push_front(value);
 	}
 	/**
@@ -290,7 +290,7 @@ public:
 	 * 
 	 * @param value object to push to the front
 	 */
-	void push_front(movable value) {
+	constexpr void push_front(movable value) {
 		m_resources.push_front(std::move(value));
 	}
 	/**
@@ -309,7 +309,7 @@ public:
 	/**
 	 * @brief pop and destruct the first resource
 	 */
-	void pop_front() {
+	constexpr void pop_front() {
 		m_resources.pop_front();
 	}
 
@@ -318,7 +318,7 @@ public:
 	 * 
 	 * @param other other deque
 	 */
-	void swap(deque_type& other) noexcept {
+	constexpr void swap(deque_type& other) noexcept {
 		m_resources.swap(other);
 	}
 	/**
@@ -326,7 +326,7 @@ public:
 	 * 
 	 * @param other other pool
 	 */
-	void swap(pool_type& other) noexcept {
+	constexpr void swap(pool_type& other) noexcept {
 		m_resources.swap(other.m_resources);
 	}
 

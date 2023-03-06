@@ -30,7 +30,7 @@ public:
 	 *
 	 * @param function the function (probably) as a lambda
 	 */
-	void add(std::function<void()>&& function) {
+	constexpr void add(std::function<void()>&& function) {
 		m_queue.push_back(function);
 	}
 	/**
@@ -38,14 +38,14 @@ public:
 	 *
 	 * @param index index of the function to remove
 	 */
-	void remove(const uint32& index) {
+	constexpr void remove(const uint32& index) {
 		m_queue.erase(m_queue.begin() + index);
 	}
 
 	/**
 	 * @brief flush the queue whilst calling all the functions
 	 */
-	void flush() const {
+	constexpr void flush() const {
 		for (uint32 i = 0; i < m_queue.size(); i++) (m_queue.at(i))();
 	}
 

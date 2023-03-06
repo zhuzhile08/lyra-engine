@@ -111,7 +111,7 @@ public:
 	 * 
 	 * @param second second function pointer wrapper
 	 */
-	void swap(wrapper_type& second) noexcept {
+	constexpr void swap(wrapper_type& second) noexcept {
 		std::swap(this->function, second->function);
 	}
 	/**
@@ -119,7 +119,7 @@ public:
 	 * 
 	 * @param second second function pointer
 	 */
-	void swap(callable_type& second) noexcept {
+	constexpr void swap(callable_type& second) noexcept {
 		std::swap(this->function, second);
 	}
 	/**
@@ -127,7 +127,7 @@ public:
 	 * 
 	 * @param second second function pointer wrapper
 	 */
-	void swap(wrapper_type&& second) noexcept {
+	constexpr void swap(wrapper_type&& second) noexcept {
 		std::swap(this->function, std::move(second->function));
 	}
 	/**
@@ -135,7 +135,7 @@ public:
 	 * 
 	 * @param second second function pointer
 	 */
-	void swap(callable_type&& second) noexcept {
+	constexpr void swap(callable_type&& second) noexcept {
 		std::swap(this->function, std::move(second));
 	}
 

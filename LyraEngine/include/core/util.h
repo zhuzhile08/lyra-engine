@@ -63,9 +63,9 @@ template <typename Ty> constexpr const void* get_address(const Ty& type) {
  * @param dst destination vector
  * @param index index of the element
  */
-template <typename Ty> inline void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, const uint32& index);
+template <typename Ty> inline constexpr void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, const uint32& index);
 
-template <typename Ty> void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, const uint32& index) {
+template <typename Ty> constexpr void move_element(std::vector<Ty>& src, std::vector<Ty>& dst, const uint32& index) {
 	dst.push_back(std::move(src.at(index)));
 	src.erase(src.begin() + index);
 }
