@@ -128,4 +128,3 @@ PUBLIC
 	<functional>
 	<cmath>
 )
-

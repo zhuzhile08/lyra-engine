@@ -86,10 +86,10 @@ public:
 	 */
 	CommandBuffer& operator=(CommandBuffer&& movable) {
 		if (&movable != this) {
-            m_commandBuffer = std::exchange(movable.m_commandBuffer, VkCommandBuffer { } );
+			m_commandBuffer = std::exchange(movable.m_commandBuffer, VkCommandBuffer { } );
 			m_commandPool = std::exchange(movable.m_commandPool, VkCommandPool { } );
 			m_device = std::exchange(movable.m_device, VkDevice { } );
-        }
+		}
 		return *this;
 	}
 
