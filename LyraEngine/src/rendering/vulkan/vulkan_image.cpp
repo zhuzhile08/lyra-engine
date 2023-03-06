@@ -82,12 +82,12 @@ void Image::transition_layout(
 
 VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, const VkFormatFeatureFlags& features, const VkImageTiling& tiling) {
 	// check which of the canditates is the best choice
-	for (uint32 i = 0; i < candidates.size(); i++) {
+	for (const auto& candidate : candidates) {
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), candidates.at(i), &props);
+		vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), candidate, &props);
 
-		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidates.at(i);
-		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidates.at(i);
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidate;
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
 	}
 
 	log().exception("lyra::vulkan::Image::get_best_format(): Failed to find supported format out of user defined formats!");

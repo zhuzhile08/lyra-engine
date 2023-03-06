@@ -53,24 +53,23 @@ Camera::Camera(
 	}
 
 
-	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) { 
+	for (auto& buffer : m_buffers) { 
 		// create the buffers that send the camera information to the shaders and copy in the information
-		m_buffers[i] = vulkan::GPUBuffer(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		buffer = vulkan::GPUBuffer(sizeof(CameraData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	}
 
 
 	// create the descriptors themselves
-	// for (auto& descriptorSet : m_descriptorSets) {
-	for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
+	for (auto& descriptorSet : m_descriptorSets) {
 		// get a unused descriptor set and push back its pointer
-		m_descriptorSets[i] = m_renderPipeline.descriptorSystem(0).get_unused_set();
+		descriptorSet = m_renderPipeline.descriptorSystem(0).get_unused_set();
 		// add the writes
-		m_descriptorSets[i]->add_writes({
+		descriptorSet->add_writes({
 			{ m_buffers[0].get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
 			{ m_buffers[1].get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
 		});
 		// update the descriptor set
-		m_descriptorSets[i]->update();
+		descriptorSet->update();
 	}
 
 
@@ -82,7 +81,7 @@ Camera::Camera(
 }
 
 void Camera::recreate() {
-	for (uint32 i = 0; i < m_framebuffers.size(); i++) vkDestroyFramebuffer(Application::renderSystem.device.device(), m_framebuffers[i], nullptr);
+	for (const auto& framebuffer : m_framebuffers) vkDestroyFramebuffer(Application::renderSystem.device.device(), framebuffer, nullptr);
 	vkDestroyRenderPass(Application::renderSystem.device.device(), m_renderPass, nullptr);
 	create_render_pass();
 	create_framebuffers();
@@ -137,7 +136,7 @@ void Camera::record_command_buffers() {
 		0, 
 		*m_descriptorSets[Application::renderSystem.currentFrame()]);
 	// loop through the materials and draw their meshes
-	for (uint32 i = 0; i < m_materials.size(); i++) m_materials.at(i)->draw();
+	for (const auto& material : m_materials) material->draw();
 	// end renderpass
 	end_renderpass();
 }

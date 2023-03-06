@@ -25,35 +25,35 @@ void Device::check_requested_extensions(const std::vector <VkExtensionProperties
 	// go through every requested extensions and see if they are available
 #ifndef NDEBUG
 	log().info("Available device extensions:");
-	for (uint32 j = 0; j < extensions.size(); j++) log().debug(log().tab(), extensions.at(j).extensionName);
+	for (const auto& extension : extensions) log().debug(log().tab(), extension.extensionName);
 #endif
-	for (uint32 i = 0; i < requestedExtensions.size(); i++) {
+	for (const auto& requestedExtension : requestedExtensions) {
 		bool found = false;
-		for (uint32 j = 0; j < extensions.size(); j++) {
-				if (strcmp(requestedExtensions.at(i), extensions.at(j).extensionName) == 0) {
+		for (const auto& extension : extensions) {
+				if (strcmp(requestedExtension, extension.extensionName) == 0) {
 					found = true;
 					break;
 				}
 		}
-		lassert(found, "User required Vulkan extensions weren't found!", requestedExtensions.at(i));
+		lassert(found, "User required Vulkan extensions weren't found!", requestedExtension);
 	}
 }
 
 void Device::check_requested_validation_layers(const std::vector <VkLayerProperties>& layers, const std::vector <const char*>& requestedLayers) const {
 	// go through every requested layers and see if they are available
-	for (uint32 i = 0; i < requestedLayers.size(); i++) {
+	for (const auto& requestedLayer : requestedLayers) {
 		bool found = false;
 		log().info("Available layers:");
 
-		for (uint32 j = 0; j < layers.size(); j++) {
-			log().debug(log().tab(), layers.at(j).layerName, ": ", layers.at(j).description);
-			if (strcmp(requestedLayers.at(i), layers.at(j).layerName) == 0) {
+		for (const auto& layer : layers) {
+			log().debug(log().tab(), layer.layerName, ": ", layer.description);
+			if (strcmp(requestedLayer, layer.layerName) == 0) {
 				found = true;
 				break;
 			}
 		}
 
-		lassert(found, "User required Vulkan validation layer wasn't found: ", requestedLayers.at(i));
+		lassert(found, "User required Vulkan validation layer wasn't found: ", requestedLayer);
 	}
 }
 
@@ -63,9 +63,9 @@ void Device::find_family_index(QueueFamily& queue, const VkPhysicalDevice device
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-	for (uint32 i = 0; i < queueFamilies.size(); i++) {
-		if (queueFamilies.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-			queue.familyIndex = i;
+	for (const auto& queueFamily : queueFamilies) {
+		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			queue.familyIndex = (&queueFamily - &queueFamilies[0]);
 			break;
 		}
 	}
@@ -196,9 +196,9 @@ void Device::pick_physical_device() {
 	// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
 	std::multimap <int, VkPhysicalDevice> possibleDevices;
 
-	for (uint32 i = 0; i < devices.size(); i++) {
-		log().info("GPU " + std::to_string(i + 1) + ": ");
-		rate_physical_device(devices.at(i), possibleDevices);
+	for (const auto& device : devices) {
+		log().info("GPU " + std::to_string((&device - &devices[0]) + 1) + ": ");
+		rate_physical_device(device, possibleDevices);
 	}
 
 	if (possibleDevices.begin()->first <= 0) {
@@ -213,7 +213,7 @@ void Device::create_logical_device() {
 	std::set<uint32> queueFamilies = { m_graphicsQueue.familyIndex, m_presentQueue.familyIndex };
 
 	float queuePriority = 1.0f;
-	for (uint32 familyIndex : queueFamilies) {
+	for (const auto& familyIndex : queueFamilies) {
 		queueCreateInfos.push_back({
 			VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 			nullptr,

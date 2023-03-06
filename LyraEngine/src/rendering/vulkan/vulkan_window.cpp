@@ -22,8 +22,8 @@ Window::Window() : m_surface(Application::renderSystem.device.instance(), Applic
 
 void Window::recreate() {
 	// destroy the images and views
-	for (uint32 i = 0; i < m_imageViews.size(); i++)
-		m_imageViews[i].destroy();
+	for (auto& imageView : m_imageViews)
+		imageView.destroy();
 	m_depthImage.destroy();
 	m_colorImage.destroy();
 	m_depthMem.destroy();
@@ -60,10 +60,10 @@ const VkSurfaceFormatKHR Window::get_optimal_format() {
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
 	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availableFormatCount, availableFormats.data());
 	// check the formats
-	for (uint32 i = 0; i < availableFormats.size(); i++) {
-		if (availableFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB && availableFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-			m_format = availableFormats[i].format;
-			return availableFormats[i];
+	for (const auto& format : availableFormats) {
+		if (format.format == VK_FORMAT_B8G8R8A8_SRGB && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			m_format = format.format;
+			return format;
 		}
 	}
 
@@ -77,9 +77,9 @@ const VkPresentModeKHR Window::get_optimal_present_mode() const {
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
 	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availablePresentModeCount, availablePresentModes.data());
 	// check the presentation modess
-	for (uint32 i = 0; i < availablePresentModes.size(); i++) {
-		if (availablePresentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
-			return availablePresentModes[i];
+	for (const auto& presentMode : availablePresentModes) {
+		if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+			return presentMode;
 			break;
 		}
 	}
@@ -130,14 +130,16 @@ void Window::create_swapchain_images() {
 	vkGetSwapchainImagesKHR(Application::renderSystem.device.device(), m_swapchain, &imageCount, tempImages.data());
 
 	// create the image views
-	for (uint32 i = 0; i < m_images.size(); i++) {
-		m_images[i] = std::move(tempImages[i]);
+	for (auto& image : m_images) {
+		uint32 i = &image - &m_images[0];
+		image = std::move(tempImages[i]);
+
 		// image view creation info
 		VkImageViewCreateInfo createInfo{
 			VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 			nullptr,
 			0,
-			m_images[i],
+			image,
 			VK_IMAGE_VIEW_TYPE_2D,
 			m_format,
 			{ VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY },

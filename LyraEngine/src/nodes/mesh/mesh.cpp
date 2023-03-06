@@ -31,27 +31,27 @@ void Mesh::create_mesh(const util::LoadedModel& loaded) {
 	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this
 
 	// loop over all the shapes
-	for (uint32 s = 0; s < loaded.shapes.size(); s++) {
+	for (const auto& shape : loaded.shapes) {
 		// loop over all the polygons
-		for (uint32 i = 0; i < loaded.shapes.at(s).mesh.indices.size(); i++) {
+		for (const auto& index : shape.mesh.indices) {
 			Vertex vertex;
 
 			// calculate positions
 			vertex.pos = {
-				loaded.vertices.vertices.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 0),
-				loaded.vertices.vertices.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 1),
-				loaded.vertices.vertices.at(3 * loaded.shapes.at(s).mesh.indices.at(i).vertex_index + 2)
+				loaded.vertices.vertices.at(3 * index.vertex_index + 0),
+				loaded.vertices.vertices.at(3 * index.vertex_index + 1),
+				loaded.vertices.vertices.at(3 * index.vertex_index + 2)
 			};
 			// calculate normals
 			vertex.normal = {
-				loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 0),
-				loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 1),
-				loaded.vertices.normals.at(3 * loaded.shapes.at(s).mesh.indices.at(i).normal_index + 2)
+				loaded.vertices.normals.at(3 * index.normal_index + 0),
+				loaded.vertices.normals.at(3 * index.normal_index + 1),
+				loaded.vertices.normals.at(3 * index.normal_index + 2)
 			};
 			// calculate UV coordinates
 			vertex.uvw = {
-				loaded.vertices.texcoords.at(2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 0),
-				1.0f - loaded.vertices.texcoords.at(2 * loaded.shapes.at(s).mesh.indices.at(i).texcoord_index + 1),
+				loaded.vertices.texcoords.at(2 * index.texcoord_index + 0),
+				1.0f - loaded.vertices.texcoords.at(2 * index.texcoord_index + 1),
 				1.0f
 			};
 

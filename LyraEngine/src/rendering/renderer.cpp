@@ -28,7 +28,7 @@ Renderer::Renderer() {
 
 void Renderer::recreate() {
 	// destroy the framebuffers
-	for (uint32 i = 0; i < m_framebuffers.size(); i++) m_framebuffers[i].destroy();
+	for (auto& framebuffer : m_framebuffers) framebuffer.destroy();
 	// destroy the renderpass
 	m_renderPass.destroy();
 	create_render_pass();
@@ -134,11 +134,11 @@ void Renderer::create_render_pass() {
 void Renderer::create_framebuffers() {
 	m_framebuffers.resize(Application::renderSystem.vulkanWindow.images().size());
 
-	for (uint32 i = 0; i < Application::renderSystem.vulkanWindow.images().size(); i++) {
+	for (auto& framebuffer : m_framebuffers) {
 		Array<VkImageView, 3> attachments = { {
 			Application::renderSystem.vulkanWindow.colorImage().view(),
 			Application::renderSystem.vulkanWindow.depthImage().view(),
-			Application::renderSystem.vulkanWindow.imageViews()[i]
+			Application::renderSystem.vulkanWindow.imageViews()[uint32(&framebuffer - &m_framebuffers[0])]
 		}};
 
 		// create the frame buffers
@@ -154,7 +154,7 @@ void Renderer::create_framebuffers() {
 			1
 		};
 
-		m_framebuffers[i] = vulkan::vk::Framebuffer(Application::renderSystem.device.device(), createInfo);
+		framebuffer = vulkan::vk::Framebuffer(Application::renderSystem.device.device(), createInfo);
 	}
 }
 

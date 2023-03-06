@@ -12,6 +12,7 @@
 
 #include <utility>
 #include <algorithm>
+#include <core/iterator_base.h>
 
 #define NODISCARD [[nodiscard]]
 #define DEPRECATED [[deprecated]]
@@ -20,13 +21,13 @@ namespace lyra {
 
 // basic C-array wrapper implementation
 template <class Ty, size_t Size> struct Array {
-	typedef Ty value_type;
-	typedef value_type iterator;
-	typedef const value_type const_iterator; 
-	typedef value_type& reference;
-	typedef const value_type& const_reference;
-	typedef value_type array_type[Size];
-	typedef Array<value_type, Size> wrapper_type;
+	using value_type = Ty;
+	using iterator_type = IteratorBase<Ty>;
+	using const_iterator_type = IteratorBase<const Ty>; 
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using array_type = value_type[Size];
+	using wrapper_type = Array<value_type, Size>;
 
 	/**
 	 * @brief fill the array with the same value
@@ -82,34 +83,34 @@ template <class Ty, size_t Size> struct Array {
 	/**
 	 * @brief get the first element of the array
 	 * 
-	 * @return constexpr lyra::Array::reference
+	 * @return constexpr lyra::Array::iterator_type
 	 */
-	NODISCARD constexpr reference begin() noexcept {
+	NODISCARD constexpr iterator_type begin() noexcept {
 		return m_array[0];
 	}
 	/**
 	 * @brief get the first element of the array
 	 * 
-	 * @return constexpr lyra::Array::const_reference
+	 * @return constexpr lyra::Array::const_iterator_type
 	 */
-	NODISCARD constexpr const_reference begin() const noexcept {
+	NODISCARD constexpr const_iterator_type begin() const noexcept {
 		return m_array[0];
 	}
 	/**
 	 * @brief get the last element of the array
 	 * 
-	 * @return constexpr lyra::Array::reference
+	 * @return constexpr lyra::Array::iterator_type
 	 */
-	NODISCARD constexpr reference end() noexcept {
-		return m_array[std::clamp(Size - 1, size_t(0), Size - 1)];
+	NODISCARD constexpr iterator_type end() noexcept {
+		return &m_array[Size];
 	}
 	/**
 	 * @brief get the last element of the array
 	 * 
-	 * @return constexpr lyra::Array::const_reference
+	 * @return constexpr lyra::Array::const_iterator_type
 	 */
-	NODISCARD constexpr const_reference end() const noexcept {
-		return m_array[Size - 1];
+	NODISCARD constexpr const_iterator_type end() const noexcept {
+		return &m_array[Size];
 	}
 
 	/**
@@ -119,7 +120,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::reference
 	 */
 	NODISCARD constexpr reference operator[](const size_t& index) noexcept {
-		return m_array[std::clamp(index, size_t(0), Size - 1)];
+		return m_array[index];
 	}
 	/**
 	 * @brief get an element of the array
@@ -128,7 +129,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::const_reference
 	 */
 	NODISCARD constexpr const_reference operator[](const size_t& index) const noexcept {
-		return m_array[std::clamp(index, size_t(0), Size - 1)];
+		return m_array[index];
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
@@ -137,7 +138,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::reference
 	 */
 	DEPRECATED NODISCARD constexpr reference at(const size_t& index) noexcept {
-		return m_array[std::clamp(index, size_t(0), Size - 1)];
+		return m_array[index];
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
@@ -146,7 +147,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @return constexpr lyra::Array::const_reference
 	 */
 	DEPRECATED NODISCARD constexpr const_reference at(const size_t& index) const noexcept {
-		return m_array[std::clamp(index, size_t(0), Size - 1)];
+		return m_array[index];
 	}
 
 	/**

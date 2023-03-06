@@ -254,16 +254,16 @@ public:
 		 * @param newWrites image writes to add to the buffer
 		 */
 		void add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
-			for (uint32 i = 0; i < newWrites.size(); i++) {
+			for (const auto& newWrite : newWrites) {
 				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
 					m_descriptorSet,
-					newWrites.at(i).binding,
+					newWrite.binding,
 					0,
 					1,
-					static_cast<VkDescriptorType>(newWrites.at(i).type),
-					&newWrites.at(i).imageInfo,
+					static_cast<VkDescriptorType>(newWrite.type),
+					&newWrite.imageInfo,
 					nullptr,
 					nullptr
 				});
@@ -275,17 +275,17 @@ public:
 		 * @param newWrites buffer writes to add to the buffer
 		 */
 		void add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
-			for (uint32 i = 0; i < newWrites.size(); i++) {
+			for (const auto& newWrite : newWrites) {
 				m_writes.push_back({
 					VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 					nullptr,
 					m_descriptorSet,
-					newWrites.at(i).binding,
+					newWrite.binding,
 					0,
 					1,
-					static_cast<VkDescriptorType>(newWrites.at(i).type),
+					static_cast<VkDescriptorType>(newWrite.type),
 					nullptr,
-					&newWrites.at(i).bufferInfo,
+					&newWrite.bufferInfo,
 					nullptr
 				});
 			}
@@ -339,7 +339,7 @@ public:
 	/**
 	 * @brief descriptor resource type, annoying to type every time
 	 */
-	typedef ResourcePool<DescriptorSet>::resource_container_type DescriptorSetResource;
+	using DescriptorSetResource = ResourcePool<DescriptorSet>::resource_container_type;
 
 	/**
 	 * @brief a builder to make the creation of the descriptor layout easier

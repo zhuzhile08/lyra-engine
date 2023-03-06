@@ -20,7 +20,7 @@ void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily& queue) c
 
 void RenderSystem::draw() {
 	// update the renderers
-	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->m_updateQueue.flush();
+	for (const auto& renderer : m_renderers) renderer->m_updateQueue.flush();
 
 	// wait for the already recorded stuff to finish executing
 	frames[m_currentFrame].wait(); 
@@ -28,7 +28,7 @@ void RenderSystem::draw() {
 	// get the next image to render on
 	if (vkAcquireNextImageKHR(device.device(), vulkanWindow.swapchain(), UINT64_MAX, frames[m_currentFrame].imageAvailableSemaphores(), VK_NULL_HANDLE, &m_imageIndex) == VK_ERROR_OUT_OF_DATE_KHR) {
 		vulkanWindow.recreate();
-		for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
+		for (auto& renderer : m_renderers) renderer->recreate();
 		return;
 	}
 
@@ -39,7 +39,7 @@ void RenderSystem::draw() {
 	frames[m_currentFrame].commandBuffer().begin();
 
 	// call the draw calls
-	for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->record_command_buffers();
+	for (auto& renderer : m_renderers) renderer->record_command_buffers();
 
 	// end recording the command buffer
 	frames[m_currentFrame].commandBuffer().end();
@@ -88,11 +88,11 @@ void RenderSystem::present_device_queue() {
 		SDL_WindowFlags flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED) {
 			flags = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(window->get()));
-			Input::wait_events();
+			input::InputManager::wait_events();
 		}
 
 		vulkanWindow.recreate();
-		for (uint32 i = 0; i < m_renderers.size(); i++) m_renderers[i]->recreate();
+		for (auto& renderer : m_renderers) renderer->recreate();
 	} else {
 		vassert(result, "present device queue");
 	}
