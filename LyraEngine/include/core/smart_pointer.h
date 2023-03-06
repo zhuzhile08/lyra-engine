@@ -24,10 +24,10 @@ namespace lyra {
  */
 template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
-	typedef Ty value_type;
-	typedef Ty* pointer_type;
-	typedef DTy deleter_type;
-	typedef SmartPointer wrapper_type;
+	using value_type = Ty;
+	using pointer_type = Ty*;
+	using deleter_type = DTy;
+	using wrapper_type = SmartPointer;
 
 	constexpr SmartPointer() = default;
 	/**

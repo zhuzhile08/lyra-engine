@@ -55,20 +55,20 @@ template <class Ty> concept RAIIContainerType =
  */
 template <RAIIContainerType Ty, RAIIContainerType OTy> class RAIIContainer {
 public:
-	typedef Ty handle_type;
-	typedef const handle_type const_handle_type;
-	typedef Ty& handle_reference;
-	typedef const_handle_type& const_handle_reference;
-	typedef Ty&& movable_handle;
+	using handle_type = Ty;
+	using const_handle_type = const handle_type;
+	using handle_reference = Ty&;
+	using const_handle_reference = const_handle_type&;
+	using movable_handle = Ty&&;
 	
-	typedef OTy owner_type;
-	typedef const owner_type const_owner_type;
-	typedef owner_type& owner_reference;
-	typedef const_owner_type& const_owner_reference;
-	typedef owner_type&& movable_owner;
+	using owner_type = OTy;
+	using const_owner_type = const owner_type;
+	using owner_reference = owner_type&;
+	using const_owner_reference = const_owner_type&;
+	using movable_owner = owner_type&&;
 
-	typedef RAIIContainer container_type;
-	typedef container_type&& movable_container;
+	using container_type = RAIIContainer;
+	using movable_container = container_type&&;
 
 	constexpr RAIIContainer() = default;
 	/**
@@ -308,7 +308,7 @@ public:
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				vkDestroyInstance(m_handle, nullptr);
 			}// some objects don't need to be destroyed explicitly, so they aren't here, even though they use this RAII container
-    	}
+		}
 	}
 	/**
 	 * @brief destroy the contained handle, basically only calls destroy
@@ -325,8 +325,8 @@ public:
 	 */
 	constexpr RAIIContainer& operator=(movable_handle handle) {
 		if (handle != this->m_handle) {
-            m_handle = std::exchange(handle, handle_type { } );
-        }
+			m_handle = std::exchange(handle, handle_type { } );
+		}
 		return *this;
 	}
 	/**
@@ -337,9 +337,9 @@ public:
 	 */
 	constexpr RAIIContainer& operator=(movable_container container) {
 		if (&container != this) {
-            m_handle = std::exchange(container.m_handle, handle_type { } );
-            m_owner = std::exchange(container.m_owner, owner_type { } );
-        }
+			m_handle = std::exchange(container.m_handle, handle_type { } );
+			m_owner = std::exchange(container.m_owner, owner_type { } );
+		}
 		return *this;
 	}
 

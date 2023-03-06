@@ -32,7 +32,7 @@ using int64 = int64_t;
 
 // pointer types
 
-typedef uintptr_t uptr;
+using uptr = uintptr_t;
 
 // color type
 struct Color {
@@ -43,7 +43,7 @@ struct Color {
 	constexpr glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
 	uint8 r, g, b, a;
 };
-typedef Color Colour;
+using Colour = Color;
 
 // core vulkan wrappers
 

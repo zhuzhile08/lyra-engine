@@ -23,9 +23,9 @@ template <class> class Function;
  */
 template <class Ty, class... Args> class Function <Ty(Args...)> {
 public:
-	typedef Ty result_type;
-	typedef Function wrapper_type;
-	typedef result_type(*callable_type)(Args...);
+	using result_type = Ty;
+	using wrapper_type = Function;
+	typedef result_type(*callable_type)(Args...); // don't know how to make this with using, but this is good enough anyways
 
 	constexpr Function() noexcept = default;
 	/**
