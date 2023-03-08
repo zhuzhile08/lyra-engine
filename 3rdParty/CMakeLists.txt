@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 # add_subdirectory("openal-soft")
 add_subdirectory("sdl2")
 add_subdirectory("lz4/build/cmake")
-add_subdirectory("bullet")
+add_subdirectory("bullet3")
 add_subdirectory("imgui")
 
 # GLM and VMA aren't build here because they only build the tests, 
