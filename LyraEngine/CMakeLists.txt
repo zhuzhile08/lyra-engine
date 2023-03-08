@@ -20,7 +20,7 @@ PUBLIC
 	${LIBRARY_PATH}/imgui/
 
 	# math and physics libraries
-	${LIBRARY_PATH}/glm/glm/
+	${LIBRARY_PATH}/glm/
 	${LIBRARY_PATH}/bullet/src/
 
 	# audio libraries
