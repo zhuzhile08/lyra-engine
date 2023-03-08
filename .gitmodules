@@ -34,3 +34,6 @@
 	path = 3rdParty/imgui
 	url = https://github.com/zhuzhile08/imgui
 	branch = master
+[submodule "3rdParty/bullet3"]
+	path = 3rdParty/bullet3
+	url = https://github.com/bulletphysics/bullet3.git
