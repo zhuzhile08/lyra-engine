@@ -30,10 +30,6 @@
 	path = 3rdParty/lz4
 	url = https://github.com/lz4/lz4
 	branch = release
-[submodule "3rdParty/bullet"]
-	path = 3rdParty/bullet
-	url = https://github.com/zhuzhile08/bullet3
-	branch = master
 [submodule "3rdParty/imgui"]
 	path = 3rdParty/imgui
 	url = https://github.com/zhuzhile08/imgui
