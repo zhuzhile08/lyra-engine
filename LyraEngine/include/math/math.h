@@ -16,7 +16,7 @@
 
 #include <cmath>
 #include <vector>
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace lyra {
 
@@ -30,11 +30,11 @@ namespace lyra {
  * 
  * @return Ty 
  */
-template <size_t _Size, class Ty> NODISCARD Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b);
+template <size_t Size, class Ty> NODISCARD constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b);
 
-template <size_t _Size, class Ty> Ty pythagoras(const glm::vec<_Size, Ty, glm::defaultp>& a, const glm::vec<_Size, Ty, glm::defaultp>& b) {
+template <size_t Size, class Ty> constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b) {
 	Ty result;
-	for (uint8 x = 0; x < _Size; x++) {
+	for (uint8 x = 0; x < Size; x++) {
 		result += pow(a[x] - b[x], 2);
 	}
 	return sqrt(result);
@@ -51,9 +51,9 @@ template <size_t _Size, class Ty> Ty pythagoras(const glm::vec<_Size, Ty, glm::d
  * 
  * @return Ty
 */
-template <class Ty> NODISCARD Ty point_on_line(Ty first, Ty second, float value);
+template <class Ty> NODISCARD constexpr Ty point_on_line(Ty first, Ty second, float value);
 
-template <class Ty> Ty point_on_line(Ty first, Ty second, float value) {
+template <class Ty> constexpr Ty point_on_line(Ty first, Ty second, float value) {
 	return first + (second - first) * value;
 }
 
@@ -67,9 +67,9 @@ template <class Ty> Ty point_on_line(Ty first, Ty second, float value) {
  * 
  * @return Ty 
 */
-template <class Ty> NODISCARD Ty bezier(std::vector<Ty> points, float value);
+template <class Ty> NODISCARD constexpr Ty bezier(std::vector<Ty> points, float value);
 
-template <class Ty> Ty bezier(std::vector<Ty> points, float value) {
+template <class Ty> constexpr Ty bezier(std::vector<Ty> points, float value) {
 	std::vector<Ty> remaining_points;
 
 	for (uint32 i = 0; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
@@ -97,7 +97,15 @@ NODISCARD float randFloat(const float x, const float y);
  * @param rotation rotation vector
  * @param scale scale vector
  */
-void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale);
+void decompose_transform_matrix(
+	const glm::mat4& matrix, 
+	glm::vec3& translation, 
+	glm::vec3& rotation, 
+	glm::vec3& scale, 
+	glm::vec3& forward, 
+	glm::vec3& up, 
+	glm::vec3& left
+);
 
 // pointer alignment mode
 enum AlignMode : uint8 {
