@@ -26,8 +26,14 @@ namespace lyra {
 struct WindowEvents {
 };
 
+
+namespace input {
+class InputManager;
+} // namespace input
+
+
 /**
- * @brief wrapper around a SDL_Window with some quality of life improvements
+ * @brief wrapper around a SDL window with some quality of life improvements
  *
  * @todo get more events and window settings. The current window is VERY barebones and only the bone of the entire structure is implemented
  */
@@ -72,7 +78,7 @@ private:
 	bool m_running = true;
 	bool m_changed = false;
 
-	friend class Input;
+	friend class input::InputManager;
 };
 
 } // namespace lyra
