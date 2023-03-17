@@ -16,7 +16,7 @@
 #include <core/array.h>
 #include <core/smart_pointer.h>
 
-#include <nodes/node.h>
+#include <core/node.h>
 
 #include <rendering/vulkan/GPU_buffer.h>
 #include <rendering/vulkan/descriptor.h>

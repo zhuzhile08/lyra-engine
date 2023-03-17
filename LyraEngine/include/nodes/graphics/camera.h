@@ -18,7 +18,7 @@
 #include <vector>
 #include <core/array.h>
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #include <core/smart_pointer.h>
 #include <core/settings.h>

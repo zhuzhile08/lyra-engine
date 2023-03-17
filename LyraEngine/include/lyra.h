@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 namespace lyra {
 

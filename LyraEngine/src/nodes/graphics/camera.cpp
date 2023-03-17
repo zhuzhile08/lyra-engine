@@ -1,6 +1,6 @@
 #include <nodes/graphics/camera.h>
 
-#include <gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <math/math.h>
 
@@ -116,7 +116,7 @@ void Camera::draw() {
 	// update the script
 	m_script->update();
 	// check wich projection model the camera uses and calculate the projection data
-	CameraData data{ mat_to_global(), m_projection_matrix };
+	CameraData data { mat_to_global(), m_projection_matrix };
 	// copy the data into the shader
 	m_buffers[Application::renderSystem.currentFrame()].copy_data(&data);
 }

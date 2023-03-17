@@ -17,13 +17,13 @@
 #include <vector>
 #include <core/array.h>
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 #include <vulkan/vulkan.h>
 
 #include <res/loaders/load_model.h>
 
-#include <nodes/node.h>
+#include <core/node.h>
 #include <nodes/spatial.h>
 
 namespace lyra {
