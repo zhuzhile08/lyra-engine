@@ -24,9 +24,39 @@
 
 #include <array>
 
-struct CameraScript : public lyra::Script {
-	void update(void) override {
-		node->transform.look_at_from_translation({3.0f, 5.0f, 3.0f}, {0.0f, 2.2f, 0.0f});
+struct CameraMovementScript : public lyra::Script {
+	void init(void) override {
+		// node->transform.translate({3.0f, 5.0f, 3.0f});
+	}
+
+	void update(void) override { 
+		if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_W)) {
+			node->transform.translate(0.1f * node->transform.forward());
+		} if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_S)) {
+			node->transform.translate(0.1f * node->transform.back());
+		} if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_A)) {
+			node->transform.translate(0.1f * node->transform.left());
+		} if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_D)) {
+			node->transform.translate(0.1f * node->transform.right());
+		}
+	}
+};
+
+struct CameraRotationScript : public lyra::Script {
+	void init(void) override {
+		// node->transform.look_at({0.0f, 2.2f, 0.0f});
+	}
+
+	void update(void) override { 
+		if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_RIGHT)) {
+			node->transform.rotate(0.05f * glm::vec3(0, 1, 0));
+		} if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_LEFT)) {
+			node->transform.rotate(0.05f * glm::vec3(0, -1, 0));
+		} if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_UP)) {
+			node->transform.rotate(0.05f * glm::vec3(0, 0, 1));
+		} if (lyra::input::InputManager::is_key_held(lyra::input::Keyboard::KEYBOARD_DOWN)) {
+			node->transform.rotate(0.05f * glm::vec3(0, 0, -1));
+		}
 	}
 };
 
@@ -43,7 +73,8 @@ int main() { // Cathedral of Assets, Assets Manor or Mansion of Assets, whatever
 	// lyra::gui::GUIRenderer guiRenderer;
 	// guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
-	lyra::Camera camera(new CameraScript, nullptr, true, "Camera", &scene);
+	lyra::Spatial cameraArm(new CameraMovementScript, "Camera Arm", &scene);
+	lyra::Camera camera(new CameraRotationScript, nullptr, true, "Camera", &cameraArm);
 
 	lyra::Assets assets;
 
