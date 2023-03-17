@@ -142,7 +142,8 @@ public:
 	/**
 	 * @brief check if function currently contains a callable object
 	 * 
-	 * @return bool
+	 * @return true when callable is valid
+	 * @return false when callable is not valid
 	 */
 	constexpr operator bool() const noexcept {
 		return static_cast<bool>(function);
