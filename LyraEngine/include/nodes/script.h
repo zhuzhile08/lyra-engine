@@ -11,9 +11,9 @@
 
 #pragma once
 
-#include <nodes/node.h>
-
 namespace lyra {
+
+class GameObject;
 
 // script component
 struct Script {
@@ -21,7 +21,7 @@ struct Script {
 	virtual void update(void) { };
 	virtual void physics_update(void) { };
 
-	Spatial* node;
+	GameObject* node;
 };
 
 } // namespace lyra
