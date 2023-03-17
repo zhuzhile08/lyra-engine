@@ -13,10 +13,24 @@ float randDoub(const float x, const float y) {
 	return x + float(rand() % precision) * (y - x)/precision;
 }
 
-void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale) {
+void decompose_transform_matrix(
+	const glm::mat4& matrix, 
+	glm::vec3& translation, 
+	glm::vec3& rotation, 
+	glm::vec3& scale, 
+	glm::vec3& forward, 
+	glm::vec3& up, 
+	glm::vec3& left
+) {
 	// the reason this function exists if because the glm matrix decompose just looks... very big
+	// first, extract the directional vectors
+	const auto viewMatrix = glm::inverse(matrix);
+	left = glm::normalize(glm::vec3(viewMatrix[0]));
+	up = glm::normalize(glm::vec3(viewMatrix[1]));
+	forward = glm::normalize(glm::vec3(viewMatrix[2]));
+
 	// and it doesn't work with euler angles
-	auto mat(matrix);
+	auto mat = matrix;
 	// get the translation
 	translation = glm::vec3(matrix[3]);
 	mat[3] = glm::vec4{};
@@ -26,12 +40,12 @@ void decompose_transform_matrix(const glm::mat4& matrix, glm::vec3& translation,
 	mat[1] /= scale.y;
 	mat[2] /= scale.z;
 	// get the rotation in euler angles
-	rotation.y = glm::degrees(asin(-mat[0][2])); 	
+	rotation.y = glm::degrees(asin(-mat[2][0])); 	
 	if (cos(rotation.y) != 0) {
-		rotation.x = glm::degrees(atan2(mat[1][2], mat[2][2]));
-		rotation.z = glm::degrees(atan2(mat[0][1], mat[0][0]));
+		rotation.x = glm::degrees(atan2(mat[2][1], mat[2][2]));
+		rotation.z = glm::degrees(atan2(mat[1][0], mat[0][0]));
 	} else {
-		rotation.x = glm::degrees(atan2(-mat[2][0], mat[1][1]));
+		rotation.x = glm::degrees(atan2(-mat[0][2], mat[1][1]));
 		rotation.z = 0;
 	}
 }
