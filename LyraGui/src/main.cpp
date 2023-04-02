@@ -1,25 +1,25 @@
 #define SDL_MAIN_HANDLED
 #define LYRA_LOG_FILE
 
-#include <core/function_pointer.h>
+#include <Common/FunctionPointer.h>
 
-#include <lyra.h>
-#include <math/math.h>
-#include <core/application.h>
-#include <rendering/material.h>
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/vulkan/vulkan_window.h>
-#include <rendering/graphics_pipeline.h>
-#include <rendering/vulkan/vulkan_shader.h>
-#include <rendering/vulkan/vulkan_pipeline.h>
-#include <rendering/gui_renderer.h>
-#include <nodes/mesh/mesh.h>
-#include <nodes/mesh/mesh_renderer.h>
-#include <nodes/graphics/camera.h>
-// #include <nodes/graphics/cubemap.h>
-#include <nodes/spatial.h>
-#include <rendering/texture.h>
-#include <input/input.h>
+#include <Lyra/Lyra.h>
+#include <Math/LyraMath.h>
+#include <Application/Application.h>
+#include <Graphics/Material.h>
+#include <Graphics/VulkanImpl/DescriptorSystem.h>
+#include <Graphics/VulkanImpl/Window.h>
+#include <Graphics/GraphicsPipeline.h>
+#include <Graphics/VulkanImpl/Shader.h>
+#include <Graphics/VulkanImpl/PipelineBase.h>
+#include <Graphics/GUIRenderer.h>
+#include <EntitySystem/Mesh.h>
+#include <EntitySystem/MeshRenderer.h>
+#include <EntitySystem/Camera.h>
+// #include <EntitySystem/Cubemap.h>
+#include <EntitySystem/Entity.h>
+#include <Graphics/Texture.h>
+#include <Input/Input.h>
 #include <imgui.h>
 
 #include <array>

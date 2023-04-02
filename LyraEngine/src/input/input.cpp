@@ -1,8 +1,8 @@
-#include <input/input.h>
+#include <Input/Input.h>
 
 #include <backends/imgui_impl_sdl2.h>
 
-#include <core/application.h>
+#include <Application/Application.h>
 
 namespace lyra {
 

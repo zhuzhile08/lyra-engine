@@ -1,5 +1,5 @@
 /*************************
- * @file input.h
+ * @file Input.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
  * @brief A singleton wrapper around SDL input which polls events
@@ -11,14 +11,14 @@
 
 #pragma once
 
-#include <lyra.h>
+#include <Lyra/Lyra.h>
 
 #include <SDL.h>
 #include <glm/glm.hpp>
 
-#include <core/queue.h>
+#include <Common/Queue.h>
 
-#include <input/input_enums.h>
+#include <Input/InputEnums.h>
 
 namespace lyra {
 

@@ -42,49 +42,48 @@ add_custom_target(build_shaders ALL
 
 # building the library
 add_library(LyraEngine
-	"src/core/logger.cpp"
-	"src/core/settings.cpp"
+	"src/Common/logger.cpp"
+	"src/Common/settings.cpp"
+	"src/Common/benchmark.cpp"
 
-	"src/core/application.cpp"
+	"src/Graphics/VulkanImpl/CommandBuffer.cpp"
+	"src/Graphics/VulkanImpl/DescriptorSystem.cpp"
+	"src/Graphics/VulkanImpl/Device.cpp"
+	"src/Graphics/VulkanImpl/GPUBuffer.cpp"
+	"src/Graphics/VulkanImpl/Image.cpp"
+	"src/Graphics/VulkanImpl/PipelineBase.cpp"
+	"src/Graphics/VulkanImpl/Shader.cpp"
+	"src/Graphics/VulkanImpl/Window.cpp"
+	"src/Graphics/VulkanImpl/Frame.cpp"
 
-	"src/rendering/vulkan/command_buffer.cpp"
-	"src/rendering/vulkan/descriptor.cpp"
-	"src/rendering/vulkan/devices.cpp"
-	"src/rendering/vulkan/GPU_buffer.cpp"
-	"src/rendering/vulkan/vulkan_image.cpp"
-	"src/rendering/vulkan/vulkan_pipeline.cpp"
-	"src/rendering/vulkan/vulkan_shader.cpp"
-	"src/rendering/vulkan/vulkan_window.cpp"
+	"src/Resource/ResourceManager.cpp"
+	"src/Graphics/RenderSystem.cpp"
+	"src/Graphics/GUIRenderer.cpp"
+	"src/Graphics/GraphicsPipeline.cpp"
+	"src/Graphics/Material.cpp"
+	"src/Graphics/Renderer.cpp"
+	"src/Graphics/Texture.cpp"
+	"src/Graphics/SDLWindow.cpp"
+	
+	"src/Application/Application.cpp"
 
-	"src/rendering/assets.cpp"
-	"src/rendering/render_system.cpp"
-	"src/rendering/gui_renderer.cpp"
-	"src/rendering/graphics_pipeline.cpp"
-	"src/rendering/material.cpp"
-	"src/rendering/renderer.cpp"
-	"src/rendering/texture.cpp"
-	"src/rendering/window.cpp"
+	"src/Init/SingleHeaderInit.cpp"
 
-	"src/init/init_SDL.cpp"
-	"src/init/single_header_init.cpp"
+	"src/Math/LyraMath.cpp"
 
-	"src/math/math.cpp"
-	"src/math/transform.cpp"
+	"src/Resource/LoadResources.cpp"
+	"src/Resource/LoadFile.cpp"
+	"src/Resource/LoadModel.cpp"
 
-	"src/res/loaders/load_assets.cpp"
-	"src/res/loaders/load_file.cpp"
-	"src/res/loaders/load_model.cpp"
+	"src/EntitySystem/Camera.cpp"
+	# "src/EntitySystem/Cubemap.cpp"
 
-	"src/nodes/graphics/camera.cpp"
-	# "src/nodes/graphics/cubemap.cpp"
+	"src/EntitySystem/Mesh.cpp"
+	"src/EntitySystem/MeshRenderer.cpp"
 
-	"src/nodes/mesh/mesh.cpp"
-	"src/nodes/mesh/mesh_renderer.cpp"
+	"src/EntitySystem/transform.cpp"
 
-	"src/input/input.cpp"
-
-	"src/core/benchmark.inl"
- 	"src/rendering/vulkan/frame.cpp"
+	"src/Input/Input.cpp"
 )
 
 add_dependencies(LyraEngine build_shaders)
