@@ -1,5 +1,5 @@
 /*************************
- * @file   mesh_renderer.h
+ * @file   MeshRenderer.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief  a renderer for the mesh
@@ -11,11 +11,11 @@
 
 #pragma once
 
-#include <lyra.h>
+#include <Lyra/Lyra.h>
 
-#include <rendering/vulkan/GPU_buffer.h>
+#include <Graphics/VulkanImpl/GPUBuffer.h>
 
-#include <nodes/spatial.h>
+#include <EntitySystem/Entity.h>
 
 namespace lyra {
 
@@ -24,7 +24,7 @@ namespace lyra {
  * 
  * @tparam _STy script type
  */
-class MeshRenderer : public Spatial {
+class MeshRenderer : public ComponentBase {
 public:
 	MeshRenderer() = default;
 	/**
@@ -33,18 +33,9 @@ public:
 	 * @tparam MSTy script type for the mesh
 	 * 
 	 * @param mesh mesh
-	 * @param script script of the object
-	 * @param name name of the object
-	 * @param parent parent of the object
-	 * @param tag optional tag of the object
 	 */
-	MeshRenderer(
-		const Mesh* const mesh, 
-		Script* script,
-		const char* name = "MeshRenderer",
-		Spatial* parent = nullptr,
-		const uint32& tag = 0
-	);
+	MeshRenderer(const Mesh* const mesh);
+
 	DEFINE_DEFAULT_MOVE(MeshRenderer)
 
 	/**
@@ -67,18 +58,9 @@ private:
 	vulkan::GPUBuffer m_indexBuffer;
 
 	/**
-	 * @brief create a vertex buffer
-	 */
-	void create_vertex_buffer();
-	/**
-	 * @brief create a index buffer
-	 */
-	void create_index_buffer();
-
-	/**
 	 * bind the buffers of the mesh and draw it
 	 */
-	void draw() const noexcept;
+	void update() const noexcept;
 
 	friend class Material;
 	friend class CubemapBase;

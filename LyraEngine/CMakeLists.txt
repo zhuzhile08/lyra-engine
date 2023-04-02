@@ -81,8 +81,6 @@ add_library(LyraEngine
 	"src/EntitySystem/Mesh.cpp"
 	"src/EntitySystem/MeshRenderer.cpp"
 
-	"src/EntitySystem/transform.cpp"
-
 	"src/Input/Input.cpp"
 )
 

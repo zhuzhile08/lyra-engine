@@ -1,4 +1,4 @@
-#include <nodes/physics/colliders.h>
+#include <EntitySystem/colliders.h>
 
 
 
@@ -6,7 +6,7 @@ namespace lyra {
 
 BoxCollider::BoxCollider(
 		Rigidbody* parent,
-		const char* name,
+		std::string_view name,
 		const glm::vec3 dimensions,
 		const bool active,
 		const uint32 tag,

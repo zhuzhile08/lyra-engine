@@ -1,5 +1,5 @@
 /*************************
- * @file rigidbody.h
+ * @file Rigidbody.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief A rigidbody for containing and handling objects that require physics like collision
@@ -11,15 +11,15 @@
 
 #pragma once
 
-#include <lyra.h>
+#include <Lyra/Lyra.h>
 
 
-#include <nodes/node.h>
-#include <nodes/spatial.h>
+#include <Common/Node.h>
+#include <EntitySystem/Entity.h>
 
 namespace lyra {
 
-class Rigidbody : public Spatial {
+class Rigidbody {
 
 };
 

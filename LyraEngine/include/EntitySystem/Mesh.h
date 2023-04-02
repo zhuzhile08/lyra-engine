@@ -1,5 +1,5 @@
 /*************************
- * @file mesh.h
+ * @file Mesh.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief a file with geometry and mesh related structs
@@ -12,26 +12,25 @@
 
 #pragma once
 
-#include <lyra.h>
+#include <Lyra/Lyra.h>
 
 #include <vector>
-#include <core/array.h>
+#include <Common/Array.h>
 
 #include <glm/glm.hpp>
 
 #include <vulkan/vulkan.h>
 
-#include <res/loaders/load_model.h>
+#include <Resource/LoadModel.h>
 
-#include <core/node.h>
-#include <nodes/spatial.h>
+#include <EntitySystem/Entity.h>
 
 namespace lyra {
 
 /**
  * @brief A mesh struct containing vertices, indecies and vertex and index buffers
  */
-class  Mesh : public Spatial {
+class Mesh {
 public:
 	// vertex
 	struct Vertex {
@@ -104,21 +103,9 @@ public:
 	 * @brief construct a new mesh loaded from a .obj file
 	 *
 	 * @param path path of the model
-	 * @param script script of the object
-	 * @param name name of the object
-	 * @param parent parent Node of the object
-	 * @param visible visibility of the object
-	 * @param tag optional tag of the object
-	 * @param transform transform of the object
 	 */
 	Mesh(
-		const char* path, 
-		Script* script,
-		const char* name = "Mesh",
-		Spatial* parent = nullptr,
-		const bool& visible = true,
-		const uint32& tag = 0,
-		const Transform& transform = Transform()
+		std::string_view path
 	);
 
 	/**
@@ -126,22 +113,10 @@ public:
 	 *
 	 * @param vertices the new vertices
 	 * @param indices the new indices
-	 * @param script script of the object
-	 * @param name name of the object
-	 * @param parent parent Node of the object
-	 * @param visible visibility of the object
-	 * @param tag optional tag of the object
-	 * @param transform transform of the object
 	 */
 	Mesh(
 		const std::vector <Vertex>& vertices, 
-		const std::vector <uint32>& indices, 
-		Script* script,
-		const char* name = "Mesh",
-		Spatial* parent = nullptr,
-		const bool& visible = true,
-		const uint32& tag = 0,
-		const Transform& transform = Transform()
+		const std::vector <uint32>& indices
 	);
 
 	/**

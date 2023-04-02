@@ -1,34 +1,13 @@
-#include <nodes/mesh/mesh.h>
+#include <EntitySystem/Mesh.h>
 
 namespace lyra {
 
 // mesh
-Mesh::Mesh(
-	const char* path, 
-	Script* script,
-	const char* name,
-	Spatial* parent,
-	const bool& visible,
-	const uint32& tag,
-	const Transform& transform
-) : Spatial(nullptr, name, parent, visible, tag, transform) {
-	create_mesh(util::load_model(path));
-}
-
-Mesh::Mesh(
-	const std::vector <Vertex>& vertices, 
-	const std::vector <uint32>& indices, 
-	Script* script,
-	const char* name,
-	Spatial* parent,
-	const bool& visible,
-	const uint32& tag,
-	const Transform& transform
-) : Spatial(nullptr, name, parent, visible, tag, transform), m_vertices(vertices), m_indices(indices) { }
-
-void Mesh::create_mesh(const util::LoadedModel& loaded) {
+Mesh::Mesh(std::string_view path) {
 	// this is, as far as I know, veeeeeery inefficient, but I lack the knowlege to make it better, I don't even understand what is going on
 	// @todo make some sort of application that loads models into a text file that this engine can read muuuuuuuuuuuch faster and easier but for now, I'll stick to this
+
+	auto loaded = util::load_model(path);
 
 	// loop over all the shapes
 	for (const auto& shape : loaded.shapes) {
@@ -61,5 +40,8 @@ void Mesh::create_mesh(const util::LoadedModel& loaded) {
 		}
 	}
 }
+
+Mesh::Mesh(const std::vector <Vertex>& vertices, const std::vector <uint32>& indices)
+	 : m_vertices(vertices), m_indices(indices) { }
 
 } // namespace lyra

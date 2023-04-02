@@ -243,8 +243,18 @@ public:
 	 * 
 	 * @return constexpr lyra::SmartPointer::pointer_type
 	 */
-	constexpr operator pointer_type () const noexcept {
+	constexpr operator pointer_type() const noexcept {
 		return m_pointer;
+	}
+	/**
+	 * @brief cast the type to it a type castable from the internal pointer typo
+	 * 
+	 * @tparam CTy castable type
+	 * 
+	 * @return CTy
+	 */
+	template <class CTy> constexpr operator CTy() const noexcept {
+		return static_cast<CTy>(m_pointer);
 	}
 
 private:

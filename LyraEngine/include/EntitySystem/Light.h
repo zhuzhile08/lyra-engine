@@ -1,5 +1,5 @@
 /*************************
- * @file light.h
+ * @file Light.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
  * @brief 
@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <lyra.h>
+#include <Lyra/Lyra.h>
 
 namespace lyra {
 

@@ -1,5 +1,5 @@
 /*************************
- * @file   script.h
+ * @file   Script.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief  a script node that defines object behavoir
@@ -11,9 +11,9 @@
 
 #pragma once
 
-namespace lyra {
+#include <EntitySystem/Entity.h>
 
-class GameObject;
+namespace lyra {
 
 // script component
 struct Script {
@@ -21,7 +21,7 @@ struct Script {
 	virtual void update(void) { };
 	virtual void physics_update(void) { };
 
-	GameObject* node;
+	Entity* node;
 };
 
 } // namespace lyra

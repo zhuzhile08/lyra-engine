@@ -1,5 +1,5 @@
 /*************************
- * @file camera.h
+ * @file Camera.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief uniform buffer objects
@@ -11,31 +11,32 @@
 
 #pragma once
 
-#include <lyra.h>
+#include <Lyra/Lyra.h>
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <vector>
-#include <core/array.h>
+#include <Common/Array.h>
 
 #include <glm/glm.hpp>
 
-#include <core/smart_pointer.h>
-#include <core/settings.h>
+#include <Common/SmartPointer.h>
+#include <Common/ResourcePool.h>
+#include <Common/Settings.h>
 
-#include <nodes/spatial.h>
+#include <EntitySystem/Entity.h>
 
-#include <rendering/vulkan/descriptor.h>
-#include <rendering/vulkan/GPU_buffer.h>
-#include <rendering/graphics_pipeline.h>
-#include <rendering/renderer.h>
+#include <Graphics/VulkanImpl/DescriptorSystem.h>
+#include <Graphics/VulkanImpl/GPUBuffer.h>
+#include <Graphics/GraphicsPipeline.h>
+#include <Graphics/Renderer.h>
 
 namespace lyra {
 
 /**
  * @brief wrapper arond a uniform buffer object
  */
-class Camera : public Renderer, public Spatial {
+class Camera : public Renderer, public ComponentBase {
 public:
 	// projection mode of the camera
 	enum Projection {
@@ -72,12 +73,7 @@ public:
 	Camera(
 		Script* script,
 		Skybox* skybox = nullptr,
-		const bool& perspective = true,
-		const char* name = "Camera",
-		Spatial* parent = nullptr,
-		const bool& visible = true,
-		const uint32& tag = 0,
-		const Transform& transform = Transform()
+		const bool& perspective = true
 	);
 	DEFINE_DEFAULT_MOVE(Camera)
 
@@ -102,6 +98,11 @@ public:
 	 * @param far far clipping plane
 	*/
 	void set_orthographic(const glm::vec4& viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, const float& near = 0.1f, const float& far = 20.0f) noexcept;
+	/**
+	 * @brief update function
+	*/
+	void update() override;
+
 	/**
 	 * @brief get the field of view of the camera
 	 *
@@ -139,10 +140,6 @@ private:
 	Projection m_projection;
 	glm::mat4 m_projection_matrix;
 
-	/**
-	 * @brief draw function
-	*/
-	void draw();
 	/**
 	 * @brief record the command buffer
 	 */
