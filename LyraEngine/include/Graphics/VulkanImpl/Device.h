@@ -13,11 +13,11 @@
 
 #include <Lyra/Lyra.h>
 
+#include <limits>
 #include <vector>
 #include <map>
 
 #include <vulkan/vulkan.h>
-
 #include <Common/RAIIContainers.h>
 
 #ifdef __APPLE__
@@ -40,15 +40,19 @@ namespace vulkan {
  * @brief Vulkan physical and logical devices
  */
 class Device {
-public:
-	/**
-	 * @brief queue families
-	 */
-	struct QueueFamily {
-		vk::Queue queue;
-		uint32  familyIndex = 0;
+private:
+	// structure containing the queue indices of the device
+	struct QueueFamilies {
+		uint32 graphicsComputeQueueIndex = std::numeric_limits<uint32>::max();
+		uint32 presentQueueIndex = std::numeric_limits<uint32>::max();
+		// uint32 computeQueueIndex;
+
+		constexpr bool found() const noexcept {
+			return ((graphicsComputeQueueIndex != std::numeric_limits<uint32>::max()) && (presentQueueIndex != std::numeric_limits<uint32>::max()));
+		}
 	};
 
+public:
 	/**
 	 * @brief create the devices
 	 */
@@ -251,23 +255,23 @@ public:
 	VkResult setEvent(const VkEvent& event) {
 		return vkSetEvent(m_device, event);
 	}
-	void unmapMemory(const VmaAllocation& allocation) {
-		vmaUnmapMemory(m_allocator, allocation);
+	void unmapMemory(const vma::Allocation& allocation) {
+		vmaUnmapMemory(m_allocator.get(), allocation);
 	}
 	void updateDescriptorSet(const VkWriteDescriptorSet& pDescriptorWrite, const VkCopyDescriptorSet& pDescriptorCopy) {
 		vkUpdateDescriptorSets(m_device, 1, &pDescriptorWrite, 1, &pDescriptorCopy);
 	}
-	void updateDescriptorSets(const uint32& descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites) {
-		vkUpdateDescriptorSets(m_device, descriptorWriteCount, pDescriptorWrites, 0, nullptr);
+	void updateDescriptorSets(const std::vector<VkWriteDescriptorSet>& descriptorWrites) {
+		vkUpdateDescriptorSets(m_device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
-	void updateDescriptorSets(const uint32& descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites, const uint32& descriptorCopyCount, const VkCopyDescriptorSet* pDescriptorCopies) {
-		vkUpdateDescriptorSets(m_device, descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+	void updateDescriptorSets(const std::vector<VkWriteDescriptorSet>& descriptorWrites, const std::vector<VkCopyDescriptorSet>& descriptorCopies) {
+		vkUpdateDescriptorSets(m_device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), static_cast<uint32>(descriptorCopies.size()), descriptorCopies.data());
 	}
-	VkResult waitForFence(const VkFence& pFences, const VkBool32& waitAll, uint64 timeout) {
-		return vkWaitForFences(m_device, 1, &pFences, waitAll, timeout);
+	VkResult waitForFence(const vk::Fence& pFences, const VkBool32& waitAll, uint64 timeout) {
+		return vkWaitForFences(m_device, 1, &pFences.get(), waitAll, timeout);
 	}
-	VkResult waitForFences(const uint32& fenceCount, const VkFence* pFences, const VkBool32& waitAll, uint64 timeout) {
-		return vkWaitForFences(m_device, fenceCount, pFences, waitAll, timeout);
+	VkResult waitForFences(const std::vector<VkFence>& fences, const VkBool32& waitAll, uint64 timeout) {
+		return vkWaitForFences(m_device, static_cast<uint32>(fences.size()), fences.data(), waitAll, timeout);
 	}
 
 	// don't ask me how long this took
@@ -291,17 +295,23 @@ public:
 	 */
 	NODISCARD constexpr const vk::Device& device() const noexcept { return m_device; }
 	/**
+	 * @brief get the queue families of the device
+	 * 
+	 * @return NODISCARD constexpr lyra::vulkan::Device::QueueFamilies&
+	 */
+	NODISCARD constexpr const QueueFamilies& queueFamilies() const noexcept { return m_queueFamilies; }
+	/**
 	 * @brief get the graphics queue
 	 * 
-	 * @return const lyra::QueueFamily&
+	 * @return const lyra::vulkan::vk::Queue&
 	 */
-	NODISCARD constexpr const QueueFamily& graphicsQueue() const noexcept { return m_graphicsQueue; }
+	NODISCARD constexpr const vk::Queue& graphicsComputeQueue() const noexcept { return m_graphicsComputeQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
-	 * @return const lyra::QueueFamily&
+	 * @return const lyra::vulkan::vk::Queue&
 	 */
-	NODISCARD constexpr const QueueFamily& presentQueue() const noexcept { return m_presentQueue; }
+	NODISCARD constexpr const vk::Queue& presentQueue() const noexcept { return m_presentQueue; }
 	/**
 	 * @brief get the VMA memory allocator
 	 *
@@ -314,8 +324,10 @@ private:
 	vk::PhysicalDevice m_physicalDevice;
 	vk::Device m_device;
 
-	QueueFamily m_graphicsQueue;
-	QueueFamily m_presentQueue;
+	QueueFamilies m_queueFamilies;
+	vk::Queue m_graphicsComputeQueue;
+	vk::Queue m_presentQueue;
+	// vk::Queue m_computeQueue;
 
 	vma::Allocator m_allocator;
 
@@ -331,51 +343,30 @@ private:
 	 *
 	 * @param extensions the available extensions
 	 * @param requestedExtensions the requested extensions
+	 * 
+	 * @return true if all requested extensions were found
+	 * @return false if not all requested extensions were found
 	 */
-	void check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const;
+	bool check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const;
 
 	/**
 	 * @brief find the family index of a queues
 	 *
-	 * @param queue the queue to find the family index of
 	 * @param device device to find the family index of the queue of
-	 * @return QueueFamily
+	 * @param surface surface to find present queue compatibility
+	 * 
+	 * @return lyra::vulkan::Device::QueueFamily
 	 */
-	void find_family_index(QueueFamily& queue, const VkPhysicalDevice device) noexcept;
+	QueueFamilies find_queue_families(const VkPhysicalDevice& device, const vk::Surface& surface) noexcept;
 
 	/**
 	 * @brief rate a physical device by its features
 	 *
 	 * @param device the device to rate
+	 * @param surface surface to find present queue compatibility
 	 * @param map a map containing all the physical devices and their scores
 	 */
-	void rate_physical_device(const VkPhysicalDevice& device, std::multimap <int, VkPhysicalDevice>& map);
-
-	/**
-	 * @brief create a Vulkan queue
-	 *
-	 * @return QueueFamily
-	 */
-	void create_queue(QueueFamily& queue) noexcept;
-	
-	/**
-	 * @brief create a Vulkan instance
-	 *
-	 * @param window window
-	 */
-	void create_instance();
-	/**
-	 * @brief select a physical device from the available ones
-	 */
-	void pick_physical_device();
-	/**
-	 * @brief create a logical device
-	 */
-	void create_logical_device();
-	/**
-	 * @brief create the VMA memoryW allocator
-	 */
-	void create_allocator();
+	void rate_physical_device(const VkPhysicalDevice& device, const vk::Surface& surface, std::multimap <uint32, std::pair<VkPhysicalDevice, QueueFamilies>>& map);
 	
 	friend class RenderSystem;
 };

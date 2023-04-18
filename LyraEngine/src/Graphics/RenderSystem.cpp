@@ -1,7 +1,6 @@
 #include <Graphics/RenderSystem.h>
 
 #include <Common/Settings.h>
-#include <Common/Queue.h>
 
 #include <Input/Input.h>
 
@@ -14,14 +13,11 @@ void RenderSystem::add_renderer(Renderer* const renderer) {
 	m_renderers.push_back(renderer);
 }
 
-void RenderSystem::wait_device_queue(const vulkan::Device::QueueFamily& queue) const {
-	vassert(vkQueueWaitIdle(queue.queue), "wait for device queue");
+void RenderSystem::wait_device_queue(const vulkan::vk::Queue& queue) const {
+	vassert(vkQueueWaitIdle(queue), "wait for device queue");
 }
 
 void RenderSystem::draw() {
-	// update the renderers
-	for (const auto& renderer : m_renderers) renderer->m_updateQueue.flush();
-
 	// wait for the already recorded stuff to finish executing
 	frames[m_currentFrame].wait(); 
 	
@@ -67,7 +63,7 @@ void RenderSystem::submit_device_queue(const VkPipelineStageFlags& stageFlags) c
 	};
 
 	// submit the queue
-	vkQueueSubmit(device.presentQueue().queue, 1, &submitInfo, frames[m_currentFrame].inFlightFences());
+	vkQueueSubmit(device.presentQueue(), 1, &submitInfo, frames[m_currentFrame].inFlightFences());
 }
 
 void RenderSystem::present_device_queue() {
@@ -81,7 +77,7 @@ void RenderSystem::present_device_queue() {
 		&m_imageIndex
 	};
 
-	VkResult result = vkQueuePresentKHR(device.presentQueue().queue, &presentInfo);
+	VkResult result = vkQueuePresentKHR(device.presentQueue(), &presentInfo);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->changed()) {
 		// check if window was minimized, if true, then loop until otherwise

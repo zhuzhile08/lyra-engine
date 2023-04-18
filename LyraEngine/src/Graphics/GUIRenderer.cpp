@@ -47,8 +47,8 @@ GUIRenderer::GUIRenderer() : Renderer() {
 		Application::renderSystem.device.instance(),
 		Application::renderSystem.device.physicalDevice(),
 		Application::renderSystem.device.device(),
-		Application::renderSystem.device.graphicsQueue().familyIndex,
-		Application::renderSystem.device.graphicsQueue().queue,
+		Application::renderSystem.device.graphicsComputeQueue().familyIndex,
+		Application::renderSystem.device.graphicsComputeQueue(),
 		VK_NULL_HANDLE,
 		m_descriptorPool->get(),
 		0,
@@ -68,7 +68,7 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	// end recording the command buffer
 	cmdBuff.end();
 	// submit the commands
-	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsComputeQueue());
 	// reset the command buffer
 	cmdBuff.reset();
 

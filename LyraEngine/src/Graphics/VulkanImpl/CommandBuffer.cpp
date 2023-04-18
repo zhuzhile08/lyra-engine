@@ -15,7 +15,7 @@ CommandPool::CommandPool() {
 		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		nullptr,
 		VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-		Application::renderSystem.device.graphicsQueue().familyIndex
+		Application::renderSystem.device.queueFamilies().graphicsComputeQueueIndex
 	};
 
 	m_commandPool = vk::CommandPool(Application::renderSystem.device.device(), createInfo);

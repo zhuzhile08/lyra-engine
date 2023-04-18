@@ -87,7 +87,7 @@ void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
 	// end recording
 	cmdBuff.end();
 	// submit the commands
-	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsComputeQueue());
 	// reset the command buffer
 	cmdBuff.reset();
 }

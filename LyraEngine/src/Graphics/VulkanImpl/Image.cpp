@@ -75,7 +75,7 @@ void Image::transition_layout(
 	// end recording
 	cmdBuff.end();
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsComputeQueue());
 	// reset the command buffer
 	cmdBuff.reset();
 }
@@ -115,7 +115,7 @@ void Image::copy_from_buffer(const vulkan::GPUBuffer* stagingBuffer, const VkExt
 	// end recording
 	cmdBuff.end();
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsComputeQueue());
 }
 
 } // namespace vulkan

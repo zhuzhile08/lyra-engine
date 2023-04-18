@@ -217,9 +217,9 @@ void Window::create_swapchain() {
 	// create the extent
 	create_swapchain_extent(surfaceCapabilities);
 
-	// create the swapchain
-	const auto cond = (Application::renderSystem.device.graphicsQueue().familyIndex != Application::renderSystem.device.presentQueue().familyIndex);
+	const auto cond = (Application::renderSystem.device.queueFamilies().graphicsComputeQueueIndex != Application::renderSystem.device.queueFamilies().presentQueueIndex);
 
+	// creation info
 	VkSwapchainCreateInfoKHR createInfo = {
 		VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 		nullptr,
@@ -233,7 +233,7 @@ void Window::create_swapchain() {
 		surfaceCapabilities.supportedUsageFlags,
 		(cond) ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE,
 		static_cast<uint32>((cond) ? 2 : 0),
-		(cond) ? &Application::renderSystem.device.graphicsQueue().familyIndex : 0,
+		(cond) ? &Application::renderSystem.device.queueFamilies().graphicsComputeQueueIndex : 0,
 		surfaceCapabilities.currentTransform,
 		VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 		presentMode,
@@ -241,6 +241,7 @@ void Window::create_swapchain() {
 		(m_oldSwapchain != nullptr) ? *m_oldSwapchain : VK_NULL_HANDLE
 	};
 
+	// create the swapchain
 	m_swapchain = vk::Swapchain(Application::renderSystem.device.device(), createInfo);
 
 	create_swapchain_images();
