@@ -26,7 +26,7 @@ namespace lyra {
 template <typename Ty>
 concept DynarrayValueType = std::is_move_assignable_v<Ty> && std::is_default_constructible_v<Ty>;
 
-// very dangerous dynamic array implementation, only store contents <= 4 bytes with less than 16 capacity
+// very dangerous dynamic array implementation, please only store contents <= 4 bytes in small quantities capacity
 template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	using value_type = Ty;
 	using reference = value_type&;
@@ -40,7 +40,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	using const_iterator_type = typename array_type::const_iterator_type;
 
 	/**
-	 * @brief get an element of the array
+	 * @brief get an element of the dynamic array
 	 *
 	 * @param index index of the element
 	 * @return constexpr lyra::Dynarray::iterator_type
@@ -49,7 +49,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[index];
 	}
 	/**
-	 * @brief get an element of the array
+	 * @brief get an element of the dynamic array
 	 *
 	 * @param index index of the element
 	 * @return constexpr lyra::Dynarray::const_reference 
@@ -58,7 +58,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[index];
 	}
 	/**
-	 * @brief get an element of the array with no UB posibility
+	 * @brief get an element of the dynamic array with no UB posibility
 	 *
 	 * @param index index of the element
 	 * @return constexpr lyra::Dynarray::reference 
@@ -67,7 +67,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[index];
 	}
 	/**
-	 * @brief get an element of the array with no UB posibility
+	 * @brief get an element of the dynamic array with no UB posibility
 	 *
 	 * @param index index of the element
 	 * @return constexpr lyra::Dynarray::const_reference 
@@ -76,7 +76,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[index];
 	}
 	/**
-	 * @brief get the front element of the array
+	 * @brief get the front element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::reference
 	 */
@@ -84,7 +84,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[m_size - 1];
 	}
 	/**
-	 * @brief get the front element of the array
+	 * @brief get the front element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::const_reference
 	 */
@@ -92,7 +92,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[m_size - 1];
 	}
 	/**
-	 * @brief get the back element of the array
+	 * @brief get the back element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::reference
 	 */
@@ -100,7 +100,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[0];
 	}
 	/**
-	 * @brief get the back element of the array
+	 * @brief get the back element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::const_reference
 	 */
@@ -108,7 +108,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[0];
 	}
 	/**
-	 * @brief get the first element of the array
+	 * @brief get the first element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::iterator_type
 	 */
@@ -116,7 +116,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[0];
 	}
 	/**
-	 * @brief get the first element of the array
+	 * @brief get the first element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::const_iterator_type
 	 */
@@ -124,7 +124,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[0];
 	}
 	/**
-	 * @brief get the last element of the array
+	 * @brief get the last element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::iterator_type
 	 */
@@ -132,7 +132,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return m_array[m_size];
 	}
 	/**
-	 * @brief get the last element of the array
+	 * @brief get the last element of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::const_iterator_type
 	 */
@@ -141,13 +141,13 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	}
 
 	/**
-	 * @brief fill the array with the same value
+	 * @brief fill the dynamic array with the same value
 	 * 
 	 * @param value value to fill with
 	 */
 	constexpr void fill(const_reference value) { for (size_t i; i < m_size; i++) m_array[i] = std::move(value); }
 	/**
-	 * @brief fill the array with the same value
+	 * @brief fill the dynamic array with the same value
 	 * 
 	 * @param value value to fill with
 	 */
@@ -155,7 +155,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		for (size_t i; i < m_size; i++) m_array[i] = std::move(value); 
 	}
 	/**
-	 * @brief fill the array with elements from a C-array
+	 * @brief fill the dynamic array with elements from a C-array
 	 * 
 	 * @param array C-array
 	 * @param size size of the C-array
@@ -164,7 +164,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		for (size_t i; i < ( m_size < size ) ? m_size : size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
-	 * @brief fill the array with elements from another array wrapper
+	 * @brief fill the dynamic array with elements from another array wrapper
 	 * 
 	 * @param array array wrapper to fill with
 	 */
@@ -172,9 +172,9 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		for (size_t i; i < ( m_size < array.m_size ) ? m_size : array.m_size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
-	 * @brief fill the array with elements from a differently sized array wrapper
+	 * @brief fill the dynamic array with elements from a differently sized array wrapper
 	 * 
-	 * @tparam Otherm_size size of the array wrapper
+	 * @tparam Otherm_size size of the dynamic array wrapper
 	 * 
 	 * @param array array wrapper to fill with
 	 */
@@ -183,7 +183,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	}
 
 	/**
-	 * @brief clear all the members in the array and set size to 0
+	 * @brief clear all the members in the dynamic array and set size to 0
 	 */
 	constexpr void clear() {
 		m_array.fill(Ty());
@@ -208,7 +208,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		m_array[index] = std::move(value);
 	}
 	/**
-	 * @brief insert an element into a part of the array
+	 * @brief insert an element into a part of the dynamic array
 	 *
 	 * @param begin starting index
 	 * @param end ending index
@@ -219,7 +219,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	}
 
 	/**
-	 * @brief insert an element into a part of the array
+	 * @brief insert an element into a part of the dynamic array
 	 *
 	 * @param begin starting index
 	 * @param end ending index
@@ -229,7 +229,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		for (size_t i = begin; i <= end; i++) m_array[i] = std::move(value);
 	}
 	/**
-	 * @brief push back a value into the array
+	 * @brief push back a value into the dynamic array
 	 *
 	 * @param value value to insert
 	 */
@@ -238,7 +238,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		m_size++;
 	}
 	/**
-	 * @brief push back a value into the array
+	 * @brief push back a value into the dynamic array
 	 *
 	 * @param value value to insert
 	 */
@@ -247,23 +247,23 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		m_size++;
 	}
 	/**
-	 * @brief remove the last element in the array
+	 * @brief remove the last element in the dynamic array
 	 */
 	constexpr void pop_back() {
 		back() = std::move(value_type());
 		m_size--;
 	}
 	/**
-	 * @brief resize the array
+	 * @brief resize the dynamic array
 	 * 
-	 * @param size new size of the array
+	 * @param size new size of the dynamic array
 	 */
 	constexpr void resize(const size_t& size) {
 		if (m_size <= size) m_size = size;
 		else for ( ; m_size > size; m_size--) pop_back();
 	}
 	/**
-	 * @brief swap the contents of the array with another array
+	 * @brief swap the contents of the dynamic array with another array
 	 * 
 	 * @param array array to swap with
 	 */
@@ -272,7 +272,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	}
 
 	/**
-	 * @brief get the size of the array
+	 * @brief get the size of the dynamic array
 	 * 
 	 * @return constexpr const size_t
 	 */
@@ -288,7 +288,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return capacity;
 	}
 	/**
-	 * @brief check if the array is sized 0
+	 * @brief check if the dynamic array is sized 0
 	 * 
 	 * @return constexpr const bool
 	 */
@@ -297,7 +297,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	}
 
 	/**
-	 * @brief get the used part of the array
+	 * @brief get the used part of the dynamic array
 	 *
 	 * @return constexpr lyra::Dynarray::value_type*
 	 */
@@ -306,7 +306,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 		return span.data();
 	}
 	/**
-	 * @brief get the used part of the array
+	 * @brief get the used part of the dynamic array
 	 *
 	 * @return constexpr const lyra::Dynarray::value_type*
 	 */
