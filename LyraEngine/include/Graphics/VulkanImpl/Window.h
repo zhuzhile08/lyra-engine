@@ -42,7 +42,7 @@ public:
 	/**
 	 * @brief get the Vulkan surface
 	 *
-	 * @return constexpr lyra::vulkan::vk::Surface&
+	 * @return constexpr lyra::vulkan::vk::SurfaceKHR&
 	 */
 	NODISCARD constexpr const vk::SurfaceKHR& surface() const noexcept { return m_surface; }
 	/**
