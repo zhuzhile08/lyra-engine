@@ -116,6 +116,8 @@ public:
 				vassert(vkCreateDescriptorSetLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor set layout");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
 				vassert(vkCreateDescriptorPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor pool");
+			} else if constexpr (std::same_as<handle_type, VkDescriptorSet>) {
+				vassert(vkAllocateDescriptorSets(this->m_owner, &createInfo, &this->m_handle), "allocate descriptor sets");
 			} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
 				vassert(vkCreateSemaphore(this->m_owner, &createInfo, nullptr, &this->m_handle), "create semaphore");
 			} else if constexpr (std::same_as<handle_type, VkFence>) {
@@ -411,6 +413,7 @@ using Semaphore = RAIIContainer<VkSemaphore, VkDevice>;
 using Fence = RAIIContainer<VkFence, VkDevice>;
 using DescriptorSetLayout = RAIIContainer<VkDescriptorSetLayout, VkDevice>;
 using DescriptorPool = RAIIContainer<VkDescriptorPool, VkDevice>;
+using DescriptorSet = RAIIContainer<VkDescriptorSet, VkDevice>;
 using ShaderModule = RAIIContainer<VkShaderModule, VkDevice>;
 using PipelineLayout = RAIIContainer<VkPipelineLayout, VkDevice>;
 using Pipeline = RAIIContainer<VkPipeline, VkDevice>;
