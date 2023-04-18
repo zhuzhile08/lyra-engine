@@ -53,11 +53,11 @@ void DescriptorSystem::create_descriptor_pool() {
 // descriptor sets
 DescriptorSystem::DescriptorSet::DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo) {
 	// create the descriptor set
-	vassert(vkAllocateDescriptorSets(Application::renderSystem.device.device(), &allocInfo, &m_descriptorSet), "allocate descriptor sets");
+	m_descriptorSet = vk::DescriptorSet(Application::renderSystem.device.device(), allocInfo);
 }
 
 void DescriptorSystem::DescriptorSet::update() const noexcept {
-	Application::renderSystem.device.updateDescriptorSets(static_cast<uint32>(m_writes.size()), m_writes.data());
+	Application::renderSystem.device.updateDescriptorSets(m_writes);
 }
 
 DescriptorSystem::DescriptorSetResource DescriptorSystem::get_unused_set() {

@@ -331,7 +331,7 @@ public:
 		NODISCARD constexpr const VkDescriptorSet& get() const noexcept { return m_descriptorSet; }
 
 	private:
-		VkDescriptorSet m_descriptorSet;
+		vk::DescriptorSet m_descriptorSet;
 
 		std::vector<VkWriteDescriptorSet> m_writes;
 	};
