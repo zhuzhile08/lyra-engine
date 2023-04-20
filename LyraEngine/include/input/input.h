@@ -16,8 +16,6 @@
 #include <SDL.h>
 #include <glm/glm.hpp>
 
-#include <Common/Queue.h>
-
 #include <Input/InputEnums.h>
 
 namespace lyra {
