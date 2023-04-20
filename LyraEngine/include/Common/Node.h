@@ -23,17 +23,17 @@ namespace lyra {
  */
 template <class Ty> class Node {
 public:
-	using value_type = Ty;
-	using const_value_type = const value_type;
-	using reference = value_type&;
-	using const_reference = const value_type&;
-	using pointer = value_type*;
-	using const_pointer = const value_type*;
-	using movable = value_type&&;
-	using map_type = std::unordered_map<std::string, pointer>;
-	using iterator_type = typename map_type::iterator;
-	using const_iterator_type = typename map_type::const_iterator;
-	using iterator_pair_type = std::pair<iterator_type, bool>;
+	using value = Ty;
+	using const_value = const value;
+	using reference = value&;
+	using const_reference = const value&;
+	using pointer = value*;
+	using const_pointer = const value*;
+	using movable = value&&;
+	using map = std::unordered_map<std::string, pointer>;
+	using iterator = typename map::iterator;
+	using const_iterator = typename map::const_iterator;
+	using iterator_pair = std::pair<iterator, bool>;
 
 	Node() = default;
 	/**
@@ -77,9 +77,9 @@ public:
 	 *
 	 * @param newChild child object to insert
 	 * 
-	 * @return lyra::Node::iterator_pair_type 
+	 * @return lyra::Node::iterator_pair 
 	 */
-	iterator_pair_type insert_child(reference child) {
+	iterator_pair insert_child(reference child) {
 		child.m_parent = this;
 		return m_children.insert({child.m_name, &child});
 	}
@@ -88,9 +88,9 @@ public:
 	 *
 	 * @param newChild child object to insert
 	 * 
-	 * @return lyra::Node::iterator_pair_type 
+	 * @return lyra::Node::iterator_pair 
 	 */
-	iterator_pair_type insert_child(movable child) {
+	iterator_pair insert_child(movable child) {
 		child.m_parent = this;
 		return m_children.insert({child.m_name, &child});
 	}
@@ -99,9 +99,9 @@ public:
 	 *
 	 * @param newChild child object to insert
 	 * 
-	 * @return lyra::Node::iterator_pair_type 
+	 * @return lyra::Node::iterator_pair 
 	 */
-	iterator_pair_type insert_child(pointer child) {
+	iterator_pair insert_child(pointer child) {
 		child->m_parent = this;
 		return m_children.insert({child->m_name, child});
 	}
@@ -136,26 +136,26 @@ public:
 	 * 
 	 * @param pos iterator pointing to the position to erase
 	 * 
-	 * @return lyra::Node::iterator_type 
+	 * @return lyra::Node::iterator 
 	 */
-	iterator_type erase(iterator_type pos) { return m_children.erase(pos); }
+	iterator erase(iterator pos) { return m_children.erase(pos); }
 	/**
 	 * @brief erase a element at a specified position
 	 * 
 	 * @param pos iterator pointing to the position to erase
 	 * 
-	 * @return lyra::Node::iterator_type 
+	 * @return lyra::Node::iterator 
 	 */
-	iterator_type erase(const_iterator_type pos) { return m_children.erase(pos); }
+	iterator erase(const_iterator pos) { return m_children.erase(pos); }
 	/**
 	 * @brief erase a element between two specified positions
 	 * 
 	 * @param first first element to erase
 	 * @param last last element to erase
 	 * 
-	 * @return lyra::Node::iterator_type 
+	 * @return lyra::Node::iterator 
 	 */
-	iterator_type erase(const_iterator_type first, const_iterator_type last) { return m_children.erase(first, last); }
+	iterator erase(const_iterator first, const_iterator last) { return m_children.erase(first, last); }
 
 	/**
 	 * @brief swap the children of this node with another
@@ -168,7 +168,7 @@ public:
 	 * 
 	 * @param other map to swap with
 	 */
-	[[deprecated]] void swap(map_type& other) noexcept { m_children.swap(other); }
+	[[deprecated]] void swap(map& other) noexcept { m_children.swap(other); }
 
 	/**
 	 * @brief check if container is empty
@@ -237,17 +237,17 @@ public:
 	 * 
 	 * @param name name of element to find or create
 	 * 
-	 * @return lyra::Node::iterator_type 
+	 * @return lyra::Node::iterator 
 	 */
-	iterator_type find(std::string_view name)	{ return m_children.find(name); }
+	iterator find(std::string_view name)	{ return m_children.find(name); }
 	/**
 	 * @brief find an element with a name, if it does not exist yet, create one with that name
 	 * 
 	 * @param name name of element to find or create
 	 * 
-	 * @return lyra::Node::const_iterator_type 
+	 * @return lyra::Node::const_iterator 
 	 */
-	const_iterator_type find(std::string_view name) const { return m_children.find(name); }
+	const_iterator find(std::string_view name) const { return m_children.find(name); }
 
 	/**
 	 * @brief check if a child with the name exists in the internal map
@@ -276,7 +276,7 @@ protected:
 	std::string m_name = "Node";
 
 	pointer m_parent = nullptr;
-	map_type m_children;
+	map m_children;
 };
 
 } // namespace lyra

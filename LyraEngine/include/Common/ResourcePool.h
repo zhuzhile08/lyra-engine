@@ -30,26 +30,26 @@ namespace lyra {
  */
 template <class Ty> class ResourcePool {
 public:
-	using value_type = Ty;
-	using const_value_type = const value_type;
-	using size_type = size_t;
-	using index_type = const size_type&;
-	using reference = value_type&;
-	using const_reference = const value_type&;
-	using pointer = value_type*;
-	using const_pointer = const value_type*;
-	using movable = value_type&&;
-	using pool_type = ResourcePool<value_type>;
-	using SmartPointer_type = SmartPointer<value_type>;
-	using deque_type = std::deque<SmartPointer_type>;
-	using iterator_type = typename deque_type::iterator;
-	using const_iterator_type = typename deque_type::const_iterator;
+	using value = Ty;
+	using const_value = const value;
+	using size = size_t;
+	using index = const size&;
+	using reference = value&;
+	using const_reference = const value&;
+	using pointer = value*;
+	using const_pointer = const value*;
+	using movable = value&&;
+	using pool = ResourcePool<value>;
+	using SmartPointer = SmartPointer<value>;
+	using deque = std::deque<SmartPointer>;
+	using iterator = typename deque::iterator;
+	using const_iterator = typename deque::const_iterator;
 
 	// a callable to handle returning a resource, used as deleter for the resource container
 	class ResourceReturner {
-		ResourceReturner(deque_type& pool) : m_pool(&pool) { };
+		ResourceReturner(deque& pool) : m_pool(&pool) { };
 		
-		deque_type* m_pool;
+		deque* m_pool;
 
 		friend class ResourcePool;
 
@@ -66,48 +66,48 @@ public:
 		};
 	};
 
-	using resource_container_type = SmartPointer<value_type, ResourceReturner>;
+	using resource_container = SmartPointer<value, ResourceReturner>;
 
 	/**
 	 * @brief get an element of the array
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::ResourcePool::reference 
+	 * @return lyra::ResourcePool::reference 
 	 */
-	NODISCARD constexpr reference operator[](index_type index) noexcept {
+	NODISCARD constexpr reference operator[](index index) noexcept {
 		return *m_resources[index];
 	}
 	/**
 	 * @brief get an element of the array
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::ResourcePool::const_reference 
+	 * @return lyra::ResourcePool::const_reference 
 	 */
-	NODISCARD constexpr const_reference operator[](index_type index) const noexcept {
+	NODISCARD constexpr const_reference operator[](index index) const noexcept {
 		return *m_resources[index];
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::ResourcePool::reference 
+	 * @return lyra::ResourcePool::reference 
 	 */
-	DEPRECATED NODISCARD constexpr reference at(index_type index) noexcept {
+	DEPRECATED NODISCARD constexpr reference at(index index) noexcept {
 		return *m_resources.at(index);
 	}
 	/**
 	 * @brief get an element of the array with no UB posibility
 	 *
 	 * @param index index of the element
-	 * @return constexpr lyra::ResourcePool::reference 
+	 * @return lyra::ResourcePool::reference 
 	 */
-	DEPRECATED NODISCARD constexpr const_reference at(index_type index) const noexcept {
+	DEPRECATED NODISCARD constexpr const_reference at(index index) const noexcept {
 		return *m_resources.at(index);
 	}
 	/**
 	 * @brief get the front element of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::reference
+	 * @return lyra::ResourcePool::reference
 	 */
 	NODISCARD constexpr reference front() {
 		return *m_resources.front();
@@ -115,7 +115,7 @@ public:
 	/**
 	 * @brief get the front element of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::const_reference
+	 * @return lyra::ResourcePool::const_reference
 	 */
 	NODISCARD constexpr const_reference front() const {
 		return *m_resources.front();
@@ -123,7 +123,7 @@ public:
 	/**
 	 * @brief get the back element of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::reference
+	 * @return lyra::ResourcePool::reference
 	 */
 	NODISCARD constexpr reference back() {
 		return *m_resources.back();
@@ -131,7 +131,7 @@ public:
 	/**
 	 * @brief get the back element of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::const_reference
+	 * @return lyra::ResourcePool::const_reference
 	 */
 	NODISCARD constexpr const_reference back() const {
 		return *m_resources.back();
@@ -139,33 +139,33 @@ public:
 	/**
 	 * @brief get an iterator to the begin of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::iterator_type
+	 * @return lyra::ResourcePool::iterator
 	 */
-	NODISCARD constexpr iterator_type begin() {
+	NODISCARD constexpr iterator begin() {
 		return *m_resources.begin();
 	}
 	/**
 	 * @brief get an iterator to the begin of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::const_iterator_type
+	 * @return lyra::ResourcePool::const_iterator
 	 */
-	NODISCARD constexpr const_iterator_type begin() const {
+	NODISCARD constexpr const_iterator begin() const {
 		return *m_resources.begin();
 	}
 	/**
 	 * @brief get an iterator to the end of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::iterator_type
+	 * @return lyra::ResourcePool::iterator
 	 */
-	NODISCARD constexpr iterator_type end() {
+	NODISCARD constexpr iterator end() {
 		return *m_resources.end();
 	}
 	/**
 	 * @brief get an iterator to the begin of the array
 	 *
-	 * @return constexpr lyra::ResourcePool::const_iterator_type
+	 * @return lyra::ResourcePool::const_iterator
 	 */
-	NODISCARD constexpr const_iterator_type end() const {
+	NODISCARD constexpr const_iterator end() const {
 		return *m_resources.end();
 	}
 
@@ -175,23 +175,23 @@ public:
 	/**
 	 * @brief get the size of the internal deque
 	 * 
-	 * @return constexpr const size_type
+	 * @return const size
 	 */
-	NODISCARD constexpr const size_type size() const noexcept {
+	NODISCARD constexpr const size size() const noexcept {
 		return m_resources.size();
 	}
 	/**
 	 * @brief get the maximum size of the internal deque
 	 * 
-	 * @return constexpr size_type
+	 * @return size
 	 */
-	NODISCARD constexpr size_type max_size() const noexcept {
+	NODISCARD constexpr size max_size() const noexcept {
 		return m_resources.max_size();
 	}
 	/**
 	 * @brief check if the internal deque has elements
 	 * 
-	 * @return constexpr bool
+	 * @return bool
 	 */
 	NODISCARD constexpr bool empty() const noexcept {
 		return m_resources.size() == 0;
@@ -199,7 +199,7 @@ public:
 	/**
 	 * @brief return false if the internal deque is empty
 	 * 
-	 * @return constexpr bool
+	 * @return bool
 	 */
 	NODISCARD constexpr operator bool() const noexcept {
 		return m_resources.size() != 0;
@@ -229,7 +229,7 @@ public:
 	 * 
 	 * @return lyra::ResourcePool::reference 
 	 */
-	reference insert(index_type index, const_reference value) {
+	reference insert(index index, const_reference value) {
 		m_resources.insert(m_resources.begin() + index, value);
 	}
 	/**
@@ -240,7 +240,7 @@ public:
 	 * 
 	 * @return lyra::ResourcePool::reference 
 	 */
-	reference insert(index_type index, movable value) {
+	reference insert(index index, movable value) {
 		m_resources.insert(m_resources.begin() + index, std::move(value));
 	}
 	/**
@@ -253,8 +253,8 @@ public:
 	 * 
 	 * @return lyra::ResourcePool::reference 
 	 */
-	template<class... Args> reference emplace(index_type index, Args&&... args) {
-		return m_resources.emplace(m_resources.begin() + index, resource_container_type::create(std::forward<Args>(args)...));
+	template<class... Args> reference emplace(index index, Args&&... args) {
+		return m_resources.emplace(m_resources.begin() + index, resource_container::create(std::forward<Args>(args)...));
 	}
 
 	/**
@@ -262,7 +262,7 @@ public:
 	 * 
 	 * @param index index of resource to erase
 	 */
-	constexpr void erase(index_type index) {
+	constexpr void erase(index index) {
 		m_resources.erase(m_resources.begin() + index);
 	}
 	/**
@@ -271,7 +271,7 @@ public:
 	 * @param first index of first resource to erase
 	 * @param last index of last resource to erase
 	 */
-	constexpr void erase(index_type first, const size_type last) {
+	constexpr void erase(index first, const size last) {
 		m_resources.erase(m_resources.begin() + first, m_resources.begin() + last);
 	}
 
@@ -301,7 +301,7 @@ public:
 	 * @return lyra::ResourcePool::reference 
 	 */
 	template<class... Args> reference emplace_back(Args&&... args) {
-		return *m_resources.emplace_back(SmartPointer_type::create(std::forward<Args>(args)...));
+		return *m_resources.emplace_back(SmartPointer::create(std::forward<Args>(args)...));
 	}
 
 	/**
@@ -337,7 +337,7 @@ public:
 	 * @return lyra::ResourcePool::reference 
 	 */
 	template<class... Args> reference emplace_front(Args&&... args) {
-		return *m_resources.emplace_front(SmartPointer_type::create(std::forward<Args>(args)...));
+		return *m_resources.emplace_front(SmartPointer::create(std::forward<Args>(args)...));
 	}
 
 	/**
@@ -352,7 +352,7 @@ public:
 	 * 
 	 * @param other other deque
 	 */
-	constexpr void swap(deque_type& other) noexcept {
+	constexpr void swap(deque& other) noexcept {
 		m_resources.swap(other);
 	}
 	/**
@@ -360,21 +360,21 @@ public:
 	 * 
 	 * @param other other pool
 	 */
-	constexpr void swap(pool_type& other) noexcept {
+	constexpr void swap(pool& other) noexcept {
 		m_resources.swap(other.m_resources);
 	}
 
 
 	// actuall pool implementation and functions
 
-	resource_container_type get_resource() {
-		resource_container_type resource(m_resources.front().release(), { m_resources } );
+	resource_container get_resource() {
+		resource_container resource(m_resources.front().release(), { m_resources } );
 		m_resources.pop_front();
 		return resource;
 	};
 
 private:
-	deque_type m_resources;
+	deque m_resources;
 };
 
 } // namespace lyra

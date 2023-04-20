@@ -24,10 +24,10 @@ namespace lyra {
  */
 template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
-	using value_type = Ty;
-	using pointer_type = Ty*;
-	using deleter_type = DTy;
-	using wrapper_type = SmartPointer;
+	using value = Ty;
+	using pointer = Ty*;
+	using deleter = DTy;
+	using wrapper = SmartPointer;
 
 	constexpr SmartPointer() = default;
 	/**
@@ -35,27 +35,27 @@ public:
 	 *
 	 * @param pointer raw pointer
 	 */
-	constexpr SmartPointer(pointer_type pointer) : m_pointer(pointer) { }
+	constexpr SmartPointer(pointer pointer) : m_pointer(pointer) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param pointer raw pointer
 	 * @param deleter deleter function
 	 */
-	constexpr SmartPointer(pointer_type pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
+	constexpr SmartPointer(pointer pointer, const deleter& deleter) : m_pointer(pointer), m_deleter(deleter) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param pointer raw pointer
 	 * @param deleter deleter function
 	 */
-	constexpr SmartPointer(pointer_type pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
+	constexpr SmartPointer(pointer pointer, deleter&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param right pointer to copy from
 	 */
-	constexpr SmartPointer(SmartPointer<value_type, deleter_type>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	constexpr SmartPointer(SmartPointer<value, deleter>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 	/**
 	 * @brief construct the smart pointer
 	 *
@@ -79,7 +79,7 @@ public:
 	 */
 	SmartPointer& operator=(SmartPointer&& right) {
 		assign(right.release());
-		m_deleter = std::forward<deleter_type>(right.m_deleter);
+		m_deleter = std::forward<deleter>(right.m_deleter);
 		return *this;
 	}
 	/**
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return lyra::SmartPointer&
 	 */
-	SmartPointer<value_type, deleter_type>& operator=(pointer_type right) {
+	SmartPointer<value, deleter>& operator=(pointer right) {
 		assign(right);
 		return *this;
 	}
@@ -103,24 +103,24 @@ public:
 	 *
 	 * @return lyra::SmartPointer
 	 */
-	template <class ... Args> NODISCARD static SmartPointer<value_type> create(Args&&... args) {
-		return SmartPointer<value_type>(new value_type(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static SmartPointer<value> create(Args&&... args) {
+		return SmartPointer<value>(new value(std::forward<Args>(args)...));
 	}
 
 	/**
 	 * @brief access the internal pointer
 	 *
-	 * @return lyra::SmartPointer::pointer_type
+	 * @return lyra::SmartPointer::pointer
 	 */
-	constexpr pointer_type operator->() const noexcept {
+	constexpr pointer operator->() const noexcept {
 		return m_pointer;
 	}
 	/**
 	 * @brief dereference the internal pointer and return the value
 	 *
-	 * @return lyra::SmartPointer::value_type&
+	 * @return lyra::SmartPointer::value&
 	 */
-	constexpr value_type& operator*() const noexcept {
+	constexpr value& operator*() const noexcept {
 		return *m_pointer;
 	}
 
@@ -138,32 +138,32 @@ public:
 	/**
 	 * @brief get the internal raw pointer
 	 *
-	 * @return constexpr lyra::SmartPointer::pointer_type
+	 * @return lyra::SmartPointer::pointer
 	 */
-	NODISCARD constexpr pointer_type get() const noexcept {
+	NODISCARD constexpr pointer get() const noexcept {
 		return m_pointer;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return constexpr lyra::SmartPointer::deleter_type& 
+	 * @return lyra::SmartPointer::deleter& 
 	 */
-	NODISCARD constexpr const deleter_type& deleter() const noexcept {
+	NODISCARD constexpr const deleter& deleter() const noexcept {
 		return m_deleter;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return constexpr lyra::SmartPointer::deleter_type&
+	 * @return lyra::SmartPointer::deleter&
 	 */
-	NODISCARD constexpr deleter_type& deleter() noexcept {
+	NODISCARD constexpr deleter& deleter() noexcept {
 		return m_deleter;
 	}
 
 	/**
 	 * @brief check if pointer is empty
 	 *
-	 * @return constexpr bool
+	 * @return bool
 	 */
 	NODISCARD constexpr const bool empty() const noexcept {
 		return m_pointer == nullptr;
@@ -171,7 +171,7 @@ public:
 	/**
 	 * @brief check if pointer is referencing a object
 	 * 
-	 * @return constexpr bool
+	 * @return bool
 	 */
 	constexpr operator bool() const noexcept {
 		return m_pointer != nullptr;
@@ -180,9 +180,9 @@ public:
 	/**
 	 * @brief release a pointer to the internal raw pointer and reset it
 	 *
-	 * @return constexpr lyra::SmartPointer::pointer_type
+	 * @return lyra::SmartPointer::pointer
 	 */
-	NODISCARD constexpr pointer_type release() noexcept {
+	NODISCARD constexpr pointer release() noexcept {
 		return std::exchange(m_pointer, nullptr);
 	}
 
@@ -191,7 +191,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	constexpr void swap(SmartPointer<value_type>& second) {
+	constexpr void swap(SmartPointer<value>& second) {
 		std::swap(m_pointer, second.m_pointer);
 	}
 	/**
@@ -199,7 +199,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	constexpr void swap(SmartPointer<value_type>&& second) {
+	constexpr void swap(SmartPointer<value>&& second) {
 		std::swap(m_pointer, std::move(second.m_pointer));
 	}
 	/**
@@ -207,7 +207,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	constexpr void swap(pointer_type& second) {
+	constexpr void swap(pointer& second) {
 		std::swap(m_pointer, second);
 	}
 	/**
@@ -215,7 +215,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	constexpr void swap(pointer_type&& second) {
+	constexpr void swap(pointer&& second) {
 		std::swap(m_pointer, std::move(second));
 	}
 
@@ -224,8 +224,8 @@ public:
 	 *
 	 * @param ptr pointer
 	 */
-	constexpr void assign(pointer_type& ptr = nullptr) noexcept {
-		pointer_type old = std::exchange(m_pointer, ptr);
+	constexpr void assign(pointer& ptr = nullptr) noexcept {
+		pointer old = std::exchange(m_pointer, ptr);
 		if (old) m_deleter(old);
 	}
 	/**
@@ -233,17 +233,17 @@ public:
 	 *
 	 * @param ptr pointer
 	 */
-	constexpr void assign(pointer_type&& ptr) noexcept {
-		pointer_type old = std::exchange(m_pointer, std::move(ptr));
+	constexpr void assign(pointer&& ptr) noexcept {
+		pointer old = std::exchange(m_pointer, std::move(ptr));
 		if (old) m_deleter(std::move(old));
 	}
 
 	/**
 	 * @brief cast the type to its internal pointer
 	 * 
-	 * @return constexpr lyra::SmartPointer::pointer_type
+	 * @return lyra::SmartPointer::pointer
 	 */
-	constexpr operator pointer_type() const noexcept {
+	constexpr operator pointer() const noexcept {
 		return m_pointer;
 	}
 	/**
@@ -258,8 +258,8 @@ public:
 	}
 
 private:
-	pointer_type m_pointer = nullptr;
-	deleter_type m_deleter;
+	pointer m_pointer = nullptr;
+	deleter m_deleter;
 
 	template <class, class>
 	friend class SmartPointer;
