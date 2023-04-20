@@ -43,7 +43,7 @@ public:
 	/**
 	 * @brief get the fps
 	 *
-	 * @return constexpr float
+	 * @return float
 	 */
 	NODISCARD constexpr float fps() const noexcept { return 1000.0f / (float)(m_currentTime - m_lastTime); }
 	/**

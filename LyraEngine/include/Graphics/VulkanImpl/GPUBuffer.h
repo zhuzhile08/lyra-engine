@@ -63,7 +63,7 @@ public:
 	/**
 	 * @brief get the information in a buffer for descriptor sets
 	 * 
-	 * @return constexpr VkDescriptorBufferInfo
+	 * @return VkDescriptorBufferInfo
 	*/
 	NODISCARD constexpr VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
 		return {
@@ -80,7 +80,7 @@ public:
 	 * @param srcQueueFamily the original queue family of the buffer
 	 * @param dstQueueFamily the queue family to transfer ownership to
 	 *
-	 * @return constexpr VkBufferMemoryBarrier
+	 * @return VkBufferMemoryBarrier
 	*/
 	NODISCARD constexpr VkBufferMemoryBarrier get_buffer_memory_barrier(
 		const VkAccessFlags srcAccessMask, 
@@ -104,13 +104,13 @@ public:
 	/**
 	 * @brief get the buffer
 	 * 
-	 * @return constexpr lyra::vulkan::vk::Buffer&
+	 * @return lyra::vulkan::vk::Buffer&
 	*/
 	NODISCARD constexpr const vk::Buffer& buffer() const noexcept { return m_buffer; }
 	/**
 	 * @brief get the size of the buffer
 	 * 
-	 * @return constexpr VkDeviceSize
+	 * @return VkDeviceSize
 	*/
 	NODISCARD constexpr VkDeviceSize size() const noexcept { return m_size; };
 

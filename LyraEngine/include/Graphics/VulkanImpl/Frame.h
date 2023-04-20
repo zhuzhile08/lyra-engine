@@ -69,7 +69,7 @@ public:
 	/**
 	 * @brief get the in flight fences
 	 *
-	 * @return constexpr const CommandBuffer&
+	 * @return const CommandBuffer&
 	*/
 	NODISCARD constexpr const CommandBuffer& commandBuffer() const noexcept { return m_commandBuffer; }
 

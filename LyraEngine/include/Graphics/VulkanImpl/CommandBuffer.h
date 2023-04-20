@@ -40,7 +40,7 @@ public:
 	/**
 	 * @brief get the command pool
 	 *
-	 * @return constexpr const lyra::vulkan::vk::CommandPool&
+	 * @return const lyra::vulkan::vk::CommandPool&
 	 */
 	NODISCARD constexpr const vk::CommandPool& commandPool() const noexcept { return m_commandPool; }
 

@@ -54,7 +54,7 @@ public:
 	 * @param usage usage of the memory
 	 * @param requiredFlags required memory flags
 	 * 
-	 * @return constexpr VmaAllocationCreateInfo
+	 * @return VmaAllocationCreateInfo
 	 */
 	NODISCARD constexpr static VmaAllocationCreateInfo get_alloc_create_info(const VmaMemoryUsage usage, const VkMemoryPropertyFlags requiredFlags = 0) noexcept {
 		return {
@@ -72,13 +72,13 @@ public:
 	/**
 	 * @brief get the memory
 	 * 
-	 * @return constexpr lyra::vulkan::vma::Allocation&
+	 * @return lyra::vulkan::vma::Allocation&
 	*/
 	NODISCARD constexpr vma::Allocation& memory() noexcept { return m_memory; }
 	/**
 	 * @brief get the memory
 	 * 
-	 * @return constexpr const lyra::vulkan::vma::Allocation&
+	 * @return const lyra::vulkan::vma::Allocation&
 	*/
 	NODISCARD constexpr const vma::Allocation& memory() const noexcept { return m_memory; }
 

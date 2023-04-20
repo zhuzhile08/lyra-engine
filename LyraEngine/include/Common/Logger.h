@@ -43,7 +43,7 @@ private:
 	 * 
 	 * @param font font to cast
 	 * 
-	 * @return constexpr int
+	 * @return int
 	 */
 	NODISCARD constexpr int font_cast(Font font) {
 		return static_cast<int>(font);
@@ -76,7 +76,7 @@ private:
 	 * 
 	 * @param color color to cast
 	 * 
-	 * @return constexpr int
+	 * @return int
 	 */
 	NODISCARD constexpr int color_cast(Color color) {
 		return static_cast<int>(color);

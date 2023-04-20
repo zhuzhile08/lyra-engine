@@ -25,6 +25,8 @@ namespace lyra {
  */
 class ComponentBase { 
 public:
+	virtual ~ComponentBase() { }
+
 	virtual void update() = 0;
 
 	/**
@@ -81,7 +83,7 @@ private:
 	 * 
 	 * @tparam Ty type of entity
 	 * 
-	 * @return constexpr lyra::Node::ComponentType 
+	 * @return lyra::Node::ComponentType 
 	 */
 	template <DerivedComponentType Ty> static constexpr ComponentType cast_enum_type() {
 		if constexpr (std::is_same_v<Ty, Transform>) return ComponentType::TYPE_TRANSFORM;

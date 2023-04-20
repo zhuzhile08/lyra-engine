@@ -159,7 +159,7 @@ public:
 	/**
 	 * @brief get the descriptor management systems
 	 *
-	 * @return constexpr std::vector<lyra::vulkan::DescriptorSystem>&
+	 * @return std::vector<lyra::vulkan::DescriptorSystem>&
 	*/
 	NODISCARD constexpr std::vector<DescriptorSystem>& descriptorSystems() noexcept { return m_descriptorSystems; }
 	/**
@@ -167,31 +167,31 @@ public:
 	 * 
 	 * @param index index of the descriptor system
 	 *
-	 * @return constexpr std::vector<lyra::vulkan::DescriptorSystem>&
+	 * @return std::vector<lyra::vulkan::DescriptorSystem>&
 	*/
 	NODISCARD constexpr DescriptorSystem& descriptorSystem(const uint32& index) noexcept { return m_descriptorSystems[index]; }
 	/**
 	 * @brief get the pipeline
 	 *
-	 * @return constexpr lyra::vulkan::vk::Pipeline&
+	 * @return lyra::vulkan::vk::Pipeline&
 	*/
 	NODISCARD constexpr const vk::Pipeline& pipeline() const noexcept { return m_pipeline; }
 	/**
 	 * @brief get the pipeline layout
 	 *
-	 * @return constexpr lyra::vulkan::vk::PipelineLayout&
+	 * @return lyra::vulkan::vk::PipelineLayout&
 	*/
 	NODISCARD constexpr const vk::PipelineLayout& layout() const noexcept { return m_layout; }
 	/**
 	 * @brief get the shaders
 	 *
-	 * @return constexpr const std::vector<Shader>&
+	 * @return const std::vector<Shader>&
 	*/
 	NODISCARD constexpr const std::vector<Shader>& shaders() const noexcept { return m_shaders; }
 	/**
 	 * @brief get the shaders
 	 *
-	 * @return constexpr VkPipelineBindPoint
+	 * @return VkPipelineBindPoint
 	*/
 	NODISCARD constexpr VkPipelineBindPoint bindPoint() const noexcept { return m_bindPoint; }
 

@@ -72,7 +72,7 @@ public:
 	/**
 	 * @brief get the shader loading information
 	 *
-	 * @return constexpr VkPipelineShaderStageCreateInfo
+	 * @return VkPipelineShaderStageCreateInfo
 	*/
 	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
 		return {
@@ -89,7 +89,7 @@ public:
 	/**
 	 * @brief get the shader module
 	 * 
-	 * @return constexpr const lyra::vulkan::vk::ShaderModule&
+	 * @return const lyra::vulkan::vk::ShaderModule&
 	*/
 	NODISCARD constexpr const vk::ShaderModule& module() const noexcept { return m_module; }
 	/**

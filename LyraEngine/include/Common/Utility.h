@@ -32,7 +32,7 @@ namespace lyra {
  * @tparam Ty type of array
  * @param array the array
  * 
- * @return constexpr uint32_t
+ * @return uint32_t
 */
 template <typename Ty> NODISCARD constexpr uint32 arr_size(const Ty* array); 
 
@@ -47,7 +47,7 @@ template <typename Ty> constexpr uint32 arr_size(const Ty* array) {
  * @tparam Ty type of pointer
  * @param type the pointer
  * 
- * @return constexpr const void*
+ * @return const void*
 */
 template <typename Ty> NODISCARD constexpr const void* get_address(const Ty& type);
 

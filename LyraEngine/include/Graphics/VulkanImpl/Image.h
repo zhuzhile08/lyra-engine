@@ -31,13 +31,13 @@ struct Image {
 	/**
 	 * @brief get the image view
 	 * 
-	 * @return constexpr const lyra::vulkan::vk::Image&
+	 * @return const lyra::vulkan::vk::Image&
 	*/
 	NODISCARD constexpr const vk::Image& image() const noexcept { return m_image; }
 	/**
 	 * @brief get the image view
 	 * 
-	 * @return constexpr const lyra::vulkan::vk::ImageView&
+	 * @return const lyra::vulkan::vk::ImageView&
 	*/
 	NODISCARD constexpr const vk::ImageView& view() const noexcept { return m_view; }
 
@@ -61,7 +61,7 @@ protected:
 	 * @param samples configure multi sample anti-aliasing
 	 * @param tiling how to store the image in the GPU memory
 	 * 
-	 * @return constexpr VkImageCreateInfo
+	 * @return VkImageCreateInfo
 	 */
 	NODISCARD constexpr VkImageCreateInfo get_image_create_info(
 		const VkFormat& format,
@@ -147,7 +147,7 @@ protected:
 	 * @param dstQueueFamily the queue family to transfer ownership to
 	 * @param subresourceRange some data about the image
 	 *
-	 * @return constexpr VkImageMemoryBarrier
+	 * @return VkImageMemoryBarrier
 	*/
 	NODISCARD constexpr VkImageMemoryBarrier get_image_memory_barrier(
 		const VkAccessFlags& srcAccessMask,

@@ -117,31 +117,31 @@ private:
 		/**
 		 * @brief get the capacity of the pool
 		 * 
-		 * @return constexpr size_t
+		 * @return size_t
 		 */
 		NODISCARD constexpr size_t capacity() const noexcept { return m_capacity; }
 		/**
 		 * @brief cast to the the descriptor pool
 		 *
-		 * @return constexpr lyra::vulkan::vk::DescriptorPool&
+		 * @return lyra::vulkan::vk::DescriptorPool&
 		 */
 		NODISCARD constexpr operator vk::DescriptorPool& () noexcept { return m_descriptorPool; }
 		/**
 		 * @brief cast to the the descriptor pool
 		 *
-		 * @return constexpr const lyra::vulkan::vk::DescriptorPool&
+		 * @return const lyra::vulkan::vk::DescriptorPool&
 		 */
 		NODISCARD constexpr operator const vk::DescriptorPool& () const noexcept { return m_descriptorPool; }
 		/**
 		 * @brief get the descriptor pool
 		 *
-		 * @return constexpr lyra::vulkan::vk::DescriptorPool&
+		 * @return lyra::vulkan::vk::DescriptorPool&
 		 */
 		NODISCARD constexpr vk::DescriptorPool& get() noexcept { return m_descriptorPool; }
 		/**
 		 * @brief get the descriptor pool
 		 *
-		 * @return constexpr const lyra::vulkan::vk::DescriptorPool&
+		 * @return const lyra::vulkan::vk::DescriptorPool&
 		 */
 		NODISCARD constexpr const vk::DescriptorPool& get() const noexcept { return m_descriptorPool; }
 
@@ -339,7 +339,7 @@ public:
 	/**
 	 * @brief descriptor resource type, annoying to type every time
 	 */
-	using DescriptorSetResource = ResourcePool<DescriptorSet>::resource_container_type;
+	using DescriptorSetResource = ResourcePool<DescriptorSet>::resource_container;
 
 	/**
 	 * @brief a builder to make the creation of the descriptor layout easier
@@ -422,7 +422,7 @@ public:
 		/**
 		 * @brief build the creation info out of the bindings
 		 * 
-		 * @return constexpr VkDescriptorPoolCreateInfo
+		 * @return VkDescriptorPoolCreateInfo
 		 */
 		constexpr VkDescriptorPoolCreateInfo build_create_info() const  {
 			// return the create info

@@ -42,13 +42,13 @@ public:
 	/**
 	 * @brief get the Vulkan surface
 	 *
-	 * @return constexpr lyra::vulkan::vk::SurfaceKHR&
+	 * @return lyra::vulkan::vk::SurfaceKHR&
 	 */
 	NODISCARD constexpr const vk::SurfaceKHR& surface() const noexcept { return m_surface; }
 	/**
 	 * @brief get the swapchain
 	 *
-	 * @return constexpr const lyra::vulkan::vk::SwapchainKHR&
+	 * @return const lyra::vulkan::vk::SwapchainKHR&
 	*/
 	NODISCARD constexpr const vk::Swapchain& swapchain() const noexcept { return m_swapchain; }
 	/**
@@ -66,37 +66,37 @@ public:
 	/**
 	 * @brief get the depth buffer image
 	 *
-	 * @return constexpr const lyra::vulkan::Image& const
+	 * @return const lyra::vulkan::Image& const
 	 */
 	NODISCARD constexpr const Image& depthImage() const noexcept { return m_depthImage; }
 	/**
 	 * @brief get the color resources image
 	 *
-	 * @return constexpr const lyra::vulkan::Image& const
+	 * @return const lyra::vulkan::Image& const
 	 */
 	NODISCARD constexpr const Image& colorImage() const noexcept { return m_colorImage; }
 	/**
 	 * @brief get the format
 	 *
-	 * @return constexpr VkFormat
+	 * @return VkFormat
 	*/
 	NODISCARD constexpr VkFormat format() const noexcept { return m_format; }
 	/**
 	 * @brief get the extent
 	 *
-	 * @return constexpr VkExtent2D
+	 * @return VkExtent2D
 	*/
 	NODISCARD constexpr VkExtent2D extent() const noexcept { return m_extent; }
 	/**
 	 * @brief get the maximum amout of samples
 	 *
-	 * @return constexpr VkSampleCountFlagBits
+	 * @return VkSampleCountFlagBits
 	 */
 	NODISCARD constexpr VkSampleCountFlagBits maxMultisamples() const noexcept { return m_maxMultisamples; }
 	/**
 	 * @brief get the depth buffer format
 	 *
-	 * @return constexpr VkFormat
+	 * @return VkFormat
 	*/
 	NODISCARD constexpr VkFormat depthBufferFormat() const noexcept { return m_depthBufferFormat; }
 
