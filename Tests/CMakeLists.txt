@@ -7,4 +7,4 @@ set(CMAKE_CXX_STANDARD 20)
 
 # add all tests that need to be built
 add_subdirectory("Containers")
-# add_subdirectory("Engine")
+add_subdirectory("Engine")
