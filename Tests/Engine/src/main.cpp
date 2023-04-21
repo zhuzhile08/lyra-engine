@@ -15,6 +15,7 @@
 #include <Resource/Material.h>
 #include <Resource/Texture.h>
 #include <Resource/Mesh.h>
+#include <Resource/ResourceManager.h>
 
 #include <EntitySystem/Script.h>
 #include <EntitySystem/Entity.h>
