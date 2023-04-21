@@ -1,3 +1,14 @@
+/**************************
+ * @file LoadFile.h
+ * @author Zhile Zhu (zhuzhile08@gmail.com)
+ * 
+ * @brief raw file loading functionality
+ * 
+ * @date 2023-04-02
+ * 
+ * @copyright Copyright (c) 2023
+ *************************/
+
 #pragma once
 
 #include <vector>
