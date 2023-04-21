@@ -198,7 +198,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return lyra::Dynarray::iterator
 	 */
 	constexpr iterator insert(const_iterator pos, const_reference value) { 
-		if (full()) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array already full!");
+		if (full()) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array is already full!");
 		iterator f, b;
 		for (f = end(); f >= pos; f--) {
 			b = f;
@@ -217,7 +217,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return lyra::Dynarray::iterator
 	 */
 	constexpr iterator insert(const_iterator pos, value_type&& value) {
-		if (full()) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array already full!");
+		if (full()) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array is already full!");
 		iterator f, b;
 		for (f = end(); f >= pos; f--) {
 			b = f;
@@ -237,7 +237,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return lyra::Dynarray::iterator
 	 */
 	constexpr iterator insert(const_iterator begin, const size_t& count, const_reference value) {
-		if (m_size + count > capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array already full!");
+		if (m_size + count > capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array is already full!");
 		iterator f, b;
 		for (f = this->end(); f >= begin; f--) {
 			b = f;
@@ -258,7 +258,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return lyra::Dynarray::iterator
 	 */
 	constexpr iterator insert(const_iterator begin, const size_t& count, value_type&& value) {
-		if (m_size + count > capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array already full!");
+		if (m_size + count > capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array is already full!");
 		iterator f, b;
 		for (f = this->end(); f >= begin; f--) {
 			b = f;
