@@ -54,7 +54,7 @@ void Window::create_swapchain_extent(const VkSurfaceCapabilitiesKHR& surfaceCapa
 	m_extent = newExtent;
 }
 
-const VkSurfaceFormatKHR Window::get_optimal_format() {
+VkSurfaceFormatKHR Window::get_optimal_format() {
 	uint32 availableFormatCount = 0;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availableFormatCount, nullptr);
 	std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
@@ -71,7 +71,7 @@ const VkSurfaceFormatKHR Window::get_optimal_format() {
 	return availableFormats[0];
 }
 
-const VkPresentModeKHR Window::get_optimal_present_mode() const {
+VkPresentModeKHR Window::get_optimal_present_mode() const {
 	uint32 availablePresentModeCount = 0;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(Application::renderSystem.device.physicalDevice(), m_surface, &availablePresentModeCount, nullptr);
 	std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
@@ -87,7 +87,7 @@ const VkPresentModeKHR Window::get_optimal_present_mode() const {
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-const VkSampleCountFlagBits Window::get_max_samples() const noexcept {
+VkSampleCountFlagBits Window::get_max_samples() const noexcept {
 	VkPhysicalDeviceProperties physicalDeviceProperties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &physicalDeviceProperties);
 
