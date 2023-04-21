@@ -24,7 +24,7 @@ void InputManager::update() {
 			case SDL_QUIT: // quitting
 				Application::window.m_running = false;
 			case SDL_WINDOWEVENT: // window events like resizing
-				if (m_events.window.event == SDL_WINDOWEVENT_RESIZED)
+				if (m_events.window.event == SDL_WINDOWEVENT_RESIZED || m_events.window.event == SDL_WINDOWEVENT_MINIMIZED || m_events.window.event == SDL_WINDOWEVENT_MAXIMIZED)
 					Application::window.m_changed = true;
 		}
 	}
