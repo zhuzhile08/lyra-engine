@@ -212,12 +212,12 @@ public:
 		ANSI(Font::BLD, Color::RED);
 		// print the message
 		std::cout << "[EXCEPTION]: ";
-		(std::cerr << ... << std::forward<Args>(message)) << end_l();
+		(std::cout << ... << std::forward<Args>(message)) << end_l();
 #ifdef LYRA_LOG_FILE
 		m_logFile << "[EXCEPTION]: ";
 		(m_logFile << ... << std::forward<Args>(message)) << end_l();
 #endif
-		std::abort();
+		throw std::runtime_error("lyra::log()::exception(): An exception occured!");
 		// reset color
 		set_color_default();
 	}
@@ -277,7 +277,7 @@ template <typename ... Args> constexpr void lassert(bool condition, Args... mess
  * @param purpose Purpose of the function
  */
 template <typename Arg> constexpr void vassert(VkResult function, Arg purpose) {
-	if (function != VkResult::VK_SUCCESS) (log().exception("Vulkan Esception: Failed to ", purpose, " with error code: ", function, "!"));
+	if (function != VkResult::VK_SUCCESS) (log().exception("Vulkan Exception: Failed to ", purpose, " with error code: ", function, "!"));
 }
 
 } // namespace lyra
