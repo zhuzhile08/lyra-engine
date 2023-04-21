@@ -1,9 +1,8 @@
 /*************************
- * @file GraphicsPipeline.h
+ * @file ComputePipeline.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief wrapper around the Vulkan compute pipeline
- * @brief loads shaders and processes the vertices passing through
  *
  * @date 2022-06-18
  *
