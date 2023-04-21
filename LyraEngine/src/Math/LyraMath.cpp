@@ -55,7 +55,7 @@ void alignPointer(void* address, const uint8_t alignment, const uint8_t mode) {
 		(void*)(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(~(alignment - 1)));
 }
 
-const uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode) {
+uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode) {
 	uint8_t adjustment = (mode == 1) ? alignment - (reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(alignment - 1)) : 
 		(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(alignment - 1));
 

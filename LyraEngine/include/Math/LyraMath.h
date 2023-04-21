@@ -129,8 +129,8 @@ void alignPointer(void* address, const uint8 alignment, const uint8 mode = 0);
  * @param alignment alignment
  * @param mode align mode
  *
- * @return const uint8
+ * @return uint8
  */
-NODISCARD const uint8 alignPointerAdjustment(const void* address, const uint8 alignment, const uint8 mode = 0);
+NODISCARD uint8 alignPointerAdjustment(const void* address, const uint8 alignment, const uint8 mode = 0);
 
 } // namespace lyra

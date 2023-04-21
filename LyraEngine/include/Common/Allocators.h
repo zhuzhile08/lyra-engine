@@ -41,27 +41,27 @@ public:
 	/**
 	 * @brief get the starting position of the allocation
 	 *
-	 * @return const void*
+	 * @return const void* const
 	 */
-	NODISCARD const void* start() const noexcept { return m_start; }
+	NODISCARD const void* const start() const noexcept { return m_start; }
 	/**
 	 * @brief get the size of the allocation
 	 * 
-	 * @return const uint32_t
+	 * @return uint32_t
 	 */
-	NODISCARD const uint32 size() const noexcept { return m_size; }
+	NODISCARD uint32 size() const noexcept { return m_size; }
 	/**
 	 * @brief get total used memory
 	 *
-	 * @return const uint32_t
+	 * @return uint32_t
 	 */
-	NODISCARD const uint32 usedMemory() const noexcept { return m_usedMemory; }
+	NODISCARD uint32 usedMemory() const noexcept { return m_usedMemory; }
 	/**
 	 * @brief get the number of allocations
 	 *
 	 * @return const uint32_t
 	 */
-	NODISCARD const uint32 allocCount() const noexcept { return m_allocCount; }
+	NODISCARD uint32 allocCount() const noexcept { return m_allocCount; }
 
 protected:
 	void* m_start;

@@ -123,21 +123,21 @@ private:
 	/**
 	 * @brief get the optimal format for the swapchain
 	 * 
-	 * @return const VkSurfaceFormatKHR
+	 * @return VkSurfaceFormatKHR
 	*/
-	NODISCARD const VkSurfaceFormatKHR get_optimal_format();
+	NODISCARD VkSurfaceFormatKHR get_optimal_format();
 	/**
 	 * @brief get the optimal presentation mode for the swapchain
 	 *
-	 * @return const VkPresentModeKHR
+	 * @return VkPresentModeKHR
 	*/
-	NODISCARD const VkPresentModeKHR get_optimal_present_mode() const;
+	NODISCARD VkPresentModeKHR get_optimal_present_mode() const;
 	/**
 	 * @brief get the maximum amout of samples
 	 *
-	 * @return const VkSampleCountFlagBits
+	 * @return VkSampleCountFlagBits
 	 */
-	NODISCARD const VkSampleCountFlagBits get_max_samples() const noexcept;
+	NODISCARD VkSampleCountFlagBits get_max_samples() const noexcept;
 
 	/**
 	 * @brief check the correctness of the suface capabilities of the swapchain
