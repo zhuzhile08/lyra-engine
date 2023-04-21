@@ -28,7 +28,7 @@ public:
 	using reference = value_type&;
 	using const_reference = const value_type&;
 	using pointer = value_type*;
-	using const_pointer = const value_type*;
+	using const_pointer = const pointer;
 	using movable = value_type&&;
 	using map = std::unordered_map<std::string, pointer>;
 	using iterator = typename map::iterator;
@@ -39,23 +39,27 @@ public:
 	/**
 	 * @brief construct a game object
 	 *
+	 * @param self pointer to "self", aka the derived type
 	 * @param name name of the object
 	 * @param parent parent Node of the object
 	 */
 	Node(
+		pointer self, 
 		std::string_view name,
 		reference parent
-	) noexcept : m_name(name) { parent.insert_child(this); }
+	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
 	/**
 	 * @brief construct a game object
 	 *
+	 * @param self pointer to "self", aka the derived type
 	 * @param name name of the object
 	 * @param parent parent Node of the object
 	 */
 	Node(
+		pointer self,
 		std::string_view name,
 		movable parent
-	) noexcept : m_name(name) { parent.insert_child(this); }
+	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
 	/**
 	 * @brief construct a game object
 	 *
@@ -63,9 +67,10 @@ public:
 	 * @param parent parent Node of the object
 	 */
 	Node(
+		pointer self,
 		std::string_view name,
 		pointer parent = nullptr
-	) noexcept : m_name(name) { if (parent) parent->insert_child(this); }
+	) noexcept : m_name(name), m_self(self) { if (parent) parent->insert_child(self); }
 
 	/**
 	 * @brief clear the contents of the children
@@ -80,7 +85,7 @@ public:
 	 * @return lyra::Node::iterator_pair 
 	 */
 	iterator_pair insert_child(reference child) {
-		child.m_parent = this;
+		child.m_parent = m_self;
 		return m_children.insert({child.m_name, &child});
 	}
 	/**
@@ -91,7 +96,7 @@ public:
 	 * @return lyra::Node::iterator_pair 
 	 */
 	iterator_pair insert_child(movable child) {
-		child.m_parent = this;
+		child.m_parent = m_self;
 		return m_children.insert({child.m_name, &child});
 	}
 	/**
@@ -102,7 +107,7 @@ public:
 	 * @return lyra::Node::iterator_pair 
 	 */
 	iterator_pair insert_child(pointer child) {
-		child->m_parent = this;
+		child->m_parent = m_self;
 		return m_children.insert({child->m_name, child});
 	}
 
@@ -275,6 +280,7 @@ public:
 protected:
 	std::string m_name = "Node";
 
+	pointer m_self;
 	pointer m_parent = nullptr;
 	map m_children;
 };
