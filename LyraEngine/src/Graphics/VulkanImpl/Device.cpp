@@ -90,12 +90,12 @@ Device::Device() {
 			rate_physical_device(device, surface, possibleDevices);
 		}
 
-		if (possibleDevices.end()->first <= 0) {
+		if (possibleDevices.rbegin()->first <= 0) {
 			log().exception("Failed to find GPU with enough features");
 		}
 
-		m_physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.end()->second.first, m_instance));
-		m_queueFamilies = possibleDevices.end()->second.second;
+		m_physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.rbegin()->second.first, m_instance));
+		m_queueFamilies = possibleDevices.rbegin()->second.second;
 	}
 
 	{ // create logical device
@@ -144,7 +144,7 @@ Device::Device() {
 
 	{ // create queues
 		m_graphicsComputeQueue = vk::Queue(m_device, m_queueFamilies.graphicsComputeQueueIndex, 0);
-		m_graphicsComputeQueue = vk::Queue(m_device, m_queueFamilies.presentQueueIndex, 0);
+		m_presentQueue = vk::Queue(m_device, m_queueFamilies.presentQueueIndex, 0);
 	}
 	
 	{ // create the memory allocator
@@ -167,7 +167,7 @@ Device::Device() {
 	}
 }
 
-bool Device::check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const {
+bool Device::check_requested_extensions(const std::vector <VkExtensionProperties>& extensions, const std::vector <const char*>& requestedExtensions) const {
 #ifndef NDEBUG
 	// print all all availabe extensions
 	log().info("Available device extensions:");
@@ -259,7 +259,6 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, const vk::Surf
 
 	// some required features. If not available, make the GPU unavailable
 	if (
-		!features.geometryShader || 
 		!features.multiDrawIndirect || 
 		!localQueueFamilies.found() || 
 		check_requested_extensions(availableExtensions, settings().debug.requestedDeviceExtensions)
@@ -272,6 +271,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, const vk::Surf
 
 	// the actual scoring system
 	if (score > 0) {
+		score = 0;
 		if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
 			score += 20;
 			log().debug(log().tab(), "Discrete GPU");
@@ -279,7 +279,7 @@ void Device::rate_physical_device(const VkPhysicalDevice& device, const vk::Surf
 			score += 4;
 			log().debug(log().tab(), "Supports anistropic filtering");
 		} 
-		score += properties.limits.maxImageDimension2D;
+		score += (int)(properties.limits.maxImageDimension2D / 2000);
 
 		log().info("Score: ", score, log().end_l());
 	}

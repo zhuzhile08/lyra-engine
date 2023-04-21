@@ -347,7 +347,7 @@ private:
 	 * @return true if all requested extensions were found
 	 * @return false if not all requested extensions were found
 	 */
-	bool check_requested_extensions(const std::vector <VkExtensionProperties> extensions, const std::vector <const char*> requestedExtensions) const;
+	bool check_requested_extensions(const std::vector <VkExtensionProperties>& extensions, const std::vector <const char*>& requestedExtensions) const;
 
 	/**
 	 * @brief find the family index of a queues
