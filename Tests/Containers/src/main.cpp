@@ -5,7 +5,7 @@
 #include <iostream>
 
 int main() {
-    lyra::Dynarray<int, 32> foo;
+    lyra::Dynarray<int, 16> foo;
     foo.resize(10);
     foo.fill(4);
 
@@ -29,6 +29,9 @@ int main() {
 
     foo.erase(foo.begin() + 6, foo.end() - 1);
     for (const auto& it : foo) std::cout << it << " ";
+    std::cout << std::endl << "After inserting multiple elements and causing an exception: " << std::endl;
+
+    foo.insert(foo.begin(), 30, 8);
 
     return 0;
 }
