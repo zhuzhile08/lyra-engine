@@ -11,18 +11,32 @@
 
 #pragma once
 
-#include <memory>
-
 namespace lyra {
 
 #define NODISCARD [[nodiscard]]
+
+/**
+ * @brief default deleter callable type
+ */
+template <class Ty> struct DefaultDeleter {
+	using pointer = Ty*;
+
+	/**
+	 * @brief delete a pointer
+	 * 
+	 * @param ptr pointer to delete
+	 */
+	constexpr void operator()(pointer ptr) const noexcept {
+		delete ptr;
+	}
+};
 
 /**
  * @brief A smart pointer implementation
  *
  * @tparam Ty pointer type
  */
-template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
+template <class Ty, class DTy = DefaultDeleter<Ty>> class SmartPointer {
 public:
 	using value_type = Ty;
 	using pointer = Ty*;
