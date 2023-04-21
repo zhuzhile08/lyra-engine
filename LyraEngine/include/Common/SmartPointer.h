@@ -21,6 +21,9 @@ namespace lyra {
 template <class Ty> struct DefaultDeleter {
 	using pointer = Ty*;
 
+	constexpr DefaultDeleter() = default;
+	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>& other) noexcept { }
+
 	/**
 	 * @brief delete a pointer
 	 * 
