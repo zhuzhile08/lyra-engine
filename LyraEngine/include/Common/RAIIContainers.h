@@ -57,17 +57,17 @@ template <class Ty> concept RAIIContainerType =
  */
 template <RAIIContainerType Ty, RAIIContainerType OTy> class RAIIContainer {
 public:
-	using handle = Ty;
-	using const_handle = const handle;
+	using handle_type = Ty;
+	using const_handle = const handle_type;
 	using handle_reference = Ty&;
 	using const_handle_reference = const_handle&;
 	using movable_handle = Ty&&;
 	
-	using owner = OTy;
-	using const_owner = const owner;
-	using owner_reference = owner&;
+	using owner_type = OTy;
+	using const_owner = const owner_type;
+	using owner_reference = owner_type&;
 	using const_owner_reference = const_owner&;
-	using movable_owner = owner&&;
+	using movable_owner = owner_type&&;
 
 	using container = RAIIContainer;
 	using movable_container = container&&;
@@ -93,8 +93,8 @@ public:
 	 * @param container container to construct from
 	 */
 	constexpr RAIIContainer(movable_container container) : 
-		m_handle(std::exchange(container.m_handle, handle { } )), 
-		m_owner(std::exchange(container.m_owner, owner { } )) { }
+		m_handle(std::exchange(container.m_handle, handle_type { } )), 
+		m_owner(std::exchange(container.m_owner, owner_type { } )) { }
 	/**
 	 * @brief construct a new RAIIContainer 
 	 * 
@@ -102,39 +102,39 @@ public:
 	 * @param owner owner
 	 * @param createInfo creation information
 	 */
-	template <class CI> constexpr RAIIContainer(owner owner, const CI& createInfo) : RAIIContainer<Ty, OTy>(Ty { }, owner) { 
+	template <class CI> constexpr RAIIContainer(owner_type owner, const CI& createInfo) : RAIIContainer<Ty, OTy>(Ty { }, owner) { 
 		if (!this->m_handle) {
-			if constexpr (std::same_as<handle, VkFramebuffer>) {
+			if constexpr (std::same_as<handle_type, VkFramebuffer>) {
 				vassert(vkCreateFramebuffer(this->m_owner, &createInfo, nullptr, &this->m_handle), "create framebuffer");
-			} else if constexpr (std::same_as<handle, VkRenderPass>) {
+			} else if constexpr (std::same_as<handle_type, VkRenderPass>) {
 				vassert(vkCreateRenderPass(this->m_owner, &createInfo, nullptr, &this->m_handle), "create render pass");
-			} else if constexpr (std::same_as<handle, VkSampler>) {
+			} else if constexpr (std::same_as<handle_type, VkSampler>) {
 				vassert(vkCreateSampler(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image sampler");
-			} else if constexpr (std::same_as<handle, VkCommandPool>) {
+			} else if constexpr (std::same_as<handle_type, VkCommandPool>) {
 				vassert(vkCreateCommandPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create command pool");
-			} else if constexpr (std::same_as<handle, VkDescriptorSetLayout>) {
+			} else if constexpr (std::same_as<handle_type, VkDescriptorSetLayout>) {
 				vassert(vkCreateDescriptorSetLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor set layout");
-			} else if constexpr (std::same_as<handle, VkDescriptorPool>) {
+			} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
 				vassert(vkCreateDescriptorPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor pool");
-			} else if constexpr (std::same_as<handle, VkDescriptorSet>) {
+			} else if constexpr (std::same_as<handle_type, VkDescriptorSet>) {
 				vassert(vkAllocateDescriptorSets(this->m_owner, &createInfo, &this->m_handle), "allocate descriptor sets");
-			} else if constexpr (std::same_as<handle, VkSemaphore>) {
+			} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
 				vassert(vkCreateSemaphore(this->m_owner, &createInfo, nullptr, &this->m_handle), "create semaphore");
-			} else if constexpr (std::same_as<handle, VkFence>) {
+			} else if constexpr (std::same_as<handle_type, VkFence>) {
 				vassert(vkCreateFence(this->m_owner, &createInfo, nullptr, &this->m_handle), "create fence");
-			} else if constexpr (std::same_as<handle, VkImageView>) {
+			} else if constexpr (std::same_as<handle_type, VkImageView>) {
 				vassert(vkCreateImageView(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image view");
-			} else if constexpr (std::same_as<handle, VkPipelineLayout>) {
+			} else if constexpr (std::same_as<handle_type, VkPipelineLayout>) {
 				vassert(vkCreatePipelineLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create pipeline layout");
-			} else if constexpr (std::same_as<handle, VkShaderModule>) {
+			} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 				vassert(vkCreateShaderModule(this->m_owner, &createInfo, nullptr, &this->m_handle), "create shader module");
-			} else if constexpr (std::same_as<handle, VkSwapchainKHR>) {
+			} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
 				vassert(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
-			} else if constexpr (std::same_as<handle, VmaAllocator>) {
+			} else if constexpr (std::same_as<handle_type, VmaAllocator>) {
 				vassert(vmaCreateAllocator(&createInfo, &this->m_handle), "create memory allocator");
-			} else if constexpr (std::same_as<handle, VkDevice>) {
+			} else if constexpr (std::same_as<handle_type, VkDevice>) {
 				vassert(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create logical device");
-			} else if constexpr (std::same_as<handle, VkInstance>) {
+			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				vassert(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
 			}
 		}
@@ -151,13 +151,13 @@ public:
 	 * @param allocInfo further information about the VMA allocation/memory
 	 */
 	constexpr RAIIContainer(
-		owner owner, 
+		owner_type owner, 
 		VmaAllocator allocator, 
 		const VkBufferCreateInfo& createInfo, 
 		const VmaAllocationCreateInfo& allocCreateInfo, 
 		RAIIContainer<VmaAllocation, VmaAllocator>& allocation, 
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
-	) requires(std::is_same_v<handle, VkBuffer> && std::is_same_v<owner, VkDevice>) : m_owner(owner) { 
+	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
 			VmaAllocation tempAllocation;
 			vassert(vmaCreateBuffer(allocator, &createInfo, &allocCreateInfo, &m_handle, &tempAllocation, &allocInfo), "create buffer and/or its memory");
@@ -176,13 +176,13 @@ public:
 	 * @param allocInfo further information about the VMA allocation/memory
 	 */
 	constexpr RAIIContainer(
-		owner owner, 
+		owner_type owner, 
 		VmaAllocator allocator, 
 		const VkImageCreateInfo& createInfo, 
 		const VmaAllocationCreateInfo& allocCreateInfo, 
 		RAIIContainer<VmaAllocation, VmaAllocator>& allocation, 
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
-	) requires(std::is_same_v<handle, VkImage> && std::is_same_v<owner, VkDevice>) : m_owner(owner) { 
+	) requires(std::is_same_v<handle_type, VkImage> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
 			VmaAllocation tempAllocation;
 			vassert(vmaCreateImage(allocator, &createInfo, &allocCreateInfo, &m_handle, &tempAllocation, &allocInfo), "create image and/or its memory");
@@ -198,11 +198,11 @@ public:
 	 * @param allocator allocator
 	 */
 	constexpr RAIIContainer(
-		owner owner, 
+		owner_type owner, 
 		VkPipelineCache pipelineCache, 
 		const VkGraphicsPipelineCreateInfo& createInfo, 
 		const VkAllocationCallbacks& allocator
-	) requires(std::is_same_v<handle, VkPipeline> && std::is_same_v<owner, VkDevice>) : m_owner(owner) { 
+	) requires(std::is_same_v<handle_type, VkPipeline> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
 			vassert(vkCreateGraphicsPipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create graphics pipeline");
 		}
@@ -216,11 +216,11 @@ public:
 	 * @param allocator allocator
 	 */
 	constexpr RAIIContainer(
-		owner owner, 
+		owner_type owner, 
 		VkPipelineCache pipelineCache, 
 		const VkComputePipelineCreateInfo& createInfo, 
 		const VkAllocationCallbacks& allocator
-	) requires(std::is_same_v<handle, VkPipeline> && std::is_same_v<owner, VkDevice>) : m_owner(owner) { 
+	) requires(std::is_same_v<handle_type, VkPipeline> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
 			vassert(vkCreateComputePipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create compute pipeline");
 		}
@@ -233,10 +233,10 @@ public:
 	 * @param queueIndex index of the queue
 	 */
 	constexpr RAIIContainer(
-		owner owner, 
+		owner_type owner, 
 		const uint32_t& familyIndex, 
 		const uint32_t& queueIndex)
-		requires(std::is_same_v<handle, VkQueue> && std::is_same_v<owner, VkDevice>)
+		requires(std::is_same_v<handle_type, VkQueue> && std::is_same_v<owner_type, VkDevice>)
 		 : m_owner(owner) {
 		if (!m_handle) {
 			vkGetDeviceQueue(m_owner, familyIndex, queueIndex, &m_handle);
@@ -248,8 +248,8 @@ public:
 	 * @param owner owner
 	 * @param window window
 	 */
-	constexpr RAIIContainer(owner owner, SDL_Window* window) 
-		requires(std::is_same_v<handle, VkSurfaceKHR> && std::is_same_v<owner, VkInstance>)
+	constexpr RAIIContainer(owner_type owner, SDL_Window* window) 
+		requires(std::is_same_v<handle_type, VkSurfaceKHR> && std::is_same_v<owner_type, VkInstance>)
 		 : m_owner(owner) {
 		if (!m_handle) {
 			SDL_Vulkan_CreateSurface(window, this->m_owner, &this->m_handle);
@@ -263,7 +263,7 @@ public:
 		const int& w, 
 		const int& h, 
 		const uint32_t& flags
-	) requires(std::is_same_v<handle, SDL_Window*>) {
+	) requires(std::is_same_v<handle_type, SDL_Window*>) {
 		if (!m_handle) {
 			m_handle = SDL_CreateWindow(title.data(), x, y, w, h, flags);
 		}
@@ -274,57 +274,57 @@ public:
 	 */
 	void destroy() {
 		if (m_handle && static_cast<bool>(m_owner)) {
-			if constexpr (std::same_as<owner, VkDevice>) {
-				if constexpr (std::same_as<handle, VkFramebuffer>) {
+			if constexpr (std::same_as<owner_type, VkDevice>) {
+				if constexpr (std::same_as<handle_type, VkFramebuffer>) {
 					vkDestroyFramebuffer(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkRenderPass>) {
+				} else if constexpr (std::same_as<handle_type, VkRenderPass>) {
 					vkDestroyRenderPass(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkSampler>) {
+				} else if constexpr (std::same_as<handle_type, VkSampler>) {
 					vkDestroySampler(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkCommandPool>) {
+				} else if constexpr (std::same_as<handle_type, VkCommandPool>) {
 					vkDestroyCommandPool(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkDescriptorSetLayout>) {
+				} else if constexpr (std::same_as<handle_type, VkDescriptorSetLayout>) {
 					vkDestroyDescriptorSetLayout(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkDescriptorPool>) {
+				} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
 					vkDestroyDescriptorPool(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkSemaphore>) {
+				} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
 					vkDestroySemaphore(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkFence>) {
+				} else if constexpr (std::same_as<handle_type, VkFence>) {
 					vkDestroyFence(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkBuffer>) {
+				} else if constexpr (std::same_as<handle_type, VkBuffer>) {
 					vkDestroyBuffer(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkImage>) {
+				} else if constexpr (std::same_as<handle_type, VkImage>) {
 					vkDestroyImage(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkImageView>) {
+				} else if constexpr (std::same_as<handle_type, VkImageView>) {
 					vkDestroyImageView(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkPipeline>) {
+				} else if constexpr (std::same_as<handle_type, VkPipeline>) {
 					vkDestroyPipeline(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkPipelineLayout>) {
+				} else if constexpr (std::same_as<handle_type, VkPipelineLayout>) {
 					vkDestroyPipelineLayout(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkShaderModule>) {
+				} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 					vkDestroyShaderModule(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle, VkSwapchainKHR>) {
+				} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
 					vkDestroySwapchainKHR(m_owner, m_handle, nullptr);
 				} 
-			} else if constexpr (std::same_as<owner, VkInstance>) {
-				if constexpr (std::same_as<handle, VkSurfaceKHR>) {
+			} else if constexpr (std::same_as<owner_type, VkInstance>) {
+				if constexpr (std::same_as<handle_type, VkSurfaceKHR>) {
 					vkDestroySurfaceKHR(m_owner, m_handle, nullptr);
 				}
-			} else if constexpr (std::same_as<owner, VmaAllocator>) {
-				if constexpr (std::same_as<handle, VmaAllocation>) {
+			} else if constexpr (std::same_as<owner_type, VmaAllocator>) {
+				if constexpr (std::same_as<handle_type, VmaAllocation>) {
 					vmaFreeMemory(m_owner, m_handle);
 				}
-			} else if constexpr (std::same_as<owner, VkCommandPool>) {
-				if constexpr (std::same_as<handle, VkCommandBuffer>) {
+			} else if constexpr (std::same_as<owner_type, VkCommandPool>) {
+				if constexpr (std::same_as<handle_type, VkCommandBuffer>) {
 					vkFreeCommandBuffers(m_owner, m_handle);
 				}
-			} else if constexpr (std::same_as<handle, VmaAllocator>) {
+			} else if constexpr (std::same_as<handle_type, VmaAllocator>) {
 				vmaDestroyAllocator(m_handle);
-			} else if constexpr (std::same_as<handle, VkDevice>) {
+			} else if constexpr (std::same_as<handle_type, VkDevice>) {
 				vkDestroyDevice(m_handle, nullptr);
-			} else if constexpr (std::same_as<handle, VkInstance>) {
+			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				vkDestroyInstance(m_handle, nullptr);
-			} else if constexpr (std::same_as<handle, SDL_Window*>) {
+			} else if constexpr (std::same_as<handle_type, SDL_Window*>) {
 				SDL_DestroyWindow(m_handle);
 			} // some objects don't need to be destroyed explicitly, so they aren't here, even though they use this RAII container
 		}
@@ -344,7 +344,7 @@ public:
 	 */
 	constexpr RAIIContainer& operator=(movable_handle handle) {
 		if (handle != this->m_handle) {
-			m_handle = std::exchange(handle, handle { } );
+			m_handle = std::exchange(handle, handle_type { } );
 		}
 		return *this;
 	}
@@ -356,8 +356,8 @@ public:
 	 */
 	constexpr RAIIContainer& operator=(movable_container container) {
 		if (&container != this) {
-			m_handle = std::exchange(container.m_handle, handle { } );
-			m_owner = std::exchange(container.m_owner, owner { } );
+			m_handle = std::exchange(container.m_handle, handle_type { } );
+			m_owner = std::exchange(container.m_owner, owner_type { } );
 		}
 		return *this;
 	}
@@ -367,7 +367,7 @@ public:
 	 * 
 	 * @return lyra::vulkan::RAIIContainer::handle&
 	 */
-	constexpr handle& get() noexcept { return m_handle; }
+	constexpr handle_type& get() noexcept { return m_handle; }
 	/**
 	 * @brief get the raw vulkan handle
 	 * 
@@ -379,7 +379,7 @@ public:
 	 * 
 	 * @return lyra::vulkan::RAIIContainer::handle&
 	 */
-	constexpr operator handle&() noexcept { return m_handle; }
+	constexpr operator handle_type&() noexcept { return m_handle; }
 	/**
 	 * @brief get the raw vulkan handle
 	 * 
@@ -388,8 +388,8 @@ public:
 	constexpr operator const_handle&() const noexcept { return m_handle; }
 
 protected:
-	handle m_handle { };
-	owner m_owner { };
+	handle_type m_handle { };
+	owner_type m_owner { };
 };
 
 namespace vulkan {

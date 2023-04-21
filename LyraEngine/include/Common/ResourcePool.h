@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <deque>
+
 #include <Common/SmartPointer.h>
 #include <Common/FunctionPointer.h>
 #include <Common/IteratorBase.h>
@@ -30,18 +31,16 @@ namespace lyra {
  */
 template <class Ty> class ResourcePool {
 public:
-	using value = Ty;
-	using const_value = const value;
-	using size = size_t;
-	using index = const size&;
-	using reference = value&;
-	using const_reference = const value&;
-	using pointer = value*;
-	using const_pointer = const value*;
-	using movable = value&&;
-	using pool = ResourcePool<value>;
-	using SmartPointer = SmartPointer<value>;
-	using deque = std::deque<SmartPointer>;
+	using value_type = Ty;
+	using const_value = const value_type;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using pointer = value_type*;
+	using const_pointer = const value_type*;
+	using movable = value_type&&;
+	using pool = ResourcePool<value_type>;
+	using smart_pointer = SmartPointer<value_type>;
+	using deque = std::deque<smart_pointer>;
 	using iterator = typename deque::iterator;
 	using const_iterator = typename deque::const_iterator;
 
@@ -63,10 +62,10 @@ public:
 		 */
 		constexpr void operator() (pointer resource) {
 			m_pool->emplace_back(resource);
-		};
+		}
 	};
 
-	using resource_container = SmartPointer<value, ResourceReturner>;
+	using resource_container = SmartPointer<value_type, ResourceReturner>;
 
 	/**
 	 * @brief get an element of the array
@@ -74,7 +73,7 @@ public:
 	 * @param index index of the element
 	 * @return lyra::ResourcePool::reference 
 	 */
-	NODISCARD constexpr reference operator[](index index) noexcept {
+	NODISCARD constexpr reference operator[](const size_t& index) noexcept {
 		return *m_resources[index];
 	}
 	/**
@@ -83,7 +82,7 @@ public:
 	 * @param index index of the element
 	 * @return lyra::ResourcePool::const_reference 
 	 */
-	NODISCARD constexpr const_reference operator[](index index) const noexcept {
+	NODISCARD constexpr const_reference operator[](const size_t& index) const noexcept {
 		return *m_resources[index];
 	}
 	/**
@@ -92,7 +91,7 @@ public:
 	 * @param index index of the element
 	 * @return lyra::ResourcePool::reference 
 	 */
-	DEPRECATED NODISCARD constexpr reference at(index index) noexcept {
+	DEPRECATED NODISCARD constexpr reference at(const size_t& index) noexcept {
 		return *m_resources.at(index);
 	}
 	/**
@@ -101,7 +100,7 @@ public:
 	 * @param index index of the element
 	 * @return lyra::ResourcePool::reference 
 	 */
-	DEPRECATED NODISCARD constexpr const_reference at(index index) const noexcept {
+	DEPRECATED NODISCARD constexpr const_reference at(const size_t& index) const noexcept {
 		return *m_resources.at(index);
 	}
 	/**
@@ -173,19 +172,19 @@ public:
 	// capacity
 
 	/**
-	 * @brief get the size of the internal deque
+	 * @brief get the size_t of the internal deque
 	 * 
-	 * @return const size
+	 * @return const size_t
 	 */
-	NODISCARD constexpr const size size() const noexcept {
+	NODISCARD constexpr const size_t size() const noexcept {
 		return m_resources.size();
 	}
 	/**
-	 * @brief get the maximum size of the internal deque
+	 * @brief get the maximum size_t of the internal deque
 	 * 
-	 * @return size
+	 * @return size_t
 	 */
-	NODISCARD constexpr size max_size() const noexcept {
+	NODISCARD constexpr size_t max_size() const noexcept {
 		return m_resources.max_size();
 	}
 	/**
@@ -194,7 +193,7 @@ public:
 	 * @return bool
 	 */
 	NODISCARD constexpr bool empty() const noexcept {
-		return m_resources.size() == 0;
+		return m_resources.size_t() == 0;
 	}
 	/**
 	 * @brief return false if the internal deque is empty
@@ -202,7 +201,7 @@ public:
 	 * @return bool
 	 */
 	NODISCARD constexpr operator bool() const noexcept {
-		return m_resources.size() != 0;
+		return m_resources.size_t() != 0;
 	}
 	/**
 	 * @brief shrink the internal deque to free unused memory
@@ -229,7 +228,7 @@ public:
 	 * 
 	 * @return lyra::ResourcePool::reference 
 	 */
-	reference insert(index index, const_reference value) {
+	reference insert(const size_t& index, const_reference value) {
 		m_resources.insert(m_resources.begin() + index, value);
 	}
 	/**
@@ -240,7 +239,7 @@ public:
 	 * 
 	 * @return lyra::ResourcePool::reference 
 	 */
-	reference insert(index index, movable value) {
+	reference insert(const size_t& index, movable value) {
 		m_resources.insert(m_resources.begin() + index, std::move(value));
 	}
 	/**
@@ -253,7 +252,7 @@ public:
 	 * 
 	 * @return lyra::ResourcePool::reference 
 	 */
-	template<class... Args> reference emplace(index index, Args&&... args) {
+	template<class... Args> reference emplace(const size_t& index, Args&&... args) {
 		return m_resources.emplace(m_resources.begin() + index, resource_container::create(std::forward<Args>(args)...));
 	}
 
@@ -262,7 +261,7 @@ public:
 	 * 
 	 * @param index index of resource to erase
 	 */
-	constexpr void erase(index index) {
+	constexpr void erase(const size_t& index) {
 		m_resources.erase(m_resources.begin() + index);
 	}
 	/**
@@ -271,7 +270,7 @@ public:
 	 * @param first index of first resource to erase
 	 * @param last index of last resource to erase
 	 */
-	constexpr void erase(index first, const size last) {
+	constexpr void erase(const size_t& first, const size_t last) {
 		m_resources.erase(m_resources.begin() + first, m_resources.begin() + last);
 	}
 
@@ -301,7 +300,7 @@ public:
 	 * @return lyra::ResourcePool::reference 
 	 */
 	template<class... Args> reference emplace_back(Args&&... args) {
-		return *m_resources.emplace_back(SmartPointer::create(std::forward<Args>(args)...));
+		return *m_resources.emplace_back(smart_pointer::create(std::forward<Args>(args)...));
 	}
 
 	/**
@@ -337,7 +336,7 @@ public:
 	 * @return lyra::ResourcePool::reference 
 	 */
 	template<class... Args> reference emplace_front(Args&&... args) {
-		return *m_resources.emplace_front(SmartPointer::create(std::forward<Args>(args)...));
+		return *m_resources.emplace_front(smart_pointer::create(std::forward<Args>(args)...));
 	}
 
 	/**

@@ -21,13 +21,13 @@ namespace lyra {
 
 // basic C-array wrapper implementation
 template <class Ty, size_t Size> struct Array {
-	using value = Ty;
+	using value_type = Ty;
 	using iterator = IteratorBase<Ty>;
 	using const_iterator = IteratorBase<const Ty>; 
-	using reference = value&;
-	using const_reference = const value&;
-	using array = value[Size];
-	using wrapper = Array<value, Size>;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using array = value_type[Size];
+	using wrapper = Array<value_type, Size>;
 
 	/**
 	 * @brief fill the array with the same value
@@ -40,8 +40,8 @@ template <class Ty, size_t Size> struct Array {
 	 * 
 	 * @param value value to fill with
 	 */
-	constexpr void fill(const value&& value) { 
-		for (size_t i; i < Size; i++) m_array[i] = std::forward<value>(value); 
+	constexpr void fill(const value_type&& value) { 
+		for (size_t i; i < Size; i++) m_array[i] = std::forward<value_type>(value); 
 	}
 	/**
 	 * @brief fill the array with elements from a C-array
@@ -49,7 +49,7 @@ template <class Ty, size_t Size> struct Array {
 	 * @param array C-array
 	 * @param size size of the C-array
 	 */
-	constexpr void fill(const value* const array, const size_t& size) {
+	constexpr void fill(const value_type* const array, const size_t& size) {
 		for (size_t i; i < ( Size < size ) ? Size : size; i++) m_array[i] = array[i];
 	}
 	/**
@@ -67,7 +67,7 @@ template <class Ty, size_t Size> struct Array {
 	 * 
 	 * @param array array wrapper to fill with
 	 */
-	template <size_t OtherSize> constexpr void fill(const Array<value, OtherSize>& array) {
+	template <size_t OtherSize> constexpr void fill(const Array<value_type, OtherSize>& array) {
 		for (size_t i; i < ( Size < array.size() ) ? Size : array.size(); i++) m_array[i] = array[i];
 	}
 
@@ -170,27 +170,27 @@ template <class Ty, size_t Size> struct Array {
 	/**
 	 * @brief get the raw array
 	 * 
-	 * @return lyra::Array::value*
+	 * @return lyra::Array::value_type*
 	 */
-	NODISCARD constexpr value* data() noexcept { return m_array; }
+	NODISCARD constexpr value_type* data() noexcept { return m_array; }
 	/**
 	 * @brief get the raw array
 	 * 
-	 * @return const lyra::Array::value*
+	 * @return const lyra::Array::value_type*
 	 */
-	NODISCARD constexpr const value* data() const noexcept { return m_array; }
+	NODISCARD constexpr const value_type* data() const noexcept { return m_array; }
 	/**
 	 * @brief cast the wrapper to the raw array
 	 * 
-	 * @return lyra::Array::value*
+	 * @return lyra::Array::value_type*
 	 */
-	NODISCARD constexpr operator value* () noexcept { return m_array; }
+	NODISCARD constexpr operator value_type* () noexcept { return m_array; }
 	/**
 	 * @brief cast the wrapper to the raw array
 	 * 
-	 * @return const lyra::Array::value*
+	 * @return const lyra::Array::value_type*
 	 */
-	NODISCARD constexpr operator const value* () const noexcept { return m_array; }
+	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
 	array m_array;
 };

@@ -23,13 +23,13 @@ namespace lyra {
  */
 template <class Ty> class Node {
 public:
-	using value = Ty;
-	using const_value = const value;
-	using reference = value&;
-	using const_reference = const value&;
-	using pointer = value*;
-	using const_pointer = const value*;
-	using movable = value&&;
+	using value_type = Ty;
+	using const_value = const value_type;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using pointer = value_type*;
+	using const_pointer = const value_type*;
+	using movable = value_type&&;
 	using map = std::unordered_map<std::string, pointer>;
 	using iterator = typename map::iterator;
 	using const_iterator = typename map::const_iterator;

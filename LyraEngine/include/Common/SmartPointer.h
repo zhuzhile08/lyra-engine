@@ -24,9 +24,9 @@ namespace lyra {
  */
 template <class Ty, class DTy = std::default_delete<Ty>> class SmartPointer {
 public:
-	using value = Ty;
+	using value_type = Ty;
 	using pointer = Ty*;
-	using deleter = DTy;
+	using deleter_type = DTy;
 	using wrapper = SmartPointer;
 
 	constexpr SmartPointer() = default;
@@ -42,20 +42,20 @@ public:
 	 * @param pointer raw pointer
 	 * @param deleter deleter function
 	 */
-	constexpr SmartPointer(pointer pointer, const deleter& deleter) : m_pointer(pointer), m_deleter(deleter) { }
+	constexpr SmartPointer(pointer pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param pointer raw pointer
 	 * @param deleter deleter function
 	 */
-	constexpr SmartPointer(pointer pointer, deleter&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
+	constexpr SmartPointer(pointer pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
 	/**
 	 * @brief construct the smart pointer
 	 *
 	 * @param right pointer to copy from
 	 */
-	constexpr SmartPointer(SmartPointer<value, deleter>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	constexpr SmartPointer(SmartPointer<value_type, deleter_type>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 	/**
 	 * @brief construct the smart pointer
 	 *
@@ -79,7 +79,7 @@ public:
 	 */
 	SmartPointer& operator=(SmartPointer&& right) {
 		assign(right.release());
-		m_deleter = std::forward<deleter>(right.m_deleter);
+		m_deleter = std::forward<deleter_type>(right.m_deleter);
 		return *this;
 	}
 	/**
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return lyra::SmartPointer&
 	 */
-	SmartPointer<value, deleter>& operator=(pointer right) {
+	SmartPointer<value_type, deleter_type>& operator=(pointer right) {
 		assign(right);
 		return *this;
 	}
@@ -103,8 +103,8 @@ public:
 	 *
 	 * @return lyra::SmartPointer
 	 */
-	template <class ... Args> NODISCARD static SmartPointer<value> create(Args&&... args) {
-		return SmartPointer<value>(new value(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static SmartPointer<value_type> create(Args&&... args) {
+		return SmartPointer<value_type>(new value_type(std::forward<Args>(args)...));
 	}
 
 	/**
@@ -118,9 +118,9 @@ public:
 	/**
 	 * @brief dereference the internal pointer and return the value
 	 *
-	 * @return lyra::SmartPointer::value&
+	 * @return lyra::SmartPointer::value_type&
 	 */
-	constexpr value& operator*() const noexcept {
+	constexpr value_type& operator*() const noexcept {
 		return *m_pointer;
 	}
 
@@ -146,17 +146,17 @@ public:
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return lyra::SmartPointer::deleter& 
+	 * @return lyra::SmartPointer::deleter_type& 
 	 */
-	NODISCARD constexpr const deleter& deleter() const noexcept {
+	NODISCARD constexpr const deleter_type& deleter() const noexcept {
 		return m_deleter;
 	}
 	/**
 	 * @brief get the deleter function
 	 * 
-	 * @return lyra::SmartPointer::deleter&
+	 * @return lyra::SmartPointer::deleter_type&
 	 */
-	NODISCARD constexpr deleter& deleter() noexcept {
+	NODISCARD constexpr deleter_type& deleter() noexcept {
 		return m_deleter;
 	}
 
@@ -191,7 +191,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	constexpr void swap(SmartPointer<value>& second) {
+	constexpr void swap(SmartPointer<value_type>& second) {
 		std::swap(m_pointer, second.m_pointer);
 	}
 	/**
@@ -199,7 +199,7 @@ public:
 	 *
 	 * @param second pointer to swap with
 	 */
-	constexpr void swap(SmartPointer<value>&& second) {
+	constexpr void swap(SmartPointer<value_type>&& second) {
 		std::swap(m_pointer, std::move(second.m_pointer));
 	}
 	/**
@@ -259,7 +259,7 @@ public:
 
 private:
 	pointer m_pointer = nullptr;
-	deleter m_deleter;
+	deleter_type m_deleter;
 
 	template <class, class>
 	friend class SmartPointer;

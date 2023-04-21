@@ -29,13 +29,13 @@ concept DynarrayValueType = std::is_move_assignable_v<Ty> && std::is_default_con
 
 // very dangerous dynamic array implementation, please only store contents <= 4 bytes in small quantities capacity
 template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
-	using value = Ty;
-	using reference = value&;
-	using const_reference = const value&;
-	using array = Array<value, capacity>;
-	using wrapper = Dynarray<value, capacity>;
-	using span = std::span<value>;
-	using const_span = std::span<const value>;
+	using value_type = Ty;
+	using reference = value_type&;
+	using const_reference = const value_type&;
+	using array = Array<value_type, capacity>;
+	using wrapper = Dynarray<value_type, capacity>;
+	using span = std::span<value_type>;
+	using const_span = std::span<const value_type>;
 	using iterator = typename array::iterator;
 	using const_iterator = typename array::const_iterator;
 
@@ -151,7 +151,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @param value value to fill with
 	 */
-	constexpr void fill(value&& value) { 
+	constexpr void fill(value_type&& value) { 
 		for (size_t i = 0; i < m_size; i++) m_array[i] = std::move(value); 
 	}
 	/**
@@ -160,7 +160,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @param array C-array
 	 * @param size size of the C-array
 	 */
-	constexpr void fill(const value* const array, const size_t& size) {
+	constexpr void fill(const value_type* const array, const size_t& size) {
 		for (size_t i = 0; i < ( m_size < size ) ? m_size : size; i++) m_array[i] = std::move(array[i]);
 	}
 	/**
@@ -216,7 +216,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @return lyra::Dynarray::iterator
 	 */
-	constexpr iterator insert(const_iterator pos, value&& value) {
+	constexpr iterator insert(const_iterator pos, value_type&& value) {
 		if (full()) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array already full!");
 		iterator f, b;
 		for (f = end(); f >= pos; f--) {
@@ -257,7 +257,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * 
 	 * @return lyra::Dynarray::iterator
 	 */
-	constexpr iterator insert(const_iterator begin, const size_t& count, value&& value) {
+	constexpr iterator insert(const_iterator begin, const size_t& count, value_type&& value) {
 		if (m_size + count > capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array already full!");
 		iterator f, b;
 		for (f = this->end(); f >= begin; f--) {
@@ -277,7 +277,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return lyra::Dynarray::iterator
 	 */
 	constexpr iterator erase(const_iterator pos) {
-		iterator b, pc = const_cast<value*>(&*pos);
+		iterator b, pc = const_cast<value_type*>(&*pos);
 		for (iterator f = pc + 1; f < end(); f++) {
 			b = f;
 			*--b = *f;
@@ -293,7 +293,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @return lyra::Dynarray::iterator
 	 */
 	constexpr iterator erase(const_iterator begin, const_iterator end) {
-		iterator b, bc = const_cast<value*>(&*begin), ec = const_cast<value*>(&*end); 
+		iterator b, bc = const_cast<value_type*>(&*begin), ec = const_cast<value_type*>(&*end); 
 		for (iterator f = ec; f < this->end(); f++) {
 			b = f;
 			*(b - (&*end - &*begin)) = *f;
@@ -316,7 +316,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 *
 	 * @param value value to insert
 	 */
-	constexpr void push_back(value&& value) {
+	constexpr void push_back(value_type&& value) {
 		m_array[m_size] = std::move(value);
 		m_size++;
 	}
@@ -324,7 +324,7 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	 * @brief remove the last element in the dynamic array
 	 */
 	constexpr void pop_back() {
-		back() = std::move(value());
+		back() = std::move(value_type());
 		m_size--;
 	}
 	/**
@@ -382,47 +382,47 @@ template <DynarrayValueType Ty, size_t capacity> struct Dynarray {
 	/**
 	 * @brief get the used part of the dynamic array
 	 *
-	 * @return lyra::Dynarray::value*
+	 * @return lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr value* data() noexcept { 
+	NODISCARD constexpr value_type* data() noexcept { 
 		span span{ m_array.data(), m_size };
 		return span.data();
 	}
 	/**
 	 * @brief get the used part of the dynamic array
 	 *
-	 * @return const lyra::Dynarray::value*
+	 * @return const lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr const value* data() const noexcept { 
+	NODISCARD constexpr const value_type* data() const noexcept { 
 		const_span span { m_array.data(), m_size };
 		return span.data();
 	}
 	/**
 	 * @brief get the raw array
 	 * 
-	 * @return lyra::Dynarray::value*
+	 * @return lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr value* all_data() noexcept { 
+	NODISCARD constexpr value_type* all_data() noexcept { 
 		return m_array; 
 	}
 	/**
 	 * @brief get the raw array
 	 * 
-	 * @return const lyra::Dynarray::value*
+	 * @return const lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr const value* all_data() const noexcept { return m_array; }
+	NODISCARD constexpr const value_type* all_data() const noexcept { return m_array; }
 	/**
 	 * @brief cast the wrapper to the raw array
 	 * 
-	 * @return lyra::Dynarray::value*
+	 * @return lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr operator value*() noexcept { return m_array; }
+	NODISCARD constexpr operator value_type*() noexcept { return m_array; }
 	/**
 	 * @brief cast the wrapper to the raw array
 	 * 
-	 * @return const lyra::Dynarray::value*
+	 * @return const lyra::Dynarray::value_type*
 	 */
-	NODISCARD constexpr operator const value* () const noexcept { return m_array; }
+	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
 	array m_array;
 	size_t m_size = 0;

@@ -24,8 +24,8 @@ namespace lyra {
 template <class Ty> class IteratorBase {
 public:
 	// using difference = DTy;
-	using value = Ty;
-	using const_value = const value;
+	using value_type = Ty;
+	using const_value = const value_type;
 	using pointer = Ty*;
 	using const_pointer = const Ty*;
 	using pointer_const = Ty* const;
@@ -73,6 +73,18 @@ public:
 	 * @return lyra::Iterator::pointer_const
 	 */
 	constexpr pointer_const operator->() const noexcept { return m_pointer; }
+	/**
+	 * @brief get the internal pointer
+	 * 
+	 * @return lyra::Iterator::pointer
+	 */
+	constexpr pointer get() noexcept { return m_pointer; }
+	/**
+	 * @brief get the internal pointer
+	 * 
+	 * @return lyra::Iterator::pointer_const
+	 */
+	constexpr pointer_const get() const noexcept { return m_pointer; }
 
 	/**
 	 * @brief postfix increment operator
