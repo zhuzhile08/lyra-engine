@@ -146,7 +146,7 @@ public:
 		 */
 		void build_pipeline_base(Pipeline* pipeline) const noexcept;
 
-	private:
+	protected:
 		std::vector<ShaderInfo> m_shaderInfos;
 		std::vector<BindingInfo> m_bindingInfos;
 		std::vector<PushConstantInfo> m_pushConstantInfos;
