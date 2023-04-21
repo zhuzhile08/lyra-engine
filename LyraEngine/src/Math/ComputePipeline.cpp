@@ -1,37 +1,32 @@
 #include <Math/ComputePipeline.h>
 
+#include <Application/Application.h>
+
 namespace lyra {
 
-void ComputePipeline::create(const CreateInfo info) {
-	m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
-
-	create_shaders({ info.shaderCreationInfo });
-
-	create_descriptor_stuff(info.builder);
-
-	create_pipeline(info);
-}
-
-void ComputePipeline::create_pipeline(const CreateInfo info) {
-	// add all the shader stage creation information into a vector
-	VkPipelineShaderStageCreateInfo shaderStage;
-	shaderStage = m_shaders.at(0).get_stage_create_info(); // don't question my architecture. It just works.
-
-	create_layout();
-
+void ComputePipeline::Builder::build_compute_pipeline(ComputePipeline* const computePipeline) const {
 	// creation information
-	VkComputePipelineCreateInfo createInfo{
-		VK_STRUCTURE_TYPE_ComputePipeline_CREATE_INFO,
+	VkComputePipelineCreateInfo createInfo {
+		VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
 		nullptr,
 		0,
-		shaderStage,
-		m_layout,
+		computePipeline->m_shaders[0].get_stage_create_info(),
+		computePipeline->m_layout,
 		VK_NULL_HANDLE,
 		0
 	};
 
-	// create the pipelines
-	vkCreateComputePipelines(Application::renderSystem.device.device(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &m_pipeline);
+	// create the compute pipeline
+	computePipeline->m_pipeline = vulkan::vk::ComputePipeline(Application::renderSystem.device.device(), VK_NULL_HANDLE, createInfo, { });
+}
+
+ComputePipeline::ComputePipeline(const ComputePipeline::Builder& builder) {
+	// define what type of pipeline this is
+	m_bindPoint = VK_PIPELINE_BIND_POINT_COMPUTE;
+
+	// crate shaders
+	builder.build_pipeline_base(this);
+	builder.build_compute_pipeline(this);
 }
 
 } // namespace lyra
