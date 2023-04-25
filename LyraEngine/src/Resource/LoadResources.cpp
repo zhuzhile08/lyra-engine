@@ -7,7 +7,7 @@ namespace lyra {
 
 namespace util {
 
-const AssetFile load_assets(std::string_view binPath) {
+AssetFile load_assets(std::string_view binPath) {
 	AssetFile loadedAsset;
 
 	// check
