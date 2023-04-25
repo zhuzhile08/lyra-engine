@@ -68,14 +68,11 @@ int main() {
 	// init application
 	Application app;
 
-	lyra::Texture* roomTexture = lyra::ResourceManager::texture("data/img/viking_room.png");
-	lyra::Texture* femcTexture = lyra::ResourceManager::texture("data/img/p3_femc_sees_tex.png");
+	lyra::Mesh* femcMesh = lyra::ResourceManager::mesh("data/mesh/femc.obj");
+	lyra::Mesh* roomMesh = lyra::ResourceManager::mesh("data/mesh/viking_room.obj");
 
-	lyra::Mesh* femcMesh = lyra::ResourceManager::mesh("data/model/femc.obj");
-	lyra::Mesh* roomMesh = lyra::ResourceManager::mesh("data/model/viking_room.obj");
-
-	lyra::Material femcMaterial(lyra::Color(0, 0, 0, 0), femcTexture);
-	lyra::Material roomMaterial(lyra::Color(0, 0, 0, 0), roomTexture);
+	lyra::Material* femcMaterial = lyra::ResourceManager::material("data/mesh/femc.mtl");
+	lyra::Material roomMaterial(lyra::Color(0, 0, 0, 0), "data/img/viking_room.png");
 
 	lyra::Entity scene("Root");
 
@@ -83,7 +80,7 @@ int main() {
 	camera.add_component<lyra::Camera>();
 
 	lyra::Entity femc("FEMC", &scene);
-	femc.add_component<lyra::MeshRenderer>(femcMesh, &femcMaterial);
+	femc.add_component<lyra::MeshRenderer>(femcMesh, femcMaterial);
 
 	lyra::Entity room("Room", &scene);
 	room.add_component<lyra::MeshRenderer>(roomMesh, &roomMaterial);
