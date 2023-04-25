@@ -1,11 +1,11 @@
-#include <Graphics/Texture.h>
+#include <Resource/Texture.h>
 
 #include <Common/Settings.h>
 
 namespace lyra {
 
 Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
-	: m_path(imageData.path), m_width(imageData.width), m_height(imageData.height), m_mipmap(imageData.mipmap) {
+	: m_width(imageData.width), m_height(imageData.height), m_mipmap(imageData.mipmap) {
 	{
 		// calculate the mipmap levels of the image
 		m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
@@ -148,7 +148,7 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.end();
 
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue().queue);
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsComputeQueue());
 	// reset command buffer
 	cmdBuff.reset();
 }

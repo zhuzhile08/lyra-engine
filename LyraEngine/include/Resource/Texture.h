@@ -15,7 +15,7 @@
 
 #include <Application/Application.h>
 
-#include <Resource/LoadResources.h>
+#include <Resource/LoadImage.h>
 
 #include <Graphics/VulkanImpl/GPUMemory.h>
 #include <Graphics/VulkanImpl/GPUBuffer.h>
@@ -23,7 +23,6 @@
 #include <Graphics/VulkanImpl/Image.h>
 
 #include <algorithm>
-#include <lz4.h>
 #include <vulkan/vulkan.h>
 
 namespace lyra {
@@ -110,19 +109,12 @@ public:
 	 * @return const lyra::vulkan::vk::Sampler&
 	*/
 	NODISCARD constexpr const vulkan::vk::Sampler& sampler() const noexcept { return m_sampler; }
-	/**
-	* @brief get the path of the image
-	* 
-	* @return std::string_view
-	**/
-	NODISCARD constexpr std::string_view path() const noexcept { return m_path; }
 
 private:
 	vulkan::vk::Sampler m_sampler;
 	uint32 m_width;
 	uint32 m_height;
 	uint32 m_mipmap;
-	std::string_view m_path;
 
 	/**
 	 * @brief create the image sampler
