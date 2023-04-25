@@ -159,6 +159,11 @@ public:
 		GraphicsPipelineCreateInfo m_createInfo;
 		const Renderer* const m_renderer;
 
+		/**
+		 * @brief build the graphics pipeline
+		 * 
+		 * @param graphicsPipeline graphics pipeline to build
+		 */
 		void build_graphics_pipeline(GraphicsPipeline* const graphicsPipeline) const;
 
 		friend class GraphicsPipeline;
