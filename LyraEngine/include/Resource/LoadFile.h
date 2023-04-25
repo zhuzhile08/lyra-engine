@@ -38,11 +38,7 @@ enum OpenMode {
 	MODE_INPUT = 0x08,
 	MODE_OUTPUT = 0x10,
 	MODE_TRUNCATE = 0x20
-};
-#elif linux
-	std::filesystem::path path("/proc/self/exe");
-	std::filesystem::canonical(path);
-	return path;
+};	
 #endif
 
 /**
