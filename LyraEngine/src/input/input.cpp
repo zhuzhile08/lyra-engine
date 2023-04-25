@@ -9,23 +9,25 @@ namespace lyra {
 namespace input {
 
 void InputManager::update() {
+	Application::window.m_changed = false;
+
 	// get new events and set the passed events
 	SDL_PumpEvents();
 	m_mouseState = SDL_GetMouseState(&m_mousePos.x, &m_mousePos.y);
 
 	// poll fixed events
 	while (SDL_PollEvent(&m_events)) {
-		Application::window.m_changed = false;
 
 		// ImGui_ImplSDL2_ProcessEvent(&m_events);
 
 		// default events that are always checked
 		switch (m_events.type) {
-			case SDL_QUIT: // quitting
+			case SDL_QUIT: // quitting	
 				Application::window.m_running = false;
 			case SDL_WINDOWEVENT: // window events like resizing
-				if (m_events.window.event == SDL_WINDOWEVENT_RESIZED || m_events.window.event == SDL_WINDOWEVENT_MINIMIZED || m_events.window.event == SDL_WINDOWEVENT_MAXIMIZED)
+				if (m_events.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || m_events.window.event == SDL_WINDOWEVENT_MINIMIZED || m_events.window.event == SDL_WINDOWEVENT_MAXIMIZED)
 					Application::window.m_changed = true;
+					/// @todo: window fullscreen not registering
 		}
 	}
 }
