@@ -3,7 +3,7 @@
  *
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
- * @brief wrapper the basic Assets features
+ * @brief wrapper the basic ResourceManager features
  *
  * @date 2022-06-19
  *
@@ -15,90 +15,76 @@
 #include <Lyra/Lyra.h>
 
 #include <unordered_map>
-
+#include <string_view>
 #include <Common/SmartPointer.h>
 
 #include <Resource/LoadResources.h>
 
-#include <Graphics/Texture.h>
+#include <Resource/Texture.h>
+#include <Resource/Mesh.h>
 
 namespace lyra {
 
-class Assets {
+class ResourceManager {
 public:
-	Assets() = default;
+	ResourceManager() = default;
 
 	/**
-	 * @brief construct a Assets manager
+	 * @brief construct a resource manager
 	 * 
-	 * @param imagepath path for an image asset file
+	 * @param imagePath path for an image asset file
 	 */
-	Assets(std::string_view imagePath) : m_images() { }
-	
-	~Assets() = default;
-
-	Assets(const Assets&) noexcept = delete;
-	Assets operator=(const Assets&) const noexcept = delete;
+	ResourceManager(std::string_view imagePath) : m_images() { }
 
 	/**
-	 * @brief get an already loaded texture from the map
+	 * @brief get an already loaded texture or load it if it doesn't exist
 	 * 
 	 * @param path path of the texture
-	 * @return const Texture* const 
+	 * @return lyra::Texture*
 	 */
-	const Texture* const at(const char* const path) const {
-		return m_textures.at(path);
-	}
+	static Texture* texture(std::string_view path);
+
 	/**
-	 * @brief get an already loaded texture from the map
+	 * @brief get an already loaded material or load it if it doesn't exist
 	 * 
-	 * @param path path of the texture
-	 * @return Texture*
+	 * @param path path of the material
+	 * @return lyra::Material*
 	 */
-	Texture* operator[](const char* const path);
+	static Material* material(std::string_view path);
+
 	/**
-	 * @brief get an already loaded texture from the map
+	 * @brief get an already loaded mesh or load it if it doesn't exist
 	 * 
-	 * @param path path of the texture
-	 * @return const Texture* const
+	 * @param path path of the mesh
+	 * @return lyra::Mesh*
 	 */
-	const Texture* const operator[](const char* const path) const;
+	static Mesh* mesh(std::string_view path);
 
 	/**
 	 * @brief return the raw image data
 	 * 
-	 * @return const lyra::util::AssetFile
+	 * @return lyra::util::AssetFile
 	 */
-	NODISCARD const util::AssetFile images() noexcept { return m_images; }
+	NODISCARD util::AssetFile images() noexcept { return m_images; }
 	/**
 	 * @brief return the null texture
 	 * 
 	 * @reutrn const lyra::Texture* const 
 	 */
-	NODISCARD static const Texture* const nullTexture() noexcept { return &m_nullTexture; }
+	NODISCARD static const Texture* const nullTexture() noexcept { return texture("data/img/Default.bmp"); }
 	/**
 	 * @brief return the null normal map texture
 	 *
 	 * @reutrn const lyra::Texture* const
 	 */
-	NODISCARD static const Texture* const nullNormal() noexcept { return &m_nullNormal; }
+	NODISCARD static const Texture* const nullNormal() noexcept { return texture("data/img/Normal.bmp"); }
 
 private:
 	util::AssetFile m_images;
 
-	static std::unordered_map<const char*, SmartPointer<Texture>> m_textures;
-
-	static Texture m_nullTexture;
-	static Texture m_nullNormal;
-
-	/**
-	 * @brief unpack the texture data based on the path of the texture
-	 * 
-	 * @param path path of the texture
-	 * 
-	 * @return lyra::util::ImageData
-	 */
-	NODISCARD static util::ImageData unpack_texture(std::string_view path);
+	static std::unordered_map<std::string, SmartPointer<Texture>> m_textures;
+	static std::unordered_map<std::string, SmartPointer<Material>> m_materials;
+	static std::unordered_map<std::string, SmartPointer<Mesh>> m_meshes;
 
 	friend class Texture;
 	friend class CubemapBase;

@@ -2,62 +2,39 @@
 
 #include <utility>
 
-#include <Graphics/Texture.h>
+#include <Resource/Texture.h>
+#include <Resource/Material.h>
+#include <Resource/Mesh.h>
 
-#include <stb_image.h>
+#include <Resource/LoadImage.h>
+#include <Resource/LoadMaterial.h>
+#include <Resource/LoadMesh.h>
 
 namespace lyra {
 
-util::ImageData Assets::unpack_texture(std::string_view path) {
-	/**  
-	const auto& begin = m_images.binary.begin() + m_images.json.at(path).at("begin");
-	const auto& end = begin + m_images.json.at(path).at("data_length"); // IMPORTANT!!! Remember to add one to the length of the data, or else everything will be screwed up
-	std::vector<char> compImageData(begin, end);
-	std::vector<char> imageData = { };
-
-	LZ4_decompress_safe(compImageData.data(), imageData.data(), m_images.json.at(path).at("data_length"), m_images.json.at(path).at("size"));
-
-	nlohmann::json jsonImageData = nlohmann::json::parse(imageData);
-
-	*/
-
-	int width, height, channels;
-	stbi_uc* imagePixelData = stbi_load(path.data(), &width, &height, &channels, STBI_rgb_alpha);
-	if (imagePixelData == nullptr) log().exception("Failed to load image from path: ", path, "!");
-
-	util::ImageData imageData{
-		path.data(),
-		(uint32) width, // jsonImageData.at("width"),
-		(uint32) height, // jsonImageData.at("height"),
-		0, // jsonImageData.at("length"),
-		1, // jsonImageData.at("mipmap"),
-		0, // jsonImageData.at("type"),
-		1, // jsonImageData.at("alpha"),
-		1, // jsonImageData.at("dimension"),
-		1, // jsonImageData.at("wrap"),
-		1, // jsonImageData.at("anistropy"),
-		imagePixelData // (void*)&jsonImageData.at("data")
-	};
-
-	return imageData;
-}
-
-Texture* Assets::operator[](const char* const path) {
-	if (!m_textures.contains(path)) {
-		m_textures.emplace(std::make_pair(path, SmartPointer<Texture>::create(unpack_texture(path))));
+Texture* ResourceManager::texture(std::string_view path) {
+	if (!m_textures.contains(path.data())) {
+		m_textures.emplace(std::make_pair(path, SmartPointer<Texture>::create(util::load_image(path.data()))));
 	}
-	return m_textures.at(path);
+	return m_textures[path.data()];
 }
 
-const Texture* const Assets::operator[](const char* const path) const {
-	if (!m_textures.contains(path)) {
-		m_textures.emplace(std::make_pair(path, SmartPointer<Texture>::create(unpack_texture(path))));
+Material* ResourceManager::material(std::string_view path) {
+	if (!m_materials.contains(path.data())) {
+		m_materials.emplace(std::make_pair(path, SmartPointer<Material>::create(util::load_material(path.data()))));
 	}
-	return m_textures.at(path);
+	return m_materials[path.data()];
 }
 
-std::unordered_map<const char*, SmartPointer<Texture>> Assets::m_textures;
-Texture Assets::m_nullTexture(unpack_texture("data/img/Default.bmp"));
-Texture Assets::m_nullNormal(unpack_texture("data/img/Normal.bmp"));
+Mesh* ResourceManager::mesh(std::string_view path) {
+	if (!m_meshes.contains(path.data())) {
+		m_meshes.emplace(std::make_pair(path, SmartPointer<Mesh>::create(util::load_mesh(path))));
+	}
+	return m_meshes[path.data()];
+}
+
+std::unordered_map<std::string, SmartPointer<Texture>> ResourceManager::m_textures;
+std::unordered_map<std::string, SmartPointer<Material>> ResourceManager::m_materials;
+std::unordered_map<std::string, SmartPointer<Mesh>> ResourceManager::m_meshes;
 
 } // namespace lyra
