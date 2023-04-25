@@ -21,9 +21,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Resource/LoadModel.h>
-
-#include <EntitySystem/Entity.h>
+#include <Resource/LoadMesh.h>
 
 namespace lyra {
 
@@ -42,13 +40,19 @@ public:
 		Vertex() { }
 
 		/**
-		 * @brief construct a new Vertex object
+		 * @brief construct a new vertex
 		 *
 		 * @param pos the new position
 		 * @param normal vertex normals
 		 * @param color the new color
 		 */
 		Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& uvw, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uvw(uvw) { }
+		/**
+		 * @brief constuct a new vertex with a vertex from the OBJ loading class
+		 * 
+		 * @param vertex vertex to copy data from
+		 */
+		Vertex(util::LoadedMesh::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
 
 		/**
 		 * @brief returns a static vertex binding
@@ -100,16 +104,14 @@ public:
 
 	Mesh() = default;
 	/**
-	 * @brief construct a new mesh loaded from a .obj file
+	 * @brief construct a new mesh
 	 *
-	 * @param path path of the model
+	 * @param mesh already loaded mesh data
 	 */
-	Mesh(
-		std::string_view path
-	);
+	Mesh(const util::LoadedMesh& mesh) : m_vertices(mesh.vertices.begin(), mesh.vertices.end()), m_indices(mesh.indices) { }
 
 	/**
-	 * @brief construct a new mesh with a custom ´mesh
+	 * @brief construct a new mesh with a custom mesh
 	 *
 	 * @param vertices the new vertices
 	 * @param indices the new indices
@@ -117,31 +119,24 @@ public:
 	Mesh(
 		const std::vector <Vertex>& vertices, 
 		const std::vector <uint32>& indices
-	);
+	) : m_vertices(vertices), m_indices(indices) { }
 
 	/**
 	 * @brief get the vertices
 	 * 
-	 * @return const std::vector <lyra::Vertex>
+	 * @return std::vector <lyra::Vertex>
 	*/
-	NODISCARD const std::vector <Vertex> vertices() const noexcept { return m_vertices; }
+	NODISCARD std::vector <Vertex> vertices() const noexcept { return m_vertices; }
 	/**
 	 * @brief get the indices
 	 *
-	 * @return const std::vector <uint16>
+	 * @return std::vector <uint16>
 	*/
-	NODISCARD const std::vector <uint32> indices() const noexcept { return m_indices; }
+	NODISCARD std::vector <uint32> indices() const noexcept { return m_indices; }
 
 private:
 	std::vector <Vertex> m_vertices;
 	std::vector <uint32> m_indices;
-
-	/**
-	 * @brief create a mesh from a already loaded .obj file
-	 *
-	 * @param load an already loaded model
-	 */
-	void create_mesh(const util::LoadedModel& loaded);
 };
 
 } // namespace lyra
