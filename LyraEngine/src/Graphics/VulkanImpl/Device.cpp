@@ -143,8 +143,9 @@ Device::Device() {
 	}
 
 	{ // create queues
-		m_graphicsComputeQueue = vk::Queue(m_device, m_queueFamilies.graphicsComputeQueueIndex, 0);
+		m_graphicsQueue = vk::Queue(m_device, m_queueFamilies.graphicsComputeQueueIndex, 0);
 		m_presentQueue = vk::Queue(m_device, m_queueFamilies.presentQueueIndex, 0);
+		m_computeQueue  = vk::Queue(m_device, m_queueFamilies.graphicsComputeQueueIndex, 0);
 	}
 	
 	{ // create the memory allocator

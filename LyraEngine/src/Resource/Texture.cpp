@@ -148,7 +148,7 @@ void Texture::generate_mipmaps() const {
 	cmdBuff.end();
 
 	// submit queues after recording
-	cmdBuff.submitQueue(Application::renderSystem.device.graphicsComputeQueue());
+	cmdBuff.submitQueue(Application::renderSystem.device.graphicsQueue());
 	// reset command buffer
 	cmdBuff.reset();
 }

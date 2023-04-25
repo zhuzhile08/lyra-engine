@@ -305,13 +305,19 @@ public:
 	 * 
 	 * @return const lyra::vulkan::vk::Queue&
 	 */
-	NODISCARD constexpr const vk::Queue& graphicsComputeQueue() const noexcept { return m_graphicsComputeQueue; }
+	NODISCARD constexpr const vk::Queue& graphicsQueue() const noexcept { return m_graphicsQueue; }
 	/**
 	 * @brief get the presentation queue
 	 *
 	 * @return const lyra::vulkan::vk::Queue&
 	 */
 	NODISCARD constexpr const vk::Queue& presentQueue() const noexcept { return m_presentQueue; }
+		/**
+	 * @brief get the compute queue
+	 * 
+	 * @return const lyra::vulkan::vk::Queue&
+	 */
+	NODISCARD constexpr const vk::Queue& computeQueue() const noexcept { return m_computeQueue; }
 	/**
 	 * @brief get the VMA memory allocator
 	 *
@@ -325,9 +331,9 @@ private:
 	vk::Device m_device;
 
 	QueueFamilies m_queueFamilies;
-	vk::Queue m_graphicsComputeQueue;
+	vk::Queue m_graphicsQueue;
 	vk::Queue m_presentQueue;
-	// vk::Queue m_computeQueue;
+	vk::Queue m_computeQueue;
 
 	vma::Allocator m_allocator;
 
