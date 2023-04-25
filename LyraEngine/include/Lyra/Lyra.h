@@ -37,11 +37,11 @@ using uptr = uintptr_t;
 // color type
 struct Color {
 	constexpr Color() = default;
-	constexpr Color(uint8 r, uint8 g, uint8 b, uint8 a) : r(r), g(g), b(b), a(a) { }
+	constexpr Color(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a) { }
 	constexpr Color(const Color& col) : r(col.r), g(col.g), b(col.b), a(col.a) { }
 	constexpr Color& operator=(const Color& col) { r = col.r; g = col.g; b = col.b; a = col.a; return *this; }
 	constexpr glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
-	uint8 r, g, b, a;
+	float r, g, b, a;
 };
 using Colour = Color;
 
@@ -79,7 +79,6 @@ class GUIRenderer;
 
 // low level utility
 
-class CallQueue;
 class BaseAllocator;
 class LinearAllocator;
 class StackAllocator;
