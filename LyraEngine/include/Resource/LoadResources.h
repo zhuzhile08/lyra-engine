@@ -21,45 +21,14 @@ struct AssetFile {
 	std::vector<char> binary;
 };
 
-// decompressed texture information
-struct ImageData {
-	// texture path
-	const char* path;
-	// texture width
-	uint32 width;
-	// texture height
-	uint32 height;
-	// texture length, exclusive to 3D images/textures
-	uint32 length;
-	// mipmapping levels
-	uint32 mipmap;
-	// type of texture
-	uint32 type;
-	// how to treat the alpha value of the image
-	uint32 alpha;
-	// how the UVs should read the image
-	uint32 dimension;
-	// how to wrap the image if the UVs exceeds the border of the image
-	uint32 wrap;
-	// anistropic filtering
-	uint32 anistropy;
-	// image data
-	void* data;
-}; // this also roughly represents the texture data file
-
-// decompressed mesh information
-struct MeshInfo {
-
-};
-
 /**
  * @brief load a asset file
  *
  * @param binPath path for the binary file
  * 
- * @return const lyra::util::AssetFile
+ * @return lyra::util::AssetFile
  */
-NODISCARD const AssetFile load_assets(std::string_view binPath);
+NODISCARD AssetFile load_assets(std::string_view binPath);
 
 /**
  * @brief ldat file format documentation:
@@ -91,7 +60,7 @@ NODISCARD char* const unpack_file(const char* data, const uint32& length, const 
  * @param length length of the compressed file
  * @param size size of the original file
  * 
- * @return constexpr char* const 
+ * @return char* const 
  */
 NODISCARD constexpr char* const unpack_file(const char* data, const uint32& length, const uint32& size);
 
