@@ -19,8 +19,9 @@
 namespace lyra {
 
 namespace vulkan {
+
 /**
- * @brief wrapper around the Vulkan graphics pipeline
+ * @brief wrapper around a Vulkan shader
  */
 class Shader {
 public:

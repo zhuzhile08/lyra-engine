@@ -20,45 +20,44 @@
 
 #include <Resource/LoadResources.h>
 
-#include <Resource/Texture.h>
-#include <Resource/Mesh.h>
-
 namespace lyra {
 
 class ResourceManager {
 public:
-	ResourceManager() = default;
-
-	/**
-	 * @brief construct a resource manager
-	 * 
-	 * @param imagePath path for an image asset file
-	 */
-	ResourceManager(std::string_view imagePath) : m_images() { }
+	ResourceManager() = delete;
 
 	/**
 	 * @brief get an already loaded texture or load it if it doesn't exist
 	 * 
 	 * @param path path of the texture
-	 * @return lyra::Texture*
+	 * 
+	 * @return lyra::Texture* const
 	 */
-	static Texture* texture(std::string_view path);
-
+	static Texture* const texture(std::string_view path);
 	/**
 	 * @brief get an already loaded material or load it if it doesn't exist
 	 * 
 	 * @param path path of the material
-	 * @return lyra::Material*
+	 * 
+	 * @return lyra::Material* const
 	 */
-	static Material* material(std::string_view path);
-
+	static Material* const material(std::string_view path);
 	/**
 	 * @brief get an already loaded mesh or load it if it doesn't exist
 	 * 
 	 * @param path path of the mesh
+	 * 
 	 * @return lyra::Mesh*
 	 */
-	static Mesh* mesh(std::string_view path);
+	static Mesh* const mesh(std::string_view path);
+	/**
+	 * @brief get an already loaded texture or load it if it doesn't exist
+	 * 
+	 * @param path path of the shader
+	 * 
+	 * @return lyra::vulkan::Shader* const 
+	 */
+	static vulkan::Shader* const shader(std::string_view path);
 
 	/**
 	 * @brief return the raw image data
@@ -85,6 +84,7 @@ private:
 	static std::unordered_map<std::string, SmartPointer<Texture>> m_textures;
 	static std::unordered_map<std::string, SmartPointer<Material>> m_materials;
 	static std::unordered_map<std::string, SmartPointer<Mesh>> m_meshes;
+	static std::unordered_map<std::string, SmartPointer<vulkan::Shader>> m_shaders;
 
 	friend class Texture;
 	friend class CubemapBase;

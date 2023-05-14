@@ -1,4 +1,4 @@
-#include <Graphics/VulkanImpl/Shader.h>
+#include <Resource/Shader.h>
 
 #include <Resource/LoadFile.h>
 #include <Application/Application.h>
