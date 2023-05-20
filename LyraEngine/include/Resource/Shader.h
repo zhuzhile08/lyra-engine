@@ -26,7 +26,7 @@ namespace vulkan {
 class Shader {
 public:
 	// types of shaders
-	enum Type { // sadly, I cannot use enum classes for this one
+	enum Type : uint32 { 
 		// vertex shader
 		TYPE_VERTEX = 0x00000001,
 		// tessellation control shader
@@ -41,8 +41,6 @@ public:
 		TYPE_GRAPHICS = 0x0000001F,
 		// compute shader
 		TYPE_COMPUTE = 0x00000020,
-		// all shader types
-		TYPE_ALL = 0x7FFFFFFF,
 		// ray generation shader
 		TYPE_RAY_GENERATION = 0x00000100,
 		// ray hit detection shader
@@ -59,16 +57,46 @@ public:
 		TYPE_TASK = 0x00000040,
 		// read the Vulkan API docs, I have no idea what this does
 		TYPE_MESH = 0x00000080,
-	}; // I totally didn't steal these names from the API, why would I?
+		// all shader types
+		TYPE_ALL = 0x0000FFFF
+	}; // Refer to the API for the documentation of these enums
 
+	// function/flags of shader
+	enum Flags {
+		// ambient lighting
+		FLAG_SHADING_AMBIENT = 0x00010000,
+		// diffuse lighting
+		FLAG_SHADING_DIFFUSE = 0x00020000,
+		// specular lighting
+		FLAG_SHADING_SPECULAR = 0x00040000,
+		// phong shading
+		FLAG_SHADING_PHONG = FLAG_SHADING_AMBIENT | FLAG_SHADING_DIFFUSE | FLAG_SHADING_SPECULAR,
+		// cel shading (characters)
+		FLAG_SHADING_CEL = 0x00080000,
+		// high detail cel shading (enviroment)
+		FLAG_SHADING_CEL_HIGH_DETAIL = 0x00100000,
+
+		// outlined shader
+		FLAG_OUTLINE = 0x01000000,
+		// fast outlined shader
+		FLAG_OUTLINE_FAST = 0x02000000,
+
+		// shader for armaturized meshes
+		FLAG_ARMATURE = 0x10000000,
+
+		// universally usable shader
+		FLAG_UNIVERSAL = 0x7FFF0000
+	};
+
+	Shader() = default;
 	/**
 	 * @brief create a shader
 	 *
-	 * @param path path of the shader
+	 * @param pathAndFlags path and flags of the shader, combined for technical reasons
+	 * 
 	 * @param entry name of the entrance point of the shader
-	 * @param type type of the shader
 	 */
-	Shader(std::string_view path, std::string_view entry, const Type& type);
+	Shader(std::pair<std::string_view, uint32> pathAndFlags, std::string_view entry = "main");
 
 	/**
 	 * @brief get the shader loading information
@@ -103,6 +131,7 @@ public:
 private:
 	vk::ShaderModule m_module;
 	Type m_type;
+	Flags m_flags;
 	std::string m_entry;
 };
 

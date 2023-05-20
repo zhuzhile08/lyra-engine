@@ -8,9 +8,10 @@ namespace lyra {
 
 namespace vulkan {
 
-Shader::Shader(std::string_view path, std::string_view entry, const Type& type) : m_entry(entry), m_type(type) {
+Shader::Shader(std::pair<std::string_view, uint32> pathAndFlags, std::string_view entry)
+	 : m_entry(entry), m_type(static_cast<Type>((pathAndFlags.second << 16) / 10000)), m_flags(static_cast<Flags>(pathAndFlags.second / 10000)) { // @todo this is probably not going to work first try
 	// load the shader
-	std::vector<char> shaderSrc; util::load_file(path, util::OpenMode::MODE_BINARY, shaderSrc);
+	std::vector<char> shaderSrc; util::load_file(pathAndFlags.first, util::OpenMode::MODE_BINARY, shaderSrc);
 
 	// create the shader
 	VkShaderModuleCreateInfo createInfo{
