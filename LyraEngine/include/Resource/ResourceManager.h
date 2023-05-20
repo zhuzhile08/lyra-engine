@@ -14,50 +14,25 @@
 
 #include <Lyra/Lyra.h>
 
-#include <unordered_map>
-#include <string_view>
-#include <Common/SmartPointer.h>
+#include <Common/FunctionPointer.h>
+#include <Common/Manager.h>
+
+#include <Resource/LoadImage.h>
+#include <Resource/LoadMaterial.h>
+#include <Resource/LoadMesh.h>
 
 #include <Resource/LoadResources.h>
 
 namespace lyra {
 
+/**
+ * @brief The manager for all asset related resources
+ */
 class ResourceManager {
+private:
+	struct StringToTexture {};
 public:
 	ResourceManager() = delete;
-
-	/**
-	 * @brief get an already loaded texture or load it if it doesn't exist
-	 * 
-	 * @param path path of the texture
-	 * 
-	 * @return lyra::Texture* const
-	 */
-	static Texture* const texture(std::string_view path);
-	/**
-	 * @brief get an already loaded material or load it if it doesn't exist
-	 * 
-	 * @param path path of the material
-	 * 
-	 * @return lyra::Material* const
-	 */
-	static Material* const material(std::string_view path);
-	/**
-	 * @brief get an already loaded mesh or load it if it doesn't exist
-	 * 
-	 * @param path path of the mesh
-	 * 
-	 * @return lyra::Mesh*
-	 */
-	static Mesh* const mesh(std::string_view path);
-	/**
-	 * @brief get an already loaded texture or load it if it doesn't exist
-	 * 
-	 * @param path path of the shader
-	 * 
-	 * @return lyra::vulkan::Shader* const 
-	 */
-	static vulkan::Shader* const shader(std::string_view path);
 
 	/**
 	 * @brief return the raw image data
@@ -70,21 +45,21 @@ public:
 	 * 
 	 * @reutrn const lyra::Texture* const 
 	 */
-	NODISCARD static const Texture* const nullTexture() noexcept { return texture("data/img/Default.bmp"); }
+	NODISCARD static const Texture* const nullTexture() noexcept;
 	/**
 	 * @brief return the null normal map texture
 	 *
 	 * @reutrn const lyra::Texture* const
 	 */
-	NODISCARD static const Texture* const nullNormal() noexcept { return texture("data/img/Normal.bmp"); }
+	NODISCARD static const Texture* const nullNormal() noexcept;
+
+	static Manager<std::string, Texture, Function<util::detail::LoadedImage(std::string_view)>> textures;
+	static Manager<std::string, Material, Function<util::detail::LoadedMaterial(std::string_view)>> materials;
+	static Manager<std::string, Mesh, Function<util::detail::LoadedMesh(std::string_view)>> meshes;
+	static Manager<uint32, vulkan::Shader, Function<std::pair<std::string_view, uint32>(uint32)>> shaders;
 
 private:
 	util::AssetFile m_images;
-
-	static std::unordered_map<std::string, SmartPointer<Texture>> m_textures;
-	static std::unordered_map<std::string, SmartPointer<Material>> m_materials;
-	static std::unordered_map<std::string, SmartPointer<Mesh>> m_meshes;
-	static std::unordered_map<std::string, SmartPointer<vulkan::Shader>> m_shaders;
 
 	friend class Texture;
 	friend class CubemapBase;
