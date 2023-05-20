@@ -9,9 +9,9 @@ namespace lyra {
 
 namespace util {
 
-LoadedMaterial load_material(std::string_view path) {
+detail::LoadedMaterial load_material(std::string_view path) {
 	// TOL material data
-	LoadedMaterial material;
+	detail::LoadedMaterial material;
 	material.path = path;
 
 	// warning and errors

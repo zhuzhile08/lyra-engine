@@ -6,9 +6,9 @@ namespace lyra {
 
 namespace util {
 
-LoadedMesh load_mesh(std::string_view path) {
+detail::LoadedMesh load_mesh(std::string_view path) {
 	// TOL model data
-	LoadedMesh::TOLMesh load;
+	detail::LoadedMesh::TOLMesh load;
 	// warning and errors
 	std::string error, warning;
 
@@ -21,13 +21,13 @@ LoadedMesh load_mesh(std::string_view path) {
 	if (!error.empty()) log().error("An error occurred while loading a material: ", error);
 
 	// convert to engine-readable data
-	LoadedMesh mesh;
+	detail::LoadedMesh mesh;
 	mesh.path = path;
 	// loop over all the shapes
 	for (const auto& shape : load.shapes) {
 		// loop over all the polygons
 		for (const auto& index : shape.mesh.indices) {
-			LoadedMesh::Vertex vertex;
+			detail::LoadedMesh::Vertex vertex;
 
 			// calculate positions
 			vertex.pos = {

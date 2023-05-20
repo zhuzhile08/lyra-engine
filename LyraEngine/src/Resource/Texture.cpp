@@ -4,7 +4,7 @@
 
 namespace lyra {
 
-Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
+Texture::Texture(const util::detail::LoadedImage& imageData, const VkFormat& format)
 	: m_width(imageData.width), m_height(imageData.height), m_mipmap(imageData.mipmap) {
 	{
 		// calculate the mipmap levels of the image
@@ -46,7 +46,7 @@ Texture::Texture(const util::ImageData& imageData, const VkFormat& format)
 	create_sampler(imageData);
 }
 
-void Texture::create_sampler(const util::ImageData& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
+void Texture::create_sampler(const util::detail::LoadedImage& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &properties);
 
