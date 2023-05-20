@@ -20,16 +20,14 @@ namespace lyra {
 
 namespace util {
 
-/**
- * @brief a struct holding some "freshly" loaded mesh data
- */
+namespace detail {
+
 struct LoadedMesh {
-	// raw model directly after loaded with TOL
 	struct TOLMesh {
 		tinyobj::attrib_t vertices;	
 		std::vector<tinyobj::shape_t> shapes;
 	};
-	// raw vertex data
+	
 	struct Vertex {
 		glm::vec3 pos = glm::vec3(1.0f);
 		glm::vec3 normal = glm::vec3(1.0f);
@@ -42,14 +40,16 @@ struct LoadedMesh {
 	std::vector<Vertex> vertices;
 };
 
+} // namespace detail
+
 /**
  * @brief load a mesh from an .obj file
  *
  * @param path path of the mesh
  * 
- * @return lyra::util::LoadedMesh
+ * @return lyra::util::detail::LoadedMesh
  */
-NODISCARD LoadedMesh load_mesh(std::string_view path);
+NODISCARD detail::LoadedMesh load_mesh(std::string_view path);
 
 } // namespace util
 

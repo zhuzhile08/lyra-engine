@@ -19,37 +19,30 @@ namespace lyra {
 
 namespace util {
 
-// decompressed texture information
-struct ImageData {
-	// texture width
+namespace detail {
+
+struct LoadedImage {
 	uint32 width;
-	// texture height
 	uint32 height;
-	// texture length, exclusive to 3D images/textures
 	uint32 length;
-	// mipmapping levels
 	uint32 mipmap;
-	// type of texture
 	uint32 type;
-	// how to treat the alpha value of the image
 	uint32 alpha;
-	// how the UVs should read the image
 	uint32 dimension;
-	// how to wrap the image if the UVs exceeds the border of the image
 	uint32 wrap;
-	// anistropic filtering
 	uint32 anistropy;
-	// image data
 	void* data;
-}; // this also roughly represents the texture data file
+};
+
+} // namespace detail
 
 /**
  * @brief load an image from disc via path
  * 
  * @param path path of the image to load
- * @return lyra::util::ImageData
+ * @return lyra::util::detail::LoadedImage
  */
-NODISCARD ImageData load_image(std::string_view path);
+NODISCARD detail::LoadedImage load_image(std::string_view path);
 
 } // namespace util
 

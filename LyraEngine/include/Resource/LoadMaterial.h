@@ -19,22 +19,23 @@ namespace lyra {
 
 namespace util {
 
-/**
- * @brief a struct holding raw material data loaded from a .mtl file
- */
+namespace detail {
+
 struct LoadedMaterial {
 	std::vector<tinyobj::material_t> mats;
 	std::string path;
 };
+
+} // namespace detail
 
 /**
  * @brief load matierals from a .mtl file
  *
  * @param path path of the model
  * 
- * @return lyra::util::LoadedMaterial
+ * @return lyra::util::detail::LoadedMaterial
  */
-NODISCARD LoadedMaterial load_material(std::string_view path);
+NODISCARD detail::LoadedMaterial load_material(std::string_view path);
 
 } // namespace util
 

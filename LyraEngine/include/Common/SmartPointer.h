@@ -11,35 +11,31 @@
 
 #pragma once
 
+#include <Lyra/Lyra.h>
+
 namespace lyra {
 
-#define NODISCARD [[nodiscard]]
+namespace detail {
 
-/**
- * @brief default deleter callable type
- */
 template <class Ty> struct DefaultDeleter {
 	using pointer = Ty*;
 
 	constexpr DefaultDeleter() = default;
 	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>& other) noexcept { }
 
-	/**
-	 * @brief delete a pointer
-	 * 
-	 * @param ptr pointer to delete
-	 */
 	constexpr void operator()(pointer ptr) const noexcept {
 		delete ptr;
 	}
 };
+
+} // namespace detail
 
 /**
  * @brief A smart pointer implementation
  *
  * @tparam Ty pointer type
  */
-template <class Ty, class DTy = DefaultDeleter<Ty>> class SmartPointer {
+template <class Ty, class DTy = detail::DefaultDeleter<Ty>> class SmartPointer {
 public:
 	using value_type = Ty;
 	using pointer = Ty*;

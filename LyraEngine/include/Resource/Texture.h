@@ -86,7 +86,7 @@ public:
 	 * @param imageData image data and information
 	 * @param format format of the image
 	 */
-	Texture(const util::ImageData& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const util::detail::LoadedImage& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -125,7 +125,7 @@ private:
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void create_sampler(
-		const util::ImageData& imageData,
+		const util::detail::LoadedImage& imageData,
 		const VkFilter& magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter& minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode& mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR

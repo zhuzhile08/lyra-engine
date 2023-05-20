@@ -52,7 +52,7 @@ public:
 		 * 
 		 * @param vertex vertex to copy data from
 		 */
-		Vertex(util::LoadedMesh::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
+		Vertex(util::detail::LoadedMesh::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
 
 		/**
 		 * @brief returns a static vertex binding
@@ -108,7 +108,7 @@ public:
 	 *
 	 * @param mesh already loaded mesh data
 	 */
-	Mesh(const util::LoadedMesh& mesh) : m_vertices(mesh.vertices.begin(), mesh.vertices.end()), m_indices(mesh.indices) { }
+	Mesh(const util::detail::LoadedMesh& mesh) : m_vertices(mesh.vertices.begin(), mesh.vertices.end()), m_indices(mesh.indices) { }
 
 	/**
 	 * @brief construct a new mesh with a custom mesh
