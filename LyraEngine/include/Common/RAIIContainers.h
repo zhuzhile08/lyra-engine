@@ -128,6 +128,8 @@ public:
 				vassert(vkCreatePipelineLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create pipeline layout");
 			} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 				vassert(vkCreateShaderModule(this->m_owner, &createInfo, nullptr, &this->m_handle), "create shader module");
+			}  else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
+				vassert(vkCreatePipelineCache(&createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
 				vassert(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VmaAllocator>) {
@@ -255,7 +257,16 @@ public:
 			SDL_Vulkan_CreateSurface(window, this->m_owner, &this->m_handle);
 		}
 	}
-	
+	/**
+	 * @brief construct a new RAIIContainer if the internal handle is a SDL_Window
+	 * 
+	 * @param title title of the window
+	 * @param x x position of the window on screen
+	 * @param y y position of the window on screen
+	 * @param w width of the window
+	 * @param h height of the window
+	 * @param flags additional flags
+	 */
 	constexpr RAIIContainer(
 		std::string_view title, 
 		const int& x, 
@@ -300,6 +311,8 @@ public:
 				} else if constexpr (std::same_as<handle_type, VkPipeline>) {
 					vkDestroyPipeline(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkPipelineLayout>) {
+					vkDestroyPipelineLayout(m_owner, m_handle, nullptr);
+				} else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
 					vkDestroyPipelineLayout(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 					vkDestroyShaderModule(m_owner, m_handle, nullptr);
@@ -417,6 +430,7 @@ using DescriptorSet = RAIIContainer<VkDescriptorSet, VkDevice>;
 using ShaderModule = RAIIContainer<VkShaderModule, VkDevice>;
 using PipelineLayout = RAIIContainer<VkPipelineLayout, VkDevice>;
 using Pipeline = RAIIContainer<VkPipeline, VkDevice>;
+using PipelineCache = RAIIContainer<VkPipelineCache, VkDevice>;
 using GraphicsPipeline = Pipeline;
 using ComputePipeline = Pipeline;
 using Buffer = RAIIContainer<VkBuffer, VkDevice>;
