@@ -2,48 +2,27 @@
 
 #include <utility>
 
+#include <Resource/Shader.h>
 #include <Resource/Texture.h>
 #include <Resource/Material.h>
 #include <Resource/Mesh.h>
-#include <Resource/Shader.h>
-
-#include <Resource/LoadImage.h>
-#include <Resource/LoadMaterial.h>
-#include <Resource/LoadMesh.h>
 
 namespace lyra {
 
-Texture* const ResourceManager::texture(std::string_view path) {
-	if (!m_textures.contains(path.data())) {
-		m_textures.emplace(std::make_pair(path, SmartPointer<Texture>::create(util::load_image(path.data()))));
-	}
-	return m_textures[path.data()];
+namespace {
+
+std::pair<std::string_view, uint32> convert_to_shader_param(uint32 key) {
+    return {"shader" + std::to_string(key) + ".spv", key};
 }
 
-Material* const ResourceManager::material(std::string_view path) {
-	if (!m_materials.contains(path.data())) {
-		m_materials.emplace(std::make_pair(path, SmartPointer<Material>::create(util::load_material(path.data()))));
-	}
-	return m_materials[path.data()];
 }
 
-Mesh* const ResourceManager::mesh(std::string_view path) {
-	if (!m_meshes.contains(path.data())) {
-		m_meshes.emplace(std::make_pair(path, SmartPointer<Mesh>::create(util::load_mesh(path))));
-	}
-	return m_meshes[path.data()];
-}
+const Texture* const ResourceManager::nullTexture() noexcept { return textures["data/img/Default.bmp"]; }
+const Texture* const ResourceManager::nullNormal() noexcept { return textures["data/img/Normal.bmp"]; }
 
-vulkan::Shader* const ResourceManager::shader(std::string_view path) {
-	if (!m_shaders.contains(path.data())) {
-		m_shaders.emplace(std::make_pair(path, SmartPointer<Mesh>::create(util::load_mesh(path))));
-	}
-	return m_shaders[path.data()];
-}
-
-std::unordered_map<std::string, SmartPointer<Texture>> ResourceManager::m_textures;
-std::unordered_map<std::string, SmartPointer<Material>> ResourceManager::m_materials;
-std::unordered_map<std::string, SmartPointer<Mesh>> ResourceManager::m_meshes;
-std::unordered_map<std::string, SmartPointer<vulkan::Shader>> ResourceManager::m_shaders;
+Manager<std::string, Texture, Function<util::detail::LoadedImage(std::string_view)>> ResourceManager::textures(util::load_image);
+Manager<std::string, Material, Function<util::detail::LoadedMaterial(std::string_view)>> ResourceManager::materials(util::load_material);
+Manager<std::string, Mesh, Function<util::detail::LoadedMesh(std::string_view)>> ResourceManager::meshes(util::load_mesh);
+Manager<uint32, vulkan::Shader, Function<std::pair<std::string_view, uint32>(uint32)>> ResourceManager::shaders(convert_to_shader_param);
 
 } // namespace lyra
