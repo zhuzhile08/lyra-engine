@@ -1,4 +1,13 @@
-#pragma once
+/*************************
+ * @file Lyra.h
+ * @author Zhile Zhu (zhuzhile08@gmail.com)
+ * 
+ * @brief The Engine header including all other headers as well as some initialization functions
+ * 
+ * @date 2023-06-24
+ * 
+ * @copyright Copyright (c) 2022
+ *************************/
 
 #pragma once
 
