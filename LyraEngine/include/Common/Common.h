@@ -1,5 +1,5 @@
 /*************************
- * @file Lyra.h
+ * @file Common.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief forward declare all core members and utility
