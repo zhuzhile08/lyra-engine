@@ -35,14 +35,7 @@
 
 namespace lyra {
 
-// a type in case the parent handle does not exist
 using NullHandle = std::nullptr_t;
-
-/**
- * @brief concept for the vulkan handle RAII container
- * 
- * @tparam Ty handle type
- */
 template <class Ty> concept RAIIContainerType = 
 	std::is_copy_constructible_v<Ty> && 
 	std::is_copy_assignable_v<Ty> && 
@@ -51,9 +44,6 @@ template <class Ty> concept RAIIContainerType =
 
 /**
  * @brief A RAII container for making the usage of vulkan handles more secure
- * 
- * @tparam Ty 
- * @tparam OTy 
  */
 template <RAIIContainerType Ty, RAIIContainerType OTy> class RAIIContainer {
 public:
@@ -73,35 +63,12 @@ public:
 	using movable_container = container&&;
 
 	constexpr RAIIContainer() = default;
-	/**
-	 * @brief construct a new RAII vulkan handle container
-	 * 
-	 * @param handle vulkan handle
-	 * @param owner handle owner
-	 */
 	constexpr RAIIContainer(const_handle_reference handle, const_owner_reference owner) : m_handle(handle), m_owner(owner) { }
-	/**
-	 * @brief construct a new RAII vulkan handle container
-	 * 
-	 * @param handle vulkan handle
-	 * @param owner handle owner
-	 */
 	constexpr RAIIContainer(movable_handle handle, movable_owner owner) : m_handle(std::move(handle)), m_owner(std::move(owner)) { }
-	/**
-	 * @brief construct a new RAII vulkan handle container
-	 * 
-	 * @param container container to construct from
-	 */
 	constexpr RAIIContainer(movable_container container) : 
 		m_handle(std::exchange(container.m_handle, handle_type { } )), 
 		m_owner(std::exchange(container.m_owner, owner_type { } )) { }
-	/**
-	 * @brief construct a new RAIIContainer 
-	 * 
-	 * @tparam CI creation information type
-	 * @param owner owner
-	 * @param createInfo creation information
-	 */
+		
 	template <class CI> constexpr RAIIContainer(owner_type owner, const CI& createInfo) : RAIIContainer<Ty, OTy>(Ty { }, owner) { 
 		if (!this->m_handle) {
 			if constexpr (std::same_as<handle_type, VkFramebuffer>) {
@@ -112,6 +79,8 @@ public:
 				vassert(vkCreateSampler(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image sampler");
 			} else if constexpr (std::same_as<handle_type, VkCommandPool>) {
 				vassert(vkCreateCommandPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create command pool");
+			} else if constexpr (std::same_as<handle_type, VkCommandBuffer>) {
+				vassert(vkAllocateCommandBuffers(this->m_owner, &createInfo, &this->m_handle), "create command buffer");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorSetLayout>) {
 				vassert(vkCreateDescriptorSetLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor set layout");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
@@ -134,23 +103,17 @@ public:
 				vassert(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VmaAllocator>) {
 				vassert(vmaCreateAllocator(&createInfo, &this->m_handle), "create memory allocator");
+			} else if constexpr (std::same_as<handle_type, VmaPool>) {
+				vassert(vmaCreatePool(this->m_owner, &createInfo, &this->m_handle), "create memory pool");
 			} else if constexpr (std::same_as<handle_type, VkDevice>) {
-				vassert(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create logical device");
+				vassert(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				vassert(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
 			}
 		}
 	}
 	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a Buffer or Image
-	 * 
-	 * @tparam CI creation information type
-	 * @param owner owner
-	 * @param allocator VMA memory allocator
-	 * @param createInfo creation information
-	 * @param allocCreateInfo VMA allocation/memory creation information
-	 * @param allocation VMA allocation/memory
-	 * @param allocInfo further information about the VMA allocation/memory
+	 * @brief construct a new RAIIContainer if the internal handle is a buffer
 	 */
 	constexpr RAIIContainer(
 		owner_type owner, 
@@ -161,21 +124,40 @@ public:
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
 	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			VmaAllocation tempAllocation;
-			vassert(vmaCreateBuffer(allocator, &createInfo, &allocCreateInfo, &m_handle, &tempAllocation, &allocInfo), "create buffer and/or its memory");
-			allocation = RAIIContainer<VmaAllocation, VmaAllocator>(tempAllocation, allocator);
+			vassert(vmaCreateBuffer(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create buffer and/or its memory");
 		}
 	}
-
 	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a Buffer or Image
-	 * 
-	 * @param owner owner
-	 * @param allocator VMA memory allocator
-	 * @param createInfo creation information
-	 * @param allocCreateInfo VMA allocation/memory creation information
-	 * @param allocation VMA allocation/memory
-	 * @param allocInfo further information about the VMA allocation/memory
+	 * @brief construct a new RAIIContainer if the internal handle is an aligned buffer
+	 */
+	constexpr RAIIContainer(
+		owner_type owner, 
+		VmaAllocator allocator, 
+		const VkBufferCreateInfo& createInfo, 
+		const VmaAllocationCreateInfo& allocCreateInfo, 
+		VkDeviceSize minAlignment,
+		RAIIContainer<VmaAllocation, VmaAllocator>& allocation, 
+		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
+	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
+		if (!m_handle) {
+			vassert(vmaCreateBufferWithAlignment(allocator, &createInfo, &allocCreateInfo, minAlignment, &m_handle, &allocation.get(), &allocInfo), "create aligned buffer and/or its memory");
+		}
+	}
+	/**
+	 * @brief construct a new RAIIContainer if the internal handle is an aliasing buffer
+	 */
+	constexpr RAIIContainer(
+		owner_type owner, 
+		VmaAllocator allocator, 
+		const VkBufferCreateInfo& createInfo,
+		RAIIContainer<VmaAllocation, VmaAllocator>& allocation
+	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
+		if (!m_handle) {
+			vassert(vmaCreateAliasingBuffer(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing buffer and/or its memory");
+		}
+	}
+	/**
+	 * @brief construct a new RAIIContainer if the internal handle is an image
 	 */
 	constexpr RAIIContainer(
 		owner_type owner, 
@@ -186,18 +168,24 @@ public:
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
 	) requires(std::is_same_v<handle_type, VkImage> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			VmaAllocation tempAllocation;
-			vassert(vmaCreateImage(allocator, &createInfo, &allocCreateInfo, &m_handle, &tempAllocation, &allocInfo), "create image and/or its memory");
-			allocation = RAIIContainer<VmaAllocation, VmaAllocator>(tempAllocation, allocator);
+			vassert(vmaCreateImage(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create image and/or its memory");
+		}
+	}
+	/**
+	 * @brief construct a new RAIIContainer if the internal handle is an aliasing image
+	 */
+	constexpr RAIIContainer(
+		owner_type owner, 
+		VmaAllocator allocator, 
+		const VkImageCreateInfo& createInfo,
+		RAIIContainer<VmaAllocation, VmaAllocator>& allocation
+	) requires(std::is_same_v<handle_type, VkImage> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
+		if (!m_handle) {
+			vassert(vmaCreateAliasingImage(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing image and/or its memory");
 		}
 	}
 	/**
 	 * @brief construct a new RAIIContainer if the handle is a graphics pipeline
-	 * 
-	 * @param owner owner
-	 * @param pipelineCache pipeline cache
-	 * @param createInfo creation information for the pipeine
-	 * @param allocator allocator
 	 */
 	constexpr RAIIContainer(
 		owner_type owner, 
@@ -211,11 +199,6 @@ public:
 	}
 	/**
 	 * @brief construct a new RAIIContainer if the handle is a compute pipeline
-	 * 
-	 * @param owner owner
-	 * @param pipelineCache pipeline cache
-	 * @param createInfo creation information for the pipeine
-	 * @param allocator allocator
 	 */
 	constexpr RAIIContainer(
 		owner_type owner, 
@@ -228,11 +211,7 @@ public:
 		}
 	}
 	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a VkQueue
-	 * 
-	 * @param owner owner
-	 * @param familyIndex index of the queue family
-	 * @param queueIndex index of the queue
+	 * @brief construct a new RAIIContainer if the internal handle is a queue
 	 */
 	constexpr RAIIContainer(
 		owner_type owner, 
@@ -245,10 +224,7 @@ public:
 		}
 	}
 	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a VkQueue
-	 * 
-	 * @param owner owner
-	 * @param window window
+	 * @brief construct a new RAIIContainer if the internal handle is a surface
 	 */
 	constexpr RAIIContainer(owner_type owner, SDL_Window* window) 
 		requires(std::is_same_v<handle_type, VkSurfaceKHR> && std::is_same_v<owner_type, VkInstance>)
@@ -259,13 +235,6 @@ public:
 	}
 	/**
 	 * @brief construct a new RAIIContainer if the internal handle is a SDL_Window
-	 * 
-	 * @param title title of the window
-	 * @param x x position of the window on screen
-	 * @param y y position of the window on screen
-	 * @param w width of the window
-	 * @param h height of the window
-	 * @param flags additional flags
 	 */
 	constexpr RAIIContainer(
 		std::string_view title, 
@@ -280,9 +249,6 @@ public:
 		}
 	}
 
-	/**
-	 * @brief destory the contained handle explicitly
-	 */
 	void destroy() {
 		if (m_handle && static_cast<bool>(m_owner)) {
 			if constexpr (std::same_as<owner_type, VkDevice>) {
@@ -313,7 +279,7 @@ public:
 				} else if constexpr (std::same_as<handle_type, VkPipelineLayout>) {
 					vkDestroyPipelineLayout(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
-					vkDestroyPipelineLayout(m_owner, m_handle, nullptr);
+					vkDestroyPipelineCache(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 					vkDestroyShaderModule(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
@@ -326,6 +292,8 @@ public:
 			} else if constexpr (std::same_as<owner_type, VmaAllocator>) {
 				if constexpr (std::same_as<handle_type, VmaAllocation>) {
 					vmaFreeMemory(m_owner, m_handle);
+				} else if constexpr (std::same_as<handle_type, VmaPool>) {
+					vmaDestroyPool(m_owner, m_handle);
 				}
 			} else if constexpr (std::same_as<owner_type, VkCommandPool>) {
 				if constexpr (std::same_as<handle_type, VkCommandBuffer>) {
@@ -342,31 +310,16 @@ public:
 			} // some objects don't need to be destroyed explicitly, so they aren't here, even though they use this RAII container
 		}
 	}
-	/**
-	 * @brief destroy the contained handle, basically only calls destroy
-	 */
 	virtual ~RAIIContainer() {
 		destroy();
 	}
 
-	/**
-	 * @brief move assignment operator
-	 * 
-	 * @param handle other handle
-	 * @return lyra::vulkan::RAIIContainer& 
-	 */
 	constexpr RAIIContainer& operator=(movable_handle handle) {
 		if (handle != this->m_handle) {
 			m_handle = std::exchange(handle, handle_type { } );
 		}
 		return *this;
 	}
-	/**
-	 * @brief move assignment operator
-	 * 
-	 * @param container other container
-	 * @return lyra::vulkan::RAIIContainer& 
-	 */
 	constexpr RAIIContainer& operator=(movable_container container) {
 		if (&container != this) {
 			m_handle = std::exchange(container.m_handle, handle_type { } );
@@ -375,29 +328,9 @@ public:
 		return *this;
 	}
 
-	/**
-	 * @brief get the raw vulkan handle
-	 * 
-	 * @return lyra::vulkan::RAIIContainer::handle&
-	 */
 	constexpr handle_type& get() noexcept { return m_handle; }
-	/**
-	 * @brief get the raw vulkan handle
-	 * 
-	 * @return lyra::vulkan::RAIIContainer::const_handle&
-	 */
 	constexpr const_handle& get() const noexcept { return m_handle; }
-	/**
-	 * @brief get the raw vulkan handle
-	 * 
-	 * @return lyra::vulkan::RAIIContainer::handle&
-	 */
 	constexpr operator handle_type&() noexcept { return m_handle; }
-	/**
-	 * @brief get the raw vulkan handle
-	 * 
-	 * @return lyra::vulkan::RAIIContainer::const_handle&
-	 */
 	constexpr operator const_handle&() const noexcept { return m_handle; }
 
 protected:
@@ -405,51 +338,9 @@ protected:
 	owner_type m_owner { };
 };
 
-namespace vulkan {
-
-namespace vk {
-
-using Instance = RAIIContainer<VkInstance, NullHandle>;
-using PhysicalDevice = RAIIContainer<VkPhysicalDevice, VkInstance>;
-using Device = RAIIContainer<VkDevice, VkPhysicalDevice>;
-using Queue = RAIIContainer<VkQueue, VkDevice>;
-using SurfaceKHR = RAIIContainer<VkSurfaceKHR, VkInstance>;
-using Surface = SurfaceKHR;
-using CommandPool = RAIIContainer<VkCommandPool, VkDevice>;
-using SwapchainKHR = RAIIContainer<VkSwapchainKHR, VkDevice>;
-using Swapchain = SwapchainKHR;
-using Image = RAIIContainer<VkImage, VkDevice>;
-using ImageView = RAIIContainer<VkImageView, VkDevice>;
-using RenderPass = RAIIContainer<VkRenderPass, VkDevice>;
-using Framebuffer = RAIIContainer<VkFramebuffer, VkDevice>;
-using Semaphore = RAIIContainer<VkSemaphore, VkDevice>;
-using Fence = RAIIContainer<VkFence, VkDevice>;
-using DescriptorSetLayout = RAIIContainer<VkDescriptorSetLayout, VkDevice>;
-using DescriptorPool = RAIIContainer<VkDescriptorPool, VkDevice>;
-using DescriptorSet = RAIIContainer<VkDescriptorSet, VkDevice>;
-using ShaderModule = RAIIContainer<VkShaderModule, VkDevice>;
-using PipelineLayout = RAIIContainer<VkPipelineLayout, VkDevice>;
-using Pipeline = RAIIContainer<VkPipeline, VkDevice>;
-using PipelineCache = RAIIContainer<VkPipelineCache, VkDevice>;
-using GraphicsPipeline = Pipeline;
-using ComputePipeline = Pipeline;
-using Buffer = RAIIContainer<VkBuffer, VkDevice>;
-using Sampler = RAIIContainer<VkSampler, VkDevice>;
-
-} // namespace handles
-
-namespace vma {
-
-using Allocator = RAIIContainer<VmaAllocator, VkInstance>;
-using Allocation = RAIIContainer<VmaAllocation, VmaAllocator>;
-
-} // namespace vma
-
-} // namespace vulkan
-
 namespace sdl {
 
-using Window = RAIIContainer<SDL_Window*, NullHandle>;
+using Window = RAIIContainer<SDL_Window*, NullHandle>; /// @todo move this to the sdl window file
 
 }
 
