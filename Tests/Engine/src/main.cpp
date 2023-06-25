@@ -1,17 +1,19 @@
 #define SDL_MAIN_HANDLED
 #define LYRA_LOG_FILE
 
+/*
+
 #include <Common/FunctionPointer.h>
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 #include <Math/LyraMath.h>
 #include <Application/Application.h>
 #include <Graphics/VulkanImpl/DescriptorSystem.h>
 #include <Graphics/VulkanImpl/Window.h>
-#include <Graphics/GraphicsPipeline.h>
-#include <Graphics/VulkanImpl/Shader.h>
+#include <Graphics/GraphicsPipelineSystem.h>
 #include <Graphics/VulkanImpl/PipelineBase.h>
 
+#include <Resource/Shader.h>
 #include <Resource/Material.h>
 #include <Resource/Texture.h>
 #include <Resource/Mesh.h>
@@ -97,4 +99,19 @@ int main() {
 
 void Application::init() {
 	lyra::log().info("Welcome to the Lyra Engine Content Manager, where Assets gather... ");
+}
+
+*/
+
+#include <Lyra/Lyra.h>
+#include <Common/Common.h>
+#include <Graphics/VulkanRenderSystem.h>
+#include <Graphics/SDLWindow.h>
+
+int main() {
+	lyra::Window window;
+
+	lyra::init(window);
+
+	return 0;
 }
