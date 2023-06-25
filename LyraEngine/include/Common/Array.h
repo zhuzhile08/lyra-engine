@@ -10,12 +10,11 @@
  *************************/
 #pragma once
 
+#include <Common/Common.h>
+
 #include <utility>
 #include <algorithm>
 #include <Common/IteratorBase.h>
-
-#define NODISCARD [[nodiscard]]
-#define DEPRECATED [[deprecated]]
 
 namespace lyra {
 

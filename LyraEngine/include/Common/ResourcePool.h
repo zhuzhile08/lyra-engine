@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <Common/Common.h>
+
 #include <type_traits>
 #include <algorithm>
 #include <deque>
@@ -18,9 +20,6 @@
 #include <Common/SmartPointer.h>
 #include <Common/FunctionPointer.h>
 #include <Common/IteratorBase.h>
-
-#define NODISCARD [[nodiscard]]
-#define DEPRECATED [[deprecated]]
 
 namespace lyra {
 

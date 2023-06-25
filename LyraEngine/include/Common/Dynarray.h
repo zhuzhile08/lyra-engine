@@ -11,15 +11,14 @@
 
 #pragma once
 
+#include <Common/Common.h>
+
 #include <type_traits>
 #include <span>
 #include <stdexcept>
 
 #include <Common/Array.h>
 #include <Common/IteratorBase.h>
-
-#define NODISCARD [[nodiscard]]
-#define DEPRECATED [[deprecated]]
 
 namespace lyra {
 

@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <Common/SmartPointer.h>
 #include <string>

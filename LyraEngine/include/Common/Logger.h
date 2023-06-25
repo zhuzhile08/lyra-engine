@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <Common/Common.h>
+
 #include <iostream>
 #include <fstream>
 #include <utility>
@@ -22,8 +24,6 @@
 #include <vulkan/vulkan.h>
 
 namespace lyra {
-
-#define NODISCARD [[nodiscard]]
 
 class Logger {
 private:
