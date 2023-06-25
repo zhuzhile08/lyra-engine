@@ -32,7 +32,6 @@ PRIVATE
 	${LIBRARY_PATH}/vma/include/
 )
 
-# build the content manager
 add_executable(Engine
 	"src/main.cpp"
 )
