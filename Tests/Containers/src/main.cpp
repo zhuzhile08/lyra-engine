@@ -1,10 +1,20 @@
 #include <Common/Dynarray.h>
-
-#include <vector>
+#include <Common/FunctionPointer.h>
 
 #include <iostream>
 
+namespace {
+
+int add(int a, int b) {
+    return a + b;
+}
+
+}
+
 int main() {
+    lyra::Function<int(int, int)> addFunction(add);
+    std::cout << "Result of an addition function stored in a function pointer (w. args): " << addFunction(2, 3) << std::endl;
+
     lyra::Dynarray<int, 16> foo;
     foo.resize(10);
     foo.fill(4);

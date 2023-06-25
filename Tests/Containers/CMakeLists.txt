@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(
 PRIVATE
+	${LIBRARY_PATH}/glm/
 	# library local include directory
 	${LYRA_INCLUDE_DIR}
 )
