@@ -113,6 +113,7 @@ public:
 
 		CommandBuffer() = default;
 		CommandBuffer(const CommandPool& commandPool, const VkCommandBufferLevel& level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		CommandBuffer(const VkCommandBuffer& commandBuffer) : commandBuffer(vk::CommandBuffer(commandBuffer, VK_NULL_HANDLE)) { } // does not take ownership in this case
 		CommandBuffer(CommandBuffer&& movable) : 
 			commandBuffer(std::exchange(movable.commandBuffer, VkCommandBuffer { } )), 
 			commandPool(std::exchange(movable.commandPool, VkCommandPool { } )) { }
@@ -333,7 +334,7 @@ public:
 		void pipelineBarrier(
 			VkPipelineStageFlags srcStageFlags,
 			VkPipelineStageFlags dstStageFlags,
-			const VkDependencyFlags& dependency,
+			VkDependencyFlags dependency,
 			const VkMemoryBarrier& memory = VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 			const VkBufferMemoryBarrier& buffer = VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 			const VkImageMemoryBarrier& image = VkImageMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM }
@@ -354,7 +355,7 @@ public:
 		void pipelineBarrier(
 			VkPipelineStageFlags srcStageFlags,
 			VkPipelineStageFlags dstStageFlags,
-			const VkDependencyFlags& dependency,
+			VkDependencyFlags dependency,
 			const std::vector<VkMemoryBarrier>& memory,
 			const std::vector<VkBufferMemoryBarrier>& buffer,
 			const std::vector<VkImageMemoryBarrier>& image
@@ -375,7 +376,8 @@ public:
 		void pushConstants(
 			const vk::PipelineLayout& layout, 
 			VkShaderStageFlags stageFlags, 
-			uint32 offset, uint32 size, 
+			uint32 offset, 
+			uint32 size, 
 			const void* values
 		) const {
 			vkCmdPushConstants(commandBuffer, layout, stageFlags, offset, size, values);
@@ -442,7 +444,7 @@ public:
 			vkCmdUpdateBuffer(commandBuffer, dstBuffer, dstOffset, dataSize, data);
 		}
 		void waitEvents(
-			const VkEvent& event,
+			const vk::Event& event,
 			VkPipelineStageFlags srcStageMask,
 			VkPipelineStageFlags dstStageMask,
 			const VkMemoryBarrier& pMemoryBarrier,
@@ -452,7 +454,7 @@ public:
 			vkCmdWaitEvents(
 				commandBuffer,
 				1,
-				&event,
+				&event.get(),
 				srcStageMask,
 				dstStageMask,
 				(pMemoryBarrier.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
@@ -498,7 +500,9 @@ public:
 
 	void reset();
 	void submit(VkFence fence, bool wait = false);
-	void present();
+
+	void oneTimeBegin();
+	void oneTimeSubmit();
 
 	VkSwapchainKHR swapchain;
 	uint32 currentFrame;
@@ -512,6 +516,155 @@ public:
 
 	VkCommandBuffer activeCommandBuffer;
 	std::vector<CommandPool> commandPools;
+};
+
+class GPUMemory {
+public:
+	void destroy() { memory.destroy(); }
+
+	NODISCARD constexpr static VmaAllocationCreateInfo get_alloc_create_info(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) noexcept {
+		return {
+			0,
+			usage,
+			requiredFlags,
+			0,
+			0,
+			0,
+			nullptr,
+			0
+		}; // the rest is absolutely useless
+	}
+
+	vma::Allocation memory;
+};
+
+class GPUBuffer : public GPUMemory {
+public:
+	constexpr GPUBuffer() = default;
+	GPUBuffer(VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
+	DEFINE_DEFAULT_MOVE(GPUBuffer);
+
+	void copy(const GPUBuffer& srcBuffer);
+	void copy_data(const void* src, size_t copySize = 0);
+	void copy_data(const void** src, uint32 arraySize, size_t elementSize = 0);
+
+	NODISCARD constexpr VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
+		return {
+			buffer, 
+			0, 
+			size
+		};
+	}
+	
+	NODISCARD constexpr VkBufferMemoryBarrier get_buffer_memory_barrier(
+		const VkAccessFlags srcAccessMask, 
+		const VkAccessFlags dstAccessMask,
+		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		const uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+			nullptr,
+			srcAccessMask,
+			dstAccessMask,
+			srcQueueFamily,
+			dstQueueFamily,
+			buffer,
+			0,
+			size
+		};
+	}
+
+	vk::Buffer buffer;
+	VkDeviceSize size = 0;
+};
+
+class Image {
+public:
+	void destroy() {
+		image.destroy();
+		view.destroy();
+	}
+
+	NODISCARD constexpr VkImageCreateInfo get_image_create_info(
+		VkFormat format,
+		const VkExtent3D& extent,
+		VkImageUsageFlags usage,
+		uint32 mipLevels = 1,
+		VkImageType imageType = VK_IMAGE_TYPE_2D,
+		uint32 arrayLayers = 1,
+		VkImageCreateFlags flags = 0,
+		VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
+		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
+	) noexcept {
+		m_tiling = tiling;
+
+		return {
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+			nullptr,
+			flags,
+			imageType,
+			format,
+			extent,
+			mipLevels,
+			arrayLayers,
+			samples,
+			tiling,
+			usage,
+			VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
+			0,
+			0,
+			VK_IMAGE_LAYOUT_UNDEFINED
+		};
+	}
+
+	void create_view(
+		VkFormat format,
+		const VkImageSubresourceRange& subresourceRange,
+		VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
+		const VkComponentMapping& colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
+	);
+
+	void transition_layout(
+		VkImageLayout oldLayout,
+		VkImageLayout newLayout,
+		VkFormat format,
+		const VkImageSubresourceRange& subresourceRange
+	) const;
+	
+	NODISCARD VkFormat static get_best_format(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
+
+	NODISCARD constexpr VkImageMemoryBarrier get_image_memory_barrier(
+		VkAccessFlags srcAccessMask,
+		VkAccessFlags dstAccessMask,
+		VkImageLayout srcLayout,
+		VkImageLayout dstLayout,
+		const VkImageSubresourceRange& subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
+		uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			nullptr,
+			srcAccessMask,
+			dstAccessMask,
+			srcLayout,
+			dstLayout,
+			srcQueueFamily,
+			dstQueueFamily,
+			image,
+			subresourceRange
+		};
+	}
+
+	void copy_from_buffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
+
+	vk::Image image;
+	vk::ImageView view;
+
+	VkImageTiling m_tiling = VK_IMAGE_TILING_MAX_ENUM;
+
+	friend class Window;
 };
 
 } // namespace vulkan
