@@ -332,11 +332,14 @@ public:
 	constexpr const_handle& get() const noexcept { return m_handle; }
 	constexpr operator handle_type&() noexcept { return m_handle; }
 	constexpr operator const_handle&() const noexcept { return m_handle; }
+	template <class DTy> constexpr operator RAIIContainer<handle_type, DTy>() noexcept { return RAIIContainer<handle_type, DTy>(m_handle, DTy()); } // specifically for casting to weak container variant
 
 protected:
 	handle_type m_handle { };
 	owner_type m_owner { };
 };
+
+template <class Ty> using WeakRAIIContainer = RAIIContainer<Ty, NullHandle>; // temporary handle for binding onto types
 
 namespace sdl {
 
