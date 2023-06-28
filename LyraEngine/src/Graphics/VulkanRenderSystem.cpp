@@ -1,12 +1,14 @@
 #include <Graphics/VulkanRenderSystem.h>
 
-#include <limits>
-#include <map>
-#include <unordered_set>
+#include <Common/Logger.h>
+#include <Common/Settings.h>
 
 #include <SDL_vulkan.h>
 
-#include <Common/Logger.h>
+#include <utility>
+#include <limits>
+#include <map>
+#include <unordered_set>
 
 namespace lyra {
 
@@ -92,11 +94,11 @@ struct RenderSystem {
 			};
 
 			// create the instance
-			m_instance = vk::Instance(VK_NULL_HANDLE, createInfo);
+			instance = vk::Instance(VK_NULL_HANDLE, createInfo);
 		}
 
 		{ // create the surface
-			m_surface = vk::Surface(m_instance, info.window);
+			surface = vk::Surface(instance, info.window);
 		}
 		
 		{ // find a suitable physical device
@@ -110,9 +112,9 @@ struct RenderSystem {
 
 			// get all devices
 			uint32 deviceCount = 0;
-			vassert(vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr), "find any Vulkan suitable GPUs");
+			vassert(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), "find any Vulkan suitable GPUs");
 			std::vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
-			vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
+			vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 			// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
 			std::multimap <uint32, PhysicalDeviceData> possibleDevices;
@@ -237,15 +239,15 @@ struct RenderSystem {
 				log().exception("Failed to find GPU with enough features");
 			}
 
-			m_physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.rbegin()->second.device, m_instance));
-			m_deviceProperties = possibleDevices.rbegin()->second.properties;
-			m_deviceFeatures = possibleDevices.rbegin()->second.features;
-			m_queueFamilies = possibleDevices.rbegin()->second.queueFamilies;
+			physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.rbegin()->second.device, instance));
+			deviceProperties = possibleDevices.rbegin()->second.properties;
+			deviceFeatures = possibleDevices.rbegin()->second.features;
+			queueFamilies = possibleDevices.rbegin()->second.queueFamilies;
 		}
 
 		{ // create logical device
 			std::vector <VkDeviceQueueCreateInfo> queueCreateInfos;
-			std::unordered_set <uint32> uniqueQueueFamilies { m_queueFamilies.graphicsFamilyIndex, m_queueFamilies.computeFamilyIndex, m_queueFamilies.copyFamilyIndex };
+			std::unordered_set <uint32> uniqueQueueFamilies { queueFamilies.graphicsFamilyIndex, queueFamilies.computeFamilyIndex, queueFamilies.copyFamilyIndex };
 			
 			float queuePriority = 1.0f;
 			for (const auto& queueFamily : uniqueQueueFamilies) {
@@ -275,35 +277,35 @@ struct RenderSystem {
 	#endif
 				static_cast<uint32>(info.requestedDeviceExtensions.size()),
 				info.requestedDeviceExtensions.data(),
-				&m_deviceFeatures
+				&deviceFeatures
 			};
 			// create the device
-			m_device = vk::Device(m_physicalDevice, createInfo);
+			device = vk::Device(physicalDevice, createInfo);
 		}
 
 		{ // create queues
-			m_graphicsQueue = vk::Queue(m_device, m_queueFamilies.graphicsFamilyIndex, 0);
-			m_computeQueue  = vk::Queue(m_device, m_queueFamilies.computeFamilyIndex, 0);
-			m_copyQueue  = vk::Queue(m_device, m_queueFamilies.computeFamilyIndex, 0);
+			graphicsQueue = vk::Queue(device, queueFamilies.graphicsFamilyIndex, 0);
+			computeQueue  = vk::Queue(device, queueFamilies.computeFamilyIndex, 0);
+			copyQueue  = vk::Queue(device, queueFamilies.computeFamilyIndex, 0);
 		}
 		
 		{ // create the memory allocator
 			// creation info
 			VmaAllocatorCreateInfo createInfo {
 				0,
-				m_physicalDevice,
-				m_device,
+				physicalDevice,
+				device,
 				0,
 				nullptr,
 				nullptr,
 				nullptr,
 				nullptr,
-				m_instance,
+				instance,
 				VK_API_VERSION_1_2
 			};
 
 			// create the allocator
-			m_allocator = vma::Allocator(m_instance, createInfo);
+			allocator = vma::Allocator(instance, createInfo);
 		}
 	}
 
@@ -314,194 +316,194 @@ struct RenderSystem {
 	 */
 
 	VkResult findMemoryTypeIndexForBufferInfo(const VkBufferCreateInfo& bufferCreateInfo, const VmaAllocationCreateInfo& allocationCreateInfo, uint32 memoryTypeIndex) {
-		return vmaFindMemoryTypeIndexForBufferInfo(m_allocator, &bufferCreateInfo, &allocationCreateInfo, &memoryTypeIndex);
+		return vmaFindMemoryTypeIndexForBufferInfo(allocator, &bufferCreateInfo, &allocationCreateInfo, &memoryTypeIndex);
 	}
 	VkResult findMemoryTypeIndexForImageInfo(const VkImageCreateInfo& pImageCreateInfo, const VmaAllocationCreateInfo& allocationCreateInfo, uint32 memoryTypeIndex) {
-		return vmaFindMemoryTypeIndexForImageInfo(m_allocator, &pImageCreateInfo, &allocationCreateInfo, &memoryTypeIndex);
+		return vmaFindMemoryTypeIndexForImageInfo(allocator, &pImageCreateInfo, &allocationCreateInfo, &memoryTypeIndex);
 	}
 	VkResult findMemoryTypeIndex(uint32 memoryTypeBits, const VmaAllocationCreateInfo& allocationCreateInfo, uint32 pMemoryTypeIndex) {
-		return vmaFindMemoryTypeIndex(m_allocator, memoryTypeBits, &allocationCreateInfo, &pMemoryTypeIndex);
+		return vmaFindMemoryTypeIndex(allocator, memoryTypeBits, &allocationCreateInfo, &pMemoryTypeIndex);
 	}
 	VkResult checkPoolCorruption(const VmaPool& pool) {
-		return vmaCheckPoolCorruption(m_allocator, pool);
+		return vmaCheckPoolCorruption(allocator, pool);
 	}
 	void getPoolName(const vma::Pool& pool, const char*& name) {
-		vmaGetPoolName(m_allocator, pool, &name);
+		vmaGetPoolName(allocator, pool, &name);
 	}
 	void setPoolName(const vma::Pool& pool, const char* name) {
-		vmaSetPoolName(m_allocator, pool, name);
+		vmaSetPoolName(allocator, pool, name);
 	}
 	VkResult allocateMemoryPage(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
-		return vmaAllocateMemoryPages(m_allocator, &memoryRequirements, &createInfo, 1, &allocation.get(), &allocationInfo);
+		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, 1, &allocation.get(), &allocationInfo);
 	}
 	VkResult allocateMemoryPages(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, std::vector<VmaAllocation>& allocations, VmaAllocationInfo& allocationInfo) {
-		return vmaAllocateMemoryPages(m_allocator, &memoryRequirements, &createInfo, allocations.size(), allocations.data(), &allocationInfo);
+		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, allocations.size(), allocations.data(), &allocationInfo);
 	}
 	VkResult allocateMemoryForBuffer(const vk::Buffer& buffer, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
-		return vmaAllocateMemoryForBuffer(m_allocator, buffer, &createInfo, &allocation.get(), &allocationInfo);
+		return vmaAllocateMemoryForBuffer(allocator, buffer, &createInfo, &allocation.get(), &allocationInfo);
 	}
 	VkResult allocateMemoryForImage(const vk::Image& image, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
-		return vmaAllocateMemoryForImage(m_allocator, image, &createInfo, &allocation.get(), &allocationInfo);
+		return vmaAllocateMemoryForImage(allocator, image, &createInfo, &allocation.get(), &allocationInfo);
 	}
 	void freeMemoryPage(const vma::Allocation& allocation) {
-		vmaFreeMemoryPages(m_allocator, 1, &allocation.get());
+		vmaFreeMemoryPages(allocator, 1, &allocation.get());
 	}
 	void freeMemoryPages(const std::vector<VmaAllocation>& allocations) {
-		vmaFreeMemoryPages(m_allocator, allocations.size(), allocations.data());
+		vmaFreeMemoryPages(allocator, allocations.size(), allocations.data());
 	}
 	void getAllocationInfo(const vma::Allocation& allocation, VmaAllocationInfo& pAllocationInfo) {
-		vmaGetAllocationInfo(m_allocator, allocation, &pAllocationInfo);
+		vmaGetAllocationInfo(allocator, allocation, &pAllocationInfo);
 	}
 	void setAllocationUserData(const vma::Allocation& allocation, void* pUserData) {
-		vmaSetAllocationUserData(m_allocator, allocation, pUserData);
+		vmaSetAllocationUserData(allocator, allocation, pUserData);
 	}
 	void setAllocationName(const vma::Allocation& allocation, const char* pName) {
-		vmaSetAllocationName(m_allocator, allocation, pName);
+		vmaSetAllocationName(allocator, allocation, pName);
 	}
 	void getAllocationMemoryProperties(const vma::Allocation& allocation, VkMemoryPropertyFlags& flags) {
-		vmaGetAllocationMemoryProperties(m_allocator, allocation, &flags);
+		vmaGetAllocationMemoryProperties(allocator, allocation, &flags);
 	}
 	VkResult flushAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
-		return vmaFlushAllocation(m_allocator, allocation, offset, size);
+		return vmaFlushAllocation(allocator, allocation, offset, size);
 	}
 	VkResult flushAllocations(const std::vector<VmaAllocation>& allocations, const std::vector<VkDeviceSize> offsets, const std::vector<VkDeviceSize> sizes) {
-		return vmaFlushAllocations(m_allocator, allocations.size(), allocations.data(), offsets.data(), sizes.data());
+		return vmaFlushAllocations(allocator, allocations.size(), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult invalidateAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
-		return vmaInvalidateAllocation(m_allocator, allocation.get(), offset, size);
+		return vmaInvalidateAllocation(allocator, allocation.get(), offset, size);
 	}
 	VkResult invalidateAllocations(const std::vector<VmaAllocation>& allocations, const std::vector<VkDeviceSize> offsets, const std::vector<VkDeviceSize> sizes) {
-		return vmaInvalidateAllocations(m_allocator, allocations.size(), allocations.data(), offsets.data(), sizes.data());
+		return vmaInvalidateAllocations(allocator, allocations.size(), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult checkCorruption(uint32 memoryTypeBits) {
-		return vmaCheckCorruption(m_allocator, memoryTypeBits);
+		return vmaCheckCorruption(allocator, memoryTypeBits);
 	}
 	VkResult beginDefragmentation(const VmaDefragmentationInfo& info, vma::DefragmentationContext& context) {
-		return vmaBeginDefragmentation(m_allocator, &info, &context.get());
+		return vmaBeginDefragmentation(allocator, &info, &context.get());
 	}
 	void endDefragmentation(const vma::DefragmentationContext& context, VmaDefragmentationStats& pStats) {
-		vmaEndDefragmentation(m_allocator, context, &pStats);
+		vmaEndDefragmentation(allocator, context, &pStats);
 	}
 	VkResult beginDefragmentationPass(const vma::DefragmentationContext& context, VmaDefragmentationPassMoveInfo& passInfo) {
-		return vmaBeginDefragmentationPass(m_allocator, context, &passInfo);
+		return vmaBeginDefragmentationPass(allocator, context, &passInfo);
 	}
 	VkResult endDefragmentationPass(const vma::DefragmentationContext& context, VmaDefragmentationPassMoveInfo& passInfo) {
-		return vmaEndDefragmentationPass(m_allocator, context, &passInfo);
+		return vmaEndDefragmentationPass(allocator, context, &passInfo);
 	}
 	VkResult bindBufferMemory(const vma::Allocation& allocation, const vk::Buffer& buffer) {
-		return vmaBindBufferMemory(m_allocator, allocation, buffer);
+		return vmaBindBufferMemory(allocator, allocation, buffer);
 	}
 	VkResult bindBufferMemory2(const vma::Allocation& allocation, VkDeviceSize allocationLocalOffset, const vk::Buffer& buffer, const void* pNext) {
-		return vmaBindBufferMemory2(m_allocator, allocation, allocationLocalOffset, buffer, pNext);
+		return vmaBindBufferMemory2(allocator, allocation, allocationLocalOffset, buffer, pNext);
 	}
 	VkResult bindImageMemory(const vma::Allocation& allocation, const vk::Image& image) {
-		return vmaBindImageMemory(m_allocator, allocation, image);
+		return vmaBindImageMemory(allocator, allocation, image);
 	}
 	VkResult bindImageMemory2(const vma::Allocation& allocation, VkDeviceSize allocationLocalOffset, const vk::Image& image, const void* pNext) {
-		return vmaBindImageMemory2(m_allocator, allocation, allocationLocalOffset, image, pNext);
+		return vmaBindImageMemory2(allocator, allocation, allocationLocalOffset, image, pNext);
 	}
 	void freeMemory(const vma::Allocation& allocation) {
-		vmaFreeMemory(m_allocator, allocation);
+		vmaFreeMemory(allocator, allocation);
 	}
 	VkResult flushMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
-		return vkFlushMappedMemoryRanges(m_device, 1, &memoryRange);
+		return vkFlushMappedMemoryRanges(device, 1, &memoryRange);
 	}
 	VkResult flushMappedMemoryRanges(const std::vector<VkMappedMemoryRange>& memoryRanges) {
-		return vkFlushMappedMemoryRanges(m_device, memoryRanges.size(), memoryRanges.data());
+		return vkFlushMappedMemoryRanges(device, memoryRanges.size(), memoryRanges.data());
 	}
 	VkResult getEventStatus(const vk::Event& event) {
-		return vkGetEventStatus(m_device, event);
+		return vkGetEventStatus(device, event);
 	}
 	VkResult getFenceStatus(const vk::Fence& fence) {
-		return vkGetFenceStatus(m_device, fence);
+		return vkGetFenceStatus(device, fence);
 	}
 	void getImageMemoryRequirements(const VkImage& image, VkMemoryRequirements& memoryRequirements) {
-		vkGetImageMemoryRequirements(m_device, image, &memoryRequirements);
+		vkGetImageMemoryRequirements(device, image, &memoryRequirements);
 	}
 	void getImageSparseMemoryRequirements(const vk::Image& image, std::vector<VkSparseImageMemoryRequirements>& sparseMemoryRequirements) {
 		uint32 s;
-		vkGetImageSparseMemoryRequirements(m_device, image, &s, nullptr);
+		vkGetImageSparseMemoryRequirements(device, image, &s, nullptr);
 		sparseMemoryRequirements.resize(s);
-		vkGetImageSparseMemoryRequirements(m_device, image, &s, sparseMemoryRequirements.data());
+		vkGetImageSparseMemoryRequirements(device, image, &s, sparseMemoryRequirements.data());
 	}
 	void getImageSubresourceLayout(const vk::Image& image, const VkImageSubresource& subresource, VkSubresourceLayout& layout) {
-		vkGetImageSubresourceLayout(m_device, image, &subresource, &layout);
+		vkGetImageSubresourceLayout(device, image, &subresource, &layout);
 	}
 	VkResult getPipelineCacheData(const vk::PipelineCache& pipelineCache, size_t& pDataSize, void* pData) {
-		return vkGetPipelineCacheData(m_device, pipelineCache, &pDataSize, pData);
+		return vkGetPipelineCacheData(device, pipelineCache, &pDataSize, pData);
 	}
 	VkResult getQueryPoolResults(const vk::QueryPool& queryPool, uint32 firstQuery, uint32 queryCount, size_t dataSize, void* pData, VkDeviceSize stride, VkQueryResultFlags flags) {
-		return vkGetQueryPoolResults(m_device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+		return vkGetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 	}
 	void getRenderAreaGranularity(const vk::RenderPass& renderPass, VkExtent2D& pGranularity) {
-		vkGetRenderAreaGranularity(m_device, renderPass, &pGranularity);
+		vkGetRenderAreaGranularity(device, renderPass, &pGranularity);
 	}
 	VkResult invalidateMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
-		return vkInvalidateMappedMemoryRanges(m_device, 1, &memoryRange);
+		return vkInvalidateMappedMemoryRanges(device, 1, &memoryRange);
 	}
 	VkResult invalidateMappedMemoryRanges(const std::vector<VkMappedMemoryRange>& memoryRanges) {
-		return vkInvalidateMappedMemoryRanges(m_device, memoryRanges.size(), memoryRanges.data());
+		return vkInvalidateMappedMemoryRanges(device, memoryRanges.size(), memoryRanges.data());
 	}
 	VkResult mapMemory(const vma::Allocation& allocation, void** ppData) {
-		return vmaMapMemory(m_allocator, allocation, ppData);
+		return vmaMapMemory(allocator, allocation, ppData);
 	}
 	VkResult mergePipelineCache(const vk::PipelineCache& dstCache, const vk::PipelineCache srcCache) {
-		return vkMergePipelineCaches(m_device, dstCache, 1, &srcCache.get());
+		return vkMergePipelineCaches(device, dstCache, 1, &srcCache.get());
 	}
 	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const std::vector<VkPipelineCache>& srcCaches) {
-		return vkMergePipelineCaches(m_device, dstCache, srcCaches.size(), srcCaches.data());
+		return vkMergePipelineCaches(device, dstCache, srcCaches.size(), srcCaches.data());
 	}
 	VkResult resetCommandPool(const vk::CommandPool& commandPool, VkCommandPoolResetFlags flags) {
-		return vkResetCommandPool(m_device, commandPool, flags);
+		return vkResetCommandPool(device, commandPool, flags);
 	}
 	VkResult resetDescriptorPool(const vk::DescriptorPool& descriptorPool, VkDescriptorPoolResetFlags flags) {
-		return vkResetDescriptorPool(m_device, descriptorPool, flags);
+		return vkResetDescriptorPool(device, descriptorPool, flags);
 	}
 	VkResult resetEvent(const vk::Event& event) {
-		return vkResetEvent(m_device, event);
+		return vkResetEvent(device, event);
 	}
 	VkResult resetFence(const vk::Fence& fence) {
-		return vkResetFences(m_device, 1, &fence.get());
+		return vkResetFences(device, 1, &fence.get());
 	}
 	VkResult resetFences(uint32 fenceCount, const VkFence* fences) {
-		return vkResetFences(m_device, fenceCount, fences);
+		return vkResetFences(device, fenceCount, fences);
 	}
 	VkResult setEvent(const vk::Event& event) {
-		return vkSetEvent(m_device, event.get());
+		return vkSetEvent(device, event.get());
 	}
 	void unmapMemory(const vma::Allocation& allocation) {
-		vmaUnmapMemory(m_allocator.get(), allocation);
+		vmaUnmapMemory(allocator.get(), allocation);
 	}
 	void updateDescriptorSet(const VkWriteDescriptorSet& descriptorWrite, const VkCopyDescriptorSet& descriptorCopy) {
-		vkUpdateDescriptorSets(m_device, 1, &descriptorWrite, 1, &descriptorCopy);
+		vkUpdateDescriptorSets(device, 1, &descriptorWrite, 1, &descriptorCopy);
 	}
 	void updateDescriptorSets(const std::vector<VkWriteDescriptorSet>& descriptorWrites) {
-		vkUpdateDescriptorSets(m_device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 	void updateDescriptorSets(const std::vector<VkWriteDescriptorSet>& descriptorWrites, const std::vector<VkCopyDescriptorSet>& descriptorCopies) {
-		vkUpdateDescriptorSets(m_device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), static_cast<uint32>(descriptorCopies.size()), descriptorCopies.data());
+		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), static_cast<uint32>(descriptorCopies.size()), descriptorCopies.data());
 	}
 	VkResult waitForFence(const vk::Fence& fence, VkBool32 waitAll, uint64 timeout) {
-		return vkWaitForFences(m_device, 1, &fence.get(), waitAll, timeout);
+		return vkWaitForFences(device, 1, &fence.get(), waitAll, timeout);
 	}
 	VkResult waitForFences(const std::vector<VkFence>& fences, VkBool32 waitAll, uint64 timeout) {
-		return vkWaitForFences(m_device, static_cast<uint32>(fences.size()), fences.data(), waitAll, timeout);
+		return vkWaitForFences(device, static_cast<uint32>(fences.size()), fences.data(), waitAll, timeout);
 	}
 
-	vk::Instance m_instance;
-	vk::Surface m_surface;
+	vk::Instance instance;
+	vk::Surface surface;
 
-	vk::PhysicalDevice m_physicalDevice;
-	VkPhysicalDeviceProperties m_deviceProperties;
-	VkPhysicalDeviceFeatures m_deviceFeatures;
-	vk::Device m_device;
+	vk::PhysicalDevice physicalDevice;
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vk::Device device;
 
-	QueueFamilies m_queueFamilies;
-	vk::Queue m_graphicsQueue;
-	vk::Queue m_computeQueue;
-	vk::Queue m_copyQueue;
+	QueueFamilies queueFamilies;
+	vk::Queue graphicsQueue;
+	vk::Queue computeQueue;
+	vk::Queue copyQueue;
 
-	vma::Allocator m_allocator;
+	vma::Allocator allocator;
 };
 
 static RenderSystem* globalRenderSystem;
@@ -510,6 +512,92 @@ bool init_render_system(const InitInfo& info) {
 	bool sucess;
 	globalRenderSystem = new RenderSystem(info, sucess);
 	return sucess;
+}
+
+CommandQueue::CommandPool::CommandPool() {
+	VkCommandPoolCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		nullptr,
+		VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+		globalRenderSystem->queueFamilies.graphicsFamilyIndex
+	};
+
+	commandPool = vk::CommandPool(globalRenderSystem->device, createInfo);
+}
+
+void CommandQueue::CommandPool::reset() {
+	vassert(globalRenderSystem->resetCommandPool(commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "reset command pool");
+}
+
+CommandQueue::CommandBuffer::CommandBuffer(const CommandPool& commandPool, const VkCommandBufferLevel& level) : 
+	commandPool(commandPool.commandPool) {
+	// locate the memory
+	VkCommandBufferAllocateInfo allocInfo{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		nullptr,
+		this->commandPool,
+		level,
+		1
+	};
+
+	// create the command buffers
+	vassert(vkAllocateCommandBuffers(globalRenderSystem->device.get(), &allocInfo, &commandBuffer.get()), "create Vulkan command buffer");
+}
+
+void CommandQueue::CommandBuffer::begin(const Usage& usage) const {
+	// some info about the recording
+	VkCommandBufferBeginInfo beginInfo{
+		VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		nullptr,
+		static_cast<VkCommandBufferUsageFlags>(usage),
+		nullptr
+	};
+
+	// start recording
+	vassert(vkBeginCommandBuffer(commandBuffer, &beginInfo), "start recording Vulkan command buffer");
+}
+
+void CommandQueue::CommandBuffer::reset(VkCommandBufferResetFlags flags) const {
+	vassert(vkResetCommandBuffer(commandBuffer, flags), "reset command buffer"); // reset the command buffer
+}
+
+CommandQueue::CommandQueue() { 
+	commandPools.resize(Settings::RenderConfig::maxFramesInFlight);
+}
+
+void CommandQueue::reset() {
+	auto newCommandQueue = CommandQueue();
+	std::swap(*this, newCommandQueue);
+}
+
+void CommandQueue::submit(VkFence fence, bool wait) {
+	if (activeCommandBuffer != VK_NULL_HANDLE) {
+		VkSubmitInfo submitInfo {
+			VK_STRUCTURE_TYPE_SUBMIT_INFO,
+			nullptr,
+			static_cast<uint32>(waitSemaphores.size()),
+			waitSemaphores.data(),
+			pipelineStageFlags.data(),
+			1,
+			&activeCommandBuffer,
+			static_cast<uint32>(signalSemaphores.size()),
+			signalSemaphores.data()
+		};
+
+		vassert(vkQueueSubmit(queue, 1, &submitInfo, fence), "submit Vulkan queue");
+
+		if (wait) {
+			vassert(globalRenderSystem->waitForFence(WeakRAIIContainer<VkFence>(fence, nullptr), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
+		}
+
+		activeCommandBuffer = VK_NULL_HANDLE;
+
+		currentFrame = (currentFrame + 1) % Settings::RenderConfig::maxFramesInFlight;
+	}
+
+	waitSemaphores.clear();
+	signalSemaphores.clear();
+	pipelineStageFlags.clear();
 }
 
 } // namespace vulkan
