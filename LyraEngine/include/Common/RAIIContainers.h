@@ -328,6 +328,10 @@ public:
 		return *this;
 	}
 
+	constexpr handle_type release() noexcept {
+		return std::exchange(m_handle, handle_type { });
+	}
+
 	constexpr handle_type& get() noexcept { return m_handle; }
 	constexpr const_handle& get() const noexcept { return m_handle; }
 	constexpr operator handle_type&() noexcept { return m_handle; }
@@ -338,8 +342,6 @@ protected:
 	handle_type m_handle { };
 	owner_type m_owner { };
 };
-
-template <class Ty> using WeakRAIIContainer = RAIIContainer<Ty, NullHandle>; // temporary handle for binding onto types
 
 namespace sdl {
 
