@@ -24,19 +24,19 @@ class Settings {
 public:
 	// debug mode enum
 	enum class DebugMode : int {
-		MODE_DEBUG = 1,
-		MODE_RELEASE = 2,
+		debug = 1,
+		release = 2,
 	};
 
 	// disable logging enum
 	enum class DisableLog {
-		DISABLE_NONE = 0x00000001,
-		DISABLE_DEBUG = 0x00000002,
-		DISABLE_INFO = 0x00000004,
-		DISABLE_WARN = 0x00000008,
-		DISABLE_ERROR = 0x00000010,
-		DISABLE_EXCEPTION = 0x00000020,
-		DISABLE_ALL = 0x00000040
+		none = 0x00000001,
+		debug = 0x00000002,
+		info = 0x00000004,
+		warning = 0x00000008,
+		error = 0x0000001,
+		exception = 0x00000020,
+		all = 0x00000040
 	};
 
 	// generell application settings

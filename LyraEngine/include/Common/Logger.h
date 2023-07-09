@@ -27,85 +27,53 @@ namespace lyra {
 
 class Logger {
 private:
-	/**
-	 * @brief basic ANSI fonts
-	 */
-	enum class Font : int {
-		NON = 0,
-		BLD = 1,
-		DIM = 2,
-		ITC = 3,
-		UNL = 4
+	enum class Font {
+		non = 0,
+		bold = 1,
+		dim = 2,
+		italic = 3,
+		underline = 4,
+		blink = 5
 	};
 
-	/**
-	 * @brief cast a font enum value to an integer
-	 * 
-	 * @param font font to cast
-	 * 
-	 * @return int
-	 */
+	enum class Color {
+		black = 30,
+		red = 31,
+		green = 32,
+		yellow = 33,
+		blue = 34,
+		magenta = 35,
+		cyan = 36,
+		grey = 90,
+		gray = grey,
+		backgroundRed = 91,
+		backgroundGreen = 92,
+		backgroundYellow = 93,
+		backgroundBlue = 94,
+		backgroundMagenta = 95,
+		backgroundCyan = 96,
+		white = 97
+	};
+
+	NODISCARD constexpr int color_cast(Color color) {
+		return static_cast<int>(color);
+	}
 	NODISCARD constexpr int font_cast(Font font) {
 		return static_cast<int>(font);
 	}
 
-	/**
-	 * @brief basic ANSI colors
-	 */
-	enum class Color : int {
-		BLK = 30,
-		RED = 31,
-		GRN = 32,
-		YEL = 33,
-		BLU = 34,
-		MAG = 35,
-		CYN = 36,
-		GRY = 90,
-		B_RED = 91,
-		B_GRN = 92,
-		B_YEL = 93,
-		B_BLU = 94,
-		B_MAG = 95,
-		B_CYN = 96,
-		WHT = 97,
-		DEF = WHT
-	};
-
-	/**
-	 * @brief cast a color enum value to an integer
-	 * 
-	 * @param color color to cast
-	 * 
-	 * @return int
-	 */
-	NODISCARD constexpr int color_cast(Color color) {
-		return static_cast<int>(color);
-	}
-
-	/**
-	 * @brief print an ANSI escape code to set font and color
-	 * 
-	 * @param font font
-	 * @param color color
-	 */
-	void ANSI(Font font, Color color) {
+	void ansi(Font font, Color color) {
 		std::cout << "\033[" << font_cast(font) << ";" << color_cast(color) << "m";
 	}
 	/**
 	 * @brief set the color to default
 	 */
 	void set_color_default() {
-		ANSI(Font::NON, Color::WHT);
+		ansi(Font::non, Color::white);
 	}
 
 public:
-	/**
-	 * @brief log normal messages
-	 *
-	 * @tparam ...Args types to print
-	 * @param ...message messages
-	*/
-	template <typename ... Args> constexpr void log(Args... message) {
+	template <typename ... Args> constexpr void message(Args... message) {
 #ifndef NDEBUG
 		// print the message
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -115,16 +83,10 @@ public:
 #endif
 	}
 
-	/**
-	 * @brief log debug messages
-	 *
-	 * @tparam ...Args types to print
-	 * @param ...message messages
-	*/
 	template <typename ... Args> constexpr void debug(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
-		ANSI(Font::NON, Color::GRY);
+		ansi(Font::non, Color::grey);
 		// print the message
 		std::cout << "[DEBUG]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -137,16 +99,10 @@ public:
 #endif
 	}
 
-	/**
-	 * @brief log informational messages
-	 *
-	 * @tparam ...Args types to print
-	 * @param ...message messages
-	*/
 	template <typename ... Args> constexpr void info(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
-		ANSI(Font::NON, Color::GRN);
+		ansi(Font::non, Color::green);
 		// print the message
 		std::cout << "[INFO]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -159,16 +115,10 @@ public:
 #endif
 	}
 
-	/**
-	 * @brief log warnings
-	 *
-	 * @tparam ...Args types to print
-	 * @param ...message messages
-	*/
 	template <typename ... Args> constexpr void warning(Args... message) {
 #ifndef NDEBUG
 		// set the color and font of the message
-		ANSI(Font::NON, Color::YEL);
+		ansi(Font::non, Color::yellow);
 		// print the message
 		std::cout << "[WARNING]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -181,15 +131,9 @@ public:
 #endif
 	}
 
-	/**
-	 * @brief log errors
-	 *
-	 * @tparam ...Args types to print
-	 * @param ...message messages
-	*/
 	template <typename ... Args> constexpr void error(Args... message) {
 		// set the color and font of the message
-		ANSI(Font::NON, Color::RED);
+		ansi(Font::non, Color::red);
 		// print the message
 		std::cout << "[ERROR]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -201,15 +145,9 @@ public:
 		set_color_default();
 	}
 
-	/**
-	 * @brief log exceptions
-	 *
-	 * @tparam ...Args types to print
-	 * @param ...message messages
-	*/
 	template <typename ... Args> constexpr void exception(Args... message) {
 		// set the color and font of the message
-		ANSI(Font::BLD, Color::RED);
+		ansi(Font::bold, Color::red);
 		// print the message
 		std::cout << "[EXCEPTION]: ";
 		(std::cout << ... << std::forward<Args>(message)) << end_l();
@@ -222,25 +160,12 @@ public:
 		set_color_default();
 	}
 
-	/**
-	 * @brief clear the termial buffer
-	*/
 	void clear_buffer();
 
-	/**
-	 * @brief tab escape character
-	 * 
-	 * @return std::string_view
-	 */
-	NODISCARD constexpr std::string_view tab() {
+	NODISCARD constexpr const char* const tab() {
 		return "\t";
 	}
-	/**
-	 * @brief line end escape character
-	 * 
-	 * @return std::string_view
-	 */
-	NODISCARD constexpr std::string_view end_l() {
+	NODISCARD constexpr const char* const end_l() {
 		return "\n";
 	}
 
