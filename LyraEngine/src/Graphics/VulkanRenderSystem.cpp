@@ -1,5 +1,6 @@
 #include <Graphics/VulkanRenderSystem.h>
 
+#include <Common/Utility.h>
 #include <Common/Logger.h>
 #include <Common/Settings.h>
 
@@ -17,12 +18,15 @@ namespace vulkan {
 /**
  * @brief global class for the rendering systems of the engine
  */
-struct RenderSystem {
+class RenderSystem {
+public:
 	struct QueueFamilies {
 		uint32 graphicsFamilyIndex = std::numeric_limits<uint32>::max();
 		uint32 computeFamilyIndex = std::numeric_limits<uint32>::max();
 		uint32 copyFamilyIndex = std::numeric_limits<uint32>::max();
 		// uint32 videoFamilyIndex = VK_QUEUE_FAMILY_IGNORED; @todo
+		
+		std::vector <VkQueueFamilyProperties> queueFamilyProperties;
 	};
 
 	RenderSystem(const InitInfo& info, bool& sucess) {
@@ -96,10 +100,6 @@ struct RenderSystem {
 			// create the instance
 			instance = vk::Instance(VK_NULL_HANDLE, createInfo);
 		}
-
-		{ // create the surface
-			surface = vk::Surface(instance, info.window);
-		}
 		
 		{ // find a suitable physical device
 			// structure to hold important data to retrieve from a physical device
@@ -121,20 +121,20 @@ struct RenderSystem {
 
 			for (const auto& device : devices) {
 				log().info("GPU ", std::to_string((&device - &devices[0]) + 1), ": ");
+				
 				{ // rate the physical device
 					// set the score to 1 first, if the GPU does not have required features, set it to 0
 					int score = 0;
 
-					// get the queue families
 					QueueFamilies localQueueFamilies;
 
 					uint32 queueFamilyCount = 0;
 					vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-					std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
-					vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+					localQueueFamilies.queueFamilyProperties.resize(queueFamilyCount);
+					vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, localQueueFamilies.queueFamilyProperties.data());
 
 					uint32 i = 0;
-					for (const auto& property : queueFamilyProperties) {
+					for (const auto& property : localQueueFamilies.queueFamilyProperties) {
 						if (
 							localQueueFamilies.computeFamilyIndex == std::numeric_limits<uint32>::max() && 
 							(property.queueFlags & VK_QUEUE_GRAPHICS_BIT)
@@ -491,7 +491,6 @@ struct RenderSystem {
 	}
 
 	vk::Instance instance;
-	vk::Surface surface;
 
 	vk::PhysicalDevice physicalDevice;
 	VkPhysicalDeviceProperties deviceProperties;
@@ -587,7 +586,7 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 		vassert(vkQueueSubmit(queue, 1, &submitInfo, fence), "submit Vulkan queue");
 
 		if (wait) {
-			vassert(globalRenderSystem->waitForFence(WeakRAIIContainer<VkFence>(fence, nullptr), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
+			vassert(globalRenderSystem->waitForFence(vk::Fence(fence, VK_NULL_HANDLE), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
 		}
 
 		activeCommandBuffer = VK_NULL_HANDLE;
@@ -598,6 +597,496 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 	waitSemaphores.clear();
 	signalSemaphores.clear();
 	pipelineStageFlags.clear();
+}
+
+void CommandQueue::oneTimeBegin() {
+	auto cmdBuff = CommandBuffer(commandPools.at(currentFrame));
+	cmdBuff.begin(CommandQueue::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
+	activeCommandBuffer = cmdBuff.commandBuffer.release();
+}
+
+void CommandQueue::oneTimeSubmit() {
+	auto cmdBuff = CommandBuffer(vk::CommandBuffer(activeCommandBuffer, globalRenderSystem->device));
+	cmdBuff.end();
+	submit(VK_NULL_HANDLE, false);
+}
+
+GPUBuffer::GPUBuffer(
+	VkDeviceSize size,
+	VkBufferUsageFlags bufferUsage, 
+	VmaMemoryUsage memUsage
+) : size(size) {
+	VkBufferCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+		nullptr,
+		0,
+		size,
+		bufferUsage,
+		VK_SHARING_MODE_EXCLUSIVE,
+		0,
+		0
+	};
+
+	buffer = vk::Buffer(
+		globalRenderSystem->device, 
+		globalRenderSystem->allocator, 
+		createInfo, 
+		get_alloc_create_info(memUsage), 
+		memory
+	);
+}
+
+void GPUBuffer::copy_data(const void* src, size_t copySize) {
+	void* data;
+	lassert(globalRenderSystem->mapMemory(memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(memory), "!");
+	
+#ifndef NDEBUG
+	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(size) : copySize);
+#else
+	// custom memcpy functionality, (probably) faster in release mode
+	const char* s = (char*)src;
+	char* d = (char*)data;
+
+	for (size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(size) : copySize; i++) d[i] = s[i];
+
+	data = std::move(d);
+#endif
+
+	globalRenderSystem->unmapMemory(memory);
+}
+
+void GPUBuffer::copy_data(const void** src, uint32 arraySize, size_t elementSize) {
+	char* data;
+	lassert(globalRenderSystem->mapMemory(memory, (void**)&data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(memory), "!");
+
+	for (uint32 i = 0; i < arraySize; i++) {
+		memcpy(static_cast<void*>(data + elementSize * i), src[i], elementSize);
+	}
+
+	globalRenderSystem->unmapMemory(memory);
+}
+
+void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
+	CommandQueue commandQueue;
+	commandQueue.oneTimeBegin();
+
+	VkBufferCopy copyRegion{
+		0,
+		0,
+		size
+	};
+	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).copyBuffer(srcBuffer.buffer, buffer, copyRegion);
+
+	commandQueue.oneTimeSubmit();
+}
+
+void Image::create_view(VkFormat format, const VkImageSubresourceRange& subresourceRange, VkImageViewType viewType, const VkComponentMapping& colorComponents) {
+	VkImageViewCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		nullptr,
+		0,
+		image,
+		viewType,
+		format,
+		colorComponents,
+		subresourceRange
+	};
+
+	view = vk::ImageView(globalRenderSystem->device, createInfo);
+}
+
+void Image::transition_layout(
+	VkImageLayout oldLayout,
+	VkImageLayout newLayout,
+	VkFormat format,
+	const VkImageSubresourceRange& subresourceRange
+) const {
+	CommandQueue commandQueue;
+	commandQueue.oneTimeBegin();
+
+	// goofy ahh check to see which image layout to use
+	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	VkAccessFlags sourceAccess = 0;
+	VkAccessFlags destinationAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		sourceAccess = 0; destinationAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		sourceAccess = VK_ACCESS_TRANSFER_WRITE_BIT; destinationAccess = VK_ACCESS_SHADER_READ_BIT;
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT; destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	}
+	else log().exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
+
+	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).pipelineBarrier(
+		sourceStage, 
+		destinationStage, 
+		0,
+		VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+		VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM }, 
+		get_image_memory_barrier(
+			sourceAccess, 
+			destinationAccess, 
+			oldLayout, 
+			newLayout, 
+			subresourceRange
+		)
+	);
+
+	commandQueue.oneTimeSubmit();
+}
+
+VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
+	for (const auto& candidate : candidates) {
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(globalRenderSystem->physicalDevice, candidate, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidate;
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
+	}
+
+	log().exception("lyra::vulkan::Image::get_best_format(): Failed to find supported format out of user defined formats!");
+
+	return VK_FORMAT_MAX_ENUM;
+}
+
+void Image::copy_from_buffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount) {
+	CommandQueue commandQueue;
+	commandQueue.oneTimeBegin();
+
+	VkBufferImageCopy imageCopy {
+		0,
+		0,
+		0,
+		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layerCount},
+		{0, 0, 0},
+		extent
+	};
+	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).copyBufferToImage(stagingBuffer.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
+
+	commandQueue.oneTimeSubmit();
+}
+
+Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(window), commandQueue(&commandQueue) {
+	surface = vk::Surface(globalRenderSystem->instance, window);
+
+	{ // check present queue compatibility
+		uint32 familyIndex = 0;
+		for (const auto& queueFamilyProperty : globalRenderSystem->queueFamilies.queueFamilyProperties) {
+			VkBool32 presentSupport;
+			vassert(vkGetPhysicalDeviceSurfaceSupportKHR(globalRenderSystem->physicalDevice, familyIndex, surface, &presentSupport),
+				"check check physical device queue family presentation support");
+			
+			if (presentFamilyIndex == std::numeric_limits<uint32>::max() && presentSupport == VK_TRUE) {
+				presentFamilyIndex = familyIndex;
+				break;
+			}
+
+			familyIndex++;
+		}
+
+		if (presentFamilyIndex == std::numeric_limits<uint32>::max()) {
+			log().exception("Failed to find queue family with presentation support with physical device: ", get_address(globalRenderSystem->physicalDevice), " for surface: ", get_address(surface), "!");
+		}
+	}
+
+	{ // create syncronization objects
+		VkSemaphoreCreateInfo semaphoreInfo{
+			VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+		};
+
+		VkFenceCreateInfo fenceInfo{
+			VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+			nullptr,
+			VK_FENCE_CREATE_SIGNALED_BIT
+		};
+
+		for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
+			imageAquiredSemaphores[i] = vk::Semaphore(globalRenderSystem->device, semaphoreInfo);
+			submitFinishedSemaphores[i] = vk::Semaphore(globalRenderSystem->device, semaphoreInfo);
+			renderFinishedFences[i] = vk::Fence(globalRenderSystem->device, fenceInfo);
+		}
+	}
+
+	createSwapchain();
+	createAttachments();
+}
+
+void Swapchain::createSwapchain() {
+	log().info("Swapchain configurations are: ");
+
+	VkSurfaceFormatKHR surfaceFormat; 
+	{ // determine the best format
+		uint32 availableFormatCount = 0;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(globalRenderSystem->physicalDevice, surface, &availableFormatCount, nullptr);
+		std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(globalRenderSystem->physicalDevice, surface, &availableFormatCount, availableFormats.data());
+		// check the formats
+		for (const auto& availableFormat : availableFormats) {
+			if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+				surfaceFormat = availableFormat;
+			}
+		}
+
+		surfaceFormat = availableFormats[0];
+		format = surfaceFormat.format;
+
+		log().debug(log().tab(), "format is ", format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")");
+	}
+	
+	VkPresentModeKHR presentMode;
+	{ // determine the presentation mode
+		uint32 availablePresentModeCount = 0;
+		vkGetPhysicalDeviceSurfacePresentModesKHR(globalRenderSystem->physicalDevice, surface, &availablePresentModeCount, nullptr);
+		std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(globalRenderSystem->physicalDevice, surface, &availablePresentModeCount, availablePresentModes.data());
+		// check the presentation modess
+		for (const auto& availablePresentMode : availablePresentModes) {
+			if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+				presentMode = availablePresentMode;
+			}
+		}
+
+		presentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+		log().debug(log().tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")");
+	}
+
+	VkSurfaceCapabilitiesKHR surfaceCapabilities;
+	{ // check surface capabilities
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(globalRenderSystem->physicalDevice, surface, &surfaceCapabilities);
+
+		if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
+			surfaceCapabilities.currentExtent.width = settings().window.width;
+			log().warning("Something went wrong whilst attempting getting the swapchain width!");
+		} if (surfaceCapabilities.currentExtent.height == 0xFFFFFFFF) {
+			surfaceCapabilities.currentExtent.height = settings().window.height;
+			log().warning("Something went wrong whilst attempting getting the swapchain height!");
+		} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
+			surfaceCapabilities.maxImageCount = 8;
+			log().warning("Something went wrong whilst attempting getting the number of swapchain images!");
+		} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
+			surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+		} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
+			surfaceCapabilities.supportedTransforms = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		}
+	}
+
+	{ // create the extent
+		int width, height;
+		SDL_Vulkan_GetDrawableSize(window, &width, &height);
+
+		VkExtent2D newExtent = {
+			static_cast<uint32>(width),
+			static_cast<uint32>(height)
+		};
+
+		newExtent.width = std::clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+		newExtent.height = std::clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+
+		extent = newExtent;
+	}
+
+	{ // create swapchain
+		VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		std::vector<uint32> queueFamilies;
+
+		if (presentFamilyIndex != globalRenderSystem->queueFamilies.graphicsFamilyIndex) {
+			sharingMode = VK_SHARING_MODE_CONCURRENT;
+			queueFamilies = { globalRenderSystem->queueFamilies.graphicsFamilyIndex, presentFamilyIndex };
+		}
+
+		VkSwapchainCreateInfoKHR createInfo = {
+			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+			nullptr,
+			0,
+			surface,
+			surfaceCapabilities.minImageCount + 1,
+			surfaceFormat.format,
+			surfaceFormat.colorSpace,
+			extent,
+			1,
+			surfaceCapabilities.supportedUsageFlags,
+			sharingMode,
+			static_cast<uint32>(queueFamilies.size()),
+			queueFamilies.data(),
+			surfaceCapabilities.currentTransform,
+			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+			presentMode,
+			VK_TRUE,
+			(oldSwapchain != nullptr) ? *oldSwapchain : VK_NULL_HANDLE
+		};
+
+		swapchain = vk::Swapchain(globalRenderSystem->device, createInfo);
+	}
+
+	{ // create swapchain images
+		std::vector<VkImage> tempImages;
+		
+		uint32 imageCount;
+		vassert(vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
+		images.resize(imageCount); tempImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, tempImages.data());
+
+		for (auto& image : images) {
+			uint32 i = &image - &images[0];
+			image.image = std::move(tempImages[i]);
+
+			image.create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+		}
+	}
+}
+
+void Swapchain::createAttachments() {
+	{ // create anti aliasing images
+		{ // configure the multisample
+			VkSampleCountFlags counts = globalRenderSystem->deviceProperties.limits.framebufferColorSampleCounts & globalRenderSystem->deviceProperties.limits.framebufferDepthSampleCounts;
+
+			if (counts & VK_SAMPLE_COUNT_64_BIT) { maxMultisamples = VK_SAMPLE_COUNT_64_BIT; }
+			else if (counts & VK_SAMPLE_COUNT_32_BIT) { maxMultisamples = VK_SAMPLE_COUNT_32_BIT; }
+			else if (counts & VK_SAMPLE_COUNT_16_BIT) { maxMultisamples = VK_SAMPLE_COUNT_16_BIT; }
+			else if (counts & VK_SAMPLE_COUNT_8_BIT) { maxMultisamples = VK_SAMPLE_COUNT_8_BIT; }
+			else if (counts & VK_SAMPLE_COUNT_4_BIT) { maxMultisamples = VK_SAMPLE_COUNT_4_BIT; }
+			else if (counts & VK_SAMPLE_COUNT_2_BIT) { maxMultisamples = VK_SAMPLE_COUNT_2_BIT; }
+			else { maxMultisamples = VK_SAMPLE_COUNT_1_BIT; }
+		}
+
+		colorImage.image = vk::Image(
+			globalRenderSystem->device,
+			globalRenderSystem->allocator, 
+			colorImage.get_image_create_info(
+				format,
+				{ extent.width, extent.height, 1 },
+				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+				1,
+				VK_IMAGE_TYPE_2D,
+				1,
+				0,
+				maxMultisamples
+			),
+			GPUMemory::get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+			colorMem.memory
+		);
+
+		colorImage.create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+	}
+	
+	{ // create depth images
+		depthBufferFormat = Image::get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+
+		depthImage.image = vk::Image(
+			globalRenderSystem->device,
+			globalRenderSystem->allocator, 
+			depthImage.get_image_create_info(
+				depthBufferFormat,
+				{ extent.width, extent.height, 1 },
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+				1,
+				VK_IMAGE_TYPE_2D,
+				1,
+				0,
+				maxMultisamples
+			),
+			GPUMemory::get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+			depthMem.memory
+		);
+
+		depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+	}
+}
+
+void Swapchain::update(bool windowModified) {
+	if (lostSurface) {
+		surface.destroy();
+		surface = vk::Surface(globalRenderSystem->instance, window);
+		lostSurface = false;
+	}
+
+	if (invalidSwapchain || lostSurface || windowModified) {
+		if (oldSwapchain != nullptr) vkDestroySwapchainKHR(globalRenderSystem->device, *oldSwapchain, nullptr);
+		oldSwapchain = &(this->swapchain);
+
+		createSwapchain();
+		invalidSwapchain = false;
+	}
+
+	if (invalidAttachments || (invalidSwapchain || lostSurface || windowModified)) {
+		for (auto& image : images) {
+			image.destroy();
+		}
+
+		colorImage.destroy();
+		colorMem.destroy();
+		depthImage.destroy();
+		depthMem.destroy();
+		swapchain.destroy();
+
+		createAttachments();
+		invalidAttachments = false;
+	}
+}
+
+void Swapchain::aquire() {
+	VkResult result = vkAcquireNextImageKHR(
+		globalRenderSystem->device, 
+		swapchain, 
+		std::numeric_limits<uint32>::max(), 
+		imageAquiredSemaphores[commandQueue->currentFrame], 
+		VK_NULL_HANDLE, 
+		&commandQueue->currentFrame
+	);
+
+	switch (result) {
+		case VK_SUCCESS:
+			break;	
+		case VK_ERROR_SURFACE_LOST_KHR:
+			lostSurface = true;
+		case VK_ERROR_OUT_OF_DATE_KHR:
+		case VK_SUBOPTIMAL_KHR:
+			invalidSwapchain = true;
+
+		default:
+			vassert(result, "aquire next vulkan swapchain image");
+	}
+}
+
+void Swapchain::present() {
+	VkPresentInfoKHR presentInfo {
+		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		nullptr,
+		1,
+		&submitFinishedSemaphores[commandQueue->currentFrame].get(),
+		1,
+		&swapchain.get(),
+		&commandQueue->currentFrame
+	};
+
+	VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+	switch (result) {
+		case VK_SUCCESS:
+			break;	
+		case VK_ERROR_SURFACE_LOST_KHR:
+			lostSurface = true;
+		case VK_ERROR_OUT_OF_DATE_KHR:
+		case VK_SUBOPTIMAL_KHR:
+			invalidSwapchain = true;
+
+		default:
+			vassert(result, "present swapchain");
+	}
+
+	globalRenderSystem->waitForFence(
+		renderFinishedFences[commandQueue->currentFrame], 
+		VK_TRUE, 
+		std::numeric_limits<uint64>::max()
+	);
 }
 
 } // namespace vulkan
