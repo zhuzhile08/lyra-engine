@@ -42,9 +42,6 @@ template <class Ty> concept RAIIContainerType =
 	std::is_move_constructible_v<Ty> &&
 	std::is_move_assignable_v<Ty>;
 
-/**
- * @brief A RAII container for making the usage of vulkan handles more secure
- */
 template <RAIIContainerType Ty, RAIIContainerType OTy> class RAIIContainer {
 public:
 	using handle_type = Ty;

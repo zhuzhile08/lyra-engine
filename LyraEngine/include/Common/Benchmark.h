@@ -15,9 +15,6 @@
 
 namespace lyra {
 
-/**
- * @brief small scope-based benchmarking class
- */
 class Benchmark {
 public:
 	// initialize and start the timer
