@@ -36,7 +36,7 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	});
 	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	m_descriptorPool = SmartPointer<vulkan::DescriptorSystem::DescriptorPool>::create(builder.build_create_info());
+	m_descriptorPool = UniquePointer<vulkan::DescriptorSystem::DescriptorPool>::create(builder.build_create_info());
 
 	// initialize ImGui
 	ImGui::CreateContext();

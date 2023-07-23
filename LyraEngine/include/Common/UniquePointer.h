@@ -1,5 +1,5 @@
 /*************************
- * @file SmartPointer.h
+ * @file UniquePointer.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
  * @brief A custom smart pointer implementation
@@ -30,36 +30,36 @@ template <class Ty> struct DefaultDeleter {
 
 } // namespace detail
 
-template <class Ty, class DTy = detail::DefaultDeleter<Ty>> class SmartPointer {
+template <class Ty, class DTy = detail::DefaultDeleter<Ty>> class UniquePointer {
 public:
 	using value_type = Ty;
 	using pointer = Ty*;
 	using deleter_type = DTy;
-	using wrapper = SmartPointer;
+	using wrapper = UniquePointer;
 
-	constexpr SmartPointer() = default;
-	constexpr SmartPointer(pointer pointer) : m_pointer(pointer) { }
-	constexpr SmartPointer(pointer pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
-	constexpr SmartPointer(pointer pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
-	constexpr SmartPointer(SmartPointer<value_type, deleter_type>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
-	template <class P, class D> constexpr SmartPointer(SmartPointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	constexpr UniquePointer() = default;
+	constexpr UniquePointer(pointer pointer) : m_pointer(pointer) { }
+	constexpr UniquePointer(pointer pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
+	constexpr UniquePointer(pointer pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
+	constexpr UniquePointer(UniquePointer<value_type, deleter_type>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 
-	~SmartPointer() noexcept {
+	~UniquePointer() noexcept {
 		if (m_pointer) m_deleter(m_pointer);
 	}
 
-	SmartPointer& operator=(SmartPointer&& right) {
+	UniquePointer& operator=(UniquePointer&& right) {
 		assign(right.release());
 		m_deleter = std::forward<deleter_type>(right.m_deleter);
 		return *this;
 	}
-	SmartPointer<value_type, deleter_type>& operator=(pointer right) {
+	UniquePointer<value_type, deleter_type>& operator=(pointer right) {
 		assign(right);
 		return *this;
 	}
 
-	template <class ... Args> NODISCARD static SmartPointer<value_type> create(Args&&... args) {
-		return SmartPointer<value_type>(new value_type(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static UniquePointer<value_type> create(Args&&... args) {
+		return UniquePointer<value_type>(new value_type(std::forward<Args>(args)...));
 	}
 
 	constexpr pointer operator->() const noexcept {
@@ -69,8 +69,8 @@ public:
 		return *m_pointer;
 	}
 
-	template <class P> constexpr operator SmartPointer<P>() const noexcept {
-		return SmartPointer<P>(m_pointer);
+	template <class P> constexpr operator UniquePointer<P>() const noexcept {
+		return UniquePointer<P>(m_pointer);
 	}
 
 	NODISCARD constexpr pointer get() const noexcept {
@@ -94,10 +94,10 @@ public:
 		return std::exchange(m_pointer, nullptr);
 	}
 
-	constexpr void swap(SmartPointer<value_type>& second) {
+	constexpr void swap(UniquePointer<value_type>& second) {
 		std::swap(m_pointer, second.m_pointer);
 	}
-	constexpr void swap(SmartPointer<value_type>&& second) {
+	constexpr void swap(UniquePointer<value_type>&& second) {
 		std::swap(m_pointer, std::move(second.m_pointer));
 	}
 	constexpr void swap(pointer& second) {
@@ -128,7 +128,7 @@ private:
 	deleter_type m_deleter;
 
 	template <class, class>
-	friend class SmartPointer;
+	friend class UniquePointer;
 };
 
 } // namespace lyra
