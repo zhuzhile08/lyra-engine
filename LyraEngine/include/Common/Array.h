@@ -27,18 +27,22 @@ template <class Ty, size_t Size> struct Array {
 	using array = value_type[Size];
 	using wrapper = Array<value_type, Size>;
 
-	constexpr void fill(const_reference value) { for (size_t i; i < Size; i++) m_array[i] = value; }
-	constexpr void fill(const value_type&& value) { 
-		for (size_t i; i < Size; i++) m_array[i] = std::forward<value_type>(value); 
+	constexpr void fill(const_reference value) { 
+		std::fill_n(begin(), Size, value);
+	}
+	constexpr void fill(value_type&& value) { 
+		std::fill_n(begin(), Size, value);
 	}
 	constexpr void fill(const value_type* const array, size_t size) {
-		for (size_t i; i < ( Size < size ) ? Size : size; i++) m_array[i] = array[i];
+		size_t length = (Size < size) ? Size : size;
+		std::swap_ranges(begin(), begin() + length, array[0]);
 	}
 	constexpr void fill(const wrapper& array) {
-		for (size_t i; i < Size; i++) m_array[i] = array[i];
+		std::swap_ranges(begin(), end(), array.end());
 	}
 	template <size_t OtherSize> constexpr void fill(const Array<value_type, OtherSize>& array) {
-		for (size_t i; i < ( Size < array.size() ) ? Size : array.size(); i++) m_array[i] = array[i];
+		size_t length = (Size < OtherSize) ? Size : OtherSize;
+		std::swap_ranges(begin(), begin() + length, array.begin());
 	}
 
 	constexpr void swap(wrapper& array) {
