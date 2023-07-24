@@ -13,7 +13,7 @@
 
 #include <Common/Common.h>
 
-#include <Common/SmartPointer.h>
+#include <Common/UniquePointer.h>
 #include <string>
 #include <unordered_map>
 
@@ -41,7 +41,7 @@ public:
 	using value_type = Ty;
 	using pointer = value_type*;
 	using const_pointer = const pointer;
-	using smart_pointer = SmartPointer<value_type>;
+	using smart_pointer = UniquePointer<value_type>;
 	using constructor = CTy;
 
 	Manager() = default;
@@ -75,7 +75,7 @@ public:
 	using value_type = Ty;
 	using pointer = value_type*;
 	using const_pointer = const pointer;
-	using smart_pointer = SmartPointer<value_type>;
+	using smart_pointer = UniquePointer<value_type>;
 	using constructor = CTy;
 
 	Manager() = default;

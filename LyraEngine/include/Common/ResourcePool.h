@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <deque>
 
-#include <Common/SmartPointer.h>
+#include <Common/UniquePointer.h>
 #include <Common/FunctionPointer.h>
 #include <Common/IteratorBase.h>
 
@@ -33,7 +33,7 @@ public:
 	using const_pointer = const value_type*;
 	using movable = value_type&&;
 	using pool = ResourcePool<value_type>;
-	using smart_pointer = SmartPointer<value_type>;
+	using smart_pointer = UniquePointer<value_type>;
 	using deque = std::deque<smart_pointer>;
 	using iterator = typename deque::iterator;
 	using const_iterator = typename deque::const_iterator;
@@ -54,7 +54,7 @@ public:
 		}
 	};
 
-	using resource_container = SmartPointer<value_type, ResourceReturner>;
+	using resource_container = UniquePointer<value_type, ResourceReturner>;
 
 	NODISCARD constexpr reference operator[](size_t index) noexcept {
 		return *m_resources[index];
