@@ -29,6 +29,17 @@ template <class Ty> struct DefaultDeleter {
 	}
 };
 
+template <class Ty> struct DefaultDeleter<Ty []> {
+	using pointer = Ty*;
+
+	constexpr DefaultDeleter() = default;
+	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>& other) noexcept { }
+
+	constexpr void operator()(pointer ptr) const noexcept {
+		delete ptr;
+	}
+};
+
 } // namespace detail
 
 template <class Ty, class DTy = detail::DefaultDeleter<Ty>> class UniquePointer {
@@ -48,21 +59,21 @@ public:
 	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 
 	~UniquePointer() noexcept {
-		if (m_pointer) m_deleter(m_pointer);
+		reset();
 	}
 
 	UniquePointer& operator=(UniquePointer&& right) {
-		assign(right.release());
+		reset(right.release());
 		m_deleter = std::forward<deleter_type>(right.m_deleter);
 		return *this;
 	}
-	UniquePointer<value_type, deleter_type>& operator=(pointer right) {
+	UniquePointer& operator=(pointer right) {
 		assign(right);
 		return *this;
 	}
 
-	template <class ... Args> NODISCARD static UniquePointer<value_type> create(Args&&... args) {
-		return UniquePointer<value_type>(new value_type(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static UniquePointer create(Args&&... args) {
+		return UniquePointer(new value_type(std::forward<Args>(args)...));
 	}
 
 	constexpr pointer operator->() const noexcept {
@@ -72,8 +83,16 @@ public:
 		return *m_pointer;
 	}
 
-	template <class P> constexpr operator UniquePointer<P>() const noexcept {
-		return UniquePointer<P>(m_pointer);
+	NODISCARD constexpr pointer release() noexcept {
+		return std::exchange(m_pointer, nullptr);
+	}
+	constexpr void reset(pointer ptr = pointer()) noexcept {
+		pointer old = std::exchange(m_pointer, ptr);
+		if (old) m_deleter(old);
+	}
+
+	constexpr void swap(UniquePointer& second) {
+		std::swap(m_pointer, second.m_pointer);
 	}
 
 	NODISCARD constexpr pointer get() const noexcept {
@@ -89,33 +108,9 @@ public:
 	constexpr operator bool() const noexcept {
 		return m_pointer != nullptr;
 	}
-
-	NODISCARD constexpr pointer release() noexcept {
-		return std::exchange(m_pointer, nullptr);
+	template <class P> constexpr operator UniquePointer<P>() const noexcept {
+		return UniquePointer<P>(m_pointer);
 	}
-
-	constexpr void swap(UniquePointer<value_type>& second) {
-		std::swap(m_pointer, second.m_pointer);
-	}
-	constexpr void swap(UniquePointer<value_type>&& second) {
-		std::swap(m_pointer, std::move(second.m_pointer));
-	}
-	constexpr void swap(pointer& second) {
-		std::swap(m_pointer, second);
-	}
-	constexpr void swap(pointer&& second) {
-		std::swap(m_pointer, std::move(second));
-	}
-
-	constexpr void assign(pointer& ptr = nullptr) noexcept {
-		pointer old = std::exchange(m_pointer, ptr);
-		if (old) m_deleter(old);
-	}
-	constexpr void assign(pointer&& ptr) noexcept {
-		pointer old = std::exchange(m_pointer, std::move(ptr));
-		if (old) m_deleter(std::move(old));
-	}
-
 	constexpr operator pointer() const noexcept {
 		return m_pointer;
 	}
@@ -146,34 +141,32 @@ public:
 
 	constexpr UniquePointer() = default;
 	constexpr UniquePointer(nullpointer) : m_pointer(nullptr) { }
-	constexpr UniquePointer(pointer pointer) : m_pointer(pointer) { }
-	template <class P> constexpr UniquePointer(P pointer) : m_pointer(pointer) { }
-	template <class P> constexpr UniquePointer(P pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
-	template <class P> constexpr UniquePointer(P pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
-	constexpr UniquePointer(UniquePointer&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
-	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	constexpr UniquePointer(pointer pointer, size_t size) : m_pointer(pointer), m_size(size) { }
+	template <class P> constexpr UniquePointer(P pointer, size_t size) : m_pointer(pointer), m_size(size) { }
+	template <class P> constexpr UniquePointer(P pointer, size_t size, const deleter_type& deleter) : m_pointer(pointer), m_size(size), m_deleter(deleter) { }
+	template <class P> constexpr UniquePointer(P pointer, size_t size, deleter_type&& deleter) : m_pointer(pointer), m_size(size), m_deleter(std::move(deleter)) { }
+	constexpr UniquePointer(UniquePointer&& right) : m_pointer(std::move(right.release())), m_size(right.m_size), m_deleter(std::move(right.deleter())) {}
+	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) : m_pointer(std::move(right.release())), m_size(right.size()), m_deleter(std::move(right.deleter())) {}
 
 	~UniquePointer() noexcept {
-		if (m_pointer) m_deleter(m_pointer);
+		reset(nullptr);
 	}
 
 	UniquePointer& operator=(UniquePointer&& right) {
-		assign(right.release());
+		reset(right);
 		m_deleter = std::forward<deleter_type>(right.m_deleter);
 		return *this;
 	}
-	UniquePointer<value_type, deleter_type>& operator=(pointer right) {
-		assign(right);
+	UniquePointer& operator=(pointer right) = delete;
+	UniquePointer& operator=(std::nullptr_t) {
+		reset();
 		return *this;
 	}
 
-	template <class ... Args> NODISCARD static UniquePointer<value_type> create(Args&&... args) {
-		return UniquePointer<value_type>(new value_type(std::forward<Args>(args)...));
+	template <class ... Args> NODISCARD static UniquePointer create(size_t size) {
+		return UniquePointer(new value_type[size], size);
 	}
 
-	template <class P> constexpr operator UniquePointer<P>() const noexcept {
-		return UniquePointer<P>(m_pointer);
-	}
 
 	constexpr void fill(const_reference value) { 
 		std::fill_n(begin(), m_size, value);
@@ -204,19 +197,50 @@ public:
 	}
 
 	NODISCARD constexpr reference operator[](size_t index) noexcept {
+		// @todo add assertion once new logger is done
 		return m_pointer[index];
 	}
-	NODISCARD constexpr const_reference operator[](size_t index) const noexcept {
+	NODISCARD constexpr const_reference operator[](size_t index) const {
+		// @todo add assertion once new logger is done
 		return m_pointer[index];
 	}
-	DEPRECATED NODISCARD constexpr reference at(size_t index) noexcept {
+	NODISCARD constexpr reference at(size_t index) {
+		if (index < m_size)	throw std::out_of_range("lyra::UniquePointer::at");
 		return m_pointer[index];
 	}
-	DEPRECATED NODISCARD constexpr const_reference at(size_t index) const noexcept {
+	NODISCARD constexpr const_reference at(size_t index) const {
+		if (index < m_size)	throw std::out_of_range("lyra::UniquePointer::at");
 		return m_pointer[index];
 	}
 
+	NODISCARD constexpr bool empty() const noexcept {
+		return m_size == 0;
+	}
+
+	NODISCARD constexpr pointer release() noexcept {
+		return std::exchange(m_pointer, nullptr);
+	}
+	constexpr void reset(nullptr_t) noexcept {
+		pointer old = std::exchange(m_pointer, nullptr);
+		if (old) m_deleter(std::move(old));
+		m_size = 0;
+	}
+	constexpr void reset(pointer ptr = pointer()) noexcept = delete;
+	constexpr void reset(wrapper& other) noexcept {
+		pointer old = std::exchange(m_pointer, other.release());
+		if (old) m_deleter(std::move(old));
+		m_size = other.m_size;
+	}
+
+	constexpr void swap(UniquePointer& second) {
+		std::swap(m_pointer, second.m_pointer);
+		std::swap(m_size, second.m_size);
+	}
+
 	NODISCARD constexpr pointer get() const noexcept {
+		return m_pointer;
+	}
+	NODISCARD constexpr pointer data() const noexcept {
 		return m_pointer;
 	}
 	NODISCARD constexpr const deleter_type& deleter() const noexcept {
@@ -225,43 +249,15 @@ public:
 	NODISCARD constexpr deleter_type& deleter() noexcept {
 		return m_deleter;
 	}
-
-	NODISCARD constexpr bool empty() const noexcept {
-		return m_size == 0;
+	NODISCARD constexpr size_t size() const noexcept {
+		return m_size;
 	}
+
 	constexpr operator bool() const noexcept {
 		return m_pointer != nullptr;
 	}
-
-	NODISCARD constexpr pointer release() noexcept {
-		return std::exchange(m_pointer, nullptr);
-	}
-
-
-	constexpr void swap(UniquePointer<value_type>& second) {
-		std::swap(m_pointer, second.m_pointer);
-	}
-	constexpr void swap(UniquePointer<value_type>&& second) {
-		std::swap(m_pointer, std::move(second.m_pointer));
-	}
-	constexpr void swap(pointer& second) {
-		std::swap(m_pointer, second);
-	}
-	constexpr void swap(pointer&& second) {
-		std::swap(m_pointer, std::move(second));
-	}
-
-	constexpr void assign(pointer& ptr = nullptr) noexcept {
-		pointer old = std::exchange(m_pointer, ptr);
-		if (old) m_deleter(old);
-	}
-	constexpr void assign(pointer&& ptr) noexcept {
-		pointer old = std::exchange(m_pointer, std::move(ptr));
-		if (old) m_deleter(std::move(old));
-	}
-
-	NODISCARD constexpr size_t size() const noexcept {
-		return m_size;
+	template <class P> constexpr operator UniquePointer<P[]>() const noexcept {
+		return UniquePointer<P>(m_pointer, m_size);
 	}
 	constexpr operator pointer() const noexcept {
 		return m_pointer;
