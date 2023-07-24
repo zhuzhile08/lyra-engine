@@ -35,7 +35,7 @@
 
 namespace lyra {
 
-using NullHandle = std::nullptr_t;
+using NullHandle = nullpointer;
 template <class Ty> concept RAIIContainerType = 
 	std::is_copy_constructible_v<Ty> && 
 	std::is_copy_assignable_v<Ty> && 
