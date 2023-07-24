@@ -25,23 +25,37 @@ using uint16 = uint16_t;
 using uint32 = uint32_t;
 using uint64 = uint64_t;
 
+using uchar = unsigned char; // mostly alternative names, borrowed from ogre
+using ushort = unsigned short;
+using ulong = unsigned long;
+
 using int8 = int8_t;
 using int16 = int16_t;
 using int32 = int32_t;
 using int64 = int64_t;
 
-// pointer types
+// floating point types
 
-using uptr = uintptr_t;
+using float32 = float;
+using float64 = double;
+using float128 = long double; // not supported everywhere, so don't really use this
+
+// some other common types
+
+using wchar = wchar_t;
+using filepos = fpos_t;
+using uintptr = uintptr_t;
+using nullpointer = decltype(nullptr);
+using size = size_t; // unreliable mostly because of size function in most containers, resort to 
 
 // color type
 struct Color {
 	constexpr Color() = default;
-	constexpr Color(float r, float g, float b, float a = 1.0f) : r(r), g(g), b(b), a(a) { }
+	constexpr Color(float32 r, float32 g, float32 b, float32 a = 1.0f) : r(r), g(g), b(b), a(a) { }
 	constexpr Color(const Color& col) : r(col.r), g(col.g), b(col.b), a(col.a) { }
 	constexpr Color& operator=(const Color& col) { r = col.r; g = col.g; b = col.b; a = col.a; return *this; }
 	constexpr glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
-	float r, g, b, a;
+	float32 r, g, b, a;
 };
 using Colour = Color;
 
