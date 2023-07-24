@@ -63,15 +63,19 @@ template <class Ty, size_t Size> struct Array {
 	}
 
 	NODISCARD constexpr reference operator[](size_t index) noexcept {
+		// @todo add assertion once new logger is done
 		return m_array[index];
 	}
 	NODISCARD constexpr const_reference operator[](size_t index) const noexcept {
+		// @todo add assertion once new logger is done
 		return m_array[index];
 	}
-	DEPRECATED NODISCARD constexpr reference at(size_t index) noexcept {
+	DEPRECATED NODISCARD constexpr reference at(size_t index) {
+		if (index < Sizethrow std::out_of_range("lyra::Array::at");
 		return m_array[index];
 	}
-	DEPRECATED NODISCARD constexpr const_reference at(size_t index) const noexcept {
+	DEPRECATED NODISCARD constexpr const_reference at(size_t index) const {
+		if (index < Size) throw std::out_of_range("lyra::Array::at");
 		return m_array[index];
 	}
 
