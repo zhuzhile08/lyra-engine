@@ -2,7 +2,7 @@
  * @file FileSystem.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief a file class responsible for writing and reading files
+ * @brief A Filesystem responsible for managing and interfacing to the engines loaded files using an standard-esque interface
  * 
  * @date 2023-04-02
  * 
@@ -13,186 +13,94 @@
 
 #include <Common/Common.h>
 #include <Common/Array.h>
-#include <Common/SmartPointer.h>
-#include <Common/Logger.h>
+#include <Common/UniquePointer.h>
 
+#include <type_traits>
 #include <algorithm>
-#include <cstdio>
-#include <iosfwd>
 #include <filesystem>
 
 namespace lyra {
 
-namespace detail {
-std::filesystem::path absolute_path(const std::filesystem::path&);
-} // namespace detail
+namespace filesys {
 
-void init_filesystem(char** argv);
-
-template <template <class...> class CTy, class LTy> class File {
-public:
-	enum class OpenMode {
-		read = 0,
-		write = 1,
-		append = 2,
-		read_ext = 3,
-		write_ext = 4,
-		append_ext = 5
-	};
-
-private:
-	static constexpr const char* const openModeStr[6] { "r", "w", "a", "r+", "w+", "a+" };
-	static constexpr size_t bufferSize = std::max(1024, BUFSIZ);
-
-public:
-
-	using literal_type = LTy;
-	// note that the container type (CTy) has to be a type implemented in or using the exact style of the standard library
-	using container_type = CTy<literal_type>;
-	using buffer_type = CTy<char>;
-	// using file_type = std::basic_fstream<literal_type>;
-	using path_type = std::filesystem::path;
-	using iterator = typename container_type::iterator;
-	using const_iterator = typename container_type::const_iterator;
-
-	constexpr File() = default;
-	File(const path_type& path, OpenMode mode = OpenMode::read, bool buffered = true)
-	 : m_path(path), m_buffered(buffered), m_stream(std::fopen(detail::absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)])) {
-		lassert(m_stream, "Failed to load file from path: ", path, "!");
-
-		std::fseek(m_stream, 0, SEEK_END);
-		m_data.resize(std::ftell(m_stream));
-		std::rewind(m_stream);
-		std::fread(m_data.data(), sizeof(literal_type), m_data.size(), m_stream);
-		std::rewind(m_stream);
-
-		if (m_buffered) { 
-			m_buffer = m_buffer.create();
-			std::setvbuf(m_stream, m_buffer->data(), _IOFBF, m_buffer->size());
-		}
-	}
-
-	virtual ~File() {
-		std::fclose(m_stream);
-	}
-	void close() {
-		std::fclose(m_stream);
-		m_data.clear();
-		m_path.clear();
-	}
-
-	void disable_buffering() {
-		if (m_buffered) {
-			if (m_dirty) std::fflush(m_stream);
-			std::setbuf(m_stream, nullptr);
-		}
-	}
-	void enable_buffering() {
-		if (!m_buffered) {
-			if (!m_buffer) m_buffer = m_buffer.create();
-			std::setvbuf(m_stream, m_buffer->data(), 0, m_buffer->size());
-		}
-	}
-
-	literal_type get() {
-		return std::fgetc(m_stream);
-	}
-	template <class STy> File& get(STy* string, size_t count) {
-		std::fgets(static_cast<char*>(string), count, m_stream);
-		return *this;
-	}
-	template <class SCTy> File& get(SCTy&& stringContainer, size_t count) {
-		get(stringContainer.data(), count);
-		return *this;
-	}
-	template <class SCTy> File& get(SCTy&& stringContainer) {
-		get(stringContainer.data(), stringContainer.size());
-		return *this;
-	}
-
-	template <class OCTy> File& put(OCTy c) {
-		std::fputc(static_cast<char>(c), m_stream);
-		auto p = std::ftell(m_stream);
-		if (p > m_data.size()) m_data.push_back(static_cast<literal_type>(c));
-		else m_data[p - 1] = static_cast<literal_type>(c);
-		return *this;
-	}
-	File& write(char* string, size_t size, size_t count) {
-		std::fwrite(string, size, count, m_stream);
-		auto p = std::ftell(m_stream);
-		for (size_t i = 0; i < count; i++) {
-			if ((p - count + i) >= m_data.size()) m_data.push_back(static_cast<literal_type>(string[i]));
-			else m_data[p - count + i] = static_cast<literal_type>(string[i]);
-		}
-		return *this;
-	}
-	File& write(const char* string, size_t count) {
-		return write(const_cast<char*>(string), sizeof(char), count);
-	}
-	template <class STy> File& write(STy* string, size_t count) {
-		return write(static_cast<char*>(string), sizeof(STy), count);
-	}
-	template <class SCTy> File& write(SCTy&& stringContainer, size_t count) {
-		return write(static_cast<char*>(stringContainer.data()), sizeof(stringContainer[0]), count);
-	}
-	template <class SCTy> File& write(SCTy&& stringContainer) {
-		return write(static_cast<char*>(stringContainer.data()), sizeof(stringContainer[0]), stringContainer.size());
-	}
-
-	void flush() {
-		if (m_dirty) std::fflush(m_stream);
-	}
-
-	bool good() const {
-		
-	}
+void init(char** argv);
 
 
-	fpos_t get_position() {
-		return std::ftell(m_stream);
-	}
-	File& set_position(const fpos_t& newPos) {
-		std::fsetpos(m_stream, &newPos);
-		return *this;
-	}
-	void position_to_start(const long& offset = 0) {
-		std::rewind(m_stream);
-	}
-	void position_to_end(const long& offset = 0) {
-		std::fseek(m_stream, offset, SEEK_END);
-	}
-	void add_to_position(const long& offset) {
-		std::fseek(m_stream, offset, SEEK_CUR);
-	}
+enum class OpenMode {
+	read = 0,
+	write = 1,
+	append = 2,
+	read_ext = 3,
+	write_ext = 4,
+	append_ext = 5
+};
 
-	void rename(const path_type& newPath) {
-		std::filesystem::rename(detail::absolute_path(m_path), detail::absolute_path(newPath));
-	} 
+enum class SeekDirection {
+	begin = SEEK_SET,
+	current = SEEK_CUR,
+	end = SEEK_END
+};
 
-	void swap(const File& file) {
-		std::swap(m_stream, file.m_stream);
-		m_data.swap(file.m_data);
-		m_path.swap(file.m_path);
-	}
+enum class FileState {
+	good = 0x00000000,
+	bad = 0x0000001,
+	fail = 0x00000002,
+	eof = 0x00000004
+};
 
-	void sync_data() {
-		fpos_t current;
-		std::fgetpos(m_stream, &current);
-		std::fseek(m_stream, 0, SEEK_END);
-		m_data.resize(std::ftell(m_stream));
-		std::rewind(m_stream);
-		std::fread(m_data.data(), sizeof(literal_type), m_data.size(), m_stream);
-		std::fsetpos(m_stream, &current);
-	}
 
-	NODISCARD container_type data() const noexcept {
-		return m_data;
+template <class Ty> class File;
+
+template<> class File<char> {
+public: 
+	using literal_type = char;
+
+	File() = default;
+	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
+	~File();
+	void close();
+
+	void disable_buffering();
+	void enable_buffering();
+
+	int get();
+	File& get(char& c);
+	File& get(char* string, size_t count);
+	File& putback(int c);
+	File& unget();
+	File& read(char* string, size_t count);
+	File& read(void* string, size_t size, size_t count);
+
+	File& put(char c);
+	File& write(const char* string, size_t size, size_t count);
+
+	File& flush();
+	int sync();
+
+	filepos tellg();
+	filepos tellp();
+	File& seekg(filepos pos);
+	File& seekg(filepos off, SeekDirection dir);
+	File& seekp(filepos pos);
+	File& seekp(filepos off, SeekDirection dir);
+
+	bool good() const;
+	bool eof() const;
+	bool fail() const;
+	bool operator!() const {
+		return fail();
 	}
-	NODISCARD path_type path() const noexcept {
+	operator bool() const {
+		return !fail();
+	}
+	void clear();
+
+	void swap(File& file);
+
+	void rename(const std::filesystem::path& newPath);
+	NODISCARD std::filesystem::path absolute_path() const;
+	NODISCARD std::filesystem::path path() const noexcept {
 		return m_path;
-	}
-	NODISCARD path_type absolute_path() const noexcept {
-		return detail::absolute_path(m_path);
 	}
 	NODISCARD bool buffered() const noexcept {
 		return m_buffered;
@@ -200,20 +108,389 @@ public:
 
 private:
 	std::FILE* m_stream = nullptr;
-	container_type m_data;
-	SmartPointer<Array<char, bufferSize>> m_buffer;
+	UniquePointer<char[]> m_buffer;
 
-	path_type m_path;
+	std::filesystem::path m_path;
+
+	bool m_dirty;
+	bool m_buffered;
+
+	template <class>
+	friend class UniquePointer;
+};
+
+template<> class File<wchar> {
+public:
+	using literal_type = wchar;
+
+	File() = default;
+	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
+	~File();
+	void close();
+
+	void disable_buffering();
+	void enable_buffering();
+
+	int get();
+	File& get(wchar& c);
+	File& get(wchar* string, size_t count);
+	File& putback(int c);
+	File& unget();
+	File& read(wchar* string, size_t count);
+	File& read(void* string, size_t size, size_t count);
+
+	File& put(wchar c);
+	File& write(const wchar* string, size_t size, size_t count);
+
+	File& flush();
+	int sync();
+
+	filepos tellg();
+	filepos tellp();
+	File& seekg(filepos pos);
+	File& seekg(filepos off, SeekDirection dir);
+	File& seekp(filepos pos);
+	File& seekp(filepos off, SeekDirection dir);
 	
+	bool good() const;
+	bool eof() const;
+	bool fail() const;
+	bool operator!() const {
+		return fail();
+	}
+	operator bool() const {
+		return !fail();
+	}
+	void clear();
+
+	void swap(File& file);
+
+	void rename(const std::filesystem::path& newPath);
+	NODISCARD std::filesystem::path absolute_path() const;
+	NODISCARD std::filesystem::path path() const noexcept {
+		return m_path;
+	}
+	NODISCARD bool buffered() const noexcept {
+		return m_buffered;
+	}
+
+private:
+	std::FILE* m_stream = nullptr;
+	UniquePointer<char[]> m_buffer;
+
+	std::filesystem::path m_path;
+
 	bool m_dirty;
 	bool m_buffered;
 };
 
-using StringFile = File<std::basic_string, char>;
-using WideStringFile = File<std::basic_string, wchar_t>;
-using CharVectorFile = File<std::vector, char>;
-using WideCharVectorFile = File<std::vector, wchar_t>;
-using Uint8VectorFile = File<std::vector, uint8>;
-using Uint16VectorFile = File<std::vector, uint16>;
+using ByteFile = File<char>;
+using WideFile = File<wchar>;
+
+
+// Higher level class to read from and write to file loaded into a standard-style container
+// Implements most functions found in the standard IO library, therefore slower than Byte- / WideFile
+// Does not call internal file functions whilst reading, but may do so with most other functions
+// Does not read from the File itself, but from an internal buffer synchronised to the current supposed state of the file
+template <template<class...> class CTy, class LTy> class FileStream {
+public:
+	using literal_type = LTy;
+	// note that the container type (CTy) has to be a type implemented in or using the pretty much exact style of the standard library
+	using container_type = CTy<literal_type>;
+	using iterator = typename container_type::iterator;
+	using const_iterator = typename container_type::const_iterator;
+	using file_type = typename std::conditional<
+		std::same_as<literal_type, char> || std::same_as<literal_type, wchar>, 
+		File<literal_type>, 
+		typename std::conditional<
+			sizeof(literal_type) == sizeof(char), 
+			File<char>, 
+			File<wchar>
+			>::type
+		>::type; // since I only have 2 specialized overloads for File and the others are invalid, I have to do this check in order to see which type of file I have to take
+
+	FileStream() = default;
+	FileStream(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true)
+		 : m_file(path, mode, buffered) {
+		sync();
+	}
+
+	void close() {
+		m_file.close();
+		m_data.clear();
+	}
+
+	void disable_buffering() {
+		m_file.disable_buffering();
+	}
+	void enable_buffering() {
+		m_file.enable_buffering();
+	}
+
+	int get() {
+		m_gcount = 1;
+		if (++m_fpos == m_data.size()) {
+			set_state(FileState::eof);
+			set_state(FileState::fail);
+			return static_cast<int>(FileState::eof);
+		} else if (m_putbackBuffer != 0) return std::exchange(m_putbackBuffer, 0);
+		else return m_data[m_fpos - 1];
+	}
+	FileStream& get(literal_type& c) {
+		if (++m_fpos == m_data.size()) {
+			set_state(FileState::eof);
+			set_state(FileState::fail);
+			return *this;
+		} else if (m_putbackBuffer != 0) c = std::exchange(m_putbackBuffer, 0);
+		else c = m_data[m_fpos];
+
+		m_gcount = 1;
+		return *this;
+	}
+	FileStream& get(literal_type* string, size_t count, literal_type delim) {
+		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
+		else string[0] = m_data[m_fpos++];
+		for (m_gcount = 1; m_gcount < std::max(count - 1, size_t(0)); m_gcount++) {
+			if (m_fpos == m_data.size() - 1) {
+				set_state(FileState::eof);
+				break;
+			}
+			if ((string[m_gcount] = m_data[m_fpos]) == delim) {
+				m_gcount--;
+				break;
+			}
+			m_fpos++;
+		} 
+		m_gcount++;
+		return *this;
+	}
+	FileStream& get(literal_type* string, size_t count) {
+		return get(string, count, '\n');
+	}
+	template<template<class...> class S> FileStream& get(S<literal_type>& container) {
+		return get(container.data(), container.size(), '\n');
+	}
+	template<template<class...> class S> FileStream& get(S<literal_type>& container, literal_type delim) {
+		return get(container.data(), container.size(), delim);
+	}
+	FileStream& getline(literal_type* string, size_t count) {
+		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
+		else string[0] = m_data[m_fpos++];
+		for (m_gcount = 1; m_gcount < std::max(size_t(0), count - 1); m_gcount++) {
+			if (m_fpos == m_data.size() - 1) {
+				set_state(FileState::eof);
+				break;
+			}
+			if ((string[m_gcount] = m_data[m_fpos]) == '\n') {
+				break;
+			}
+		}
+		m_gcount++;
+		return *this;
+	}
+	FileStream& getline(literal_type* string, size_t count, literal_type delim) {
+		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
+		else string[0] = m_data[m_fpos++];
+		for (m_gcount = 1; m_gcount < count - std::max(size_t(0), count - 1); m_gcount++) {
+			if (m_fpos == m_data.size() - 1) {
+				set_state(FileState::eof);
+				break;
+			}
+			if ((string[m_gcount] = m_data[m_fpos]) == delim) {
+				break;
+			}
+		} 
+		m_gcount++;
+		return *this;
+	}
+	FileStream& ignore(size_t count, literal_type delim) {
+		for (m_gcount = 0; m_gcount > count; m_gcount++) {
+			if (m_fpos == m_data.size() - 1) {
+				set_state(FileState::eof);
+				break;
+			}
+			if (m_data[m_fpos++] == delim) {
+				break;
+			}
+		}
+		m_gcount++;
+		return *this;
+	}
+	FileStream& putback(int c) {
+		m_putbackBuffer = static_cast<literal_type>(c);
+		return *this;
+	}
+	FileStream& unget() {
+		m_gcount = 0;
+		m_fpos--;
+		return *this;
+	}
+	FileStream& read(literal_type* string, size_t count) {
+		auto n = std::min(count, m_data.size() - m_fpos);
+		if (n != count) set_state(FileState::eof);
+		for (m_gcount = 0; m_gcount < n; m_gcount++) string[m_gcount] = m_data(m_fpos++);
+		m_gcount++;
+		return *this;
+	}
+
+	FileStream& put(literal_type c) {
+		m_file.seekg(m_fpos, SeekDirection::begin);
+		m_file.put(static_cast<typename file_type::literal_type>(c));
+		if (++m_fpos >= m_data.size()) m_data.push_back(c);
+		else m_data[m_fpos] = c;
+		return *this;
+	}
+	FileStream& write(const literal_type* string, size_t count) {
+		m_file.seekg(m_fpos, SeekDirection::begin);
+		m_file.write(string, sizeof(literal_type), count);
+		for (size_t i = 0; i < count; i++) {
+			if (m_fpos >= m_data.size()) m_data.push_back(static_cast<literal_type>(string[i]));
+			else m_data[m_fpos] = static_cast<literal_type>(string[i]);
+			m_fpos++;
+		}
+		return *this;
+	}
+
+	filepos tellg() {
+		return m_fpos;
+	}
+	filepos tellp() {
+		return m_fpos;
+	}
+	FileStream& seekg(filepos pos) {
+		m_fpos = pos;
+		return *this;
+	}
+	FileStream& seekg(filepos off, SeekDirection dir) {
+		switch (dir) {
+			case SeekDirection::begin:
+				m_fpos = off;
+				break;
+			case SeekDirection::current:
+				m_fpos += off;
+				break;
+			case SeekDirection::end:
+				m_fpos = m_data.size() - off - 1; // I do not know if there should be a -1, @todo
+				break;
+		}
+		return *this;
+	}
+	FileStream& seekp(filepos pos) {
+		m_fpos = pos;
+		return *this;
+	}
+	FileStream& seekp(filepos off, SeekDirection dir) {
+		switch (dir) {
+			case SeekDirection::begin:
+				m_fpos = off;
+				break;
+			case SeekDirection::current:
+				m_fpos += off;
+				break;
+			case SeekDirection::end:
+				m_fpos = m_data.size() - off - 1; // I do not know if there should be a -1, @todo
+				break;
+		}
+		return *this;
+	}
+
+	bool good() const {
+		return m_state == FileState::good && m_file.good();
+	}
+	bool eof() const {
+		return (m_file.eof() || static_cast<bool>(static_cast<uint32>(m_state) & static_cast<uint32>(FileState::eof)));
+	}
+	bool fail() const {
+		return !good();
+	}
+	bool operator!() const {
+		return fail();
+	}
+	operator bool() const {
+		return !fail();
+	}
+	void set_state(FileState state) {
+		// the cost of type safety (please implement enum classes with bitsets)
+		m_state = static_cast<FileState>(static_cast<uint32>(m_state) | static_cast<uint32>(state));
+	}
+	DEPRECATED void setstate(FileState state) { // to keep standard library compatibility
+		set_state(state);
+	}
+	void clear(FileState state = FileState::good) {
+		m_state = state;
+		m_file.clear();
+	}
+
+	void swap(FileStream& stream) {
+		m_file.swap(stream.m_file);
+		m_data.swap(stream.m_data);
+		std::swap(m_state, stream.m_state);
+		std::swap(m_fpos, stream.m_fpos);
+		std::swap(m_gcount, stream.m_gcount);
+	}
+
+	FileStream& flush() {
+		m_file.flush();
+		return *this;
+	}
+	int sync() {
+		auto r = m_file.sync();
+		m_file.seekg(0, SeekDirection::end);
+		m_data.resize(m_file->tellg());
+		m_file.read(m_data.data(), sizeof(literal_type), m_data.size());
+		m_file.seekg(m_gcount, SeekDirection::begin);
+		return r;
+	}
+
+	void rename(const std::filesystem::path& newPath) {	
+		m_file.rename(newPath);
+	}
+	NODISCARD std::filesystem::path absolute_path() const {
+		m_file.absolute_path();
+	}
+	NODISCARD std::filesystem::path path() const noexcept {
+		return m_file.m_path;
+	}
+	DEPRECATED NODISCARD FileState rdstate() const noexcept {
+		return m_state;
+	}
+	NODISCARD FileState state() const noexcept {
+		return m_state;
+	}
+	NODISCARD filepos gcount() const noexcept {
+		return m_gcount;
+	}
+	NODISCARD bool buffered() const noexcept {
+		return m_file.m_path.m_buffered;
+	}
+	NODISCARD const container_type& data() const noexcept {
+		return m_data;
+	}
+	NODISCARD const file_type& file() const noexcept {
+		return m_file;
+	}
+	NODISCARD file_type& file() noexcept {
+		return m_file;
+	}
+
+private:
+	container_type m_data;
+	literal_type m_putbackBuffer;
+	file_type m_file;
+
+	FileState m_state;
+	filepos m_fpos = 0;
+	filepos m_gcount;
+};
+
+
+using StringStream = FileStream<std::basic_string, char>;
+using WideStringStream = FileStream<std::basic_string, wchar_t>;
+using CharVectorStream = FileStream<std::vector, char>;
+using WideCharVectorStream = FileStream<std::vector, wchar_t>;
+using Uint8VectorStream = FileStream<std::vector, uint8>;
+using Uint16VectorStream = FileStream<std::vector, uint16>;
+
+} // namespace filesys
 
 } // namespace lyra
