@@ -20,6 +20,11 @@
 
 namespace lyra {
 
+// Multi linked list implementation in the style of standard library containers
+// Creation inspired by Godot's Node system, therefore also called node
+// Can be used as a normal class member, but more recommended to use it like this to provide a better interface:
+// class Foo : Node<Foo> {}
+// Therefore also the pointers to "self"
 template <class Ty> class Node {
 public:
 	using value_type = Ty;
