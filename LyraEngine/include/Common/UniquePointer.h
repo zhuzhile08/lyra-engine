@@ -167,7 +167,6 @@ public:
 		return UniquePointer(new value_type[size], size);
 	}
 
-
 	constexpr void fill(const_reference value) { 
 		std::fill_n(begin(), m_size, value);
 	}
