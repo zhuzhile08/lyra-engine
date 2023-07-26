@@ -21,8 +21,6 @@
 
 namespace lyra {
 
-namespace filesys {
-
 void init(char** argv);
 
 
@@ -114,9 +112,6 @@ private:
 
 	bool m_dirty;
 	bool m_buffered;
-
-	template <class>
-	friend class UniquePointer;
 };
 
 template<> class File<wchar> {
@@ -490,7 +485,5 @@ using CharVectorStream = FileStream<std::vector, char>;
 using WideCharVectorStream = FileStream<std::vector, wchar_t>;
 using Uint8VectorStream = FileStream<std::vector, uint8>;
 using Uint16VectorStream = FileStream<std::vector, uint16>;
-
-} // namespace filesys
 
 } // namespace lyra

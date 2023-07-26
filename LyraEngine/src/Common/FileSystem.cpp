@@ -5,8 +5,6 @@
 
 namespace lyra {
 
-namespace filesys {
-
 struct FileSystem {
 	NODISCARD std::filesystem::path absolute_path(const std::filesystem::path& path) const { 
 		return absolutePathBase/path; 
@@ -290,7 +288,5 @@ void File<wchar>::rename(const std::filesystem::path& newPath) {
 std::filesystem::path File<wchar>::absolute_path() const {
 	return globalFileSystem->absolute_path(m_path);
 }
-
-} // namespace filesys
 
 } // namespace lyra
