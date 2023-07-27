@@ -13,10 +13,9 @@
 
 #include <Common/Common.h>
 
+#include <type_traits>
 #include <utility>
-#include <string>
-#include <string_view>
-#include <unordered_map>
+#include <functional>
 
 namespace lyra {
 
@@ -25,7 +24,7 @@ namespace lyra {
 // Can be used as a normal class member, but more recommended to use it like this to provide a better interface:
 // class Foo : Node<Foo> {}
 // Therefore also the pointers to "self"
-template <class Ty> class Node {
+template <class Ty, class Key = std::string, class Hash = std::hash<Key>, template<class...> class Container = std::unordered_map> class Node {
 public:
 	using value_type = Ty;
 	using const_value = const value_type;
@@ -34,25 +33,33 @@ public:
 	using pointer = value_type*;
 	using const_pointer = const pointer;
 	using movable = value_type&&;
-	using map = std::unordered_map<std::string, pointer>;
-	using iterator = typename map::iterator;
-	using const_iterator = typename map::const_iterator;
+	using key_type = Key;
+	using hash_function = Hash;
+	using container = Container<key_type, value_type, hash_function>;
+	// special check in case key is a std::string, then set the key type passed in functions to a std::string, else use a const reference
+	using key_access = typename std::conditional<
+		std::same_as<key_type, std::string>, 
+		std::string_view, 
+		const key_type&
+	>::type;
+	using iterator = typename container::iterator;
+	using const_iterator = typename container::const_iterator;
 	using iterator_pair = std::pair<iterator, bool>;
 
 	Node() = default;
 	Node(
 		pointer self, 
-		std::string_view name,
+		key_access name,
 		reference parent
 	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
 	Node(
 		pointer self,
-		std::string_view name,
+		key_access name,
 		movable parent
 	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
 	Node(
 		pointer self,
-		std::string_view name,
+		key_access name,
 		pointer parent = nullptr
 	) noexcept : m_name(name), m_self(self) { if (parent) parent->insert_child(self); }
 
@@ -94,7 +101,7 @@ public:
 	void swap(reference other) noexcept { 
 		m_children.swap(other.m_children); 
 	}
-	DEPRECATED void swap(map& other) noexcept { 
+	DEPRECATED void swap(container& other) noexcept { 
 		m_children.swap(other); 
 	}
 
@@ -108,20 +115,20 @@ public:
 		return m_children.empty(); 
 	}
 
-	iterator find(std::string_view name) { 
+	iterator find(key_access name) { 
 		return m_children.find(name); 
 	}
-	const_iterator find(std::string_view name) const { 
+	const_iterator find(key_access name) const { 
 		return m_children.find(name); 
 	}
-	bool contains(std::string_view name) const { 
+	bool contains(key_access name) const { 
 		return m_children.contains(name); 
 	}
 
-	const_pointer const operator[](std::string_view name) const { return m_children.at(name); }
-	pointer operator[](std::string_view name) { return m_children.at(name); }
-	const_pointer const operator/(std::string_view name) const { return m_children.at(name); }
-	pointer operator/(std::string_view name) { return m_children.at(name); }
+	const_pointer const operator[](key_access name) const { return m_children.at(name); }
+	pointer operator[](key_access name) { return m_children.at(name); }
+	const_pointer const operator/(key_access name) const { return m_children.at(name); }
+	pointer operator/(key_access name) { return m_children.at(name); }
 
 	NODISCARD size_t size() const noexcept { return m_children.size(); }
 	NODISCARD std::string name() const noexcept { return m_name; }
@@ -132,7 +139,7 @@ protected:
 
 	pointer m_self;
 	pointer m_parent = nullptr;
-	map m_children;
+	container m_children;
 };
 
 } // namespace lyra
