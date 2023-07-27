@@ -13,6 +13,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <cassert>
 
 #include <glm/glm.hpp>
 
@@ -58,6 +59,19 @@ struct Color {
 	float32 r, g, b, a;
 };
 using Colour = Color;
+
+// angle types
+
+struct Radian {
+	float32 r;
+
+	constexpr operator float32() const noexcept {
+		return r;
+	}
+	constexpr operator float32&() noexcept {
+		return r;
+	}
+};
 
 // some higher level wrappers
 
@@ -156,5 +170,6 @@ class AudioFilter;
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 #define DEFINE_DEFAULT_MOVE(type) type(type&&) = default; type& operator=(type&&) = default;
+#define ASSERT(exp, msg) assert(((void)msg, exp)) // Replace when logger is done @todo
 
 #define GLM_FORCE_RADIANS
