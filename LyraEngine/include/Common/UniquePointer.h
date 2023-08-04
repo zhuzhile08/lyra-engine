@@ -36,7 +36,7 @@ template <class Ty> struct DefaultDeleter<Ty []> {
 	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>& other) noexcept { }
 
 	constexpr void operator()(pointer ptr) const noexcept {
-		delete ptr;
+		delete[] ptr;
 	}
 };
 
@@ -68,7 +68,7 @@ public:
 		return *this;
 	}
 	UniquePointer& operator=(pointer right) {
-		assign(right);
+		reset(right);
 		return *this;
 	}
 
@@ -86,7 +86,7 @@ public:
 	NODISCARD constexpr pointer release() noexcept {
 		return std::exchange(m_pointer, nullptr);
 	}
-	constexpr void reset(pointer ptr = pointer()) noexcept {
+	constexpr void reset(pointer ptr = nullptr) noexcept {
 		pointer old = std::exchange(m_pointer, ptr);
 		if (old) m_deleter(old);
 	}
@@ -114,7 +114,7 @@ public:
 	constexpr operator pointer() const noexcept {
 		return m_pointer;
 	}
-	template <class CTy> constexpr operator CTy() const noexcept {
+	template <class CTy> explicit constexpr operator CTy() const noexcept {
 		return static_cast<CTy>(m_pointer);
 	}
 
@@ -258,10 +258,10 @@ public:
 	template <class P> constexpr operator UniquePointer<P[]>() const noexcept {
 		return UniquePointer<P>(m_pointer, m_size);
 	}
-	constexpr operator pointer() const noexcept {
+	explicit constexpr operator pointer() const noexcept {
 		return m_pointer;
 	}
-	template <class CTy> constexpr operator CTy() const noexcept {
+	template <class CTy> explicit constexpr operator CTy() const noexcept {
 		return static_cast<CTy>(m_pointer);
 	}
 
