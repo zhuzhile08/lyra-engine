@@ -1,41 +1,41 @@
 {
-  "application": {
-	"description": "None Lmao",
-	"fps": 60
-  },
-  "debug": {
-	"debug": false,
-	"disableLog": 1,
-	"printFPS": false,
-	"stdioSync": true,
-	"requestedDeviceExtensions": [ "VK_KHR_swapchain", "VK_KHR_portability_subset", "VK_EXT_descriptor_indexing" ],
-	"requestedValidationLayers": [ "VK_LAYER_KHRONOS_validation" ]
-  },
-  "rendering": {
-	"maxFramesInFlight": 2,
-	"fov": 90,
-	"anistropy": true,
-	"anistropyStrength": 1.0,
-	"resolution": 100,
-	"polygonFrontFace": 0
-  },
-  "window": {
-	"title": "Lyra Engine",
-	"iconPath": "ligma",
-	"width": 100,
-	"height": 50,
-	"wWidth": 1280,
-	"wHeight": 720,
-	"resizable": true,
-	"maximized": true,
-	"borderless": false,
-	"fullscreen": false,
-	"alwaysOnTop": false,
-	"vSync": false
-  },
-  "memory": {
-	"maxComponentCount": 256,
-	"maxEntityCount": 1024,
-	"maxCommandBuffers": 8
-  }
+	"application": {
+		"description": "None Lmao",
+		"fps": 60
+	},
+	"debug": {
+		"debug": false,
+		"disableLog": 1,
+		"printFPS": false,
+		"stdioSync": true,
+		"requestedDeviceExtensions": [ "VK_KHR_swapchain", "VK_KHR_portability_subset", "VK_EXT_descriptor_indexing" ],
+		"requestedValidationLayers": [ "VK_LAYER_KHRONOS_validation" ]
+	},
+	"rendering": {
+		"maxFramesInFlight": 2,
+		"fov": 90,
+		"anistropy": true,
+		"anistropyStrength": 1.0,
+		"resolution": 100,
+		"polygonFrontFace": 0
+	},
+	"window": {
+		"title": "Lyra Engine",
+		"iconPath": "ligma",
+		"width": 100,
+		"height": 50,
+		"wWidth": 1280,
+		"wHeight": 720,
+		"resizable": true,
+		"maximized": true,
+		"borderless": false,
+		"fullscreen": false,
+		"alwaysOnTop": false,
+		"vSync": false
+	},
+	"memory": {
+		"maxComponentCount": 256,
+		"maxEntityCount": 1024,
+		"maxCommandBuffers": 8
+	}
 }
