@@ -15,7 +15,7 @@ struct FileSystem {
 
 static FileSystem* globalFileSystem;
 
-void init(char** argv) {
+void init_filesystem(char** argv) {
 	std::ios::sync_with_stdio();
 
 	globalFileSystem = new FileSystem;
@@ -85,7 +85,7 @@ File<char>& File<char>::read(char* string, size_t count) {
 	return *this;
 }
 File<char>& File<char>::read(void* string, size_t size, size_t count) {
-	std::fread(string, size, count, m_stream);
+	auto i = std::fread(string, size, count, m_stream);
 	return *this;
 }
 File<char>& File<char>::put(char c) {

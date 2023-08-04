@@ -21,7 +21,7 @@
 
 namespace lyra {
 
-void init(char** argv);
+void init_filesystem(char** argv);
 
 
 enum class OpenMode {
@@ -431,8 +431,9 @@ public:
 	int sync() {
 		auto r = m_file.sync();
 		m_file.seekg(0, SeekDirection::end);
-		m_data.resize(m_file->tellg());
-		m_file.read(m_data.data(), sizeof(literal_type), m_data.size());
+		m_data.resize(m_file.tellg());
+		m_file.seekg(m_gcount, SeekDirection::begin);
+		m_file.read(m_data.data(), sizeof(m_data[0]), m_data.size());
 		m_file.seekg(m_gcount, SeekDirection::begin);
 		return r;
 	}
