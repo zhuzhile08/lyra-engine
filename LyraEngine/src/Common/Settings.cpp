@@ -1,22 +1,25 @@
 #include <Common/Settings.h>
 
-#include <Resource/LoadFile.h>
+#include <Common/FileSystem.h>
 
 namespace lyra {
 
-Settings::Settings() :
-	m_json(nlohmann::json::parse(init_json().c_str())),
+Settings::Settings() { 
+	ByteFile file("data/config.json");
+	std::vector<char> fileData;
+	file.read(fileData.data(), fileData.size());
+	Json json = Json::parse(fileData);
+	
+	application = {
+		json["application"]["description"].get<std::string>(),
+		json["application"]["fps"].get<int>()
+	};
 
-	application{
-		(char*)&m_json["application"]["description"],
-		(int)m_json["application"]["fps"]
-	},
-
-	debug{
-		static_cast<DebugMode>((int)m_json["debug"]["debug"]),
-		static_cast<DisableLog>((int)m_json["debug"]["disableLog"]),
-		(bool)m_json["debug"]["printFPS"],
-		(bool)m_json["debug"]["stdioSync"],
+	debug = {
+		static_cast<DebugMode>(json["debug"]["debug"].get<int32>()),
+		static_cast<DisableLog>(json["debug"]["disableLog"].get<int32>()),
+		json["debug"]["printFPS"].get<bool>(),
+		json["debug"]["stdioSync"].get<bool>(),
 		{
 			"VK_KHR_swapchain"
 #ifdef _WIN32
@@ -25,44 +28,35 @@ Settings::Settings() :
 			, "VK_KHR_portability_subset" },
 #endif
 		{  }
-	},
+	};
 
-	rendering{
-		(float)m_json["rendering"]["fov"],
-		(bool)m_json["rendering"]["anistropy"],
-		(float)m_json["rendering"]["anistropyStrength"],
-		(float)m_json["rendering"]["resolution"]
-	},
+	rendering = {
+		json["rendering"]["fov"].get<float32>(),
+		json["rendering"]["anistropy"].get<bool>(),
+		json["rendering"]["anistropyStrength"].get<float32>(),
+		json["rendering"]["resolution"].get<float32>()
+	};
 
-	window{
-		(std::string)m_json["window"]["title"],
-		(std::string)m_json["window"]["iconPath"],
-		(uint32)m_json["window"]["width"],
-		(uint32)m_json["window"]["height"],
-		(uint32)m_json["window"]["wWidth"],
-		(uint32)m_json["window"]["wHeight"],
-		(bool)m_json["window"]["resizable"],
-		(bool)m_json["window"]["maximized"],
-		(bool)m_json["window"]["borderless"],
-		(bool)m_json["window"]["fullscreen"],
-		(bool)m_json["window"]["alwaysOnTop"],
-		(bool)m_json["window"]["vSync"]
-	},
+	window = {
+		json["window"]["title"].get<std::string>(),
+		json["window"]["iconPath"].get<std::string>(),
+		json["window"]["width"].get<uint32>(),
+		json["window"]["height"].get<uint32>(),
+		json["window"]["wWidth"].get<uint32>(),
+		json["window"]["wHeight"].get<uint32>(),
+		json["window"]["resizable"].get<bool>(),
+		json["window"]["maximized"].get<bool>(),
+		json["window"]["borderless"].get<bool>(),
+		json["window"]["fullscreen"].get<bool>(),
+		json["window"]["alwaysOnTop"].get<bool>(),
+		json["window"]["vSync"].get<bool>()
+	};
 
-	memory{
-		(uint32)m_json["memory"]["maxComponentCount"],
-		(uint32)m_json["memory"]["maxEntityCount"]
-	}
-{ };
-
-std::string Settings::init_json() const {
-	std::string buffer;
-
-	// load the file into the setring
-	util::load_file("data/config.json", util::OpenMode::MODE_INPUT, buffer);
-
-	return buffer;
-}
+	memory = {
+		json["memory"]["maxComponentCount"].get<uint32>(),
+		json["memory"]["maxEntityCount"].get<uint32>()
+	};
+};
 
 const Settings& settings() {
 	static Settings m_settings;
