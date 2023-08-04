@@ -10,6 +10,8 @@ endif()
 
 project ("LyraEngineToolchain")
 
+find_package(Vulkan REQUIRED)
+
 # set some variables
 set(LIBRARY_PATH ${CMAKE_SOURCE_DIR}/3rdParty)
 
