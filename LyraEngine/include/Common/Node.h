@@ -17,6 +17,10 @@
 #include <utility>
 #include <functional>
 
+#include <string>
+#include <string_view>
+#include <unordered_map>
+
 namespace lyra {
 
 // Multi linked list implementation in the style of standard library containers
@@ -24,7 +28,7 @@ namespace lyra {
 // Can be used as a normal class member, but more recommended to use it like this to provide a better interface:
 // class Foo : Node<Foo> {}
 // Therefore also the pointers to "self"
-template <class Ty, class Key = std::string, class Hash = std::hash<Key>, template<class...> class Container = std::unordered_map> class Node {
+template <class Ty, class Key = std::string, class HashOrCompare = std::hash<Key>, template<class...> class Container = std::unordered_map> class Node {
 public:
 	using value_type = Ty;
 	using const_value = const value_type;
@@ -34,14 +38,12 @@ public:
 	using const_pointer = const pointer;
 	using movable = value_type&&;
 	using key_type = Key;
-	using hash_function = Hash;
-	using container = Container<key_type, value_type, hash_function>;
+	using hash_function = HashOrCompare;
+	using container = Container<key_type, pointer, hash_function>;
 	// special check in case key is a std::string, then set the key type passed in functions to a std::string, else use a const reference
-	using key_access = typename std::conditional<
-		std::same_as<key_type, std::string>, 
-		std::string_view, 
-		const key_type&
-	>::type;
+	using key_reference = key_type&;
+	using const_key_reference = const key_type&;
+	using key_rvreference = key_type&&;
 	using iterator = typename container::iterator;
 	using const_iterator = typename container::const_iterator;
 	using iterator_pair = std::pair<iterator, bool>;
@@ -49,21 +51,41 @@ public:
 	Node() = default;
 	Node(
 		pointer self, 
-		key_access name,
+		const_key_reference name,
 		reference parent
 	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
 	Node(
 		pointer self,
-		key_access name,
+		const_key_reference name,
 		movable parent
 	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
 	Node(
 		pointer self,
-		key_access name,
+		const_key_reference name,
 		pointer parent = nullptr
 	) noexcept : m_name(name), m_self(self) { if (parent) parent->insert_child(self); }
 
 	void clear() noexcept { m_children.clear(); }
+
+	iterator begin() noexcept {
+		return m_children.begin();
+	}
+	const_iterator begin() const noexcept {
+		return m_children.begin();
+	}
+	const_iterator cbegin() const noexcept {
+		return m_children.begin();
+	}
+
+	iterator end() noexcept {
+		return m_children.end();
+	}
+	const_iterator end() const noexcept {
+		return m_children.end();
+	}
+	const_iterator cend() const noexcept {
+		return m_children.end();
+	}
 
 	iterator_pair insert_child(reference child) {
 		child.m_parent = m_self;
@@ -79,13 +101,13 @@ public:
 	}
 
 	void insert_behind(reference parent) { 
-		parent.insert_child(this);
+		parent.insert_child(m_self);
 	}
 	void insert_behind(movable parent) { 
-		parent.insert_child(this);
+		parent.insert_child(m_self);
 	}
 	void insert_behind(pointer parent) { 
-		parent->insert_child(this);
+		if (parent) parent->insert_child(m_self);
 	}
 
 	iterator erase(iterator pos) { 
@@ -115,27 +137,29 @@ public:
 		return m_children.empty(); 
 	}
 
-	iterator find(key_access name) { 
+	iterator find(key_reference name) { 
 		return m_children.find(name); 
 	}
-	const_iterator find(key_access name) const { 
+	const_iterator find(key_reference name) const { 
 		return m_children.find(name); 
 	}
-	bool contains(key_access name) const { 
+	bool contains(key_reference name) const { 
 		return m_children.contains(name); 
 	}
 
-	const_pointer const operator[](key_access name) const { return m_children.at(name); }
-	pointer operator[](key_access name) { return m_children.at(name); }
-	const_pointer const operator/(key_access name) const { return m_children.at(name); }
-	pointer operator/(key_access name) { return m_children.at(name); }
+	const_reference at(const_key_reference name) const { return *m_children.at(name); }
+	reference at(const_key_reference name) { return *m_children.at(name); }
+	const_reference operator/(const_key_reference name) const { return *m_children.at(name); }
+	reference operator/(const_key_reference name) { return *m_children.at(name); }
+	reference operator[](const_key_reference name) { return *m_children[name]; }
+	reference operator[](key_rvreference name) { return *m_children[name]; }
 
 	NODISCARD size_t size() const noexcept { return m_children.size(); }
 	NODISCARD std::string name() const noexcept { return m_name; }
 	NODISCARD const_pointer const parent() const noexcept { return m_parent; }
 
 protected:
-	std::string m_name = "Node";
+	std::string m_name;
 
 	pointer m_self;
 	pointer m_parent = nullptr;
