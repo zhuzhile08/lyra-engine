@@ -7,12 +7,24 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(
 PRIVATE
-	${LIBRARY_PATH}/glm/
 	# library local include directory
 	${LYRA_INCLUDE_DIR}
+
+	# graphics and windowing libraries
+	Vulkan::Headers
+
+	# math and physics libraries
+	${LIBRARY_PATH}/glm/
+
+	# utility libraries
+	${LIBRARY_PATH}/vma/include/
 )
 
-# build the content manager
 add_executable(Containers
 	"src/main.cpp"
+)
+
+target_link_libraries(Containers
+PRIVATE
+	LyraEngine
 )

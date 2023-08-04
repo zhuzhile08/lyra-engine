@@ -5,8 +5,6 @@ project(Compute VERSION 0.5.0)
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD 23)
 
-find_package(Vulkan REQUIRED)
-
 include_directories(
 PRIVATE
 	# library local include directory
@@ -23,7 +21,6 @@ PRIVATE
 	${LIBRARY_PATH}/stb/
 	${LIBRARY_PATH}/tol/
 	${LIBRARY_PATH}/lz4/lib/
-	${LIBRARY_PATH}/nlohmann/include/
 	${LIBRARY_PATH}/vma/include/
 )
 

@@ -37,7 +37,6 @@ PUBLIC
 	${LIBRARY_PATH}/stb/
 	${LIBRARY_PATH}/tol/
 	${LIBRARY_PATH}/lz4/lib/
-	${LIBRARY_PATH}/nlohmann/include/
 	${LIBRARY_PATH}/vma/include/
 )
 
@@ -49,9 +48,10 @@ add_custom_target(build_shaders ALL
 
 # building the library
 add_library(LyraEngine
-	"src/Common/logger.cpp"
-	"src/Common/settings.cpp"
-	"src/Common/benchmark.cpp"
+	"src/Common/Logger.cpp"
+	"src/Common/Settings.cpp"
+	"src/Common/Benchmark.cpp"
+	"src/Common/FileSystem.cpp"
 
 	#"src/Graphics/VulkanImpl/CommandBuffer.cpp"
 	#"src/Graphics/VulkanImpl/DescriptorSystem.cpp"
@@ -79,10 +79,9 @@ add_library(LyraEngine
 	#"src/Math/ComputePipeline.cpp"
 
 	#"src/Resource/LoadResources.cpp"
-	#"src/Resource/LoadFile.cpp"
-	#"src/Resource/LoadMesh.cpp"
-	#"src/Resource/LoadMaterial.cpp"
-	#"src/Resource/LoadImage.cpp"
+	"src/Resource/LoadMesh.cpp"
+	"src/Resource/LoadMaterial.cpp"
+	"src/Resource/LoadImage.cpp"
 	#"src/Resource/Material.cpp"
 	#"src/Resource/Texture.cpp"
 
