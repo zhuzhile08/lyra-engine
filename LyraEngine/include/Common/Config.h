@@ -13,7 +13,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Dynarray,h>
+#include <Common/Dynarray.h>
 
 namespace lyra {
 
