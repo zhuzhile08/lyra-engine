@@ -1,0 +1,34 @@
+{
+	"First Loose Variable Test": "Hello, World!",
+
+	"Structure Test": {
+		"String": "cFRzGjjQPs%UQK@jRutx",
+		"Floating Point": 3.1415926,
+		"Nestled Structure Test": {
+			"Unsigned Integer": 23450908
+		},
+		"Signed Integer": -485038
+	},
+
+	"Array Test": [
+		"cc1UjRB*q6BRY1&MWUk0",
+		"xePtYYW=Mm&rKQ8mQtf1",
+		"+1OkC4QafUb%46ptJprU",
+		"O*%1Kn!%x#KCeUs4Qa1z"
+	],
+
+	"Structure inside Array Test": [
+		{
+			"Exponent": 2954.8e-7,
+			"String": "h09vJ+SvsKpDPoP6ZbfJ",
+			"String with Escape": "%#tnTOpzW=\n\t!Rgt8\"YrVZ#"
+		},
+		{
+			"Joke": "Why did the chicken cross the road? Because it wanted to get to the other side",
+			"Fact": "The brain is one of the organs in the human body with the highest percent of fat",
+			"Sentence": "Kept you waiting, huh?"
+		}
+	],
+
+	"Second Loose Variable Test": "Goodbye, World!"
+}

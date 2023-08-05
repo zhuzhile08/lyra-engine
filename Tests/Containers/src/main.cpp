@@ -2,6 +2,8 @@
 #include <Common/Dynarray.h>
 #include <Common/FunctionPointer.h>
 #include <Common/FileSystem.h>
+#include <Common/Benchmark.h>
+#include <Json/Json.h>
 
 #include <iostream>
 
@@ -46,6 +48,11 @@ int main(int argc, char* argv[]) {
 	} catch(...) {
 		std::cout << std::endl << "Catched an exception!" << std::endl;
 	}
+
+	lyra::CharVectorStream file("test.json");
+	lyra::Json jsonFile1 = lyra::Json::parse(file.data());
+
+	std::cout << jsonFile1.stringify() << std::endl;
 
 	return 0;
 }
