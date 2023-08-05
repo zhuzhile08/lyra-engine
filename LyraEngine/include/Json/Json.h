@@ -191,6 +191,11 @@ private:
 
 		for (++begin; begin != end; begin++) {
 			switch (*begin) {
+				case '\\':
+					r.push_back(*begin);
+					r.push_back(*++begin);
+					break;
+
 				case '\"':
 					++begin;
 					return r;
@@ -248,6 +253,8 @@ private:
 						case '-':
 							isUnsigned = false;
 							r.push_back(*begin);
+
+							break;
 
 						case '+':
 						case '0':
