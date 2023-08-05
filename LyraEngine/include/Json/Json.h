@@ -71,6 +71,7 @@ public:
 
 		// first node
 		JsonNode json;
+		json.m_self = &json;
 
 		// start parsing
 		if (*begin == '{') {
@@ -120,9 +121,9 @@ public:
 	string_type stringify() const {
 		string_type r;
 
-		if (is_object()) stringify_object(*this, r);
-		else if (is_array()) stringify_array(*this, r);
-		else stringify_pair(*this, r);
+		if (is_object()) stringify_object(0, *this, r);
+		else if (is_array()) stringify_array(0, *this, r);
+		else stringify_pair(0, *this, r);
 
 		return r;
 	}
@@ -213,12 +214,18 @@ private:
 			case 't':
 				begin += 3;
 				return true;
+
+				break;
 			case 'f':
 				begin += 4;
 				return false;
+				
+				break;
 			case 'n':
 				begin += 3;
 				return value_type();
+
+				break;
 			
 			case '-':
 			case '+':
@@ -267,15 +274,19 @@ private:
 						case 'f':
 							r.push_back(*begin);
 
+							break;
+
 						case '.':
 							isFloat = true;
 							r.push_back(*begin);
 
+							break;
 						case '\n':
 							if (isFloat) return std::stof(r);
 							else if (isUnsigned) return static_cast<unsigned_type>(std::stoi(r));
 							else return std::stoi(r);
-							
+
+							break;
 					}
 				}
 
@@ -297,8 +308,9 @@ private:
 					break;
 
 				default:
-					json.m_nodes.emplace_back(unique_json::create(parse_pair(begin, end, json)).release());
-					json.insert_child(json.m_nodes.back().get());
+					json.insert_child(
+						json.m_nodes.emplace_back(unique_json::create(parse_pair(begin, end, json)).release()).get()
+					);
 			}
 		}
 
@@ -315,11 +327,11 @@ private:
 
 			switch(skip_characters(begin, end)) {
 				case '{':
-					tok.m_value = parse_object(begin, end, json);
+					tok.m_value = parse_object(begin, end, tok);
 
 					break;
 				case '[':
-					tok.m_value = std::move(unique_array::create(parse_array(begin, end, json)));
+					tok.m_value = std::move(unique_array::create(parse_array(begin, end, tok)));
 
 					break;
 				case '\"':
@@ -338,8 +350,9 @@ private:
 					break;
 			}
 
-			json.m_nodes.emplace_back(unique_json::create(std::move(tok)));
-			r.push_back(json.m_nodes.back().get());
+			r.push_back(
+				json.m_nodes.emplace_back(unique_json::create(std::move(tok))).get()
+				);
 		}
 
 		ASSERT(false, "lyra::Json::parse_array(): JSON Syntax Error: missing token!");
@@ -359,7 +372,7 @@ private:
 
 				break;
 			case '[':
-				tok.m_value = std::move(unique_array::create(parse_array(begin, end, json)));
+				tok.m_value = std::move(unique_array::create(parse_array(begin, end, tok)));
 
 				break;
 			case '\"':
@@ -397,41 +410,47 @@ private:
 		} else 
 			s.append("null");
 	}
-	static void stringify_object(const json_type& t, string_type& s) {
+	static void stringify_object(size_t indent, const json_type& t, string_type& s) {
+		indent++;
 		s.append("{\n");
 		for (auto it = t.begin(); it != t.end(); it++) {
-			stringify_pair(*it->second, s);
+			stringify_pair(indent, *it->second, s);
 
 			s.append(",\n");
 		}
-		s.push_back('}');
+		indent--;
+		s.erase(s.size() - 2, 1);
+		s.append(indent, '\t').push_back('}');
 	}
-	static void stringify_array(const json_type& t, string_type& s) {
+	static void stringify_array(size_t indent, const json_type& t, string_type& s) {
+		indent += 1;
 		s.append("[\n");
-		for (auto it = t.begin(); it != t.end(); it++) {
-			if (it->second->is_string())
-				s.append("\"").append(it->second->template get<string_type>()).append("\"");
-			else if (it->second->is_object())
-				stringify_object(*it->second, s);
-			else if (it->second->is_array())
-				stringify_array(*it->second, s);	
+		for (const auto& it : t.get<array_type>()) {
+			s.append(indent, '\t');
+			if (it->is_string())
+				s.append("\"").append(it->template get<string_type>()).append("\"");
+			else if (it->is_object())
+				stringify_object(indent, *it, s);
+			else if (it->is_array())
+				stringify_array(indent, *it, s);	
 			else
-				stringify_primitive(*it->second, s);
+				stringify_primitive(*it, s);
 
 			s.append(",\n");
 		}
-		s.erase(s.size() - 1);
-		s.push_back(']');
+		indent--;
+		s.erase(s.size() - 2, 1);
+		s.append(indent, '\t').push_back(']');
 	}
-	static void stringify_pair(const json_type& t, string_type& s) {
-		s.append("\"").append(t.m_name).append("\": ");
+	static void stringify_pair(size_t indent, const json_type& t, string_type& s) {
+		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
 		
 		if (t.is_string())
 			s.append("\"").append(t.get<string_type>()).append("\"");
 		else if (t.is_object())
-			stringify_object(t, s);
+			stringify_object(indent, t, s);
 		else if (t.is_array())
-			stringify_array(t, s);	
+			stringify_array(indent, t, s);	
 		else
 			stringify_primitive(t, s);
 	}
