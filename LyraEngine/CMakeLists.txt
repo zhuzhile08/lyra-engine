@@ -38,7 +38,7 @@ PUBLIC
 	${LIBRARY_PATH}/tol/
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
-	${LIBRARY_PATH}/fmt/
+	${LIBRARY_PATH}/fmt/include/
 )
 
 # compile shaders to Vulkan's spirv format
@@ -110,6 +110,7 @@ LINK_PUBLIC
 	# OpenAL::OpenAL
 
 	# utility libraries
+	fmt::fmt
 	lz4_static
 )
 
