@@ -17,6 +17,7 @@ PRIVATE
 	${LIBRARY_PATH}/glm/
 
 	# utility libraries
+	${LIBRARY_PATH}/fmt/
 	${LIBRARY_PATH}/vma/include/
 )
 
