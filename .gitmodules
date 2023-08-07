@@ -33,3 +33,6 @@
 [submodule "3rdParty/bullet3"]
 	path = 3rdParty/bullet3
 	url = https://github.com/bulletphysics/bullet3.git
+[submodule "3rdParty/fmt"]
+	path = 3rdParty/fmt
+	url = https://github.com/fmtlib/fmt
