@@ -49,7 +49,6 @@ add_custom_target(build_shaders ALL
 # building the library
 add_library(LyraEngine
 	"src/Common/Logger.cpp"
-	"src/Common/Settings.cpp"
 	"src/Common/Benchmark.cpp"
 	"src/Common/FileSystem.cpp"
 
