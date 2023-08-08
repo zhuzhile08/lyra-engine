@@ -21,6 +21,14 @@
 
 namespace lyra {
 
+namespace detail {
+
+struct FileDeleter {
+	void operator()(FILE* ptr) const;
+};
+
+} // namespace detail
+
 void init_filesystem(char** argv);
 
 
@@ -55,6 +63,7 @@ public:
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
+	File(FILE* file, char* buffer) : m_stream(file), m_buffer(buffer) { }
 	~File();
 	void close();
 
@@ -103,9 +112,18 @@ public:
 	NODISCARD bool buffered() const noexcept {
 		return m_buffered;
 	}
+	NODISCARD const std::FILE* const stream() const noexcept {
+		return m_stream.get();
+	}
+	NODISCARD std::FILE* stream() noexcept {
+		return m_stream.get();
+	}
+	NODISCARD std::FILE* release_stream() noexcept {
+		return m_stream.release();
+	}
 
 private:
-	std::FILE* m_stream = nullptr;
+	UniquePointer<std::FILE, detail::FileDeleter> m_stream = nullptr;
 	UniquePointer<char[]> m_buffer;
 
 	std::filesystem::path m_path;
@@ -120,6 +138,7 @@ public:
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
+	File(FILE* file, char* buffer) : m_stream(file), m_buffer(buffer) { }
 	~File();
 	void close();
 
@@ -168,9 +187,18 @@ public:
 	NODISCARD bool buffered() const noexcept {
 		return m_buffered;
 	}
+	NODISCARD const std::FILE* const stream() const noexcept {
+		return m_stream.get();
+	}
+	NODISCARD std::FILE* stream() noexcept {
+		return m_stream.get();
+	}
+	NODISCARD std::FILE* release_stream() noexcept {
+		return m_stream.release();
+	}
 
 private:
-	std::FILE* m_stream = nullptr;
+	UniquePointer<std::FILE, detail::FileDeleter> m_stream = nullptr;
 	UniquePointer<char[]> m_buffer;
 
 	std::filesystem::path m_path;
