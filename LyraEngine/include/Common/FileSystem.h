@@ -128,7 +128,6 @@ private:
 
 	std::filesystem::path m_path;
 
-	bool m_dirty;
 	bool m_buffered;
 };
 
@@ -203,7 +202,6 @@ private:
 
 	std::filesystem::path m_path;
 
-	bool m_dirty;
 	bool m_buffered;
 };
 
@@ -460,7 +458,7 @@ public:
 		auto r = m_file.sync();
 		m_file.seekg(0, SeekDirection::end);
 		m_data.resize(m_file.tellg());
-		m_file.seekg(m_gcount, SeekDirection::begin);
+		m_file.seekg(0, SeekDirection::begin);
 		m_file.read(m_data.data(), sizeof(m_data[0]), m_data.size());
 		m_file.seekg(m_gcount, SeekDirection::begin);
 		return r;
