@@ -14,30 +14,21 @@
 
 #include <Common/Common.h>
 
-#ifdef _WIN32
-// #include <wchar.h>
-// #include <Windows.h>
-#elif __APPLE__
-#include <mach-o/dyld.h>
-#endif
-
-#include <vector>
-#include <filesystem>
-
 namespace lyra {
 
-/**
- * @brief get the address of a pointer
- * 
- * @tparam Ty type of pointer
- * @param type the pointer
- * 
- * @return const void*
-*/
 template <typename Ty> NODISCARD constexpr const void* get_address(const Ty& type);
 
 template <typename Ty> constexpr const void* get_address(const Ty& type) {
 	return static_cast<const void*>(type);
 }
+
+template <class Ty> concept EnumHashType = std::is_enum_v<Ty>;
+
+class EnumHash {
+public:
+	template <EnumHashType Ty> size_t operator()(Ty t) const {
+		return static_cast<size_t>(t);
+	}
+};
 
 } // namespace lyra
