@@ -1,5 +1,12 @@
 #include <Common/FileSystem.h>
 
+#include <fmt/core.h>
+#ifdef _WIN32
+#include <fmt/xchar.h>
+#include <locale>
+#include <codecvt>
+#endif
+
 #include <cstdio>
 #include <stdexcept>
 
@@ -32,15 +39,23 @@ void FileDeleter::operator()(FILE* ptr) const {
 
 } // namespace detail
 
+#ifdef _WIN32
+static constexpr const wchar* const openModeStr[6] { L"r", L"w", L"a", L"r+", L"w+", L"a+" };
+#else
 static constexpr const char* const openModeStr[6] { "r", "w", "a", "r+", "w+", "a+" };
+#endif
 static constexpr size_t bufferSize = std::max(1024, BUFSIZ);
 
 File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
   : m_path(path), 
  	m_buffered(buffered), 
+#ifdef _WIN32
+	m_stream(_wfopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
+	if (!m_stream) throw std::runtime_error(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(fmt::format(L"Failed to load file from path: {}!", path.c_str())));
+#else
 	m_stream(std::fopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
-	char msg[] = "Failed to load file from path: {}!"; // dirty hack, will hopefully be gone once I implement my own logging system @todo
-	if (!m_stream) throw std::runtime_error(strcat(msg, path.c_str()));
+	if (!m_stream) throw std::runtime_error(fmt::format("Failed to load file from path: {}!", path.c_str()));
+#endif
 
 	if (m_buffered) { 
 		m_buffer = m_buffer.create(bufferSize);
@@ -167,9 +182,13 @@ std::filesystem::path File<char>::absolute_path() const {
 File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
   : m_path(path), 
  	m_buffered(buffered), 
+#ifdef _WIN32
+	m_stream(_wfopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
+	if (!m_stream) throw std::runtime_error(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(fmt::format(L"Failed to load file from path: {}!", path.c_str())));
+#else
 	m_stream(std::fopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
-	char msg[] = "Failed to load file from path: {}!"; // dirty hack, will hopefully be gone once I implement my own logging system @todo
-	if (!m_stream) throw std::runtime_error(strcat(msg, path.c_str()));
+	if (!m_stream) throw std::runtime_error(fmt::format("Failed to load file from path: {}!", path.c_str()));
+#endif
 
 	if (m_buffered) { 
 		m_buffer = m_buffer.create(bufferSize);
