@@ -2,7 +2,7 @@
 
 #include <Common/Utility.h>
 #include <Common/Logger.h>
-#include <Common/Settings.h>
+#include <Common/Config.h>
 
 #include <SDL_vulkan.h>
 
@@ -249,7 +249,7 @@ public:
 			std::vector <VkDeviceQueueCreateInfo> queueCreateInfos;
 			std::unordered_set <uint32> uniqueQueueFamilies { queueFamilies.graphicsFamilyIndex, queueFamilies.computeFamilyIndex, queueFamilies.copyFamilyIndex };
 			
-			float queuePriority = 1.0f;
+			float32 queuePriority = 1.0f;
 			for (const auto& queueFamily : uniqueQueueFamilies) {
 				queueCreateInfos.push_back({
 					VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -561,7 +561,7 @@ void CommandQueue::CommandBuffer::reset(VkCommandBufferResetFlags flags) const {
 }
 
 CommandQueue::CommandQueue() { 
-	commandPools.resize(Settings::RenderConfig::maxFramesInFlight);
+	commandPools.resize(config::maxFramesInFlight);
 }
 
 void CommandQueue::reset() {
@@ -591,7 +591,7 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 
 		activeCommandBuffer = VK_NULL_HANDLE;
 
-		currentFrame = (currentFrame + 1) % Settings::RenderConfig::maxFramesInFlight;
+		currentFrame = (currentFrame + 1) % config::maxFramesInFlight;
 	}
 
 	waitSemaphores.clear();
@@ -807,7 +807,7 @@ Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(wi
 			VK_FENCE_CREATE_SIGNALED_BIT
 		};
 
-		for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) {
+		for (uint32 i = 0; i < config::maxFramesInFlight; i++) {
 			imageAquiredSemaphores[i] = vk::Semaphore(globalRenderSystem->device, semaphoreInfo);
 			submitFinishedSemaphores[i] = vk::Semaphore(globalRenderSystem->device, semaphoreInfo);
 			renderFinishedFences[i] = vk::Fence(globalRenderSystem->device, fenceInfo);
@@ -863,10 +863,10 @@ void Swapchain::createSwapchain() {
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(globalRenderSystem->physicalDevice, surface, &surfaceCapabilities);
 
 		if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
-			surfaceCapabilities.currentExtent.width = settings().window.width;
+			surfaceCapabilities.currentExtent.width = config::windowWidth;
 			log().warning("Something went wrong whilst attempting getting the swapchain width!");
 		} if (surfaceCapabilities.currentExtent.height == 0xFFFFFFFF) {
-			surfaceCapabilities.currentExtent.height = settings().window.height;
+			surfaceCapabilities.currentExtent.height = config::windowHeight;
 			log().warning("Something went wrong whilst attempting getting the swapchain height!");
 		} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
 			surfaceCapabilities.maxImageCount = 8;
@@ -1087,6 +1087,76 @@ void Swapchain::present() {
 		VK_TRUE, 
 		std::numeric_limits<uint64>::max()
 	);
+}
+
+DescriptorSet::DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo) {
+	// create the descriptor set
+	descriptorSet = vk::DescriptorSet(globalRenderSystem->device, allocInfo);
+}
+
+void DescriptorSet::Binder::add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
+	for (const auto& newWrite : newWrites) {
+		writes.push_back({
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			nullptr,
+			VK_NULL_HANDLE,
+			newWrite.binding,
+			0,
+			1,
+			static_cast<VkDescriptorType>(newWrite.type),
+			&newWrite.imageInfo,
+			nullptr,
+			nullptr
+		});
+	}
+}
+
+void DescriptorSet::Binder::add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
+	for (const auto& newWrite : newWrites) {
+		writes.push_back({
+			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			nullptr,
+			VK_NULL_HANDLE,
+			newWrite.binding,
+			0,
+			1,
+			static_cast<VkDescriptorType>(newWrite.type),
+			nullptr,
+			&newWrite.bufferInfo,
+			nullptr
+		});
+	}
+}
+
+void DescriptorSet::Binder::add_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept {
+		for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
+			writes.push_back({
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				VK_NULL_HANDLE,
+				binding,
+				0,
+				1,
+				static_cast<VkDescriptorType>(type),
+				&image_info,
+				&buffer_info,
+				nullptr
+				});
+		}
+	}
+
+void DescriptorSet::Binder::update(vk::DescriptorSet& descriptorSet) noexcept {
+	for (auto& write : writes) {
+		write.dstSet = descriptorSet;
+	}
+	globalRenderSystem->updateDescriptorSets(writes);
+}
+
+
+Program::Program() {
+	Array<std::vector<VkDescriptorSetLayoutBinding>, 3> bindings;
+
+	
 }
 
 } // namespace vulkan

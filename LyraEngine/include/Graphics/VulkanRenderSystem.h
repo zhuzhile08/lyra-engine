@@ -15,7 +15,7 @@
 #include <Common/Array.h>
 #include <Common/Dynarray.h>
 #include <Common/RAIIContainers.h>
-#include <Common/Settings.h>
+#include <Common/Config.h>
 
 #include <SDL.h>
 #include <vulkan/vulkan.h>
@@ -404,19 +404,19 @@ public:
 			const std::vector<VkImageResolve>& regions) const {
 			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regions.size(), regions.data());
 		}
-		void setBlendConstants(const float blendConstants[4]) const {
+		void setBlendConstants(const float32 blendConstants[4]) const {
 			vkCmdSetBlendConstants(commandBuffer, blendConstants);
 		}
-		void setDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor) const {
+		void setDepthBias(float32 depthBiasConstantFactor, float32 depthBiasClamp, float32 depthBiasSlopeFactor) const {
 			vkCmdSetDepthBias(commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 		}
-		void setDepthBounds(float minDepthBounds, float maxDepthBounds) const {
+		void setDepthBounds(float32 minDepthBounds, float32 maxDepthBounds) const {
 			vkCmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
 		}
 		void setEvent(const vk::Event& event, VkPipelineStageFlags stageMask) const {
 			vkCmdSetEvent(commandBuffer, event, stageMask);
 		}
-		void setLineWidth(float lineWidth) const {
+		void setLineWidth(float32 lineWidth) const {
 			vkCmdSetLineWidth(commandBuffer, lineWidth);
 		}
 		void setScissor(uint32 firstScissor, const VkRect2D& scissor) const {
@@ -687,7 +687,7 @@ public:
 	VkFormat format;
 	VkExtent2D extent;
 
-	Dynarray<Image, Settings::RenderConfig::maxSwapchainImages> images;
+	Dynarray<Image, config::maxSwapchainImages> images;
 	
 	Image colorImage;
 	GPUMemory colorMem;
@@ -697,9 +697,9 @@ public:
 	GPUMemory depthMem;
 	VkFormat depthBufferFormat;
 
-	Array<vk::Semaphore, Settings::RenderConfig::maxFramesInFlight> imageAquiredSemaphores;
-	Array<vk::Semaphore, Settings::RenderConfig::maxFramesInFlight> submitFinishedSemaphores;
-	Array<vk::Fence, Settings::RenderConfig::maxFramesInFlight> renderFinishedFences;
+	Array<vk::Semaphore, config::maxFramesInFlight> imageAquiredSemaphores;
+	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
+	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
 	bool lostSurface = false;
 	bool invalidSwapchain = false;
@@ -708,8 +708,6 @@ public:
 	CommandQueue* commandQueue;
 	SDL_Window* window;
 };
-
-/*
 
 class DescriptorSet {
 public:
@@ -761,120 +759,151 @@ public:
 		const Type& type;
 	};
 
+	struct Binder {
+		void add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept;
+		void add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept;
+		void add_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept;
+
+		void update(vk::DescriptorSet& descriptorSet) noexcept;
+
+		std::vector<VkWriteDescriptorSet> writes;
+	};
+
 	DescriptorSet() = default;
 	DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo);
-	DescriptorSet(DescriptorSet&& movable) : 
-		m_descriptorSet(std::exchange(movable.m_descriptorSet, VkDescriptorSet { } )),
-		m_writes(movable.m_writes) { }
-	constexpr DescriptorSet& operator=(DescriptorSet&& movable) {
-		if (movable.m_descriptorSet != this->m_descriptorSet) {
-			m_descriptorSet = std::exchange(movable.m_descriptorSet, VkDescriptorSet { } );
-			m_writes = movable.m_writes;
-		}
-		return *this;
-	}
-
-	void add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
-		for (const auto& newWrite : newWrites) {
-			m_writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				m_descriptorSet,
-				newWrite.binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(newWrite.type),
-				&newWrite.imageInfo,
-				nullptr,
-				nullptr
-			});
-		}
-	}
-	void add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
-		for (const auto& newWrite : newWrites) {
-			m_writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				m_descriptorSet,
-				newWrite.binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(newWrite.type),
-				nullptr,
-				&newWrite.bufferInfo,
-				nullptr
-			});
-		}
-	}
-	void add_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept {
-		for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
-			m_writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				m_descriptorSet,
-				binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(type),
-				&image_info,
-				&buffer_info,
-				nullptr
-				});
-		}
-	}
-
-	void update() const noexcept;
 
 	vk::DescriptorSet descriptorSet;
-	std::vector<VkWriteDescriptorSet> writes;
+};
+
+/*
+
+class DescriptorPoolSystem {
+public:
+	// simplified size data
+	struct Size {
+		// type of descriptor
+		const uint32& type;
+		// multiplier for the descriptor allocation count
+		const uint32& multiplier;
+	};
+
+	class DescriptorPool {
+	public:
+		constexpr DescriptorPool() = default;
+		DescriptorPool(const VkDescriptorPoolCreateInfo& createInfo);
+
+		vk::DescriptorPool descriptorPool;
+		size_t allocatedSets;
+	};
+
+	class PoolBuilder {
+	public:
+		PoolBuilder() = default;
+		PoolBuilder(const PoolBuilder& poolBuilder)
+			 : m_poolSizes(poolBuilder.m_poolSizes), m_poolFlags(poolBuilder.m_poolFlags) { } // , m_maxSets(poolBuilder.m_maxSets) { }
+
+		void add_pool_size(const DescriptorPool::Size& newSize) noexcept {
+			// add the size according to the type
+			m_poolSizes.push_back({
+				static_cast<VkDescriptorType>(newSize.type),
+				uint32(newSize.multiplier * config::maxDescriptorTypePerPool)
+			});
+
+			// m_maxSets = config::maxDescriptorTypePerPool * newSize.multiplier;
+		}
+		void add_pool_sizes(const std::vector<DescriptorPool::Size>& newSizes) noexcept {
+			// loop through all the types and create their respective sizes
+			for (const auto& newSize : newSizes) add_pool_size(newSize);
+		}
+
+		void set_pool_flags(const VkDescriptorPoolCreateFlags& poolFlags) noexcept {
+			m_poolFlags = poolFlags;
+		}
+
+		constexpr VkDescriptorPoolCreateInfo build_create_info() const  {
+			// return the create info
+			return VkDescriptorPoolCreateInfo {
+				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+				nullptr,
+				m_poolFlags,
+				config::maxDescriptorTypePerPool,
+				// m_maxSets,
+				static_cast<uint32>(m_poolSizes.size()),
+				m_poolSizes.data()
+			};
+		}
+
+	private:
+		std::vector<VkDescriptorPoolSize> m_poolSizes;
+		VkDescriptorPoolCreateFlags m_poolFlags = 0;
+		// uint32 m_maxSets;
+	};
+
+	DescriptorSystem() = default;
+	DescriptorSystem(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) : m_poolBuilder(poolBuilder) {
+		m_layout = DescriptorSetLayout(layoutBuilder.build_create_info());
+	}
+	
+
+	NODISCARD DescriptorSetResource get_unused_set();
+
+	std::vector<DescriptorPool> pools;
+	ResourcePool<DescriptorSet> sets;
+
+	PoolBuilder poolBuilder;
+
+	void create_descriptor_pool();
+};
+
+*/
+
+class Shader {
+public:
+	static constexpr const char* const entry = "main"; // entry will always be main
+
+	enum class Type { 
+		vertex = 0x00000001,
+		tessellationControl = 0x00000002,
+		tessellationEvaluation = 0x00000004,
+		geometry = 0x00000008,
+		fragment = 0x00000010,
+		graphics = 0x0000001F,
+		all = 0x7FFFFFFF,
+		compute = 0x00000020,
+		rayGeneration = 0x00000100,
+		anyHit = 0x00000200,
+		closestHit = 0x00000400,
+		miss = 0x00000800,
+		intersection = 0x00001000,
+		callable = 0x00002000,
+		task = 0x00000040,
+		mesh = 0x00000080
+	}; // Refer to the API for the documentation of these enums
+
+	Shader() = default;
+	Shader(std::vector<char>&& source);
+	Shader(const std::vector<char>& source);
+
+	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			static_cast<VkShaderStageFlagBits>(type),
+			module,
+			entry,
+			nullptr
+		};
+	}
+
+	vk::ShaderModule module;
+	std::vector<char> shaderSrc;
+
+	Type type;
 };
 
 class Program {
 public:
-	class Shader {
-	public:
-		static constexpr const char* const entry = "main"; // entry will always be main
-
-		enum class Type { 
-			vertex = 0x00000001,
-			tessellationControl = 0x00000002,
-			tessellationEvaluation = 0x00000004,
-			geometry = 0x00000008,
-			fragment = 0x00000010,
-			graphics = 0x0000001F,
-			all = 0x7FFFFFFF,
-			compute = 0x00000020,
-			rayGeneration = 0x00000100,
-			anyHit = 0x00000200,
-			closestHit = 0x00000400,
-			miss = 0x00000800,
-			intersection = 0x00001000,
-			callable = 0x00002000,
-			task = 0x00000040,
-			mesh = 0x00000080
-		}; // Refer to the API for the documentation of these enums
-
-		Shader() = default;
-		Shader(const std::vector<char>& source);
-
-		NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
-			return {
-				VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-				nullptr,
-				0,
-				static_cast<VkShaderStageFlagBits>(type),
-				module,
-				entry,
-				nullptr
-			};
-		}
-
-		vk::ShaderModule module;
-		std::vector<char> shaderSrc;
-
-		Type type;
-	};
-
 	struct Binding {
 		DescriptorSet::Type type;
 		uint32 set;
@@ -898,119 +927,14 @@ public:
 		universal = 0x7FFF0000
 	};
 
+	Program();
+
 	const Shader* vertexShader;
 	const Shader* fragmentShader;
 
 	vk::DescriptorSetLayout descriptorSetLayout;
 	vk::PipelineLayout pipelineLayout;
 };
-
-class DescriptorSystem {
-public:
-
-	class DescriptorPool {
-	public:
-		// simplified size data
-		struct Size {
-			// type of descriptor
-			const uint32& type;
-			// multiplier for the descriptor allocation count
-			const uint32& multiplier;
-		};
-
-		constexpr DescriptorPool() = default;
-		DescriptorPool(const VkDescriptorPoolCreateInfo& createInfo);
-		DEFINE_DEFAULT_MOVE(DescriptorPool)
-
-		vk::DescriptorPool descriptorPool;
-		size_t capacity;
-	};
-
-
-	using DescriptorSetResource = ResourcePool<DescriptorSet>::resource_container;
-
-	class LayoutBuilder {
-	public:
-		void add_binding(const DescriptorSetLayout::Data& newBinding);
-
-		VkDescriptorSetLayoutCreateInfo build_create_info() const {
-			return VkDescriptorSetLayoutCreateInfo {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-				nullptr,
-				0,
-				static_cast<uint32>(m_bindings.size()),
-				m_bindings.data()
-			};
-		}
-
-	private:
-		std::vector<VkDescriptorSetLayoutBinding> m_bindings;
-	};
-
-	class PoolBuilder {
-	public:
-		PoolBuilder() = default;
-		PoolBuilder(const PoolBuilder& poolBuilder)
-			 : m_poolSizes(poolBuilder.m_poolSizes), m_poolFlags(poolBuilder.m_poolFlags) { } // , m_maxSets(poolBuilder.m_maxSets) { }
-
-		void add_pool_size(const DescriptorPool::Size& newSize) noexcept {
-			// add the size according to the type
-			m_poolSizes.push_back({
-				static_cast<VkDescriptorType>(newSize.type),
-				uint32(newSize.multiplier * Settings::MemConfig::maxDescriptorTypePerPool)
-			});
-
-			// m_maxSets = Settings::MemConfig::maxDescriptorTypePerPool * newSize.multiplier;
-		}
-		void add_pool_sizes(const std::vector<DescriptorPool::Size>& newSizes) noexcept {
-			// loop through all the types and create their respective sizes
-			for (const auto& newSize : newSizes) add_pool_size(newSize);
-		}
-
-		void set_pool_flags(const VkDescriptorPoolCreateFlags& poolFlags) noexcept {
-			m_poolFlags = poolFlags;
-		}
-
-		constexpr VkDescriptorPoolCreateInfo build_create_info() const  {
-			// return the create info
-			return VkDescriptorPoolCreateInfo {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-				nullptr,
-				m_poolFlags,
-				Settings::MemConfig::maxDescriptorTypePerPool,
-				// m_maxSets,
-				static_cast<uint32>(m_poolSizes.size()),
-				m_poolSizes.data()
-			};
-		}
-
-	private:
-		std::vector<VkDescriptorPoolSize> m_poolSizes;
-		VkDescriptorPoolCreateFlags m_poolFlags = 0;
-		// uint32 m_maxSets;
-	};
-
-	DescriptorSystem() = default;
-	DescriptorSystem(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) : m_poolBuilder(poolBuilder) {
-		m_layout = DescriptorSetLayout(layoutBuilder.build_create_info());
-	}
-	DEFINE_DEFAULT_MOVE(DescriptorSystem)
-	
-
-	NODISCARD DescriptorSetResource get_unused_set();
-
-	std::vector<DescriptorPool> pools;
-	ResourcePool<DescriptorSet> sets;
-
-	PoolBuilder poolBuilder;
-
-	void create_descriptor_pool();
-
-	friend class lyra::gui::GUIRenderer;
-	friend class Pipeline;	
-};
-
-*/
 
 } // namespace vulkan
 
@@ -1030,10 +954,10 @@ public:
 	vulkan::Device device;
 	Array<vulkan::CommandPool, 4> commandPools;
 	vulkan::Window vulkanWindow;
-	Array<vulkan::Frame, Settings::RenderConfig::maxFramesInFlight> frames;
+	Array<vulkan::Frame, config::maxFramesInFlight> frames;
 
-	Dynarray<Renderer*, Settings::RenderConfig::maxConcurrentRenderers> m_renderers;
-	Dynarray<SmartPointer<Renderer>, Settings::RenderConfig::maxConcurrentRenderers * 2> m_deletedRenderers;
+	Dynarray<Renderer*, config::maxConcurrentRenderers> m_renderers;
+	Dynarray<UniquePointer<Renderer>, config::maxConcurrentRenderers * 2> m_deletedRenderers;
 
 	uint8 m_currentFrame = 0;
 	uint8 m_pastFrame;
