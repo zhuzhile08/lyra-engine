@@ -47,8 +47,8 @@ static constexpr const char* const openModeStr[6] { "r", "w", "a", "r+", "w+", "
 static constexpr size_t bufferSize = std::max(1024, BUFSIZ);
 
 File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
-  : m_path(path), 
- 	m_buffered(buffered), 
+	: m_path(path),
+	m_buffered(buffered),
 #ifdef _WIN32
 	m_stream(_wfopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
 	if (!m_stream) throw std::runtime_error(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(fmt::format(L"Failed to load file from path: {}!", path.c_str())));
@@ -71,7 +71,7 @@ void File<char>::close() {
 
 void File<char>::disable_buffering() {
 	if (m_buffered) {
-		if (m_dirty) std::fflush(m_stream);
+		std::fflush(m_stream);
 		std::setbuf(m_stream, nullptr);
 	}
 }
@@ -106,7 +106,7 @@ File<char>& File<char>::read(char* string, size_t count) {
 	return *this;
 }
 File<char>& File<char>::read(void* string, size_t size, size_t count) {
-	auto i = std::fread(string, size, count, m_stream);
+	std::fread(string, size, count, m_stream);
 	return *this;
 }
 File<char>& File<char>::put(char c) {
@@ -144,11 +144,11 @@ File<char>& File<char>::seekp(filepos off, SeekDirection dir){
 }
 
 File<char>& File<char>::flush() {
-	if (m_dirty) std::fflush(m_stream);
+	std::fflush(m_stream);
 	return *this;
 }
 int File<char>::sync() {
-	if (m_dirty) return std::fflush(m_stream);
+	return std::fflush(m_stream);
 	return 0;
 }
 
@@ -167,8 +167,6 @@ void File<char>::swap(File<char>& file)  {
 	m_buffer.swap(file.m_buffer);
 	m_path.swap(file.m_path);
 	std::swap(m_buffered, file.m_buffered);
-	m_dirty = false;
-	file.m_dirty = false;
 }
 
 void File<char>::rename(const std::filesystem::path& newPath) {
@@ -206,7 +204,7 @@ void File<wchar>::close() {
 
 void File<wchar>::disable_buffering() {
 	if (m_buffered) {
-		if (m_dirty) std::fflush(m_stream);
+		std::fflush(m_stream);
 		std::setbuf(m_stream, nullptr);
 	}
 }
@@ -279,11 +277,11 @@ File<wchar>& File<wchar>::seekp(filepos off, SeekDirection dir){
 }
 
 File<wchar>& File<wchar>::flush() {
-	if (m_dirty) std::fflush(m_stream);
+	std::fflush(m_stream);
 	return *this;
 }
 int File<wchar>::sync() {
-	if (m_dirty) return std::fflush(m_stream);
+	return std::fflush(m_stream);
 	return 0;
 }
 
@@ -302,8 +300,6 @@ void File<wchar>::swap(File& file)  {
 	m_buffer.swap(file.m_buffer);
 	m_path.swap(file.m_path);
 	std::swap(m_buffered, file.m_buffered);
-	m_dirty = false;
-	file.m_dirty = false;
 }
 
 void File<wchar>::rename(const std::filesystem::path& newPath) {
