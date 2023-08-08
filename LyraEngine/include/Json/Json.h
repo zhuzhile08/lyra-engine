@@ -172,7 +172,8 @@ private:
 				case '\n':
 				case '\t':
 				case '\r':
-				case ' ':
+				case '\x20':
+				case '\0':
 					break;
 
 				default:
