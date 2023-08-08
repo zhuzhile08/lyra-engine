@@ -24,20 +24,27 @@ void init_filesystem(char** argv) {
 	globalFileSystem->absolutePathBase.remove_filename();
 }
 
+namespace detail {
+
+void FileDeleter::operator()(FILE* ptr) const {
+	std::fclose(ptr);
+}
+
+} // namespace detail
+
 static constexpr const char* const openModeStr[6] { "r", "w", "a", "r+", "w+", "a+" };
 static constexpr size_t bufferSize = std::max(1024, BUFSIZ);
-
 
 File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
   : m_path(path), 
  	m_buffered(buffered), 
-	m_stream(std::fopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)])) {
+	m_stream(std::fopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
 	char msg[] = "Failed to load file from path: {}!"; // dirty hack, will hopefully be gone once I implement my own logging system @todo
 	if (!m_stream) throw std::runtime_error(strcat(msg, path.c_str()));
 
 	if (m_buffered) { 
 		m_buffer = m_buffer.create(bufferSize);
-		std::setvbuf(m_stream, m_buffer.data(), _IOFBF, m_buffer.size());
+		std::setvbuf(m_stream, m_buffer.data(), _IOFBF, bufferSize);
 	}
 }
 File<char>::~File<char>() {
@@ -45,7 +52,6 @@ File<char>::~File<char>() {
 }
 void File<char>::close() {
 	std::fclose(m_stream);
-	m_path.clear();
 }
 
 void File<char>::disable_buffering() {
@@ -57,7 +63,7 @@ void File<char>::disable_buffering() {
 void File<char>::enable_buffering() {
 	if (!m_buffered) {
 		if (!m_buffer) m_buffer = m_buffer.create(bufferSize);
-		std::setvbuf(m_stream, m_buffer.data(), 0, m_buffer.size());
+		std::setvbuf(m_stream, m_buffer.data(), 0, bufferSize);
 	}
 }
 
@@ -161,13 +167,13 @@ std::filesystem::path File<char>::absolute_path() const {
 File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
   : m_path(path), 
  	m_buffered(buffered), 
-	m_stream(std::fopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)])) {
+	m_stream(std::fopen(globalFileSystem->absolute_path(path).c_str(), openModeStr[static_cast<size_t>(mode)]), detail::FileDeleter()) {
 	char msg[] = "Failed to load file from path: {}!"; // dirty hack, will hopefully be gone once I implement my own logging system @todo
 	if (!m_stream) throw std::runtime_error(strcat(msg, path.c_str()));
 
 	if (m_buffered) { 
 		m_buffer = m_buffer.create(bufferSize);
-		std::setvbuf(m_stream, m_buffer.data(), _IOFBF, m_buffer.size());
+		std::setvbuf(m_stream, m_buffer.data(), _IOFBF, bufferSize);
 	}
 
 	std::fwide(m_stream, 1);
@@ -177,7 +183,6 @@ File<wchar>::~File() {
 }
 void File<wchar>::close() {
 	std::fclose(m_stream);
-	m_path.clear();
 }
 
 void File<wchar>::disable_buffering() {
@@ -189,7 +194,7 @@ void File<wchar>::disable_buffering() {
 void File<wchar>::enable_buffering() {
 	if (!m_buffered) {
 		if (!m_buffer) m_buffer = m_buffer.create(bufferSize);
-		std::setvbuf(m_stream, m_buffer.data(), 0, m_buffer.size());
+		std::setvbuf(m_stream, m_buffer.data(), 0, bufferSize);
 	}
 }
 
