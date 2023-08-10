@@ -41,6 +41,8 @@ namespace vulkan {
 namespace vk {
 
 using Instance = RAIIContainer<VkInstance, NullHandle>;
+using DebugUtilsMessengerEXT = RAIIContainer<VkInstance, VkDebugUtilsMessengerEXT>;
+using DebugUtilsMessenger = DebugUtilsMessengerEXT;
 using PhysicalDevice = RAIIContainer<VkPhysicalDevice, VkInstance>;
 using Device = RAIIContainer<VkDevice, VkPhysicalDevice>;
 using Queue = RAIIContainer<VkQueue, VkDevice>;
