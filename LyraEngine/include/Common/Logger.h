@@ -171,34 +171,34 @@ private:
 	template <Level logLevel, class Format, typename ... Args> void log(Format&& fmt, Args&&... message) {
 		if constexpr (static_cast<int>(config::disableLog) < static_cast<int>(logLevel)) {
 			if constexpr (logLevel == Level::trace) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]: {}", ansi::set_style(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]:\t{}\n", ansi::set_style(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::debug) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]: {}", ansi::set_style(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]:\t{}\n", ansi::set_style(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::info) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]: {}", ansi::set_style(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]:\t{}\n", ansi::set_style(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::warning) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]: {}", ansi::set_style(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]:\t{}\n", ansi::set_style(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::error) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]: {}", ansi::set_style(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]:\t{}\n", ansi::set_style(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::exception) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]: {}", ansi::set_style(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]:\t{}\n", ansi::set_style(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			}
 		} else return;
 	}
 	template <Level logLevel, class Msg> void log(Msg message) {
 		if constexpr (static_cast<int>(config::disableLog) < static_cast<int>(logLevel)) {
 			if constexpr (logLevel == Level::trace) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]: {}", ansi::set_style(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]:\t{}\n", ansi::set_style(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::debug) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]: {}", ansi::set_style(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]:\t{}\n", ansi::set_style(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::info) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]: {}", ansi::set_style(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]:\t{}\n", ansi::set_style(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::warning) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]: {}", ansi::set_style(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]:\t{}\n", ansi::set_style(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::error) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]: {}", ansi::set_style(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]:\t{}\n", ansi::set_style(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::exception) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]: {}", ansi::set_style(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]:\t{}\n", ansi::set_style(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			}
 		} else return;
 	}
