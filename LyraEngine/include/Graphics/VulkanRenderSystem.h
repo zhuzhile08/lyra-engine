@@ -41,7 +41,7 @@ namespace vulkan {
 namespace vk {
 
 using Instance = RAIIContainer<VkInstance, NullHandle>;
-using DebugUtilsMessengerEXT = RAIIContainer<VkInstance, VkDebugUtilsMessengerEXT>;
+using DebugUtilsMessengerEXT = RAIIContainer<VkDebugUtilsMessengerEXT, VkInstance>;
 using DebugUtilsMessenger = DebugUtilsMessengerEXT;
 using PhysicalDevice = RAIIContainer<VkPhysicalDevice, VkInstance>;
 using Device = RAIIContainer<VkDevice, VkPhysicalDevice>;
@@ -84,11 +84,8 @@ using DefragmentationContext = RAIIContainer<VmaDefragmentationContext, VmaAlloc
 } // namespace vma 
 
 struct InitInfo {
-	std::string title;
 	Array<uint32, 3> version;
 	SDL_Window* window;
-	std::vector <const char*> requestedValidationLayers;
-	std::vector <const char*> requestedDeviceExtensions;
 };
 
 bool init_render_system(const InitInfo& info);

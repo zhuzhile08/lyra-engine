@@ -66,7 +66,7 @@ public:
 			vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.data());
 
 			// go through every requested layers and see if they are available
-			for (const auto& requestedValidationLayer : info.requestedValidationLayers) {
+			for (const auto& requestedValidationLayer : config::requestedValidationLayers) {
 				bool found = false;
 				log::info("Available layers:");
 
@@ -95,11 +95,22 @@ public:
 			instanceExtensions.push_back("VK_KHR_portability_enumeration");
 #endif
 
+#ifndef NDEBUG // debug messenger create info
+			VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo {
+				VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+				nullptr,
+				0,
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+				VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+				validationCallBack
+			};
+#endif
+
 			// define some info for the application that will be used in instance creation
 			VkApplicationInfo appInfo{
 				VK_STRUCTURE_TYPE_APPLICATION_INFO,
 				nullptr,
-				info.title.c_str(),
+				config::title.data(),
 				VK_MAKE_API_VERSION(0, info.version[0], info.version[1], info.version[2]),
 				"LyraEngine",
 				VK_MAKE_API_VERSION(0, 0, 7, 0),
@@ -109,7 +120,11 @@ public:
 			// defining some instance info
 			VkInstanceCreateInfo createInfo{
 				VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+#ifndef NDEBUG
+				&debugMessengerCreateInfo,
+#else
 				nullptr,
+#endif
 #ifdef _WIN32
 				0,
 #elif __APPLE__
@@ -117,8 +132,8 @@ public:
 #endif
 				&appInfo,
 #ifndef NDEBUG
-				static_cast<uint32>(info.requestedValidationLayers.size()),
-				info.requestedValidationLayers.data(),
+				static_cast<uint32>(config::requestedValidationLayers.size()),
+				config::requestedValidationLayers.data(),
 #else
 				0,
 				nullptr,
@@ -129,6 +144,10 @@ public:
 
 			// create the instance
 			instance = vk::Instance(VK_NULL_HANDLE, createInfo);
+
+#ifndef NDEBUG
+			debugMessenger = vk::DebugUtilsMessenger(instance, debugMessengerCreateInfo);
+#endif
 		}
 		
 		{ // find a suitable physical device
@@ -226,7 +245,7 @@ public:
 							}
 #endif
 							// go through every requested extensions and see if they are available
-							for (const auto& requestedDeviceExtension : info.requestedDeviceExtensions) {
+							for (const auto& requestedDeviceExtension : config::requestedDeviceExtensions) {
 								for (const auto& availableDeviceExtension : availableDeviceExtensions) {
 									if (strcmp(requestedDeviceExtension, availableDeviceExtension.extensionName) == 0) {
 										break;
@@ -299,14 +318,14 @@ public:
 				static_cast<uint32>(queueCreateInfos.size()),
 				queueCreateInfos.data(),
 	#ifndef NDEBUG
-				static_cast<uint32>(info.requestedValidationLayers.size()),
-				info.requestedValidationLayers.data(),
+				static_cast<uint32>(config::requestedValidationLayers.size()),
+				config::requestedValidationLayers.data(),
 	#else
 				0,
 				nullptr,
 	#endif
-				static_cast<uint32>(info.requestedDeviceExtensions.size()),
-				info.requestedDeviceExtensions.data(),
+				static_cast<uint32>(config::requestedDeviceExtensions.size()),
+				config::requestedDeviceExtensions.data(),
 				&deviceFeatures
 			};
 			// create the device
@@ -521,6 +540,7 @@ public:
 	}
 
 	vk::Instance instance;
+	vk::DebugUtilsMessenger debugMessenger;
 
 	vk::PhysicalDevice physicalDevice;
 	VkPhysicalDeviceProperties deviceProperties;
@@ -668,7 +688,7 @@ GPUBuffer::GPUBuffer(
 
 void GPUBuffer::copy_data(const void* src, size_t copySize) {
 	void* data;
-	ASSERT(globalRenderSystem->mapMemory(memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at {}!", get_address(memory));
+	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, &data), "map buffer memory at {}", get_address(memory));
 	
 #ifndef NDEBUG
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(size) : copySize);
@@ -687,7 +707,7 @@ void GPUBuffer::copy_data(const void* src, size_t copySize) {
 
 void GPUBuffer::copy_data(const void** src, uint32 arraySize, size_t elementSize) {
 	char* data;
-	ASSERT(globalRenderSystem->mapMemory(memory, (void**)&data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at {}!", get_address(memory));
+	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, (void**)&data), "map buffer memory at {}", get_address(memory));
 
 	for (uint32 i = 0; i < arraySize; i++) {
 		memcpy(static_cast<void*>(data + elementSize * i), src[i], elementSize);

@@ -106,6 +106,10 @@ public:
 				VULKAN_ASSERT(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				VULKAN_ASSERT(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
+			} else if constexpr (std::same_as<handle_type, VkDebugUtilsMessengerEXT>) {
+				auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(this->m_owner, "vkCreateDebugUtilsMessengerEXT");
+				if (func) VULKAN_ASSERT(func(this->m_owner, &createInfo, nullptr, &this->m_handle), "create debug messenger");
+				else ASSERT(false, "Creation of the Vulkan Debug Messenger is not supported!");
 			}
 		}
 	}
@@ -302,6 +306,9 @@ public:
 				vkDestroyDevice(m_handle, nullptr);
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				vkDestroyInstance(m_handle, nullptr);
+			} else if constexpr (std::same_as<handle_type, VkDebugUtilsMessengerEXT>) {
+				auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(this->m_owner, "vkDestroyDebugUtilsMessengerEXT");
+				if (func) func(this->m_owner, this->m_handle, nullptr);
 			} else if constexpr (std::same_as<handle_type, SDL_Window*>) {
 				SDL_DestroyWindow(m_handle);
 			} // some objects don't need to be destroyed explicitly, so they aren't here, even though they use this RAII container
