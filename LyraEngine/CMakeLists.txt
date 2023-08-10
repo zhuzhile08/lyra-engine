@@ -100,7 +100,7 @@ target_link_libraries(LyraEngine
 LINK_PUBLIC
 	# graphics and windowing libraries
 	Vulkan::Vulkan
-	SDL2
+	SDL2::SDL2-static
 	ImGui
 
 	# math and physics libraries
