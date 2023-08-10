@@ -19,14 +19,16 @@ namespace lyra {
 
 namespace config {
 
-// disable logging enum
+// Disable logging enum
+// Setting a logging level as config::disableLog only disables all severities BELOW it. This means that exceptions can't (and also shouldn't) be disabled
 enum class DisableLog {
 	none,
 	trace,
 	debug,
 	info,
 	warning,
-	error
+	error,
+	exception
 };
 
 inline constexpr DisableLog disableLog = DisableLog::none;
@@ -50,8 +52,8 @@ inline constexpr size_t maxConcurrentRenderers = 16;
 inline constexpr bool anistropy = true;
 inline constexpr float32 anistropyStrength = 1.0f;
 inline constexpr float32 resolution = 100;
-inline constexpr const char* title = "Lyra Engine";
-inline constexpr const char* iconPath = "";
+inline constexpr std::string_view title = "Lyra Engine";
+inline constexpr std::string_view iconPath = "";
 inline constexpr uint32 windowWidth = 1280; // window width and height
 inline constexpr uint32 windowHeight = 720;
 inline constexpr bool resizable = true;
