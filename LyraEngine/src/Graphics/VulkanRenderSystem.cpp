@@ -22,15 +22,20 @@ VKAPI_ATTR VkBool32 VKAPI_CALL validationCallBack(
 	switch (messageSeverity) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 			lyra::log::trace("{}\n", callbackData->pMessage);
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 			lyra::log::info("{}\n", callbackData->pMessage);
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
 			lyra::log::warning("{}\n", callbackData->pMessage);
+			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 			lyra::log::error("{}\n", callbackData->pMessage);
+			break;
 			
 		default:
 			lyra::log::debug("{}\n", callbackData->pMessage);
+			break;
 	}
 
 	return VK_FALSE;
@@ -244,18 +249,14 @@ public:
 								log::debug("\t{}", availableDeviceExtension.extensionName);
 							}
 #endif
+							std::unordered_set<const char*> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
+
 							// go through every requested extensions and see if they are available
-							for (const auto& requestedDeviceExtension : config::requestedDeviceExtensions) {
-								for (const auto& availableDeviceExtension : availableDeviceExtensions) {
-									if (strcmp(requestedDeviceExtension, availableDeviceExtension.extensionName) == 0) {
-										break;
-									} else {
-										return false;
-									}
-								}
+							for (const auto& availableDeviceExtension : availableDeviceExtensions) {
+								requestedExtensions.erase(availableDeviceExtension.extensionName);
 							}
 
-							return true;
+							return !requestedExtensions.empty();
 						} ()
 					) {
 						score = 0;
@@ -285,8 +286,8 @@ public:
 			}
 
 			if (possibleDevices.rbegin()->first <= 0) {
-				log::exception("Failed to find GPU with enough features");
-			}
+				ASSERT(false, "Failed to find GPU with enough features");
+			} else log::info("Picked the GPU with a score of: {}!", possibleDevices.rbegin()->first);
 
 			physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.rbegin()->second.device, instance));
 			deviceProperties = possibleDevices.rbegin()->second.properties;
@@ -772,7 +773,7 @@ void Image::transition_layout(
 		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else log::exception("Invalid image layout transition was requested whilst transitioning an image layout at: {}!", get_address(this));
+	else ASSERT(false, "Invalid image layout transition was requested whilst transitioning an image layout at: {}!", get_address(this));
 
 	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).pipelineBarrier(
 		sourceStage, 
@@ -801,7 +802,7 @@ VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, VkForma
 		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
 	}
 
-	log::exception("Failed to find supported format out of user defined formats!");
+	ASSERT(false, "Failed to find supported format out of user defined formats!");
 
 	return VK_FORMAT_MAX_ENUM;
 }
@@ -842,7 +843,7 @@ Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(wi
 		}
 
 		if (presentFamilyIndex == std::numeric_limits<uint32>::max()) {
-			log::exception("Failed to find queue family with presentation support with physical device: {} for surface: {}!", get_address(globalRenderSystem->physicalDevice), get_address(surface));
+			ASSERT(false, "Failed to find queue family with presentation support with physical device: {} for surface: {}!", get_address(globalRenderSystem->physicalDevice), get_address(surface));
 		}
 	}
 
