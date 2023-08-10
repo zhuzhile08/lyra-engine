@@ -23,7 +23,7 @@ detail::LoadedImage load_image(std::string_view path) {
 
 	int width, height, channels;
 	stbi_uc* imagePixelData = stbi_load(path.data(), &width, &height, &channels, STBI_rgb_alpha);
-	if (imagePixelData == nullptr) log().exception("Failed to load image from path: ", path, "!");
+	if (imagePixelData == nullptr) log::exception("Failed to load image from path: {}!", path);
 
 	util::detail::LoadedImage imageData{
 		(uint32) width, // jsonImageData.at("width"),
