@@ -50,12 +50,18 @@ enum class Font {
 	blink
 };
 
-inline constexpr std::string set_style(Font font, uint32 foreground, uint32 background) {
+#ifdef _WIN32
+#define IS_FMT_CONSTEXPR
+#else
+#define IS_FMT_CONSTEXPR constexpr
+#endif
+
+inline IS_FMT_CONSTEXPR std::string set_style(Font font, uint32 foreground, uint32 background) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{};48;5;{}m", static_cast<int>(font), foreground, background);
 	else return "";
 }
-inline constexpr std::string set_style(Font font, uint32 foreground) {
+inline IS_FMT_CONSTEXPR std::string set_style(Font font, uint32 foreground) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{}m", static_cast<int>(font), foreground);
 	else return "";
@@ -137,7 +143,7 @@ public:
 		log<Level::exception>(std::forward<Msg>(message));
 	}
 
-	constexpr void new_line() {
+	IS_FMT_CONSTEXPR void new_line() {
 		fmt::print(m_outStream, "\n");
 	}
 	
@@ -272,8 +278,14 @@ template <class Format, typename ... Args> inline void VULKAN_ASSERT(VkResult fu
 	if (function != VkResult::VK_SUCCESS) log::exception("Vulkan Exception: Failed to {} with error code: {}!", fmt::vformat(format, std::forward<Args>(message)...), function);
 }
 
-#define GET_ASSERT_OVERLOAD(_1, _2, _3, Name, ...) Name
+#ifndef NDEBUG
+#define GET_ASSERT_OVERLOAD(_2, _3, Name, ...) Name
 #define ASSERT(...) GET_ASSERT_OVERLOAD(__VA_ARGS__, lyraAssert, lyraAssert)(__VA_ARGS__)
 #define VULKAN_ASSERT(...) GET_ASSERT_OVERLOAD(__VA_ARGS__, VULKAN_ASSERT, VULKAN_ASSERT)(__VA_ARGS__)
+#else
+#define ASSERT(...)
+#define VULKAN_ASSERT(...)
+#endif
+
 
 } // namespace lyra

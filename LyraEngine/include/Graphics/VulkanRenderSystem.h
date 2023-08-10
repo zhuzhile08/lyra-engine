@@ -41,6 +41,8 @@ namespace vulkan {
 namespace vk {
 
 using Instance = RAIIContainer<VkInstance, NullHandle>;
+using DebugUtilsMessengerEXT = RAIIContainer<VkInstance, VkDebugUtilsMessengerEXT>;
+using DebugUtilsMessenger = DebugUtilsMessengerEXT;
 using PhysicalDevice = RAIIContainer<VkPhysicalDevice, VkInstance>;
 using Device = RAIIContainer<VkDevice, VkPhysicalDevice>;
 using Queue = RAIIContainer<VkQueue, VkDevice>;
@@ -111,13 +113,15 @@ public:
 			USAGE_SIMULTANIOUS = 0x00000004
 		};
 
-		CommandBuffer() = default;
+		CommandBuffer() noexcept = default;
 		CommandBuffer(const CommandPool& commandPool, const VkCommandBufferLevel& level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-		CommandBuffer(const VkCommandBuffer& commandBuffer) : commandBuffer(vk::CommandBuffer(commandBuffer, VK_NULL_HANDLE)) { } // does not take ownership in this case
-		CommandBuffer(CommandBuffer&& movable) : 
+		CommandBuffer(const VkCommandBuffer& commandBuffer) noexcept : 
+			commandBuffer(vk::CommandBuffer(commandBuffer, VK_NULL_HANDLE)), // does not take ownership in this case
+			commandPool(VK_NULL_HANDLE) { } 
+		CommandBuffer(CommandBuffer&& movable) noexcept :
 			commandBuffer(std::exchange(movable.commandBuffer, VkCommandBuffer { } )), 
 			commandPool(std::exchange(movable.commandPool, VkCommandPool { } )) { }
-		CommandBuffer& operator=(CommandBuffer&& movable) {
+		CommandBuffer& operator=(CommandBuffer&& movable) noexcept {
 			if (&movable != this) {
 				commandBuffer = std::exchange(movable.commandBuffer, VkCommandBuffer { } );
 				commandPool = std::exchange(movable.commandPool, VkCommandPool { } );
