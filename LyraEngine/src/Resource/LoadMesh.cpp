@@ -16,9 +16,9 @@ detail::LoadedMesh load_mesh(std::string_view path) {
 	tinyobj::LoadObj(&load.vertices, &load.shapes, nullptr, &warning, &error, path.data());
 
 	// check if there are warnings
-	if (!warning.empty()) log().warning("A problem occurred while loading a material: ", warning);
+	if (!warning.empty()) log::warning("A problem occurred while loading a material: {}!", warning);
 	// check if there are errors
-	if (!error.empty()) log().error("An error occurred while loading a material: ", error);
+	if (!error.empty()) log::error("An error occurred while loading a material: {}!", error);
 
 	// convert to engine-readable data
 	detail::LoadedMesh mesh;

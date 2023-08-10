@@ -3,7 +3,7 @@
 #include <Common/Logger.h>
 #include <map>
 
-#include <Resource/LoadFile.h>
+#include <Common/FileSystem.h>
 
 namespace lyra {
 
@@ -22,13 +22,13 @@ detail::LoadedMaterial load_material(std::string_view path) {
 
 	// load the material
 	std::ifstream file; // raw file
-	load_file(path, OpenMode::MODE_INPUT, file);
+	//filesystem::load_file(path, filesystem::OpenMode::input, file);
 	tinyobj::LoadMtl(&mats, &material.mats, &file, &warning, &error);
 
 	// check if there are warnings
-	if (!warning.empty()) log().warning("A problem occurred while loading a material: ", warning);
+	if (!warning.empty()) log::warning("A problem occurred while loading a material: {}!", warning);
 	// check if there are errors
-	if (!error.empty()) log().error("An error occurred while loading a material: ", error);
+	if (!error.empty()) log::error("An error occurred while loading a material: {}!", error);
 
 	return material;
 }
