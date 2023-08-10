@@ -73,6 +73,12 @@ struct Radian {
 	}
 };
 
+namespace log {
+
+class Logger;
+
+} // namespace log
+
 // some higher level wrappers
 
 class Window;
@@ -170,6 +176,5 @@ class AudioFilter;
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 #define DEFINE_DEFAULT_MOVE(type) type(type&&) = default; type& operator=(type&&) = default;
-#define ASSERT(exp, msg) assert(((void)msg, exp)) // Replace when logger is done @todo
 
 #define GLM_FORCE_RADIANS
