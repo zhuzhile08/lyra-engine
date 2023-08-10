@@ -159,7 +159,7 @@ public:
 						if (
 							localQueueFamilies.copyFamilyIndex != std::numeric_limits<uint32>::max() && 
 							localQueueFamilies.computeFamilyIndex != std::numeric_limits<uint32>::max() &&
-							localQueueFamilies.computeFamilyIndex != std::numeric_limits<uint32>::max()
+							localQueueFamilies.copyFamilyIndex != std::numeric_limits<uint32>::max()
 						) {
 							score = 1;
 							break;
@@ -508,7 +508,7 @@ public:
 static RenderSystem* globalRenderSystem;
 
 bool init_render_system(const InitInfo& info) {
-	bool sucess;
+	bool sucess = true;
 	globalRenderSystem = new RenderSystem(info, sucess);
 	return sucess;
 }
@@ -1047,12 +1047,15 @@ void Swapchain::aquire() {
 			break;	
 		case VK_ERROR_SURFACE_LOST_KHR:
 			lostSurface = true;
+			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
 			invalidSwapchain = true;
+			break;
 
 		default:
 			VULKAN_ASSERT(result, "aquire next vulkan swapchain image");
+			break;
 	}
 }
 
@@ -1074,12 +1077,16 @@ void Swapchain::present() {
 			break;	
 		case VK_ERROR_SURFACE_LOST_KHR:
 			lostSurface = true;
+			break;
+
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
 			invalidSwapchain = true;
+			break;
 
 		default:
 			VULKAN_ASSERT(result, "present swapchain");
+			break;
 	}
 
 	globalRenderSystem->waitForFence(
