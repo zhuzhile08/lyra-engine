@@ -258,34 +258,38 @@ inline void new_line() {
 
 } // namespace log
 
-template <class Msg> constexpr void lyraAssert(bool condition, Msg message) {
+template <class Msg> inline constexpr void lyraAssert(bool condition, Msg message) {
 	if (!condition) {
 		log::exception(std::forward<Msg>(message));
 		std::abort();
 	}
 }
-template <class Msg> constexpr void VULKAN_ASSERT(VkResult function, Msg message) {
-	if (function != VkResult::VK_SUCCESS) log::exception("Vulkan Exception: Failed to {} with error code: {}!", std::forward<Msg>(message), function);
-}
-
-template <class Format, typename ... Args> inline void lyraAssert(bool condition, Format&& format, Args&&... message) {
-	if (!condition) {
-		log::exception(format, std::forward<Args>(message)...);
+template <class Msg> inline constexpr void vulkanAssert(VkResult function, Msg message) {
+	if (function != VkResult::VK_SUCCESS) {
+		log::exception("Vulkan Exception: Failed to {} with error code: {}!", std::forward<Msg>(message), function);
 		std::abort();
 	}
 }
-template <class Format, typename ... Args> inline void VULKAN_ASSERT(VkResult function, Format&& format, Args&&... message) {
-	if (function != VkResult::VK_SUCCESS) log::exception("Vulkan Exception: Failed to {} with error code: {}!", fmt::vformat(format, std::forward<Args>(message)...), function);
+
+template <class Format, typename ... Args> inline constexpr void lyraAssert(bool condition, Format&& format, Args&&... message) {
+	if (!condition) {
+		log::exception(std::forward<Format>(format), std::forward<Args>(message)...);
+		std::abort();
+	}
+}
+template <class Format, typename ... Args> inline constexpr void vulkanAssert(VkResult function, Format&& format, Args&&... message) {
+	if (function != VkResult::VK_SUCCESS) {
+		log::exception("Vulkan Exception: Failed to {} with error code: {}!", fmt::format(fmt::runtime(std::forward<Format>(format)), std::forward<Args>(message)...), function);
+		std::abort();
+	}
 }
 
 #ifndef NDEBUG
-#define GET_ASSERT_OVERLOAD(_2, _3, Name, ...) Name
-#define ASSERT(...) GET_ASSERT_OVERLOAD(__VA_ARGS__, lyraAssert, lyraAssert)(__VA_ARGS__)
-#define VULKAN_ASSERT(...) GET_ASSERT_OVERLOAD(__VA_ARGS__, VULKAN_ASSERT, VULKAN_ASSERT)(__VA_ARGS__)
+#define ASSERT(...) lyraAssert(__VA_ARGS__)
+#define VULKAN_ASSERT(...) vulkanAssert(__VA_ARGS__)
 #else
 #define ASSERT(...)
 #define VULKAN_ASSERT(...)
 #endif
-
 
 } // namespace lyra
