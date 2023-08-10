@@ -12,6 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/Logger.h>
 #include <Common/UniquePointer.h>
 #include <Common/Node.h>
 #include <Common/FileSystem.h>

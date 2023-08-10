@@ -41,24 +41,24 @@ public:
 			// go through every requested layers and see if they are available
 			for (const auto& requestedValidationLayer : info.requestedValidationLayers) {
 				bool found = false;
-				log().info("Available layers:");
+				log::info("Available layers:");
 
 				for (const auto& availableValidationLayer : availableValidationLayers) {
-					log().debug(log().tab(), availableValidationLayer.layerName, ": ", availableValidationLayer.description);
+					log::debug("\t{}: {}", availableValidationLayer.layerName, availableValidationLayer.description);
 					if (strcmp(requestedValidationLayer, availableValidationLayer.layerName) == 0) {
 						found = true;
 						break;
 					}
 				}
 
-				lassert(found, "User required Vulkan validation layer wasn't found: ", requestedValidationLayer);
+				ASSERT(found, "User required Vulkan validation layer wasn't found: {}!", requestedValidationLayer);
 			}
 #endif
 			// get all extensions
 			uint32 SDLExtensionCount = 0;
-			lassert(SDL_Vulkan_GetInstanceExtensions(info.window, &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
+			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
 			std::vector<const char*> SDLExtensions(SDLExtensionCount);
-			lassert(SDL_Vulkan_GetInstanceExtensions(info.window, &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 			// add some required extensions
 			SDLExtensions.push_back("VK_KHR_get_physical_device_properties2");
 #ifdef __APPLE__
@@ -112,7 +112,7 @@ public:
 
 			// get all devices
 			uint32 deviceCount = 0;
-			vassert(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), "find any Vulkan suitable GPUs");
+			VULKAN_ASSERT(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), "find any Vulkan suitable GPUs");
 			std::vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
 			vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
@@ -120,7 +120,7 @@ public:
 			std::multimap <uint32, PhysicalDeviceData> possibleDevices;
 
 			for (const auto& device : devices) {
-				log().info("GPU ", std::to_string((&device - &devices[0]) + 1), ": ");
+				log::info("GPU {}: ", std::to_string((&device - &devices[0]) + 1));
 				
 				{ // rate the physical device
 					// set the score to 1 first, if the GPU does not have required features, set it to 0
@@ -169,7 +169,7 @@ public:
 					}
 
 					if (score == 0) {
-						log().warning("GPU does not have the required queue families available!");
+						log::warning("GPU does not have the required queue families available!");
 					}
 					
 					// get the available extensions
@@ -188,13 +188,13 @@ public:
 					if (
 						!features.multiDrawIndirect || 
 						[&]() -> bool {
-	#ifndef NDEBUG
+#ifndef NDEBUG
 							// print all all availabe extensions
-							log().info("Available device extensions:");
+							log::info("Available device extensions:");
 							for (const auto& availableDeviceExtension : availableDeviceExtensions) {
-								log().debug(log().tab(), availableDeviceExtension.extensionName);
+								log::debug("\t{}", availableDeviceExtension.extensionName);
 							}
-	#endif
+#endif
 							// go through every requested extensions and see if they are available
 							for (const auto& requestedDeviceExtension : info.requestedDeviceExtensions) {
 								for (const auto& availableDeviceExtension : availableDeviceExtensions) {
@@ -210,24 +210,24 @@ public:
 						} ()
 					) {
 						score = 0;
-						log().warning("GPU does not have some required features!");
+						log::warning("GPU does not have some required features!");
 					}
 
-					log().info("Available device features and properties: ");
+					log::info("Available device features and properties: ");
 
 					// the actual scoring system
 					if (score > 0) {
 						score = 0;
 						if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
 							score += 20;
-							log().debug(log().tab(), "Discrete GPU");
+							log::debug("\t{}", "Discrete GPU");
 						} if (features.samplerAnisotropy) {
 							score += 4;
-							log().debug(log().tab(), "Supports anistropic filtering");
+							log::debug("\t{}", "Supports anistropic filtering");
 						} 
 						score += (int)(properties.limits.maxImageDimension2D / 2048);
 
-						log().info("Score: ", score, log().end_l());
+						log::info("Score: {}\n", score);
 					}
 
 					// insert the device into the queue
@@ -236,7 +236,7 @@ public:
 			}
 
 			if (possibleDevices.rbegin()->first <= 0) {
-				log().exception("Failed to find GPU with enough features");
+				log::exception("Failed to find GPU with enough features");
 			}
 
 			physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.rbegin()->second.device, instance));
@@ -525,7 +525,7 @@ CommandQueue::CommandPool::CommandPool() {
 }
 
 void CommandQueue::CommandPool::reset() {
-	vassert(globalRenderSystem->resetCommandPool(commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "reset command pool");
+	VULKAN_ASSERT(globalRenderSystem->resetCommandPool(commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT), "reset command pool");
 }
 
 CommandQueue::CommandBuffer::CommandBuffer(const CommandPool& commandPool, const VkCommandBufferLevel& level) : 
@@ -540,7 +540,7 @@ CommandQueue::CommandBuffer::CommandBuffer(const CommandPool& commandPool, const
 	};
 
 	// create the command buffers
-	vassert(vkAllocateCommandBuffers(globalRenderSystem->device.get(), &allocInfo, &commandBuffer.get()), "create Vulkan command buffer");
+	VULKAN_ASSERT(vkAllocateCommandBuffers(globalRenderSystem->device.get(), &allocInfo, &commandBuffer.get()), "create Vulkan command buffer");
 }
 
 void CommandQueue::CommandBuffer::begin(const Usage& usage) const {
@@ -553,11 +553,11 @@ void CommandQueue::CommandBuffer::begin(const Usage& usage) const {
 	};
 
 	// start recording
-	vassert(vkBeginCommandBuffer(commandBuffer, &beginInfo), "start recording Vulkan command buffer");
+	VULKAN_ASSERT(vkBeginCommandBuffer(commandBuffer, &beginInfo), "start recording Vulkan command buffer");
 }
 
 void CommandQueue::CommandBuffer::reset(VkCommandBufferResetFlags flags) const {
-	vassert(vkResetCommandBuffer(commandBuffer, flags), "reset command buffer"); // reset the command buffer
+	VULKAN_ASSERT(vkResetCommandBuffer(commandBuffer, flags), "reset command buffer"); // reset the command buffer
 }
 
 CommandQueue::CommandQueue() { 
@@ -583,10 +583,10 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 			signalSemaphores.data()
 		};
 
-		vassert(vkQueueSubmit(queue, 1, &submitInfo, fence), "submit Vulkan queue");
+		VULKAN_ASSERT(vkQueueSubmit(queue, 1, &submitInfo, fence), "submit Vulkan queue");
 
 		if (wait) {
-			vassert(globalRenderSystem->waitForFence(vk::Fence(fence, VK_NULL_HANDLE), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
+			VULKAN_ASSERT(globalRenderSystem->waitForFence(vk::Fence(fence, VK_NULL_HANDLE), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
 		}
 
 		activeCommandBuffer = VK_NULL_HANDLE;
@@ -638,7 +638,7 @@ GPUBuffer::GPUBuffer(
 
 void GPUBuffer::copy_data(const void* src, size_t copySize) {
 	void* data;
-	lassert(globalRenderSystem->mapMemory(memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(memory), "!");
+	ASSERT(globalRenderSystem->mapMemory(memory, &data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at {}!", get_address(memory));
 	
 #ifndef NDEBUG
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(size) : copySize);
@@ -657,7 +657,7 @@ void GPUBuffer::copy_data(const void* src, size_t copySize) {
 
 void GPUBuffer::copy_data(const void** src, uint32 arraySize, size_t elementSize) {
 	char* data;
-	lassert(globalRenderSystem->mapMemory(memory, (void**)&data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at ", get_address(memory), "!");
+	ASSERT(globalRenderSystem->mapMemory(memory, (void**)&data) == VkResult::VK_SUCCESS, "Failed to map buffer memory at {}!", get_address(memory));
 
 	for (uint32 i = 0; i < arraySize; i++) {
 		memcpy(static_cast<void*>(data + elementSize * i), src[i], elementSize);
@@ -722,7 +722,7 @@ void Image::transition_layout(
 		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else log().exception("Invalid image layout transition was requested whilst transitioning an image layout at: ", get_address(this));
+	else log::exception("Invalid image layout transition was requested whilst transitioning an image layout at: {}!", get_address(this));
 
 	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).pipelineBarrier(
 		sourceStage, 
@@ -751,7 +751,7 @@ VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, VkForma
 		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
 	}
 
-	log().exception("lyra::vulkan::Image::get_best_format(): Failed to find supported format out of user defined formats!");
+	log::exception("Failed to find supported format out of user defined formats!");
 
 	return VK_FORMAT_MAX_ENUM;
 }
@@ -780,8 +780,8 @@ Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(wi
 		uint32 familyIndex = 0;
 		for (const auto& queueFamilyProperty : globalRenderSystem->queueFamilies.queueFamilyProperties) {
 			VkBool32 presentSupport;
-			vassert(vkGetPhysicalDeviceSurfaceSupportKHR(globalRenderSystem->physicalDevice, familyIndex, surface, &presentSupport),
-				"check check physical device queue family presentation support");
+			VULKAN_ASSERT(vkGetPhysicalDeviceSurfaceSupportKHR(globalRenderSystem->physicalDevice, familyIndex, surface, &presentSupport),
+				"check physical device queue family presentation support");
 			
 			if (presentFamilyIndex == std::numeric_limits<uint32>::max() && presentSupport == VK_TRUE) {
 				presentFamilyIndex = familyIndex;
@@ -792,7 +792,7 @@ Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(wi
 		}
 
 		if (presentFamilyIndex == std::numeric_limits<uint32>::max()) {
-			log().exception("Failed to find queue family with presentation support with physical device: ", get_address(globalRenderSystem->physicalDevice), " for surface: ", get_address(surface), "!");
+			log::exception("Failed to find queue family with presentation support with physical device: {} for surface: {}!", get_address(globalRenderSystem->physicalDevice), get_address(surface));
 		}
 	}
 
@@ -819,7 +819,7 @@ Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(wi
 }
 
 void Swapchain::createSwapchain() {
-	log().info("Swapchain configurations are: ");
+	log::info("Swapchain configurations are: ");
 
 	VkSurfaceFormatKHR surfaceFormat; 
 	{ // determine the best format
@@ -837,7 +837,7 @@ void Swapchain::createSwapchain() {
 		surfaceFormat = availableFormats[0];
 		format = surfaceFormat.format;
 
-		log().debug(log().tab(), "format is ", format, " (preferred format is format ", VK_FORMAT_B8G8R8A8_SRGB, " with color space ", VK_COLOR_SPACE_SRGB_NONLINEAR_KHR, ")");
+		log::debug("\tFormat is: {} (preferred format is format: {} with color space: {})", format, VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
 	}
 	
 	VkPresentModeKHR presentMode;
@@ -855,7 +855,7 @@ void Swapchain::createSwapchain() {
 
 		presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
-		log().debug(log().tab(), "present mode is ", presentMode, " (preferred present mode is mode ", VK_PRESENT_MODE_MAILBOX_KHR, ")");
+		log::debug("\tPresent mode is {} (preferred present mode is mode {})", presentMode, VK_PRESENT_MODE_MAILBOX_KHR);
 	}
 
 	VkSurfaceCapabilitiesKHR surfaceCapabilities;
@@ -864,13 +864,13 @@ void Swapchain::createSwapchain() {
 
 		if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF) {
 			surfaceCapabilities.currentExtent.width = config::windowWidth;
-			log().warning("Something went wrong whilst attempting getting the swapchain width!");
+			log::warning("Something went wrong whilst attempting getting the swapchain width!");
 		} if (surfaceCapabilities.currentExtent.height == 0xFFFFFFFF) {
 			surfaceCapabilities.currentExtent.height = config::windowHeight;
-			log().warning("Something went wrong whilst attempting getting the swapchain height!");
+			log::warning("Something went wrong whilst attempting getting the swapchain height!");
 		} if (surfaceCapabilities.maxImageCount == 0xFFFFFFFF) {
 			surfaceCapabilities.maxImageCount = 8;
-			log().warning("Something went wrong whilst attempting getting the number of swapchain images!");
+			log::warning("Something went wrong whilst attempting getting the number of swapchain images!");
 		} if (surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
 			surfaceCapabilities.supportedUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		} if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) {
@@ -930,7 +930,7 @@ void Swapchain::createSwapchain() {
 		std::vector<VkImage> tempImages;
 		
 		uint32 imageCount;
-		vassert(vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
+		VULKAN_ASSERT(vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
 		images.resize(imageCount); tempImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, tempImages.data());
 
@@ -1052,7 +1052,7 @@ void Swapchain::aquire() {
 			invalidSwapchain = true;
 
 		default:
-			vassert(result, "aquire next vulkan swapchain image");
+			VULKAN_ASSERT(result, "aquire next vulkan swapchain image");
 	}
 }
 
@@ -1079,7 +1079,7 @@ void Swapchain::present() {
 			invalidSwapchain = true;
 
 		default:
-			vassert(result, "present swapchain");
+			VULKAN_ASSERT(result, "present swapchain");
 	}
 
 	globalRenderSystem->waitForFence(

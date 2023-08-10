@@ -69,43 +69,43 @@ public:
 	template <class CI> constexpr RAIIContainer(owner_type owner, const CI& createInfo) : RAIIContainer<Ty, OTy>(Ty { }, owner) { 
 		if (!this->m_handle) {
 			if constexpr (std::same_as<handle_type, VkFramebuffer>) {
-				vassert(vkCreateFramebuffer(this->m_owner, &createInfo, nullptr, &this->m_handle), "create framebuffer");
+				VULKAN_ASSERT(vkCreateFramebuffer(this->m_owner, &createInfo, nullptr, &this->m_handle), "create framebuffer");
 			} else if constexpr (std::same_as<handle_type, VkRenderPass>) {
-				vassert(vkCreateRenderPass(this->m_owner, &createInfo, nullptr, &this->m_handle), "create render pass");
+				VULKAN_ASSERT(vkCreateRenderPass(this->m_owner, &createInfo, nullptr, &this->m_handle), "create render pass");
 			} else if constexpr (std::same_as<handle_type, VkSampler>) {
-				vassert(vkCreateSampler(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image sampler");
+				VULKAN_ASSERT(vkCreateSampler(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image sampler");
 			} else if constexpr (std::same_as<handle_type, VkCommandPool>) {
-				vassert(vkCreateCommandPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create command pool");
+				VULKAN_ASSERT(vkCreateCommandPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create command pool");
 			} else if constexpr (std::same_as<handle_type, VkCommandBuffer>) {
-				vassert(vkAllocateCommandBuffers(this->m_owner, &createInfo, &this->m_handle), "create command buffer");
+				VULKAN_ASSERT(vkAllocateCommandBuffers(this->m_owner, &createInfo, &this->m_handle), "create command buffer");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorSetLayout>) {
-				vassert(vkCreateDescriptorSetLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor set layout");
+				VULKAN_ASSERT(vkCreateDescriptorSetLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor set layout");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
-				vassert(vkCreateDescriptorPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor pool");
+				VULKAN_ASSERT(vkCreateDescriptorPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor pool");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorSet>) {
-				vassert(vkAllocateDescriptorSets(this->m_owner, &createInfo, &this->m_handle), "allocate descriptor sets");
+				VULKAN_ASSERT(vkAllocateDescriptorSets(this->m_owner, &createInfo, &this->m_handle), "allocate descriptor sets");
 			} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
-				vassert(vkCreateSemaphore(this->m_owner, &createInfo, nullptr, &this->m_handle), "create semaphore");
+				VULKAN_ASSERT(vkCreateSemaphore(this->m_owner, &createInfo, nullptr, &this->m_handle), "create semaphore");
 			} else if constexpr (std::same_as<handle_type, VkFence>) {
-				vassert(vkCreateFence(this->m_owner, &createInfo, nullptr, &this->m_handle), "create fence");
+				VULKAN_ASSERT(vkCreateFence(this->m_owner, &createInfo, nullptr, &this->m_handle), "create fence");
 			} else if constexpr (std::same_as<handle_type, VkImageView>) {
-				vassert(vkCreateImageView(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image view");
+				VULKAN_ASSERT(vkCreateImageView(this->m_owner, &createInfo, nullptr, &this->m_handle), "create image view");
 			} else if constexpr (std::same_as<handle_type, VkPipelineLayout>) {
-				vassert(vkCreatePipelineLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create pipeline layout");
+				VULKAN_ASSERT(vkCreatePipelineLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create pipeline layout");
 			} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
-				vassert(vkCreateShaderModule(this->m_owner, &createInfo, nullptr, &this->m_handle), "create shader module");
+				VULKAN_ASSERT(vkCreateShaderModule(this->m_owner, &createInfo, nullptr, &this->m_handle), "create shader module");
 			}  else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
-				vassert(vkCreatePipelineCache(&createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreatePipelineCache(&createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
-				vassert(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VmaAllocator>) {
-				vassert(vmaCreateAllocator(&createInfo, &this->m_handle), "create memory allocator");
+				VULKAN_ASSERT(vmaCreateAllocator(&createInfo, &this->m_handle), "create memory allocator");
 			} else if constexpr (std::same_as<handle_type, VmaPool>) {
-				vassert(vmaCreatePool(this->m_owner, &createInfo, &this->m_handle), "create memory pool");
+				VULKAN_ASSERT(vmaCreatePool(this->m_owner, &createInfo, &this->m_handle), "create memory pool");
 			} else if constexpr (std::same_as<handle_type, VkDevice>) {
-				vassert(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
-				vassert(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
 			}
 		}
 	}
@@ -121,7 +121,7 @@ public:
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
 	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vmaCreateBuffer(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create buffer and/or its memory");
+			VULKAN_ASSERT(vmaCreateBuffer(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create buffer and/or its memory");
 		}
 	}
 	/**
@@ -137,7 +137,7 @@ public:
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
 	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vmaCreateBufferWithAlignment(allocator, &createInfo, &allocCreateInfo, minAlignment, &m_handle, &allocation.get(), &allocInfo), "create aligned buffer and/or its memory");
+			VULKAN_ASSERT(vmaCreateBufferWithAlignment(allocator, &createInfo, &allocCreateInfo, minAlignment, &m_handle, &allocation.get(), &allocInfo), "create aligned buffer and/or its memory");
 		}
 	}
 	/**
@@ -150,7 +150,7 @@ public:
 		RAIIContainer<VmaAllocation, VmaAllocator>& allocation
 	) requires(std::is_same_v<handle_type, VkBuffer> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vmaCreateAliasingBuffer(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing buffer and/or its memory");
+			VULKAN_ASSERT(vmaCreateAliasingBuffer(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing buffer and/or its memory");
 		}
 	}
 	/**
@@ -165,7 +165,7 @@ public:
 		VmaAllocationInfo allocInfo = VmaAllocationInfo { } 
 	) requires(std::is_same_v<handle_type, VkImage> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vmaCreateImage(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create image and/or its memory");
+			VULKAN_ASSERT(vmaCreateImage(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create image and/or its memory");
 		}
 	}
 	/**
@@ -178,7 +178,7 @@ public:
 		RAIIContainer<VmaAllocation, VmaAllocator>& allocation
 	) requires(std::is_same_v<handle_type, VkImage> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vmaCreateAliasingImage(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing image and/or its memory");
+			VULKAN_ASSERT(vmaCreateAliasingImage(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing image and/or its memory");
 		}
 	}
 	/**
@@ -191,7 +191,7 @@ public:
 		const VkAllocationCallbacks& allocator
 	) requires(std::is_same_v<handle_type, VkPipeline> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vkCreateGraphicsPipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create graphics pipeline");
+			VULKAN_ASSERT(vkCreateGraphicsPipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create graphics pipeline");
 		}
 	}
 	/**
@@ -204,7 +204,7 @@ public:
 		const VkAllocationCallbacks& allocator
 	) requires(std::is_same_v<handle_type, VkPipeline> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			vassert(vkCreateComputePipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create compute pipeline");
+			VULKAN_ASSERT(vkCreateComputePipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create compute pipeline");
 		}
 	}
 	/**

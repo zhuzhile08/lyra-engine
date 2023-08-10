@@ -10,7 +10,7 @@ namespace lyra {
 
 Window::Window() noexcept {
 	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
-		log().exception("SDL init error: ", SDL_GetError());
+		log::exception("SDL init error: {}!", SDL_GetError());
 	}
 
 	uint32 flags = SDL_WINDOW_VULKAN;
@@ -27,7 +27,7 @@ Window::Window() noexcept {
 
 	m_window = sdl::Window("LyraEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, flags);
 
-	lassert(m_window, "Failed to create SDL window with error: ", SDL_GetError());
+	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
 Window::~Window() noexcept {
