@@ -49,14 +49,14 @@ public:
 	using deleter_type = DTy;
 	using wrapper = UniquePointer;
 
-	constexpr UniquePointer() = default;
-	constexpr UniquePointer(nullpointer) : m_pointer(nullptr) { }
-	constexpr UniquePointer(pointer pointer) : m_pointer(pointer) { }
-	template <class P> constexpr UniquePointer(P pointer) : m_pointer(pointer) { }
-	constexpr UniquePointer(pointer pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
-	constexpr UniquePointer(pointer pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
-	constexpr UniquePointer(UniquePointer&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
-	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	constexpr UniquePointer() noexcept = default;
+	constexpr UniquePointer(nullpointer) noexcept : m_pointer(nullptr) { }
+	constexpr UniquePointer(pointer pointer) noexcept : m_pointer(pointer) { }
+	template <class P> constexpr UniquePointer(P pointer) noexcept : m_pointer(pointer) { }
+	constexpr UniquePointer(pointer pointer, const deleter_type& deleter) noexcept : m_pointer(pointer), m_deleter(deleter) { }
+	constexpr UniquePointer(pointer pointer, deleter_type&& deleter) noexcept : m_pointer(pointer), m_deleter(std::move(deleter)) { }
+	constexpr UniquePointer(UniquePointer&& right) noexcept : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
+	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) noexcept : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 
 	~UniquePointer() noexcept {
 		reset();

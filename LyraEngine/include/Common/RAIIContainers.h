@@ -59,10 +59,10 @@ public:
 	using container = RAIIContainer;
 	using movable_container = container&&;
 
-	constexpr RAIIContainer() = default;
-	constexpr RAIIContainer(const_handle_reference handle, const_owner_reference owner) : m_handle(handle), m_owner(owner) { }
-	constexpr RAIIContainer(movable_handle handle, movable_owner owner) : m_handle(std::move(handle)), m_owner(std::move(owner)) { }
-	constexpr RAIIContainer(movable_container container) : 
+	constexpr RAIIContainer() noexcept = default;
+	constexpr RAIIContainer(const_handle_reference handle, const_owner_reference owner) noexcept : m_handle(handle), m_owner(owner) { }
+	constexpr RAIIContainer(movable_handle handle, movable_owner owner) noexcept : m_handle(std::move(handle)), m_owner(std::move(owner)) { }
+	constexpr RAIIContainer(movable_container container) noexcept : 
 		m_handle(std::exchange(container.m_handle, handle_type { } )), 
 		m_owner(std::exchange(container.m_owner, owner_type { } )) { }
 		
@@ -311,13 +311,13 @@ public:
 		destroy();
 	}
 
-	constexpr RAIIContainer& operator=(movable_handle handle) {
+	constexpr RAIIContainer& operator=(movable_handle handle) noexcept {
 		if (handle != this->m_handle) {
 			m_handle = std::exchange(handle, handle_type { } );
 		}
 		return *this;
 	}
-	constexpr RAIIContainer& operator=(movable_container container) {
+	constexpr RAIIContainer& operator=(movable_container container) noexcept {
 		if (&container != this) {
 			m_handle = std::exchange(container.m_handle, handle_type { } );
 			m_owner = std::exchange(container.m_owner, owner_type { } );
