@@ -133,7 +133,7 @@ public:
 
 		void begin(const Usage& usage = Usage::USAGE_RENDERING_DEFAULT) const;
 		void end() const {
-			vassert(vkEndCommandBuffer(commandBuffer), "stop recording command buffer");
+			VULKAN_ASSERT(vkEndCommandBuffer(commandBuffer), "stop recording command buffer");
 		}
 		void beginQuery(const VkQueryPool& queryPool, uint32 query, VkQueryControlFlags flags) const {
 			vkCmdBeginQuery(commandBuffer, queryPool, query, flags);
@@ -666,7 +666,7 @@ public:
 	friend class Window;
 };
 
-class Swapchain {
+class Swapchain {	
 public:
 	Swapchain() = default;
 	Swapchain(SDL_Window* window, CommandQueue& commandQueue);
