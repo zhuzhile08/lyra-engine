@@ -21,16 +21,16 @@ namespace config {
 
 // disable logging enum
 enum class DisableLog {
-	none = 0x00000001,
-	debug = 0x00000002,
-	info = 0x00000004,
-	warning = 0x00000008,
-	error = 0x0000001,
-	exception = 0x00000020,
-	all = 0x00000040
+	none,
+	trace,
+	debug,
+	info,
+	warning,
+	error
 };
 
 inline constexpr DisableLog disableLog = DisableLog::none;
+inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
 inline constexpr Dynarray<const char*, 10> requestedDeviceExtensions = {
 	"VK_KHR_swapchain", 
