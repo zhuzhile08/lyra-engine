@@ -11,6 +11,33 @@
 #include <map>
 #include <unordered_set>
 
+namespace {
+
+VKAPI_ATTR VkBool32 VKAPI_CALL validationCallBack(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
+    void* userData
+) {
+	switch (messageSeverity) {
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+			lyra::log::trace("{}\n", callbackData->pMessage);
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+			lyra::log::info("{}\n", callbackData->pMessage);
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+			lyra::log::warning("{}\n", callbackData->pMessage);
+		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+			lyra::log::error("{}\n", callbackData->pMessage);
+			
+		default:
+			lyra::log::debug("{}\n", callbackData->pMessage);
+	}
+
+	return VK_FALSE;
+}
+
+}
+
 namespace lyra {
 
 namespace vulkan {
@@ -55,14 +82,17 @@ public:
 			}
 #endif
 			// get all extensions
-			uint32 SDLExtensionCount = 0;
-			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &SDLExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
-			std::vector<const char*> SDLExtensions(SDLExtensionCount);
-			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &SDLExtensionCount, SDLExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+			uint32 instanceExtensionCount = 0;
+			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
+			std::vector<const char*> instanceExtensions(instanceExtensionCount);
+			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 			// add some required extensions
-			SDLExtensions.push_back("VK_KHR_get_physical_device_properties2");
+			instanceExtensions.push_back("VK_KHR_get_physical_device_properties2");
+#ifndef NDEBUG
+			instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 #ifdef __APPLE__
-			SDLExtensions.push_back("VK_KHR_portability_enumeration");
+			instanceExtensions.push_back("VK_KHR_portability_enumeration");
 #endif
 
 			// define some info for the application that will be used in instance creation
@@ -93,8 +123,8 @@ public:
 				0,
 				nullptr,
 #endif
-				static_cast<uint32>(SDLExtensions.size()),
-				SDLExtensions.data()
+				static_cast<uint32>(instanceExtensions.size()),
+				instanceExtensions.data()
 			};
 
 			// create the instance
