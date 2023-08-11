@@ -313,6 +313,13 @@ public:
 				});
 			}
 
+#ifdef __APPLE__
+			Dynarray<const char*, config::requestedDeviceExtensions.size() + 1> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
+			requestedExtensions.push_back("VK_KHR_portability_subset");
+#else
+			const auto& requestedExtensions = config::requestedValidationLayers;
+#endif
+
 			// device creation info
 			VkDeviceCreateInfo createInfo {
 				VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -320,15 +327,15 @@ public:
 				0,
 				static_cast<uint32>(queueCreateInfos.size()),
 				queueCreateInfos.data(),
-	#ifndef NDEBUG
+#ifndef NDEBUG
 				static_cast<uint32>(config::requestedValidationLayers.size()),
 				config::requestedValidationLayers.data(),
-	#else
+#else
 				0,
 				nullptr,
-	#endif
-				static_cast<uint32>(config::requestedDeviceExtensions.size()),
-				config::requestedDeviceExtensions.data(),
+#endif
+				static_cast<uint32>(requestedExtensions.size()),
+				requestedExtensions.data(),
 				&deviceFeatures
 			};
 			// create the device
