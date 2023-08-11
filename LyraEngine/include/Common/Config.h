@@ -34,18 +34,11 @@ enum class DisableLog {
 inline constexpr DisableLog disableLog = DisableLog::none;
 inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
-inline constexpr Dynarray<const char*, 10> requestedDeviceExtensions = {
-	"VK_KHR_swapchain", 
-	"VK_KHR_portability_subset", 
+inline constexpr Array<const char*, 2> requestedDeviceExtensions({
 	"VK_EXT_descriptor_indexing", 
 	"VK_KHR_swapchain"
-#ifdef _WIN32
-};
-#elif __APPLE__
-	, "VK_KHR_portability_subset" 
-};
-#endif
-inline constexpr Dynarray<const char*, 10> requestedValidationLayers = { "VK_LAYER_KHRONOS_validation" };
+});
+inline constexpr Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
 inline constexpr size_t maxFramesInFlight = 2;
 inline constexpr size_t maxSwapchainImages = 8;
 inline constexpr size_t maxConcurrentRenderers = 16;
