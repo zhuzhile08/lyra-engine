@@ -167,9 +167,24 @@ class AudioSource;
 class AudioListener;
 class AudioFilter;
 
+// assert function forward declarations
+
+template <class Msg> inline constexpr void lyraAssert(bool, Msg);
+template <class Msg> inline constexpr void vulkanAssert(int, Msg);
+template <class Format, typename ... Args> inline constexpr void lyraAssert(bool, Format&&, Args&&...);
+template <class Format, typename ... Args> inline constexpr void vulkanAssert(int, Format&&, Args&&...);
+
 } // namespace lyra
 
 // utility macros
+
+#ifndef NDEBUG
+#define ASSERT(...) lyraAssert(__VA_ARGS__)
+#define VULKAN_ASSERT(...) vulkanAssert(__VA_ARGS__)
+#else
+#define ASSERT(...)
+#define VULKAN_ASSERT(...)
+#endif
 
 #define NODISCARD [[nodiscard]]
 #define DEPRECATED [[deprecated]]
