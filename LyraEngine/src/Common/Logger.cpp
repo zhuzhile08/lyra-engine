@@ -1,4 +1,5 @@
 #include <Common/Logger.h>
+#include <Common/UniquePointer.h>
 
 #include <ios>
 #include <unordered_map>
