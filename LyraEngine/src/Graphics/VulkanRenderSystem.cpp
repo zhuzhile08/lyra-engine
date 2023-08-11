@@ -249,8 +249,10 @@ public:
 								log::debug("\t{}", availableDeviceExtension.extensionName);
 							}
 #endif
-							std::unordered_set<const char*> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
-
+							std::unordered_set<std::string> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
+#ifdef __APPLE__
+							requestedExtensions.emplace("VK_KHR_portability_subset"); 
+#endif
 							// go through every requested extensions and see if they are available
 							for (const auto& availableDeviceExtension : availableDeviceExtensions) {
 								requestedExtensions.erase(availableDeviceExtension.extensionName);
