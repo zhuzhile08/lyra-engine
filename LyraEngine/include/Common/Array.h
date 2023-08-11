@@ -63,19 +63,19 @@ template <class Ty, size_t Size> struct Array {
 	}
 
 	NODISCARD constexpr reference operator[](size_t index) noexcept {
-		// @todo add assertion once new logger is done
+		ASSERT(index < Size, "lyra::Array::operator[]: Index of: {} exceded array size of: {}!", index, Size);
 		return m_array[index];
 	}
 	NODISCARD constexpr const_reference operator[](size_t index) const noexcept {
-		// @todo add assertion once new logger is done
+		ASSERT(index < Size, "lyra::Array::operator[]: Index of: {} exceded array size of: {}!", index, Size);
 		return m_array[index];
 	}
 	DEPRECATED NODISCARD constexpr reference at(size_t index) {
-		if (index < Size) throw std::out_of_range("lyra::Array::at");
+		if (index < Size) throw std::out_of_range("lyra::Array::at: index exceeded array size!");
 		return m_array[index];
 	}
 	DEPRECATED NODISCARD constexpr const_reference at(size_t index) const {
-		if (index < Size) throw std::out_of_range("lyra::Array::at");
+		if (index < Size) throw std::out_of_range("lyra::Array::at: index exceeded array size!");
 		return m_array[index];
 	}
 
