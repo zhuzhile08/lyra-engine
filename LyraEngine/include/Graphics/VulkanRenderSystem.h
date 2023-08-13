@@ -825,13 +825,18 @@ public:
 		uint32 binding;
 		uint32 set = 0;
 		uint32 arraySize = 1;
+		bool dynamic = false;
 		const std::vector<VkSampler>& immutableSamplers = { };
 	};
 
 	class Binder {
 	public:
-		void add_binding(const Binding& binding) {
-			if (m_bindings.size() > binding.set) m_bindings.push_back({});
+		constexpr void add_binding(const Binding& binding) {
+			if (m_bindings.size() <= binding.set) {
+				m_bindings.push_back({});
+				m_bindingFlags.push_back({});
+				m_bindingFlagsCreateInfo.push_back({});
+			}
 			// add the new binding
 			m_bindings[binding.set].push_back({
 				binding.binding,
@@ -840,13 +845,38 @@ public:
 				static_cast<VkShaderStageFlags>(binding.shaderType),
 				binding.immutableSamplers.data()
 				});
+			
+			if (binding.dynamic) {
+				m_bindingFlags[binding.set].push_back(VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT);
+
+				m_bindingFlagsCreateInfo[binding.set] = {
+					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
+					nullptr,
+					static_cast<uint32>(m_bindingFlags[binding.set].size()),
+					m_bindingFlags[binding.set].data()
+				}; // not very efficient, a lot of reassigning, though all types here are trivially copiable, still a @todo
+			} else {
+				m_bindingFlags[binding.set].push_back(0);
+			}
 		}
-		void add_bindings(const std::vector<Binding>& bindings) {
+		constexpr void add_bindings(const std::vector<Binding>& bindings) {
 			for (const auto& binding : bindings) add_binding(binding);
+		}
+		constexpr void add_push_constant(Shader::Type shaderType, uint32 size, uint32 offset = 0) {
+			m_pushConstant = {
+				static_cast<VkShaderStageFlags>(shaderType),
+				offset,
+				size
+			};
 		}
 
 	private:
 		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
+		Dynarray<std::vector<VkDescriptorBindingFlags>, config::maxShaderSets> m_bindingFlags;
+		Dynarray<VkDescriptorSetLayoutBindingFlagsCreateInfo, config::maxShaderSets> m_bindingFlagsCreateInfo;
+		VkPushConstantRange m_pushConstant;
+
+		friend class Program;
 	};
 
 	Program() = default;
@@ -864,42 +894,5 @@ public:
 };
 
 } // namespace vulkan
-
-/*
-
-struct RenderSystem {
-public:
-	RenderSystem() = default;
-	RenderSystem(Window* const window) : Swapchain(window) { }
-
-	void wait_device_queue(const vulkan::vk::Queue& queue) const;
-	void draw();
-
-	NODISCARD uint8 currentFrame() const noexcept { return m_currentFrame; }
-	NODISCARD uint32 imageIndex() const noexcept { return m_imageIndex; }
-
-	vulkan::Device device;
-	Array<vulkan::CommandPool, 4> commandPools;
-	vulkan::Window vulkanWindow;
-	Array<vulkan::Frame, config::maxFramesInFlight> frames;
-
-	Dynarray<Renderer*, config::maxConcurrentRenderers> m_renderers;
-	Dynarray<UniquePointer<Renderer>, config::maxConcurrentRenderers * 2> m_deletedRenderers;
-
-	uint8 m_currentFrame = 0;
-	uint8 m_pastFrame;
-	uint32 m_imageIndex;
-
-	Window* window;
-
-	void add_renderer(Renderer* const renderer);
-
-	void present_device_queue();
-	void submit_device_queue(VkPipelineStageFlags stageFlags) const;
-
-	void update_frame_count() noexcept;
-};
-
-*/
 
 } // namespace lyra

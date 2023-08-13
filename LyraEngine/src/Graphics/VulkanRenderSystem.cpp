@@ -1200,89 +1200,95 @@ void Swapchain::present() {
 }
 
 Program::Program(const Shader& vertexShader, const Shader& fragmentShader) {
-	Array<std::vector<VkDescriptorSetLayoutBinding>, 3> bindings;
-	descriptorSetLayouts.resize(3);
-
-	bindings[0] = {{
+	static constexpr Array<VkDescriptorBindingFlags, 5> bindingFlags {
 		0,
-		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		1,
-		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-		nullptr
-	}};
-
-	bindings[1] = {
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT,
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT,
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT,
+		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT
+	};
+	static constexpr Array<VkDescriptorSetLayoutBindingFlagsCreateInfo, 3> bindingExt {{
+		{ },
 		{
-			0,
-			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			1,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-			nullptr
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
+			nullptr,
+			5,
+			bindingFlags.data()
 		},
-		{ // albedo
-			1,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			config::maxTexturesPerBinding,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-			nullptr
-		},
-		{ // metallic
-			2,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			config::maxTexturesPerBinding,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-			nullptr
-		},
-		{ // emission
-			3,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			config::maxTexturesPerBinding,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-			nullptr
-		},
-		{ // occlusion map
-			4,
-			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			config::maxTexturesPerBinding,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-			nullptr
-		}
-	};
-
-	bindings[2] = {{
-		0,
-		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		1,
-		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-		nullptr
+		{ }
 	}};
-
-	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{
-		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		nullptr,
-		0,
-		3,
-		nullptr,
-		0,
-		nullptr
-	};
+	static const Array<Dynarray<VkDescriptorSetLayoutBinding, 5>, 3> bindings {{ // can't make this constexpr for whatever reason @todo
+		{{
+			{
+				0,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				1,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			}
+		}},
+		{{
+			{
+				0,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				1,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			},
+			{ // albedo
+				1,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				config::maxTexturesPerBinding,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			},
+			{ // metallic
+				2,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				config::maxTexturesPerBinding,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			},
+			{ // emission
+				3,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				config::maxTexturesPerBinding,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			},
+			{ // occlusion map
+				4,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				config::maxTexturesPerBinding,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			}
+		}},
+		{{
+			{
+				0,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				1,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				nullptr
+			}
+		}}
+	}};
 
 	Array<VkDescriptorSetLayout, 3> tmpLayouts;
 
-	for (uint32 i = 0; i < 3; i++) {
-		VkDescriptorSetLayoutBindingFlagsCreateInfo bindingExt {
-			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
-		};
+	descriptorSetLayouts.resize(3);
 
+	for (uint32 i = 0; i < 3; i++) {
 		VkDescriptorSetLayoutCreateInfo createInfo{
 			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-			&bindingExt,
+			&bindingExt[i],
 			VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
 			static_cast<uint32>(bindings[i].size()),
 			bindings[i].data()
 		};
 
-		tmpLayouts[i] = (descriptorSetLayouts[i] = vk::DescriptorSetLayout(globalRenderSystem->device, &createInfo)).get();
+		tmpLayouts[i] = (descriptorSetLayouts[i] = vk::DescriptorSetLayout(globalRenderSystem->device, createInfo)).get();
 	}
 
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{
@@ -1295,11 +1301,39 @@ Program::Program(const Shader& vertexShader, const Shader& fragmentShader) {
 		nullptr
 	};
 
-	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, &pipelineLayoutCreateInfo);
+	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
 }
 
 Program::Program(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder) {
+	uint32 setCount = binder.m_bindings.size();
 
+	std::vector<VkDescriptorSetLayout> tmpLayouts(setCount);
+
+	descriptorSetLayouts.resize(setCount);
+
+	for (uint32 i = 0; i < setCount; i++) {
+		VkDescriptorSetLayoutCreateInfo createInfo{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+			&binder.m_bindingFlagsCreateInfo[i],
+			VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+			static_cast<uint32>(binder.m_bindings[i].size()),
+			binder.m_bindings[i].data()
+		};
+
+		tmpLayouts[i] = (descriptorSetLayouts[i] = vk::DescriptorSetLayout(globalRenderSystem->device, createInfo)).get();
+	}
+
+	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		nullptr,
+		0,
+		setCount,
+		tmpLayouts.data(),
+		0,
+		nullptr
+	};
+
+	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
 }
 
 } // namespace vulkan
