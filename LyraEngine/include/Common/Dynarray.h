@@ -59,7 +59,10 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	}
 	constexpr Dynarray(std::initializer_list<value_type> list) {
 		m_size = (Capacity < list.size()) ? Capacity : list.size();
-		std::swap_ranges(begin(), begin() + m_size, list.begin());
+		for (auto it = list.begin(); it != list.end(); ++it) {
+			if (m_size == Capacity) break;
+			push_back(*list.begin());
+		}
 	}
 
 	NODISCARD constexpr reference operator[](size_t index) noexcept {
