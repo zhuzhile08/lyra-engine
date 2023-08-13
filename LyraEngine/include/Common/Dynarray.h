@@ -44,8 +44,10 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	constexpr Dynarray(const Dynarray& other) : m_size(other.m_size), m_array(other.m_array) { }
 	constexpr Dynarray(Dynarray&& other) : m_size(std::move(other.m_size)), m_array(std::move(other.m_array)) { }
 	template <class Iterator> constexpr Dynarray(Iterator first, Iterator last) { 
-		m_size = (Capacity < std::distance(first, last)) ? Capacity : std::distance(first, last);
-		std::swap_ranges(begin(), begin() + m_size, first);
+		for (; first != last; ++first) {
+			if (m_size == Capacity) break;
+			push_back(*first);
+		}
 	}
 	template <size_t OtherSize> constexpr Dynarray(const Dynarray<value_type, OtherSize>& other) { 
 		m_size = (Capacity < other.m_size) ? Capacity : other.m_size;
