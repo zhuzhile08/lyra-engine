@@ -735,41 +735,86 @@ public:
 	// creation data for a single descriptor with both image and buffer information
 	struct Data {
 		// image info
-		const VkDescriptorImageInfo& imageInfo;
+		VkDescriptorImageInfo imageInfo;
 		// buffer info
-		const VkDescriptorBufferInfo& bufferInfo;
+		VkDescriptorBufferInfo bufferInfo;
 		// binding to bind these to
-		const uint16& binding;
+		uint16 binding;
 		// type of shader to bind these to
-		const Type& type;
+		Type type;
 	};
 
 	// creation data for a single descriptor with only image information
 	struct ImageOnlyData {
 		// image info
-		const VkDescriptorImageInfo& imageInfo;
+		VkDescriptorImageInfo imageInfo;
 		// binding to bind these to
-		const uint16& binding;
+		uint16 binding;
 		// type of shader to bind these to
-		const Type& type;
+		Type type;
 	};
 
 	// creation data for a single descriptor with only buffer information
 	struct BufferOnlyData {
 		// buffer info
-		const VkDescriptorBufferInfo& bufferInfo;
+		VkDescriptorBufferInfo bufferInfo;
 		// binding to bind these to
-		const uint16& binding;
+		uint16 binding;
 		// type of shader to bind these to
-		const Type& type;
+		Type type;
 	};
 
-	void add_writes(const std::vector<ImageOnlyData>& newWrites) noexcept;
-	void add_writes(const std::vector<BufferOnlyData>& newWrites) noexcept;
-	void add_writes(const std::vector<Data>& newWrites) noexcept;
+	constexpr void add_writes(const std::vector<ImageOnlyData>& newWrites) noexcept {
+		for (const auto& newWrite : newWrites) {
+			m_writes.push_back({
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				nullptr,
+				newWrite.binding,
+				0,
+				1,
+				static_cast<VkDescriptorType>(newWrite.type),
+				&newWrite.imageInfo,
+				nullptr,
+				nullptr
+			});
+		}
+	}
+	constexpr void add_writes(const std::vector<BufferOnlyData>& newWrites) noexcept {
+		for (const auto& newWrite : newWrites) {
+			m_writes.push_back({
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				nullptr,
+				newWrite.binding,
+				0,
+				1,
+				static_cast<VkDescriptorType>(newWrite.type),
+				nullptr,
+				&newWrite.bufferInfo,
+				nullptr
+			});
+		}
+	}
+	constexpr void add_writes(const std::vector<Data>& newWrites) noexcept {
+		for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
+			m_writes.push_back({
+				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+				nullptr,
+				nullptr,
+				binding,
+				0,
+				1,
+				static_cast<VkDescriptorType>(type),
+				&image_info,
+				&buffer_info,
+				nullptr
+				});
+		}
+	}
 
 private:
-	std::vector<VkWriteDescriptorSet> writes;
+	std::vector<VkWriteDescriptorSet> m_writes;
 };
 
 class Shader {
@@ -819,13 +864,21 @@ public:
 
 class Program {
 public:
+	// binding data
 	struct Binding {
+		// descriptor type
 		DescriptorWriter::Type type;
+		// shader the binding is in
 		Shader::Type shaderType;
+		// binding number
 		uint32 binding;
+		// set number
 		uint32 set = 0;
+		// array size
 		uint32 arraySize = 1;
+		// uses VK_KHR_push_descriptors
 		bool dynamic = false;
+		// immutable samplers
 		const std::vector<VkSampler>& immutableSamplers = { };
 	};
 
