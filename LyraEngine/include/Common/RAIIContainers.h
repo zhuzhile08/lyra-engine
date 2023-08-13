@@ -267,7 +267,9 @@ public:
 					vkDestroyDescriptorSetLayout(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
 					vkDestroyDescriptorPool(m_owner, m_handle, nullptr);
-				} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
+				} else if constexpr (std::same_as<handle_type, VkDescriptorUpdateTemplate>) {
+					vkDestroyDescriptorUpdateTemplate(m_owner, m_handle, nullptr);
+				}  else if constexpr (std::same_as<handle_type, VkSemaphore>) {
 					vkDestroySemaphore(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkFence>) {
 					vkDestroyFence(m_owner, m_handle, nullptr);
