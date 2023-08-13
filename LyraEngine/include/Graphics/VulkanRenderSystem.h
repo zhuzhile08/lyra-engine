@@ -63,6 +63,7 @@ using QueryPool = RAIIContainer<VkQueryPool, VkDevice>;
 using DescriptorSetLayout = RAIIContainer<VkDescriptorSetLayout, VkDevice>;
 using DescriptorPool = RAIIContainer<VkDescriptorPool, VkDevice>;
 using DescriptorSet = RAIIContainer<VkDescriptorSet, VkDevice>;
+using DescriptorUpdateTemplate = RAIIContainer<VkDescriptorUpdateTemplate, VkDevice>;
 using ShaderModule = RAIIContainer<VkShaderModule, VkDevice>;
 using PipelineLayout = RAIIContainer<VkPipelineLayout, VkDevice>;
 using Pipeline = RAIIContainer<VkPipeline, VkDevice>;
@@ -160,6 +161,9 @@ public:
 		) const {
 			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSets.size(), descriptorSets.data(), dynamicOffsets.size(), dynamicOffsets.data());
 		}
+		void pushDescriptorSet(VkPipelineBindPoint, const vk::PipelineLayout&, uint32, const VkWriteDescriptorSet&);
+		void pushDescriptorSet(VkPipelineBindPoint, const vk::PipelineLayout&, uint32, const std::vector<VkWriteDescriptorSet>&);
+		void pushDescriptorSetWithTemplate(const vk::DescriptorUpdateTemplate&, const vk::PipelineLayout&, uint32, const void*);
 		void bindIndexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, VkIndexType indexType) const {
 			vkCmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
 		}
@@ -710,7 +714,7 @@ public:
 	SDL_Window* window;
 };
 
-class DescriptorSet {
+class DescriptorWriter {
 public:
 	enum Type {
 		sampler = 0,
@@ -727,7 +731,7 @@ public:
 		inlineUniformBlock = 1000138000,
 		mutableValve = 1000351000,
 	};
-	
+
 	// creation data for a single descriptor with both image and buffer information
 	struct Data {
 		// image info
@@ -760,103 +764,13 @@ public:
 		const Type& type;
 	};
 
-	struct Binder {
-		void add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept;
-		void add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept;
-		void add_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept;
+	void add_writes(const std::vector<ImageOnlyData>& newWrites) noexcept;
+	void add_writes(const std::vector<BufferOnlyData>& newWrites) noexcept;
+	void add_writes(const std::vector<Data>& newWrites) noexcept;
 
-		void update(vk::DescriptorSet& descriptorSet) noexcept;
-
-		std::vector<VkWriteDescriptorSet> writes;
-	};
-
-	DescriptorSet() = default;
-	DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo);
-
-	vk::DescriptorSet descriptorSet;
+private:
+	std::vector<VkWriteDescriptorSet> writes;
 };
-
-/*
-
-class DescriptorPoolSystem {
-public:
-	// simplified size data
-	struct Size {
-		// type of descriptor
-		const uint32& type;
-		// multiplier for the descriptor allocation count
-		const uint32& multiplier;
-	};
-
-	class DescriptorPool {
-	public:
-		constexpr DescriptorPool() = default;
-		DescriptorPool(const VkDescriptorPoolCreateInfo& createInfo);
-
-		vk::DescriptorPool descriptorPool;
-		size_t allocatedSets;
-	};
-
-	class PoolBuilder {
-	public:
-		PoolBuilder() = default;
-		PoolBuilder(const PoolBuilder& poolBuilder)
-			 : m_poolSizes(poolBuilder.m_poolSizes), m_poolFlags(poolBuilder.m_poolFlags) { } // , m_maxSets(poolBuilder.m_maxSets) { }
-
-		void add_pool_size(const DescriptorPool::Size& newSize) noexcept {
-			// add the size according to the type
-			m_poolSizes.push_back({
-				static_cast<VkDescriptorType>(newSize.type),
-				uint32(newSize.multiplier * config::maxDescriptorTypePerPool)
-			});
-
-			// m_maxSets = config::maxDescriptorTypePerPool * newSize.multiplier;
-		}
-		void add_pool_sizes(const std::vector<DescriptorPool::Size>& newSizes) noexcept {
-			// loop through all the types and create their respective sizes
-			for (const auto& newSize : newSizes) add_pool_size(newSize);
-		}
-
-		void set_pool_flags(const VkDescriptorPoolCreateFlags& poolFlags) noexcept {
-			m_poolFlags = poolFlags;
-		}
-
-		constexpr VkDescriptorPoolCreateInfo build_create_info() const  {
-			// return the create info
-			return VkDescriptorPoolCreateInfo {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-				nullptr,
-				m_poolFlags,
-				config::maxDescriptorTypePerPool,
-				// m_maxSets,
-				static_cast<uint32>(m_poolSizes.size()),
-				m_poolSizes.data()
-			};
-		}
-
-	private:
-		std::vector<VkDescriptorPoolSize> m_poolSizes;
-		VkDescriptorPoolCreateFlags m_poolFlags = 0;
-		// uint32 m_maxSets;
-	};
-
-	DescriptorSystem() = default;
-	DescriptorSystem(const LayoutBuilder& layoutBuilder, const PoolBuilder& poolBuilder) : m_poolBuilder(poolBuilder) {
-		m_layout = DescriptorSetLayout(layoutBuilder.build_create_info());
-	}
-	
-
-	NODISCARD DescriptorSetResource get_unused_set();
-
-	std::vector<DescriptorPool> pools;
-	ResourcePool<DescriptorSet> sets;
-
-	PoolBuilder poolBuilder;
-
-	void create_descriptor_pool();
-};
-
-*/
 
 class Shader {
 public:
@@ -906,34 +820,46 @@ public:
 class Program {
 public:
 	struct Binding {
-		DescriptorSet::Type type;
-		uint32 set;
+		DescriptorWriter::Type type;
+		Shader::Type shaderType;
 		uint32 binding;
-		uint32 arraySize;
+		uint32 set = 0;
+		uint32 arraySize = 1;
+		const std::vector<VkSampler>& immutableSamplers = { };
 	};
 
-	enum class Flags {
-		shadingAmbient = 0x00010000,
-		shadingDiffuse = 0x00020000,
-		shadingSpecular = 0x00040000,
-		shadingPhong = shadingAmbient | shadingDiffuse | shadingSpecular,
-		shadingCel = 0x00080000,
-		shadingCelHighDetail = 0x00100000,
+	class Binder {
+	public:
+		void add_binding(const Binding& binding) {
+			if (m_bindings.size() > binding.set) m_bindings.push_back({});
+			// add the new binding
+			m_bindings[binding.set].push_back({
+				binding.binding,
+				static_cast<VkDescriptorType>(binding.type),
+				binding.arraySize,
+				static_cast<VkShaderStageFlags>(binding.shaderType),
+				binding.immutableSamplers.data()
+				});
+		}
+		void add_bindings(const std::vector<Binding>& bindings) {
+			for (const auto& binding : bindings) add_binding(binding);
+		}
 
-		outline = 0x01000000,
-		outlineFast = 0x02000000,
-
-		armature = 0x10000000,
-
-		universal = 0x7FFF0000
+	private:
+		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
 	};
 
-	Program();
+	Program() = default;
+	// Constructs a shader program in engine standard layout
+	// You should prefer to write your shaders in the engine standard layout
+	Program(const Shader& vertexShader, const Shader& fragmentShader);
+	// Constructs a shader program with a custom layout
+	Program(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder);
 
 	const Shader* vertexShader;
 	const Shader* fragmentShader;
 
-	vk::DescriptorSetLayout descriptorSetLayout;
+	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
 	vk::PipelineLayout pipelineLayout;
 };
 

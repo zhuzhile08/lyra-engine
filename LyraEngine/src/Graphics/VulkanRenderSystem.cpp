@@ -94,7 +94,7 @@ public:
 			// add some required extensions
 			instanceExtensions.push_back("VK_KHR_get_physical_device_properties2");
 #ifndef NDEBUG
-			instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			instanceExtensions.push_back("VK_EXT_debug_utils");
 #endif
 #ifdef __APPLE__
 			instanceExtensions.push_back("VK_KHR_portability_enumeration");
@@ -154,15 +154,25 @@ public:
 			debugMessenger = vk::DebugUtilsMessenger(instance, debugMessengerCreateInfo);
 #endif
 		}
+
+		{ // get some extension functions
+			vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR) vkGetInstanceProcAddr(instance, "vkCmdPushDescriptorSetKHR");
+			vkCmdPushDescriptorSetWithTemplateKHR = (PFN_vkCmdPushDescriptorSetWithTemplateKHR) vkGetInstanceProcAddr(instance, "vkCmdPushDescriptorSetWithTempalteKHR");
+		}
 		
 		{ // find a suitable physical device
 			// structure to hold important data to retrieve from a physical device
 			struct PhysicalDeviceData {
 				VkPhysicalDevice device;
 				VkPhysicalDeviceProperties properties;
+				VkPhysicalDevicePushDescriptorPropertiesKHR pushDescriptorProperties;
 				VkPhysicalDeviceFeatures features;
 				QueueFamilies queueFamilies;
 			};
+
+			// get the extended physical device properties function
+			auto vkGetPhysicalDeviceProperties2KHR = (PFN_vkGetPhysicalDeviceProperties2KHR) vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties2KHR");
+			ASSERT(vkGetPhysicalDeviceProperties2KHR, "vkGetInstanceProcAddr() for \"vkGetPhysicalDeviceProperties2KHR\" returned a null pointer!");
 
 			// get all devices
 			uint32 deviceCount = 0;
@@ -233,8 +243,14 @@ public:
 					vkEnumerateDeviceExtensionProperties(device, nullptr, &availableDeviceExtensionCount, availableDeviceExtensions.data());	
 
 					// get some device properties and features
-					VkPhysicalDeviceProperties properties;
-					vkGetPhysicalDeviceProperties(device, &properties);
+					VkPhysicalDevicePushDescriptorPropertiesKHR pushDescriptorProperties {
+						VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR
+					};
+					VkPhysicalDeviceProperties2KHR extendedProperties {
+						VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR,
+						&pushDescriptorProperties
+					};
+					vkGetPhysicalDeviceProperties2KHR(device, &extendedProperties);
 					VkPhysicalDeviceFeatures features;
 					vkGetPhysicalDeviceFeatures(device, &features);
 
@@ -270,20 +286,20 @@ public:
 					// the actual scoring system
 					if (score > 0) {
 						score = 0;
-						if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
+						if (extendedProperties.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
 							score += 20;
 							log::debug("\t{}", "Discrete GPU");
 						} if (features.samplerAnisotropy) {
 							score += 4;
 							log::debug("\t{}", "Supports anistropic filtering");
 						} 
-						score += (int)(properties.limits.maxImageDimension2D / 2048);
+						score += (int)(extendedProperties.properties.limits.maxImageDimension2D / 2048);
 
 						log::info("Score: {}\n", score);
 					}
 
 					// insert the device into the queue
-					possibleDevices.emplace(score, PhysicalDeviceData {device, properties, features, localQueueFamilies});
+					possibleDevices.emplace(score, PhysicalDeviceData {device, extendedProperties.properties, pushDescriptorProperties, features, localQueueFamilies});
 				}
 			}
 
@@ -293,6 +309,7 @@ public:
 
 			physicalDevice = std::move(vk::PhysicalDevice(possibleDevices.rbegin()->second.device, instance));
 			deviceProperties = possibleDevices.rbegin()->second.properties;
+			pushDescriptorProperties = possibleDevices.rbegin()->second.pushDescriptorProperties;
 			deviceFeatures = possibleDevices.rbegin()->second.features;
 			queueFamilies = possibleDevices.rbegin()->second.queueFamilies;
 		}
@@ -547,6 +564,7 @@ public:
 
 	vk::PhysicalDevice physicalDevice;
 	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDevicePushDescriptorPropertiesKHR pushDescriptorProperties;
 	VkPhysicalDeviceFeatures deviceFeatures;
 	vk::Device device;
 
@@ -556,6 +574,9 @@ public:
 	vk::Queue copyQueue;
 
 	vma::Allocator allocator;
+
+	PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
+	PFN_vkCmdPushDescriptorSetWithTemplateKHR vkCmdPushDescriptorSetWithTemplateKHR;
 };
 
 static RenderSystem* globalRenderSystem;
@@ -607,6 +628,28 @@ void CommandQueue::CommandBuffer::begin(const Usage& usage) const {
 
 	// start recording
 	VULKAN_ASSERT(vkBeginCommandBuffer(commandBuffer, &beginInfo), "start recording Vulkan command buffer");
+}
+
+void CommandQueue::CommandBuffer::pushDescriptorSet(
+	VkPipelineBindPoint bindPoint,
+	const vk::PipelineLayout& layout,
+	uint32 set,
+	const VkWriteDescriptorSet& write) {
+	globalRenderSystem->vkCmdPushDescriptorSetKHR(commandBuffer, bindPoint, layout, set, 1, &write);
+}
+void CommandQueue::CommandBuffer::pushDescriptorSet(
+	VkPipelineBindPoint bindPoint,
+	const vk::PipelineLayout& layout,
+	uint32 set,
+	const std::vector<VkWriteDescriptorSet>& writes) {
+	globalRenderSystem->vkCmdPushDescriptorSetKHR(commandBuffer, bindPoint, layout, set, writes.size(), writes.data());
+}
+void CommandQueue::CommandBuffer::pushDescriptorSetWithTemplate(
+	const vk::DescriptorUpdateTemplate& updateTemplate,
+	const vk::PipelineLayout& layout,
+	uint32 set,
+	const void* data) {
+	globalRenderSystem->vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer, updateTemplate, layout, set, data);
 }
 
 void CommandQueue::CommandBuffer::reset(VkCommandBufferResetFlags flags) const {
@@ -1149,74 +1192,107 @@ void Swapchain::present() {
 	);
 }
 
-DescriptorSet::DescriptorSet(const VkDescriptorSetAllocateInfo& allocInfo) {
-	// create the descriptor set
-	descriptorSet = vk::DescriptorSet(globalRenderSystem->device, allocInfo);
-}
-
-void DescriptorSet::Binder::add_writes(const std::vector<DescriptorSet::ImageOnlyData>& newWrites) noexcept {
-	for (const auto& newWrite : newWrites) {
-		writes.push_back({
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			nullptr,
-			VK_NULL_HANDLE,
-			newWrite.binding,
-			0,
-			1,
-			static_cast<VkDescriptorType>(newWrite.type),
-			&newWrite.imageInfo,
-			nullptr,
-			nullptr
-		});
-	}
-}
-
-void DescriptorSet::Binder::add_writes(const std::vector<DescriptorSet::BufferOnlyData>& newWrites) noexcept {
-	for (const auto& newWrite : newWrites) {
-		writes.push_back({
-			VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-			nullptr,
-			VK_NULL_HANDLE,
-			newWrite.binding,
-			0,
-			1,
-			static_cast<VkDescriptorType>(newWrite.type),
-			nullptr,
-			&newWrite.bufferInfo,
-			nullptr
-		});
-	}
-}
-
-void DescriptorSet::Binder::add_writes(const std::vector<DescriptorSet::Data>& newWrites) noexcept {
-		for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
-			writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				VK_NULL_HANDLE,
-				binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(type),
-				&image_info,
-				&buffer_info,
-				nullptr
-				});
-		}
-	}
-
-void DescriptorSet::Binder::update(vk::DescriptorSet& descriptorSet) noexcept {
-	for (auto& write : writes) {
-		write.dstSet = descriptorSet;
-	}
-	globalRenderSystem->updateDescriptorSets(writes);
-}
-
-
-Program::Program() {
+Program::Program(const Shader& vertexShader, const Shader& fragmentShader) {
 	Array<std::vector<VkDescriptorSetLayoutBinding>, 3> bindings;
+	descriptorSetLayouts.resize(3);
 
-	
+	bindings[0] = {{
+		0,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		1,
+		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+		nullptr
+	}};
+
+	bindings[1] = {
+		{
+			0,
+			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			1,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		},
+		{ // albedo
+			1,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			config::maxTexturesPerBinding,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		},
+		{ // metallic
+			2,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			config::maxTexturesPerBinding,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		},
+		{ // emission
+			3,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			config::maxTexturesPerBinding,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		},
+		{ // occlusion map
+			4,
+			VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			config::maxTexturesPerBinding,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			nullptr
+		}
+	};
+
+	bindings[2] = {{
+		0,
+		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		1,
+		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+		nullptr
+	}};
+
+	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		nullptr,
+		0,
+		3,
+		nullptr,
+		0,
+		nullptr
+	};
+
+	Array<VkDescriptorSetLayout, 3> tmpLayouts;
+
+	for (uint32 i = 0; i < 3; i++) {
+		VkDescriptorSetLayoutBindingFlagsCreateInfo bindingExt {
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
+		};
+
+		VkDescriptorSetLayoutCreateInfo createInfo{
+			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+			&bindingExt,
+			VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR,
+			static_cast<uint32>(bindings[i].size()),
+			bindings[i].data()
+		};
+
+		tmpLayouts[i] = (descriptorSetLayouts[i] = vk::DescriptorSetLayout(globalRenderSystem->device, &createInfo)).get();
+	}
+
+	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{
+		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		nullptr,
+		0,
+		3,
+		tmpLayouts.data(),
+		0,
+		nullptr
+	};
+
+	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, &pipelineLayoutCreateInfo);
+}
+
+Program::Program(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder) {
+
 }
 
 } // namespace vulkan
