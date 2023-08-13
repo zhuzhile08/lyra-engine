@@ -84,6 +84,8 @@ public:
 				VULKAN_ASSERT(vkCreateDescriptorPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor pool");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorSet>) {
 				VULKAN_ASSERT(vkAllocateDescriptorSets(this->m_owner, &createInfo, &this->m_handle), "allocate descriptor sets");
+			} else if constexpr (std::same_as<handle_type, VkDescriptorUpdateTemplate>) {
+				VULKAN_ASSERT(vkCreateDescriptorUpdateTemplate(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor update template");
 			} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
 				VULKAN_ASSERT(vkCreateSemaphore(this->m_owner, &createInfo, nullptr, &this->m_handle), "create semaphore");
 			} else if constexpr (std::same_as<handle_type, VkFence>) {
@@ -107,9 +109,9 @@ public:
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				VULKAN_ASSERT(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkDebugUtilsMessengerEXT>) {
-				auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(this->m_owner, "vkCreateDebugUtilsMessengerEXT");
-				if (func) VULKAN_ASSERT(func(this->m_owner, &createInfo, nullptr, &this->m_handle), "create debug messenger");
-				else ASSERT(false, "Creation of the Vulkan Debug Messenger is not supported!");
+				static auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(this->m_owner, "vkCreateDebugUtilsMessengerEXT");
+				ASSERT(func, "vkGetInstanceProcAddr() for \"vkCreateDebugUtilsMessengerEXT\" returned a null poiner!");
+				VULKAN_ASSERT(func(this->m_owner, &createInfo, nullptr, &this->m_handle), "create debug messenger");
 			}
 		}
 	}
