@@ -13,7 +13,9 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Dynarray.h>
+#include <Common/Array.h>
+
+#include <string_view>
 
 namespace lyra {
 
@@ -34,8 +36,9 @@ enum class DisableLog {
 inline constexpr DisableLog disableLog = DisableLog::none;
 inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
-inline constexpr Array<const char*, 2> requestedDeviceExtensions({
-	"VK_EXT_descriptor_indexing", 
+inline constexpr Array<const char*, 3> requestedDeviceExtensions({
+	"VK_EXT_push_descriptor",
+	"VK_EXT_descriptor_buffer,"
 	"VK_KHR_swapchain"
 });
 inline constexpr Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
@@ -55,8 +58,8 @@ inline constexpr bool borderless = false;
 inline constexpr bool fullscreen = false;
 inline constexpr bool alwaysOnTop = false;
 inline constexpr bool vSync = false;
-inline constexpr size_t maxDescriptorSetLayouts = 4;
-inline constexpr size_t maxDescriptorTypePerPool = 8;
+inline constexpr size_t maxShaderSets = 4;
+inline constexpr size_t maxTexturesPerBinding = 64;
 
 } // namespace config
 
