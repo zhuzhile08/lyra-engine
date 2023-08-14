@@ -675,7 +675,7 @@ void CommandQueue::reset() {
 }
 
 void CommandQueue::submit(VkFence fence, bool wait) {
-	if (activeCommandBuffer != VK_NULL_HANDLE) {
+	if (activeCommandBuffer != nullptr) {
 		VkSubmitInfo submitInfo {
 			VK_STRUCTURE_TYPE_SUBMIT_INFO,
 			nullptr,
@@ -683,7 +683,7 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 			waitSemaphores.data(),
 			pipelineStageFlags.data(),
 			1,
-			&activeCommandBuffer,
+			&activeCommandBuffer->commandBuffer.get(),
 			static_cast<uint32>(signalSemaphores.size()),
 			signalSemaphores.data()
 		};
@@ -694,7 +694,7 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 			VULKAN_ASSERT(globalRenderSystem->waitForFence(vk::Fence(fence, VK_NULL_HANDLE), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
 		}
 
-		activeCommandBuffer = VK_NULL_HANDLE;
+		activeCommandBuffer = nullptr;
 
 		currentFrame = (currentFrame + 1) % config::maxFramesInFlight;
 	}
@@ -707,12 +707,11 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 void CommandQueue::oneTimeBegin() {
 	auto cmdBuff = CommandBuffer(commandPools.at(currentFrame));
 	cmdBuff.begin(CommandQueue::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
-	activeCommandBuffer = cmdBuff.commandBuffer.release();
+	activeCommandBuffer = &cmdBuff;
 }
 
 void CommandQueue::oneTimeSubmit() {
-	auto cmdBuff = CommandBuffer(vk::CommandBuffer(activeCommandBuffer, globalRenderSystem->device));
-	cmdBuff.end();
+	activeCommandBuffer->end();
 	submit(VK_NULL_HANDLE, false);
 }
 
@@ -780,7 +779,7 @@ void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
 		0,
 		size
 	};
-	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).copyBuffer(srcBuffer.buffer, buffer, copyRegion);
+	commandQueue.activeCommandBuffer->copyBuffer(srcBuffer.buffer, buffer, copyRegion);
 
 	commandQueue.oneTimeSubmit();
 }
@@ -829,7 +828,7 @@ void Image::transition_layout(
 	}
 	else ASSERT(false, "Invalid image layout transition was requested whilst transitioning an image layout at: {}!", get_address(this));
 
-	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).pipelineBarrier(
+	commandQueue.activeCommandBuffer->pipelineBarrier(
 		sourceStage, 
 		destinationStage, 
 		0,
@@ -873,7 +872,7 @@ void Image::copy_from_buffer(const vulkan::GPUBuffer& stagingBuffer, const VkExt
 		{0, 0, 0},
 		extent
 	};
-	CommandQueue::CommandBuffer(commandQueue.activeCommandBuffer).copyBufferToImage(stagingBuffer.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
+	commandQueue.activeCommandBuffer->copyBufferToImage(stagingBuffer.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
 
 	commandQueue.oneTimeSubmit();
 }
@@ -1201,6 +1200,158 @@ void Swapchain::present() {
 	);
 }
 
+Framebuffers::Framebuffers(const Swapchain& swapchain) : swapchain(&swapchain) {
+	{ // create the render pass
+		VkAttachmentDescription colorAttachmentDescriptions {
+			0,
+			swapchain.format,
+			swapchain.maxMultisamples,
+			VK_ATTACHMENT_LOAD_OP_CLEAR,
+			VK_ATTACHMENT_STORE_OP_STORE,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		};
+
+		VkAttachmentDescription	depthBufferAttachmentDescriptions {
+			0,
+			swapchain.depthBufferFormat,
+			swapchain.maxMultisamples,
+			VK_ATTACHMENT_LOAD_OP_CLEAR,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		};
+
+		VkAttachmentDescription colorAttachmentFinalDescriptions { 
+			0,
+			swapchain.format,
+			VK_SAMPLE_COUNT_1_BIT,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			VK_ATTACHMENT_STORE_OP_STORE,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		};
+
+		VkAttachmentReference colorAttachmentReferences {
+			0,
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		};
+
+		VkAttachmentReference depthBufferAttachmentReferences {
+			1,
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		};
+
+		VkAttachmentReference colorAttachmentFinalReferences {
+			2,
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		};
+
+		Array<VkAttachmentDescription, 3> attachments = {{ colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions }};
+
+		VkSubpassDescription subpassDescriptions {
+			0,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			0,
+			nullptr,
+			1,
+			&colorAttachmentReferences,
+			&colorAttachmentFinalReferences,
+			&depthBufferAttachmentReferences,
+			0,
+			nullptr
+		};
+
+		VkSubpassDependency dependencies {
+			VK_SUBPASS_EXTERNAL,
+			0,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+			0,
+			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+			0
+		};
+
+		// create the render pass
+		VkRenderPassCreateInfo createInfo {
+			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+			nullptr,
+			0,
+			static_cast<uint32>(attachments.size()),
+			attachments.data(),
+			1,
+			&subpassDescriptions,
+			1,
+			&dependencies
+		};
+
+		renderPass = vk::RenderPass(globalRenderSystem->device, createInfo);
+	}
+
+	{ // create the framebuffers
+		framebuffers.resize(swapchain.images.size());
+
+		for (auto& framebuffer : framebuffers) {
+			Array<VkImageView, 3> attachments = { {
+				swapchain.colorImage.view,
+				swapchain.depthImage.view,
+				swapchain.images[static_cast<size_t>(&framebuffer - &framebuffers[0])].view
+			}};
+
+			// create the frame buffers
+			VkFramebufferCreateInfo createInfo{
+				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				nullptr,
+				0,
+				renderPass,
+				static_cast<uint32>(attachments.size()),
+				attachments.data(),
+				swapchain.extent.width,
+				swapchain.extent.height,
+				1
+			};
+
+			framebuffer = vulkan::vk::Framebuffer(globalRenderSystem->device, createInfo);
+		}
+	}
+}
+
+void Framebuffers::begin() const {
+	Array<VkClearValue, 2> clear {{
+		{
+			{ 0.0f, 0.0f, 0.0f, 0.0f },
+		},
+		{
+			{ 1.0f, 0 }
+		}
+	}};
+
+	VkRenderPassBeginInfo beginInfo{
+		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		nullptr,
+		renderPass,
+		framebuffers[swapchain->commandQueue->currentFrame],
+		{	// rendering area
+			{ 0, 0 },
+			swapchain->extent
+		},
+		2,
+		clear.data()
+	};
+
+	swapchain->commandQueue->activeCommandBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+}
+
+void Framebuffers::end() const {
+	swapchain->commandQueue->activeCommandBuffer->endRenderPass();
+}
+
 GraphicsProgram::GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader) {
 	static constexpr Array<VkDescriptorBindingFlags, 5> bindingFlags {
 		0,
@@ -1348,7 +1499,7 @@ GraphicsProgram::GraphicsProgram(const Shader& vertexShader, const Shader& fragm
 	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
 }
 
-GraphicsPipeline::Builder::Builder(const Renderer& renderer, const Swapchain& swapchain) :
+GraphicsPipeline::Builder::Builder(const Framebuffers& renderer, const Swapchain& swapchain) :
 	m_renderer(&renderer) { 
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information

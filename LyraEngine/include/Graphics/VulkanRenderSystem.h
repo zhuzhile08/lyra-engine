@@ -518,7 +518,7 @@ public:
 	std::vector<VkSemaphore> signalSemaphores;
 	std::vector<VkPipelineStageFlags> pipelineStageFlags;
 
-	VkCommandBuffer activeCommandBuffer;
+	const CommandBuffer* activeCommandBuffer;
 	std::vector<CommandPool> commandPools;
 
 	uint32 currentFrame;
@@ -675,7 +675,7 @@ public:
 
 class Swapchain {	
 public:
-	Swapchain() = default;
+	constexpr Swapchain() = default;
 	Swapchain(SDL_Window* window, CommandQueue& commandQueue);
 	void createSwapchain();
 	void createAttachments();
@@ -716,9 +716,21 @@ public:
 	SDL_Window* window;
 };
 
-class Renderer {
+class Framebuffers {
 public:
+	constexpr Framebuffers() = default;
+	// construct a framebuffer in the engine default configuration
+	Framebuffers(const Swapchain& swapchain);
+	// @todo add a constructor with custom attachments
+	// Framebuffers(const std::vector<Arrachment>& attachments);
+
+	void begin() const;
+	void end() const;
+	
 	vk::RenderPass renderPass;
+	Dynarray <vulkan::vk::Framebuffer, config::maxSwapchainImages> framebuffers;
+	
+	const Swapchain* swapchain;
 };
 
 class DescriptorWriter {
@@ -1037,7 +1049,7 @@ public:
 		};
 
 		constexpr Builder() noexcept = default;
-		Builder(const Renderer& renderer, const Swapchain& swapchain);
+		Builder(const Framebuffers& renderer, const Swapchain& swapchain);
 
 		constexpr void enable_sample_shading(float32 strength) noexcept {
 			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
@@ -1071,7 +1083,7 @@ public:
 
 	private:
 		GraphicsPipelineCreateInfo m_createInfo;
-		const Renderer* m_renderer;
+		const Framebuffers* m_renderer;
 
 		friend class GraphicsPipeline;
 	};
