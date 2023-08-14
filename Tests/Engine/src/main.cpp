@@ -105,17 +105,33 @@ void Application::init() {
 
 #include <Lyra/Lyra.h>
 #include <Common/Common.h>
+#include <Common/Filesystem.h>
+
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/SDLWindow.h>
 
-int main() {
+int main(int argc, char* argv[]) {
 	lyra::Window window;
 
 	lyra::init(window);
+	lyra::init_filesystem(argv);
 
 	lyra::vulkan::CommandQueue commandQueue;
 
-	lyra::vulkan::Swapchain swapchain(window.get(), commandQueue);
+	lyra::vulkan::Swapchain swapchain(commandQueue);
+
+	lyra::vulkan::Framebuffers framebuffers(swapchain);
+
+	lyra::CharVectorStream vertexShaderFile("data/shaders/vert.spv");
+	lyra::vulkan::Shader vertexShader(lyra::vulkan::Shader::Type::vertex, vertexShaderFile.data());
+
+	lyra::CharVectorStream fragmentShaderFile("data/shaders/frag.spv");
+	lyra::vulkan::Shader fragmentShader(lyra::vulkan::Shader::Type::fragment, fragmentShaderFile.data());
+
+	lyra::vulkan::GraphicsProgram graphicsProgram(vertexShader, fragmentShader);
+
+	lyra::vulkan::GraphicsPipeline::Builder pipelineBuilder(swapchain, framebuffers);
+	lyra::vulkan::GraphicsPipeline graphicsPipeline(graphicsProgram, pipelineBuilder);
 
 	return 0;
 }

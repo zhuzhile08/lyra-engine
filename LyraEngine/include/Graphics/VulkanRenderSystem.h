@@ -88,7 +88,7 @@ using DefragmentationContext = RAIIContainer<VmaDefragmentationContext, VmaAlloc
 
 struct InitInfo {
 	Array<uint32, 3> version;
-	SDL_Window* window;
+	const Window* window;
 };
 
 bool init_render_system(const InitInfo& info);
@@ -675,8 +675,8 @@ public:
 
 class Swapchain {	
 public:
-	constexpr Swapchain() = default;
-	Swapchain(SDL_Window* window, CommandQueue& commandQueue);
+	Swapchain() = default;
+	Swapchain(CommandQueue& commandQueue);
 	void createSwapchain();
 	void createAttachments();
 	void update(bool windowModified);
@@ -713,12 +713,11 @@ public:
 	bool invalidAttachments = false;
 
 	CommandQueue* commandQueue;
-	SDL_Window* window;
 };
 
 class Framebuffers {
 public:
-	constexpr Framebuffers() = default;
+	Framebuffers() = default;
 	// construct a framebuffer in the engine default configuration
 	Framebuffers(const Swapchain& swapchain);
 	// @todo add a constructor with custom attachments
@@ -860,8 +859,8 @@ public:
 	}; // Refer to the API for the documentation of these enums
 
 	Shader() = default;
-	Shader(std::vector<char>&& source);
-	Shader(const std::vector<char>& source);
+	Shader(Type type, std::vector<char>&& source);
+	Shader(Type type, const std::vector<char>& source);
 
 	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
 		return {
@@ -1048,8 +1047,8 @@ public:
 			FRONT_FACE_CLOCKWISE = 1
 		};
 
-		constexpr Builder() noexcept = default;
-		Builder(const Framebuffers& renderer, const Swapchain& swapchain);
+		Builder() noexcept = default;
+		Builder(const Swapchain& swapchain, const Framebuffers& renderer);
 
 		constexpr void enable_sample_shading(float32 strength) noexcept {
 			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;

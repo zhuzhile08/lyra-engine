@@ -5,6 +5,7 @@
 #include <Common/Config.h>
 
 #include <Graphics/Mesh.h>
+#include <Graphics/SDLWindow.h>
 
 #include <SDL_vulkan.h>
 
@@ -63,7 +64,7 @@ public:
 		std::vector <VkQueueFamilyProperties> queueFamilyProperties;
 	};
 
-	RenderSystem(const InitInfo& info, bool& sucess) {
+	RenderSystem(const InitInfo& info, bool& sucess) : window(info.window) {
 		{ // create instance
 			// check if requested validation layers are available
 #ifndef NDEBUG
@@ -90,9 +91,9 @@ public:
 #endif
 			// get all extensions
 			uint32 instanceExtensionCount = 0;
-			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
+			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window->get(), &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
 			std::vector<const char*> instanceExtensions(instanceExtensionCount);
-			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window, &instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window->get(), &instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 			// add some required extensions
 			instanceExtensions.push_back("VK_KHR_get_physical_device_properties2");
 #ifndef NDEBUG
@@ -283,10 +284,10 @@ public:
 						log::warning("GPU does not have some required features!");
 					}
 
-					log::info("Available device features and properties: ");
-
 					// the actual scoring system
 					if (score > 0) {
+						log::info("Available device features and properties: ");
+
 						score = 0;
 						if (extendedProperties.properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) { // cpu type
 							score += 20;
@@ -336,7 +337,7 @@ public:
 			Dynarray<const char*, config::requestedDeviceExtensions.size() + 1> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
 			requestedExtensions.push_back("VK_KHR_portability_subset");
 #else
-			const auto& requestedExtensions = config::requestedValidationLayers;
+			auto& requestedExtensions = config::requestedDeviceExtensions;
 #endif
 
 			// device creation info
@@ -583,6 +584,8 @@ public:
 	vk::Queue copyQueue;
 
 	vma::Allocator allocator;
+
+	const Window* window;
 
 	PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
 	PFN_vkCmdPushDescriptorSetWithTemplateKHR vkCmdPushDescriptorSetWithTemplateKHR;
@@ -877,8 +880,8 @@ void Image::copy_from_buffer(const vulkan::GPUBuffer& stagingBuffer, const VkExt
 	commandQueue.oneTimeSubmit();
 }
 
-Swapchain::Swapchain(SDL_Window* window, CommandQueue& commandQueue) : window(window), commandQueue(&commandQueue) {
-	surface = vk::Surface(globalRenderSystem->instance, window);
+Swapchain::Swapchain(CommandQueue& commandQueue) : commandQueue(&commandQueue) {
+	surface = vk::Surface(globalRenderSystem->instance, globalRenderSystem->window->get());
 
 	{ // check present queue compatibility
 		uint32 familyIndex = 0;
@@ -984,7 +987,7 @@ void Swapchain::createSwapchain() {
 
 	{ // create the extent
 		int width, height;
-		SDL_Vulkan_GetDrawableSize(window, &width, &height);
+		SDL_Vulkan_GetDrawableSize(globalRenderSystem->window->get(), &width, &height);
 
 		VkExtent2D newExtent = {
 			static_cast<uint32>(width),
@@ -1108,7 +1111,7 @@ void Swapchain::createAttachments() {
 void Swapchain::update(bool windowModified) {
 	if (lostSurface) {
 		surface.destroy();
-		surface = vk::Surface(globalRenderSystem->instance, window);
+		surface = vk::Surface(globalRenderSystem->instance, globalRenderSystem->window->get());
 		lostSurface = false;
 	}
 
@@ -1352,6 +1355,30 @@ void Framebuffers::end() const {
 	swapchain->commandQueue->activeCommandBuffer->endRenderPass();
 }
 
+Shader::Shader(Type type, std::vector<char>&& source) : shaderSrc(source), type(type) {
+	VkShaderModuleCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		nullptr,
+		0,
+		shaderSrc.size(),
+		reinterpret_cast<const uint32*>(shaderSrc.data())
+	};
+
+	module = vk::ShaderModule(globalRenderSystem->device, createInfo);
+}
+
+Shader::Shader(Type type, const std::vector<char>& source) : shaderSrc(source), type(type) {
+	VkShaderModuleCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		nullptr,
+		0,
+		shaderSrc.size(),
+		reinterpret_cast<const uint32*>(shaderSrc.data())
+	};
+
+	module = vk::ShaderModule(globalRenderSystem->device, createInfo);
+}
+
 GraphicsProgram::GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader) {
 	static constexpr Array<VkDescriptorBindingFlags, 5> bindingFlags {
 		0,
@@ -1499,7 +1526,7 @@ GraphicsProgram::GraphicsProgram(const Shader& vertexShader, const Shader& fragm
 	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
 }
 
-GraphicsPipeline::Builder::Builder(const Framebuffers& renderer, const Swapchain& swapchain) :
+GraphicsPipeline::Builder::Builder(const Swapchain& swapchain, const Framebuffers& renderer) :
 	m_renderer(&renderer) { 
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information
