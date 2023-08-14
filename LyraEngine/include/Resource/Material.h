@@ -11,10 +11,10 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <Common/Array.h>
-#include <Common/SmartPointer.h>
+#include <Common/UniquePointer.h>
 
 #include <Resource/LoadMaterial.h>
 
@@ -22,7 +22,7 @@
 
 #include <Graphics/VulkanImpl/GPUBuffer.h>
 #include <Graphics/VulkanImpl/DescriptorSystem.h>
-#include <Graphics/GraphicsPipeline.h>
+#include <Graphics/GraphicsPipelineSystem.h>
 
 namespace lyra {
 
@@ -84,8 +84,8 @@ public:
 	Material(
 		const Color& albedoColor = Color(),
 		std::string_view albedoTexturePath = {},
-		const float& metallic = 0.0f,
-		const float& roughness = 0.0f,
+		const float32& metallic = 0.0f,
+		const float32& roughness = 0.0f,
 		std::string_view metallicTexturePath = {},
 		const Color& specularColor = Color(),
 		std::string_view specularTexturePath = {},
@@ -101,7 +101,7 @@ public:
 	 * 
 	 * @param material loaded raw material data
 	 */
-	Material(const util::LoadedMaterial& material) :
+	Material(const util::detail::LoadedMaterial& material) :
 		Material(
 			{ material.mats[0].diffuse[0], material.mats[0].diffuse[1], material.mats[0].diffuse[2] },
 			material.mats[0].diffuse_texname,
@@ -118,11 +118,16 @@ public:
 			material.mats[0].ambient_texname
 		) { path = material.path; }
 	
+	/**
+	 * @brief a function to update the internal buffers after material properties have changed
+	 */
+	void update_buffers();
+	
 	Color albedoColor;
 	HashedTexture albedoTexture;
 
-	float metallic;
-	float roughness;
+	float32 metallic;
+	float32 roughness;
 	HashedTexture metallicTexture;
 
 	Color specularColor;
@@ -141,8 +146,8 @@ public:
 	std::string path;
 	
 private:
-	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_fragShaderBuffers;
-	Array<SmartPointer<vulkan::GPUBuffer>, Settings::RenderConfig::maxFramesInFlight> m_vertShaderBuffers;
+	Array<UniquePointer<vulkan::GPUBuffer>, config::maxFramesInFlight> m_fragShaderBuffers;
+	Array<UniquePointer<vulkan::GPUBuffer>, config::maxFramesInFlight> m_vertShaderBuffers;
 
 	/**
 	 * @brief System to render the material by binding it to a camera
@@ -161,16 +166,15 @@ private:
 		/**
 		 * @brief get the descriptor sets
 		 *
-		 * @return const Array<vulkan::DescriptorSystem::DescriptorSet*, Settings::RenderConfig::maxFramesInFlight>&
+		 * @return const Array<vulkan::DescriptorSystem::DescriptorSet*, config::maxFramesInFlight>&
 		*/
-		NODISCARD const Array<vulkan::DescriptorSystem::DescriptorSetResource, Settings::RenderConfig::maxFramesInFlight>& descriptorSets() const noexcept { return m_descriptorSets; }
+		NODISCARD const Array<vulkan::DescriptorSystem::DescriptorSetResource, config::maxFramesInFlight>& descriptorSets() const noexcept { return m_descriptorSets; }
 
 	private:
 		Camera* m_camera;
 		Material* m_material;
-		std::vector<MeshRenderer*> m_meshRenderers;
 
-		Array<vulkan::DescriptorSystem::DescriptorSetResource, Settings::RenderConfig::maxFramesInFlight> m_descriptorSets;
+		Array<vulkan::DescriptorSystem::DescriptorSetResource, config::maxFramesInFlight> m_descriptorSets;
 
 		struct MaterialVertexData {
 			alignas(8) const uint32 m_normalMapValue;
@@ -193,11 +197,11 @@ private:
 		 */
 		void draw() const;
 
-		friend class Renderer;
+		friend class Framebuffers;
 		friend class Camera;
 	};
 
-	friend class Renderer;
+	friend class Framebuffers;
 	friend class Camera;
 };
 
