@@ -122,10 +122,10 @@ int main(int argc, char* argv[]) {
 
 	lyra::vulkan::Framebuffers framebuffers(swapchain);
 
-	lyra::CharVectorStream vertexShaderFile("data/shaders/vert.spv");
+	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv");
 	lyra::vulkan::Shader vertexShader(lyra::vulkan::Shader::Type::vertex, vertexShaderFile.data());
 
-	lyra::CharVectorStream fragmentShaderFile("data/shaders/frag.spv");
+	lyra::CharVectorStream fragmentShaderFile("data/shader/frag.spv");
 	lyra::vulkan::Shader fragmentShader(lyra::vulkan::Shader::Type::fragment, fragmentShaderFile.data());
 
 	lyra::vulkan::GraphicsProgram graphicsProgram(vertexShader, fragmentShader);
