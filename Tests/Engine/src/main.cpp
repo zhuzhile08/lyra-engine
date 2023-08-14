@@ -105,7 +105,7 @@ void Application::init() {
 
 #include <Lyra/Lyra.h>
 #include <Common/Common.h>
-#include <Common/Filesystem.h>
+#include <Common/FileSystem.h>
 
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/SDLWindow.h>
