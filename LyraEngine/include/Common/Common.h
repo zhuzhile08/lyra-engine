@@ -82,7 +82,6 @@ class Logger;
 // some higher level wrappers
 
 class Window;
-class Renderer;
 class RenderSystem;
 class GraphicsPipelineSystem;
 class Material;
@@ -93,15 +92,16 @@ class Texture;
 namespace vulkan {
 
 class Device;
-class Window;
-class CommandPool;
-class CommandBufferManager;
-class DescriptorSystem;
+class Swapchain;
+class CommandQueue;
+class DescriptorBinder;
 class GPUMemory;
-class Image;
 class GPUBuffer;
+class Framebuffers;
+class Image;
 class Shader;
-class Pipeline;
+class GraphicsProgram;
+class GraphicsPipeline;
 
 namespace detail {
 
