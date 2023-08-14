@@ -36,9 +36,8 @@ enum class DisableLog {
 inline constexpr DisableLog disableLog = DisableLog::none;
 inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
-inline constexpr Array<const char*, 3> requestedDeviceExtensions({
-	"VK_EXT_push_descriptor",
-	"VK_EXT_descriptor_buffer,"
+inline constexpr Array<const char*, 2> requestedDeviceExtensions({
+	"VK_KHR_push_descriptor",
 	"VK_KHR_swapchain"
 });
 inline constexpr Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
