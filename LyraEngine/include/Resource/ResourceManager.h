@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <Common/FunctionPointer.h>
 #include <Common/Manager.h>
