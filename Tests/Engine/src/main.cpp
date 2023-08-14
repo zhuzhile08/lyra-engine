@@ -113,5 +113,9 @@ int main() {
 
 	lyra::init(window);
 
+	lyra::vulkan::CommandQueue commandQueue;
+
+	lyra::vulkan::Swapchain swapchain(window.get(), commandQueue);
+
 	return 0;
 }
