@@ -4,6 +4,8 @@
 #include <Common/Logger.h>
 #include <Common/Config.h>
 
+#include <Graphics/Mesh.h>
+
 #include <SDL_vulkan.h>
 
 #include <utility>
@@ -1199,7 +1201,7 @@ void Swapchain::present() {
 	);
 }
 
-Program::Program(const Shader& vertexShader, const Shader& fragmentShader) {
+GraphicsProgram::GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader) {
 	static constexpr Array<VkDescriptorBindingFlags, 5> bindingFlags {
 		0,
 		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT,
@@ -1302,9 +1304,19 @@ Program::Program(const Shader& vertexShader, const Shader& fragmentShader) {
 	};
 
 	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
+
+	/*
+	VkPipelineCacheCreateInfo pipelineCacheCreateInfo {
+		VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+		nullptr,
+		0
+	};
+
+	pipelineCache = vk::PipelineCache(globalRenderSystem->device, pipelineCacheCreateInfo);
+	*/
 }
 
-Program::Program(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder) {
+GraphicsProgram::GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder) {
 	uint32 setCount = binder.m_bindings.size();
 
 	std::vector<VkDescriptorSetLayout> tmpLayouts(setCount);
@@ -1329,11 +1341,149 @@ Program::Program(const Shader& vertexShader, const Shader& fragmentShader, const
 		0,
 		setCount,
 		tmpLayouts.data(),
-		0,
-		nullptr
+		static_cast<uint32>(binder.m_pushConstants.size()),
+		binder.m_pushConstants.data()
 	};
 
 	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
+}
+
+GraphicsPipeline::Builder::Builder(const Renderer& renderer, const Swapchain& swapchain) :
+	m_renderer(&renderer) { 
+	m_createInfo = GraphicsPipelineCreateInfo {
+		// shader information
+		Mesh::Vertex::get_binding_description(),
+		Mesh::Vertex::get_attribute_descriptions(),
+		{	// describe how vertices are inputed into shaders
+			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			1,
+			&m_createInfo.meshBindingDescription,
+			static_cast<uint32>(m_createInfo.meshAttributeDescriptions.size()),
+			m_createInfo.meshAttributeDescriptions.data()
+		},
+		{	// describe how shaders are executed
+			VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+			VK_FALSE
+		},
+		{	// tesselation
+
+		},
+		false,
+		false,
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			1,
+			nullptr,
+			1,
+			nullptr
+		},
+		{	// create the rasteriser to create the fragments
+			VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_FALSE,
+			VK_FALSE,
+			VK_POLYGON_MODE_FILL,
+			VK_CULL_MODE_BACK_BIT,
+			VK_FRONT_FACE_COUNTER_CLOCKWISE,
+			VK_FALSE,
+			0.0f,
+			0.0f,
+			0.0f,
+			1.0f
+		},
+		{	// configure anti alising
+			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			swapchain.maxMultisamples,
+			VK_FALSE,
+			0.0f
+		},
+		{	// depth buffering
+			VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_TRUE,
+			VK_TRUE,
+			VK_COMPARE_OP_LESS,
+			VK_FALSE,
+			VK_FALSE
+		},
+		{	// configure color blending
+			VK_FALSE,
+			VK_BLEND_FACTOR_SRC_ALPHA,
+			VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+			VK_BLEND_OP_ADD,
+			VK_BLEND_FACTOR_ONE,
+			VK_BLEND_FACTOR_ZERO,
+			VK_BLEND_OP_ADD,
+			VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+		},
+		{
+			VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+			nullptr,
+			0,
+			VK_FALSE,
+			VK_LOGIC_OP_COPY,
+			1,
+			&m_createInfo.colorBlendAttachment,
+			{
+				0.0f, 0.0f, 0.0f, 0.0f
+			}
+		}
+	};
+}
+
+GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder& builder) {
+	// configure dynamci state
+	Dynarray<VkDynamicState, 2> dynamicState;
+	if (std::holds_alternative<bool>(builder.m_createInfo.viewport)) {
+		dynamicState.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+	} if (std::holds_alternative<bool>(builder.m_createInfo.scissor)) {
+		dynamicState.push_back(VK_DYNAMIC_STATE_SCISSOR);
+	}
+
+	VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo {
+		VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+		nullptr,
+		0,
+		static_cast<uint32>(dynamicState.size()),
+		dynamicState.data()
+	};
+
+	Array<VkPipelineShaderStageCreateInfo, 2> tmpShaders = { program.vertexShader->get_stage_create_info(), program.fragmentShader->get_stage_create_info() };
+
+	VkGraphicsPipelineCreateInfo createInfo {
+		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
+		nullptr,
+		0,
+		2,
+		tmpShaders.data(),
+		&builder.m_createInfo.vertexInputInfo,
+		&builder.m_createInfo.inputAssembly,
+		&builder.m_createInfo.tesselation,
+		&builder.m_createInfo.viewportState,
+		&builder.m_createInfo.rasterizer,
+		&builder.m_createInfo.multisampling,
+		&builder.m_createInfo.depthStencilState,
+		&builder.m_createInfo.colorBlending,
+		&dynamicStateCreateInfo,
+		program.pipelineLayout,
+		builder.m_renderer->renderPass,
+		0,
+		VK_NULL_HANDLE,
+		0
+	};
+
+	pipeline = vk::GraphicsPipeline(globalRenderSystem->device, program.pipelineCache, createInfo, {});
 }
 
 } // namespace vulkan

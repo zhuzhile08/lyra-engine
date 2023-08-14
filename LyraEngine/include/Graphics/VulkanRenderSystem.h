@@ -17,6 +17,7 @@
 #include <Common/RAIIContainers.h>
 #include <Common/Config.h>
 
+#include <glm/glm.hpp>
 #include <SDL.h>
 #include <vulkan/vulkan.h>
 #ifdef __APPLE__
@@ -31,6 +32,7 @@
 #include <vk_mem_alloc.h>
 #endif
 
+#include <variant>
 #include <vector>
 #include <string>
 
@@ -714,6 +716,11 @@ public:
 	SDL_Window* window;
 };
 
+class Renderer {
+public:
+	vk::RenderPass renderPass;
+};
+
 class DescriptorWriter {
 public:
 	enum Type {
@@ -862,28 +869,38 @@ public:
 	Type type;
 };
 
-class Program {
+class GraphicsProgram {
 public:
-	// binding data
-	struct Binding {
-		// descriptor type
-		DescriptorWriter::Type type;
-		// shader the binding is in
-		Shader::Type shaderType;
-		// binding number
-		uint32 binding;
-		// set number
-		uint32 set = 0;
-		// array size
-		uint32 arraySize = 1;
-		// uses VK_KHR_push_descriptors
-		bool dynamic = false;
-		// immutable samplers
-		const std::vector<VkSampler>& immutableSamplers = { };
-	};
-
 	class Binder {
 	public:
+		// binding data
+		struct Binding {
+			// descriptor type
+			DescriptorWriter::Type type;
+			// shader the binding is in
+			Shader::Type shaderType;
+			// binding number
+			uint32 binding;
+			// set number
+			uint32 set = 0;
+			// array size
+			uint32 arraySize = 1;
+			// uses VK_KHR_push_descriptors
+			bool dynamic = false;
+			// immutable samplers
+			const std::vector<VkSampler>& immutableSamplers = { };
+		};
+
+		// push constant data
+		struct PushConstant {
+			// shader the push constant is in
+			Shader::Type shaderType;
+			// size of the push constant
+			uint32 size;
+			// offset
+			uint32 offset = 0;
+		};
+
 		constexpr void add_binding(const Binding& binding) {
 			if (m_bindings.size() <= binding.set) {
 				m_bindings.push_back({});
@@ -915,35 +932,168 @@ public:
 		constexpr void add_bindings(const std::vector<Binding>& bindings) {
 			for (const auto& binding : bindings) add_binding(binding);
 		}
-		constexpr void add_push_constant(Shader::Type shaderType, uint32 size, uint32 offset = 0) {
-			m_pushConstant = {
-				static_cast<VkShaderStageFlags>(shaderType),
-				offset,
-				size
-			};
+
+		constexpr void add_push_constant(const PushConstant& pushConstant) {
+			m_pushConstants.push_back({
+				static_cast<VkShaderStageFlags>(pushConstant.shaderType),
+				pushConstant.offset,
+				pushConstant.size
+			});
+		}
+		constexpr void add_push_constants(const std::vector<PushConstant>& pushConstants) {
+			for (const auto& pushConstant : pushConstants) add_push_constant(pushConstant);
 		}
 
 	private:
 		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
 		Dynarray<std::vector<VkDescriptorBindingFlags>, config::maxShaderSets> m_bindingFlags;
 		Dynarray<VkDescriptorSetLayoutBindingFlagsCreateInfo, config::maxShaderSets> m_bindingFlagsCreateInfo;
-		VkPushConstantRange m_pushConstant;
+		std::vector<VkPushConstantRange> m_pushConstants;
 
-		friend class Program;
+		friend class GraphicsProgram;
 	};
 
-	Program() = default;
+	GraphicsProgram() = default;
 	// Constructs a shader program in engine standard layout
 	// You should prefer to write your shaders in the engine standard layout
-	Program(const Shader& vertexShader, const Shader& fragmentShader);
+	GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader);
 	// Constructs a shader program with a custom layout
-	Program(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder);
+	GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder);
 
 	const Shader* vertexShader;
 	const Shader* fragmentShader;
 
 	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
 	vk::PipelineLayout pipelineLayout;
+	vk::PipelineCache pipelineCache; // Implement the pipeline cache @todo
+};
+
+class GraphicsPipeline {
+public:
+	static constexpr VkPipelineBindPoint bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+	class Builder {
+	public:
+		struct GraphicsPipelineCreateInfo {
+			VkVertexInputBindingDescription meshBindingDescription;
+			Array<VkVertexInputAttributeDescription, 4> meshAttributeDescriptions;
+			VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+			VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+			VkPipelineTessellationStateCreateInfo tesselation;
+			std::variant<bool, VkViewport> viewport;
+			std::variant<bool, VkRect2D> scissor;
+			VkPipelineViewportStateCreateInfo viewportState;
+			VkPipelineRasterizationStateCreateInfo rasterizer;
+			VkPipelineMultisampleStateCreateInfo multisampling;
+			VkPipelineDepthStencilStateCreateInfo depthStencilState;
+			VkPipelineColorBlendAttachmentState colorBlendAttachment;
+			VkPipelineColorBlendStateCreateInfo colorBlending;
+		};
+
+		struct Viewport {
+			glm::vec2 extent;
+			glm::vec2 offset = {0, 0};
+			float32 minDepth = 0.0f;
+			float32 maxDepth = 1.0f;
+		};
+
+		struct Scissor {
+			glm::uvec2 extent;
+			glm::ivec2 offset = {0, 0};
+		};
+
+		enum class ColorBlending {
+			BLEND_ENABLE = 1U,
+			BLEND_DISABLE = 0U
+		};
+		using Colourblending = ColorBlending;
+
+		enum class Tessellation {
+			TESSELLATION_ENABLE = 1U,
+			TESSELLATION_DISABLE = 0U
+		};
+
+		enum class Multisampling {
+			MULTISAMPLING_ENABLE = 1U,
+			MULTISAMPLING_DISABLE = 0U
+		};
+
+		enum class RenderMode {
+			MODE_FILL = 0,
+			MODE_LINE = 1,
+			MODE_POINT = 2
+		};
+
+		enum class Culling {
+			CULLING_NONE = 0x00000000,
+			CULLING_FRONT = 0x00000001,
+			CULLING_BACK = 0x00000002,
+			CULLING_ALL = 0x00000003
+		};
+
+		enum class PolygonFrontFace {
+			FRONT_FACE_COUNTER_CLOCKWISE = 0,
+			FRONT_FACE_CLOCKWISE = 1
+		};
+
+		constexpr Builder() noexcept = default;
+		Builder(const Renderer& renderer, const Swapchain& swapchain);
+
+		constexpr void enable_sample_shading(float32 strength) noexcept {
+			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
+			m_createInfo.multisampling.minSampleShading = strength;
+		}
+		constexpr void set_culling_mode(Culling cullingMode) noexcept {
+			m_createInfo.rasterizer.cullMode = static_cast<VkCullModeFlags>(cullingMode);
+		}
+		constexpr void set_render_mode(RenderMode renderMode) noexcept {
+			m_createInfo.rasterizer.polygonMode = static_cast<VkPolygonMode>(renderMode);
+		}
+		constexpr void set_polyon_front_face(PolygonFrontFace frontFace) noexcept {
+			m_createInfo.rasterizer.frontFace = static_cast<VkFrontFace>(frontFace);
+		}
+		constexpr void set_viewport(const Viewport& viewport) noexcept {
+			m_createInfo.viewport = VkViewport {
+				viewport.offset.x,
+				viewport.offset.y,
+				viewport.extent.x,
+				viewport.extent.y,
+				viewport.minDepth,
+				viewport.maxDepth
+			};
+		}
+		constexpr void set_scissor(const Scissor& scissor) noexcept {
+			m_createInfo.scissor = VkRect2D {
+				{ scissor.offset.x, scissor.offset.y },
+				{ scissor.extent.x, scissor.extent.y }
+			};
+		}
+
+	private:
+		GraphicsPipelineCreateInfo m_createInfo;
+		const Renderer* m_renderer;
+
+		friend class GraphicsPipeline;
+	};
+
+	GraphicsPipeline() noexcept = default;
+	GraphicsPipeline(const GraphicsProgram& program, const Builder& builder);
+
+	void bind(const CommandQueue::CommandBuffer& cmdBuff) {
+		cmdBuff.bindPipeline(bindPoint, pipeline);
+	}
+
+	vk::Pipeline pipeline;
+};
+
+class ComputeProgram {
+public:
+
+};
+
+class ComputePipeline {
+public:
+
 };
 
 } // namespace vulkan
