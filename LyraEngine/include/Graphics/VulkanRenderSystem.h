@@ -675,14 +675,14 @@ public:
 	Swapchain(CommandQueue& commandQueue);
 	void createSwapchain();
 	void createAttachments();
-	void update(bool windowModified);
+	void update();
 
 	void aquire();
 	void present();
 
 	vk::Surface surface;
 	vk::Swapchain swapchain;
-	vk::Swapchain* oldSwapchain = nullptr;
+	vk::Swapchain oldSwapchain;
 
 	uint32 presentFamilyIndex = std::numeric_limits<uint32>::max();
 	vk::Queue presentQueue;
@@ -723,8 +723,12 @@ public:
 	// @todo add a constructor with custom attachments
 	// Framebuffers(const std::vector<Arrachment>& attachments);
 
+	void update(); // when calling this manually, do it before Swapchain::update();
+
 	void begin() const;
 	void end() const;
+
+	void create_framebuffers();
 	
 	vk::RenderPass renderPass;
 	Dynarray <vulkan::vk::Framebuffer, config::maxSwapchainImages> framebuffers;

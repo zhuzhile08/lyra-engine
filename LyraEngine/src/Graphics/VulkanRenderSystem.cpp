@@ -1007,7 +1007,7 @@ void Swapchain::createSwapchain() {
 			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
 			presentMode,
 			VK_TRUE,
-			(oldSwapchain != nullptr) ? *oldSwapchain : VK_NULL_HANDLE
+			(oldSwapchain) ? oldSwapchain : VK_NULL_HANDLE
 		};
 
 		swapchain = vk::Swapchain(globalRenderSystem->device, createInfo);
@@ -1088,34 +1088,24 @@ void Swapchain::createAttachments() {
 	}
 }
 
-void Swapchain::update(bool windowModified) {
+void Swapchain::update() {
 	if (lostSurface) {
-		surface.destroy();
 		surface = vk::Surface(globalRenderSystem->instance, globalRenderSystem->window->get());
-		lostSurface = false;
 	}
 
-	if (invalidSwapchain || lostSurface || windowModified) {
-		if (oldSwapchain != nullptr) vkDestroySwapchainKHR(globalRenderSystem->device, *oldSwapchain, nullptr);
-		oldSwapchain = &(this->swapchain);
+	if (invalidSwapchain || (lostSurface || globalRenderSystem->window->changed())) {
+		if (oldSwapchain != nullptr) oldSwapchain.destroy();
+		oldSwapchain = std::move(this->swapchain);
 
-		createSwapchain();
-		invalidSwapchain = false;
-	}
-
-	if (invalidAttachments || (invalidSwapchain || lostSurface || windowModified)) {
 		for (auto& image : images) {
-			image.destroy();
+			image.view.destroy();
 		}
 
-		colorImage.destroy();
-		colorMem.destroy();
-		depthImage.destroy();
-		depthMem.destroy();
-		swapchain.destroy();
+		createSwapchain();
+	}
 
+	if (invalidAttachments || (invalidSwapchain || lostSurface || globalRenderSystem->window->changed())) {
 		createAttachments();
-		invalidAttachments = false;
 	}
 }
 
@@ -1149,6 +1139,8 @@ void Swapchain::aquire() {
 			break;
 	}
 
+	update();
+
 	globalRenderSystem->resetFence(renderFinishedFences[currentFrame]);
 
 	commandQueue->activeCommandBuffer = &(commandBuffer = std::move(lyra::vulkan::CommandQueue::CommandBuffer(commandQueue->commandPools[commandQueue->currentFrame])));
@@ -1157,6 +1149,10 @@ void Swapchain::aquire() {
 }
 
 void Swapchain::present() {
+	lostSurface = false;
+	invalidSwapchain = false;
+	invalidAttachments = false;
+
 	VkPresentInfoKHR presentInfo {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
@@ -1185,6 +1181,8 @@ void Swapchain::present() {
 			VULKAN_ASSERT(result, "present swapchain");
 			break;
 	}
+
+	update();
 
 	globalRenderSystem->waitForFence(
 		renderFinishedFences[currentFrame], 
@@ -1287,31 +1285,39 @@ Framebuffers::Framebuffers(const Swapchain& swapchain) : swapchain(&swapchain) {
 		renderPass = vk::RenderPass(globalRenderSystem->device, createInfo);
 	}
 
-	{ // create the framebuffers
-		framebuffers.resize(swapchain.images.size());
+	framebuffers.resize(swapchain.images.size());
+	create_framebuffers();
+}
 
-		for (uint32 i = 0; i < framebuffers.size(); i++) {
-			Array<VkImageView, 3> attachments = { {
-				swapchain.colorImage.view,
-				swapchain.depthImage.view,
-				swapchain.images[i].view
-			}};
+void Framebuffers::create_framebuffers() { // create the framebuffers
+	for (uint32 i = 0; i < framebuffers.size(); i++) {
+		Array<VkImageView, 3> attachments = { {
+			swapchain->colorImage.view,
+			swapchain->depthImage.view,
+			swapchain->images[i].view
+		} };
 
-			// create the frame buffers
-			VkFramebufferCreateInfo createInfo{
-				VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-				nullptr,
-				0,
-				renderPass,
-				static_cast<uint32>(attachments.size()),
-				attachments.data(),
-				swapchain.extent.width,
-				swapchain.extent.height,
-				1
-			};
+		// create the frame buffers
+		VkFramebufferCreateInfo createInfo{
+			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+			nullptr,
+			0,
+			renderPass,
+			static_cast<uint32>(attachments.size()),
+			attachments.data(),
+			swapchain->extent.width,
+			swapchain->extent.height,
+			1
+		};
 
-			framebuffers[i] = vk::Framebuffer(globalRenderSystem->device, createInfo);
-		}
+		framebuffers[i] = vk::Framebuffer(globalRenderSystem->device, createInfo);
+	}
+}
+
+void Framebuffers::update() {
+	if (swapchain->invalidAttachments || swapchain->invalidSwapchain || swapchain->lostSurface || globalRenderSystem->window->changed()) {
+		for (auto& framebuffer : framebuffers) framebuffer.destroy();
+		create_framebuffers();
 	}
 }
 
