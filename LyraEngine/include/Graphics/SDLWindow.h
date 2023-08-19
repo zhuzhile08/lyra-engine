@@ -14,61 +14,28 @@
 #pragma once
 
 #include <Common/Common.h>
-
-#include <functional>
+#include <Common/RAIIContainers.h>
 
 #include <SDL.h>
 
-#include <Common/RAIIContainers.h>
-
 namespace lyra {
 
-struct WindowEvents {
-};
-
-
 namespace input {
-class InputManager;
+
+class Input;
+
 } // namespace input
 
-
-/**
- * @brief wrapper around a SDL window with some quality of life improvements
- *
- * @todo get more events and window settings. The current window is VERY barebones and only the bone of the entire structure is implemented
- */
 class Window {
 public:
-	/**
-	 * @brief construct a new window
-	 */
 	Window() noexcept;
-
-	/**
-	* @brief destructor of the window
-	**/
 	virtual ~Window() noexcept;
 
 	Window(const Window&) noexcept = delete;
 	Window operator=(const Window&) const noexcept = delete;
 
-	/**
-	 * @brief get the window object
-	 *
-	 * @return SDL_Window*
-	 */
 	NODISCARD SDL_Window* get() const noexcept { return m_window; };
-	/**
-	* @brief get if window is still running
-	* 
-	* @return const bool
-	**/
 	NODISCARD constexpr bool running() const noexcept { return m_running; }
-	/**
-	* @brief get if window was changed and set it back to false
-	* 
-	* @return const bool
-	**/
 	NODISCARD constexpr bool changed() noexcept { return m_changed; }
 
 private:
@@ -78,7 +45,7 @@ private:
 	bool m_running = true;
 	bool m_changed = false;
 
-	friend class input::InputManager;
+	friend class input::Input;
 };
 
 } // namespace lyra
