@@ -36,7 +36,7 @@ public:
 
 	NODISCARD SDL_Window* get() const noexcept { return m_window; };
 	NODISCARD constexpr bool running() const noexcept { return m_running; }
-	NODISCARD constexpr bool changed() noexcept { return m_changed; }
+	NODISCARD constexpr bool changed() const noexcept { return m_changed; }
 
 private:
 	sdl::Window m_window;
