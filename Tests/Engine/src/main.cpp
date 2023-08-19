@@ -124,10 +124,10 @@ int main(int argc, char* argv[]) {
 
 	lyra::vulkan::Framebuffers framebuffers(swapchain);
 
-	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv");
+	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv", lyra::OpenMode::readBin);
 	lyra::vulkan::Shader vertexShader(lyra::vulkan::Shader::Type::vertex, vertexShaderFile.data());
 
-	lyra::CharVectorStream fragmentShaderFile("data/shader/frag.spv");
+	lyra::CharVectorStream fragmentShaderFile("data/shader/frag.spv", lyra::OpenMode::readBin);
 	lyra::vulkan::Shader fragmentShader(lyra::vulkan::Shader::Type::fragment, fragmentShaderFile.data());
 
 	lyra::vulkan::GraphicsProgram graphicsProgram(vertexShader, fragmentShader);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 	while (window.running()) {
 		lyra::input::update();
 		swapchain.aquire();
-		swapchain.update(window.changed());
+		framebuffers.update();
 
 		commandQueue.activeCommandBuffer->begin();
 
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
 		commandQueue.submit(swapchain.renderFinishedFences[swapchain.currentFrame]);
 
 		swapchain.present();
-		swapchain.update(window.changed());
+		framebuffers.update();
 	}
 
 	return 0;
