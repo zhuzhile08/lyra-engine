@@ -66,9 +66,7 @@ add_library(LyraEngine
 	#"src/Resource/ResourceManager.cpp"
 	#"src/Graphics/RenderSystem.cpp"
 	"src/Graphics/VulkanRenderSystem.cpp"
-	#"src/Graphics/GUIRenderer.cpp"
 	#"src/Graphics/GraphicsPipelineSystem.cpp"
-	#"src/Graphics/Renderer.cpp"
 	"src/Graphics/SDLWindow.cpp"
 	
 	#"src/Application/Application.cpp"
@@ -88,9 +86,9 @@ add_library(LyraEngine
 	#"src/EntitySystem/Entity.cpp"
 	#"src/EntitySystem/Camera.cpp"
 	#"src/EntitySystem/Cubemap.cpp"
-	#"src/EntitySystem/MeshRenderer.cpp"
+	#"src/EntitySystem/MeshFramebuffers.cpp"
 
-	#"src/Input/Input.cpp"
+	"src/Input/Input.cpp"
 )
 
 add_dependencies(LyraEngine build_shaders)
@@ -100,7 +98,8 @@ target_link_libraries(LyraEngine
 LINK_PUBLIC
 	# graphics and windowing libraries
 	Vulkan::Vulkan
-	SDL2::SDL2-static
+	SDL2::SDL2
+	SDL2::SDL2main
 	ImGui
 
 	# math and physics libraries
