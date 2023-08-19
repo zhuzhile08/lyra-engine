@@ -33,12 +33,18 @@ void init_filesystem(char** argv);
 
 
 enum class OpenMode {
-	read = 0,
-	write = 1,
-	append = 2,
-	read_ext = 3,
-	write_ext = 4,
-	append_ext = 5
+	read,
+	write,
+	append,
+	readExt,
+	writeExt,
+	appendExt,
+	readBin,
+	writeBin,
+	appendBin,
+	readExtBin,
+	writeExtBin,
+	appendExtBin
 };
 
 enum class SeekDirection {

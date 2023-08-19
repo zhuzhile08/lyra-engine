@@ -40,9 +40,9 @@ void FileDeleter::operator()(FILE* ptr) const {
 } // namespace detail
 
 #ifdef _WIN32
-static constexpr const wchar* const openModeStr[6] { L"r", L"w", L"a", L"r+", L"w+", L"a+" };
+static constexpr const wchar* const openModeStr[12] { L"r", L"w", L"a", L"r+", L"w+", L"a+", L"rb", L"wb", L"ab", L"r+b", L"w+b", L"a+b" };
 #else
-static constexpr const char* const openModeStr[6] { "r", "w", "a", "r+", "w+", "a+" };
+static constexpr const char* const openModeStr[12] { "r", "w", "a", "r+", "w+", "a+", "r", "w", "a", "r+", "w+", "a+" };
 #endif
 static constexpr size_t bufferSize = std::max(1024, BUFSIZ);
 
