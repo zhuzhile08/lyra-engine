@@ -97,15 +97,15 @@ public:
 			} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 				VULKAN_ASSERT(vkCreateShaderModule(this->m_owner, &createInfo, nullptr, &this->m_handle), "create shader module");
 			}  else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
-				VULKAN_ASSERT(vkCreatePipelineCache(&createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreatePipelineCache(&createInfo, nullptr, &this->m_handle), "create pipeline cache");
 			} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
-				VULKAN_ASSERT(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create swapchain");
 			} else if constexpr (std::same_as<handle_type, VmaAllocator>) {
 				VULKAN_ASSERT(vmaCreateAllocator(&createInfo, &this->m_handle), "create memory allocator");
 			} else if constexpr (std::same_as<handle_type, VmaPool>) {
 				VULKAN_ASSERT(vmaCreatePool(this->m_owner, &createInfo, &this->m_handle), "create memory pool");
 			} else if constexpr (std::same_as<handle_type, VkDevice>) {
-				VULKAN_ASSERT(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create instance");
+				VULKAN_ASSERT(vkCreateDevice(this->m_owner, &createInfo, nullptr, &this->m_handle), "create device");
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				VULKAN_ASSERT(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkDebugUtilsMessengerEXT>) {
