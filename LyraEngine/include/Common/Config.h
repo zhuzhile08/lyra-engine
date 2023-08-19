@@ -37,13 +37,14 @@ inline constexpr DisableLog disableLog = DisableLog::none;
 inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
 inline constexpr Array<const char*, 2> requestedDeviceExtensions({
-	"VK_KHR_push_descriptor",
+	"VK_EXT_descriptor_indexing",
 	"VK_KHR_swapchain"
 });
 inline constexpr Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
 inline constexpr size_t maxFramesInFlight = 2;
 inline constexpr size_t maxSwapchainImages = 8;
 inline constexpr size_t maxConcurrentRenderers = 16;
+inline constexpr size_t maxDescriptorPoolSets = 512;
 inline constexpr bool anistropy = true;
 inline constexpr float32 anistropyStrength = 1.0f;
 inline constexpr float32 resolution = 100;
@@ -59,6 +60,7 @@ inline constexpr bool alwaysOnTop = false;
 inline constexpr bool vSync = false;
 inline constexpr size_t maxShaderSets = 4;
 inline constexpr size_t maxTexturesPerBinding = 64;
+inline constexpr size_t descriptorPoolAllocCount = 16;
 
 } // namespace config
 
