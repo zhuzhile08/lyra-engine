@@ -193,11 +193,10 @@ public:
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VkPipelineCache pipelineCache, 
-		const VkGraphicsPipelineCreateInfo& createInfo, 
-		const VkAllocationCallbacks& allocator
+		const VkGraphicsPipelineCreateInfo& createInfo
 	) requires(std::is_same_v<handle_type, VkPipeline> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			VULKAN_ASSERT(vkCreateGraphicsPipelines(m_owner, pipelineCache, 1, &createInfo, &allocator, &m_handle), "create graphics pipeline");
+			VULKAN_ASSERT(vkCreateGraphicsPipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create graphics pipeline");
 		}
 	}
 	/**
@@ -206,11 +205,10 @@ public:
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VkPipelineCache pipelineCache, 
-		const VkComputePipelineCreateInfo& createInfo, 
-		const VkAllocationCallbacks& allocator
+		const VkComputePipelineCreateInfo& createInfo
 	) requires(std::is_same_v<handle_type, VkPipeline> && std::is_same_v<owner_type, VkDevice>) : m_owner(owner) { 
 		if (!m_handle) {
-			VULKAN_ASSERT(vkCreateComputePipelines(m_owner, pipelineCache, 1, &createInfo, &allocator, &m_handle), "create compute pipeline");
+			VULKAN_ASSERT(vkCreateComputePipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create compute pipeline");
 		}
 	}
 	/**
