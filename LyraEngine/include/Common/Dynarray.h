@@ -59,9 +59,9 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	}
 	constexpr Dynarray(std::initializer_list<value_type> list) {
 		m_size = (Capacity < list.size()) ? Capacity : list.size();
-		for (auto it = list.begin(); it != list.end(); ++it) {
-			if (m_size == Capacity) break;
-			push_back(*list.begin());
+		for (size_t i = 0; i < m_size; i++) {
+			if (i == Capacity) break;
+			m_array[i] = std::move(*(list.begin() + i));
 		}
 	}
 
@@ -240,7 +240,7 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	NODISCARD constexpr operator value_type*() noexcept { return m_array; }
 	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
-	array m_array;
+	array m_array = array();
 	size_t m_size = 0;
 };
 
