@@ -82,7 +82,6 @@ class Logger;
 // some higher level wrappers
 
 class Window;
-class RenderSystem;
 class GraphicsPipelineSystem;
 class Material;
 class Texture;
@@ -102,16 +101,6 @@ class Image;
 class Shader;
 class GraphicsProgram;
 class GraphicsPipeline;
-
-namespace detail {
-
-struct VulkanWrapperBase {
-	RenderSystem* renderSystem;
-};
-
-#define VULKAN_WRAPPER : private VulkanWrapper
-
-} // namespace detail
 
 } // namespace vulkan
 
