@@ -107,10 +107,10 @@ public:
 	class CommandBuffer {
 	public:
 		enum class Usage : uint32 {
-			USAGE_RENDERING_DEFAULT = 0x00000000,
-			USAGE_ONE_TIME_SUBMIT = 0x00000001,
-			USAGE_RENDER_PASS_CONTINUE = 0x00000002,
-			USAGE_SIMULTANIOUS = 0x00000004
+			renderingDefault = 0x00000000,
+			oneTimeSubmit = 0x00000001,
+			renderPassContinue = 0x00000002,
+			simultaneous = 0x00000004
 		};
 
 		CommandBuffer() noexcept = default;
@@ -135,7 +135,7 @@ public:
 		 * @brief please refer to the official Vulkan documentation (preferably at https:/devdocs.io// for the documentation of these functions
 		 */
 
-		void begin(const Usage& usage = Usage::USAGE_RENDERING_DEFAULT) const;
+		void begin(const Usage& usage = Usage::renderingDefault) const;
 		void end() const {
 			VULKAN_ASSERT(vkEndCommandBuffer(commandBuffer), "stop recording command buffer");
 		}
@@ -163,9 +163,6 @@ public:
 		) const {
 			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSets.size(), descriptorSets.data(), dynamicOffsets.size(), dynamicOffsets.data());
 		}
-		void pushDescriptorSet(VkPipelineBindPoint, const vk::PipelineLayout&, uint32, const VkWriteDescriptorSet&);
-		void pushDescriptorSet(VkPipelineBindPoint, const vk::PipelineLayout&, uint32, const std::vector<VkWriteDescriptorSet>&);
-		void pushDescriptorSetWithTemplate(const vk::DescriptorUpdateTemplate&, const vk::PipelineLayout&, uint32, const void*);
 		void bindIndexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, VkIndexType indexType) const {
 			vkCmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
 		}
@@ -511,7 +508,6 @@ public:
 	void oneTimeBegin();
 	void oneTimeSubmit();
 	
-	uint32 queueFamily;
 	VkQueue queue;
 
 	std::vector<VkSemaphore> waitSemaphores;
@@ -521,7 +517,7 @@ public:
 	const CommandBuffer* activeCommandBuffer;
 	std::vector<CommandPool> commandPools;
 
-	uint32 currentFrame;
+	uint32 currentFrame = 0;
 };
 
 class GPUMemory {
@@ -689,7 +685,7 @@ public:
 	vk::Swapchain* oldSwapchain = nullptr;
 
 	uint32 presentFamilyIndex = std::numeric_limits<uint32>::max();
-	VkQueue presentQueue;
+	vk::Queue presentQueue;
 
 	VkFormat format;
 	VkExtent2D extent;
@@ -708,11 +704,15 @@ public:
 	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
 	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
+	uint32 imageIndex = 0;
+	uint32 currentFrame = 0;
+
 	bool lostSurface = false;
 	bool invalidSwapchain = false;
 	bool invalidAttachments = false;
 
 	CommandQueue* commandQueue;
+	CommandQueue::CommandBuffer commandBuffer;
 };
 
 class Framebuffers {
@@ -730,6 +730,51 @@ public:
 	Dynarray <vulkan::vk::Framebuffer, config::maxSwapchainImages> framebuffers;
 	
 	const Swapchain* swapchain;
+};
+
+class Shader {
+public:
+	static constexpr const char* const entry = "main"; // entry will always be main
+
+	enum class Type { 
+		vertex = 0x00000001,
+		tessellationControl = 0x00000002,
+		tessellationEvaluation = 0x00000004,
+		geometry = 0x00000008,
+		fragment = 0x00000010,
+		graphics = 0x0000001F,
+		all = 0x7FFFFFFF,
+		compute = 0x00000020,
+		rayGeneration = 0x00000100,
+		anyHit = 0x00000200,
+		closestHit = 0x00000400,
+		miss = 0x00000800,
+		intersection = 0x00001000,
+		callable = 0x00002000,
+		task = 0x00000040,
+		mesh = 0x00000080
+	}; // Refer to the API for the documentation of these enums
+
+	Shader() = default;
+	Shader(Type type, std::vector<char>&& source);
+	Shader(Type type, const std::vector<char>& source);
+
+	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			static_cast<VkShaderStageFlagBits>(type),
+			module,
+			entry,
+			nullptr
+		};
+	}
+
+	vk::ShaderModule module;
+	std::vector<char> shaderSrc;
+
+	Type type;
 };
 
 class DescriptorWriter {
@@ -833,51 +878,6 @@ public:
 
 private:
 	std::vector<VkWriteDescriptorSet> m_writes;
-};
-
-class Shader {
-public:
-	static constexpr const char* const entry = "main"; // entry will always be main
-
-	enum class Type { 
-		vertex = 0x00000001,
-		tessellationControl = 0x00000002,
-		tessellationEvaluation = 0x00000004,
-		geometry = 0x00000008,
-		fragment = 0x00000010,
-		graphics = 0x0000001F,
-		all = 0x7FFFFFFF,
-		compute = 0x00000020,
-		rayGeneration = 0x00000100,
-		anyHit = 0x00000200,
-		closestHit = 0x00000400,
-		miss = 0x00000800,
-		intersection = 0x00001000,
-		callable = 0x00002000,
-		task = 0x00000040,
-		mesh = 0x00000080
-	}; // Refer to the API for the documentation of these enums
-
-	Shader() = default;
-	Shader(Type type, std::vector<char>&& source);
-	Shader(Type type, const std::vector<char>& source);
-
-	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
-		return {
-			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-			nullptr,
-			0,
-			static_cast<VkShaderStageFlagBits>(type),
-			module,
-			entry,
-			nullptr
-		};
-	}
-
-	vk::ShaderModule module;
-	std::vector<char> shaderSrc;
-
-	Type type;
 };
 
 class GraphicsProgram {
@@ -993,7 +993,6 @@ public:
 			VkPipelineTessellationStateCreateInfo tesselation;
 			std::variant<bool, VkViewport> viewport;
 			std::variant<bool, VkRect2D> scissor;
-			VkPipelineViewportStateCreateInfo viewportState;
 			VkPipelineRasterizationStateCreateInfo rasterizer;
 			VkPipelineMultisampleStateCreateInfo multisampling;
 			VkPipelineDepthStencilStateCreateInfo depthStencilState;
@@ -1090,8 +1089,8 @@ public:
 	GraphicsPipeline() noexcept = default;
 	GraphicsPipeline(const GraphicsProgram& program, const Builder& builder);
 
-	void bind(const CommandQueue::CommandBuffer& cmdBuff) {
-		cmdBuff.bindPipeline(bindPoint, pipeline);
+	void bind(const CommandQueue& commandQueue) {
+		commandQueue.activeCommandBuffer->bindPipeline(bindPoint, pipeline);
 	}
 
 	vk::Pipeline pipeline;
@@ -1105,6 +1104,36 @@ public:
 class ComputePipeline {
 public:
 
+};
+
+class DescriptorPools {
+public:
+	struct Size {
+		DescriptorWriter::Type type;
+		uint32 multiplier = 1;
+	};
+
+	enum class Flags {
+		freeDescriptorSet = 0x00000001,
+		updateAfterBind = 0x00000002,
+		hostOnly = 0x00000004
+	};
+
+	DescriptorPools() = default;
+	DescriptorPools(const std::vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
+
+	void reset();
+	void alloc_and_bind(
+		const CommandQueue::CommandBuffer& cmdBuff, 
+		const DescriptorWriter& writer, 
+		const GraphicsProgram& program,
+		uint32 layoutIndex
+	);
+
+	std::vector<vk::DescriptorPool> descriptorPools;
+
+	VkDescriptorPoolCreateInfo createInfo;
+	std::vector<VkDescriptorPoolSize> sizes;
 };
 
 } // namespace vulkan
