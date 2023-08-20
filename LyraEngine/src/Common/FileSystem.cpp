@@ -22,7 +22,7 @@ struct FileSystem {
 
 static FileSystem* globalFileSystem;
 
-void initFilesystem(char** argv) {
+void initFileSystem(char** argv) {
 	std::ios::sync_with_stdio();
 
 	globalFileSystem = new FileSystem;

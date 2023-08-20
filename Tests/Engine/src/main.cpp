@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
 
 	lyra::init(window);
 	lyra::initInputSystem(window);
-	lyra::initFilesystem(argv);
+	lyra::initFileSystem(argv);
 
 	lyra::vulkan::CommandQueue commandQueue;
 
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 	while (window.running()) {
 		lyra::input::update();
 		if (!swapchain.aquire()) continue;
-		swapchain.begin();
+		swapchain.begin();=
 
 		commandQueue.activeCommandBuffer->begin();
 

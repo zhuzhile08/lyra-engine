@@ -29,7 +29,7 @@ struct FileDeleter {
 
 } // namespace detail
 
-void initFilesystem(char** argv);
+void initFileSystem(char** argv);
 
 
 enum class OpenMode {
