@@ -14,10 +14,6 @@
 	path = 3rdParty/stb
 	url = https://github.com/nothings/stb
 	branch = master
-[submodule "3rdParty/tol"]
-	path = 3rdParty/tol
-	url = https://github.com/tinyobjloader/tinyobjloader
-	branch = release
 [submodule "3rdParty/sdl2"]
 	path = 3rdParty/sdl2
 	url = https://github.com/libsdl-org/SDL
