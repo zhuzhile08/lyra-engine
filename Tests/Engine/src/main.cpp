@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 	while (window.running()) {
 		lyra::input::update();
 		if (!swapchain.aquire()) continue;
-		swapchain.begin();=
+		swapchain.begin();
 
 		commandQueue.activeCommandBuffer->begin();
 

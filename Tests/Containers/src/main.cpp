@@ -18,7 +18,7 @@ int add(int a, int b) {
 }
 
 int main(int argc, char* argv[]) {
-	lyra::initFilesystem(argv);
+	lyra::initFileSystem(argv);
 	
 	lyra::Function<int(int, int)> addFunction(add);
 	lyra::log::debug("Result of an addition function stored in a function pointer (w. args): {}\n");

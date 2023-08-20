@@ -552,7 +552,7 @@ public:
 	void copyData(const void* src, size_t copySize = 0);
 	void copyData(const void** src, uint32 arraySize, size_t elementSize = 0);
 
-	NODISCARD constexpr VkDescriptorBufferInfo getDescriptorbufferInfo() const noexcept {
+	NODISCARD constexpr VkDescriptorBufferInfo getDescriptorBufferInfo() const noexcept {
 		return {
 			buffer, 
 			0, 
