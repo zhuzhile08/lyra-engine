@@ -1,10 +1,10 @@
 #include <Resource/Texture.h>
 
-#include <Common/Settings.h>
+#include <Common/Config.h>
 
 namespace lyra {
 
-Texture::Texture(const util::detail::LoadedImage& imageData, const VkFormat& format)
+Texture::Texture(const util::detail::LoadedTexture& imageData, const VkFormat& format)
 	: m_width(imageData.width), m_height(imageData.height), m_mipmap(imageData.mipmap) {
 	{
 		// calculate the mipmap levels of the image
@@ -13,7 +13,7 @@ Texture::Texture(const util::detail::LoadedImage& imageData, const VkFormat& for
 		// create a staging buffer
 		vulkan::GPUBuffer stagingBuffer(m_width * m_height * 4, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 		// copy the image data into the staging buffer
-		stagingBuffer.copy_data(imageData.data);
+		stagingBuffer.copyData(imageData.data);
 
 		// extent (size) of the image
 		VkExtent3D imageExtent = { m_width, m_height, 1 };
@@ -22,31 +22,31 @@ Texture::Texture(const util::detail::LoadedImage& imageData, const VkFormat& for
 		m_image = vulkan::vk::Image(
 			Application::renderSystem.device.device(),
 			Application::renderSystem.device.allocator(),
-			get_image_create_info(
+			getImageCreateInfo(
 				format, 
 				imageExtent,
 				VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 				m_mipmap,
 				static_cast<VkImageType>(imageData.dimension)
 			),
-			get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
+			getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY),
 			m_memory
 		);
 
 		// convert the image layout and copy it from the buffer
-		transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
-		copy_from_buffer(&stagingBuffer, imageExtent);
+		transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1});
+		copyFromBuffer(&stagingBuffer, imageExtent);
 		// generate the mipmaps
 		if (m_mipmap != 0) generate_mipmaps();
 	}
 
 	// create the image view
-	create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(imageData.dimension));
+	createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, m_mipmap, 0, 1 }, static_cast<VkImageViewType>(imageData.dimension));
 	// finally create the image sampler
-	create_sampler(imageData);
+	createSampler(imageData);
 }
 
-void Texture::create_sampler(const util::detail::LoadedImage& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
+void Texture::createSampler(const util::detail::LoadedTexture& imageData, const VkFilter& magnifiedTexel, const VkFilter& minimizedTexel, const VkSamplerMipmapMode& mipmapMode) {
 	VkPhysicalDeviceProperties properties;
 	vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &properties);
 
@@ -62,11 +62,11 @@ void Texture::create_sampler(const util::detail::LoadedImage& imageData, const V
 		static_cast<VkSamplerAddressMode>(imageData.wrap),
 		0.0f,
 		static_cast<uint32>(imageData.anistropy),
-		properties.limits.maxSamplerAnisotropy * settings().rendering.anistropy,
+		properties.limits.maxSamplerAnisotropy * config::anistropy,
 		VK_FALSE,
 		VK_COMPARE_OP_ALWAYS,
 		0.0f,
-		static_cast<float>(m_mipmap),
+		static_cast<float32>(m_mipmap),
 		static_cast<VkBorderColor>(imageData.alpha),
 		VK_FALSE
 	};
@@ -78,7 +78,7 @@ void Texture::generate_mipmaps() const {
 	// check if image supports linear filtering
 	VkFormatProperties formatProperties;
 	vkGetPhysicalDeviceFormatProperties(Application::renderSystem.device.physicalDevice(), VK_FORMAT_R8G8B8A8_SRGB, &formatProperties);
-	lassert((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!", log().end_l());
+	ASSERT((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT), "Image does not support linear filtering with its current format!\n");
 
 	// temporary command buffer for generating midmaps
 	vulkan::CommandBuffer cmdBuff(vulkan::CommandBuffer::Usage::USAGE_ONE_TIME_SUBMIT);
@@ -93,7 +93,7 @@ void Texture::generate_mipmaps() const {
 			VK_PIPELINE_STAGE_TRANSFER_BIT, 
 			VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 			VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-			get_image_memory_barrier(
+			getImageMemoryBarrier(
 				VK_ACCESS_TRANSFER_WRITE_BIT,
 				VK_ACCESS_TRANSFER_READ_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -117,7 +117,7 @@ void Texture::generate_mipmaps() const {
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 			VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 			VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-			get_image_memory_barrier(
+			getImageMemoryBarrier(
 				VK_ACCESS_TRANSFER_READ_BIT,
 				VK_ACCESS_SHADER_READ_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -135,7 +135,7 @@ void Texture::generate_mipmaps() const {
 		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 		VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 		VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-		get_image_memory_barrier(
+		getImageMemoryBarrier(
 			VK_ACCESS_TRANSFER_WRITE_BIT,
 			VK_ACCESS_SHADER_READ_BIT,
 			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

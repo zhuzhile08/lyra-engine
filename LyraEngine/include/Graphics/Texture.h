@@ -15,7 +15,7 @@
 
 #include <Application/Application.h>
 
-#include <Resource/LoadImage.h>
+#include <Resource/LoadTexture.h>
 
 #include <Graphics/VulkanImpl/GPUMemory.h>
 #include <Graphics/VulkanImpl/GPUBuffer.h>
@@ -86,7 +86,7 @@ public:
 	 * @param imageData image data and information
 	 * @param format format of the image
 	 */
-	Texture(const util::detail::LoadedImage& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const util::detail::LoadedTexture& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -95,7 +95,7 @@ public:
 	 * 
 	 * @return VkDescriptorImageInfo
 	*/
-	NODISCARD constexpr VkDescriptorImageInfo get_descriptor_image_info(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
+	NODISCARD constexpr VkDescriptorImageInfo getDescriptorImageInfo(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
 		return {
 			m_sampler,
 			m_view,
@@ -124,8 +124,8 @@ private:
 	 * @param minimizedTexel how to filter the image if a pixel is bigger than a texel
 	 * @param mipmapMode the mode of mipmapping
 	 */
-	void create_sampler(
-		const util::detail::LoadedImage& imageData,
+	void createSampler(
+		const util::detail::LoadedTexture& imageData,
 		const VkFilter& magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter& minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode& mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR
