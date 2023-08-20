@@ -12,7 +12,7 @@
 #include <utility>
 #include <limits>
 #include <map>
-#include <unordered_set>
+#include <string>
 
 namespace {
 
@@ -592,7 +592,7 @@ public:
 
 static RenderSystem* globalRenderSystem;
 
-bool init_render_system(const InitInfo& info) {
+bool initRenderSystem(const InitInfo& info) {
 	bool sucess = true;
 	globalRenderSystem = new RenderSystem(info, sucess);
 	return sucess;
@@ -715,14 +715,14 @@ GPUBuffer::GPUBuffer(
 		globalRenderSystem->device, 
 		globalRenderSystem->allocator, 
 		createInfo, 
-		get_alloc_create_info(memUsage), 
+		getAllocCreateInfo(memUsage), 
 		memory
 	);
 }
 
-void GPUBuffer::copy_data(const void* src, size_t copySize) {
+void GPUBuffer::copyData(const void* src, size_t copySize) {
 	void* data;
-	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, &data), "map buffer memory at {}", get_address(memory));
+	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, &data), "map buffer memory at {}", getAddress(memory));
 	
 #ifndef NDEBUG
 	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(size) : copySize);
@@ -739,9 +739,9 @@ void GPUBuffer::copy_data(const void* src, size_t copySize) {
 	globalRenderSystem->unmapMemory(memory);
 }
 
-void GPUBuffer::copy_data(const void** src, uint32 arraySize, size_t elementSize) {
+void GPUBuffer::copyData(const void** src, uint32 arraySize, size_t elementSize) {
 	char* data;
-	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, (void**)&data), "map buffer memory at {}", get_address(memory));
+	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, (void**)&data), "map buffer memory at {}", getAddress(memory));
 
 	for (uint32 i = 0; i < arraySize; i++) {
 		memcpy(static_cast<void*>(data + elementSize * i), src[i], elementSize);
@@ -764,7 +764,7 @@ void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
 	commandQueue.oneTimeSubmit();
 }
 
-void Image::create_view(VkFormat format, const VkImageSubresourceRange& subresourceRange, VkImageViewType viewType, const VkComponentMapping& colorComponents) {
+void Image::createView(VkFormat format, const VkImageSubresourceRange& subresourceRange, VkImageViewType viewType, const VkComponentMapping& colorComponents) {
 	VkImageViewCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
@@ -779,7 +779,7 @@ void Image::create_view(VkFormat format, const VkImageSubresourceRange& subresou
 	view = vk::ImageView(globalRenderSystem->device, createInfo);
 }
 
-void Image::transition_layout(
+void Image::transitionLayout(
 	VkImageLayout oldLayout,
 	VkImageLayout newLayout,
 	VkFormat format,
@@ -806,7 +806,7 @@ void Image::transition_layout(
 		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
-	else ASSERT(false, "Invalid image layout transition was requested whilst transitioning an image layout at: {}!", get_address(this));
+	else ASSERT(false, "Invalid image layout transition was requested whilst transitioning an image layout at: {}!", getAddress(this));
 
 	commandQueue.activeCommandBuffer->pipelineBarrier(
 		sourceStage, 
@@ -814,7 +814,7 @@ void Image::transition_layout(
 		0,
 		VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 		VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM }, 
-		get_image_memory_barrier(
+		getImageMemoryBarrier(
 			sourceAccess, 
 			destinationAccess, 
 			oldLayout, 
@@ -826,7 +826,7 @@ void Image::transition_layout(
 	commandQueue.oneTimeSubmit();
 }
 
-VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
+VkFormat Image::getBestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
 	for (const auto& candidate : candidates) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(globalRenderSystem->physicalDevice, candidate, &props);
@@ -840,7 +840,7 @@ VkFormat Image::get_best_format(const std::vector<VkFormat>& candidates, VkForma
 	return VK_FORMAT_MAX_ENUM;
 }
 
-void Image::copy_from_buffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount) {
+void Image::copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount) {
 	CommandQueue commandQueue;
 	commandQueue.oneTimeBegin();
 
@@ -877,7 +877,7 @@ Swapchain::Swapchain(CommandQueue& commandQueue) : commandQueue(&commandQueue) {
 		}
 
 		if (presentFamilyIndex == std::numeric_limits<uint32>::max()) {
-			ASSERT(false, "Failed to find queue family with presentation support with physical device: {} for surface: {}!", get_address(globalRenderSystem->physicalDevice), get_address(surface));
+			ASSERT(false, "Failed to find queue family with presentation support with physical device: {} for surface: {}!", getAddress(globalRenderSystem->physicalDevice), getAddress(surface));
 		}
 
 		this->commandQueue->queue = presentQueue.get();
@@ -1025,7 +1025,7 @@ void Swapchain::createSwapchain() {
 			uint32 i = &image - &images[0];
 			image.image = std::move(tempImages[i]);
 
-			image.create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+			image.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 		}
 	}
 }
@@ -1047,7 +1047,7 @@ void Swapchain::createAttachments() {
 		colorImage.image = vk::Image(
 			globalRenderSystem->device,
 			globalRenderSystem->allocator, 
-			colorImage.get_image_create_info(
+			colorImage.getImageCreateInfo(
 				format,
 				{ extent.width, extent.height, 1 },
 				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
@@ -1057,20 +1057,20 @@ void Swapchain::createAttachments() {
 				0,
 				maxMultisamples
 			),
-			GPUMemory::get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+			GPUMemory::getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 			colorMem.memory
 		);
 
-		colorImage.create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+		colorImage.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 	}
 	
 	{ // create depth images
-		depthBufferFormat = Image::get_best_format({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+		depthBufferFormat = Image::getBestFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
 		depthImage.image = vk::Image(
 			globalRenderSystem->device,
 			globalRenderSystem->allocator, 
-			depthImage.get_image_create_info(
+			depthImage.getImageCreateInfo(
 				depthBufferFormat,
 				{ extent.width, extent.height, 1 },
 				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -1080,36 +1080,63 @@ void Swapchain::createAttachments() {
 				0,
 				maxMultisamples
 			),
-			GPUMemory::get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
+			GPUMemory::getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 			depthMem.memory
 		);
 
-		depthImage.create_view(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
+		depthImage.createView(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 	}
 }
 
-void Swapchain::update() {
-	if (lostSurface) {
-		surface = vk::Surface(globalRenderSystem->instance, globalRenderSystem->window->get());
-	}
-
-	if (invalidSwapchain || (lostSurface || globalRenderSystem->window->changed())) {
-		if (oldSwapchain != nullptr) oldSwapchain.destroy();
-		oldSwapchain = std::move(this->swapchain);
-
-		for (auto& image : images) {
-			image.view.destroy();
+bool Swapchain::update(bool windowChanged) {
+	if (invalidAttachments || invalidSwapchain || lostSurface || windowChanged) {
+		uint32 flags = SDL_GetWindowFlags(globalRenderSystem->window->get());
+		SDL_Event e;
+		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED && SDL_WaitEvent(&e)) {
+			flags = SDL_GetWindowFlags(globalRenderSystem->window->get());
 		}
 
-		createSwapchain();
+		vkDeviceWaitIdle(globalRenderSystem->device);
+
+		for (auto& framebuffer : framebuffers) {
+			framebuffer->destroyFramebuffers();
+		}
+		depthImage.destroy();
+		depthMem.destroy();
+		colorImage.destroy();
+		colorMem.destroy();
+
+		if (invalidSwapchain || lostSurface || globalRenderSystem->window->changed()) {
+			if (oldSwapchain != nullptr) oldSwapchain.destroy();
+			oldSwapchain = std::move(this->swapchain);
+
+			for (auto& image : images) {
+				image.view.destroy();
+			}
+
+			if (lostSurface) {
+				surface = vk::Surface(globalRenderSystem->instance, globalRenderSystem->window->get());
+			}
+
+			createSwapchain();
+		}
+
+		createAttachments();
+		for (auto& framebuffer : framebuffers) {
+			framebuffer->createFramebuffers();
+		}
+
+		lostSurface = false;
+		invalidSwapchain = false;
+		invalidAttachments = false;
+
+		return true;
 	}
 
-	if (invalidAttachments || (invalidSwapchain || lostSurface || globalRenderSystem->window->changed())) {
-		createAttachments();
-	}
+	return false;
 }
 
-void Swapchain::aquire() {
+bool Swapchain::aquire() {
 	currentFrame = commandQueue->currentFrame;
 
 	globalRenderSystem->waitForFence(renderFinishedFences[currentFrame], VK_TRUE, std::numeric_limits<uint64>::max());
@@ -1125,12 +1152,12 @@ void Swapchain::aquire() {
 
 	switch (result) {
 		case VK_SUCCESS:
+		case VK_SUBOPTIMAL_KHR:
 			break;	
 		case VK_ERROR_SURFACE_LOST_KHR:
 			lostSurface = true;
 			break;
 		case VK_ERROR_OUT_OF_DATE_KHR:
-		case VK_SUBOPTIMAL_KHR:
 			invalidSwapchain = true;
 			break;
 
@@ -1139,8 +1166,10 @@ void Swapchain::aquire() {
 			break;
 	}
 
-	update();
+	return !update();
+}
 
+void Swapchain::begin() {
 	globalRenderSystem->resetFence(renderFinishedFences[currentFrame]);
 
 	commandQueue->activeCommandBuffer = &(commandBuffer = std::move(lyra::vulkan::CommandQueue::CommandBuffer(commandQueue->commandPools[commandQueue->currentFrame])));
@@ -1148,11 +1177,7 @@ void Swapchain::aquire() {
 	commandQueue->signalSemaphores.push_back(submitFinishedSemaphores[currentFrame]);
 }
 
-void Swapchain::present() {
-	lostSurface = false;
-	invalidSwapchain = false;
-	invalidAttachments = false;
-
+bool Swapchain::present() {
 	VkPresentInfoKHR presentInfo {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
@@ -1182,16 +1207,12 @@ void Swapchain::present() {
 			break;
 	}
 
-	update();
-
-	globalRenderSystem->waitForFence(
-		renderFinishedFences[currentFrame], 
-		VK_TRUE, 
-		std::numeric_limits<uint64>::max()
-	);
+	return !update(globalRenderSystem->window->changed());
 }
 
-Framebuffers::Framebuffers(const Swapchain& swapchain) : swapchain(&swapchain) {
+Framebuffers::Framebuffers(Swapchain& swapchain) : swapchain(&swapchain) {
+	swapchain.framebuffers.insert(this);
+
 	{ // create the render pass
 		VkAttachmentDescription colorAttachmentDescriptions {
 			0,
@@ -1286,10 +1307,14 @@ Framebuffers::Framebuffers(const Swapchain& swapchain) : swapchain(&swapchain) {
 	}
 
 	framebuffers.resize(swapchain.images.size());
-	create_framebuffers();
+	createFramebuffers();
 }
 
-void Framebuffers::create_framebuffers() { // create the framebuffers
+Framebuffers::~Framebuffers() {
+	swapchain->framebuffers.erase(this);
+}
+
+void Framebuffers::createFramebuffers() { // create the framebuffers
 	for (uint32 i = 0; i < framebuffers.size(); i++) {
 		Array<VkImageView, 3> attachments = { {
 			swapchain->colorImage.view,
@@ -1311,13 +1336,6 @@ void Framebuffers::create_framebuffers() { // create the framebuffers
 		};
 
 		framebuffers[i] = vk::Framebuffer(globalRenderSystem->device, createInfo);
-	}
-}
-
-void Framebuffers::update() {
-	if (swapchain->invalidAttachments || swapchain->invalidSwapchain || swapchain->lostSurface || globalRenderSystem->window->changed()) {
-		for (auto& framebuffer : framebuffers) framebuffer.destroy();
-		create_framebuffers();
 	}
 }
 
@@ -1567,7 +1585,7 @@ void DescriptorPools::reset() {
 		globalRenderSystem->resetDescriptorPool(pool, 0);
 }
 
-void DescriptorPools::alloc_and_bind(
+void DescriptorPools::allocAndBind(
 	const CommandQueue::CommandBuffer& cmdBuff, 
 	const DescriptorWriter& writer, 
 	const GraphicsProgram& program,
@@ -1598,8 +1616,8 @@ GraphicsPipeline::Builder::Builder(const Swapchain& swapchain, const Framebuffer
 	m_renderer(&renderer) { 
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information
-		Mesh::Vertex::get_binding_description(),
-		Mesh::Vertex::get_attribute_descriptions(),
+		Mesh::Vertex::getBindingDescription(),
+		Mesh::Vertex::getAttribute_descriptions(),
 		{	// describe how vertices are inputed into shaders
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 			nullptr,
@@ -1712,7 +1730,7 @@ GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder
 		dynamicState.data()
 	};
 
-	Array<VkPipelineShaderStageCreateInfo, 2> tmpShaders = { program.vertexShader->get_stage_create_info(), program.fragmentShader->get_stage_create_info() };
+	Array<VkPipelineShaderStageCreateInfo, 2> tmpShaders = { program.vertexShader->getStageCreateInfo(), program.fragmentShader->getStageCreateInfo() };
 
 	VkGraphicsPipelineCreateInfo createInfo {
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
@@ -1740,5 +1758,9 @@ GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder
 }
 
 } // namespace vulkan
+
+void quit() {
+	vkDeviceWaitIdle(vulkan::globalRenderSystem->device);
+}
 
 } // namespace lyra

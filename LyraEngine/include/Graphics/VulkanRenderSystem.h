@@ -34,9 +34,11 @@
 
 #include <variant>
 #include <vector>
-#include <string>
+#include <unordered_set>
 
 namespace lyra {
+
+void quit();
 
 namespace vulkan {
 
@@ -91,7 +93,7 @@ struct InitInfo {
 	const Window* window;
 };
 
-bool init_render_system(const InitInfo& info);
+bool initRenderSystem(const InitInfo& info);
 
 class CommandQueue {
 public:
@@ -524,7 +526,7 @@ class GPUMemory {
 public:
 	void destroy() { memory.destroy(); }
 
-	NODISCARD constexpr static VmaAllocationCreateInfo get_alloc_create_info(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) noexcept {
+	NODISCARD constexpr static VmaAllocationCreateInfo getAllocCreateInfo(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) noexcept {
 		return {
 			0,
 			usage,
@@ -547,10 +549,10 @@ public:
 	DEFINE_DEFAULT_MOVE(GPUBuffer);
 
 	void copy(const GPUBuffer& srcBuffer);
-	void copy_data(const void* src, size_t copySize = 0);
-	void copy_data(const void** src, uint32 arraySize, size_t elementSize = 0);
+	void copyData(const void* src, size_t copySize = 0);
+	void copyData(const void** src, uint32 arraySize, size_t elementSize = 0);
 
-	NODISCARD constexpr VkDescriptorBufferInfo get_descriptor_buffer_info() const noexcept {
+	NODISCARD constexpr VkDescriptorBufferInfo getDescriptorbufferInfo() const noexcept {
 		return {
 			buffer, 
 			0, 
@@ -558,7 +560,7 @@ public:
 		};
 	}
 	
-	NODISCARD constexpr VkBufferMemoryBarrier get_buffer_memory_barrier(
+	NODISCARD constexpr VkBufferMemoryBarrier getBufferMemoryBarrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
 		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
@@ -588,7 +590,7 @@ public:
 		view.destroy();
 	}
 
-	NODISCARD constexpr VkImageCreateInfo get_image_create_info(
+	NODISCARD constexpr VkImageCreateInfo getImageCreateInfo(
 		VkFormat format,
 		const VkExtent3D& extent,
 		VkImageUsageFlags usage,
@@ -620,23 +622,23 @@ public:
 		};
 	}
 
-	void create_view(
+	void createView(
 		VkFormat format,
 		const VkImageSubresourceRange& subresourceRange,
 		VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
 		const VkComponentMapping& colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
 	);
 
-	void transition_layout(
+	void transitionLayout(
 		VkImageLayout oldLayout,
 		VkImageLayout newLayout,
 		VkFormat format,
 		const VkImageSubresourceRange& subresourceRange
 	) const;
 	
-	NODISCARD VkFormat static get_best_format(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
+	NODISCARD VkFormat static getBestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
 
-	NODISCARD constexpr VkImageMemoryBarrier get_image_memory_barrier(
+	NODISCARD constexpr VkImageMemoryBarrier getImageMemoryBarrier(
 		VkAccessFlags srcAccessMask,
 		VkAccessFlags dstAccessMask,
 		VkImageLayout srcLayout,
@@ -659,7 +661,7 @@ public:
 		};
 	}
 
-	void copy_from_buffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
+	void copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
 
 	vk::Image image;
 	vk::ImageView view;
@@ -669,16 +671,18 @@ public:
 	friend class Window;
 };
 
-class Swapchain {	
+class Swapchain {
 public:
 	Swapchain() = default;
 	Swapchain(CommandQueue& commandQueue);
 	void createSwapchain();
 	void createAttachments();
-	void update();
 
-	void aquire();
-	void present();
+	bool update(bool windowChanged = false); // returns if the Swapchain has updated or not
+
+	bool aquire();
+	void begin();
+	bool present();
 
 	vk::Surface surface;
 	vk::Swapchain swapchain;
@@ -704,6 +708,8 @@ public:
 	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
 	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
+	std::unordered_set<Framebuffers*> framebuffers;
+
 	uint32 imageIndex = 0;
 	uint32 currentFrame = 0;
 
@@ -719,21 +725,23 @@ class Framebuffers {
 public:
 	Framebuffers() = default;
 	// construct a framebuffer in the engine default configuration
-	Framebuffers(const Swapchain& swapchain);
+	Framebuffers(Swapchain& swapchain);
 	// @todo add a constructor with custom attachments
 	// Framebuffers(const std::vector<Arrachment>& attachments);
-
-	void update(); // when calling this manually, do it before Swapchain::update();
+	~Framebuffers();
 
 	void begin() const;
 	void end() const;
 
-	void create_framebuffers();
+	void destroyFramebuffers() {
+		for (auto& framebuffer : framebuffers) framebuffer.destroy();
+	}
+	void createFramebuffers();
 	
 	vk::RenderPass renderPass;
 	Dynarray <vulkan::vk::Framebuffer, config::maxSwapchainImages> framebuffers;
 	
-	const Swapchain* swapchain;
+	Swapchain* swapchain;
 };
 
 class Shader {
@@ -763,7 +771,7 @@ public:
 	Shader(Type type, std::vector<char>&& source);
 	Shader(Type type, const std::vector<char>& source);
 
-	NODISCARD constexpr VkPipelineShaderStageCreateInfo get_stage_create_info() const noexcept {
+	NODISCARD constexpr VkPipelineShaderStageCreateInfo getStageCreateInfo() const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,
@@ -831,7 +839,7 @@ public:
 		Type type;
 	};
 
-	constexpr void add_writes(const std::vector<ImageOnlyData>& newWrites) noexcept {
+	constexpr void addWrites(const std::vector<ImageOnlyData>& newWrites) noexcept {
 		for (const auto& newWrite : newWrites) {
 			m_writes.push_back({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -847,7 +855,7 @@ public:
 			});
 		}
 	}
-	constexpr void add_writes(const std::vector<BufferOnlyData>& newWrites) noexcept {
+	constexpr void addWrites(const std::vector<BufferOnlyData>& newWrites) noexcept {
 		for (const auto& newWrite : newWrites) {
 			m_writes.push_back({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -863,7 +871,7 @@ public:
 			});
 		}
 	}
-	constexpr void add_writes(const std::vector<Data>& newWrites) noexcept {
+	constexpr void addWrites(const std::vector<Data>& newWrites) noexcept {
 		for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
 			m_writes.push_back({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -916,7 +924,7 @@ public:
 			uint32 offset = 0;
 		};
 
-		constexpr void add_binding(const Binding& binding) {
+		constexpr void addBinding(const Binding& binding) {
 			if (m_bindings.size() <= binding.set) {
 				m_bindings.push_back({});
 				m_bindingFlags.push_back({});
@@ -944,19 +952,19 @@ public:
 				m_bindingFlags[binding.set].push_back(0);
 			}
 		}
-		constexpr void add_bindings(const std::vector<Binding>& bindings) {
-			for (const auto& binding : bindings) add_binding(binding);
+		constexpr void addBindings(const std::vector<Binding>& bindings) {
+			for (const auto& binding : bindings) addBinding(binding);
 		}
 
-		constexpr void add_push_constant(const PushConstant& pushConstant) {
+		constexpr void addPushConstant(const PushConstant& pushConstant) {
 			m_pushConstants.push_back({
 				static_cast<VkShaderStageFlags>(pushConstant.shaderType),
 				pushConstant.offset,
 				pushConstant.size
 			});
 		}
-		constexpr void add_push_constants(const std::vector<PushConstant>& pushConstants) {
-			for (const auto& pushConstant : pushConstants) add_push_constant(pushConstant);
+		constexpr void addPushConstants(const std::vector<PushConstant>& pushConstants) {
+			for (const auto& pushConstant : pushConstants) addPushConstant(pushConstant);
 		}
 
 	private:
@@ -1053,20 +1061,20 @@ public:
 		Builder() noexcept = default;
 		Builder(const Swapchain& swapchain, const Framebuffers& renderer);
 
-		constexpr void enable_sample_shading(float32 strength) noexcept {
+		constexpr void enableSampleShading(float32 strength) noexcept {
 			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
 			m_createInfo.multisampling.minSampleShading = strength;
 		}
-		constexpr void set_culling_mode(Culling cullingMode) noexcept {
+		constexpr void setCullingMode(Culling cullingMode) noexcept {
 			m_createInfo.rasterizer.cullMode = static_cast<VkCullModeFlags>(cullingMode);
 		}
-		constexpr void set_render_mode(RenderMode renderMode) noexcept {
+		constexpr void setRenderMode(RenderMode renderMode) noexcept {
 			m_createInfo.rasterizer.polygonMode = static_cast<VkPolygonMode>(renderMode);
 		}
-		constexpr void set_polyon_front_face(PolygonFrontFace frontFace) noexcept {
+		constexpr void setPolyonFrontFace(PolygonFrontFace frontFace) noexcept {
 			m_createInfo.rasterizer.frontFace = static_cast<VkFrontFace>(frontFace);
 		}
-		constexpr void set_viewport(const Viewport& viewport) noexcept {
+		constexpr void setViewport(const Viewport& viewport) noexcept {
 			m_createInfo.viewport = VkViewport {
 				viewport.offset.x,
 				viewport.offset.y,
@@ -1076,7 +1084,7 @@ public:
 				viewport.maxDepth
 			};
 		}
-		constexpr void set_scissor(const Scissor& scissor) noexcept {
+		constexpr void setScissor(const Scissor& scissor) noexcept {
 			m_createInfo.scissor = VkRect2D {
 				{ scissor.offset.x, scissor.offset.y },
 				{ scissor.extent.x, scissor.extent.y }
@@ -1127,7 +1135,7 @@ public:
 	DescriptorPools(const std::vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
 
 	void reset();
-	void alloc_and_bind(
+	void allocAndBind(
 		const CommandQueue::CommandBuffer& cmdBuff, 
 		const DescriptorWriter& writer, 
 		const GraphicsProgram& program,
