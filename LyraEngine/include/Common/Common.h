@@ -90,17 +90,19 @@ class Texture;
 
 namespace vulkan {
 
-class Device;
-class Swapchain;
 class CommandQueue;
-class DescriptorBinder;
 class GPUMemory;
 class GPUBuffer;
-class Framebuffers;
 class Image;
+class Swapchain;
+class Framebuffers;
 class Shader;
+class DescriptorWriter;
 class GraphicsProgram;
 class GraphicsPipeline;
+class ComputeProgram;
+class ComputePipeline;
+class DescriptorPools;
 
 } // namespace vulkan
 
