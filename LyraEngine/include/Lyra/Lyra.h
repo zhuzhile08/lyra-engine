@@ -17,7 +17,7 @@
 namespace lyra {
 
 bool init(const Window& window) {
-	return vulkan::init_render_system({
+	return vulkan::initRenderSystem({
 		{0, 7, 0},
 		&window
 	});

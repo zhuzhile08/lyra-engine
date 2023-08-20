@@ -10,7 +10,7 @@ namespace detail {
 
 static Input* globalInputSystem = nullptr;
 
-Input* const global_input_system() {
+Input* const defaultInputSystem() {
 	ASSERT(globalInputSystem, "The Input system was not initialized before usage!");
 	return globalInputSystem;
 }
@@ -38,10 +38,6 @@ void Input::update() {
 		}
 
 		// implement controller events @todo
-
-		if (!m_window->m_changed && (SDL_GetWindowFlags(m_window->m_window) & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) == (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) {
-			m_window->m_changed = true;
-		}
 
 		// default events that are always checked
 		switch (event.type) {
@@ -83,7 +79,7 @@ void Input::update() {
 
 } // namespace input
 
-void init_input_system(Window& window) {
+void initInputSystem(Window& window) {
 	input::detail::globalInputSystem = new input::Input(window);
 }
 

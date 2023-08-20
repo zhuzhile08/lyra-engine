@@ -29,7 +29,7 @@ struct FileDeleter {
 
 } // namespace detail
 
-void init_filesystem(char** argv);
+void initFilesystem(char** argv);
 
 
 enum class OpenMode {
@@ -74,7 +74,7 @@ public:
 	void close();
 
 	void disable_buffering();
-	void enable_buffering();
+	void enableBuffering();
 
 	int get();
 	File& get(char& c);
@@ -148,7 +148,7 @@ public:
 	void close();
 
 	void disable_buffering();
-	void enable_buffering();
+	void enableBuffering();
 
 	int get();
 	File& get(wchar& c);
@@ -250,23 +250,23 @@ public:
 	void disable_buffering() {
 		m_file.disable_buffering();
 	}
-	void enable_buffering() {
-		m_file.enable_buffering();
+	void enableBuffering() {
+		m_file.enableBuffering();
 	}
 
 	int get() {
 		m_gcount = 1;
 		if (++m_fpos == m_data.size()) {
-			set_state(FileState::eof);
-			set_state(FileState::fail);
+			setState(FileState::eof);
+			setState(FileState::fail);
 			return static_cast<int>(FileState::eof);
 		} else if (m_putbackBuffer != 0) return std::exchange(m_putbackBuffer, 0);
 		else return m_data[m_fpos - 1];
 	}
 	FileStream& get(literal_type& c) {
 		if (++m_fpos == m_data.size()) {
-			set_state(FileState::eof);
-			set_state(FileState::fail);
+			setState(FileState::eof);
+			setState(FileState::fail);
 			return *this;
 		} else if (m_putbackBuffer != 0) c = std::exchange(m_putbackBuffer, 0);
 		else c = m_data[m_fpos];
@@ -279,7 +279,7 @@ public:
 		else string[0] = m_data[m_fpos++];
 		for (m_gcount = 1; m_gcount < std::max(count - 1, size_t(0)); m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
-				set_state(FileState::eof);
+				setState(FileState::eof);
 				break;
 			}
 			if ((string[m_gcount] = m_data[m_fpos]) == delim) {
@@ -305,7 +305,7 @@ public:
 		else string[0] = m_data[m_fpos++];
 		for (m_gcount = 1; m_gcount < std::max(size_t(0), count - 1); m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
-				set_state(FileState::eof);
+				setState(FileState::eof);
 				break;
 			}
 			if ((string[m_gcount] = m_data[m_fpos]) == '\n') {
@@ -320,7 +320,7 @@ public:
 		else string[0] = m_data[m_fpos++];
 		for (m_gcount = 1; m_gcount < count - std::max(size_t(0), count - 1); m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
-				set_state(FileState::eof);
+				setState(FileState::eof);
 				break;
 			}
 			if ((string[m_gcount] = m_data[m_fpos]) == delim) {
@@ -333,7 +333,7 @@ public:
 	FileStream& ignore(size_t count, literal_type delim) {
 		for (m_gcount = 0; m_gcount > count; m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
-				set_state(FileState::eof);
+				setState(FileState::eof);
 				break;
 			}
 			if (m_data[m_fpos++] == delim) {
@@ -354,7 +354,7 @@ public:
 	}
 	FileStream& read(literal_type* string, size_t count) {
 		auto n = std::min(count, m_data.size() - m_fpos);
-		if (n != count) set_state(FileState::eof);
+		if (n != count) setState(FileState::eof);
 		for (m_gcount = 0; m_gcount < n; m_gcount++) string[m_gcount] = m_data(m_fpos++);
 		m_gcount++;
 		return *this;
@@ -436,12 +436,12 @@ public:
 	operator bool() const {
 		return !fail();
 	}
-	void set_state(FileState state) {
+	void setState(FileState state) {
 		// the cost of type safety (please implement enum classes with bitsets)
 		m_state = static_cast<FileState>(static_cast<uint32>(m_state) | static_cast<uint32>(state));
 	}
 	DEPRECATED void setstate(FileState state) { // to keep standard library compatibility
-		set_state(state);
+		setState(state);
 	}
 	void clear(FileState state = FileState::good) {
 		m_state = state;

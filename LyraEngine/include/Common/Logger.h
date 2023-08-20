@@ -54,17 +54,17 @@ enum class Font {
 #define IS_FMT_CONSTEXPR constexpr
 #endif
 
-inline IS_FMT_CONSTEXPR std::string set_style(Font font, uint32 foreground, uint32 background) {
+inline IS_FMT_CONSTEXPR std::string setStyle(Font font, uint32 foreground, uint32 background) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{};48;5;{}m", static_cast<int>(font), foreground, background);
 	else return "";
 }
-inline IS_FMT_CONSTEXPR std::string set_style(Font font, uint32 foreground) {
+inline IS_FMT_CONSTEXPR std::string setStyle(Font font, uint32 foreground) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{}m", static_cast<int>(font), foreground);
 	else return "";
 }
-inline constexpr std::string reset_style() noexcept {
+inline constexpr std::string resetStyle() noexcept {
 	if constexpr (config::coloredLog == true)
 		return "\033[0;0;0m";	
 	else return "";
@@ -76,8 +76,8 @@ namespace log {
 
 namespace detail {
 
-void add_logger(const Logger& logger);
-Logger* const default_logger();
+void addLogger(const Logger& logger);
+Logger* const defaultLogger();
 
 } // namespace detail
 
@@ -94,8 +94,8 @@ enum class Level {
 class Logger {
 public:
 	Logger() = default;
-	Logger(FILE* out, FILE* err, std::string_view name) : m_outStream(out), m_errStream(err), m_name(name) { detail::add_logger(*this); }
-	Logger(FILE* stream, std::string_view name) : m_outStream(stream), m_errStream(stream), m_name(name) { detail::add_logger(*this); }
+	Logger(FILE* out, FILE* err, std::string_view name) : m_outStream(out), m_errStream(err), m_name(name) { detail::addLogger(*this); }
+	Logger(FILE* stream, std::string_view name) : m_outStream(stream), m_errStream(stream), m_name(name) { detail::addLogger(*this); }
 
 	template <class Format, typename ... Args> constexpr void log(Format&& format, Args&&... message) {
 		fmt::print(m_outStream, fmt::runtime(std::forward<Format>(format)), std::forward<Args>(message)...);
@@ -141,7 +141,7 @@ public:
 		log<Level::exception>(std::forward<Msg>(message));
 	}
 
-	IS_FMT_CONSTEXPR void new_line() {
+	IS_FMT_CONSTEXPR void newLine() {
 		fmt::print(m_outStream, "\n");
 	}
 	
@@ -169,34 +169,34 @@ private:
 	template <Level logLevel, class Format, typename ... Args> void log(Format&& fmt, Args&&... message) {
 		if constexpr (static_cast<int>(config::disableLog) < static_cast<int>(logLevel)) {
 			if constexpr (logLevel == Level::trace) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]:\t{}\n", ansi::set_style(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]:\t{}\n", ansi::setStyle(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::debug) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]:\t{}\n", ansi::set_style(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]:\t{}\n", ansi::setStyle(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::info) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]:\t{}\n", ansi::set_style(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]:\t{}\n", ansi::setStyle(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::warning) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]:\t{}\n", ansi::set_style(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]:\t{}\n", ansi::setStyle(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::error) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]:\t{}\n", ansi::set_style(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]:\t{}\n", ansi::setStyle(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			} else if constexpr (logLevel == Level::exception) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]:\t{}\n", ansi::set_style(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]:\t{}\n", ansi::setStyle(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), fmt::format(fmt::runtime(std::forward<Format>(fmt)), std::forward<Args>(message)...));
 			}
 		} else return;
 	}
 	template <Level logLevel, class Msg> void log(Msg message) {
 		if constexpr (static_cast<int>(config::disableLog) < static_cast<int>(logLevel)) {
 			if constexpr (logLevel == Level::trace) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]:\t{}\n", ansi::set_style(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [TRACE]:\t{}\n", ansi::setStyle(ansi::Font::none, 81), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::debug) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]:\t{}\n", ansi::set_style(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [DEBUG]:\t{}\n", ansi::setStyle(ansi::Font::none, 242), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::info) {
-				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]:\t{}\n", ansi::set_style(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_outStream, "{}[{:%Y-%m-%d %H:%M:%S}] [INFO]:\t{}\n", ansi::setStyle(ansi::Font::none, 40), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::warning) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]:\t{}\n", ansi::set_style(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [WARNING]:\t{}\n", ansi::setStyle(ansi::Font::none, 184), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::error) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]:\t{}\n", ansi::set_style(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [ERROR]:\t{}\n", ansi::setStyle(ansi::Font::none, 197), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			} else if constexpr (logLevel == Level::exception) {
-				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]:\t{}\n", ansi::set_style(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
+				fmt::print(m_errStream, "{}[{:%Y-%m-%d %H:%M:%S}] [EXCEPTION]:\t{}\n", ansi::setStyle(ansi::Font::bold, 124), fmt::localtime(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now())), std::forward<Msg>(message));
 			}
 		} else return;
 	}
@@ -207,51 +207,51 @@ private:
 Logger* const get(std::string_view name);
 
 template <class Format, typename ... Args> inline void log(Format&& format, Args&&... message) {
-	detail::default_logger()->log(std::forward<Format>(format), std::forward<Args>(message)...);
+	detail::defaultLogger()->log(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void trace(Format&& format, Args&&... message) {
-	detail::default_logger()->trace(std::forward<Format>(format), std::forward<Args>(message)...);
+	detail::defaultLogger()->trace(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void debug(Format&& format, Args&&... message) {
-	detail::default_logger()->debug(std::forward<Format>(format), std::forward<Args>(message)...);
+	detail::defaultLogger()->debug(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void info(Format&& format, Args&&... message) {
-	detail::default_logger()->info(std::forward<Format>(format), std::forward<Args>(message)...);
+	detail::defaultLogger()->info(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void warning(Format&& format, Args&&... message) {
-	detail::default_logger()->warning(std::forward<Format>(format), std::forward<Args>(message)...);
+	detail::defaultLogger()->warning(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void error(Format&& format, Args&&... message) {
-	detail::default_logger()->error(std::forward<Format>(format), std::forward<Args>(message)...);
+	detail::defaultLogger()->error(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void exception(Format&& format, Args&&... message) {
-	detail::default_logger()->exception(std::forward<Format>(format), std::forward<Args>(message)...);	
+	detail::defaultLogger()->exception(std::forward<Format>(format), std::forward<Args>(message)...);	
 }
 
 template <class Msg> inline void log(Msg&& message) {
-	detail::default_logger()->log(std::forward<Msg>(message));
+	detail::defaultLogger()->log(std::forward<Msg>(message));
 }
 template <class Msg> inline void trace(Msg&& message) {
-	detail::default_logger()->trace(std::forward<Msg>(message));
+	detail::defaultLogger()->trace(std::forward<Msg>(message));
 }
 template <class Msg> inline void debug(Msg&& message) {
-	detail::default_logger()->debug(std::forward<Msg>(message));
+	detail::defaultLogger()->debug(std::forward<Msg>(message));
 }
 template <class Msg> inline void info(Msg&& message) {
-	detail::default_logger()->info(std::forward<Msg>(message));
+	detail::defaultLogger()->info(std::forward<Msg>(message));
 }
 template <class Msg> inline void warning(Msg&& message) {
-	detail::default_logger()->warning(std::forward<Msg>(message));
+	detail::defaultLogger()->warning(std::forward<Msg>(message));
 }
 template <class Msg> inline void error(Msg&& message) {
-	detail::default_logger()->error(std::forward<Msg>(message));
+	detail::defaultLogger()->error(std::forward<Msg>(message));
 }
 template <class Msg> inline void exception(Msg&& message) {
-	detail::default_logger()->exception(std::forward<Msg>(message));
+	detail::defaultLogger()->exception(std::forward<Msg>(message));
 }
 
-inline void new_line() {
-	detail::default_logger()->new_line();
+inline void newLine() {
+	detail::defaultLogger()->newLine();
 }
 
 } // namespace log

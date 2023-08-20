@@ -50,7 +50,7 @@ Logger* const get(std::string_view name) {
 
 namespace detail {
 
-void add_logger(const Logger& logger) {
+void addLogger(const Logger& logger) {
 	if (globalLoggingContext == nullptr) {
 		globalLoggingContext = new LoggingContext();
 	}
@@ -58,7 +58,7 @@ void add_logger(const Logger& logger) {
 	globalLoggingContext->loggers.emplace(logger.name(), UniquePointer<Logger>::create(logger));
 }
 
-Logger* const default_logger() {
+Logger* const defaultLogger() {
 	if (globalLoggingContext == nullptr) {
 		globalLoggingContext = new LoggingContext();
 	}

@@ -115,8 +115,8 @@ int main(int argc, char* argv[]) {
 	lyra::Window window;
 
 	lyra::init(window);
-	lyra::init_input_system(window);
-	lyra::init_filesystem(argv);
+	lyra::initInputSystem(window);
+	lyra::initFilesystem(argv);
 
 	lyra::vulkan::CommandQueue commandQueue;
 
@@ -135,14 +135,14 @@ int main(int argc, char* argv[]) {
 	lyra::vulkan::DescriptorPools descriptorPools({{lyra::vulkan::DescriptorWriter::Type::imageSampler, 2}, {lyra::vulkan::DescriptorWriter::Type::uniformBuffer}});
 
 	lyra::vulkan::GraphicsPipeline::Builder pipelineBuilder(swapchain, framebuffers);
-	pipelineBuilder.set_scissor({{swapchain.extent.width, swapchain.extent.height}});
-	pipelineBuilder.set_viewport({{swapchain.extent.width, swapchain.extent.height}});
+	pipelineBuilder.setScissor({{swapchain.extent.width, swapchain.extent.height}});
+	pipelineBuilder.setViewport({{swapchain.extent.width, swapchain.extent.height}});
 	lyra::vulkan::GraphicsPipeline graphicsPipeline(graphicsProgram, pipelineBuilder);
 
 	while (window.running()) {
 		lyra::input::update();
-		swapchain.aquire();
-		framebuffers.update();
+		if (!swapchain.aquire()) continue;
+		swapchain.begin();
 
 		commandQueue.activeCommandBuffer->begin();
 
@@ -157,8 +157,9 @@ int main(int argc, char* argv[]) {
 		commandQueue.submit(swapchain.renderFinishedFences[swapchain.currentFrame]);
 
 		swapchain.present();
-		framebuffers.update();
 	}
+
+	lyra::quit();
 
 	return 0;
 }

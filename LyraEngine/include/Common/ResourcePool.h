@@ -162,7 +162,7 @@ public:
 		m_resources.swap(other.m_resources);
 	}
 
-	resource_container get_resource() {
+	resource_container getResource() {
 		resource_container resource(m_resources.front().release(), { m_resources } );
 		m_resources.pop_front();
 		return resource;

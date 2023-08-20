@@ -16,9 +16,9 @@
 
 namespace lyra {
 
-template <typename Ty> NODISCARD constexpr const void* get_address(const Ty& type);
+template <typename Ty> NODISCARD constexpr const void* getAddress(const Ty& type);
 
-template <typename Ty> constexpr const void* get_address(const Ty& type) {
+template <typename Ty> constexpr const void* getAddress(const Ty& type) {
 	return static_cast<const void*>(type);
 }
 

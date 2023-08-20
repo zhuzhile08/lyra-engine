@@ -57,16 +57,16 @@ public:
 		std::swap(this->function, std::move(second));
 	}
 
-	constexpr const std::type_info& target_type() const noexcept {
+	constexpr const std::type_info& targetType() const noexcept {
 		if (!std::is_same_v<Ty, void>) return typeid(Ty);
 		return typeid(void);	
 	}
 	template<class TTy> constexpr TTy* target() noexcept {
-		if (target_type() == typeid(TTy)) return function;
+		if (targetType() == typeid(TTy)) return function;
 		return nullptr;
 	}
 	template<class TTy> constexpr const TTy* target() const noexcept{
-		if (target_type() == typeid(TTy)) return function;
+		if (targetType() == typeid(TTy)) return function;
 		return nullptr;
 	}
 

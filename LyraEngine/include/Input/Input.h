@@ -24,7 +24,7 @@
 
 namespace lyra {
 
-void init_input_system(Window& window);
+void initInputSystem(Window& window);
 
 namespace input {
 
@@ -57,31 +57,31 @@ public:
 	Input() noexcept = default;
 	Input(Window& window) noexcept : m_window(&window) { }
 
-	void add_keyboard_input(KeyType type) {
+	void addKeyboardInput(KeyType type) {
 		m_keys.insert({type, Key()});
 	}
-	void add_mouse_button_input(MouseButtonType type) {
+	void addMouseButtonInput(MouseButtonType type) {
 		m_mouseButtons.insert({type, MouseButton()});
 	}
-	void add_controller_button_input(ControllerButtonType type) {
+	void addControllerButtonInput(ControllerButtonType type) {
 		m_controllerButtons.insert({type, ControllerButton()});
 	}
 
-	const Key& keyboard_input(KeyType type) const noexcept {
+	const Key& keyboardInput(KeyType type) const noexcept {
 		return m_keys.at(type);
 	}
-	const MouseButton& mouse_input(MouseButtonType type) const noexcept {
+	const MouseButton& mouseInput(MouseButtonType type) const noexcept {
 		return m_mouseButtons.at(type);
 	}
-	const ControllerButton& controller_input(ControllerButtonType type) const noexcept {
+	const ControllerButton& controllerInput(ControllerButtonType type) const noexcept {
 		return m_controllerButtons.at(type);
 	}
 
-	const glm::ivec2& mouse_pos() const noexcept {
+	const glm::ivec2& mousePos() const noexcept {
 		return m_mousePos;
 	}
-	const glm::vec2& analogue_stick_pos() const noexcept {
-		return m_stickPos;
+	const glm::vec2& analogueStickPos() const noexcept {
+		return mStickPos;
 	}
 
 	void update();
@@ -95,43 +95,43 @@ private:
 	const uint8* m_keyboardState;
 
 	glm::ivec2 m_mousePos;
-	glm::vec2 m_stickPos;
+	glm::vec2 mStickPos;
 
 	Window* m_window;
 };
 
 namespace detail {
 
-Input* const global_input_system();
+Input* const defaultInputSystem();
 
 } // namespace detail
 
-inline void add_keyboard_input(KeyType type) {
-	detail::global_input_system()->add_keyboard_input(type);
+inline void addKeyboardInput(KeyType type) {
+	detail::defaultInputSystem()->addKeyboardInput(type);
 }
-inline void add_mouse_button_input(MouseButtonType type) {
-	detail::global_input_system()->add_mouse_button_input(type);
+inline void addMouseButtonInput(MouseButtonType type) {
+	detail::defaultInputSystem()->addMouseButtonInput(type);
 }
-inline void add_controller_button_input(ControllerButtonType type) {
-	detail::global_input_system()->add_controller_button_input(type);
+inline void addControllerButtonInput(ControllerButtonType type) {
+	detail::defaultInputSystem()->addControllerButtonInput(type);
 }
-inline const Key& keyboard_input(KeyType type) noexcept {
-	return detail::global_input_system()->keyboard_input(type);
+inline const Key& keyboardInput(KeyType type) noexcept {
+	return detail::defaultInputSystem()->keyboardInput(type);
 }
-inline const MouseButton& mouse_input(MouseButtonType type) noexcept {
-	return detail::global_input_system()->mouse_input(type);
+inline const MouseButton& mouseInput(MouseButtonType type) noexcept {
+	return detail::defaultInputSystem()->mouseInput(type);
 }
-inline const ControllerButton& controller_input(ControllerButtonType type) noexcept {
-	return detail::global_input_system()->controller_input(type);
+inline const ControllerButton& controllerInput(ControllerButtonType type) noexcept {
+	return detail::defaultInputSystem()->controllerInput(type);
 }
-inline const glm::ivec2& mouse_pos() noexcept {
-	return detail::global_input_system()->mouse_pos();
+inline const glm::ivec2& mousePos() noexcept {
+	return detail::defaultInputSystem()->mousePos();
 }
-inline const glm::vec2& analogue_stick_pos() noexcept {
-	return detail::global_input_system()->analogue_stick_pos();
+inline const glm::vec2& analogueStickPos() noexcept {
+	return detail::defaultInputSystem()->analogueStickPos();
 }
 inline void update() {
-	detail::global_input_system()->update();
+	detail::defaultInputSystem()->update();
 }
 
 } // namespace input

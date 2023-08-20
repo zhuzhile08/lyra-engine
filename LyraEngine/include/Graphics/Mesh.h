@@ -37,7 +37,7 @@ public:
 		constexpr Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& uvw, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uvw(uvw) { }
 		constexpr Vertex(util::detail::LoadedMesh::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
 
-		NODISCARD static constexpr VkVertexInputBindingDescription get_binding_description() noexcept {
+		NODISCARD static constexpr VkVertexInputBindingDescription getBindingDescription() noexcept {
 			return {
 				0,
 				sizeof(Vertex),
@@ -45,7 +45,7 @@ public:
 			};
 		}
 
-		NODISCARD static constexpr Array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() noexcept {
+		NODISCARD static constexpr Array<VkVertexInputAttributeDescription, 4> getAttribute_descriptions() noexcept {
 			return {
 				{{
 					0,

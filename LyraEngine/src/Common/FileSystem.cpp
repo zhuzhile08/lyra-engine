@@ -22,7 +22,7 @@ struct FileSystem {
 
 static FileSystem* globalFileSystem;
 
-void init_filesystem(char** argv) {
+void initFilesystem(char** argv) {
 	std::ios::sync_with_stdio();
 
 	globalFileSystem = new FileSystem;
@@ -75,7 +75,7 @@ void File<char>::disable_buffering() {
 		std::setbuf(m_stream, nullptr);
 	}
 }
-void File<char>::enable_buffering() {
+void File<char>::enableBuffering() {
 	if (!m_buffered) {
 		if (!m_buffer) m_buffer = m_buffer.create(bufferSize);
 		std::setvbuf(m_stream, m_buffer.data(), 0, bufferSize);
@@ -208,7 +208,7 @@ void File<wchar>::disable_buffering() {
 		std::setbuf(m_stream, nullptr);
 	}
 }
-void File<wchar>::enable_buffering() {
+void File<wchar>::enableBuffering() {
 	if (!m_buffered) {
 		if (!m_buffer) m_buffer = m_buffer.create(bufferSize);
 		std::setvbuf(m_stream, m_buffer.data(), 0, bufferSize);
