@@ -1,5 +1,5 @@
 /*************************
- * @file LoadImage.h
+ * @file LoadTexture.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief Image loading functionality
@@ -21,7 +21,7 @@ namespace util {
 
 namespace detail {
 
-struct LoadedImage {
+struct LoadedTexture {
 	uint32 width;
 	uint32 height;
 	uint32 length;
@@ -40,9 +40,9 @@ struct LoadedImage {
  * @brief load an image from disc via path
  * 
  * @param path path of the image to load
- * @return lyra::util::detail::LoadedImage
+ * @return lyra::util::detail::LoadedTexture
  */
-NODISCARD detail::LoadedImage load_image(std::string_view path);
+NODISCARD detail::LoadedTexture load_image(std::string_view path);
 
 } // namespace util
 

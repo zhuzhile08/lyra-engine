@@ -1,4 +1,4 @@
-#include <Resource/LoadImage.h>
+#include <Resource/LoadTexture.h>
 
 #include <Common/Logger.h>
 
@@ -8,7 +8,7 @@ namespace lyra {
 
 namespace util {
 
-detail::LoadedImage load_image(std::string_view path) {
+detail::LoadedTexture load_image(std::string_view path) {
 	/**  
 	const auto& begin = m_images.binary.begin() + m_images.json.at(path).at("begin");
 	const auto& end = begin + m_images.json.at(path).at("data_length"); // IMPORTANT!!! Remember to add one to the length of the data, or else everything will be screwed up
@@ -25,7 +25,7 @@ detail::LoadedImage load_image(std::string_view path) {
 	stbi_uc* imagePixelData = stbi_load(path.data(), &width, &height, &channels, STBI_rgb_alpha);
 	if (imagePixelData == nullptr) ASSERT(false, "Failed to load image from path: {}!", path);
 
-	util::detail::LoadedImage imageData{
+	util::detail::LoadedTexture imageData{
 		(uint32) width, // jsonImageData.at("width"),
 		(uint32) height, // jsonImageData.at("height"),
 		0, // jsonImageData.at("length"),
