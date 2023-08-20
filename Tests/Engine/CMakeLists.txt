@@ -24,7 +24,7 @@ PRIVATE
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
-	${LIBRARY_PATH}/tol/
+	${LIBRARY_PATH}/assimp/include
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/

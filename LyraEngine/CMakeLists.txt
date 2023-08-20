@@ -35,7 +35,7 @@ PUBLIC
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
-	${LIBRARY_PATH}/tol/
+	${LIBRARY_PATH}/assimp/include
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
@@ -63,11 +63,10 @@ add_library(LyraEngine
 	#"src/Graphics/VulkanImpl/Window.cpp"
 	#"src/Graphics/VulkanImpl/Frame.cpp"
 
-	#"src/Resource/ResourceManager.cpp"
-	#"src/Graphics/RenderSystem.cpp"
 	"src/Graphics/VulkanRenderSystem.cpp"
-	#"src/Graphics/GraphicsPipelineSystem.cpp"
 	"src/Graphics/SDLWindow.cpp"
+	#"src/Resource/Material.cpp"
+	#"src/Resource/Texture.cpp"
 	
 	#"src/Application/Application.cpp"
 
@@ -79,9 +78,8 @@ add_library(LyraEngine
 	#"src/Resource/LoadResources.cpp"
 	"src/Resource/LoadMesh.cpp"
 	"src/Resource/LoadMaterial.cpp"
-	"src/Resource/LoadImage.cpp"
-	#"src/Resource/Material.cpp"
-	#"src/Resource/Texture.cpp"
+	"src/Resource/LoadTexture.cpp"
+	#"src/Resource/ResourceManager.cpp"
 
 	#"src/EntitySystem/Entity.cpp"
 	#"src/EntitySystem/Camera.cpp"
@@ -109,6 +107,7 @@ LINK_PUBLIC
 	# OpenAL::OpenAL
 
 	# utility libraries
+	assimp
 	fmt::fmt
 	lz4_static
 )
