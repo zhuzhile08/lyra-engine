@@ -216,8 +216,8 @@ public:
 	 */
 	constexpr RAIIContainer(
 		owner_type owner, 
-		const uint32_t& familyIndex, 
-		const uint32_t& queueIndex)
+		uint32_t familyIndex, 
+		uint32_t queueIndex)
 		requires(std::is_same_v<handle_type, VkQueue> && std::is_same_v<owner_type, VkDevice>)
 		 : m_owner(owner) {
 		if (!m_handle) {
@@ -239,11 +239,11 @@ public:
 	 */
 	constexpr RAIIContainer(
 		std::string_view title, 
-		const int& x, 
-		const int& y, 
-		const int& w, 
-		const int& h, 
-		const uint32_t& flags
+		int x, 
+		int y, 
+		int w, 
+		int h, 
+		uint32_t flags
 	) requires(std::is_same_v<handle_type, SDL_Window*>) {
 		if (!m_handle) {
 			m_handle = SDL_CreateWindow(title.data(), x, y, w, h, flags);
