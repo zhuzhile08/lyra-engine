@@ -22,7 +22,7 @@ void Input::update() {
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		// ImGui_ImplSDL2_ProcessEvent(&m_events);
+		if (m_imGUI) ImGui_ImplSDL2_ProcessEvent(&event);
 
 		// get new events and set the passed events
 		SDL_PumpEvents();
@@ -79,8 +79,8 @@ void Input::update() {
 
 } // namespace input
 
-void initInputSystem(Window& window) {
-	input::detail::globalInputSystem = new input::Input(window);
+void initInputSystem(Window& window, const ImGuiContext* context) {
+	input::detail::globalInputSystem = new input::Input(window, context);
 }
 
 } // namespace lyra

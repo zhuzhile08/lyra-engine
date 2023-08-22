@@ -17,14 +17,15 @@
 
 #include <Input/InputEnums.h>
 
-#include <SDL.h>
 #include <glm/glm.hpp>
+#include <SDL.h>
+#include <imgui.h>
 
 #include <unordered_map>
 
 namespace lyra {
 
-void initInputSystem(Window& window);
+void initInputSystem(Window& window, const ImGuiContext* context = nullptr);
 
 namespace input {
 
@@ -55,7 +56,7 @@ public:
 class Input {
 public:
 	Input() noexcept = default;
-	Input(Window& window) noexcept : m_window(&window) { }
+	Input(Window& window, const ImGuiContext* context) noexcept : m_window(&window), m_imGUI(context) { }
 
 	void addKeyboardInput(KeyType type) {
 		m_keys.insert({type, Key()});
@@ -84,6 +85,13 @@ public:
 		return mStickPos;
 	}
 
+	constexpr void enableImGui(const ImGuiContext* context) noexcept {
+		m_imGUI = context;
+	}
+	constexpr void disableImGui() noexcept {
+		m_imGUI = nullptr;
+	}
+
 	void update();
 
 private:
@@ -98,6 +106,7 @@ private:
 	glm::vec2 mStickPos;
 
 	Window* m_window;
+	const ImGuiContext* m_imGUI = nullptr;
 };
 
 namespace detail {
@@ -132,6 +141,12 @@ inline const glm::vec2& analogueStickPos() noexcept {
 }
 inline void update() {
 	detail::defaultInputSystem()->update();
+}
+inline void enableImGui(const ImGuiContext* context) noexcept {
+	detail::defaultInputSystem()->enableImGui(context);
+}
+inline void disableImGui() noexcept {
+	detail::defaultInputSystem()->disableImGui();
 }
 
 } // namespace input
