@@ -1,35 +1,22 @@
-#define LYRA_LOG_FILE
-
 #define VERSION "1.00"
 
-#include "logger.h"
-#include <filesystem>
+#include <Lyra/Lyra.h>
 
-void display_compress(std::string& answerBuffer);
+#include <Common/Logger.h>
+#include <Common/FileSystem.h>
 
-void ask_for_path(std::string& answerBuffer);
+#include <Graphics/SDLWindow.h>
 
-int main() {
-	std::string answerBuffer;
+#include <Input/Input.h>
 
-	Logger::log_info("Lyra command line asset compression tool [Version ", VERSION, "]");
-	Logger::log_info("(c) 2022", Logger::end_l());
-	ask_for_path(answerBuffer);
-}
+#include <imgui.h>
 
-void display_compress(std::string& answerBuffer) {
+int main(int argc, char* argv[]) {
+	lyra::init();
+	ImGui::CreateContext();
 	
-
-	ask_for_path(answerBuffer);
-}
-
-void ask_for_path(std::string& answerBuffer) {
-	answerBuffer.clear();
-	Logger::ask(answerBuffer, "Enter the path of a folder to compress: ");
-	if (answerBuffer == "compress") display_compress(answerBuffer);
-	else if (answerBuffer == "exit") exit(0);
-	else {
-		Logger::log_error("Invalid path or command! Please try again");
-		ask_for_path(answerBuffer);
-	}
+	lyra::Window window;
+	
+	lyra::initFileSystem(argv);
+	lyra::initInputSystem(window, ImGui::GetCurrentContext());	
 }
