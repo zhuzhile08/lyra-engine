@@ -70,10 +70,11 @@ public:
 		m_running = false;
 	}
 
-	Window(const Window&) noexcept = delete;
-	Window operator=(const Window&) const noexcept = delete;
+	std::vector<const char*> getInstanceExtensions() const;
+	glm::uvec2 getDrawableSize() const;
+	uint32 getWindowFlags() const;
 
-	NODISCARD SDL_Window* get() const noexcept { return m_window; };
+	NODISCARD constexpr SDL_Window* get() const noexcept { return m_window; };
 	NODISCARD constexpr bool running() const noexcept { return m_running; }
 	NODISCARD constexpr bool changed() const noexcept { return m_changed; }
 

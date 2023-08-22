@@ -8,11 +8,7 @@
 
 namespace lyra {
 
-Window::Window() noexcept {
-	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
-		ASSERT(false, "SDL init error: {}!", SDL_GetError());
-	}
-
+Window::Window() {
 	uint32 flags = SDL_WINDOW_VULKAN;
 
 	if (config::fullscreen) flags |= SDL_WINDOW_FULLSCREEN;
@@ -26,10 +22,30 @@ Window::Window() noexcept {
 	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
-Window::~Window() noexcept {
-	m_running = false;
+Window::Window(std::string_view title, Flags flags, const glm::ivec2& size, const glm::ivec2& position) {
+	m_window = sdl::Window(config::title, position.x, position.y, size.x, size.y, static_cast<uint32>(flags));
 
-	SDL_Quit();
+	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
+std::vector<const char*> Window::getInstanceExtensions() const {
+	uint32 instanceExtensionCount = 0;
+	std::vector<const char*> instanceExtensions(instanceExtensionCount);
+
+	ASSERT(SDL_Vulkan_GetInstanceExtensions(m_window, &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
+	ASSERT(SDL_Vulkan_GetInstanceExtensions(m_window, &instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+
+	return instanceExtensions;
 }
+
+glm::uvec2 Window::getDrawableSize() const {
+	glm::ivec2 r;
+	SDL_Vulkan_GetDrawableSize(m_window, &r.x, &r.y);
+	return r;
+}
+
+uint32 Window::getWindowFlags() const {
+	return SDL_GetWindowFlags(m_window);
+}
+
+} // namespace lyra

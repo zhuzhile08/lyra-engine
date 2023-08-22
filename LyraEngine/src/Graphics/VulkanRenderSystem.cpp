@@ -90,10 +90,7 @@ public:
 			}
 #endif
 			// get all extensions
-			uint32 instanceExtensionCount = 0;
-			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window->get(), &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
-			std::vector<const char*> instanceExtensions(instanceExtensionCount);
-			ASSERT(SDL_Vulkan_GetInstanceExtensions(info.window->get(), &instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+			std::vector<const char*> instanceExtensions(info.window->getInstanceExtensions());
 			// add some required extensions
 			instanceExtensions.push_back("VK_KHR_get_physical_device_properties2");
 #ifndef NDEBUG
@@ -960,18 +957,12 @@ void Swapchain::createSwapchain() {
 	}
 
 	{ // create the extent
-		int width, height;
-		SDL_Vulkan_GetDrawableSize(globalRenderSystem->window->get(), &width, &height);
+		auto drawableArea = globalRenderSystem->window->getDrawableSize();
 
-		VkExtent2D newExtent = {
-			static_cast<uint32>(width),
-			static_cast<uint32>(height)
+		extent = VkExtent2D {
+			static_cast<uint32>(std::clamp(drawableArea.x, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width)),
+			static_cast<uint32>(std::clamp(drawableArea.t, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height))
 		};
-
-		newExtent.width = std::clamp(newExtent.width, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-		newExtent.height = std::clamp(newExtent.height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
-
-		extent = newExtent;
 	}
 
 	{ // create swapchain
@@ -1084,10 +1075,10 @@ void Swapchain::createAttachments() {
 
 bool Swapchain::update(bool windowChanged) {
 	if (invalidAttachments || invalidSwapchain || lostSurface || windowChanged) {
-		uint32 flags = SDL_GetWindowFlags(globalRenderSystem->window->get());
+		auto flags = globalRenderSystem->window->getWindowFlags();
 		SDL_Event e;
 		while ((flags & SDL_WINDOW_MINIMIZED) == SDL_WINDOW_MINIMIZED && SDL_WaitEvent(&e)) {
-			flags = SDL_GetWindowFlags(globalRenderSystem->window->get());
+			flags = globalRenderSystem->window->getWindowFlags();
 		}
 
 		vkDeviceWaitIdle(globalRenderSystem->device);
