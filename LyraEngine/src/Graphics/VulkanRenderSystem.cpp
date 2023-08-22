@@ -64,7 +64,7 @@ public:
 		std::vector <VkQueueFamilyProperties> queueFamilyProperties;
 	};
 
-	RenderSystem(const InitInfo& info, bool& sucess) : window(info.window) {
+	RenderSystem(const InitInfo& info) : window(info.window) {
 		{ // create instance
 			// check if requested validation layers are available
 #ifndef NDEBUG
@@ -591,12 +591,6 @@ public:
 };
 
 static RenderSystem* globalRenderSystem;
-
-bool initRenderSystem(const InitInfo& info) {
-	bool sucess = true;
-	globalRenderSystem = new RenderSystem(info, sucess);
-	return sucess;
-}
 
 CommandQueue::CommandPool::CommandPool() {
 	VkCommandPoolCreateInfo createInfo{
@@ -1759,7 +1753,11 @@ GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder
 
 } // namespace vulkan
 
-void quit() {
+void initRenderSystem(const vulkan::InitInfo& info) {
+	vulkan::globalRenderSystem = new vulkan::RenderSystem(info);
+}
+
+void quitRenderSystem() {
 	vkDeviceWaitIdle(vulkan::globalRenderSystem->device);
 }
 

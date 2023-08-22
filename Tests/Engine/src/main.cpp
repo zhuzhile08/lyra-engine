@@ -112,11 +112,13 @@ void Application::init() {
 #include <Input/Input.h>
 
 int main(int argc, char* argv[]) {
+	lyra::init();
+
 	lyra::Window window;
 
-	lyra::init(window);
 	lyra::initInputSystem(window);
 	lyra::initFileSystem(argv);
+	lyra::initRenderSystem({{0, 7, 0}, &window});
 
 	lyra::vulkan::CommandQueue commandQueue;
 

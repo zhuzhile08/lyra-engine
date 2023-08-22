@@ -38,8 +38,6 @@
 
 namespace lyra {
 
-void quit();
-
 namespace vulkan {
 
 namespace vk {
@@ -92,8 +90,6 @@ struct InitInfo {
 	Array<uint32, 3> version;
 	const Window* window;
 };
-
-bool initRenderSystem(const InitInfo& info);
 
 class CommandQueue {
 public:
@@ -1149,5 +1145,8 @@ public:
 };
 
 } // namespace vulkan
+
+void initRenderSystem(const vulkan::InitInfo& info);
+void quitRenderSystem();
 
 } // namespace lyra
