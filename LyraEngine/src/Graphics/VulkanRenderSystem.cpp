@@ -587,7 +587,7 @@ public:
 	const Window* window;
 };
 
-static RenderSystem* globalRenderSystem;
+static RenderSystem* globalRenderSystem = nullptr;
 
 CommandQueue::CommandPool::CommandPool() {
 	VkCommandPoolCreateInfo createInfo{
@@ -1749,7 +1749,7 @@ void initRenderSystem(const vulkan::InitInfo& info) {
 }
 
 void quitRenderSystem() {
-	vkDeviceWaitIdle(vulkan::globalRenderSystem->device);
+	if (vulkan::globalRenderSystem) vkDeviceWaitIdle(vulkan::globalRenderSystem->device);
 }
 
 } // namespace lyra
