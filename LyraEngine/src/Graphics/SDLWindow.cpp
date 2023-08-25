@@ -23,7 +23,7 @@ Window::Window() {
 }
 
 Window::Window(std::string_view title, Flags flags, const glm::ivec2& size, const glm::ivec2& position) {
-	m_window = sdl::Window(config::title, position.x, position.y, size.x, size.y, static_cast<uint32>(flags));
+	m_window = sdl::Window(title, position.x, position.y, size.x, size.y, static_cast<uint32>(flags));
 
 	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }

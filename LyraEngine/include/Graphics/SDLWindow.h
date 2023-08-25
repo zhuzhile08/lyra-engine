@@ -45,7 +45,7 @@ public:
 		inputFocus = 0x00000200,
 		mouseFocus = 0x00000400,
 		mouseCapture = 0x00004000,
-		keyboard_grabbed = 0x00100000,
+		keyboardGrabbed = 0x00100000,
 
 		inputGrabbed = mouseGrabbed,
 		
@@ -54,9 +54,9 @@ public:
 
 		utility = 0x00020000,
 		tooltip = 0x00040000,
-		popup_menu = 0x00080000,
+		popupMenu = 0x00080000,
 
-		allowHighdpi = 0x00002000,
+		allowHighDpi = 0x00002000,
 
 		vulkan = 0x10000000
 	}; // refer to the docs of the current version of SDL for the documentation of these enums
@@ -74,8 +74,9 @@ public:
 	glm::uvec2 getDrawableSize() const;
 	uint32 getWindowFlags() const;
 
-	NODISCARD constexpr SDL_Window* get() const noexcept { return m_window; };
+	NODISCARD constexpr SDL_Window* get() const noexcept { return m_window; }
 	NODISCARD constexpr bool running() const noexcept { return m_running; }
+	NODISCARD constexpr bool& running() noexcept { return m_running; }
 	NODISCARD constexpr bool changed() const noexcept { return m_changed; }
 
 private:
