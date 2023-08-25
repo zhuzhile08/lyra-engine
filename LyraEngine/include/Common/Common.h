@@ -82,9 +82,15 @@ class Logger;
 // some higher level wrappers
 
 class Window;
-class GraphicsPipelineSystem;
 class Material;
 class Texture;
+
+// basic rendering patterns
+
+class RenderSystem;
+class UnorderedRenderSystem;
+class OrderedRenderSystem;
+class RenderObject;
 
 // core vulkan wrappers
 
