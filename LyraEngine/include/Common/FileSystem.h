@@ -19,17 +19,14 @@
 #include <algorithm>
 #include <filesystem>
 
+#include <assimp/IOSystem.hpp>
+#include <assimp/IOStream.hpp>
+
 namespace lyra {
 
-namespace detail {
-
-struct FileDeleter {
-	void operator()(FILE* ptr) const;
-};
-
-} // namespace detail
-
 void initFileSystem(char** argv);
+
+NODISCARD std::filesystem::path getGlobalPath(const std::filesystem::path& path);
 
 
 enum class OpenMode {
@@ -44,7 +41,13 @@ enum class OpenMode {
 	appendBin,
 	readExtBin,
 	writeExtBin,
-	appendExtBin
+	appendExtBin,
+	readText,
+	writeText,
+	appendText,
+	readExtText,
+	writeExtText,
+	appendExtText
 };
 
 enum class SeekDirection {
@@ -69,11 +72,12 @@ public:
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
+	File(const std::filesystem::path& path, const char* mode = "r", bool buffered = true);
 	File(FILE* file, char* buffer) : m_stream(file), m_buffer(buffer) { }
 	~File();
 	void close();
 
-	void disable_buffering();
+	void disableBuffering();
 	void enableBuffering();
 
 	int get();
@@ -90,8 +94,8 @@ public:
 	File& flush();
 	int sync();
 
-	filepos tellg();
-	filepos tellp();
+	filepos tellg() const;
+	filepos tellp() const;
 	File& seekg(filepos pos);
 	File& seekg(filepos off, SeekDirection dir);
 	File& seekp(filepos pos);
@@ -111,7 +115,7 @@ public:
 	void swap(File& file);
 
 	void rename(const std::filesystem::path& newPath);
-	NODISCARD std::filesystem::path absolute_path() const;
+	NODISCARD std::filesystem::path absolutePath() const;
 	NODISCARD std::filesystem::path path() const noexcept {
 		return m_path;
 	}
@@ -119,22 +123,21 @@ public:
 		return m_buffered;
 	}
 	NODISCARD const std::FILE* const stream() const noexcept {
-		return m_stream.get();
+		return m_stream;
 	}
 	NODISCARD std::FILE* stream() noexcept {
-		return m_stream.get();
-	}
-	NODISCARD std::FILE* release_stream() noexcept {
-		return m_stream.release();
+		return m_stream;
 	}
 
 private:
-	UniquePointer<std::FILE, detail::FileDeleter> m_stream = nullptr;
-	UniquePointer<char[]> m_buffer;
+	std::FILE* m_stream = nullptr;
+	char* m_buffer;
 
 	std::filesystem::path m_path;
 
 	bool m_buffered;
+
+	friend class AssimpFile;
 };
 
 template<> class File<wchar> {
@@ -143,11 +146,12 @@ public:
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
+	File(const std::filesystem::path& path, const char* mode = "r", bool buffered = true);
 	File(FILE* file, char* buffer) : m_stream(file), m_buffer(buffer) { }
 	~File();
 	void close();
 
-	void disable_buffering();
+	void disableBuffering();
 	void enableBuffering();
 
 	int get();
@@ -164,8 +168,8 @@ public:
 	File& flush();
 	int sync();
 
-	filepos tellg();
-	filepos tellp();
+	filepos tellg() const;
+	filepos tellp() const;
 	File& seekg(filepos pos);
 	File& seekg(filepos off, SeekDirection dir);
 	File& seekp(filepos pos);
@@ -185,7 +189,7 @@ public:
 	void swap(File& file);
 
 	void rename(const std::filesystem::path& newPath);
-	NODISCARD std::filesystem::path absolute_path() const;
+	NODISCARD std::filesystem::path absolutePath() const;
 	NODISCARD std::filesystem::path path() const noexcept {
 		return m_path;
 	}
@@ -193,18 +197,15 @@ public:
 		return m_buffered;
 	}
 	NODISCARD const std::FILE* const stream() const noexcept {
-		return m_stream.get();
+		return m_stream;
 	}
 	NODISCARD std::FILE* stream() noexcept {
-		return m_stream.get();
-	}
-	NODISCARD std::FILE* release_stream() noexcept {
-		return m_stream.release();
+		return m_stream;
 	}
 
 private:
-	UniquePointer<std::FILE, detail::FileDeleter> m_stream = nullptr;
-	UniquePointer<char[]> m_buffer;
+	std::FILE* m_stream = nullptr;
+	char* m_buffer;
 
 	std::filesystem::path m_path;
 
@@ -247,8 +248,8 @@ public:
 		m_data.clear();
 	}
 
-	void disable_buffering() {
-		m_file.disable_buffering();
+	void disableBuffering() {
+		m_file.disableBuffering();
 	}
 	void enableBuffering() {
 		m_file.enableBuffering();
@@ -473,8 +474,8 @@ public:
 	void rename(const std::filesystem::path& newPath) {	
 		m_file.rename(newPath);
 	}
-	NODISCARD std::filesystem::path absolute_path() const {
-		m_file.absolute_path();
+	NODISCARD std::filesystem::path absolutePath() const {
+		m_file.absolutePath();
 	}
 	NODISCARD std::filesystem::path path() const noexcept {
 		return m_file.m_path;
@@ -511,12 +512,50 @@ private:
 	filepos m_gcount;
 };
 
-
 using StringStream = FileStream<std::basic_string, char>;
 using WideStringStream = FileStream<std::basic_string, wchar_t>;
 using CharVectorStream = FileStream<std::vector, char>;
 using WideCharVectorStream = FileStream<std::vector, wchar_t>;
 using Uint8VectorStream = FileStream<std::vector, uint8>;
 using Uint16VectorStream = FileStream<std::vector, uint16>;
+
+
+class AssimpFile : public Assimp::IOStream {
+public:
+	size_t Read(void* pvBuffer, size_t pSize, size_t pCount) final;
+	size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) final;
+	aiReturn Seek(size_t pOffset, aiOrigin pOrigin) final {
+		m_file.seekg(pOffset, static_cast<SeekDirection>(pOrigin));
+		return (m_file.good()) ? aiReturn_SUCCESS : aiReturn_FAILURE;
+	}
+	size_t Tell() const final {
+		return m_file.tellg();
+	}
+	size_t FileSize() const final;
+	void Flush () final {
+		m_file.flush();
+	}
+
+protected:
+	AssimpFile(const std::filesystem::path& path, const std::string& mode) : m_file(path, mode.data(), false) { }
+
+private:
+	ByteFile m_file;
+
+	friend class AssimpFileSystem;
+};
+
+class AssimpFileSystem : public Assimp::IOSystem {
+	bool Exists(const char* pFile) const final;
+	char getOsSeparator() const final {
+		return '/';
+	}
+	Assimp::IOStream* Open(const char* pFile, const char* pMode) {
+		return new AssimpFile(pFile, pMode);
+	}
+	void Close(Assimp::IOStream* pFile) final { 
+		delete pFile;
+	}
+};
 
 } // namespace lyra
