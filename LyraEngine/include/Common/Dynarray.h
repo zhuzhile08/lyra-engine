@@ -104,11 +104,9 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	}
 
 	constexpr void fill(const_reference value) { 
-		m_size = Capacity;
 		std::fill_n(begin(), m_size, value);
 	}
 	constexpr void fill(value_type&& value) { 
-		m_size = Capacity;
 		std::fill_n(begin(), m_size, value);
 	}
 	constexpr void fill(const value_type* const array, size_t size) {
