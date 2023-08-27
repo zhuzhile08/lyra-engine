@@ -10,7 +10,6 @@ namespace lyra {
 
 ImGuiRenderer::ImGuiRenderer(const Window& window) : m_window(&window) {
 	ImGui::CreateContext();
-	ImGui::GetIO().Fonts->AddFontDefault();
 }
 
 ImGuiRenderer::~ImGuiRenderer() {
@@ -27,9 +26,10 @@ void ImGuiRenderer::draw() {
 	endFrame();
 }
 
-void ImGuiRenderer::addFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const std::vector<ImWchar>& ranges, float size) {
+void ImGuiRenderer::setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size) {
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF(lyra::getGlobalPath(path).c_str(), size, &fontConfig, ranges.data());
+	io.Fonts->AddFontDefault();
+	io.Fonts->AddFontFromFileTTF(lyra::getGlobalPath(path).c_str(), size, &fontConfig, ranges);
 }
 
 } // namespace lyra
