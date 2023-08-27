@@ -7,6 +7,7 @@
 
 #include <Graphics/SDLWindow.h>
 
+#include <imgui.h>
 #include <imgui_internal.h>
 
 #include <filesystem>
@@ -35,9 +36,5 @@ protected:
 
 	const Window* m_window;
 };
-
-namespace gui {
-
-} // namespace gui
 
 } // namespace lyra
