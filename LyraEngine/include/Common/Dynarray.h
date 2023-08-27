@@ -97,10 +97,10 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 		return m_array.begin();
 	}
 	NODISCARD constexpr iterator end() noexcept {
-		return &m_array[m_size];
+		return &m_array.m_array[m_size];
 	}
 	NODISCARD constexpr const_iterator end() const noexcept {
-		return &m_array[m_size];
+		return &m_array.m_array[m_size];
 	}
 
 	constexpr void fill(const_reference value) { 
