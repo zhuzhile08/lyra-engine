@@ -10,6 +10,7 @@ namespace lyra {
 
 ImGuiRenderer::ImGuiRenderer(const Window& window) : m_window(&window) {
 	ImGui::CreateContext();
+	ImGui::GetIO().Fonts->AddFontDefault();
 }
 
 ImGuiRenderer::~ImGuiRenderer() {
