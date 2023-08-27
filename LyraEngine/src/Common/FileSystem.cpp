@@ -1,4 +1,5 @@
 #include <Common/FileSystem.h>
+#include <Common/Logger.h>
 
 #include <fmt/core.h>
 
@@ -23,14 +24,15 @@ struct FileSystem {
 	}
 
 	NODISCARD FILE* getFile(const std::filesystem::path& path, const char* mode) {
-		if (!loadedFiles.contains(path)) { 
-			loadedFiles.emplace(
-				std::string(absolutePath(path)).append(mode),
-				std::fopen(path.string().data(), mode)
-			);
-		}
+		PathStringType p(path.native());
+		p.append(mode);
 
-		return loadedFiles[path];
+		loadedFiles.try_emplace(
+			p,
+			std::fopen(absolutePath(path).string().data(), mode)
+		);
+
+		return loadedFiles.at(p);
 	}
 
 	NODISCARD char* getBuffer() {
@@ -39,7 +41,7 @@ struct FileSystem {
 			availableBuffers.insert(buffers.back());
 		}
 
-		return *availableBuffers.erase(++availableBuffers.end());
+		return availableBuffers.extract(availableBuffers.begin()).value();
 	}
 
 	void returnBuffer(char* buffer) {
