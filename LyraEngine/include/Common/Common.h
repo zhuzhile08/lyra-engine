@@ -114,7 +114,7 @@ class DescriptorPools;
 
 namespace gui {
 
-class GUIRenderer;
+class ImGuiRenderer;
 
 } // namespace gui
 
