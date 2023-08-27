@@ -68,6 +68,11 @@ std::filesystem::path getGlobalPath(const std::filesystem::path& path) {
 	return globalFileSystem->absolutePath(path);
 }
 
+
+bool doesFileExist(const std::filesystem::path& path) {
+	return globalFileSystem->loadedFiles.contains(path);
+}
+
 File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
 	: m_path(path),
 	m_buffered(buffered),
@@ -293,9 +298,16 @@ File<wchar>& File<wchar>::seekp(filepos pos) {
 	std::fseek(m_stream, pos, SEEK_SET);
 	return *this;
 }
-File<wchar>& File<wchar>::seekp(filepos off, SeekDirection dir){
+File<wchar>& File<wchar>::seekp(filepos off, SeekDirection dir) {
 	std::fseek(m_stream, off, static_cast<int>(dir));
 	return *this;
+}
+size_t File<wchar>::size() const {
+	auto p = std::ftell(m_stream);
+	std::fseek(m_stream, 0, SEEK_END);
+	auto r = std::ftell(m_stream);
+	std::fseek(m_stream, p, SEEK_SET);
+	return r;
 }
 
 File<wchar>& File<wchar>::flush() {
@@ -329,24 +341,6 @@ void File<wchar>::rename(const std::filesystem::path& newPath) {
 }
 std::filesystem::path File<wchar>::absolutePath() const {
 	return globalFileSystem->absolutePath(m_path);
-}
-
-size_t AssimpFile::Read(void* pvBuffer, size_t pSize, size_t pCount) {
-	return std::fread(pvBuffer, pSize, pCount, m_file.m_stream);
-}
-size_t AssimpFile::Write(const void* pvBuffer, size_t pSize, size_t pCount) {
-	return std::fwrite(pvBuffer, pSize, pCount, m_file.m_stream);
-}
-size_t AssimpFile::FileSize() const {
-	auto p = m_file.tellg();
-	std::fseek(m_file.m_stream, 0, SEEK_END);
-	auto r = m_file.tellg();
-	std::fseek(m_file.m_stream, p, SEEK_SET);
-	return r;
-}
-
-bool AssimpFileSystem::Exists(const char* pFile) const {
-	return globalFileSystem->loadedFiles.contains(pFile);
 }
 
 } // namespace lyra

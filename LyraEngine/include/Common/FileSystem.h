@@ -19,14 +19,12 @@
 #include <algorithm>
 #include <filesystem>
 
-#include <assimp/IOSystem.hpp>
-#include <assimp/IOStream.hpp>
-
 namespace lyra {
 
 void initFileSystem(char** argv);
 
 NODISCARD std::filesystem::path getGlobalPath(const std::filesystem::path& path);
+bool doesFileExist(const std::filesystem::path& path);
 
 
 enum class OpenMode {
@@ -100,6 +98,7 @@ public:
 	File& seekg(filepos off, SeekDirection dir);
 	File& seekp(filepos pos);
 	File& seekp(filepos off, SeekDirection dir);
+	size_t size() const;
 
 	bool good() const;
 	bool eof() const;
@@ -136,8 +135,6 @@ private:
 	std::filesystem::path m_path;
 
 	bool m_buffered;
-
-	friend class AssimpFile;
 };
 
 template<> class File<wchar> {
@@ -174,6 +171,7 @@ public:
 	File& seekg(filepos off, SeekDirection dir);
 	File& seekp(filepos pos);
 	File& seekp(filepos off, SeekDirection dir);
+	size_t size() const;
 	
 	bool good() const;
 	bool eof() const;
@@ -518,44 +516,5 @@ using CharVectorStream = FileStream<std::vector, char>;
 using WideCharVectorStream = FileStream<std::vector, wchar_t>;
 using Uint8VectorStream = FileStream<std::vector, uint8>;
 using Uint16VectorStream = FileStream<std::vector, uint16>;
-
-
-class AssimpFile : public Assimp::IOStream {
-public:
-	size_t Read(void* pvBuffer, size_t pSize, size_t pCount) final;
-	size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) final;
-	aiReturn Seek(size_t pOffset, aiOrigin pOrigin) final {
-		m_file.seekg(pOffset, static_cast<SeekDirection>(pOrigin));
-		return (m_file.good()) ? aiReturn_SUCCESS : aiReturn_FAILURE;
-	}
-	size_t Tell() const final {
-		return m_file.tellg();
-	}
-	size_t FileSize() const final;
-	void Flush () final {
-		m_file.flush();
-	}
-
-protected:
-	AssimpFile(const std::filesystem::path& path, const std::string& mode) : m_file(path, mode.data(), false) { }
-
-private:
-	ByteFile m_file;
-
-	friend class AssimpFileSystem;
-};
-
-class AssimpFileSystem : public Assimp::IOSystem {
-	bool Exists(const char* pFile) const final;
-	char getOsSeparator() const final {
-		return '/';
-	}
-	Assimp::IOStream* Open(const char* pFile, const char* pMode) {
-		return new AssimpFile(pFile, pMode);
-	}
-	void Close(Assimp::IOStream* pFile) final { 
-		delete pFile;
-	}
-};
 
 } // namespace lyra
