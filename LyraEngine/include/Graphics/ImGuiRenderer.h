@@ -14,19 +14,19 @@
 
 namespace lyra {
 
-class ImGuiRenderer : public UnorderedRenderSystem, public RenderObject {
+class ImGuiRenderer : public UnorderedRenderSystem {
 public:
 	ImGuiRenderer() = default;
 	ImGuiRenderer(const Window& window);
 	virtual ~ImGuiRenderer();
 
 	void draw();
-	void addFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const std::vector<ImWchar>& ranges, float size = 13.0f);
+	void setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size = 13.0f);
 
-	ImGuiViewport& getViewport() {
+	ImGuiViewport& viewport() {
 		return *ImGui::GetMainViewport();
 	}
-	ImGuiIO& getIO() {
+	ImGuiIO& inOut() {
 		return ImGui::GetIO();
 	}
 
