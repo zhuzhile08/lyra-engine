@@ -388,11 +388,11 @@ public:
 			// create the allocator
 			allocator = vma::Allocator(instance, createInfo);
 		}
+	}
 
-		{ // create the swapchain
-			commandQueue = commandQueue.create();
-			swapchain = swapchain.create(*commandQueue);
-		}
+	void initRenderComponents() {
+		commandQueue = commandQueue.create();
+		swapchain = swapchain.create(*commandQueue);
 	}
 
 	/**
@@ -1780,6 +1780,7 @@ void initRenderSystem(const vulkan::InitInfo& info) {
 		return;
 	}
 	vulkan::globalRenderSystem = new vulkan::RenderSystem(info);
+	vulkan::globalRenderSystem->initRenderComponents();
 }
 
 void quitRenderSystem() {
