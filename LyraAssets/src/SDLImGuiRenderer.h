@@ -2,7 +2,7 @@
  * @file SDLImGuiRenderer.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief 
+ * @brief implementation of the ImGuiRenderer using an SDL backend
  * 
  * @date 2023-08-27
  * @copyright Copyright (c) 2022
