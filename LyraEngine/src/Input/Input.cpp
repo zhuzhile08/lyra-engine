@@ -20,23 +20,23 @@ Input* const defaultInputSystem() {
 void Input::update() {
 	m_window->m_changed = false;
 
+	// get new events and set the passed events
+	SDL_PumpEvents();
+
+	m_mouseState = SDL_GetMouseState(&m_mousePos.x, &m_mousePos.y);
+	for (auto& button : m_mouseButtons) {
+		if ((m_mouseState & static_cast<uint32>(button.first)) == static_cast<uint32>(button.first)) button.second.held = true;
+	}
+
+	m_keyboardState = SDL_GetKeyboardState(nullptr);
+	for (auto& key : m_keys) {
+		if (m_keyboardState[static_cast<size_t>(key.first)]) key.second.held = true;
+	}
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		if (m_imGUI) ImGui_ImplSDL2_ProcessEvent(&event);
-
-		// get new events and set the passed events
-		SDL_PumpEvents();
-
-		m_mouseState = SDL_GetMouseState(&m_mousePos.x, &m_mousePos.y);
-		for (auto& button : m_mouseButtons) {
-			if ((m_mouseState & static_cast<uint32>(button.first)) == static_cast<uint32>(button.first)) button.second.held = true;
-		}
-
-		m_keyboardState = SDL_GetKeyboardState(nullptr);
-		for (auto& key : m_keys) {
-			if (m_keyboardState[static_cast<size_t>(key.first)]) key.second.held = true;
-		}
-
+		if (m_imGUI) ImGui_ImplSDL2_ProcessEvent(&event);	
+		
 		// implement controller events @todo
 
 		// default events that are always checked
@@ -71,8 +71,7 @@ void Input::update() {
 			case SDL_CONTROLLERBUTTONUP:
 				for (auto& key : m_controllerButtons) {
 					if (event.cbutton.button == static_cast<uint8>(key.first)) key.second.released = true;
-				}
-					
+				}	
 		}
 	}
 }
