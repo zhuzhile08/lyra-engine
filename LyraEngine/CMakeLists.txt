@@ -65,6 +65,7 @@ add_library(LyraEngine
 
 	"src/Graphics/VulkanRenderSystem.cpp"
 	"src/Graphics/SDLWindow.cpp"
+	"src/Graphics/ImGuiRenderer.cpp"
 	#"src/Resource/Material.cpp"
 	#"src/Resource/Texture.cpp"
 	
@@ -76,9 +77,9 @@ add_library(LyraEngine
 	#"src/Math/ComputePipeline.cpp"
 
 	#"src/Resource/LoadResources.cpp"
-	"src/Resource/LoadMesh.cpp"
-	"src/Resource/LoadMaterial.cpp"
-	"src/Resource/LoadTexture.cpp"
+	#"src/Resource/LoadMesh.cpp"
+	#"src/Resource/LoadMaterial.cpp"
+	"src/Resource/LoadTextureFile.cpp"
 	#"src/Resource/ResourceManager.cpp"
 
 	#"src/EntitySystem/Entity.cpp"
