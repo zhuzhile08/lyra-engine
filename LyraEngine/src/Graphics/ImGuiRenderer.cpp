@@ -1,42 +1,58 @@
-#include <Graphics/GUIRenderer.h>
+#include <Graphics/ImGuiRenderer.h>
+
+#include <Common/FileSystem.h>
 
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_sdl2.h>
 
-#include <Common/Queue.h>
-
-#include <Graphics/VulkanImpl/Device.h>
-#include <Graphics/VulkanImpl/CommandBuffer.h>
-#include <Graphics/VulkanImpl/Window.h>
-
-#include <Graphics/Renderer.h>
-
-#include <Application/Application.h>
-
 namespace lyra {
+
+ImGuiRenderer::ImGuiRenderer(const Window& window) : m_window(&window) {
+	ImGui::CreateContext();
+}
+
+ImGuiRenderer::~ImGuiRenderer() {
+	ImGui::DestroyContext();
+}
+
+void ImGuiRenderer::draw() {
+	beginFrame();
+	ImGui::NewFrame();
+
+	drawAll();
+
+	ImGui::Render();
+	endFrame();
+}
+
+void ImGuiRenderer::addFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const std::vector<ImWchar>& ranges, float size) {
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF(lyra::getGlobalPath(path).c_str(), size, &fontConfig, ranges.data());
+}
 
 namespace gui {
 
-GUIRenderer::GUIRenderer() : Renderer() {
+/*
+ImGuiRenderer::ImGuiRenderer() : Renderer() {
 	// information about the descriptor pool
 	vulkan::DescriptorSystem::PoolBuilder builder;
-	builder.add_pool_sizes({
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_SAMPLER, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_SAMPLED_IMAGE, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_IMAGE, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_TEXEL_BUFFER, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_TEXEL_BUFFER, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_BUFFER, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER_DYNAMIC, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_BUFFER_DYNAMIC, 500 },
-		{ vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_INPUT_ATTACHMENT, 500 }
+	builder.addPool_sizes({
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::sampler, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::sampledImage, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::storageImage, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::uniformTexelBuffer, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::storageTexelBuffer, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::storageBuffer, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::uniformBufferDynamic, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::storageBufferDynamic, 500 },
+		{ vulkan::DescriptorSystem::DescriptorSet::Type::inputAttachment, 500 }
 	});
-	builder.set_pool_flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
+	builder.setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 	// create the descriptor pool
-	m_descriptorPool = UniquePointer<vulkan::DescriptorSystem::DescriptorPool>::create(builder.build_create_info());
+	m_descriptorPool = UniquePointer<vulkan::DescriptorSystem::DescriptorPool>::create(builder.build_CreateInfo());
 
 	// initialize ImGui
 	ImGui::CreateContext();
@@ -76,15 +92,15 @@ GUIRenderer::GUIRenderer() : Renderer() {
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
-GUIRenderer::~GUIRenderer() {
+ImGuiRenderer::~ImGuiRenderer() {
 	ImGui_ImplVulkan_Shutdown();
 }
 
-void GUIRenderer::add_draw_call(std::function<void()>&& func) {
+void ImGuiRenderer::addDrawCall(std::function<void()>&& func) {
 	m_drawQueue.add(std::move(func));
 }
 
-void GUIRenderer::record_command_buffers() {
+void ImGuiRenderer::record_command_buffers() {
 	begin_renderpass();
 
 	// begin drawing
@@ -101,6 +117,7 @@ void GUIRenderer::record_command_buffers() {
 
 	end_renderpass();
 }
+*/
 
 } // namespace gui
 

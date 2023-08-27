@@ -8,6 +8,9 @@
 #include <Graphics/SDLWindow.h>
 
 #include <SDL_vulkan.h>
+#include <backends/imgui_impl_vulkan.h>
+#include <backends/imgui_impl_sdl2.h>
+
 
 #include <utility>
 #include <limits>
@@ -18,9 +21,9 @@ namespace {
 
 VKAPI_ATTR VkBool32 VKAPI_CALL validationCallBack(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
-    const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
-    void* userData
+	VkDebugUtilsMessageTypeFlagsEXT messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
+	void* userData
 ) {
 	switch (messageSeverity) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -385,6 +388,11 @@ public:
 			// create the allocator
 			allocator = vma::Allocator(instance, createInfo);
 		}
+
+		{ // create the swapchain
+			commandQueue = commandQueue.create();
+			swapchain = swapchain.create(*commandQueue);
+		}
 	}
 
 	/**
@@ -583,6 +591,11 @@ public:
 	vk::Queue copyQueue;
 
 	vma::Allocator allocator;
+
+	UniquePointer<CommandQueue> commandQueue;
+	UniquePointer<Swapchain> swapchain;
+
+	vk::PipelineCache pipelineCache; // Implement the pipeline cache @todo
 
 	const Window* window;
 };
@@ -1195,14 +1208,14 @@ bool Swapchain::present() {
 	return !update(globalRenderSystem->window->changed());
 }
 
-Framebuffers::Framebuffers(Swapchain& swapchain) : swapchain(&swapchain) {
-	swapchain.framebuffers.insert(this);
+Framebuffers::Framebuffers() {
+	globalRenderSystem->swapchain->framebuffers.insert(this);
 
 	{ // create the render pass
 		VkAttachmentDescription colorAttachmentDescriptions {
 			0,
-			swapchain.format,
-			swapchain.maxMultisamples,
+			globalRenderSystem->swapchain->format,
+			globalRenderSystem->swapchain->maxMultisamples,
 			VK_ATTACHMENT_LOAD_OP_CLEAR,
 			VK_ATTACHMENT_STORE_OP_STORE,
 			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -1213,8 +1226,8 @@ Framebuffers::Framebuffers(Swapchain& swapchain) : swapchain(&swapchain) {
 
 		VkAttachmentDescription	depthBufferAttachmentDescriptions {
 			0,
-			swapchain.depthBufferFormat,
-			swapchain.maxMultisamples,
+			globalRenderSystem->swapchain->depthBufferFormat,
+			globalRenderSystem->swapchain->maxMultisamples,
 			VK_ATTACHMENT_LOAD_OP_CLEAR,
 			VK_ATTACHMENT_STORE_OP_DONT_CARE,
 			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -1225,7 +1238,7 @@ Framebuffers::Framebuffers(Swapchain& swapchain) : swapchain(&swapchain) {
 
 		VkAttachmentDescription colorAttachmentFinalDescriptions { 
 			0,
-			swapchain.format,
+			globalRenderSystem->swapchain->format,
 			VK_SAMPLE_COUNT_1_BIT,
 			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 			VK_ATTACHMENT_STORE_OP_STORE,
@@ -1291,20 +1304,20 @@ Framebuffers::Framebuffers(Swapchain& swapchain) : swapchain(&swapchain) {
 		renderPass = vk::RenderPass(globalRenderSystem->device, createInfo);
 	}
 
-	framebuffers.resize(swapchain.images.size());
+	framebuffers.resize(globalRenderSystem->swapchain->images.size());
 	createFramebuffers();
 }
 
 Framebuffers::~Framebuffers() {
-	swapchain->framebuffers.erase(this);
+	globalRenderSystem->swapchain->framebuffers.erase(this);
 }
 
 void Framebuffers::createFramebuffers() { // create the framebuffers
 	for (uint32 i = 0; i < framebuffers.size(); i++) {
 		Array<VkImageView, 3> attachments = { {
-			swapchain->colorImage.view,
-			swapchain->depthImage.view,
-			swapchain->images[i].view
+			globalRenderSystem->swapchain->colorImage.view,
+			globalRenderSystem->swapchain->depthImage.view,
+			globalRenderSystem->swapchain->images[i].view
 		} };
 
 		// create the frame buffers
@@ -1315,8 +1328,8 @@ void Framebuffers::createFramebuffers() { // create the framebuffers
 			renderPass,
 			static_cast<uint32>(attachments.size()),
 			attachments.data(),
-			swapchain->extent.width,
-			swapchain->extent.height,
+			globalRenderSystem->swapchain->extent.width,
+			globalRenderSystem->swapchain->extent.height,
 			1
 		};
 
@@ -1338,20 +1351,20 @@ void Framebuffers::begin() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		renderPass,
-		framebuffers[swapchain->imageIndex],
+		framebuffers[globalRenderSystem->swapchain->imageIndex],
 		{	// rendering area
 			{ 0, 0 },
-			swapchain->extent
+			globalRenderSystem->swapchain->extent
 		},
 		clear.size(),
 		clear.data()
 	};
 
-	swapchain->commandQueue->activeCommandBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	globalRenderSystem->commandQueue->activeCommandBuffer->beginRenderPass(beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void Framebuffers::end() const {
-	swapchain->commandQueue->activeCommandBuffer->endRenderPass();
+	globalRenderSystem->commandQueue->activeCommandBuffer->endRenderPass();
 }
 
 Shader::Shader(Type type, std::vector<char>&& source) : shaderSrc(source), type(type) {
@@ -1597,7 +1610,7 @@ void DescriptorPools::allocAndBind(
 	cmdBuff.bindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, program.pipelineLayout, 0, descriptorSet, 0);
 }
 
-GraphicsPipeline::Builder::Builder(const Swapchain& swapchain, const Framebuffers& renderer) :
+GraphicsPipeline::Builder::Builder(const Framebuffers& renderer) :
 	m_renderer(&renderer) { 
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information
@@ -1643,7 +1656,7 @@ GraphicsPipeline::Builder::Builder(const Swapchain& swapchain, const Framebuffer
 			VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 			nullptr,
 			0,
-			swapchain.maxMultisamples,
+			globalRenderSystem->swapchain->maxMultisamples,
 			VK_FALSE,
 			0.0f
 		},
@@ -1739,17 +1752,98 @@ GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder
 		0
 	};
 
-	pipeline = vk::GraphicsPipeline(globalRenderSystem->device, program.pipelineCache, createInfo);
+	pipeline = vk::GraphicsPipeline(globalRenderSystem->device, globalRenderSystem->pipelineCache, createInfo);
+}
+
+void GraphicsPipeline::bind() {
+	globalRenderSystem->commandQueue->activeCommandBuffer->bindPipeline(bindPoint, pipeline);
 }
 
 } // namespace vulkan
 
+bool beginFrame() {
+	if (!vulkan::globalRenderSystem->swapchain->aquire()) return false;
+	vulkan::globalRenderSystem->swapchain->begin();
+	vulkan::globalRenderSystem->commandQueue->activeCommandBuffer->begin();
+	return true;
+}
+
+void endFrame() {
+	vulkan::globalRenderSystem->commandQueue->activeCommandBuffer->end();
+	vulkan::globalRenderSystem->commandQueue->submit(vulkan::globalRenderSystem->swapchain->renderFinishedFences[vulkan::globalRenderSystem->swapchain->currentFrame]);
+	vulkan::globalRenderSystem->swapchain->present();
+}
+
 void initRenderSystem(const vulkan::InitInfo& info) {
+	if (vulkan::globalRenderSystem) {
+		log::error("lyra::initRenderSystem(): The render system was already initialized!");
+		return;
+	}
 	vulkan::globalRenderSystem = new vulkan::RenderSystem(info);
 }
 
 void quitRenderSystem() {
 	if (vulkan::globalRenderSystem) vkDeviceWaitIdle(vulkan::globalRenderSystem->device);
+}
+
+VulkanImGuiRenderer::VulkanImGuiRenderer(const Window& window) : ImGuiRenderer(window) {
+	std::vector<vulkan::DescriptorPools::Size> poolSizes ({
+		{ vulkan::DescriptorWriter::Type::sampler, 512 },
+		{ vulkan::DescriptorWriter::Type::imageSampler, 512 },
+		{ vulkan::DescriptorWriter::Type::sampledImage, 512 },
+		{ vulkan::DescriptorWriter::Type::storageImage, 512 },
+		{ vulkan::DescriptorWriter::Type::texelBuffer, 512 },
+		{ vulkan::DescriptorWriter::Type::texelStorageBuffer, 512 },
+		{ vulkan::DescriptorWriter::Type::uniformBuffer, 512 },
+		{ vulkan::DescriptorWriter::Type::storageBuffer, 512 },
+		{ vulkan::DescriptorWriter::Type::dynamicUniformBuffer, 512 },
+		{ vulkan::DescriptorWriter::Type::dynamicStorageBuffer, 512 },
+		{ vulkan::DescriptorWriter::Type::inputAttachment, 512 }
+	});
+
+	m_descriptorPools = vulkan::DescriptorPools(poolSizes);
+
+	ImGui_ImplSDL2_InitForVulkan(m_window->get());
+	ImGui_ImplVulkan_InitInfo initInfo{
+		vulkan::globalRenderSystem->instance,
+		vulkan::globalRenderSystem->physicalDevice,
+		vulkan::globalRenderSystem->device,
+		vulkan::globalRenderSystem->queueFamilies.graphicsFamilyIndex,
+		vulkan::globalRenderSystem->graphicsQueue,
+		vulkan::globalRenderSystem->pipelineCache,
+		m_descriptorPools.descriptorPools[0],
+		0,
+		3,
+		3,
+		vulkan::globalRenderSystem->swapchain->maxMultisamples
+	};
+	ImGui_ImplVulkan_Init(&initInfo, m_framebuffers.renderPass);
+}
+
+void VulkanImGuiRenderer::uploadFonts() {
+	vulkan::CommandQueue commandQueue;
+	commandQueue.oneTimeBegin();
+	ImGui_ImplVulkan_CreateFontsTexture(commandQueue.activeCommandBuffer->commandBuffer);
+	commandQueue.oneTimeSubmit();
+
+	ImGui_ImplVulkan_DestroyFontUploadObjects();
+}
+
+VulkanImGuiRenderer::~VulkanImGuiRenderer() {
+	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+}
+
+void VulkanImGuiRenderer::beginFrame() {
+	m_framebuffers.begin();
+
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplSDL2_NewFrame(m_window->get());
+}
+
+void VulkanImGuiRenderer::endFrame() {
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), vulkan::globalRenderSystem->commandQueue->activeCommandBuffer->commandBuffer);
+	m_framebuffers.end();
 }
 
 } // namespace lyra

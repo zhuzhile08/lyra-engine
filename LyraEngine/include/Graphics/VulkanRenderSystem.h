@@ -17,6 +17,8 @@
 #include <Common/RAIIContainers.h>
 #include <Common/Config.h>
 
+#include <Graphics/ImGuiRenderer.h>
+
 #include <glm/glm.hpp>
 #include <SDL.h>
 #include <vulkan/vulkan.h>
@@ -719,9 +721,8 @@ public:
 
 class Framebuffers {
 public:
-	Framebuffers() = default;
 	// construct a framebuffer in the engine default configuration
-	Framebuffers(Swapchain& swapchain);
+	Framebuffers();
 	// @todo add a constructor with custom attachments
 	// Framebuffers(const std::vector<Arrachment>& attachments);
 	~Framebuffers();
@@ -736,8 +737,6 @@ public:
 	
 	vk::RenderPass renderPass;
 	Dynarray <vulkan::vk::Framebuffer, config::maxSwapchainImages> framebuffers;
-	
-	Swapchain* swapchain;
 };
 
 class Shader {
@@ -984,7 +983,6 @@ public:
 
 	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
 	vk::PipelineLayout pipelineLayout;
-	vk::PipelineCache pipelineCache; // Implement the pipeline cache @todo
 };
 
 class GraphicsPipeline {
@@ -1055,7 +1053,7 @@ public:
 		};
 
 		Builder() noexcept = default;
-		Builder(const Swapchain& swapchain, const Framebuffers& renderer);
+		Builder(const Framebuffers& renderer);
 
 		constexpr void enableSampleShading(float32 strength) noexcept {
 			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
@@ -1097,9 +1095,7 @@ public:
 	GraphicsPipeline() noexcept = default;
 	GraphicsPipeline(const GraphicsProgram& program, const Builder& builder);
 
-	void bind(const CommandQueue& commandQueue) {
-		commandQueue.activeCommandBuffer->bindPipeline(bindPoint, pipeline);
-	}
+	void bind();
 
 	vk::Pipeline pipeline;
 };
@@ -1146,7 +1142,27 @@ public:
 
 } // namespace vulkan
 
+bool beginFrame();
+void endFrame();
+
 void initRenderSystem(const vulkan::InitInfo& info);
 void quitRenderSystem();
+
+class VulkanImGuiRenderer : public ImGuiRenderer {
+public:
+	VulkanImGuiRenderer() = default;
+	VulkanImGuiRenderer(const Window& window);
+	~VulkanImGuiRenderer();
+
+	// Call this after adding all fonts
+	void uploadFonts();
+
+private:
+	void beginFrame() final;
+	void endFrame() final;
+
+	vulkan::DescriptorPools m_descriptorPools;
+	vulkan::Framebuffers m_framebuffers;
+};
 
 } // namespace lyra
