@@ -37,7 +37,7 @@ public:
 		m_renderSystem->removeRenderObject(this);
 	}
 
-	virtual void draw() const = 0;
+	virtual void draw() = 0;
 
 protected:
 	RenderSystem* m_renderSystem;
