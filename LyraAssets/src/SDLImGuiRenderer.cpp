@@ -3,7 +3,9 @@
 #include <backends/imgui_impl_sdl2.h>
 #include <backends/imgui_impl_sdlrenderer.h>
 
-SDLImGuiRenderer::SDLImGuiRenderer(const lyra::Window& window) {
+SDLImGuiRenderer::SDLImGuiRenderer(const lyra::Window& window) : 
+	ImGuiRenderer(window), 
+	m_renderer(SDL_CreateRenderer(window.get(), -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)) {
 	ImGui_ImplSDL2_InitForSDLRenderer(window.get(), m_renderer);
     ImGui_ImplSDLRenderer_Init(m_renderer);
 }
