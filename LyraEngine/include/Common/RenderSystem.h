@@ -34,7 +34,7 @@ public:
 		renderSystem->addRenderObject(this);
 	}
 	~RenderObject() {
-		m_renderSystem->removeRenderObject(this);
+		if (m_renderSystem) m_renderSystem->removeRenderObject(this);
 	}
 
 	virtual void draw() = 0;
