@@ -35,9 +35,11 @@ PUBLIC
 )
 
 # build the content manager
-add_executable(
- LyraAssets
- "src/main.cpp"
+add_executable(LyraAssets
+	"src/main.cpp"
+	"src/SDLImGuiRenderer.cpp"
+	"src/ContentManager.cpp"
+	"src/GuiElements.cpp"
 )
 
 target_link_libraries(LyraAssets
