@@ -109,14 +109,11 @@ class GraphicsPipeline;
 class ComputeProgram;
 class ComputePipeline;
 class DescriptorPools;
+class VulkanImGuiRenderer;
 
 } // namespace vulkan
 
-namespace gui {
-
 class ImGuiRenderer;
-
-} // namespace gui
 
 // entities and components
 
