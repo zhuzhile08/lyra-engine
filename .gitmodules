@@ -35,6 +35,6 @@
 [submodule "3rdParty/assimp"]
 	path = 3rdParty/assimp
 	url = https://github.com/assimp/assimp
-[submodule "3rdParty/portable-file-dialogs"]
-	path = 3rdParty/portable-file-dialogs
+[submodule "3rdParty/pfd"]
+	path = 3rdParty/pfd
 	url = https://github.com/samhocevar/portable-file-dialogs
