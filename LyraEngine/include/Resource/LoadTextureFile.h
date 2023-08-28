@@ -12,16 +12,16 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/UniquePointer.h>
 
-#include <string_view>
+#include <vector>
+#include <filesystem>
 
 namespace lyra {
 
-namespace util {
+namespace resource {
 
-namespace detail {
-
-struct LoadedTexture {
+struct TextureFile {
 	uint32 width;
 	uint32 height;
 	uint32 length;
@@ -31,19 +31,12 @@ struct LoadedTexture {
 	uint32 dimension;
 	uint32 wrap;
 	uint32 anistropy;
-	void* data;
+
+	std::vector<uint8> data;
 };
 
-} // namespace detail
+NODISCARD TextureFile loadImage(const std::filesystem::path& path);
 
-/**
- * @brief load an image from disc via path
- * 
- * @param path path of the image to load
- * @return lyra::util::detail::LoadedTexture
- */
-NODISCARD detail::LoadedTexture load_image(std::string_view path);
-
-} // namespace util
+} // namespace resource
 
 } // namespace lyra
