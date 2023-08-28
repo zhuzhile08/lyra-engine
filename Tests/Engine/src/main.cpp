@@ -91,7 +91,7 @@ int main() {
 
 	lyra::log().info("Gather Assets and come again.");
 
-	// lyra::gui::GUIRenderer guiRenderer;
+	// lyra::gui::ImGuiRenderer guiRenderer;
 	// guiRenderer.add_draw_call(FUNC_PTR(ImGui::ShowDemoWindow();));
 
 	return 0;
@@ -120,11 +120,7 @@ int main(int argc, char* argv[]) {
 	lyra::initFileSystem(argv);
 	lyra::initRenderSystem({{0, 7, 0}, &window});
 
-	lyra::vulkan::CommandQueue commandQueue;
-
-	lyra::vulkan::Swapchain swapchain(commandQueue);
-
-	lyra::vulkan::Framebuffers framebuffers(swapchain);
+	lyra::vulkan::Framebuffers framebuffers;
 
 	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv", lyra::OpenMode::readBin);
 	lyra::vulkan::Shader vertexShader(lyra::vulkan::Shader::Type::vertex, vertexShaderFile.data());
@@ -136,29 +132,22 @@ int main(int argc, char* argv[]) {
 
 	lyra::vulkan::DescriptorPools descriptorPools({{lyra::vulkan::DescriptorWriter::Type::imageSampler, 2}, {lyra::vulkan::DescriptorWriter::Type::uniformBuffer}});
 
-	lyra::vulkan::GraphicsPipeline::Builder pipelineBuilder(swapchain, framebuffers);
-	pipelineBuilder.setScissor({{swapchain.extent.width, swapchain.extent.height}});
-	pipelineBuilder.setViewport({{swapchain.extent.width, swapchain.extent.height}});
+	lyra::vulkan::GraphicsPipeline::Builder pipelineBuilder(framebuffers);
+	pipelineBuilder.setScissor({{lyra::config::windowWidth, lyra::config::windowHeight}});
+	pipelineBuilder.setViewport({{lyra::config::windowWidth, lyra::config::windowHeight}});
 	lyra::vulkan::GraphicsPipeline graphicsPipeline(graphicsProgram, pipelineBuilder);
 
 	while (window.running()) {
 		lyra::input::update();
-		if (!swapchain.aquire()) continue;
-		swapchain.begin();
-
-		commandQueue.activeCommandBuffer->begin();
-
+		if (!lyra::beginFrame()) continue;
+		
 		framebuffers.begin();
 
-		graphicsPipeline.bind(commandQueue);
+		graphicsPipeline.bind();
 
 		framebuffers.end();
 
-		commandQueue.activeCommandBuffer->end();
-
-		commandQueue.submit(swapchain.renderFinishedFences[swapchain.currentFrame]);
-
-		swapchain.present();
+		lyra::endFrame();
 	}
 
 	lyra::quit();
