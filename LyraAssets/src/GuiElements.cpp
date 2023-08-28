@@ -25,7 +25,7 @@ void MainMenuBar::draw() {
         }
         ImGui::Separator();
         if (ImGui::MenuItem("Exit")) {
-            *m_running = false;
+            *m_state->running = false;
         }
         ImGui::EndMenu();
     }

@@ -16,23 +16,43 @@
 #include <Common/RenderSystem.h>
 #include <Graphics/SDLWindow.h>
 
+struct ProgramState {
+	bool fileSelected;
+	bool fileOpened;
+
+	bool building;
+	bool cleaning;
+
+	bool unsaved;
+
+	bool* running;
+};
+
 namespace gui {
 
 class MainMenuBar : public lyra::RenderObject {
 public:
-	MainMenuBar(lyra::Window& window, SDLImGuiRenderer& renderer) : lyra::RenderObject(&renderer), m_running(&window.running()) { }
+	MainMenuBar(
+		lyra::Window& window, 
+		SDLImGuiRenderer& renderer,
+		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
 	void draw() final;
 
 private:
-	bool* m_running;
+	ProgramState* m_state;
 };
 
 class ButtonBar : public lyra::RenderObject {
 public:
-	ButtonBar(SDLImGuiRenderer& renderer) : lyra::RenderObject(&renderer) { }
+	ButtonBar(
+		SDLImGuiRenderer& renderer,
+		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
 	void draw() final;
+
+private:
+	ProgramState* m_state;
 };
 
 } // namespace gui
