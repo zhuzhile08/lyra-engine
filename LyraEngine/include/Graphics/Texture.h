@@ -33,15 +33,15 @@ public:
 	// type of the image
 	enum Type : unsigned int {
 		// use the image as a texture/sprite
-		TYPE_TEXTURE = 0,
+		TEXTURE = 0,
 		// use the image as a normal map
-		TYPE_NORMAL_MAP = 1,
+		NORMAL_MAP = 1,
 		// use the image as a lightmap
-		TYPE_LIGHTMAP = 2,
+		LIGHTMAP = 2,
 		// load the image as a directional lightmap
-		TYPE_DIRECTIONAL_LIGHTMAP = 3,
+		DIRECTIONAL_LIGHTMAP = 3,
 		// load the image as a shadow mask
-		TYPE_SHADOW_MASK = 4
+		SHADOW_MASK = 4
 	};
 
 	// how to treat the alpha value of the image
@@ -86,7 +86,7 @@ public:
 	 * @param imageData image data and information
 	 * @param format format of the image
 	 */
-	Texture(const util::detail::LoadedTexture& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const resource::TextureFile& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
 
 	/**
 	 * @brief get the information to bind to a descriptor
@@ -125,7 +125,7 @@ private:
 	 * @param mipmapMode the mode of mipmapping
 	 */
 	void createSampler(
-		const util::detail::LoadedTexture& imageData,
+		const resource::TextureFile& imageData,
 		const VkFilter& magnifiedTexel = VK_FILTER_LINEAR,
 		const VkFilter& minimizedTexel = VK_FILTER_LINEAR,
 		const VkSamplerMipmapMode& mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR

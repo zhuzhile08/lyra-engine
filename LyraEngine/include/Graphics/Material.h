@@ -101,7 +101,7 @@ public:
 	 * 
 	 * @param material loaded raw material data
 	 */
-	Material(const util::detail::LoadedMaterial& material) :
+	Material(const resource::MaterialFile& material) :
 		Material(
 			{ material.mats[0].diffuse[0], material.mats[0].diffuse[1], material.mats[0].diffuse[2] },
 			material.mats[0].diffuse_texname,

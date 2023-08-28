@@ -21,7 +21,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Resource/LoadMesh.h>
+// #include <Resource/LoadMesh.h>
 
 namespace lyra {
 
@@ -35,7 +35,7 @@ public:
 
 		constexpr Vertex() = default;
 		constexpr Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& uvw, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uvw(uvw) { }
-		constexpr Vertex(util::detail::LoadedMesh::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
+		// constexpr Vertex(resource::MeshFile::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
 
 		NODISCARD static constexpr VkVertexInputBindingDescription getBindingDescription() noexcept {
 			return {
@@ -76,7 +76,7 @@ public:
 	};
 
 	constexpr Mesh() = default;
-	constexpr Mesh(const util::detail::LoadedMesh& mesh) : m_vertices(mesh.vertices.begin(), mesh.vertices.end()), m_indices(mesh.indices) { }
+	// constexpr Mesh(const resource::MeshFile& mesh) : m_vertices(mesh.vertices.begin(), mesh.vertices.end()), m_indices(mesh.indices) { }
 
 	Mesh(
 		const std::vector <Vertex>& vertices, 
