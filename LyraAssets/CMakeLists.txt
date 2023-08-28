@@ -29,6 +29,7 @@ PUBLIC
 	# utility libraries
 	${LIBRARY_PATH}/stb/
 	${LIBRARY_PATH}/assimp/include
+	${LIBRARY_PATH}/pfd/
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
@@ -45,4 +46,6 @@ add_executable(LyraAssets
 target_link_libraries(LyraAssets
 PRIVATE
 	LyraEngine
+
+	assimp
 )
