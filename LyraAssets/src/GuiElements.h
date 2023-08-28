@@ -17,15 +17,15 @@
 #include <Graphics/SDLWindow.h>
 
 struct ProgramState {
-	bool fileSelected;
-	bool fileOpened;
+	bool fileSelected = false;
+	bool fileOpened = false;
 
-	bool building;
-	bool cleaning;
+	bool building = false;
+	bool cleaning = false;
 
-	bool unsaved;
+	bool unsaved = false;
 
-	bool* running;
+	bool* running = nullptr;
 };
 
 namespace gui {
