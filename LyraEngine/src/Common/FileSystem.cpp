@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -25,7 +26,13 @@ struct FileSystem {
 
 	NODISCARD FILE* getFile(const std::filesystem::path& path, const char* mode) {
 		PathStringType p(path.native());
+#ifdef _WIN32
+		wchar m[4];
+		std::mbstowcs(m, mode, strlen(mode));
+		p.append(m);
+#else
 		p.append(mode);
+#endif
 
 		loadedFiles.try_emplace(
 			p,

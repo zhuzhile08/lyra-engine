@@ -47,4 +47,6 @@ int main(int argc, char* argv[]) {
 	}
 
 	lyra::quit();
+
+	return 0;
 }
