@@ -17,8 +17,8 @@
 #include <Graphics/SDLWindow.h>
 
 struct ProgramState {
-	bool fileSelected = false;
-	bool fileOpened = false;
+	bool selected = false;
+	bool opened = false;
 
 	bool building = false;
 	bool cleaning = false;
