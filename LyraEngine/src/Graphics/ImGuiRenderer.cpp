@@ -29,7 +29,7 @@ void ImGuiRenderer::draw() {
 void ImGuiRenderer::setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.Fonts->AddFontDefault();
-	io.Fonts->AddFontFromFileTTF(lyra::getGlobalPath(path).c_str(), size, &fontConfig, ranges);
+	io.Fonts->AddFontFromFileTTF(lyra::getGlobalPath(path).string().c_str(), size, &fontConfig, ranges);
 }
 
 } // namespace lyra
