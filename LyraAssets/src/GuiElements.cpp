@@ -108,9 +108,11 @@ void ButtonBar::draw() {
 
 		} 
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_CI_SAVE)) {
-			
-		}
+		disableButton(m_state->unsaved, [&]() {
+			if (ImGui::Button(ICON_CI_SAVE)) {
+				
+			}
+		});
 		ImGui::TableNextColumn();
 		if (ImGui::Button(ICON_CI_FILE_ADD)) {
 
@@ -140,9 +142,11 @@ void ButtonBar::draw() {
 			
 		} 
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_CI_CLOSE)) {
+		disableButton(m_state->unsaved, [&]() {
+			if (ImGui::Button(ICON_CI_CLOSE)) {
 
-		}
+			}
+		});
 		ImGui::SetScrollHereY();
 		ImGui::EndTable();
 		ImGui::End();
