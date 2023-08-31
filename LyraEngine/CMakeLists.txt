@@ -35,7 +35,6 @@ PUBLIC
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
-	${LIBRARY_PATH}/assimp/include
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
@@ -108,7 +107,6 @@ LINK_PUBLIC
 	# OpenAL::OpenAL
 
 	# utility libraries
-	assimp
 	fmt::fmt
 	lz4_static
 )
