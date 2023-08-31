@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 namespace gui {
 
@@ -74,9 +75,7 @@ void MainMenuBar::draw() {
 		});
 		ImGui::Separator();
 		disableButton(m_state->selected, [&]() {
-			if (ImGui::MenuItem(ICON_CI_DIFF_RENAMED " Rename")) {
-				
-			}
+			if (ImGui::MenuItem(ICON_CI_DIFF_RENAMED " Rename")) m_state->rename = true;
 		});
 		ImGui::EndMenu();
 	}
@@ -99,6 +98,26 @@ void MainMenuBar::draw() {
 		ImGui::EndMenu();
 	}
 	ImGui::EndMainMenuBar();
+
+	if (m_state->rename) ImGui::OpenPopup("Rename Item...");
+
+	if (ImGui::BeginPopupModal("Rename Item...", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
+		m_state->nameBuffer.clear();
+		ImGui::InputText("New name: ", &m_state->nameBuffer);
+
+		if (ImGui::Button("Cancel...")) {
+			ImGui::CloseCurrentPopup();
+			m_state->nameBuffer.clear();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("OK")) {
+			ImGui::CloseCurrentPopup();
+		}
+		
+		ImGui::EndPopup();
+
+		m_state->rename = false;
+	}
 }
 
 void ButtonBar::draw() {

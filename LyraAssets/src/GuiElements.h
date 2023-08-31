@@ -16,6 +16,8 @@
 #include <Common/RenderSystem.h>
 #include <Graphics/SDLWindow.h>
 
+#include <filesystem>
+
 struct ProgramState {
 	bool selected = false;
 	bool opened = false;
@@ -24,6 +26,9 @@ struct ProgramState {
 	bool cleaning = false;
 
 	bool unsaved = false;
+	bool rename = false;
+
+	std::string nameBuffer;
 
 	bool* running = nullptr;
 };
