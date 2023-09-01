@@ -10,6 +10,7 @@ namespace lyra {
 
 ImGuiRenderer::ImGuiRenderer(const Window& window) : m_window(&window) {
 	ImGui::CreateContext();
+	m_io = &ImGui::GetIO();
 }
 
 ImGuiRenderer::~ImGuiRenderer() {
@@ -27,9 +28,12 @@ void ImGuiRenderer::draw() {
 }
 
 void ImGuiRenderer::setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size) {
-	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontDefault();
-	io.Fonts->AddFontFromFileTTF(lyra::getGlobalPath(path).string().c_str(), size, &fontConfig, ranges);
+	m_io->Fonts->AddFontDefault();
+	m_io->Fonts->AddFontFromFileTTF(lyra::toGlobalPath(path).string().c_str(), size, &fontConfig, ranges);
+}
+
+void ImGuiRenderer::enableDocking() {
+	m_io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
 } // namespace lyra

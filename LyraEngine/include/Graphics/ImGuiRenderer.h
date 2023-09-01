@@ -22,18 +22,20 @@ public:
 
 	void draw();
 	void setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size = 13.0f);
+	void enableDocking();
 
 	ImGuiViewport& viewport() {
 		return *ImGui::GetMainViewport();
 	}
-	ImGuiIO& inOut() {
-		return ImGui::GetIO();
+	ImGuiIO& io() {
+		return *m_io;
 	}
 
 protected:
 	virtual void beginFrame() = 0;
 	virtual void endFrame() = 0;
 
+	ImGuiIO* m_io;
 	const Window* m_window;
 };
 
