@@ -11,6 +11,7 @@
 #pragma once
 
 #include "SDLImGuiRenderer.h"
+#include "ContentManager.h"
 
 #include <Common/Common.h>
 #include <Common/RenderSystem.h>
@@ -20,13 +21,14 @@
 #include <filesystem>
 
 struct ProgramState {
+	ContentManager* contentManager;
+
 	bool selected = false;
 	bool opened = false;
 
 	bool building = false;
 	bool cleaning = false;
 
-	bool unsaved = false;
 	bool rename = false;
 
 	bool showProject = true;
@@ -43,7 +45,6 @@ namespace gui {
 class MainMenuBar : public lyra::RenderObject {
 public:
 	MainMenuBar(
-		lyra::Window& window, 
 		SDLImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
