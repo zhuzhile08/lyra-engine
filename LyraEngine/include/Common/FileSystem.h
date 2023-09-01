@@ -239,7 +239,7 @@ public:
 	FileStream() = default;
 	FileStream(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true)
 		 : m_file(path, mode, buffered) {
-		sync();
+		if (m_file.good()) sync();
 	}
 
 	void close() {

@@ -60,7 +60,7 @@ struct FileSystem {
 	std::unordered_map<PathStringType, FILE*> loadedFiles;
 
 	std::filesystem::path absolutePathBase;
-	std::filesystem::path assetFilePath;
+	std::filesystem::path assetsFilePath;
 };
 
 static FileSystem* globalFileSystem;
@@ -70,8 +70,8 @@ void initFileSystem(char** argv) {
 
 	globalFileSystem = new FileSystem;
 
-	if (!(globalFileSystem->assetFilePath = (globalFileSystem->absolutePathBase = *argv)).has_filename()) {
-		globalFileSystem->assetFilePath.append("Assets.lyproj");
+	if (!(globalFileSystem->assetsFilePath = (globalFileSystem->absolutePathBase = *argv)).has_filename()) {
+		globalFileSystem->assetsFilePath.append("Assets.lyproj");
 	}
 
 	globalFileSystem->absolutePathBase.remove_filename();
@@ -81,8 +81,8 @@ std::filesystem::path toGlobalPath(const std::filesystem::path& path) {
 	return globalFileSystem->absolutePath(path);
 }
 
-std::filesystem::path assetFilePath() {
-	return globalFileSystem->assetFilePath;
+std::filesystem::path assetsFilePath() {
+	return globalFileSystem->assetsFilePath;
 }
 
 
@@ -94,7 +94,7 @@ File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered
 	: m_path(path),
 	m_buffered(buffered),
 	m_stream(globalFileSystem->getFile(path, openModeStr[static_cast<size_t>(mode)])) {
-	if (m_buffered) { 
+	if (m_buffered && m_stream) { 
 		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
 	}
 }
@@ -102,7 +102,7 @@ File<char>::File(const std::filesystem::path& path, const char* mode, bool buffe
 	: m_path(path),
 	m_buffered(buffered),
 	m_stream(globalFileSystem->getFile(path, mode)) {
-	if (m_buffered) { 
+	if (m_buffered && m_stream) { 
 		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
 	}
 }
@@ -196,7 +196,7 @@ int File<char>::sync() {
 }
 
 bool File<char>::good() const {
-	return std::ferror(m_stream) != 0;
+	return m_stream;
 }
 bool File<char>::eof() const {
 	return std::feof(m_stream) != 0;
@@ -224,7 +224,7 @@ File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffere
   : m_path(path), 
  	m_buffered(buffered), 
 	m_stream(globalFileSystem->getFile(path, openModeStr[static_cast<size_t>(mode)])) {
-	if (m_buffered) { 
+	if (m_buffered && m_stream) { 
 		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
 	}
 
@@ -232,7 +232,7 @@ File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffere
 }
 File<wchar>::File(const std::filesystem::path& path, const char* mode, bool buffered)
 	: m_path(path),
-	m_buffered(buffered),
+	m_buffered(buffered && m_stream),
 	m_stream(globalFileSystem->getFile(path, mode)) {
 	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
@@ -337,7 +337,7 @@ int File<wchar>::sync() {
 }
 
 bool File<wchar>::good() const {
-	return std::ferror(m_stream) != 0;
+	return (std::ferror(m_stream) != 0) && (m_stream);
 }
 bool File<wchar>::eof() const {
 	return std::feof(m_stream) != 0;
