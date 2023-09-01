@@ -23,7 +23,8 @@ namespace lyra {
 
 void initFileSystem(char** argv);
 
-NODISCARD std::filesystem::path getGlobalPath(const std::filesystem::path& path);
+NODISCARD std::filesystem::path toGlobalPath(const std::filesystem::path& path);
+NODISCARD std::filesystem::path assetsFilePath();
 bool doesFileExist(const std::filesystem::path& path);
 
 

@@ -50,7 +50,7 @@ struct FileSystem {
 
 		return availableBuffers.extract(availableBuffers.begin()).value();
 	}
-
+	
 	void returnBuffer(char* buffer) {
 		availableBuffers.insert(buffer);
 	}
@@ -60,6 +60,7 @@ struct FileSystem {
 	std::unordered_map<PathStringType, FILE*> loadedFiles;
 
 	std::filesystem::path absolutePathBase;
+	std::filesystem::path assetFilePath;
 };
 
 static FileSystem* globalFileSystem;
@@ -69,12 +70,19 @@ void initFileSystem(char** argv) {
 
 	globalFileSystem = new FileSystem;
 
-	globalFileSystem->absolutePathBase = *argv;
+	if (!(globalFileSystem->assetFilePath = (globalFileSystem->absolutePathBase = *argv)).has_filename()) {
+		globalFileSystem->assetFilePath.append("Assets.lyproj");
+	}
+
 	globalFileSystem->absolutePathBase.remove_filename();
 }
 
-std::filesystem::path getGlobalPath(const std::filesystem::path& path) {
+std::filesystem::path toGlobalPath(const std::filesystem::path& path) {
 	return globalFileSystem->absolutePath(path);
+}
+
+std::filesystem::path assetFilePath() {
+	return globalFileSystem->assetFilePath;
 }
 
 
