@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
 	ImWchar range[] =  { ICON_MIN_CI, ICON_MAX_16_CI, 0 };
 	guiRenderer.setIconFont("data/fonts/codicon.ttf", config, range, 15.0f);
 
-	gui::ButtonBar buttonBar(guiRenderer, state);
 	gui::MainMenuBar mainMenuBar(guiRenderer, state);
+	gui::ButtonBar buttonBar(guiRenderer, state);
 	gui::Window guiWindow(guiRenderer, state);
 
 	while (window.running()) {
