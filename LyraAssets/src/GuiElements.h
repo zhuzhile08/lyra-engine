@@ -14,6 +14,7 @@
 
 #include <Common/Common.h>
 #include <Common/RenderSystem.h>
+#include <Common/Logger.h>
 #include <Graphics/SDLWindow.h>
 
 #include <filesystem>
@@ -27,6 +28,10 @@ struct ProgramState {
 
 	bool unsaved = false;
 	bool rename = false;
+
+	bool showProject = true;
+	bool showProperties = true;
+	bool showConsole = true;
 
 	std::string nameBuffer;
 
@@ -58,6 +63,20 @@ public:
 
 private:
 	ProgramState* m_state;
+};
+
+class Window : public lyra::RenderObject {
+public:
+	Window(
+		SDLImGuiRenderer& renderer,
+		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
+
+	void draw() final;
+	
+	lyra::log::Logger logger;
+
+private:
+	const ProgramState* m_state;
 };
 
 } // namespace gui

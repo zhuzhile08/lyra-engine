@@ -97,6 +97,12 @@ void MainMenuBar::draw() {
 		});
 		ImGui::EndMenu();
 	}
+	if (ImGui::BeginMenu("View")) {
+		ImGui::Checkbox("Project", &m_state->showProject);
+		ImGui::Checkbox("Properties", &m_state->showProperties);
+		ImGui::Checkbox("Build Console", &m_state->showConsole);
+		ImGui::EndMenu();
+	}
 	ImGui::EndMainMenuBar();
 
 	if (m_state->rename) ImGui::OpenPopup("Rename Item...");
@@ -129,7 +135,7 @@ void ButtonBar::draw() {
 		ImGui::TableNextColumn();
 		disableButton(!m_state->building, [&]() {
 			if (ImGui::Button(ICON_CI_EMPTY_WINDOW)) {
-
+				
 			} 
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_CI_WINDOW)) {
@@ -184,6 +190,37 @@ void ButtonBar::draw() {
 		ImGui::EndTable();
 		ImGui::End();
 	}
+}
+
+void Window::draw() {
+ 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->WorkPos);
+	ImGui::SetNextWindowSize(viewport->WorkSize);
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("MainWindow", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDocking);
+	ImGui::PopStyleVar();
+	ImGui::DockSpace(ImGui::GetID("MenuDockSpace"));
+
+	if (m_state->showConsole) {
+		ImGui::Begin("Build Console", NULL, ImGuiWindowFlags_NoCollapse);
+
+		ImGui::End();
+	}
+
+	if (m_state->showProject) {
+		ImGui::Begin("Project", NULL, ImGuiWindowFlags_NoCollapse);
+
+		ImGui::End();
+	}
+
+	if (m_state->showProperties) {
+		ImGui::Begin("Properties", NULL, ImGuiWindowFlags_NoCollapse);
+
+		ImGui::End();
+	}
+
+	ImGui::End();
 }
 
 } // namespace gui

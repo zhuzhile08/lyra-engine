@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
 
 	lyra::Window window("LyraAssets - Lyra Engine Assets Pipeline Tool", lyra::Window::Flags::resizable, {860, 645});
 	SDLImGuiRenderer guiRenderer(window);
+	guiRenderer.enableDocking();
 	
 	lyra::initInputSystem(window, ImGui::GetCurrentContext());
 
@@ -38,6 +39,7 @@ int main(int argc, char* argv[]) {
 	ImWchar range[] =  { ICON_MIN_CI, ICON_MAX_16_CI, 0 };
 	guiRenderer.setIconFont("data/fonts/codicon.ttf", config, range, 15.0f);
 
+	gui::Window guiWindow(guiRenderer, state);
 	gui::ButtonBar buttonBar(guiRenderer, state);
 	gui::MainMenuBar mainMenuBar(window, guiRenderer, state);
 
