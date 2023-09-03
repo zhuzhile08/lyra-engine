@@ -14,7 +14,7 @@
 
 namespace lyra {
 
-class ImGuiRenderer : public OrderedRenderSystem {
+class ImGuiRenderer : public QueuedRenderSystem {
 public:
 	ImGuiRenderer() = default;
 	ImGuiRenderer(const Window& window);

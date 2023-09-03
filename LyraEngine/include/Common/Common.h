@@ -90,6 +90,7 @@ class Texture;
 class RenderSystem;
 class UnorderedRenderSystem;
 class OrderedRenderSystem;
+class QueuedRenderSystem;
 class RenderObject;
 
 // core vulkan wrappers
