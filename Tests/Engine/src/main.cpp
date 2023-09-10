@@ -1,5 +1,4 @@
 #define SDL_MAIN_HANDLED
-#define LYRA_LOG_FILE
 
 /*
 
