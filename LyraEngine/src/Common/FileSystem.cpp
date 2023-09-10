@@ -52,6 +52,7 @@ struct FileSystem {
 	}
 	
 	void returnBuffer(char* buffer) {
+		memset(buffer, '\0', bufferSize);
 		availableBuffers.insert(buffer);
 	}
 
@@ -70,15 +71,20 @@ void initFileSystem(char** argv) {
 
 	globalFileSystem = new FileSystem;
 
-	if (!(globalFileSystem->assetsFilePath = (globalFileSystem->absolutePathBase = *argv)).has_filename()) {
+	if (!(globalFileSystem->absolutePathBase = *argv).has_filename()) {
+		(globalFileSystem->assetsFilePath = globalFileSystem->absolutePathBase).append("Assets.lyproj");
+	} else {
+		globalFileSystem->assetsFilePath = (globalFileSystem->absolutePathBase.remove_filename());
 		globalFileSystem->assetsFilePath.append("Assets.lyproj");
 	}
-
-	globalFileSystem->absolutePathBase.remove_filename();
 }
 
-std::filesystem::path toGlobalPath(const std::filesystem::path& path) {
+std::filesystem::path absolutePath(const std::filesystem::path& path) {
 	return globalFileSystem->absolutePath(path);
+}
+
+std::filesystem::path localPath(const std::filesystem::path& path) {
+	return std::filesystem::relative(path, globalFileSystem->absolutePathBase);
 }
 
 std::filesystem::path assetsFilePath() {
@@ -86,7 +92,7 @@ std::filesystem::path assetsFilePath() {
 }
 
 
-bool doesFileExist(const std::filesystem::path& path) {
+bool fileLoaded(const std::filesystem::path& path) {
 	return globalFileSystem->loadedFiles.contains(path);
 }
 
@@ -107,10 +113,10 @@ File<char>::File(const std::filesystem::path& path, const char* mode, bool buffe
 	}
 }
 File<char>::~File<char>() {
-	globalFileSystem->returnBuffer(m_buffer);
+	if (m_buffer) globalFileSystem->returnBuffer(m_buffer);
 }
 void File<char>::close() {
-	globalFileSystem->returnBuffer(m_buffer);
+	if (m_buffer) globalFileSystem->returnBuffer(m_buffer);
 }
 
 void File<char>::disableBuffering() {
@@ -154,12 +160,10 @@ File<char>& File<char>::read(void* string, size_t size, size_t count) {
 }
 File<char>& File<char>::put(char c) {
 	std::fputc(c, m_stream);
-	auto p = std::ftell(m_stream);
 	return *this;
 }
-File<char>& File<char>::write(const char* string, size_t size, size_t count) {
-	std::fwrite(string, size, count, m_stream);
-	auto p = std::ftell(m_stream);
+File<char>& File<char>::write(const char* string, size_t count) {
+	std::fwrite(string, sizeof(char), count, m_stream);
 	return *this;
 }
 
@@ -241,10 +245,10 @@ File<wchar>::File(const std::filesystem::path& path, const char* mode, bool buff
 	std::fwide(m_stream, 1);
 }
 File<wchar>::~File() {
-	globalFileSystem->returnBuffer(m_buffer);
+	if (m_buffer) globalFileSystem->returnBuffer(m_buffer);
 }
 void File<wchar>::close() {
-	globalFileSystem->returnBuffer(m_buffer);
+	if (m_buffer) globalFileSystem->returnBuffer(m_buffer);
 }
 
 void File<wchar>::disableBuffering() {
@@ -288,12 +292,10 @@ File<wchar>& File<wchar>::read(void* string, size_t size, size_t count) {
 }
 File<wchar>& File<wchar>::put(wchar c) {
 	std::fputwc(c, m_stream);
-	auto p = std::ftell(m_stream);
 	return *this;
 }
-File<wchar>& File<wchar>::write(const wchar* string, size_t size, size_t count) {
-	std::fwrite(string, size, count, m_stream);
-	auto p = std::ftell(m_stream);
+File<wchar>& File<wchar>::write(const wchar* string, size_t count) {
+	std::fwrite(string, sizeof(wchar), count, m_stream);
 	return *this;
 }
 
