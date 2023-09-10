@@ -24,7 +24,7 @@ struct FileSystem {
 		return absolutePathBase/path; 
 	}
 
-	NODISCARD FILE* getFile(const std::filesystem::path& path, const char* mode) {
+	NODISCARD FILE* file(const std::filesystem::path& path, const char* mode) {
 		PathStringType p(path.native());
 #ifdef _WIN32
 		wchar m[4];
@@ -42,7 +42,7 @@ struct FileSystem {
 		return loadedFiles.at(p);
 	}
 
-	NODISCARD char* getBuffer() {
+	NODISCARD char* buffer() {
 		if (availableBuffers.empty()) {
 			buffers.push_back({});
 			availableBuffers.insert(buffers.back());
@@ -99,17 +99,17 @@ bool fileLoaded(const std::filesystem::path& path) {
 File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
 	: m_path(path),
 	m_buffered(buffered),
-	m_stream(globalFileSystem->getFile(path, openModeStr[static_cast<size_t>(mode)])) {
+	m_stream(globalFileSystem->file(path, openModeStr[static_cast<size_t>(mode)])) {
 	if (m_buffered && m_stream) { 
-		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
+		std::setvbuf(m_stream, globalFileSystem->buffer(), _IOFBF, bufferSize);
 	}
 }
 File<char>::File(const std::filesystem::path& path, const char* mode, bool buffered)
 	: m_path(path),
 	m_buffered(buffered),
-	m_stream(globalFileSystem->getFile(path, mode)) {
+	m_stream(globalFileSystem->file(path, mode)) {
 	if (m_buffered && m_stream) { 
-		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
+		std::setvbuf(m_stream, globalFileSystem->buffer(), _IOFBF, bufferSize);
 	}
 }
 File<char>::~File<char>() {
@@ -127,7 +127,7 @@ void File<char>::disableBuffering() {
 }
 void File<char>::enableBuffering() {
 	if (!m_buffered) {
-		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
+		std::setvbuf(m_stream, globalFileSystem->buffer(), _IOFBF, bufferSize);
 	}
 }
 
@@ -227,9 +227,9 @@ std::filesystem::path File<char>::absolutePath() const {
 File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
   : m_path(path), 
  	m_buffered(buffered), 
-	m_stream(globalFileSystem->getFile(path, openModeStr[static_cast<size_t>(mode)])) {
+	m_stream(globalFileSystem->file(path, openModeStr[static_cast<size_t>(mode)])) {
 	if (m_buffered && m_stream) { 
-		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
+		std::setvbuf(m_stream, globalFileSystem->buffer(), _IOFBF, bufferSize);
 	}
 
 	std::fwide(m_stream, 1);
@@ -237,9 +237,9 @@ File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffere
 File<wchar>::File(const std::filesystem::path& path, const char* mode, bool buffered)
 	: m_path(path),
 	m_buffered(buffered && m_stream),
-	m_stream(globalFileSystem->getFile(path, mode)) {
+	m_stream(globalFileSystem->file(path, mode)) {
 	if (m_buffered) { 
-		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
+		std::setvbuf(m_stream, globalFileSystem->buffer(), _IOFBF, bufferSize);
 	}
 
 	std::fwide(m_stream, 1);
@@ -259,7 +259,7 @@ void File<wchar>::disableBuffering() {
 }
 void File<wchar>::enableBuffering() {
 	if (!m_buffered) {
-		std::setvbuf(m_stream, globalFileSystem->getBuffer(), _IOFBF, bufferSize);
+		std::setvbuf(m_stream, globalFileSystem->buffer(), _IOFBF, bufferSize);
 	}
 }
 

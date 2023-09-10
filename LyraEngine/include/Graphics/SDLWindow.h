@@ -70,7 +70,7 @@ public:
 		m_running = false;
 	}
 
-	std::vector<const char*> getInstanceExtensions() const;
+	std::vector<const char*> instanceExtensions() const;
 	glm::uvec2 getDrawableSize() const;
 	uint32 getWindowFlags() const;
 

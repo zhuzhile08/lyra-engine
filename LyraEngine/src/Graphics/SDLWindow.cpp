@@ -28,7 +28,7 @@ Window::Window(std::string_view title, Flags flags, const glm::ivec2& size, cons
 	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
-std::vector<const char*> Window::getInstanceExtensions() const {
+std::vector<const char*> Window::instanceExtensions() const {
 	uint32 instanceExtensionCount = 0;
 	ASSERT(SDL_Vulkan_GetInstanceExtensions(m_window, &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
 	std::vector<const char*> instanceExtensions(instanceExtensionCount);
