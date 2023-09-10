@@ -558,7 +558,7 @@ public:
 		};
 	}
 	
-	NODISCARD constexpr VkBufferMemoryBarrier getBufferMemoryBarrier(
+	NODISCARD constexpr VkBufferMemoryBarrier bufferMemoryBarrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
 		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
@@ -588,7 +588,7 @@ public:
 		view.destroy();
 	}
 
-	NODISCARD constexpr VkImageCreateInfo getImageCreateInfo(
+	NODISCARD constexpr VkImageCreateInfo imageCreateInfo(
 		VkFormat format,
 		const VkExtent3D& extent,
 		VkImageUsageFlags usage,
@@ -620,6 +620,12 @@ public:
 		};
 	}
 
+	void createImage(
+		const VkImageCreateInfo& info,
+		const VmaAllocationCreateInfo& allocInfo,
+		vma::Allocation& memory
+	);
+
 	void createView(
 		VkFormat format,
 		const VkImageSubresourceRange& subresourceRange,
@@ -633,10 +639,27 @@ public:
 		VkFormat format,
 		const VkImageSubresourceRange& subresourceRange
 	) const;
-	
-	NODISCARD VkFormat static getBestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
 
-	NODISCARD constexpr VkImageMemoryBarrier getImageMemoryBarrier(
+	void copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
+
+	NODISCARD static vk::Sampler createSampler(
+		VkSamplerAddressMode addressModeU,
+		VkSamplerAddressMode addressModeV,
+		VkSamplerAddressMode addressModeW,
+		VkBorderColor borderColor,
+		float maxLod,
+		float minLod = 0.0f,
+		float mipLodBias = 0.0f,
+		VkFilter magFilter = VK_FILTER_LINEAR,
+		VkFilter minFilter = VK_FILTER_LINEAR,
+		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		VkCompareOp compareOp = VK_COMPARE_OP_NEVER,
+		VkBool32 unnormalizedCoordinates = VK_FALSE
+	) noexcept;
+	
+	NODISCARD static VkFormat bestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
+
+	NODISCARD constexpr VkImageMemoryBarrier imageMemoryBarrier(
 		VkAccessFlags srcAccessMask,
 		VkAccessFlags dstAccessMask,
 		VkImageLayout srcLayout,
@@ -659,7 +682,7 @@ public:
 		};
 	}
 
-	void copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
+	NODISCARD VkFormatProperties formatProperties(VkFormat format = VK_FORMAT_R8G8B8A8_SRGB) const noexcept;
 
 	vk::Image image;
 	vk::ImageView view;
@@ -766,7 +789,7 @@ public:
 	Shader(Type type, std::vector<char>&& source);
 	Shader(Type type, const std::vector<char>& source);
 
-	NODISCARD constexpr VkPipelineShaderStageCreateInfo getStageCreateInfo() const noexcept {
+	NODISCARD constexpr VkPipelineShaderStageCreateInfo stageCreateInfo() const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			nullptr,

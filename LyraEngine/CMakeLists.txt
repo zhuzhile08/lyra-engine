@@ -66,7 +66,7 @@ add_library(LyraEngine
 	"src/Graphics/SDLWindow.cpp"
 	"src/Graphics/ImGuiRenderer.cpp"
 	#"src/Resource/Material.cpp"
-	#"src/Resource/Texture.cpp"
+	"src/Graphics/Texture.cpp"
 	
 	#"src/Application/Application.cpp"
 

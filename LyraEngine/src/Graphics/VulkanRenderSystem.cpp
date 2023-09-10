@@ -93,7 +93,7 @@ public:
 			}
 #endif
 			// get all extensions
-			std::vector<const char*> instanceExtensions(info.window->getInstanceExtensions());
+			std::vector<const char*> instanceExtensions(info.window->instanceExtensions());
 			// add some required extensions
 			instanceExtensions.push_back("VK_KHR_get_physical_device_properties2");
 #ifndef NDEBUG
@@ -768,7 +768,26 @@ void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
 	commandQueue.oneTimeSubmit();
 }
 
-void Image::createView(VkFormat format, const VkImageSubresourceRange& subresourceRange, VkImageViewType viewType, const VkComponentMapping& colorComponents) {
+void Image::createImage(
+	const VkImageCreateInfo& info,
+	const VmaAllocationCreateInfo& allocInfo,
+	vma::Allocation& memory
+) {
+	image = vulkan::vk::Image(
+		globalRenderSystem->device,
+		globalRenderSystem->allocator,
+		info,
+		allocInfo,
+		memory
+	);
+}
+
+void Image::createView(
+	VkFormat format, 
+	const VkImageSubresourceRange& subresourceRange, 
+	VkImageViewType viewType, 
+	const VkComponentMapping& colorComponents
+) {
 	VkImageViewCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
@@ -818,7 +837,7 @@ void Image::transitionLayout(
 		0,
 		VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
 		VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM }, 
-		getImageMemoryBarrier(
+		imageMemoryBarrier(
 			sourceAccess, 
 			destinationAccess, 
 			oldLayout, 
@@ -828,20 +847,6 @@ void Image::transitionLayout(
 	);
 
 	commandQueue.oneTimeSubmit();
-}
-
-VkFormat Image::getBestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
-	for (const auto& candidate : candidates) {
-		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(globalRenderSystem->physicalDevice, candidate, &props);
-
-		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidate;
-		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
-	}
-
-	ASSERT(false, "Failed to find supported format out of user defined formats!");
-
-	return VK_FORMAT_MAX_ENUM;
 }
 
 void Image::copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount) {
@@ -859,6 +864,62 @@ void Image::copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExten
 	commandQueue.activeCommandBuffer->copyBufferToImage(stagingBuffer.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
 
 	commandQueue.oneTimeSubmit();
+}
+
+vk::Sampler Image::createSampler(
+	VkSamplerAddressMode addressModeU,
+	VkSamplerAddressMode addressModeV,
+	VkSamplerAddressMode addressModeW,
+	VkBorderColor borderColor,
+	float maxLod,
+	float minLod,
+	float mipLodBias,
+	VkFilter magFilter,
+	VkFilter minFilter,
+	VkSamplerMipmapMode mipmapMode,
+	VkCompareOp compareOp,
+	VkBool32 unnormalizedCoordinates
+) noexcept {
+	return vk::Sampler(globalRenderSystem->device, VkSamplerCreateInfo {
+		VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		nullptr,
+		0,
+		magFilter,
+		minFilter,
+		mipmapMode,
+		addressModeU,
+		addressModeV,
+		addressModeW,
+		mipLodBias,
+		config::enableAnistropy,
+		globalRenderSystem->deviceProperties.limits.maxSamplerAnisotropy * config::anistropyStrength,
+		(compareOp == 0) ? VK_FALSE : VK_TRUE,
+		compareOp,
+		minLod,
+		maxLod,
+		borderColor,
+		unnormalizedCoordinates
+	});
+}
+
+VkFormat Image::bestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
+	for (const auto& candidate : candidates) {
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(globalRenderSystem->physicalDevice, candidate, &props);
+
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidate;
+		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
+	}
+
+	ASSERT(false, "Failed to find supported format out of user defined formats!");
+
+	return VK_FORMAT_MAX_ENUM;
+}
+
+VkFormatProperties Image::formatProperties(VkFormat format) const noexcept {
+	VkFormatProperties formatProperties;
+	vkGetPhysicalDeviceFormatProperties(globalRenderSystem->physicalDevice, format, &formatProperties);
+	return formatProperties;
 }
 
 Swapchain::Swapchain(CommandQueue& commandQueue) : commandQueue(&commandQueue) {
@@ -1042,10 +1103,8 @@ void Swapchain::createAttachments() {
 			else { maxMultisamples = VK_SAMPLE_COUNT_1_BIT; }
 		}
 
-		colorImage.image = vk::Image(
-			globalRenderSystem->device,
-			globalRenderSystem->allocator, 
-			colorImage.getImageCreateInfo(
+		colorImage.createImage(
+			colorImage.imageCreateInfo(
 				format,
 				{ extent.width, extent.height, 1 },
 				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
@@ -1058,17 +1117,14 @@ void Swapchain::createAttachments() {
 			GPUMemory::getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 			colorMem.memory
 		);
-
 		colorImage.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 	}
 	
 	{ // create depth images
-		depthBufferFormat = Image::getBestFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
+		depthBufferFormat = Image::bestFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
 
-		depthImage.image = vk::Image(
-			globalRenderSystem->device,
-			globalRenderSystem->allocator, 
-			depthImage.getImageCreateInfo(
+		depthImage.createImage(
+			depthImage.imageCreateInfo(
 				depthBufferFormat,
 				{ extent.width, extent.height, 1 },
 				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -1081,7 +1137,6 @@ void Swapchain::createAttachments() {
 			GPUMemory::getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 			depthMem.memory
 		);
-
 		depthImage.createView(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 	}
 }
@@ -1614,7 +1669,7 @@ GraphicsPipeline::Builder::Builder(const Framebuffers& renderer) :
 	m_renderer(&renderer) { 
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information
-		Mesh::Vertex::getBindingDescription(),
+		Mesh::Vertex::bindingDescription(),
 		Mesh::Vertex::getAttribute_descriptions(),
 		{	// describe how vertices are inputed into shaders
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -1728,7 +1783,7 @@ GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder
 		dynamicState.data()
 	};
 
-	Array<VkPipelineShaderStageCreateInfo, 2> tmpShaders = { program.vertexShader->getStageCreateInfo(), program.fragmentShader->getStageCreateInfo() };
+	Array<VkPipelineShaderStageCreateInfo, 2> tmpShaders = { program.vertexShader->stageCreateInfo(), program.fragmentShader->stageCreateInfo() };
 
 	VkGraphicsPipelineCreateInfo createInfo {
 		VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,	
