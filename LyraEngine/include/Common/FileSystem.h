@@ -242,7 +242,7 @@ public:
 
 	FileStream() = default;
 	FileStream(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true)
-		 : m_file(path, mode, buffered) {
+		 : m_loadFile(path, mode, buffered) {
 		if (m_file.good()) sync();
 	}
 
@@ -491,10 +491,10 @@ public:
 	NODISCARD const container_type& data() const noexcept {
 		return m_data;
 	}
-	NODISCARD const file_type& file() const noexcept {
+	NODISCARD const file_type& loadFile() const noexcept {
 		return m_file;
 	}
-	NODISCARD file_type& file() noexcept {
+	NODISCARD file_type& loadFile() noexcept {
 		return m_file;
 	}
 
