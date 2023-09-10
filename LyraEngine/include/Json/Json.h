@@ -25,12 +25,13 @@ namespace lyra {
 
 template <
 	class Literal = char, 
+	template <class...> class ArrayContainer = std::vector,
 	class Integer = int32,
 	class Unsigned = uint32,
 	class Floating = float32,
 	class HashOrCompare = std::hash<std::basic_string<Literal>>, 
 	template <class...> class NodeContainer = std::unordered_map> 
-class JsonNode : lyra::Node<JsonNode<Literal, Integer, Unsigned, Floating, HashOrCompare, NodeContainer>, std::basic_string<Literal>, HashOrCompare, NodeContainer> {
+class JsonNode : public Node<JsonNode<Literal, ArrayContainer, Integer, Unsigned, Floating, HashOrCompare, NodeContainer>, std::basic_string<Literal>, HashOrCompare, NodeContainer> {
 public:
 	struct NullType { };
 
@@ -46,9 +47,7 @@ public:
 	using const_reference = const json_type&;
 
 	using string_type = std::basic_string<literal_type>;
-	using array_type = std::vector<pointer>;
-	using unique_string = UniquePointer<string_type>;
-	using unique_array = UniquePointer<array_type>;
+	using array_type = ArrayContainer<pointer>;
 
 	using unique_json = UniquePointer<json_type>;
 	using node_type = lyra::Node<json_type, string_type, HashOrCompare, NodeContainer>;
@@ -56,18 +55,18 @@ public:
 	using value_type = std::variant<
 		null_type,
 		pointer,
-		unique_array,
-		unique_string,
+		array_type,
+		string_type,
 		floating_type,
 		unsigned_type,
 		integer_type,
 		bool
 	>;
 
-	friend class Node<json_type, string_type, HashOrCompare, NodeContainer>;
+	constexpr JsonNode() noexcept : node_type(this, "") { }
+	constexpr JsonNode(value_type&& value) noexcept : node_type(this, ""), m_value(std::move(value)) { }
 
-public:
-	template <class Iterator> NODISCARD static JsonNode parse(Iterator begin, Iterator end) {
+	template <class Iterator> NODISCARD static constexpr JsonNode parse(Iterator begin, Iterator end) {
 		ASSERT(*begin != '{' || *begin != '[', "lyra::Json::parse(): invalid begin of file!");
 
 		// first node
@@ -75,86 +74,89 @@ public:
 		json.m_self = &json;
 
 		// start parsing
-		if (*begin == '{') {
-			json.m_value = parse_object(begin, end, json);
+		if (*begin++ == '{') {
+			json.m_value = parseObject(begin, end, json);
 		}
 		else {
-			json.get<unique_array>() = std::move(unique_array::create(parse_array(begin, end, json)));
+			json.m_value = parseArray(begin, end, json);
 		}
 
 		return json;
 	}
-	template <class Container> NODISCARD static JsonNode parse(const Container& container) {
+	template <class Container> NODISCARD static constexpr JsonNode parse(const Container& container) {
 		return parse(container.begin(), container.end());
 	}
 
-	bool is_object() const noexcept {
+	constexpr bool isObject() const noexcept {
 		return std::holds_alternative<pointer>(m_value);
 	}
-	bool is_array() const noexcept {
-		return std::holds_alternative<unique_array>(m_value);
+	constexpr bool isArray() const noexcept {
+		return std::holds_alternative<array_type>(m_value);
 	}
-	bool is_string() const noexcept {
-		return std::holds_alternative<unique_string>(m_value);
+	constexpr bool isString() const noexcept {
+		return std::holds_alternative<string_type>(m_value);
 	}
-	bool is_signed() const noexcept {
+	constexpr bool isSigned() const noexcept {
 		return std::holds_alternative<integer_type>(m_value);
 	}
-	bool is_unsigned() const noexcept {
+	constexpr bool isUnsigned() const noexcept {
 		return std::holds_alternative<unsigned_type>(m_value);
 	}
-	bool is_integer() const noexcept {
-		return is_signed() || is_unsigned();
+	constexpr bool isInteger() const noexcept {
+		return isSigned() || isUnsigned();
 	}
-	bool is_floating() const noexcept {
+	constexpr bool isFloating() const noexcept {
 		return std::holds_alternative<floating_type>(m_value);
 	}
-	bool is_number() const noexcept {
-		return is_integer() || is_floating();
+	constexpr bool isNumber() const noexcept {
+		return isInteger() || isFloating();
 	}
-	bool is_boolean() const noexcept {
+	constexpr bool isBoolean() const noexcept {
 		return std::holds_alternative<bool>(m_value);
 	}
-	bool is_null() const noexcept {
+	constexpr bool isNull() const noexcept {
 		return std::holds_alternative<null_type>(m_value);
 	}
 
-	string_type stringify() const {
+	constexpr string_type stringify() const {
 		string_type r;
 
-		if (is_object()) stringify_object(0, *this, r);
-		else if (is_array()) stringify_array(0, *this, r);
-		else stringify_pair(0, *this, r);
+		if (isObject()) stringifyObject(0, *this, r);
+		else if (isArray()) stringifyArray(0, *this, r);
+		else stringifyPair(0, *this, r);
 
 		return r;
 	}
 
-	template <class Ty> constexpr Ty get() const noexcept {
+	template <class Ty> constexpr const Ty& get() const noexcept {
 		return std::get<Ty>(m_value);
 	}
 	template <class Ty> constexpr Ty& get() noexcept {
 		return std::get<Ty>(m_value);
 	}
 
-	template <> constexpr json_type get<json_type>() const noexcept {
+	template <> constexpr const json_type& get<json_type>() const noexcept {
 		return *std::get<pointer>(m_value);
 	}
 	template <> constexpr json_type& get<json_type>() noexcept {
 		return *std::get<pointer>(m_value);
 	}
 
-	template <> constexpr string_type get() const noexcept {
-		return *std::get<unique_string>(m_value).get();
+	typename node_type::iterator insert(const json_type& json) {
+		m_nodes.emplace_back(json);
+		return insert_child(&json).first;
 	}
-	template <> constexpr string_type& get<string_type>() noexcept {
-		return *std::get<unique_string>(m_value);
+	typename node_type::iterator insert(json_type&& json) {
+		m_nodes.emplace_back(std::move(json));
+		return insert_child(&json).first;
 	}
-
-	template <> constexpr array_type get<array_type>() const noexcept {
-		return *std::get<unique_array>(m_value).get();
+	typename node_type::iterator insert(const typename node_type::key_type& name, value_type&& value) {
+		m_nodes.emplace_back(unique_json::create(std::move(value)));
+		m_nodes.back()->m_name = name;
+		return this->insert_child(m_nodes.back().get()).first;
 	}
-	template <> constexpr array_type& get<array_type>() noexcept {
-		return *std::get<unique_array>(m_value);
+	pointer insert(value_type&& value) {
+		return m_nodes.emplace_back(unique_json::create(std::move(value)));
 	}
 
 	const_reference at(size_t i) const { return *get<array_type>().at(); }
@@ -167,13 +169,13 @@ private:
 
 	value_type m_value;
 
-	template <class Iterator> static int skip_characters(Iterator& begin, Iterator& end) {
+	template <class Iterator> static constexpr int skip_characters(Iterator& begin, Iterator& end) {
 		for (; begin != end; begin++) {
 			switch (*begin) { // skip whitespaces
 				case '\n':
 				case '\t':
 				case '\r':
-				case '\x20':
+				case ' ':
 				case '\0':
 					break;
 
@@ -186,8 +188,8 @@ private:
 		return *begin;
 	}
 
-	template <class Iterator> static string_type parse_string(Iterator& begin, Iterator& end) {
-		ASSERT(*begin == '\"', "lyra::Json::parse_string(): JSON Syntax Error: unexcpected token!");
+	template <class Iterator> static constexpr string_type parseString(Iterator& begin, Iterator& end) {
+		ASSERT(*begin == '\"', "lyra::Json::parseString(): JSON Syntax Error: unexcpected token!");
 
 		string_type r;
 
@@ -209,13 +211,13 @@ private:
 			}
 		}
 
-		ASSERT(false, "lyra::Json::parse_string(): JSON Syntax Error: missing token!");
+		ASSERT(false, "lyra::Json::parseString(): JSON Syntax Error: missing token!");
 		return r;
 	}
-	template <class Iterator> static value_type parse_primitive(Iterator& begin, Iterator& end) {
+	template <class Iterator> static constexpr value_type parsePrimitive(Iterator& begin, Iterator& end) {
 		switch(*begin) {
 			default:
-				ASSERT(false, "lyra::Json::parse_primitive(): JSON Syntax Error: unexpected token!");
+				ASSERT(false, "lyra::Json::parsePrimitive(): JSON Syntax Error: unexpected token!");
 				break;
 
 			case 't':
@@ -302,15 +304,14 @@ private:
 				break;
 		}
 
-		ASSERT(false, "lyra::Json::parse_primitive(): JSON Syntax Error: missing token!");
+		ASSERT(false, "lyra::Json::parsePrimitive(): JSON Syntax Error: missing token!");
 
 		return value_type();
 	}
-	template <class Iterator> static pointer parse_object(Iterator& begin, Iterator& end, json_type& json) {
+	template <class Iterator> static constexpr pointer parseObject(Iterator& begin, Iterator& end, json_type& json) {
 		for (++begin; begin != end; begin++) {
 			switch(skip_characters(begin, end)) {
 				case '}':
-					++begin;
 					return &json;
 					break;
 				case ',':
@@ -318,16 +319,16 @@ private:
 
 				default:
 					json.insert_child(
-						json.m_nodes.emplace_back(unique_json::create(parse_pair(begin, end, json)).release()).get()
+						json.m_nodes.emplace_back(unique_json::create(parsePair(begin, end, json)).release()).get()
 					);
 			}
 		}
 
-		ASSERT(false, "lyra::Json::parse_object(): JSON Syntax Error: missing token!");
+		ASSERT(false, "lyra::Json::parseObject(): JSON Syntax Error: missing token!");
 
 		return &json;
 	}
-	template <class Iterator> static array_type parse_array(Iterator& begin, Iterator& end, json_type& json) {
+	template <class Iterator> static constexpr array_type parseArray(Iterator& begin, Iterator& end, json_type& json) {
 		array_type r;
 
 		for (++begin; begin != end; begin++) {
@@ -336,26 +337,25 @@ private:
 
 			switch(skip_characters(begin, end)) {
 				case '{':
-					tok.m_value = parse_object(begin, end, tok);
+					tok.m_value = parseObject(++begin, end, tok);
 
 					break;
 				case '[':
-					tok.m_value = std::move(unique_array::create(parse_array(begin, end, tok)));
+					tok.m_value = parseArray(++begin, end, tok);
 
 					break;
 				case '\"':
-					tok.m_value = std::move(unique_string::create(parse_string(begin, end)));
+					tok.m_value = parseString(begin, end);
 
 					break;
 				case ']':
-					++begin;
 					return r;
 					break;
 				case ',':
 					break;
 
 				default:
-					tok.m_value = parse_primitive(begin, end);
+					tok.m_value = parsePrimitive(begin, end);
 					break;
 			}
 
@@ -364,54 +364,59 @@ private:
 				);
 		}
 
-		ASSERT(false, "lyra::Json::parse_array(): JSON Syntax Error: missing token!");
+		ASSERT(false, "lyra::Json::parseArray(): JSON Syntax Error: missing token!");
 
 		return r;
 	}
-	template <class Iterator> static json_type parse_pair(Iterator& begin, Iterator& end, json_type& json) {
+	template <class Iterator> static constexpr json_type parsePair(Iterator& begin, Iterator& end, json_type& json) {
 		json_type tok;
 		tok.m_self = &tok;
 
-		tok.m_name = parse_string(begin, end);
-		ASSERT(*begin++ == ':', "lyra::Json::parse_pair(): JSON Syntax Error: unexcpected token!");
+		tok.m_name = parseString(begin, end);
+		ASSERT(*begin++ == ':', "lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
 
 		switch(skip_characters(begin, end)) {
 			case '{':
-				tok.m_value = parse_object(begin, end, tok);
+				tok.m_value = parseObject(++begin, end, tok);
 
 				break;
 			case '[':
-				tok.m_value = std::move(unique_array::create(parse_array(begin, end, tok)));
+				tok.m_value = parseArray(++begin, end, tok);
 
 				break;
 			case '\"':
-				tok.m_value = std::move(unique_string::create(parse_string(begin, end)));
+				tok.m_value = parseString(begin, end);
 
+				break;
+			
+			case '}':
+			case ']':
+				++begin;
 				break;
 
 			default:
-				tok.m_value = parse_primitive(begin, end);
+				tok.m_value = parsePrimitive(begin, end);
 				break;
 		}
 
 		return tok;
 	}
 
-	static void stringify_primitive(const json_type& t, string_type& s) {
-		if (t.is_boolean()) {
+	static constexpr void stringifyPrimitive(const json_type& t, string_type& s) {
+		if (t.isBoolean()) {
 			if (t == true) s.append("true");
 			else s.append("false");
-		} else if (t.is_unsigned()) {
+		} else if (t.isUnsigned()) {
 			if constexpr(sizeof(literal_type) <= 1)
 				s.append(std::to_string(t.get<unsigned_type>()));
 			else
 				s.append(std::to_wstring(t.get<unsigned_type>()));
-		} else if (t.is_signed()) {
+		} else if (t.isSigned()) {
 			if constexpr(sizeof(literal_type) <= 1)
 				s.append(std::to_string(t.get<integer_type>()));
 			else
 				s.append(std::to_wstring(t.get<integer_type>()));
-		} else if (t.is_floating()) {
+		} else if (t.isFloating()) {
 			if constexpr(sizeof(literal_type) <= 1)
 				s.append(std::to_string(t.get<float>()));
 			else
@@ -419,31 +424,30 @@ private:
 		} else 
 			s.append("null");
 	}
-	static void stringify_object(size_t indent, const json_type& t, string_type& s) {
+	static constexpr void stringifyObject(size_t indent, const json_type& t, string_type& s) {
 		indent++;
 		s.append("{\n");
 		for (auto it = t.begin(); it != t.end(); it++) {
-			stringify_pair(indent, *it->second, s);
-
-			s.append(",\n");
+			if (it != t.begin()) s.append(",\n");
+			stringifyPair(indent, *it->second, s);
 		}
 		indent--;
-		s.erase(s.size() - 2, 1);
-		s.append(indent, '\t').push_back('}');
+		s.append("\n").append(indent, '\t').push_back('}');
 	}
-	static void stringify_array(size_t indent, const json_type& t, string_type& s) {
+	static constexpr void stringifyArray(size_t indent, const json_type& t, string_type& s) {
 		indent += 1;
 		s.append("[\n");
-		for (const auto& it : t.get<array_type>()) {
+		const auto& array = t.get<array_type>();
+		for (auto it = array.rbegin(); it != array.rend(); it++) {
 			s.append(indent, '\t');
-			if (it->is_string())
-				s.append("\"").append(it->template get<string_type>()).append("\"");
-			else if (it->is_object())
-				stringify_object(indent, *it, s);
-			else if (it->is_array())
-				stringify_array(indent, *it, s);	
+			if ((*it)->isString())
+				s.append("\"").append((*it)->template get<string_type>()).append("\"");
+			else if ((*it)->isObject())
+				stringifyObject(indent, **it, s);
+			else if ((*it)->isArray())
+				stringifyArray(indent, **it, s);	
 			else
-				stringify_primitive(*it, s);
+				stringifyPrimitive(**it, s);
 
 			s.append(",\n");
 		}
@@ -451,18 +455,20 @@ private:
 		s.erase(s.size() - 2, 1);
 		s.append(indent, '\t').push_back(']');
 	}
-	static void stringify_pair(size_t indent, const json_type& t, string_type& s) {
+	static constexpr void stringifyPair(size_t indent, const json_type& t, string_type& s) {
 		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
 		
-		if (t.is_string())
+		if (t.isString())
 			s.append("\"").append(t.get<string_type>()).append("\"");
-		else if (t.is_object())
-			stringify_object(indent, t, s);
-		else if (t.is_array())
-			stringify_array(indent, t, s);	
+		else if (t.isObject())
+			stringifyObject(indent, t, s);
+		else if (t.isArray())
+			stringifyArray(indent, t, s);	
 		else
-			stringify_primitive(t, s);
+			stringifyPrimitive(t, s);
 	}
+
+	friend class Node<json_type, string_type, HashOrCompare, NodeContainer>;
 };
 
 using Json = JsonNode<>;
