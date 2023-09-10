@@ -23,9 +23,13 @@ namespace lyra {
 
 void initFileSystem(char** argv);
 
-NODISCARD std::filesystem::path toGlobalPath(const std::filesystem::path& path);
+NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path);
+NODISCARD std::filesystem::path localPath(const std::filesystem::path& path);
 NODISCARD std::filesystem::path assetsFilePath();
-bool doesFileExist(const std::filesystem::path& path);
+inline bool fileExists(const std::filesystem::path& path) {
+	return std::filesystem::exists(absolutePath(path));
+}
+bool fileLoaded(const std::filesystem::path& path);
 
 
 enum class OpenMode {
@@ -88,7 +92,7 @@ public:
 	File& read(void* string, size_t size, size_t count);
 
 	File& put(char c);
-	File& write(const char* string, size_t size, size_t count);
+	File& write(const char* string, size_t count);
 
 	File& flush();
 	int sync();
@@ -131,7 +135,7 @@ public:
 
 private:
 	std::FILE* m_stream = nullptr;
-	char* m_buffer;
+	char* m_buffer = nullptr;
 
 	std::filesystem::path m_path;
 
@@ -161,7 +165,7 @@ public:
 	File& read(void* string, size_t size, size_t count);
 
 	File& put(wchar c);
-	File& write(const wchar* string, size_t size, size_t count);
+	File& write(const wchar* string, size_t count);
 
 	File& flush();
 	int sync();
@@ -204,7 +208,7 @@ public:
 
 private:
 	std::FILE* m_stream = nullptr;
-	char* m_buffer;
+	char* m_buffer = nullptr;
 
 	std::filesystem::path m_path;
 
@@ -256,7 +260,7 @@ public:
 
 	int get() {
 		m_gcount = 1;
-		if (++m_fpos == m_data.size()) {
+		if (++m_fpos >= m_data.size()) {
 			setState(FileState::eof);
 			setState(FileState::fail);
 			return static_cast<int>(FileState::eof);
@@ -264,14 +268,7 @@ public:
 		else return m_data[m_fpos - 1];
 	}
 	FileStream& get(literal_type& c) {
-		if (++m_fpos == m_data.size()) {
-			setState(FileState::eof);
-			setState(FileState::fail);
-			return *this;
-		} else if (m_putbackBuffer != 0) c = std::exchange(m_putbackBuffer, 0);
-		else c = m_data[m_fpos];
-
-		m_gcount = 1;
+		c = static_cast<literal_type>(get());
 		return *this;
 	}
 	FileStream& get(literal_type* string, size_t count, literal_type delim) {
@@ -369,7 +366,7 @@ public:
 	}
 	FileStream& write(const literal_type* string, size_t count) {
 		m_file.seekg(m_fpos, SeekDirection::begin);
-		m_file.write(string, sizeof(literal_type), count);
+		m_file.write(string, count);
 		for (size_t i = 0; i < count; i++) {
 			if (m_fpos >= m_data.size()) m_data.push_back(static_cast<literal_type>(string[i]));
 			else m_data[m_fpos] = static_cast<literal_type>(string[i]);
@@ -503,12 +500,12 @@ public:
 
 private:
 	container_type m_data;
-	literal_type m_putbackBuffer;
+	literal_type m_putbackBuffer = literal_type();
 	file_type m_file;
 
-	FileState m_state;
+	FileState m_state = FileState::good;
 	filepos m_fpos = 0;
-	filepos m_gcount;
+	filepos m_gcount = 0;
 };
 
 using StringStream = FileStream<std::basic_string, char>;
