@@ -66,6 +66,23 @@ public:
 	constexpr JsonNode() noexcept : node_type(this, "") { }
 	constexpr JsonNode(value_type&& value) noexcept : node_type(this, ""), m_value(std::move(value)) { }
 
+	constexpr JsonNode& operator=(const value_type& value) noexcept { 
+		m_value = value;
+		return *this;
+	}
+	constexpr JsonNode& operator=(value_type&& value) noexcept {
+		m_value = std::move(value);
+		return *this;
+	}
+	template <class Value> constexpr JsonNode& operator=(const Value& value) noexcept { 
+		m_value = value;
+		return *this;
+	}
+	template <class Value> constexpr JsonNode& operator=(Value&& value) noexcept {
+		m_value = std::move(value);
+		return *this;
+	}
+
 	template <class Iterator> NODISCARD static constexpr JsonNode parse(Iterator begin, Iterator end) {
 		ASSERT(*begin != '{' || *begin != '[', "lyra::Json::parse(): invalid begin of file!");
 
