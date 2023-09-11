@@ -24,13 +24,11 @@ namespace resource {
 struct TextureFile {
 	uint32 width;
 	uint32 height;
-	uint32 length;
-	uint32 mipmap;
 	uint32 type;
 	uint32 alpha;
+	uint32 mipmap;
 	uint32 dimension;
 	uint32 wrap;
-	uint32 anistropy;
 
 	std::vector<uint8> data;
 };
