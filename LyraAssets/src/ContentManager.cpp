@@ -1,6 +1,7 @@
 #include "ContentManager.h"
 
 #include <portable-file-dialogs.h>
+#include <stb_image.h>
 
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
@@ -132,11 +133,31 @@ void ContentManager::build() {
 	m_buildCancelled = false;
 
 	lyra::uint32 i = 0;
-	while (m_buildCancelled == true) {
+
+	while (m_buildCancelled == false && i < m_newFiles.size()) {
 		auto ext = m_newFiles[i].extension();
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+			int channels;
+			lyra::uint8* data = stbi_load_from_file(
+				lyra::ByteFile(m_newFiles[i], 
+				lyra::OpenMode::readText).stream(), 
+				&m_projectFile[m_newFiles[i].c_str()]["Width"].get<lyra::int32>(), 
+				&m_projectFile[m_newFiles[i].c_str()]["Height"].get<lyra::int32>(), 
+				&channels, 
+				0
+			);
 
+			lyra::ByteFile buildFile(m_newFiles[i].concat(".dat"), lyra::OpenMode::writeExtBin);
+			buildFile.write(
+				data, 
+				sizeof(lyra::uint8), 
+				m_projectFile[m_newFiles[i].c_str()]["Width"].get<lyra::int32>() * 
+				m_projectFile[m_newFiles[i].c_str()]["Height"].get<lyra::int32>() * 
+				sizeof(lyra::uint8)
+			);
+
+			stbi_image_free(data);
 		} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
 		
 		} else if (ext == ".mtl") {
@@ -209,7 +230,13 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 	auto ext = path.extension();
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
-
+		js->insert("Width", 0U);
+		js->insert("Height", 0U);
+		js->insert("ImageType", 0U);
+		js->insert("AlphaColor", 0U);
+		js->insert("GenerateMipmaps", true);
+		js->insert("Dimension", 1U);
+		js->insert("WrappingMode", 0U);
 	} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
 	
 	} else if (ext == ".ttf") {
