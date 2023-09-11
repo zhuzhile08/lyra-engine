@@ -17,6 +17,8 @@
 
 #include <Common/FileSystem.h>
 
+#include <Json/Json.h>
+
 #include <SDL_render.h>
 
 #include <filesystem>
@@ -26,13 +28,12 @@ public:
 	ContentManager();
 
 	void loadProjectFile();
+	void loadRecent(const std::filesystem::path& p);
 	void createProjectFile();
 
 	void save();
 	void saveAs();
 
-	void createItem();
-	void createFolder();
 	void loadItem();
 	void loadFolder();
 
@@ -41,14 +42,16 @@ public:
 	void clean();
 	void cancel();
 
-	NODISCARD const lyra::StringStream& projectFile() const noexcept {
+	bool close();
+
+	NODISCARD const lyra::Json& projectFile() const noexcept {
 		return m_projectFile;
 	}
-	NODISCARD const lyra::ByteFile& currentAssetFile() const noexcept {
-		return m_currentAssetFile;
-	}
-	NODISCARD const std::vector<std::filesystem::path> recents() const noexcept {
+	NODISCARD const lyra::Json& recents() const noexcept {
 		return m_recents;
+	}
+	NODISCARD const std::filesystem::path& projectFilePath() const noexcept {
+		return m_projectFilePath;
 	}
 	bool validProject() const noexcept {
 		return m_validProject;
@@ -58,13 +61,16 @@ public:
 	}
 
 private:
-	lyra::StringStream m_projectFile;
-	lyra::ByteFile m_currentAssetFile;
+	lyra::Json m_projectFile;
+	lyra::Json m_recents;
 
-	std::vector<std::filesystem::path> m_recents;
-	std::vector<std::filesystem::path> m_dirty;
+	std::filesystem::path m_projectFilePath;
 
-	bool m_buildCancelled = false;;
-	bool m_validProject = false;;
+	std::vector<std::filesystem::path> m_newFiles;
+	
+	bool m_buildCancelled = false;
+	bool m_validProject = false;
 	bool m_unsaved = false;
+
+	void loadItem(const std::filesystem::path& path);
 };

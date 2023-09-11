@@ -52,7 +52,7 @@ private:
 
 class AssimpFileSystem : public Assimp::IOSystem {
 	bool Exists(const char* pFile) const final {
-        lyra::doesFileExist(pFile);
+        lyra::fileLoaded(pFile);
     }
 	char getOsSeparator() const final {
 		return '/';

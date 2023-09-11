@@ -48,6 +48,10 @@ int main(int argc, char* argv[]) {
 	while (window.running()) {
 		lyra::input::update();
 		guiRenderer.draw();
+
+		if (!window.running()) {
+			window.running() = contentManager.close();
+		}
 	}
 
 	lyra::quit();

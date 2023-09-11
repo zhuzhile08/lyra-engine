@@ -10,15 +10,15 @@ namespace gui {
 
 namespace {
 
-template <class Lambda> void disableButton(bool disabled, Lambda&& func) {
-	if (!disabled) {
+template <class Lambda> void disableButton(bool enabled, Lambda&& func) {
+	if (!enabled) {
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 	}
 
 	func();
 
-	if (!disabled) {
+	if (!enabled) {
 		ImGui::PopItemFlag();
 		ImGui::PopStyleVar();
 	}
@@ -34,8 +34,14 @@ void MainMenuBar::draw() {
 				m_state->contentManager->createProjectFile();
 			} if (ImGui::MenuItem(ICON_CI_WINDOW " Open...")) {
 				m_state->contentManager->loadProjectFile();
-			} if (ImGui::MenuItem("Open Recent...")) {
-				
+			} if (ImGui::BeginMenu("Open Recent...")) {
+				for (const auto& path : m_state->contentManager->recents().get<lyra::Json::array_type>()) {
+					if (ImGui::MenuItem(path->get<lyra::Json::string_type>().c_str())) {
+						m_state->contentManager->loadRecent(path->get<lyra::Json::string_type>());
+					}
+				}
+
+				ImGui::EndMenu();
 			}
 		});
 		ImGui::Separator();
@@ -44,7 +50,7 @@ void MainMenuBar::draw() {
 				m_state->contentManager->save();
 			} 
 		});
-		disableButton(!m_state->building, [&]() {
+		disableButton(!m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::MenuItem(ICON_CI_SAVE_AS " Save as")) {
 				m_state->contentManager->saveAs();
 			}
@@ -56,31 +62,26 @@ void MainMenuBar::draw() {
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Edit")) {
-		disableButton(!m_state->building, [&]() {
+		disableButton(!m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::BeginMenu("Add")) {
-				if (ImGui::MenuItem(ICON_CI_FILE_ADD " New item...")) {
-					m_state->contentManager->createItem();
-				} if (ImGui::MenuItem(ICON_CI_NEW_FOLDER " New folder...")) {
-					m_state->contentManager->createFolder();
-				}
 				ImGui::Separator();
-				if (ImGui::MenuItem(ICON_CI_FILE " Existing item...")) {
+				if (ImGui::MenuItem(ICON_CI_FILE " Item...")) {
 					m_state->contentManager->loadItem();
 				}
-				if (ImGui::MenuItem(ICON_CI_FOLDER " Existing folder...")) {
+				if (ImGui::MenuItem(ICON_CI_FOLDER " Folder...")) {
 					m_state->contentManager->loadFolder();
 				}
 				ImGui::EndMenu();
 			}
 		});
 		ImGui::Separator();
-		disableButton(m_state->selected, [&]() {
+		disableButton(m_state->selected && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::MenuItem(ICON_CI_DIFF_RENAMED " Rename")) m_state->rename = true;
 		});
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Build")) {
-		disableButton(!m_state->building, [&]() {
+		disableButton(!m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::MenuItem(ICON_CI_DEBUG_START " Build")) {
 				m_state->contentManager->build();
 			} if (ImGui::MenuItem(ICON_CI_DEBUG_RERUN " Rebuild")) {
@@ -90,7 +91,7 @@ void MainMenuBar::draw() {
 			} 
 		});
 		ImGui::Separator();
-		disableButton(m_state->building, [&]() {
+		disableButton(m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::MenuItem(ICON_CI_CLOSE " Cancel Build")) {
 				m_state->contentManager->cancel();
 			}
@@ -143,23 +144,15 @@ void ButtonBar::draw() {
 			} 
 		});
 		ImGui::SameLine();
-		disableButton(m_state->contentManager->unsaved(), [&]() {
+		disableButton(m_state->contentManager->unsaved() && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::Button(ICON_CI_SAVE)) {
 				m_state->contentManager->save();
 			}
 		});
 		ImGui::TableNextColumn();
-		disableButton(!m_state->building, [&]() {
-			if (ImGui::Button(ICON_CI_FILE_ADD)) {
-				m_state->contentManager->createItem();
-			} 
-			ImGui::SameLine();
+		disableButton(!m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::Button(ICON_CI_FILE)) {
 				m_state->contentManager->loadItem();
-			} 
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_CI_NEW_FOLDER)) {
-				m_state->contentManager->createFolder();
 			} 
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_CI_FOLDER)) {
@@ -167,7 +160,7 @@ void ButtonBar::draw() {
 			}
 		});
 		ImGui::TableNextColumn();
-		disableButton(!m_state->building, [&]() {
+		disableButton(!m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::Button(ICON_CI_DEBUG_START)) {
 				m_state->contentManager->build();
 			} 
@@ -181,7 +174,7 @@ void ButtonBar::draw() {
 			} 
 		});
 		ImGui::SameLine();
-		disableButton(m_state->building, [&]() {
+		disableButton(m_state->building && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::Button(ICON_CI_CLOSE)) {
 				m_state->contentManager->cancel();
 			}
@@ -216,6 +209,11 @@ void Window::draw() {
 
 	if (m_state->showProperties) {
 		ImGui::Begin("Properties", NULL, ImGuiWindowFlags_NoCollapse);
+
+		// if (ImGui::TreeNode()) {
+
+		// 	ImGui::TreePop();
+		// }
 
 		ImGui::End();
 	}
