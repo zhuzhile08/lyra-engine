@@ -92,6 +92,7 @@ public:
 	File& read(void* string, size_t size, size_t count);
 
 	File& put(char c);
+	File& write(const void* string, size_t size, size_t count);
 	File& write(const char* string, size_t count);
 
 	File& flush();
@@ -165,6 +166,7 @@ public:
 	File& read(void* string, size_t size, size_t count);
 
 	File& put(wchar c);
+	File& write(const void* string, size_t size, size_t count);
 	File& write(const wchar* string, size_t count);
 
 	File& flush();
