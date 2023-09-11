@@ -162,6 +162,10 @@ File<char>& File<char>::put(char c) {
 	std::fputc(c, m_stream);
 	return *this;
 }
+File<char>& File<char>::write(const void* string, size_t size, size_t count) {
+	std::fwrite(string, size, count, m_stream);
+	return *this;
+}
 File<char>& File<char>::write(const char* string, size_t count) {
 	std::fwrite(string, sizeof(char), count, m_stream);
 	return *this;
@@ -292,6 +296,10 @@ File<wchar>& File<wchar>::read(void* string, size_t size, size_t count) {
 }
 File<wchar>& File<wchar>::put(wchar c) {
 	std::fputwc(c, m_stream);
+	return *this;
+}
+File<wchar>& File<wchar>::write(const void* string, size_t size, size_t count) {
+	std::fwrite(string, size, count, m_stream);
 	return *this;
 }
 File<wchar>& File<wchar>::write(const wchar* string, size_t count) {
