@@ -180,6 +180,8 @@ public:
 	reference operator[](size_t i) { return *get<array_type>()[i]; }
 
 	reference operator[](const literal_type* name) { return *this->m_children[name]; }
+	reference operator[](typename node_type::const_key_reference name) { return *this->m_children[name]; }
+	reference operator[](typename node_type::key_rvreference name) { return *this->m_children[name]; }
 
 private:
 	container_type m_nodes;
