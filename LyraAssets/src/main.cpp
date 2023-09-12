@@ -12,7 +12,7 @@
 
 #include <Graphics/SDLWindow.h>
 
-#include <Input/Input.h>
+#include <Input/InputSystem.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>

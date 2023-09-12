@@ -14,9 +14,9 @@
 
 #include <Resource/Shader.h>
 #include <Resource/Material.h>
-#include <Resource/Texture.h>
+#include <Graphics/Texture.h>
 #include <Resource/Mesh.h>
-#include <Resource/ResourceManager.h>
+#include <Resource/ResourceSystem.h>
 
 #include <EntitySystem/Script.h>
 #include <EntitySystem/Entity.h>
@@ -25,7 +25,7 @@
 #include <EntitySystem/Camera.h>
 // #include <EntitySystem/Cubemap.h>
 
-#include <Input/Input.h>
+#include <Input/InputSystem.h>
 
 #include <imgui.h>
 
@@ -69,10 +69,10 @@ int main() {
 	// init application
 	Application app;
 
-	lyra::Mesh* femcMesh = lyra::ResourceManager::mesh("data/mesh/femc.obj");
-	lyra::Mesh* roomMesh = lyra::ResourceManager::mesh("data/mesh/viking_room.obj");
+	lyra::Mesh* femcMesh = lyra::ResourceSystem::mesh("data/mesh/femc.obj");
+	lyra::Mesh* roomMesh = lyra::ResourceSystem::mesh("data/mesh/viking_room.obj");
 
-	lyra::Material* femcMaterial = lyra::ResourceManager::material("data/mesh/femc.mtl");
+	lyra::Material* femcMaterial = lyra::ResourceSystem::material("data/mesh/femc.mtl");
 	lyra::Material roomMaterial(lyra::Color(0, 0, 0, 0), "data/img/viking_room.png");
 
 	lyra::Entity scene("Root");
@@ -108,7 +108,7 @@ void Application::init() {
 
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/SDLWindow.h>
-#include <Input/Input.h>
+#include <Input/InputSystem.h>
 
 int main(int argc, char* argv[]) {
 	lyra::init();
