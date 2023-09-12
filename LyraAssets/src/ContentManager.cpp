@@ -4,6 +4,10 @@
 #include <lz4.h>
 #include <stb_image.h>
 
+#include <algorithm>
+
+#undef min
+
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
 		m_recents = lyra::Json::parse(lyra::StringStream("data/recents.dat", lyra::OpenMode::readExtText, false).data());
