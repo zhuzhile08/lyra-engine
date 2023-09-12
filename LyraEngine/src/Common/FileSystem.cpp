@@ -10,14 +10,16 @@
 
 namespace lyra {
 
-using PathStringType = std::filesystem::path::string_type;
-
 static constexpr const char* const openModeStr[18] { 
 	"r", "w", "a", "r+", "w+", "a+", 
 	"rb", "wb", "ab", "r+b", "w+b", "a+b",
 	"rt", "wt", "at", "r+t", "w+t", "a+t" };
 
 static constexpr size_t bufferSize = std::max(1024, BUFSIZ);
+
+namespace {
+
+using PathStringType = std::filesystem::path::string_type;
 
 struct FileSystem {
 	NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path) const { 
@@ -64,6 +66,8 @@ struct FileSystem {
 	std::filesystem::path assetsFilePath;
 };
 
+}
+
 static FileSystem* globalFileSystem;
 
 void initFileSystem(char** argv) {
@@ -91,10 +95,10 @@ std::filesystem::path assetsFilePath() {
 	return globalFileSystem->assetsFilePath;
 }
 
-
 bool fileLoaded(const std::filesystem::path& path) {
 	return globalFileSystem->loadedFiles.contains(path);
 }
+
 
 File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
 	: m_path(path),

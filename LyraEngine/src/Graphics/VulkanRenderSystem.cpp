@@ -17,6 +17,10 @@
 #include <map>
 #include <string>
 
+namespace lyra {
+
+namespace vulkan {
+
 namespace {
 
 VKAPI_ATTR VkBool32 VKAPI_CALL validationCallBack(
@@ -46,12 +50,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL validationCallBack(
 
 	return VK_FALSE;
 }
-
-}
-
-namespace lyra {
-
-namespace vulkan {
 
 /**
  * @brief global class for the rendering systems of the engine
@@ -599,6 +597,8 @@ public:
 
 	const Window* window;
 };
+
+}
 
 static RenderSystem* globalRenderSystem = nullptr;
 

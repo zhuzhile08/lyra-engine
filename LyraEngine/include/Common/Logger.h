@@ -74,13 +74,6 @@ inline constexpr std::string resetStyle() noexcept {
 
 namespace log {
 
-namespace detail {
-
-void addLogger(const Logger& logger);
-Logger* const defaultLogger();
-
-} // namespace detail
-
 enum class Level {
 	log,
 	trace,
@@ -94,8 +87,8 @@ enum class Level {
 class Logger {
 public:
 	Logger() = default;
-	Logger(FILE* out, FILE* err, std::string_view name) : m_outStream(out), m_errStream(err), m_name(name) { detail::addLogger(*this); }
-	Logger(FILE* stream, std::string_view name) : m_outStream(stream), m_errStream(stream), m_name(name) { detail::addLogger(*this); }
+	Logger(FILE* out, FILE* err, std::string_view name);
+	Logger(FILE* stream, std::string_view name);
 
 	template <class Format, typename ... Args> constexpr void log(Format&& format, Args&&... message) {
 		fmt::print(m_outStream, fmt::runtime(std::forward<Format>(format)), std::forward<Args>(message)...);
@@ -205,53 +198,54 @@ private:
 };
 
 Logger* const get(std::string_view name);
+Logger* const defaultLogger();
 
 template <class Format, typename ... Args> inline void log(Format&& format, Args&&... message) {
-	detail::defaultLogger()->log(std::forward<Format>(format), std::forward<Args>(message)...);
+	defaultLogger()->log(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void trace(Format&& format, Args&&... message) {
-	detail::defaultLogger()->trace(std::forward<Format>(format), std::forward<Args>(message)...);
+	defaultLogger()->trace(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void debug(Format&& format, Args&&... message) {
-	detail::defaultLogger()->debug(std::forward<Format>(format), std::forward<Args>(message)...);
+	defaultLogger()->debug(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void info(Format&& format, Args&&... message) {
-	detail::defaultLogger()->info(std::forward<Format>(format), std::forward<Args>(message)...);
+	defaultLogger()->info(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void warning(Format&& format, Args&&... message) {
-	detail::defaultLogger()->warning(std::forward<Format>(format), std::forward<Args>(message)...);
+	defaultLogger()->warning(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void error(Format&& format, Args&&... message) {
-	detail::defaultLogger()->error(std::forward<Format>(format), std::forward<Args>(message)...);
+	defaultLogger()->error(std::forward<Format>(format), std::forward<Args>(message)...);
 }
 template <class Format, typename ... Args> inline void exception(Format&& format, Args&&... message) {
-	detail::defaultLogger()->exception(std::forward<Format>(format), std::forward<Args>(message)...);	
+	defaultLogger()->exception(std::forward<Format>(format), std::forward<Args>(message)...);	
 }
 
 template <class Msg> inline void log(Msg&& message) {
-	detail::defaultLogger()->log(std::forward<Msg>(message));
+	defaultLogger()->log(std::forward<Msg>(message));
 }
 template <class Msg> inline void trace(Msg&& message) {
-	detail::defaultLogger()->trace(std::forward<Msg>(message));
+	defaultLogger()->trace(std::forward<Msg>(message));
 }
 template <class Msg> inline void debug(Msg&& message) {
-	detail::defaultLogger()->debug(std::forward<Msg>(message));
+	defaultLogger()->debug(std::forward<Msg>(message));
 }
 template <class Msg> inline void info(Msg&& message) {
-	detail::defaultLogger()->info(std::forward<Msg>(message));
+	defaultLogger()->info(std::forward<Msg>(message));
 }
 template <class Msg> inline void warning(Msg&& message) {
-	detail::defaultLogger()->warning(std::forward<Msg>(message));
+	defaultLogger()->warning(std::forward<Msg>(message));
 }
 template <class Msg> inline void error(Msg&& message) {
-	detail::defaultLogger()->error(std::forward<Msg>(message));
+	defaultLogger()->error(std::forward<Msg>(message));
 }
 template <class Msg> inline void exception(Msg&& message) {
-	detail::defaultLogger()->exception(std::forward<Msg>(message));
+	defaultLogger()->exception(std::forward<Msg>(message));
 }
 
 inline void newLine() {
-	detail::defaultLogger()->newLine();
+	defaultLogger()->newLine();
 }
 
 } // namespace log
