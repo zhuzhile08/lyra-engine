@@ -13,30 +13,24 @@
 
 #include <Common/Common.h>
 
-#include <tiny_obj_loader.h>
 
 namespace lyra {
 
-namespace util {
+namespace resource {
 
-namespace detail {
-
-struct LoadedMaterial {
-	std::vector<tinyobj::material_t> mats;
-	std::string path;
+struct MaterialFile {
+	// std::vector<tinyobj::material_t> mats;
 };
-
-} // namespace detail
 
 /**
  * @brief load matierals from a .mtl file
  *
  * @param path path of the model
  * 
- * @return lyra::util::detail::LoadedMaterial
+ * @return lyra::resource::MaterialFile
  */
-NODISCARD detail::LoadedMaterial load_material(std::string_view path);
+NODISCARD MaterialFile loadMaterial();
 
-} // namespace util
+} // namespace resource
 
 } // namespace lyra

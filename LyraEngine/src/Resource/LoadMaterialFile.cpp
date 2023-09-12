@@ -7,11 +7,11 @@
 
 namespace lyra {
 
-namespace util {
+namespace resource {
 
-detail::LoadedMaterial load_material(std::string_view path) {
+MaterialFile loadMaterial(std::string_view path) {
 	// TOL material data
-	detail::LoadedMaterial material;
+	MaterialFile material;
 	material.path = path;
 
 	// warning and errors
@@ -33,6 +33,6 @@ detail::LoadedMaterial load_material(std::string_view path) {
 	return material;
 }
 
-} // namespace util
+} // namespace resource
 
 } // namespace lyra
