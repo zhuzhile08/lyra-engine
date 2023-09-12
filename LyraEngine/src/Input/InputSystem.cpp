@@ -1,23 +1,63 @@
-#include <Input/Input.h>
+#include <Input/InputSystem.h>
 
 #include <backends/imgui_impl_sdl2.h>
 
 namespace lyra {
 
+static InputSystem* globalInputSystem = nullptr;
+
+void initInputSystem(Window& window, const ImGuiContext* context) {
+	if (globalInputSystem) {
+		log::error("lyra::initInputSystem(): The input system is already initialized!");
+		return;
+	}
+
+	globalInputSystem = new InputSystem(window, context);
+}
+
 namespace input {
 
 namespace detail {
 
-static Input* globalInputSystem = nullptr;
+} // namespace detail
 
-Input* const defaultInputSystem() {
-	ASSERT(globalInputSystem, "The Input system was not initialized before usage!");
-	return globalInputSystem;
+void addKeyboardInput(KeyType type) {
+	globalInputSystem->addKeyboardInput(type);
+}
+void addMouseButtonInput(MouseButtonType type) {
+	globalInputSystem->addMouseButtonInput(type);
+}
+void addControllerButtonInput(ControllerButtonType type) {
+	globalInputSystem->addControllerButtonInput(type);
+}
+const Key& keyboardInput(KeyType type) noexcept {
+	return globalInputSystem->keyboardInput(type);
+}
+const MouseButton& mouseInput(MouseButtonType type) noexcept {
+	return globalInputSystem->mouseInput(type);
+}
+const ControllerButton& controllerInput(ControllerButtonType type) noexcept {
+	return globalInputSystem->controllerInput(type);
+}
+const glm::ivec2& mousePos() noexcept {
+	return globalInputSystem->mousePos();
+}
+const glm::vec2& analogueStickPos() noexcept {
+	return globalInputSystem->analogueStickPos();
+}
+void update() {
+	globalInputSystem->update();
+}
+void enableImGui(const ImGuiContext* context) noexcept {
+	globalInputSystem->enableImGui(context);
+}
+void disableImGui() noexcept {
+	globalInputSystem->disableImGui();
 }
 
-}
+} // namespace input
 
-void Input::update() {
+void InputSystem::update() {
 	m_window->m_changed = false;
 
 	// get new events and set the passed events
@@ -74,12 +114,6 @@ void Input::update() {
 				}	
 		}
 	}
-}
-
-} // namespace input
-
-void initInputSystem(Window& window, const ImGuiContext* context) {
-	input::detail::globalInputSystem = new input::Input(window, context);
 }
 
 } // namespace lyra

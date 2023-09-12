@@ -1831,7 +1831,7 @@ void endFrame() {
 
 void initRenderSystem(const vulkan::InitInfo& info) {
 	if (vulkan::globalRenderSystem) {
-		log::error("lyra::initRenderSystem(): The render system was already initialized!");
+		log::error("lyra::initRenderSystem(): The render system is already initialized!");
 		return;
 	}
 	vulkan::globalRenderSystem = new vulkan::RenderSystem(info);

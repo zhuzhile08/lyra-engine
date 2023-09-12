@@ -79,14 +79,14 @@ add_library(LyraEngine
 	#"src/Resource/LoadMesh.cpp"
 	#"src/Resource/LoadMaterial.cpp"
 	"src/Resource/LoadTextureFile.cpp"
-	#"src/Resource/ResourceManager.cpp"
+	"src/Resource/ResourceSystem.cpp"
 
 	#"src/EntitySystem/Entity.cpp"
 	#"src/EntitySystem/Camera.cpp"
 	#"src/EntitySystem/Cubemap.cpp"
 	#"src/EntitySystem/MeshFramebuffers.cpp"
 
-	"src/Input/Input.cpp"
+	"src/Input/InputSystem.cpp"
 )
 
 add_dependencies(LyraEngine build_shaders)

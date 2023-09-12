@@ -71,6 +71,11 @@ struct FileSystem {
 static FileSystem* globalFileSystem;
 
 void initFileSystem(char** argv) {
+	if (globalFileSystem) {
+		log::warning("lyra::initFileSystem(): The file system is already initialzed!");
+		return;
+	}
+
 	std::ios::sync_with_stdio();
 
 	globalFileSystem = new FileSystem;

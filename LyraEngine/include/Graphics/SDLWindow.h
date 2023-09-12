@@ -21,12 +21,6 @@
 
 namespace lyra {
 
-namespace input {
-
-class Input;
-
-} // namespace input
-
 class Window {
 public:
 	static constexpr int centered = SDL_WINDOWPOS_CENTERED;
@@ -86,7 +80,7 @@ private:
 	bool m_running = true;
 	bool m_changed = false;
 
-	friend class input::Input;
+	friend class InputSystem;
 };
 
 } // namespace lyra
