@@ -1,6 +1,7 @@
 #include "ContentManager.h"
 
 #include <portable-file-dialogs.h>
+#include <lz4.h>
 #include <stb_image.h>
 
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
@@ -136,25 +137,31 @@ void ContentManager::build() {
 
 	while (m_buildCancelled == false && i < m_newFiles.size()) {
 		auto ext = m_newFiles[i].extension();
+		auto concat = m_newFiles[i];
+		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
-			int channels;
+			int width, height, channels;
 			lyra::uint8* data = stbi_load_from_file(
 				lyra::ByteFile(m_newFiles[i], 
 				lyra::OpenMode::readText).stream(), 
-				&m_projectFile[m_newFiles[i].c_str()]["Width"].get<lyra::int32>(), 
-				&m_projectFile[m_newFiles[i].c_str()]["Height"].get<lyra::int32>(), 
+				&width, 
+				&height, 
 				&channels, 
 				0
 			);
 
-			lyra::ByteFile buildFile(m_newFiles[i].concat(".dat"), lyra::OpenMode::writeExtBin);
+			m_projectFile[m_newFiles[i].string()]["Width"].get<lyra::uint32>() = static_cast<lyra::uint32>(width);
+			m_projectFile[m_newFiles[i].string()]["Height"].get<lyra::uint32>() = static_cast<lyra::uint32>(height);
+
+			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
+			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), result.size()));
+
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::writeExtBin);
 			buildFile.write(
-				data, 
+				result.data(), 
 				sizeof(lyra::uint8), 
-				m_projectFile[m_newFiles[i].c_str()]["Width"].get<lyra::int32>() * 
-				m_projectFile[m_newFiles[i].c_str()]["Height"].get<lyra::int32>() * 
-				sizeof(lyra::uint8)
+				result.size()
 			);
 
 			stbi_image_free(data);
@@ -224,8 +231,8 @@ bool ContentManager::close() {
 
 void ContentManager::loadItem(const std::filesystem::path& path) {
 	auto* js = &m_projectFile;
-	js->insert(path.c_str(), js);
-	js = &js->operator[](path.c_str());
+	js->insert(path.string(), js);
+	js = &js->operator[](path.string());
 
 	auto ext = path.extension();
 
