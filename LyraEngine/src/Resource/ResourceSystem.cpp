@@ -36,15 +36,15 @@ void initResourceSystem() {
 
 
 const TextureFile& texture(const std::filesystem::path& name) {
-
+	return TextureFile{};
 }
 
 const MeshFile& mesh(const std::filesystem::path& name) {
-
+	return MeshFile{};
 }
 
 const MaterialFile& material(const std::filesystem::path& name) {
-
+	return MaterialFile{};
 }
 
 }

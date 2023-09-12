@@ -73,14 +73,9 @@ struct Radian {
 	}
 };
 
-namespace log {
-
-class Logger;
-
-} // namespace log
-
 // some higher level wrappers
 
+class Logger;
 class Window;
 class Material;
 class Texture;

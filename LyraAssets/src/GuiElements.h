@@ -74,7 +74,7 @@ public:
 
 	void draw() final;
 	
-	lyra::log::Logger logger;
+	lyra::Logger logger;
 
 private:
 	const ProgramState* m_state;

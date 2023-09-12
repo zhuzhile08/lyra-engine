@@ -20,6 +20,7 @@
 int main(int argc, char* argv[]) {
 	lyra::init();
 	lyra::initFileSystem(argv);
+	lyra::initLoggingSystem();
 
 	lyra::Window window("LyraAssets - Lyra Engine Assets Pipeline Tool", lyra::Window::Flags::resizable, {860, 645});
 	SDLImGuiRenderer guiRenderer(window);

@@ -112,11 +112,11 @@ void Application::init() {
 
 int main(int argc, char* argv[]) {
 	lyra::init();
+	lyra::initFileSystem(argv);
 
 	lyra::Window window;
 
 	lyra::initInputSystem(window);
-	lyra::initFileSystem(argv);
 	lyra::initRenderSystem({{0, 7, 0}, &window});
 
 	lyra::vulkan::Framebuffers framebuffers;
