@@ -197,13 +197,11 @@ private:
 			}
 		} else return;
 	}
-
-	friend class LoggingContext;
 };
 
 namespace log {
 
-Logger* const get(std::string_view name);
+Logger* const logger(std::string_view name);
 Logger* const defaultLogger();
 
 template <class Format, typename ... Args> inline void log(Format&& format, Args&&... message) {

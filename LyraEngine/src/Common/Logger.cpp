@@ -2,6 +2,7 @@
 #include <Common/UniquePointer.h>
 
 #include <ios>
+#include <mutex>
 #include <unordered_map>
 
 #ifdef _WIN32
@@ -10,12 +11,14 @@
 
 namespace lyra {
 
-#ifdef _WIN32
+namespace {
+
 class LoggingContext {
 public:
 	LoggingContext() {
 		std::ios::sync_with_stdio(true);
 
+#ifdef _WIN32
 		DWORD outMode = 0;
 		HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -23,23 +26,7 @@ public:
 		outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 		SetConsoleMode(stdoutHandle, outMode);
-
-		defaultLogger = UniquePointer<Logger>::create();
-	}
-
-	std::mutex defaultLoggerMutex;
-	UniquePointer<Logger> defaultLogger;
-
-	std::mutex loggerMutex;
-	std::unordered_map<std::string, UniquePointer<Logger>> loggers;
-};
-#else
-namespace {
-
-class LoggingContext {
-public:
-	LoggingContext() {
-		std::ios::sync_with_stdio(true);
+#endif
 
 		defaultLogger = UniquePointer<Logger>::create();
 	}
@@ -52,13 +39,12 @@ public:
 };
 
 }
-#endif
 
 static LoggingContext* globalLoggingContext = nullptr;
 
 namespace log {
 
-Logger* const get(std::string_view name) {
+Logger* const logger(std::string_view name) {
 	std::lock_guard<std::mutex> guard(globalLoggingContext->loggerMutex);
 	return globalLoggingContext->loggers.find(name.data())->second.get();
 }
