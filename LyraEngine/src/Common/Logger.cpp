@@ -10,14 +10,12 @@
 
 namespace lyra {
 
-namespace {
-
+#ifdef _WIN32
 class LoggingContext {
 public:
 	LoggingContext() {
 		std::ios::sync_with_stdio(true);
 
-#ifdef _WIN32
 		DWORD outMode = 0;
 		HANDLE stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -25,7 +23,23 @@ public:
 		outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
 		SetConsoleMode(stdoutHandle, outMode);
-#endif
+
+		defaultLogger = UniquePointer<Logger>::create();
+	}
+
+	std::mutex defaultLoggerMutex;
+	UniquePointer<Logger> defaultLogger;
+
+	std::mutex loggerMutex;
+	std::unordered_map<std::string, UniquePointer<Logger>> loggers;
+};
+#else
+namespace {
+
+class LoggingContext {
+public:
+	LoggingContext() {
+		std::ios::sync_with_stdio(true);
 
 		defaultLogger = UniquePointer<Logger>::create();
 	}
@@ -38,6 +52,7 @@ public:
 };
 
 }
+#endif
 
 static LoggingContext* globalLoggingContext = nullptr;
 
