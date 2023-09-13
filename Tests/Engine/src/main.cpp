@@ -112,6 +112,7 @@ void Application::init() {
 
 int main(int argc, char* argv[]) {
 	lyra::init();
+	lyra::initLoggingSystem();
 	lyra::initFileSystem(argv);
 
 	lyra::Window window;
