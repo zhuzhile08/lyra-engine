@@ -91,7 +91,7 @@ public:
 		json.m_self = &json;
 
 		// start parsing
-		if (*begin++ == '{') {
+		if (*begin == '{') {
 			json.m_value = parseObject(begin, end, json);
 		}
 		else {
@@ -356,11 +356,11 @@ private:
 
 			switch(skip_characters(begin, end)) {
 				case '{':
-					tok.m_value = parseObject(++begin, end, tok);
+					tok.m_value = parseObject(begin, end, tok);
 
 					break;
 				case '[':
-					tok.m_value = parseArray(++begin, end, tok);
+					tok.m_value = parseArray(begin, end, tok);
 
 					break;
 				case '\"':
@@ -396,11 +396,11 @@ private:
 
 		switch(skip_characters(begin, end)) {
 			case '{':
-				tok.m_value = parseObject(++begin, end, tok);
+				tok.m_value = parseObject(begin, end, tok);
 
 				break;
 			case '[':
-				tok.m_value = parseArray(++begin, end, tok);
+				tok.m_value = parseArray(begin, end, tok);
 
 				break;
 			case '\"':
