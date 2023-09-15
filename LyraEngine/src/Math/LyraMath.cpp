@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-float randDoub(const float x, const float y) {
+float32 randDoub(const float32 x, const float32 y) {
 	int precision = rand() % 1000000 + 100;			// calculate the precision
 	/**
 	 * if roughly works like this:
@@ -10,7 +10,7 @@ float randDoub(const float x, const float y) {
 	 * then it gets multiplied by the difference of the upper and lower limit divided by the precision so that it will always be lower than the difference
 	 * at last it will be added to the lower limit because everything else is calculated without it in mind
 	 */
-	return x + float(rand() % precision) * (y - x)/precision;
+	return x + float32(rand() % precision) * (y - x)/precision;
 }
 
 void decompose_transform_matrix(
