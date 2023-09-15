@@ -9,17 +9,34 @@ namespace lyra {
 
 namespace resource {
 
-TextureFile loadImage(std::string_view path) {
-	ByteFile compressedFile(path, OpenMode::readBin, false);
+TextureFile loadTextureFile(
+	std::filesystem::path path, 
+	uint32 width,
+	uint32 height,
+	uint32 type,
+	uint32 alpha,
+	uint32 mipmap,
+	uint32 dimension,
+	uint32 wrap
+) {
+	ByteFile compressedFile(path.concat(".dat"), OpenMode::readBin, false);
 	std::vector<char> fileData(compressedFile.seekg(0, SeekDirection::end).tellg());
 	compressedFile.seekg(0).read(fileData.data(), fileData.size());
 
 	std::vector<char> file(LZ4_decompress_safe(fileData.data(), nullptr, fileData.size(), 0));
 	LZ4_decompress_safe(fileData.data(), file.data(), fileData.size(), file.size());
 
-	TextureFile data;
-	data.data.resize(file.size() - 36);
-	std::copy(file.begin(), file.end(), reinterpret_cast<char*>(&data)); // slightly cursed
+	TextureFile data {
+		width,
+		height,
+		type,
+		alpha,
+		mipmap,
+		dimension,
+		wrap
+	};
+	data.data.resize(file.size());
+	std::copy(file.begin(), file.end(), data.data.data()); // slightly cursed
 
 	return data;
 }

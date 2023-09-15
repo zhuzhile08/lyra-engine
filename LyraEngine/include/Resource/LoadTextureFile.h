@@ -33,7 +33,16 @@ struct TextureFile {
 	std::vector<uint8> data;
 };
 
-NODISCARD TextureFile loadImage(const std::filesystem::path& path);
+NODISCARD TextureFile loadTextureFile(
+	std::filesystem::path path, 
+	uint32 width,
+	uint32 height,
+	uint32 type,
+	uint32 alpha,
+	uint32 mipmap,
+	uint32 dimension,
+	uint32 wrap
+);
 
 } // namespace resource
 
