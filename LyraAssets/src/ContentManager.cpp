@@ -157,6 +157,7 @@ void ContentManager::build() {
 
 			m_projectFile[m_newFiles[i].string()]["Width"].get<lyra::uint32>() = static_cast<lyra::uint32>(width);
 			m_projectFile[m_newFiles[i].string()]["Height"].get<lyra::uint32>() = static_cast<lyra::uint32>(height);
+			m_projectFile[m_newFiles[i].string()]["Mipmap"].get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
 			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
 			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), result.size()));
@@ -243,11 +244,11 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
 		js->insert("Width", 0U);
 		js->insert("Height", 0U);
-		js->insert("ImageType", 0U);
-		js->insert("AlphaColor", 0U);
-		js->insert("GenerateMipmaps", true);
+		js->insert("Type", 0U);
+		js->insert("Color", 0U);
+		js->insert("Mipmap", 0U);
 		js->insert("Dimension", 1U);
-		js->insert("WrappingMode", 0U);
+		js->insert("Wrap", 0U);
 	} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
 	
 	} else if (ext == ".ttf") {
@@ -256,7 +257,7 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 
 	} else if (ext == ".lua" || ext == ".txt" || ext == ".json" || ext == ".spv" || ext == ".mtl") {
 
-	}
+	} else if (ext == ".dat") { } // skip if it is a data file
 
 	m_newFiles.push_back(path);
 }
