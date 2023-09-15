@@ -10,8 +10,6 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 	m_type(static_cast<Type>(imageData.type))
 {
 	{
-		// m_mipmap = static_cast<uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) - 3, 1)); // since the last few are too small to be what I would consider useful, I'm subtracting it
-
 		// create a staging buffer
 		vulkan::GPUBuffer stagingBuffer(m_width * m_height * 4, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 		// copy the image data into the staging buffer
