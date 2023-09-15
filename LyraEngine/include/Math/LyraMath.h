@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <cmath>
 #include <vector>
@@ -51,9 +51,9 @@ template <size_t Size, class Ty> constexpr Ty pythagoras(const glm::vec<Size, Ty
  * 
  * @return Ty
 */
-template <class Ty> NODISCARD constexpr Ty point_on_line(Ty first, Ty second, float value);
+template <class Ty> NODISCARD constexpr Ty point_on_line(Ty first, Ty second, float32 value);
 
-template <class Ty> constexpr Ty point_on_line(Ty first, Ty second, float value) {
+template <class Ty> constexpr Ty point_on_line(Ty first, Ty second, float32 value) {
 	return first + (second - first) * value;
 }
 
@@ -67,9 +67,9 @@ template <class Ty> constexpr Ty point_on_line(Ty first, Ty second, float value)
  * 
  * @return Ty 
 */
-template <class Ty> NODISCARD constexpr Ty bezier(std::vector<Ty> points, float value);
+template <class Ty> NODISCARD constexpr Ty bezier(std::vector<Ty> points, float32 value);
 
-template <class Ty> constexpr Ty bezier(std::vector<Ty> points, float value) {
+template <class Ty> constexpr Ty bezier(std::vector<Ty> points, float32 value) {
 	std::vector<Ty> remaining_points;
 
 	for (uint32 i = 0; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
@@ -80,14 +80,14 @@ template <class Ty> constexpr Ty bezier(std::vector<Ty> points, float value) {
 }
 
 /**
- * @brief randomly generate a floating point number
+ * @brief randomly generate a float32ing point number
  * 
  * @param x bottom limit
  * @param y upper limit
  * 
- * @return float
+ * @return float32
  */
-NODISCARD float randFloat(const float x, const float y);
+NODISCARD float32 randfloat32(const float32 x, const float32 y);
 
 /**
  * @brief decompose the transformation matrix
