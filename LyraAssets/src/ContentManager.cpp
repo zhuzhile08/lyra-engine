@@ -1,8 +1,12 @@
 #include "ContentManager.h"
+#include "AssimpFileSystem.h"
 
 #include <portable-file-dialogs.h>
 #include <lz4.h>
 #include <stb_image.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include <algorithm>
 
@@ -143,6 +147,7 @@ void ContentManager::build() {
 		auto ext = m_newFiles[i].extension();
 		auto filepath = std::filesystem::path(m_projectFilePath).remove_filename() /= m_newFiles[i];
 		auto concat = filepath;
+		auto* js = &m_projectFile[m_newFiles[i].string()];
 		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
@@ -156,9 +161,9 @@ void ContentManager::build() {
 				0
 			);
 
-			m_projectFile[m_newFiles[i].string()]["Width"].get<lyra::uint32>() = static_cast<lyra::uint32>(width);
-			m_projectFile[m_newFiles[i].string()]["Height"].get<lyra::uint32>() = static_cast<lyra::uint32>(height);
-			m_projectFile[m_newFiles[i].string()]["Mipmap"].get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
+			js->operator[]("Width").get<lyra::uint32>() = static_cast<lyra::uint32>(width);
+			js->operator[]("Height").get<lyra::uint32>() = static_cast<lyra::uint32>(height);
+			js->operator[]("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
 			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
 			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), result.size()));
@@ -172,9 +177,71 @@ void ContentManager::build() {
 
 			stbi_image_free(data);
 		} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
-		
-		} else if (ext == ".mtl") {
+			Assimp::Importer importer;
+			importer.SetIOHandler(new AssimpFileSystem);
 
+			const aiScene* scene = importer.ReadFile(filepath, m_projectFile[m_newFiles[i].string()]["ImportFlags"].get<lyra::uint32>());
+
+			std::vector<lyra::Array<lyra::Array<float, 3>, 4>> vertexBlocks;
+			std::vector<lyra::uint32> indexBlock;
+
+			for (lyra::uint32 i = 0; i < scene->mNumMeshes; i++) {
+				const auto* mesh = scene->mMeshes[i];
+				for (lyra::uint32 j = 0; j < mesh->mNumVertices; j++) {
+					vertexBlocks.push_back({{
+						{{
+							mesh->mVertices[j].x,
+							mesh->mVertices[j].y,
+							mesh->mVertices[j].z
+						}},
+						{{
+							(mesh->HasNormals()) ? mesh->mNormals[j].x : 0.0f,
+							(mesh->HasNormals()) ? mesh->mNormals[j].z : 0.0f,
+							(mesh->HasNormals()) ? mesh->mNormals[j].y : 0.0f
+						}},
+						{{
+							(mesh->HasVertexColors(0)) ? mesh->mColors[0][j].r : 0.0f,
+							(mesh->HasVertexColors(0)) ? mesh->mColors[0][j].g : 0.0f,
+							(mesh->HasVertexColors(0)) ? mesh->mColors[0][j].b : 0.0f
+						}},
+						{{
+							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].x : 0.0f,
+							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].z : 0.0f,
+							mesh->mMaterialIndex
+						}}
+					}});
+				}
+
+				lyra::uint32 indices = 0;
+
+				for (lyra::uint32 j = 0; j < mesh->mNumFaces; j++) {
+					const auto* face = &mesh->mFaces[j];
+					indices += face->mNumIndices;
+					for (lyra::uint32 k = 0; k < face->mNumIndices; k++) {
+						indexBlock.push_back(face->mIndices[k]);
+					}
+				}
+
+				js->operator[]("VertexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(sizeof(float) * 3 * 4 * mesh->mNumVertices)));
+				js->operator[]("IndexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices * sizeof(lyra::uint32))));
+			}
+
+			auto totalSize = vertexBlocks.size() * sizeof(float) * 3 * 4 + indexBlock.size() * sizeof(lyra::uint8);
+
+			std::vector<char> data(totalSize);
+			std::memcpy(&(*data.begin()), vertexBlocks.data(), vertexBlocks.size() * sizeof(float) * 3 * 4);
+			std::memcpy(&(*data.begin()) + vertexBlocks.size() * sizeof(float) * 3 * 4, indexBlock.data(), indexBlock.size() * sizeof(lyra::uint8));
+			
+			std::vector<char> result(LZ4_compressBound(data.size()));
+			result.resize(LZ4_compress_default(data.data(), result.data(), data.size(), result.size()));
+
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::writeBin);
+
+			buildFile.write(
+				result.data(), 
+				sizeof(lyra::uint8), 
+				result.size()
+			);
 		} else if (ext == ".ttf") {
 
 		} else if (ext == ".ogg" || ext == ".wav") {
@@ -242,12 +309,11 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 	auto rel = std::filesystem::relative(path, std::filesystem::path(m_projectFilePath).remove_filename());
 	auto ext = path.extension();
 
-	if (ext == ".dat") { 
+	if (ext == ".dat" || ext == ".mtl") { 
 		return;
 	} 
 	
-	js->insert(rel.string(), js);
-	js = &js->operator[](rel.string());
+	js = js->insert(rel.string(), js)->second;
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
 		js->insert("Width", 0U);
@@ -259,12 +325,18 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		js->insert("Dimension", 1U);
 		js->insert("Wrap", 0U);
 	} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
-	
+		js->insert("ImportFlags", 0U);
+		js->insert("RotationX", 0U);
+		js->insert("RotationY", 0U);
+		js->insert("RotationZ", 0U);
+		js->insert("Scale", 1U);
+		js->insert("VertexBlocks", lyra::Json::array_type());
+		js->insert("IndexBlocks", lyra::Json::array_type());
 	} else if (ext == ".ttf") {
 
 	} else if (ext == ".ogg" || ext == ".wav") {
 
-	} else if (ext == ".lua" || ext == ".txt" || ext == ".json" || ext == ".spv" || ext == ".mtl") {
+	} else if (ext == ".lua" || ext == ".txt" || ext == ".json" || ext == ".spv") {
 
 	} 
 

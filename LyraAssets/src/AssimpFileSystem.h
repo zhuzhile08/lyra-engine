@@ -22,11 +22,11 @@
 class AssimpFile : public Assimp::IOStream {
 public:
 	size_t Read(void* pvBuffer, size_t pSize, size_t pCount) final {
-        return std::fread(pvBuffer, pSize, pCount, m_file.stream());
-    }
+		return std::fread(pvBuffer, pSize, pCount, m_file.stream());
+	}
 	size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) final {
-        return std::fwrite(pvBuffer, pSize, pCount, m_file.stream());
-    }
+		return std::fwrite(pvBuffer, pSize, pCount, m_file.stream());
+	}
 	aiReturn Seek(size_t pOffset, aiOrigin pOrigin) final {
 		m_file.seekg(pOffset, static_cast<lyra::SeekDirection>(pOrigin));
 		return (m_file.good()) ? aiReturn_SUCCESS : aiReturn_FAILURE;
@@ -35,14 +35,14 @@ public:
 		return m_file.tellg();
 	}
 	size_t FileSize() const final {
-        m_file.size();
-    }
+		return m_file.size();
+	}
 	void Flush () final {
 		m_file.flush();
 	}
 
 protected:
-	AssimpFile(const std::filesystem::path& path, const std::string& mode) : m_file(path, mode.data(), false) { }
+	AssimpFile(const char* path, const char* mode) : m_file(path, mode, false) { }
 
 private:
 	lyra::ByteFile m_file;
@@ -52,8 +52,8 @@ private:
 
 class AssimpFileSystem : public Assimp::IOSystem {
 	bool Exists(const char* pFile) const final {
-        lyra::fileLoaded(pFile);
-    }
+		return std::filesystem::exists(lyra::absolutePath(pFile));
+	}
 	char getOsSeparator() const final {
 		return '/';
 	}
