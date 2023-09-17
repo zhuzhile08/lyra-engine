@@ -80,12 +80,8 @@ void initFileSystem(char** argv) {
 
 	globalFileSystem = new FileSystem;
 
-	if (!(globalFileSystem->absolutePathBase = *argv).has_filename()) {
-		(globalFileSystem->assetsFilePath = globalFileSystem->absolutePathBase).append("Assets.lyproj");
-	} else {
-		globalFileSystem->assetsFilePath = (globalFileSystem->absolutePathBase.remove_filename());
-		globalFileSystem->assetsFilePath.append("Assets.lyproj");
-	}
+	(globalFileSystem->absolutePathBase = argv[0]).remove_filename();
+	globalFileSystem->assetsFilePath = "data/Assets.lyproj";
 }
 
 std::filesystem::path absolutePath(const std::filesystem::path& path) {
@@ -97,7 +93,7 @@ std::filesystem::path localPath(const std::filesystem::path& path) {
 }
 
 std::filesystem::path assetsFilePath() {
-	return globalFileSystem->assetsFilePath;
+	return globalFileSystem->absolutePath(globalFileSystem->assetsFilePath);
 }
 
 bool fileLoaded(const std::filesystem::path& path) {
