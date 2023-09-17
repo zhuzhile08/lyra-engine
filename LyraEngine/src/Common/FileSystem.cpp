@@ -36,12 +36,14 @@ struct FileSystem {
 		p.append(mode);
 #endif
 
-		loadedFiles.try_emplace(
+		auto* ptr = loadedFiles.try_emplace(
 			p,
-			std::fopen(absolutePath(path).string().data(), mode)
-		);
+			std::fopen(absolutePath(path).string().c_str(), mode)
+		).first->second;
 
-		return loadedFiles.at(p);
+		ASSERT(ptr != nullptr, "Failed to load file at path: {}!", absolutePath(path).string());
+
+		return ptr;
 	}
 
 	NODISCARD char* unusedBuffer() {
@@ -105,7 +107,7 @@ File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered
 	: m_path(path),
 	m_buffered(buffered),
 	m_stream(globalFileSystem->loadFile(path, openModeStr[static_cast<size_t>(mode)])) {
-	if (m_buffered && m_stream) { 
+	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, bufferSize);
 	}
 }
@@ -113,7 +115,7 @@ File<char>::File(const std::filesystem::path& path, const char* mode, bool buffe
 	: m_path(path),
 	m_buffered(buffered),
 	m_stream(globalFileSystem->loadFile(path, mode)) {
-	if (m_buffered && m_stream) { 
+	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, bufferSize);
 	}
 }
@@ -198,6 +200,13 @@ File<char>& File<char>::seekp(filepos off, SeekDirection dir) {
 	std::fseek(m_stream, off, static_cast<int>(dir));
 	return *this;
 }
+size_t File<char>::size() const {
+	auto p = std::ftell(m_stream);
+	std::fseek(m_stream, 0, SEEK_END);
+	auto r = std::ftell(m_stream);
+	std::fseek(m_stream, p, SEEK_SET);
+	return r;
+}
 
 File<char>& File<char>::flush() {
 	std::fflush(m_stream);
@@ -237,7 +246,7 @@ File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffere
   : m_path(path), 
  	m_buffered(buffered), 
 	m_stream(globalFileSystem->loadFile(path, openModeStr[static_cast<size_t>(mode)])) {
-	if (m_buffered && m_stream) { 
+	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, bufferSize);
 	}
 
@@ -245,7 +254,7 @@ File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffere
 }
 File<wchar>::File(const std::filesystem::path& path, const char* mode, bool buffered)
 	: m_path(path),
-	m_buffered(buffered && m_stream),
+	m_buffered(buffered),
 	m_stream(globalFileSystem->loadFile(path, mode)) {
 	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, bufferSize);
