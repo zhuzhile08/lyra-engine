@@ -141,14 +141,15 @@ void ContentManager::build() {
 
 	while (m_buildCancelled == false && i < m_newFiles.size()) {
 		auto ext = m_newFiles[i].extension();
-		auto concat = m_newFiles[i];
+		auto filepath = std::filesystem::path(m_projectFilePath).remove_filename() /= m_newFiles[i];
+		auto concat = filepath;
 		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
 			int width, height, channels;
 			lyra::uint8* data = stbi_load_from_file(
-				lyra::ByteFile(m_newFiles[i], 
-				lyra::OpenMode::readText).stream(), 
+				lyra::ByteFile(filepath, 
+				lyra::OpenMode::readBin).stream(), 
 				&width, 
 				&height, 
 				&channels, 
@@ -162,7 +163,7 @@ void ContentManager::build() {
 			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
 			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), result.size()));
 
-			lyra::ByteFile buildFile(concat, lyra::OpenMode::writeExtBin);
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::writeBin);
 			buildFile.write(
 				result.data(), 
 				sizeof(lyra::uint8), 
@@ -184,6 +185,7 @@ void ContentManager::build() {
 	}
 
 	m_newFiles.clear();
+	m_unsaved = true;
 }
 
 void ContentManager::rebuild() {
@@ -191,6 +193,7 @@ void ContentManager::rebuild() {
 
 	clean();
 
+	m_newFiles.clear();
 	for (const auto& path : m_projectFile) {
 		m_newFiles.push_back(path.first);
 	}
@@ -236,15 +239,21 @@ bool ContentManager::close() {
 
 void ContentManager::loadItem(const std::filesystem::path& path) {
 	auto* js = &m_projectFile;
-	js->insert(path.string(), js);
-	js = &js->operator[](path.string());
-
+	auto rel = std::filesystem::relative(path, std::filesystem::path(m_projectFilePath).remove_filename());
 	auto ext = path.extension();
+
+	if (ext == ".dat") { 
+		return;
+	} 
+	
+	js->insert(rel.string(), js);
+	js = &js->operator[](rel.string());
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
 		js->insert("Width", 0U);
 		js->insert("Height", 0U);
 		js->insert("Type", 0U);
+		js->insert("Alpha", 0U);
 		js->insert("Color", 0U);
 		js->insert("Mipmap", 0U);
 		js->insert("Dimension", 1U);
@@ -257,7 +266,7 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 
 	} else if (ext == ".lua" || ext == ".txt" || ext == ".json" || ext == ".spv" || ext == ".mtl") {
 
-	} else if (ext == ".dat") { } // skip if it is a data file
+	} 
 
-	m_newFiles.push_back(path);
+	m_newFiles.push_back(rel);
 }
