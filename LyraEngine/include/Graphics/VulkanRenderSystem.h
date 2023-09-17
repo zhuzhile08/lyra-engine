@@ -115,9 +115,6 @@ public:
 
 		CommandBuffer() noexcept = default;
 		CommandBuffer(const CommandPool& commandPool, const VkCommandBufferLevel& level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-		CommandBuffer(const VkCommandBuffer& commandBuffer) noexcept : 
-			commandBuffer(vk::CommandBuffer(commandBuffer, VK_NULL_HANDLE)), // does not take ownership in this case
-			commandPool(VK_NULL_HANDLE) { } 
 		CommandBuffer(CommandBuffer&& movable) noexcept :
 			commandBuffer(std::exchange(movable.commandBuffer, VkCommandBuffer { } )), 
 			commandPool(std::exchange(movable.commandPool, VkCommandPool { } )) { }
@@ -349,11 +346,11 @@ public:
 				dstStageFlags,
 				dependency,
 				(memory.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
-				&memory,
+				(memory.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? nullptr : &memory,
 				(buffer.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
-				&buffer,
+				(buffer.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? nullptr : &buffer,
 				(image.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
-				&image
+				(image.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? nullptr : &image
 			);
 		}
 		void pipelineBarrier(
@@ -508,7 +505,7 @@ public:
 	void oneTimeBegin();
 	void oneTimeSubmit();
 	
-	VkQueue queue;
+	VkQueue queue = VK_NULL_HANDLE;
 
 	std::vector<VkSemaphore> waitSemaphores;
 	std::vector<VkSemaphore> signalSemaphores;

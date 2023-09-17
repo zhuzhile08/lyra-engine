@@ -649,7 +649,7 @@ void CommandQueue::CommandBuffer::reset(VkCommandBufferResetFlags flags) const {
 	VULKAN_ASSERT(vkResetCommandBuffer(commandBuffer, flags), "reset command buffer"); // reset the command buffer
 }
 
-CommandQueue::CommandQueue() : pipelineStageFlags({ VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT }) { 
+CommandQueue::CommandQueue() { 
 	commandPools.resize(config::maxFramesInFlight);
 }
 
@@ -659,7 +659,7 @@ void CommandQueue::reset() {
 }
 
 void CommandQueue::submit(VkFence fence, bool wait) {
-	if (activeCommandBuffer != nullptr) {
+	if (activeCommandBuffer != nullptr && queue != VK_NULL_HANDLE) {
 		VkSubmitInfo submitInfo {
 			VK_STRUCTURE_TYPE_SUBMIT_INFO,
 			nullptr,
@@ -674,7 +674,7 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 
 		VULKAN_ASSERT(vkQueueSubmit(queue, 1, &submitInfo, fence), "submit Vulkan queue");
 
-		if (wait) {
+		if (wait && fence != VK_NULL_HANDLE) {
 			VULKAN_ASSERT(globalRenderSystem->waitForFence(vk::Fence(fence, VK_NULL_HANDLE), VK_TRUE, std::numeric_limits<uint32>::max()), "wait for fence to finish");
 		}
 
@@ -685,18 +685,31 @@ void CommandQueue::submit(VkFence fence, bool wait) {
 
 	waitSemaphores.clear();
 	signalSemaphores.clear();
-	// pipelineStageFlags.clear();
+	pipelineStageFlags.clear();
 }
 
 void CommandQueue::oneTimeBegin() {
-	auto cmdBuff = CommandBuffer(commandPools.at(currentFrame));
-	cmdBuff.begin(CommandQueue::CommandBuffer::Usage::oneTimeSubmit);
-	activeCommandBuffer = &cmdBuff;
+	activeCommandBuffer = new CommandBuffer(commandPools.at(currentFrame));
+	activeCommandBuffer->begin(CommandQueue::CommandBuffer::Usage::oneTimeSubmit);
 }
 
 void CommandQueue::oneTimeSubmit() {
 	activeCommandBuffer->end();
-	submit(VK_NULL_HANDLE, false);
+
+	VkSubmitInfo submitInfo {
+		VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		nullptr,
+		0,
+		nullptr,
+		nullptr,
+		1,
+		&activeCommandBuffer->commandBuffer.get()
+	};
+
+	VULKAN_ASSERT(vkQueueSubmit(globalRenderSystem->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE), "submit Vulkan queue");
+	vkQueueWaitIdle(globalRenderSystem->graphicsQueue);
+
+	delete activeCommandBuffer;
 }
 
 GPUBuffer::GPUBuffer(
@@ -1812,6 +1825,7 @@ GraphicsPipeline::GraphicsPipeline(const GraphicsProgram& program, const Builder
 
 void GraphicsPipeline::bind() {
 	globalRenderSystem->commandQueue->activeCommandBuffer->bindPipeline(bindPoint, pipeline);
+	globalRenderSystem->commandQueue->pipelineStageFlags.push_back(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 }
 
 } // namespace vulkan

@@ -10,8 +10,6 @@
 
 namespace lyra {
 
-namespace resource {
-
 namespace {
 
 class ResourceSystem {
@@ -20,9 +18,9 @@ public:
 		
 	}
 
-	std::unordered_map<std::string, TextureFile> textures;
-	std::unordered_map<std::string, MeshFile> meshes;
-	std::unordered_map<std::string, MaterialFile> materials;
+	std::unordered_map<std::string, resource::TextureFile> textures;
+	std::unordered_map<std::string, resource::MeshFile> meshes;
+	std::unordered_map<std::string, resource::MaterialFile> materials;
 
 	Json assetsFile;
 };
@@ -40,12 +38,13 @@ void initResourceSystem() {
 	globalResourceSystem = new ResourceSystem();
 }
 
+namespace resource {
 
-const TextureFile& texture(const std::filesystem::path& path) {
+const TextureFile& texture(std::filesystem::path path) {
 	if (!globalResourceSystem->textures.contains(path)) {
-		const auto& js = globalResourceSystem->assetsFile[path];
+		const auto& js = globalResourceSystem->assetsFile.at(path);
 		globalResourceSystem->textures.emplace(path, loadTextureFile(
-			absolutePath(path),
+			absolutePath(std::filesystem::path("data")/(path)),
 			js.at("Width").get<uint32>(),
 			js.at("Height").get<uint32>(),
 			js.at("Type").get<uint32>(),
@@ -59,7 +58,7 @@ const TextureFile& texture(const std::filesystem::path& path) {
 	return globalResourceSystem->textures.at(path);
 }
 
-const MeshFile& mesh(const std::filesystem::path& path) {
+const MeshFile& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path)) {
 		// globalResourceSystem->meshes.emplace(path, loadMeshFile(absolutePath(path)));
 		globalResourceSystem->meshes.emplace(path, MeshFile{});
@@ -68,7 +67,7 @@ const MeshFile& mesh(const std::filesystem::path& path) {
 	return globalResourceSystem->meshes.at(path);
 }
 
-const MaterialFile& material(const std::filesystem::path& path) {
+const MaterialFile& material(std::filesystem::path path) {
 	if (!globalResourceSystem->materials.contains(path)) {
 		// globalResourceSystem->materials.emplace(path, loadMaterialFile(absolutePath(path)));
 		globalResourceSystem->materials.emplace(path, MaterialFile{});

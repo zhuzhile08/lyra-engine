@@ -23,7 +23,7 @@ TextureFile loadTextureFile(
 	std::vector<char> fileData(compressedFile.seekg(0, SeekDirection::end).tellg());
 	compressedFile.seekg(0).read(fileData.data(), fileData.size());
 
-	std::vector<char> file(LZ4_decompress_safe(fileData.data(), nullptr, fileData.size(), 0));
+	std::vector<char> file(fileData.size() * sizeof(char) * 255);
 	LZ4_decompress_safe(fileData.data(), file.data(), fileData.size(), file.size());
 
 	TextureFile data {

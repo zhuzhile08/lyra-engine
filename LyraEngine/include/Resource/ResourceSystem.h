@@ -22,9 +22,9 @@ void initResourceSystem();
 
 namespace resource {
 
-const TextureFile& texture(const std::filesystem::path& name);
-const MeshFile& mesh(const std::filesystem::path& name);
-const MaterialFile& material(const std::filesystem::path& name);
+const TextureFile& texture(std::filesystem::path name);
+const MeshFile& mesh(std::filesystem::path name);
+const MaterialFile& material(std::filesystem::path name);
 
 } // namespace resource
 
