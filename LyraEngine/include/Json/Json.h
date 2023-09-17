@@ -454,14 +454,14 @@ private:
 			if (it != t.begin()) s.append(",\n");
 			stringifyPair(indent, *it->second, s);
 		}
-		indent--;
-		s.append("\n").append(indent, '\t').push_back('}');
+		s.append("\n").append(--indent, '\t').push_back('}');
 	}
 	static constexpr void stringifyArray(size_t indent, const json_type& t, string_type& s) {
 		indent += 1;
 		s.append("[\n");
 		const auto& array = t.get<array_type>();
 		for (auto it = array.rbegin(); it != array.rend(); it++) {
+			if (it != array.rbegin()) s.append(",\n");
 			s.append(indent, '\t');
 			if ((*it)->isString())
 				s.append("\"").append((*it)->template get<string_type>()).append("\"");
@@ -471,12 +471,8 @@ private:
 				stringifyArray(indent, **it, s);	
 			else
 				stringifyPrimitive(**it, s);
-
-			s.append(",\n");
 		}
-		indent--;
-		s.erase(s.size() - 2, 1);
-		s.append(indent, '\t').push_back(']');
+		s.append("\n").append(--indent, '\t').push_back(']');
 	}
 	static constexpr void stringifyPair(size_t indent, const json_type& t, string_type& s) {
 		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
