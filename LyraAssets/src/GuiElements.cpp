@@ -110,16 +110,18 @@ void MainMenuBar::draw() {
 
 	if (ImGui::BeginPopupModal("Rename Item...", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
 		m_state->nameBuffer.clear();
-		ImGui::InputText("New name: ", &m_state->nameBuffer);
+		ImGui::InputText("New name: ", &m_state->stringBuffer);
 
 		if (ImGui::Button("Cancel...")) {
 			ImGui::CloseCurrentPopup();
-			m_state->nameBuffer.clear();
+			m_state->stringBuffer.clear();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("OK")) {
 			ImGui::CloseCurrentPopup();
 		}
+		std::filesystem::rename(m_state->contentManager->projectFilePath().remove_filename()/m_state->nameBuffer, m_state->contentManager->projectFilePath().remove_filename()/m_state->stringBuffer);
+		m_state->contentManager->projectFile()[m_state->nameBuffer].rename(m_state->stringBuffer);
 		
 		ImGui::EndPopup();
 
@@ -204,19 +206,51 @@ void Window::draw() {
 	if (m_state->showProject) {
 		ImGui::Begin("Project", NULL, ImGuiWindowFlags_NoCollapse);
 
+		if (m_state->contentManager->validProject()) {
+			if (ImGui::TreeNode("Assets.lyproj")) {
+				for (const auto& i : m_state->contentManager->projectFile()) {
+					auto b = (i.first == m_state->nameBuffer);
+					if (!m_state->selected) m_state->selected = b;
+
+					if (ImGui::Selectable(i.first.c_str(), b)) {
+						m_state->nameBuffer = i.first;
+					}
+				}
+
+				ImGui::TreePop();
+			}
+		}
+
 		ImGui::End();
 	}
 
 	if (m_state->showProperties) {
 		ImGui::Begin("Properties", NULL, ImGuiWindowFlags_NoCollapse);
 
-		// if (ImGui::TreeNode()) {
+		if (!m_state->nameBuffer.empty()) {
+			auto ext = m_state->nameBuffer.extension();
 
-		// 	ImGui::TreePop();
-		// }
+			if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+				if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+					
+				} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
+					// ImGui::InputInt("Import Flags", &m_state->contentManager->projectFile().at(m_state->nameBuffer).at("ImportFlags").get<lyra::uint32>());
+					if (ImGui::InputInt("Rotation X", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["RotationX"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Rotation Y", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["RotationY"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Rotation Z", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["RotationZ"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["Scale"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+				} else if (ext == ".ttf") {
+
+				} else if (ext == ".ogg" || ext == ".wav") {
+					
+				}
+			}
+		}
 
 		ImGui::End();
 	}
+
+	ImGui::ShowDemoWindow();
 
 	ImGui::End();
 }

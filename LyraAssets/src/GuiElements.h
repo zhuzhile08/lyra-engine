@@ -35,7 +35,8 @@ struct ProgramState {
 	bool showProperties = true;
 	bool showConsole = true;
 
-	std::string nameBuffer;
+	std::string stringBuffer;
+	std::filesystem::path nameBuffer;
 
 	bool* running = nullptr;
 };
@@ -77,7 +78,7 @@ public:
 	lyra::Logger logger;
 
 private:
-	const ProgramState* m_state;
+	ProgramState* m_state;
 };
 
 } // namespace gui
