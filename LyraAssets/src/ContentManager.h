@@ -47,16 +47,22 @@ public:
 	NODISCARD const lyra::Json& projectFile() const noexcept {
 		return m_projectFile;
 	}
+	NODISCARD lyra::Json& projectFile() noexcept {
+		return m_projectFile;
+	}
 	NODISCARD const lyra::Json& recents() const noexcept {
 		return m_recents;
 	}
-	NODISCARD const std::filesystem::path& projectFilePath() const noexcept {
+	NODISCARD std::filesystem::path projectFilePath() const noexcept {
 		return m_projectFilePath;
 	}
 	bool validProject() const noexcept {
 		return m_validProject;
 	}
-	const bool& unsaved() const noexcept {
+	bool& unsaved() noexcept {
+		return m_unsaved;
+	}
+	bool unsaved() const noexcept {
 		return m_unsaved;
 	}
 
