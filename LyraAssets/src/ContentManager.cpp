@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #undef min
+#undef max
 
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
@@ -180,7 +181,7 @@ void ContentManager::build() {
 			Assimp::Importer importer;
 			importer.SetIOHandler(new AssimpFileSystem);
 
-			const aiScene* scene = importer.ReadFile(filepath, m_projectFile[m_newFiles[i].string()]["ImportFlags"].get<lyra::uint32>());
+			const aiScene* scene = importer.ReadFile(filepath.string(), m_projectFile[m_newFiles[i].string()]["ImportFlags"].get<lyra::uint32>());
 
 			std::vector<lyra::Array<lyra::Array<float, 3>, 4>> vertexBlocks;
 			std::vector<lyra::uint32> indexBlock;

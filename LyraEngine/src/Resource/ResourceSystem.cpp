@@ -41,9 +41,9 @@ void initResourceSystem() {
 namespace resource {
 
 const TextureFile& texture(std::filesystem::path path) {
-	if (!globalResourceSystem->textures.contains(path)) {
-		const auto& js = globalResourceSystem->assetsFile.at(path);
-		globalResourceSystem->textures.emplace(path, loadTextureFile(
+	if (!globalResourceSystem->textures.contains(path.string())) {
+		const auto& js = globalResourceSystem->assetsFile.at(path.string());
+		globalResourceSystem->textures.emplace(path.string(), loadTextureFile(
 			absolutePath(std::filesystem::path("data")/(path)),
 			js.at("Width").get<uint32>(),
 			js.at("Height").get<uint32>(),
@@ -55,25 +55,25 @@ const TextureFile& texture(std::filesystem::path path) {
 		));
 	}
 
-	return globalResourceSystem->textures.at(path);
+	return globalResourceSystem->textures.at(path.string());
 }
 
 const MeshFile& mesh(std::filesystem::path path) {
-	if (!globalResourceSystem->meshes.contains(path)) {
+	if (!globalResourceSystem->meshes.contains(path.string())) {
 		// globalResourceSystem->meshes.emplace(path, loadMeshFile(absolutePath(path)));
-		globalResourceSystem->meshes.emplace(path, MeshFile{});
+		globalResourceSystem->meshes.emplace(path.string(), MeshFile{});
 	}
 
-	return globalResourceSystem->meshes.at(path);
+	return globalResourceSystem->meshes.at(path.string());
 }
 
 const MaterialFile& material(std::filesystem::path path) {
-	if (!globalResourceSystem->materials.contains(path)) {
+	if (!globalResourceSystem->materials.contains(path.string())) {
 		// globalResourceSystem->materials.emplace(path, loadMaterialFile(absolutePath(path)));
-		globalResourceSystem->materials.emplace(path, MaterialFile{});
+		globalResourceSystem->materials.emplace(path.string(), MaterialFile{});
 	}
 
-	return globalResourceSystem->materials.at(path);
+	return globalResourceSystem->materials.at(path.string());
 }
 
 }

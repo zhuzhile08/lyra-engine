@@ -121,7 +121,7 @@ void MainMenuBar::draw() {
 			ImGui::CloseCurrentPopup();
 		}
 		std::filesystem::rename(m_state->contentManager->projectFilePath().remove_filename()/m_state->nameBuffer, m_state->contentManager->projectFilePath().remove_filename()/m_state->stringBuffer);
-		m_state->contentManager->projectFile()[m_state->nameBuffer].rename(m_state->stringBuffer);
+		m_state->contentManager->projectFile()[m_state->nameBuffer.string()].rename(m_state->stringBuffer);
 		
 		ImGui::EndPopup();
 
@@ -235,10 +235,10 @@ void Window::draw() {
 					
 				} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
 					// ImGui::InputInt("Import Flags", &m_state->contentManager->projectFile().at(m_state->nameBuffer).at("ImportFlags").get<lyra::uint32>());
-					if (ImGui::InputInt("Rotation X", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["RotationX"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
-					if (ImGui::InputInt("Rotation Y", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["RotationY"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
-					if (ImGui::InputInt("Rotation Z", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["RotationZ"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
-					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer]["Scale"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Rotation X", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["RotationX"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Rotation Y", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["RotationY"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Rotation Z", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["RotationZ"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["Scale"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
 				} else if (ext == ".ttf") {
 
 				} else if (ext == ".ogg" || ext == ".wav") {
