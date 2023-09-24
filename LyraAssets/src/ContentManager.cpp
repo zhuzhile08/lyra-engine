@@ -207,7 +207,7 @@ void ContentManager::build() {
 						{{
 							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].x : 0.0f,
 							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].z : 0.0f,
-							mesh->mMaterialIndex
+							static_cast<float>(mesh->mMaterialIndex)
 						}}
 					}});
 				}
