@@ -50,7 +50,7 @@ const TextureFile& texture(std::filesystem::path path) {
 			js.at("Type").get<uint32>(),
 			js.at("Alpha").get<uint32>(),
 			js.at("Mipmap").get<uint32>(),
-			js.at("Dimension").get<uint32>(),
+			js.at("Dimension").get<uint32>() - 1,
 			js.at("Wrap").get<uint32>()
 		));
 	}
