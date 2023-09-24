@@ -6,6 +6,8 @@
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 
+#include <assimp/postprocess.h>
+
 namespace gui {
 
 namespace {
@@ -45,7 +47,7 @@ void MainMenuBar::draw() {
 			}
 		});
 		ImGui::Separator();
-		disableButton(m_state->contentManager->unsaved(), [&]() {
+		disableButton(m_state->contentManager->unsaved, [&]() {
 			if (ImGui::MenuItem(ICON_CI_SAVE " Save...")) {
 				m_state->contentManager->save();
 			} 
@@ -122,6 +124,7 @@ void MainMenuBar::draw() {
 		}
 		std::filesystem::rename(m_state->contentManager->projectFilePath().remove_filename()/m_state->nameBuffer, m_state->contentManager->projectFilePath().remove_filename()/m_state->stringBuffer);
 		m_state->contentManager->projectFile()[m_state->nameBuffer.string()].rename(m_state->stringBuffer);
+		m_state->contentManager->unsaved = true;
 		
 		ImGui::EndPopup();
 
@@ -146,7 +149,7 @@ void ButtonBar::draw() {
 			} 
 		});
 		ImGui::SameLine();
-		disableButton(m_state->contentManager->unsaved() && m_state->contentManager->validProject(), [&]() {
+		disableButton(m_state->contentManager->unsaved && m_state->contentManager->validProject(), [&]() {
 			if (ImGui::Button(ICON_CI_SAVE)) {
 				m_state->contentManager->save();
 			}
@@ -229,16 +232,93 @@ void Window::draw() {
 
 		if (!m_state->nameBuffer.empty()) {
 			auto ext = m_state->nameBuffer.extension();
+			auto& js = m_state->contentManager->projectFile()[m_state->nameBuffer.string()];
 
 			if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
 				if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+					static constexpr lyra::Array<const char*, 5> textureTypeComboPreview {"Texture", "Normal Map", "Light Map", "Directional Light Map", "Shadow Mask"};
+
+					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js["Type"]])) {	
+						for (lyra::uint32 i = 0; i < textureTypeComboPreview.size(); i++) {
+							if (ImGui::Selectable(textureTypeComboPreview[i], js["Type"] == i)) {
+								js["Type"] = i;
+								m_state->contentManager->unsaved = true;
+							}
+						}
+
+						ImGui::EndCombo();
+					} 
+
+					if (ImGui::InputInt("Dimension", reinterpret_cast<int*>(&js["Dimension"].get<lyra::uint32>()))) {
+						js["Dimension"] = std::clamp(js["Dimension"].get<lyra::uint32>(), 1U, 3U);
+						m_state->contentManager->unsaved = true;
+					}
+
+					static constexpr lyra::Array<const char*, 5> textureWrapComboPreview {"Repeat", "Mirror and Repeat", "Clamp to Edge", "Clamp to Border", "Mirror and Clamp to Edge"};
 					
+					if (ImGui::BeginCombo("Wrap", textureWrapComboPreview[js["Wrap"]])) {	
+						for (lyra::uint32 i = 0; i < textureWrapComboPreview.size(); i++) {
+							if (ImGui::Selectable(textureWrapComboPreview[i], js["Wrap"] == i)) {
+								js["Wrap"] = i;
+								m_state->contentManager->unsaved = true;
+							}
+						}
+
+						ImGui::EndCombo();
+					} 
+
+					static constexpr lyra::Array<const char*, 3> textureAlphaComboPreview {"Transparent", "Opaque Black", "Opaque White"};
+					
+					if (ImGui::BeginCombo("Alpha", textureAlphaComboPreview[js["Alpha"]])) {	
+						for (lyra::uint32 i = 0; i < textureAlphaComboPreview.size(); i++) {
+							if (ImGui::Selectable(textureAlphaComboPreview[i], js["Alpha"] == i)) {
+								js["Alpha"] = i;
+								m_state->contentManager->unsaved = true;
+							}
+						}
+
+						ImGui::EndCombo();
+					} 
 				} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
-					// ImGui::InputInt("Import Flags", &m_state->contentManager->projectFile().at(m_state->nameBuffer).at("ImportFlags").get<lyra::uint32>());
-					if (ImGui::InputInt("Rotation X", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["RotationX"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
-					if (ImGui::InputInt("Rotation Y", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["RotationY"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
-					if (ImGui::InputInt("Rotation Z", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["RotationZ"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
-					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&m_state->contentManager->projectFile()[m_state->nameBuffer.string()]["Scale"].get<lyra::uint32>()))) m_state->contentManager->unsaved() = true;
+					if (ImGui::InputInt("RotationX", reinterpret_cast<int*>(&js["RotationX"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationY", reinterpret_cast<int*>(&js["RotationY"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationZ", reinterpret_cast<int*>(&js["RotationZ"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&js["Scale"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::TreeNode("ImportFlags")) {
+						if (ImGui::CheckboxFlags("CalcTangentSpace", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_CalcTangentSpace)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("JoinIdenticalVertices", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_JoinIdenticalVertices)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("MakeLeftHanded", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_MakeLeftHanded)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("Triangulate", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_Triangulate)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("RemoveComponent", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_RemoveComponent)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("GenNormals", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_GenNormals)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("GenSmoothNormals", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_GenSmoothNormals)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("SplitLargeMeshes", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_SplitLargeMeshes)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("PreTransformVertices", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_PreTransformVertices)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("LimitBoneWeights", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_LimitBoneWeights)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("ValidateDataStructure", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_ValidateDataStructure)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("ImproveCacheLocality", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_ImproveCacheLocality)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("RemoveRedundantMaterials", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_RemoveRedundantMaterials)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("FixInfacingNormals", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_FixInfacingNormals)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("PopulateArmatureData", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_PopulateArmatureData)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("SortByPType", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_SortByPType)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("FindDegenerates", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_FindDegenerates)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("FindInvalidData", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_FindInvalidData)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("GenUVCoords", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_GenUVCoords)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("TransformUVCoords", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_TransformUVCoords)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("FindInstances", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_FindInstances)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("OptimizeMeshes", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_OptimizeMeshes)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("OptimizeGraph", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_OptimizeGraph)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("FlipUVs", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_FlipUVs)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("FlipWindingOrder", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_FlipWindingOrder)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("SplitByBoneCount", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_SplitByBoneCount)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("Debone", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_Debone)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("GlobalScale", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_GlobalScale)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("EmbedTextures", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_EmbedTextures)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("ForceGenNormals", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_ForceGenNormals)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("DropNormals", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_DropNormals)) m_state->contentManager->unsaved = true;
+						if (ImGui::CheckboxFlags("GenBoundingBoxes", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_GenBoundingBoxes)) m_state->contentManager->unsaved = true;
+						ImGui::TreePop();
+					}
 				} else if (ext == ".ttf") {
 
 				} else if (ext == ".ogg" || ext == ".wav") {
@@ -249,8 +329,6 @@ void Window::draw() {
 
 		ImGui::End();
 	}
-
-	ImGui::ShowDemoWindow();
 
 	ImGui::End();
 }

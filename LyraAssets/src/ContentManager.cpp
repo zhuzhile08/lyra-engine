@@ -20,10 +20,10 @@ ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 }
 
 void ContentManager::loadProjectFile() {
-	if (m_unsaved) {
+	if (unsaved) {
 		auto r = pfd::message("Unsaved Changes!", "You still have unsaved changes, do you still want to proceed?", pfd::choice::ok_cancel, pfd::icon::warning).result();
 		if (r == pfd::button::cancel) return;
-		m_unsaved = false;
+		unsaved = false;
 	}
 
 	auto f = pfd::open_file("Select a project file", ".", {"Lyra Project Files", "*.lyproj"}).result();
@@ -42,12 +42,12 @@ void ContentManager::loadRecent(const std::filesystem::path& p) {
 		m_projectFile = lyra::Json::parse(lyra::StringStream(p, lyra::OpenMode::readText).data());
 
 		m_validProject = true;
-		m_unsaved = false;
+		unsaved = false;
 	}
 }
 
 void ContentManager::createProjectFile() {
-	if (m_unsaved) {
+	if (unsaved) {
 		auto r = pfd::message("Unsaved Changes!", "You still have unsaved changes, do you still want to proceed?", pfd::choice::ok_cancel, pfd::icon::warning).result();
 		if (r == pfd::button::cancel) return;
 	} 
@@ -73,16 +73,16 @@ void ContentManager::createProjectFile() {
 		m_projectFile = lyra::Json::parse(s.data());
 
 		m_validProject = true;
-		m_unsaved = true;
+		unsaved = true;
 	}
 }
 
 void ContentManager::save() {
-	if (m_unsaved) {
+	if (unsaved) {
 		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::writeExtText);
 		auto s = m_projectFile.stringify();
 		f.write(s.data(), s.size());
-		m_unsaved = false;
+		unsaved = false;
 	}
 }
 
@@ -98,7 +98,7 @@ void ContentManager::saveAs() {
 			m_projectFilePath = p;
 
 			m_validProject = true;
-			m_unsaved = false;
+			unsaved = false;
 		}
 	}
 }
@@ -117,7 +117,7 @@ void ContentManager::loadItem() {
 		loadItem(f);
 	}
 
-	m_unsaved = true;
+	unsaved = true;
 }
 
 void ContentManager::loadFolder() {
@@ -136,7 +136,7 @@ void ContentManager::loadFolder() {
 		readF(p, readF);
 	}
 
-	m_unsaved = true;
+	unsaved = true;
 }
 
 void ContentManager::build() {
@@ -253,7 +253,7 @@ void ContentManager::build() {
 	}
 
 	m_newFiles.clear();
-	m_unsaved = true;
+	unsaved = true;
 }
 
 void ContentManager::rebuild() {
@@ -292,7 +292,7 @@ void ContentManager::cancel() {
 }
 
 bool ContentManager::close() {
-	if (m_unsaved) {
+	if (unsaved) {
 		auto r = pfd::message("Unsaved Changes!", "You still have unsaved changes, do you still want to proceed?", pfd::choice::ok_cancel, pfd::icon::warning).result();
 		if (r == pfd::button::cancel) return true;
 	}
@@ -321,7 +321,6 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		js->insert("Height", 0U);
 		js->insert("Type", 0U);
 		js->insert("Alpha", 0U);
-		js->insert("Color", 0U);
 		js->insert("Mipmap", 0U);
 		js->insert("Dimension", 1U);
 		js->insert("Wrap", 0U);

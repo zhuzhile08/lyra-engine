@@ -59,12 +59,8 @@ public:
 	bool validProject() const noexcept {
 		return m_validProject;
 	}
-	bool& unsaved() noexcept {
-		return m_unsaved;
-	}
-	bool unsaved() const noexcept {
-		return m_unsaved;
-	}
+	
+	bool unsaved = false;
 
 private:
 	lyra::Json m_projectFile;
@@ -76,7 +72,6 @@ private:
 	
 	bool m_buildCancelled = false;
 	bool m_validProject = false;
-	bool m_unsaved = false;
 
 	void loadItem(const std::filesystem::path& path);
 };
