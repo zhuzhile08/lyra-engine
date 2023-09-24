@@ -109,6 +109,16 @@ public:
 	void insert_behind(pointer parent) { 
 		if (parent) parent->insert_child(m_self);
 	}
+	void rename(const_key_reference name) {
+		m_parent->erase(m_name);
+		m_name = name;
+		insert_behind(m_parent);
+	}
+	void rename(key_rvreference name) {
+		m_parent->erase(m_name);
+		m_name = std::move(name);
+		insert_behind(m_parent);
+	}
 
 	iterator erase(iterator pos) { 
 		return m_children.erase(pos); 
@@ -118,6 +128,9 @@ public:
 	}
 	iterator erase(const_iterator first, const_iterator last) { 
 		return m_children.erase(first, last); 
+	}
+	size_t erase(const_key_reference name) { 
+		return m_children.erase(name); 
 	}
 
 	void swap(reference other) noexcept { 
@@ -159,7 +172,7 @@ public:
 	NODISCARD const_pointer const parent() const noexcept { return m_parent; }
 
 protected:
-	std::string m_name;
+	Key m_name;
 
 	pointer m_self;
 	pointer m_parent = nullptr;
