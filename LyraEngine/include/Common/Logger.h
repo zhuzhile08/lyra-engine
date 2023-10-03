@@ -16,6 +16,7 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/UniquePointer.h>
 #include <Common/Utility.h>
 #include <Common/Config.h>
 
@@ -91,8 +92,8 @@ enum class Level {
 class Logger {
 public:
 	Logger() = default;
-	Logger(FILE* out, FILE* err, std::string_view name);
-	Logger(FILE* stream, std::string_view name);
+	Logger(FILE* out, FILE* err, std::string_view name) : m_name(name), m_outStream(out), m_errStream(err) { }
+	Logger(FILE* stream, std::string_view name) : m_outStream(stream), m_errStream(stream), m_name(name) { }
 
 	template <class Format, typename ... Args> constexpr void log(Format&& format, Args&&... message) {
 		fmt::print(m_outStream, fmt::runtime(std::forward<Format>(format)), std::forward<Args>(message)...);
@@ -202,7 +203,14 @@ private:
 namespace log {
 
 Logger* const logger(std::string_view name);
+UniquePointer<Logger> releaseLogger(std::string_view name);
 Logger* const defaultLogger();
+
+Logger* const addLogger(UniquePointer<Logger>&& logger);
+UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger);
+
+void disableColor();
+void enableColor();
 
 template <class Format, typename ... Args> inline void log(Format&& format, Args&&... message) {
 	defaultLogger()->log(std::forward<Format>(format), std::forward<Args>(message)...);

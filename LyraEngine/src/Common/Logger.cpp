@@ -31,10 +31,9 @@ public:
 		defaultLogger = UniquePointer<Logger>::create();
 	}
 
-	std::mutex defaultLoggerMutex;
-	UniquePointer<Logger> defaultLogger;
+	std::mutex mutex;
 
-	std::mutex loggerMutex;
+	UniquePointer<Logger> defaultLogger;
 	std::unordered_map<std::string, UniquePointer<Logger>> loggers;
 };
 
@@ -45,13 +44,27 @@ static LoggingContext* globalLoggingContext = nullptr;
 namespace log {
 
 Logger* const logger(std::string_view name) {
-	std::lock_guard<std::mutex> guard(globalLoggingContext->loggerMutex);
+	std::lock_guard<std::mutex> guard(globalLoggingContext->mutex);
 	return globalLoggingContext->loggers.find(name.data())->second.get();
 }
 
+UniquePointer<Logger> releaseLogger(std::string_view name) {
+	return globalLoggingContext->loggers.extract(name.data()).mapped().release();
+}
+
 Logger* const defaultLogger() {
-	std::lock_guard<std::mutex> guard(globalLoggingContext->defaultLoggerMutex);
+	std::lock_guard<std::mutex> guard(globalLoggingContext->mutex);
 	return globalLoggingContext->defaultLogger.get();
+}
+
+Logger* const addLogger(UniquePointer<Logger>&& logger) {
+	return globalLoggingContext->loggers.emplace(logger->name(), logger.release()).first->second.get();
+}
+
+UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger) {
+	auto p = globalLoggingContext->defaultLogger.release();
+	globalLoggingContext->defaultLogger = std::move(logger);
+	return p;
 }
 
 } // namespace log
@@ -63,16 +76,6 @@ void initLoggingSystem() {
 	}
 
 	globalLoggingContext = new LoggingContext();
-}
-
-
-Logger::Logger(FILE* out, FILE* err, std::string_view name)
- : m_outStream(out), m_errStream(err), m_name(name) { 
-	globalLoggingContext->loggers.emplace(name, UniquePointer<Logger>::create(*this));
-}
-Logger::Logger(FILE* stream, std::string_view name) 
- : m_outStream(stream), m_errStream(stream), m_name(name) { 
-	globalLoggingContext->loggers.emplace(name, UniquePointer<Logger>::create(*this));
 }
 
 } // namespace lyra
