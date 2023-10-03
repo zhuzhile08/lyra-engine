@@ -1,6 +1,8 @@
 #include "ContentManager.h"
 #include "AssimpFileSystem.h"
 
+#include <Common/Logger.h>
+
 #include <portable-file-dialogs.h>
 #include <lz4.h>
 #include <stb_image.h>
@@ -28,11 +30,15 @@ void ContentManager::loadProjectFile() {
 
 	auto f = pfd::open_file("Select a project file", ".", {"Lyra Project Files", "*.lyproj"}).result();
 	if (!f.empty()) {
+		lyra::log::info("Loading project file...");
+		
 		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f[0]));
 		m_projectFilePath = f[0];
 		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::readText).data());
 
 		m_validProject = true;
+
+		lyra::log::info("Loaded project file at path: {}!", f[0]);
 	}
 }
 
@@ -54,6 +60,8 @@ void ContentManager::createProjectFile() {
 
 	auto f = (pfd::select_folder("Select a folder for the project file").result()).append("/Assets.lyproj");
 	if (!f.empty()) {
+		lyra::log::info("Creating new project file...");
+
 		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f[0]));
 		m_projectFilePath = f;
 
@@ -74,15 +82,21 @@ void ContentManager::createProjectFile() {
 
 		m_validProject = true;
 		unsaved = true;
+
+		lyra::log::info("Loaded project file at path: {}!", f);
 	}
 }
 
 void ContentManager::save() {
 	if (unsaved) {
+		lyra::log::info("Saving current project file...");
+
 		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::writeExtText);
 		auto s = m_projectFile.stringify();
 		f.write(s.data(), s.size());
 		unsaved = false;
+
+		lyra::log::info("Successfully saved current project file at path: {}!", m_projectFilePath);
 	}
 }
 
@@ -90,6 +104,8 @@ void ContentManager::saveAs() {
 	if (m_validProject) {
 		auto p = pfd::save_file("Select a path to save as the project file", ".", {"Lyra Project Files", "*.lyproj"}).result();
 		if (!p.empty()) {
+			lyra::log::info("Saving current project file to new file...");
+
 			lyra::ByteFile f(p, lyra::OpenMode::writeExtText);
 			auto s = m_projectFile.stringify();
 			f.write(s.data(), s.size());
@@ -99,6 +115,8 @@ void ContentManager::saveAs() {
 
 			m_validProject = true;
 			unsaved = false;
+
+			lyra::log::info("Successfully saved current project file to path: {}!", m_projectFilePath);
 		}
 	}
 }
@@ -140,6 +158,8 @@ void ContentManager::loadFolder() {
 }
 
 void ContentManager::build() {
+	lyra::log::info("Starting Build...");
+
 	m_buildCancelled = false;
 
 	lyra::uint32 i = 0;
@@ -254,6 +274,8 @@ void ContentManager::build() {
 
 	m_newFiles.clear();
 	unsaved = true;
+
+	lyra::log::info("Build successful!");
 }
 
 void ContentManager::rebuild() {

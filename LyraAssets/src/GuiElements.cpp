@@ -203,6 +203,31 @@ void Window::draw() {
 	if (m_state->showConsole) {
 		ImGui::Begin("Build Console", NULL, ImGuiWindowFlags_NoCollapse);
 
+		// since we know that there will be only one file anyways
+		auto* f = lyra::log::defaultLogger()->outStream();
+		auto s = std::ftell(f);
+
+		int c = std::fgetc(f);
+
+		while (c != EOF) { // skip ansi sequences
+			if (c == '\033') {
+				c = std::fgetc(f);
+
+				while (c != 'm') c = std::fgetc(f);
+			}
+
+			std::fgetc(f);
+		}
+
+		std::fseek(f, 0, SEEK_SET);
+
+		m_state->logBuffer.resize(s);
+		std::fread(&(m_state->logBuffer[0]), sizeof(char), s, f);
+
+		std::fseek(f, 0, SEEK_END);
+
+		ImGui::Text("%s", m_state->logBuffer.data());
+
 		ImGui::End();
 	}
 

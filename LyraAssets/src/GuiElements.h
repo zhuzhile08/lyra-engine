@@ -38,6 +38,8 @@ struct ProgramState {
 	std::string stringBuffer;
 	std::filesystem::path nameBuffer;
 
+	std::string logBuffer;
+
 	bool* running = nullptr;
 };
 
@@ -74,8 +76,6 @@ public:
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
 	void draw() final;
-	
-	lyra::Logger logger;
 
 private:
 	ProgramState* m_state;
