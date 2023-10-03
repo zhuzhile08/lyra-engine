@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <EntitySystem/Entity.h>
 
@@ -29,21 +29,6 @@ public:
 	 * @brief construct a transform component
 	 * 
 	 * @param translation translation of the object
-	 * @param axis axis to rotate the angle around
-	 * @param angle angle to rotate the object by
-	 * @param scale scale of the object 
-	 */
-	constexpr Transform(
-		const glm::vec3& translation = glm::vec3(0.0f), 
-		const glm::vec3& axis = glm::vec3(0.0f), 
-		const float& angle = 0.0f,
-		const glm::vec3& scale = glm::vec3(1.0f)
-	) : translation(translation), orientation(glm::rotate(orientation, angle, axis)), scale(scale), m_dirty(true) {
-	}
-	/**
-	 * @brief construct a transform component
-	 * 
-	 * @param translation translation of the object
 	 * @param orientation orientation of the object
 	 * @param scale scale of the object 
 	 */
@@ -52,6 +37,21 @@ public:
 		const glm::quat& orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 
 		const glm::vec3& scale = glm::vec3(1.0f)
 	) : translation(translation), orientation(orientation), scale(scale), m_dirty(true) { }
+	/**
+	 * @brief construct a transform component
+	 * 
+	 * @param translation translation of the object
+	 * @param axis axis to rotate the angle around
+	 * @param angle angle to rotate the object by
+	 * @param scale scale of the object 
+	 */
+	constexpr Transform(
+		const glm::vec3& translation,
+		const glm::vec3& axis,
+		const float32& angle,
+		const glm::vec3& scale
+	) : translation(translation), orientation(glm::rotate(orientation, angle, axis)), scale(scale), m_dirty(true) {
+	}
 	
 	/**
 	 * @brief rotate the transform around an axis
@@ -59,7 +59,7 @@ public:
 	 * @param axis axis to rotate around
 	 * @param angle angle of the rotation
 	 */
-	void rotate(const glm::vec3& axis, const float& angle) {
+	void rotate(const glm::vec3& axis, const float32& angle) {
 		orientation = glm::rotate(orientation, angle, axis);
 		m_dirty = true;
 	}
@@ -69,7 +69,7 @@ public:
 	 * @param axis axis to rotate around
 	 * @param angle angle of the rotation
 	 */
-	void normalize_and_rotate(const glm::vec3& axis, const float& angle) {
+	void normalizeAndRotate(const glm::vec3& axis, const float32& angle) {
 		orientation = glm::rotate(orientation, angle, glm::normalize(axis));
 		m_dirty = true;
 	}
@@ -78,7 +78,7 @@ public:
 	 * 
 	 * @param angle angle of the rotation
 	 */
-	void rotate_x(const float& angle) {
+	void rotate_x(const float32& angle) {
 		orientation = glm::rotate(orientation, angle, {1.0f, 0.0f, 0.0f});
 		m_dirty = true;
 	}
@@ -87,7 +87,7 @@ public:
 	 * 
 	 * @param angle angle of the rotation
 	 */
-	void rotate_y( const float& angle) {
+	void rotate_y( const float32& angle) {
 		orientation = glm::rotate(orientation, angle, {0.0f, 1.0f, 0.0f});
 		m_dirty = true;
 	}
@@ -96,7 +96,7 @@ public:
 	 * 
 	 * @param angle angle of the rotation
 	 */
-	void rotate_z(const float& angle) {
+	void rotate_z(const float32& angle) {
 		orientation = glm::rotate(orientation, angle, {0.0f, 0.0f, 1.0f});
 		m_dirty = true;
 	}
@@ -113,19 +113,84 @@ public:
 	}
 
 	/**
+	 * @brief get the front vector of the transform
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 front() const {
+		return glm::rotate(orientation, {1.0f, 0.0f, 0.0f});
+	}
+	/**
+	 * @brief get the back vector of the transform
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 back() const {
+		return glm::rotate(orientation, {-1.0f, 0.0f, 0.0f});
+	}
+	/**
+	 * @brief get the left vector of the transform
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 left() const {
+		return glm::rotate(orientation, {0.0f, 1.0f, 0.0f});
+	}
+	/**
+	 * @brief get the right vector of the transform
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 right() const {
+		return glm::rotate(orientation, {0.0f, -1.0f, 0.0f});
+	}
+	/**
+	 * @brief get the up vector of the transform
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 up() const {
+		return glm::rotate(orientation, {0.0f, 0.0f, 1.0f});
+	}
+	/**
+	 * @brief get the down vector of the transform
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 down() const {
+		return glm::rotate(orientation, {0.0f, 0.0f, -1.0f});
+	}
+
+	/**
+	 * @brief get the global rotation in euler angles
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 local_rotation() const {
+		return glm::eulerAngles(orientation);
+	}
+	/**
 	 * @brief get the global orientation
 	 * 
 	 * @return glm::quat 
 	 */
-	NODISCARD glm::quat global_orientation() {
+	NODISCARD glm::quat global_orientation() const {
 		return orientation * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->orientation : glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+	}
+	/**
+	 * @brief get the global rotation in euler angles
+	 * 
+	 * @return glm::vec3
+	 */
+	NODISCARD glm::vec3 global_rotation() const {
+		return glm::eulerAngles(global_orientation());
 	}
 	/**
 	 * @brief get the global translation
 	 * 
 	 * @return glm::vec3 
 	 */
-	NODISCARD glm::vec3 global_translation() {
+	NODISCARD glm::vec3 global_translation() const {
 		// this HAS got to be incredibly slow
 		auto parent = m_entity->parent();
 		auto parentTransform = m_entity->parent()->component<Transform>();
@@ -136,7 +201,7 @@ public:
 	 * 
 	 * @return glm::vec3 
 	 */
-	NODISCARD glm::vec3 global_scale() {
+	NODISCARD glm::vec3 global_scale() const {
 		return orientation * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->scale : glm::vec3(0.0f));
 	}
 

@@ -10,7 +10,7 @@ void ComputePipeline::Builder::build_compute_pipeline(ComputePipeline* const com
 		VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
 		nullptr,
 		0,
-		computePipeline->m_shaders[0].get_stage_create_info(),
+		computePipeline->m_shaders[0].stageCreateInfo(),
 		computePipeline->m_layout,
 		VK_NULL_HANDLE,
 		0

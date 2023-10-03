@@ -11,11 +11,11 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <type_traits>
 #include <unordered_map>
-#include <Common/SmartPointer.h>
+#include <Common/UniquePointer.h>
 #include <Common/Node.h>
 
 namespace lyra {
@@ -27,7 +27,7 @@ class ComponentBase {
 public:
 	virtual ~ComponentBase() { }
 
-	virtual void update() = 0;
+	// virtual void update() = 0; maybe one day
 
 	/**
 	 * @brief get the entity which owns this component
@@ -48,33 +48,33 @@ class Entity : public Node<Entity> {
 public:
 	// enum containing all types of components
 	enum class ComponentType {
-		TYPE_TRANSFORM = 0U,
-		TYPE_MESH_RENDERER,
-		TYPE_TEXT_RENDERER,
-		TYPE_RIGIDBODY,
-		TYPE_COLLIDER,
-		TYPE_BOX_COLLIDER,
-		TYPE_SPHERE_COLLIDER,
-		TYPE_CAPSULE_COLLIDER,
-		TYPE_TAPERED_CAPSULE_COLLIDER,
-		TYPE_CYLINDER_COLLIDER,
-		TYPE_MESH_COLLIDER,
-		TYPE_JOINT,
-		TYPE_CLOTH,
-		TYPE_RAYCAST,
-		TYPE_CAMERA,
-		TYPE_POINT_LIGHT,
-		TYPE_DIRECTIONAL_LIGHT,
-		TYPE_SPOT_LIGHT,
-		TYPE_AMBIENT_LIGHT,
-		TYPE_SKYBOX,
-		TYPE_MOVIE_PLAYER,
-		TYPE_PARTICLE_SYSTEM,
-		TYPE_LINE_RENDERER,
-		TYPE_ANIMATOR,
-		TYPE_AUDIO_SOURCE,
-		TYPE_AUDIO_LISTENER,
-		TYPE_AUDIO_FILTER
+		TRANSFORM = 0U,
+		MESH_RENDERER,
+		TEXT_RENDERER,
+		RIGIDBODY,
+		COLLIDER,
+		BOX_COLLIDER,
+		SPHERE_COLLIDER,
+		CAPSULE_COLLIDER,
+		TAPERED_CAPSULE_COLLIDER,
+		CYLINDER_COLLIDER,
+		MESH_COLLIDER,
+		JOINT,
+		CLOTH,
+		RAYCAST,
+		CAMERA,
+		POINT_LIGHT,
+		DIRECTIONAL_LIGHT,
+		SPOT_LIGHT,
+		AMBIENT_LIGHT,
+		SKYBOX,
+		MOVIE_PLAYER,
+		PARTICLE_SYSTEM,
+		LINE_RENDERER,
+		ANIMATOR,
+		AUDIO_SOURCE,
+		AUDIO_LISTENER,
+		AUDIO_FILTER
 	};
 
 private:
@@ -86,33 +86,33 @@ private:
 	 * @return lyra::Node::ComponentType 
 	 */
 	template <DerivedComponentType Ty> static constexpr ComponentType cast_enum_type() {
-		if constexpr (std::is_same_v<Ty, Transform>) return ComponentType::TYPE_TRANSFORM;
-		else if constexpr (std::is_same_v<Ty, MeshRenderer>) return ComponentType::TYPE_MESH_RENDERER;
-		else if constexpr (std::is_same_v<Ty, TextRenderer>) return ComponentType::TYPE_TEXT_RENDERER;
-		else if constexpr (std::is_same_v<Ty, Rigidbody>) return ComponentType::TYPE_RIGIDBODY;
-		else if constexpr (std::is_same_v<Ty, Collider>) return ComponentType::TYPE_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, BoxCollider>) return ComponentType::TYPE_BOX_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, SphereCollider>) return ComponentType::TYPE_SPHERE_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, CapsuleCollider>) return ComponentType::TYPE_CAPSULE_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, TaperedCapsuleCollider>) return ComponentType::TYPE_TAPERED_CAPSULE_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, CylinderCollider>) return ComponentType::TYPE_CYLINDER_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, MeshCollider>) return ComponentType::TYPE_MESH_COLLIDER;
-		else if constexpr (std::is_same_v<Ty, Joint>) return ComponentType::TYPE_JOINT;
-		else if constexpr (std::is_same_v<Ty, Cloth>) return ComponentType::TYPE_CLOTH;
-		else if constexpr (std::is_same_v<Ty, Raycast>) return ComponentType::TYPE_RAYCAST;
-		else if constexpr (std::is_same_v<Ty, Camera>) return ComponentType::TYPE_CAMERA;
-		else if constexpr (std::is_same_v<Ty, PointLight>) return ComponentType::TYPE_POINT_LIGHT;
-		else if constexpr (std::is_same_v<Ty, DirectionalLight>) return ComponentType::TYPE_DIRECTIONAL_LIGHT;
-		else if constexpr (std::is_same_v<Ty, SpotLight>) return ComponentType::TYPE_SPOT_LIGHT;
-		else if constexpr (std::is_same_v<Ty, AmbientLight>) return ComponentType::TYPE_AMBIENT_LIGHT;
-		else if constexpr (std::is_same_v<Ty, Skybox>) return ComponentType::TYPE_SKYBOX;
-		else if constexpr (std::is_same_v<Ty, MoviePlayer>) return ComponentType::TYPE_MOVIE_PLAYER;
-		else if constexpr (std::is_same_v<Ty, ParticleSystem>) return ComponentType::TYPE_PARTICLE_SYSTEM;
-		else if constexpr (std::is_same_v<Ty, LineRenderer>) return ComponentType::TYPE_LINE_RENDERER;
-		else if constexpr (std::is_same_v<Ty, Animator>) return ComponentType::TYPE_ANIMATOR;
-		else if constexpr (std::is_same_v<Ty, AudioSource>) return ComponentType::TYPE_AUDIO_SOURCE;
-		else if constexpr (std::is_same_v<Ty, AudioListener>) return ComponentType::TYPE_AUDIO_LISTENER;
-		else if constexpr (std::is_same_v<Ty, AudioFilter>) return ComponentType::TYPE_AUDIO_FILTER;
+		if constexpr (std::is_same_v<Ty, Transform>) return ComponentType::TRANSFORM;
+		else if constexpr (std::is_same_v<Ty, MeshRenderer>) return ComponentType::MESH_RENDERER;
+		else if constexpr (std::is_same_v<Ty, TextRenderer>) return ComponentType::TEXT_RENDERER;
+		else if constexpr (std::is_same_v<Ty, Rigidbody>) return ComponentType::RIGIDBODY;
+		else if constexpr (std::is_same_v<Ty, Collider>) return ComponentType::COLLIDER;
+		else if constexpr (std::is_same_v<Ty, BoxCollider>) return ComponentType::BOX_COLLIDER;
+		else if constexpr (std::is_same_v<Ty, SphereCollider>) return ComponentType::SPHERE_COLLIDER;
+		else if constexpr (std::is_same_v<Ty, CapsuleCollider>) return ComponentType::CAPSULE_COLLIDER;
+		else if constexpr (std::is_same_v<Ty, TaperedCapsuleCollider>) return ComponentType::TAPERED_CAPSULE_COLLIDER;
+		else if constexpr (std::is_same_v<Ty, CylinderCollider>) return ComponentType::CYLINDER_COLLIDER;
+		else if constexpr (std::is_same_v<Ty, MeshCollider>) return ComponentType::MESH_COLLIDER;
+		else if constexpr (std::is_same_v<Ty, Joint>) return ComponentType::JOINT;
+		else if constexpr (std::is_same_v<Ty, Cloth>) return ComponentType::CLOTH;
+		else if constexpr (std::is_same_v<Ty, Raycast>) return ComponentType::RAYCAST;
+		else if constexpr (std::is_same_v<Ty, Camera>) return ComponentType::CAMERA;
+		else if constexpr (std::is_same_v<Ty, PointLight>) return ComponentType::POINT_LIGHT;
+		else if constexpr (std::is_same_v<Ty, DirectionalLight>) return ComponentType::DIRECTIONAL_LIGHT;
+		else if constexpr (std::is_same_v<Ty, SpotLight>) return ComponentType::SPOT_LIGHT;
+		else if constexpr (std::is_same_v<Ty, AmbientLight>) return ComponentType::AMBIENT_LIGHT;
+		else if constexpr (std::is_same_v<Ty, Skybox>) return ComponentType::SKYBOX;
+		else if constexpr (std::is_same_v<Ty, MoviePlayer>) return ComponentType::MOVIE_PLAYER;
+		else if constexpr (std::is_same_v<Ty, ParticleSystem>) return ComponentType::PARTICLE_SYSTEM;
+		else if constexpr (std::is_same_v<Ty, LineRenderer>) return ComponentType::LINE_RENDERER;
+		else if constexpr (std::is_same_v<Ty, Animator>) return ComponentType::ANIMATOR;
+		else if constexpr (std::is_same_v<Ty, AudioSource>) return ComponentType::AUDIO_SOURCE;
+		else if constexpr (std::is_same_v<Ty, AudioListener>) return ComponentType::AUDIO_LISTENER;
+		else if constexpr (std::is_same_v<Ty, AudioFilter>) return ComponentType::AUDIO_FILTER;
 	}
 public:
 	Entity() = default;
@@ -130,9 +130,9 @@ public:
 		std::string_view name = "Entity", 
 		Entity* parent = nullptr, 
 		Script* script = nullptr, 
-		const uint32& tag = 0, 
-		const bool& visible = true, 
-		const bool& constant = false
+		uint32 tag = 0, 
+		bool visible = true, 
+		bool constant = false
 	);
 	/**
 	 * @brief constuct a new entity
@@ -148,9 +148,9 @@ public:
 		Entity&& parent, 
 		std::string_view name = "Entity", 
 		Script* script = nullptr, 
-		const uint32& tag = 0, 
-		const bool& visible = true, 
-		const bool& constant = false
+		uint32 tag = 0, 
+		bool visible = true, 
+		bool constant = false
 	);
 	/**
 	 * @brief move constructor for a structure holding the data for an entity
@@ -170,8 +170,8 @@ public:
 	 * @tparam Ty type of component to add
 	 * @tparam Args arguments to construct that component
 	 */
-	template <DerivedComponentType Ty, class... Args> void add_component(Args... args) {
-		m_components.emplace(cast_enum_type<Ty>(), SmartPointer<Ty>::create(std::forward<Args>(args)...));
+	template <DerivedComponentType Ty, class... Args> void addComponent(Args... args) {
+		m_components.emplace(cast_enum_type<Ty>(), UniquePointer<Ty>::create(std::forward<Args>(args)...));
 	}
 	/**
 	 * @brief add a component of a certain type
@@ -179,7 +179,7 @@ public:
 	 * @tparam Ty type of component to add
 	 * @tparam Args arguments to construct that component
 	 */
-	template <DerivedComponentType Ty> void add_component(SmartPointer<Ty>&& component) {
+	template <DerivedComponentType Ty> void addComponent(UniquePointer<Ty>&& component) {
 		m_components.emplace(cast_enum_type<Ty>(), std::move(component));
 	}
 
@@ -226,16 +226,16 @@ public:
 	 * @return uint32
 	 */
 	NODISCARD constexpr bool constant() const noexcept {
-		return m_constant;
+		return mConstant;
 	}
 
 private:
 	uint32 m_tag;
 	bool m_visible;
-	bool m_constant;
+	bool mConstant;
 
-	SmartPointer<Script> m_script;
-	std::unordered_map<ComponentType, SmartPointer<ComponentBase>> m_components;
+	UniquePointer<Script> m_script;
+	std::unordered_map<ComponentType, UniquePointer<ComponentBase>> m_components;
 };
 
 } // namespace lyra

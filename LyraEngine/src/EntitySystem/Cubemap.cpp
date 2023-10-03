@@ -1,10 +1,10 @@
 #include <EntitySystem/Cubemap.h>
 
-#include <Common/Settings.h>
+#include <Common/Config.h>
 
-#include <Resource/ResourceManager.h>
+#include <Resource/ResourceSystem.h>
 
-#include <Graphics/VulkanImpl/Shader.h>
+#include <Resource/Shader.h>
 #include <Graphics/VulkanImpl/PipelineBase.h>
 #include <Graphics/VulkanImpl/GPUBuffer.h>
 
@@ -25,12 +25,12 @@ CubemapBase::CubemapBase(
 	GraphicsPipeline(
 		camera, 
 		{
-			{ vulkan::Shader::Type::TYPE_VERTEX, vertexShaderPath, "main" },
-			{ vulkan::Shader::Type::TYPE_FRAGMENT, fragShaderPath, "main" }
+			{ vulkan::Shader::Type::VERTEX, vertexShaderPath, "main" },
+			{ vulkan::Shader::Type::FRAGMENT, fragShaderPath, "main" }
 		}, 
 		{
-			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, Settings::RenderConfig::maxFramesInFlight, vulkan::Shader::Type::TYPE_VERTEX },
-			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER, Settings::RenderConfig::maxFramesInFlight, vulkan::Shader::Type::TYPE_FRAGMENT }
+			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer, config::maxFramesInFlight, vulkan::Shader::Type::VERTEX },
+			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler, config::maxFramesInFlight, vulkan::Shader::Type::FRAGMENT }
 		}, 
 		{},
 		colorBlending,
@@ -70,8 +70,8 @@ CubemapBase::CubemapBase(
 {
 	{ // stuff for creating images
 		// load all the images raw first
-		Array<util::ImageData, 6> imageData;
-		for (uint32 i = 0; i < 6; i++) imageData[i] = Assets::unpack_texture(paths[i]);
+		Array<resource::TextureFile, 6> imageData;
+		for (uint32 i = 0; i < 6; i++) imageData[i] = ResourceSystem::unpack_texture(paths[i]);
 
 		// get the size of one of the images for future use
 		auto width = imageData[0].width, height = imageData[0].height;
@@ -90,11 +90,11 @@ CubemapBase::CubemapBase(
 		// create the staging buffer
 		vulkan::GPUBuffer stagingBuffer(width * height * 4 * 6, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 		// copy the image data into the staging buffer
-		stagingBuffer.copy_data(combinedImageData, 6, width * height * 4);
+		stagingBuffer.copyData(combinedImageData, 6, width * height * 4);
 
 		// create the image
-		vassert(Application::renderSystem.device.createImage(
-			get_image_create_info(
+		VULKAN_ASSERT(Application::renderSystem.device.createImage(
+			imageCreateInfo(
 				format,
 				imageExtent,
 				VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -103,17 +103,17 @@ CubemapBase::CubemapBase(
 				6,
 				VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT
 			),
-			get_alloc_create_info(VMA_MEMORY_USAGE_GPU_ONLY),
+			getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY),
 			m_image, 
 			m_memory), "create cubemap texture(s)");
 
 		// transition the layout of the image
-		transition_layout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 6});
+		transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 6});
 		// copy the buffer contents into the image
-		copy_from_buffer(&stagingBuffer, imageExtent);
+		copyFromBuffer(&stagingBuffer, imageExtent);
 		
 		// finally, create the image view
-		create_view(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 6 }, VK_IMAGE_VIEW_TYPE_CUBE);
+		createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 6 }, VK_IMAGE_VIEW_TYPE_CUBE);
 	}
 
 	{ // create a sampler for the image
@@ -132,7 +132,7 @@ CubemapBase::CubemapBase(
 			VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
 			0.0f,
 			VK_FALSE,
-			1.0f, // properties.limits.maxSamplerAnisotropy * settings().rendering.anistropy,
+			1.0f, // properties.limits.maxSamplerAnisotropy * config::anistropy,
 			VK_FALSE,
 			VK_COMPARE_OP_ALWAYS,
 			0.0f,
@@ -147,16 +147,16 @@ CubemapBase::CubemapBase(
 	{ // next, create the descriptors
 		// write the bindings
 		vulkan::DescriptorSystem::DescriptorSet::Writer writer;
-		writer.add_writes({
-			{ get_descriptor_cubemap_info(), 1, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER}
+		writer.addWrites({
+			{ getDescriptorcubemapInfo(), 1, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler}
 		});
-		writer.add_writes({
-			{ camera->m_buffers.at(0).get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
-			{ camera->m_buffers.at(1).get_descriptor_buffer_info(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
+		writer.addWrites({
+			{ camera->m_buffers.at(0).getDescriptorBufferInfo(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer },
+			{ camera->m_buffers.at(1).getDescriptorBufferInfo(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer }
 		});
 
 		// create both descriptors
-		for (uint32 i = 0; i < Settings::RenderConfig::maxFramesInFlight; i++) 
+		for (uint32 i = 0; i < config::maxFramesInFlight; i++) 
 			m_descriptorSets.emplace_back(
 				m_descriptorSetLayout,
 				0,

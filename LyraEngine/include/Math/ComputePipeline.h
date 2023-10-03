@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <Common/Utility.h>
 #include <Common/Logger.h>
@@ -29,23 +29,6 @@ class ComputePipeline : public vulkan::Pipeline {
 public:
 	// compute pipeline builder
 	class Builder : public vulkan::Pipeline::Builder {
-	public: 
-		/**
-		 * @brief add the information for the single compute shader
-		 * 
-		 * @param shaderInfo shader information
-		 */
-		void add_shader_info(const ShaderInfo& shaderInfo) {
-			if (m_shaderInfos.size() == 1) {
-				m_shaderInfos.push_back(shaderInfo);
-			} 
-#ifndef NDEBUG
-			else {
-				log().warning("Compute Pipeline at address: ", get_address(this), " already has a shader assigned to it!");
-			}
-#endif
-		}
-		void add_shader_infos(const std::vector<ShaderInfo>& shaderInfos) = delete;
 	private:
 		/**
 		 * @brief build the compute pipeline

@@ -34,11 +34,11 @@ int main() {
 		// create the builder for the compute pipeline
 		lyra::ComputePipeline::Builder builder;
 		builder.add_shader_info({  // shader information
-			lyra::vulkan::Shader::Type::TYPE_COMPUTE, "data/shaders/compute.spv", "main"
+			lyra::vulkan::Shader::Type::COMPUTE, "data/shaders/compute.spv", "main"
 		});
 		builder.add_binding_infos({ // descriptor information
-			{ lyra::vulkan::Shader::Type::TYPE_COMPUTE, 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER, 1 },
-			{ lyra::vulkan::Shader::Type::TYPE_COMPUTE, 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_STORAGE_BUFFER, 1 }
+			{ lyra::vulkan::Shader::Type::COMPUTE, 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer, 1 },
+			{ lyra::vulkan::Shader::Type::COMPUTE, 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::storageBuffer, 1 }
 		});
 		computePipeline = lyra::ComputePipeline(builder);
 	}
@@ -65,18 +65,18 @@ int main() {
 	const auto& cmdBuff = lyra::Application::renderSystem.frames[0].commandBuffer();
 
 	// begin recording the command buffer
-	cmdBuff.begin();
+	cmdQueue.activeCommandBuffer->begin();
 
 	// record the commands
-	cmdBuff.bindPipeline(computePipeline.bindPoint(), computePipeline.pipeline());
-	cmdBuff.bindDescriptorSet(computePipeline.bindPoint(), computePipeline.layout(), 0, *cameraDescriptorSet);
-	cmdBuff.bindDescriptorSet(computePipeline.bindPoint(), computePipeline.layout(), 1, *sphereDescriptorSet);
-	// cmdBuff.dispatch(); I'm too lazy to finish these tests, so I'll just hope it works
+	cmdQueue.activeCommandBuffer->bindPipeline(computePipeline.bindPoint(), computePipeline.pipeline());
+	cmdQueue.activeCommandBuffer->bindDescriptorSet(computePipeline.bindPoint(), computePipeline.layout(), 0, *cameraDescriptorSet);
+	cmdQueue.activeCommandBuffer->bindDescriptorSet(computePipeline.bindPoint(), computePipeline.layout(), 1, *sphereDescriptorSet);
+	// cmdQueue.activeCommandBuffer->dispatch(); I'm too lazy to finish these tests, so I'll just hope it works
 
 	// end recording the command buffer
-	cmdBuff.end();
+	cmdQueue.activeCommandBuffer->end();
 	// submit the compute queue
-	cmdBuff.submitQueue(lyra::Application::renderSystem.device.computeQueue());
+	cmdQueue.activeCommandBuffer->submitQueue(lyra::Application::renderSystem.device.computeQueue());
 
 	return 0;
 }

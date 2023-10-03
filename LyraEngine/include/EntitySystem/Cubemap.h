@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
 
 #include <Common/Array.h>
 #include <vulkan/vulkan.h>
@@ -20,9 +20,9 @@
 #include <Graphics/VulkanImpl/DescriptorSystem.h>
 #include <Graphics/VulkanImpl/Image.h>
 #include <Graphics/VulkanImpl/GPUMemory.h>
-#include <Graphics/GraphicsPipeline.h>
+#include <Graphics/GraphicsPipelineSystem.h>
 
-#include <EntitySystem/Mesh.h>
+#include <Resource/Mesh.h>
 #include <EntitySystem/MeshRenderer.h>
 
 namespace lyra {
@@ -54,7 +54,7 @@ public:
 	 * 
 	 * @return VkDescriptorImageInfo
 	*/
-	NODISCARD constexpr VkDescriptorImageInfo get_descriptor_cubemap_info(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
+	NODISCARD constexpr VkDescriptorImageInfo getDescriptorcubemapInfo(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
 		return {
 			m_sampler,
 			m_view,

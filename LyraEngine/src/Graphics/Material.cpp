@@ -3,8 +3,8 @@
 #include <Graphics/VulkanImpl/DescriptorSystem.h>
 #include <Graphics/GraphicsPipelineSystem.h>
 
-#include <Resource/Texture.h>
-#include <Resource/ResourceManager.h>
+#include <Graphics/Texture.h>
+#include <Resource/ResourceSystem.h>
 
 #include <EntitySystem/Camera.h>
 #include <EntitySystem/MeshRenderer.h>
@@ -29,18 +29,18 @@ Material::Material(
 	const Color& occlusionColor,
 	std::string_view occlusionMapTexturePath
 ) : albedoColor(albedoColor),
-	albedoTexture(albedoTexturePath, (albedoTexturePath.empty() ? ResourceManager::texture(albedoTexturePath) : ResourceManager::nullTexture())),
+	albedoTexture(albedoTexturePath, (albedoTexturePath.empty() ? ResourceSystem::texture(albedoTexturePath) : ResourceSystem::nullTexture())),
 	metallic(metallic),
 	roughness(roughness),
-	metallicTexture(metallicTexturePath, (metallicTexturePath.empty() ? ResourceManager::texture(metallicTexturePath) : ResourceManager::nullTexture())),
+	metallicTexture(metallicTexturePath, (metallicTexturePath.empty() ? ResourceSystem::texture(metallicTexturePath) : ResourceSystem::nullTexture())),
 	specularColor(specularColor),
-	specularTexture(specularTexturePath, (specularTexturePath.empty() ? ResourceManager::texture(specularTexturePath) : ResourceManager::nullTexture())),
+	specularTexture(specularTexturePath, (specularTexturePath.empty() ? ResourceSystem::texture(specularTexturePath) : ResourceSystem::nullTexture())),
 	emissionColor(emissionColor),
-	emissionTexture(emissionTexturePath, (emissionTexturePath.empty() ? ResourceManager::texture(emissionTexturePath) : ResourceManager::nullTexture())),
-	normalMapTexture(normalMapTexturePath, (normalMapTexturePath.empty() ? ResourceManager::texture(normalMapTexturePath) : ResourceManager::nullNormal())),
-	displacementMapTexture(displacementMapTexturePath, (displacementMapTexturePath.empty() ? ResourceManager::texture(displacementMapTexturePath) : ResourceManager::nullTexture())),
+	emissionTexture(emissionTexturePath, (emissionTexturePath.empty() ? ResourceSystem::texture(emissionTexturePath) : ResourceSystem::nullTexture())),
+	normalMapTexture(normalMapTexturePath, (normalMapTexturePath.empty() ? ResourceSystem::texture(normalMapTexturePath) : ResourceSystem::nullNormal())),
+	displacementMapTexture(displacementMapTexturePath, (displacementMapTexturePath.empty() ? ResourceSystem::texture(displacementMapTexturePath) : ResourceSystem::nullTexture())),
 	occlusionColor(occlusionColor),
-	occlusionMapTexture(occlusionMapTexturePath, (occlusionMapTexturePath.empty() ? ResourceManager::texture(occlusionMapTexturePath) : ResourceManager::nullTexture()))
+	occlusionMapTexture(occlusionMapTexturePath, (occlusionMapTexturePath.empty() ? ResourceSystem::texture(occlusionMapTexturePath) : ResourceSystem::nullTexture()))
 {
 	/* uniform data to send to the vertex shader
 	MaterialVertexData vertDat {
@@ -81,18 +81,18 @@ Material::MaterialSystem::MaterialSystem(Camera* const camera, Material* const m
 		descriptorSet = m_camera->m_renderPipeline.descriptorSystem(1).getUnused_set();
 		// add the writes
 		descriptorSet->addWrites({ // write the images
-			{ m_material->normalMapTexture.texture->getDescriptorImageInfo(), 3, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
-			{ m_material->displacementMapTexture.texture->getDescriptorImageInfo(), 4, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
-			{ m_material->albedoTexture.texture->getDescriptorImageInfo(), 2, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
-			{ m_material->metallicTexture.texture->getDescriptorImageInfo(), 6, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
-			{ m_material->emissionTexture.texture->getDescriptorImageInfo(), 7, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
-			{ m_material->occlusionMapTexture.texture->getDescriptorImageInfo(), 8, vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_IMAGE_SAMPLER},
+			{ m_material->normalMapTexture.texture->getDescriptorImageInfo(), 3, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler},
+			{ m_material->displacementMapTexture.texture->getDescriptorImageInfo(), 4, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler},
+			{ m_material->albedoTexture.texture->getDescriptorImageInfo(), 2, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler},
+			{ m_material->metallicTexture.texture->getDescriptorImageInfo(), 6, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler},
+			{ m_material->emissionTexture.texture->getDescriptorImageInfo(), 7, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler},
+			{ m_material->occlusionMapTexture.texture->getDescriptorImageInfo(), 8, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler},
 		});
 		descriptorSet->addWrites({ // write the buffers
-			{ m_material->m_vertShaderBuffers[0]->getDescriptorBufferInfo(), 1, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
-			{ m_material->m_vertShaderBuffers[1]->getDescriptorBufferInfo(), 1, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
-			{ m_material->m_fragShaderBuffers[0]->getDescriptorBufferInfo(), 5, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER },
-			{ m_material->m_fragShaderBuffers[1]->getDescriptorBufferInfo(), 5, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::TYPE_UNIFORM_BUFFER }
+			{ m_material->m_vertShaderBuffers[0]->getDescriptorBufferInfo(), 1, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer },
+			{ m_material->m_vertShaderBuffers[1]->getDescriptorBufferInfo(), 1, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer },
+			{ m_material->m_fragShaderBuffers[0]->getDescriptorBufferInfo(), 5, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer },
+			{ m_material->m_fragShaderBuffers[1]->getDescriptorBufferInfo(), 5, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer }
 		});
 		// update the descriptor set
 		descriptorSet->update();

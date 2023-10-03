@@ -9,7 +9,7 @@ namespace lyra {
 
 namespace resource {
 
-MaterialFile loadMaterial(std::string_view path) {
+MaterialFile loadMaterialFile(const std::filesystem::path& path) {
 	// TOL material data
 	MaterialFile material;
 	material.path = path;

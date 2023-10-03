@@ -22,14 +22,7 @@ struct MaterialFile {
 	// std::vector<tinyobj::material_t> mats;
 };
 
-/**
- * @brief load matierals from a .mtl file
- *
- * @param path path of the model
- * 
- * @return lyra::resource::MaterialFile
- */
-NODISCARD MaterialFile loadMaterial();
+NODISCARD MaterialFile loadMaterialFile(std::filesystem::path path);
 
 } // namespace resource
 

@@ -10,19 +10,11 @@ namespace lyra {
 
 namespace resource {
 
-MeshFile loadMesh(std::string_view path, MeshFlags flags) {
-	Assimp::Importer importer;
-	importer.SetIOHandler(new AssimpFileSystem);
-
-	const aiScene* scene = importer.ReadFile(path.data(), static_cast<uint32>(flags));
-
-	if (!scene) {
-		log::error("An error occurred while loading a material: {}!", importer.GetErrorString());
-	}
+MeshFile loadMeshFile(std::filesystem::path path) {
 
 	
 	
-	return mesh;
+	// return mesh;
 }
 
 } // namespace resource

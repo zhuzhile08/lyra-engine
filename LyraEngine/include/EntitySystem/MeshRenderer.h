@@ -11,7 +11,9 @@
 
 #pragma once
 
-#include <Lyra/Lyra.h>
+#include <Common/Common.h>
+
+#include <vector>
 
 #include <Graphics/VulkanImpl/GPUBuffer.h>
 
@@ -21,8 +23,6 @@ namespace lyra {
 
 /**
  * @brief a mesh renderer to render (multiple) meshes
- * 
- * @tparam _STy script type
  */
 class MeshRenderer : public ComponentBase {
 public:
@@ -30,37 +30,41 @@ public:
 	/**
 	 * @brief construct a mesh renderer
 	 * 
-	 * @tparam MSTy script type for the mesh
-	 * 
-	 * @param mesh mesh
+	 * @param mesh mesh to render
+	 * @param material material to render the mesh with
 	 */
-	MeshRenderer(const Mesh* const mesh);
+	MeshRenderer(const Mesh* const mesh, const Material* const material);
 
 	DEFINE_DEFAULT_MOVE(MeshRenderer)
 
 	/**
 	 * @brief get the vertex buffer
 	 *
-	 * @return constexpr const vulkan::GPUBuffer&
+	 * @return const vulkan::GPUBuffer&
 	*/
 	NODISCARD constexpr const vulkan::GPUBuffer& vertexBuffer() const noexcept { return m_vertexBuffer; }
 	/**
 	 * @brief get the index buffer
 	 *
-	 * @return constexpr const vulkan::GPUBuffer&
+	 * @return const vulkan::GPUBuffer&
 	*/
 	NODISCARD constexpr const vulkan::GPUBuffer& indexBuffer() const noexcept { return m_indexBuffer; }
 
 private:
 	const Mesh* m_mesh;
+	const Material* m_material;
 
 	vulkan::GPUBuffer m_vertexBuffer;
 	vulkan::GPUBuffer m_indexBuffer;
 
+	std::vector<MeshRenderer*>::iterator m_iterator;
+
+	void update() { };
+	
 	/**
 	 * bind the buffers of the mesh and draw it
 	 */
-	void update() const noexcept;
+	void draw() const noexcept;
 
 	friend class Material;
 	friend class CubemapBase;
