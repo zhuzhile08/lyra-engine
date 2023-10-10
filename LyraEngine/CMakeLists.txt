@@ -1,16 +1,13 @@
 cmake_minimum_required(VERSION 3.24.0)
-project(LyraEngine VERSION 0.5.0)
 
-# debug build
-set(CMAKE_BUILD_TYPE DEBUG)
-set(CMAKE_CXX_STANDARD 23)
+project(LyraEngine VERSION 0.5.0)
 
 # compile shader commands
 if (WIN32) 
 	set(SHADER_COMPILE_COMMANDS_DIR "${CMAKE_SOURCE_DIR}/compileShader.bat")
-else() 
+else () 
 	set(SHADER_COMPILE_COMMANDS_DIR "${CMAKE_SOURCE_DIR}/compileShader.sh")
-endif()
+endif ()
 
 # find vulkan 
 find_package(Vulkan REQUIRED)
@@ -46,8 +43,7 @@ add_custom_target(build_shaders ALL
 	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
 
-# building the library
-add_library(LyraEngine
+set (LYRA_ENGINE_SOURCE_FILES 
 	"src/Common/Logger.cpp"
 	"src/Common/Benchmark.cpp"
 	"src/Common/FileSystem.cpp"
@@ -89,6 +85,13 @@ add_library(LyraEngine
 	"src/Input/InputSystem.cpp"
 )
 
+# building the library
+if (BUILD_STATIC)
+	add_library(LyraEngine STATIC "${LYRA_ENGINE_SOURCE_FILES}")
+else ()
+	add_library(LyraEngine SHARED "${LYRA_ENGINE_SOURCE_FILES}")
+endif ()
+
 add_dependencies(LyraEngine build_shaders)
 
 # link some libraries
@@ -96,7 +99,7 @@ target_link_libraries(LyraEngine
 LINK_PUBLIC
 	# graphics and windowing libraries
 	Vulkan::Vulkan
-	SDL2::SDL2
+	SDL2::SDL2-static
 	SDL2::SDL2main
 	ImGui
 
@@ -113,21 +116,28 @@ LINK_PUBLIC
 
 target_precompile_headers(LyraEngine
 PUBLIC
-	<vector>
-	<iostream>
-	<fstream>
-	<deque>
-	<string>
-	<map>
-	<unordered_map>
-	<array>
 	<algorithm>
+	<array>
 	<chrono>
-	<utility>
-	<filesystem>
-	<stddef.h>
-	<stdint.h>
-	<wchar.h>
-	<functional>
 	<cmath>
+	<cstdio>
+	<cstdlib>
+	<deque>
+	<filesystem>
+	<fstream>
+	<functional>
+	<iostream>
+	<map>
+	<set>
+	<stddef.h>
+	<stdexcept>
+	<stdint.h>
+	<string>
+	<string_view>
+	<type_traits>
+	<unordered_map>
+	<unordered_set>
+	<utility>
+	<vector>
+	<wchar.h>
 )
