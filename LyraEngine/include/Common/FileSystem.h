@@ -36,21 +36,8 @@ enum class OpenMode {
 	read,
 	write,
 	append,
-	readExt,
-	writeExt,
-	appendExt,
-	readBin,
-	writeBin,
-	appendBin,
-	readExtBin,
-	writeExtBin,
-	appendExtBin,
-	readText,
-	writeText,
-	appendText,
-	readExtText,
-	writeExtText,
-	appendExtText
+	extend = 0x04,
+	binary = 0x08
 };
 
 enum class SeekDirection {

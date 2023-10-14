@@ -25,10 +25,10 @@ int main(int argc, char* argv[]) {
 
 	lyra::vulkan::Framebuffers framebuffers;
 
-	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv", lyra::OpenMode::readBin);
+	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv", lyra::OpenMode::read | lyra::OpenMode::binary);
 	lyra::vulkan::Shader vertexShader(lyra::vulkan::Shader::Type::vertex, vertexShaderFile.data());
 
-	lyra::CharVectorStream fragmentShaderFile("data/shader/frag.spv", lyra::OpenMode::readBin);
+	lyra::CharVectorStream fragmentShaderFile("data/shader/frag.spv", lyra::OpenMode::read | lyra::OpenMode::binary);
 	lyra::vulkan::Shader fragmentShader(lyra::vulkan::Shader::Type::fragment, fragmentShaderFile.data());
 
 	lyra::vulkan::GraphicsProgram graphicsProgram(vertexShader, fragmentShader);

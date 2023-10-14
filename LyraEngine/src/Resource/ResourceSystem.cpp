@@ -14,7 +14,7 @@ namespace {
 
 class ResourceSystem {
 public:
-	ResourceSystem() : assetsFile(Json::parse(StringStream(assetsFilePath(), OpenMode::readText, false).data())) {
+	ResourceSystem() : assetsFile(Json::parse(StringStream(assetsFilePath(), OpenMode::read, false).data())) {
 		
 	}
 

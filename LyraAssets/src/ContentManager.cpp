@@ -17,7 +17,7 @@
 
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
-		m_recents = lyra::Json::parse(lyra::StringStream("data/recents.dat", lyra::OpenMode::readExtText, false).data());
+		m_recents = lyra::Json::parse(lyra::StringStream("data/recents.dat", lyra::OpenMode::read | lyra::OpenMode::extend, false).data());
 	}
 }
 
@@ -34,7 +34,7 @@ void ContentManager::loadProjectFile() {
 		
 		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f[0]));
 		m_projectFilePath = f[0];
-		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::readText).data());
+		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
 
 		m_validProject = true;
 
@@ -44,11 +44,15 @@ void ContentManager::loadProjectFile() {
 
 void ContentManager::loadRecent(const std::filesystem::path& p) {
 	if (std::filesystem::exists(p)) {
+		lyra::log::info("Loading project file...");
+
 		m_projectFilePath = p;
-		m_projectFile = lyra::Json::parse(lyra::StringStream(p, lyra::OpenMode::readText).data());
+		m_projectFile = lyra::Json::parse(lyra::StringStream(p, lyra::OpenMode::read).data());
 
 		m_validProject = true;
 		unsaved = false;
+
+		lyra::log::info("Loaded project file at path: {}!", p.string());
 	}
 }
 
@@ -68,12 +72,12 @@ void ContentManager::createProjectFile() {
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
 			auto r = pfd::message("File already exsists!", "A Lyra project file already exists at the specified location, do you want to overwrite it?", pfd::choice::yes_no, pfd::icon::warning).result();
 			if (r == pfd::button::no) {
-				m_projectFile = lyra::Json::parse(lyra::StringStream(f, lyra::OpenMode::readExtText).data());
+				m_projectFile = lyra::Json::parse(lyra::StringStream(f, lyra::OpenMode::read | lyra::OpenMode::extend).data());
 				return;
 			}
 		}
 
-		lyra::StringStream s(f, lyra::OpenMode::writeExtText);
+		lyra::StringStream s(f, lyra::OpenMode::write | lyra::OpenMode::extend);
 		if (!s.good()) {
 			return;
 		}
@@ -91,12 +95,12 @@ void ContentManager::save() {
 	if (unsaved) {
 		lyra::log::info("Saving current project file...");
 
-		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::writeExtText);
+		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::write | lyra::OpenMode::extend);
 		auto s = m_projectFile.stringify();
 		f.write(s.data(), s.size());
 		unsaved = false;
 
-		lyra::log::info("Successfully saved current project file at path: {}!", m_projectFilePath);
+		lyra::log::info("Successfully saved current project file at path: {}!", m_projectFilePath.string());
 	}
 }
 
@@ -106,7 +110,7 @@ void ContentManager::saveAs() {
 		if (!p.empty()) {
 			lyra::log::info("Saving current project file to new file...");
 
-			lyra::ByteFile f(p, lyra::OpenMode::writeExtText);
+			lyra::ByteFile f(p, lyra::OpenMode::write | lyra::OpenMode::extend);
 			auto s = m_projectFile.stringify();
 			f.write(s.data(), s.size());
 
@@ -116,7 +120,7 @@ void ContentManager::saveAs() {
 			m_validProject = true;
 			unsaved = false;
 
-			lyra::log::info("Successfully saved current project file to path: {}!", m_projectFilePath);
+			lyra::log::info("Successfully saved current project file to path: {}!", m_projectFilePath.string());
 		}
 	}
 }
@@ -172,10 +176,12 @@ void ContentManager::build() {
 		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+			lyra::log::debug("\tTexture: {}", filepath.string());
+
 			int width, height, channels;
 			lyra::uint8* data = stbi_load_from_file(
 				lyra::ByteFile(filepath, 
-				lyra::OpenMode::readBin).stream(), 
+				lyra::OpenMode::read | lyra::OpenMode::binary).stream(),
 				&width, 
 				&height, 
 				&channels, 
@@ -189,7 +195,7 @@ void ContentManager::build() {
 			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
 			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), result.size()));
 
-			lyra::ByteFile buildFile(concat, lyra::OpenMode::writeBin);
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary);
 			buildFile.write(
 				result.data(), 
 				sizeof(lyra::uint8), 
@@ -198,6 +204,8 @@ void ContentManager::build() {
 
 			stbi_image_free(data);
 		} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
+			lyra::log::debug("\tModel: {}", filepath.string());
+
 			Assimp::Importer importer;
 			importer.SetIOHandler(new AssimpFileSystem);
 
@@ -256,7 +264,7 @@ void ContentManager::build() {
 			std::vector<char> result(LZ4_compressBound(data.size()));
 			result.resize(LZ4_compress_default(data.data(), result.data(), data.size(), result.size()));
 
-			lyra::ByteFile buildFile(concat, lyra::OpenMode::writeBin);
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary);
 
 			buildFile.write(
 				result.data(), 
@@ -319,7 +327,7 @@ bool ContentManager::close() {
 		if (r == pfd::button::cancel) return true;
 	}
 
-	auto recentsFile = lyra::ByteFile("data/recents.dat", lyra::OpenMode::writeExtText, false);
+	auto recentsFile = lyra::ByteFile("data/recents.dat", lyra::OpenMode::write | lyra::OpenMode::extend, false);
 	m_recents.get<lyra::Json::array_type>().resize(std::min(m_recents.get<lyra::Json::array_type>().size(), size_t(8)));
 	auto stringified = m_recents.stringify();
 	recentsFile.write(stringified.data(), stringified.size());

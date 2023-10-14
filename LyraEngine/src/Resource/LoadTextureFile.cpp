@@ -19,7 +19,7 @@ TextureFile loadTextureFile(
 	uint32 dimension,
 	uint32 wrap
 ) {
-	ByteFile compressedFile(path.concat(".dat"), OpenMode::readBin, false);
+	ByteFile compressedFile(path.concat(".dat"), OpenMode::read | OpenMode::binary, false);
 	std::vector<char> fileData(compressedFile.seekg(0, SeekDirection::end).tellg());
 	compressedFile.seekg(0).read(fileData.data(), fileData.size());
 

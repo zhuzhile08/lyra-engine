@@ -207,6 +207,10 @@ void Window::draw() {
 		auto* f = lyra::log::defaultLogger()->outStream();
 		auto s = std::ftell(f);
 
+		std::fseek(f, 0, SEEK_SET);
+
+		m_state->logBuffer.resize(s);
+
 		int c = std::fgetc(f);
 
 		while (c != EOF) { // skip ansi sequences
@@ -216,15 +220,9 @@ void Window::draw() {
 				while (c != 'm') c = std::fgetc(f);
 			}
 
-			std::fgetc(f);
+			c = std::fgetc(f);
+			m_state->logBuffer.push_back(c);
 		}
-
-		std::fseek(f, 0, SEEK_SET);
-
-		m_state->logBuffer.resize(s);
-		std::fread(&(m_state->logBuffer[0]), sizeof(char), s, f);
-
-		std::fseek(f, 0, SEEK_END);
 
 		ImGui::Text("%s", m_state->logBuffer.data());
 
