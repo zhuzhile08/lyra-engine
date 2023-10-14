@@ -21,6 +21,7 @@
 #include <Common/Config.h>
 
 #include <fmt/core.h>
+#include <fmt/xchar.h>
 #include <fmt/chrono.h>
 #include <vulkan/vulkan.h>
 
