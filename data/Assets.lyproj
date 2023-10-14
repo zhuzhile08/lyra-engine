@@ -1,185 +1,204 @@
 {
 	"mesh/femc.obj": {
+		"Scale": 1,
 		"VertexBlocks": [
-			72576,
-			70272,
+			1664256,
 			102240,
-			1664256
+			70272,
+			72576
+		],
+		"IndexBlocks": [
+			138688,
+			8520,
+			5856,
+			6048
 		],
 		"RotationX": 0,
+		"ImportFlags": 0,
 		"RotationZ": 0,
-		"RotationY": 0,
+		"RotationY": 0
+	},
+	"img/viking_room.png": {
+		"Width": 1024,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 7,
+		"Height": 1024,
+		"Color": 0
+	},
+	"img/p3_femc_sees_tex.png": {
+		"Width": 4096,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 9,
+		"Height": 2048,
+		"Color": 0
+	},
+	"img/ray_eye_glow.png": {
+		"Width": 32,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 2,
+		"Height": 32,
+		"Color": 0
+	},
+	"img/ray_canopy_ovl_mod1120_emap.png": {
+		"Width": 64,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 3,
+		"Height": 64,
+		"Color": 0
+	},
+	"mesh/viking_room.obj": {
+		"Scale": 1,
+		"VertexBlocks": [
+			551232
+		],
+		"IndexBlocks": [
+			45936
+		],
+		"RotationX": 0,
+		"ImportFlags": 0,
+		"RotationZ": 0,
+		"RotationY": 0
+	},
+	"mesh/mgRAY.obj": {
+		"Scale": 1,
+		"VertexBlocks": [
+			246816,
+			576,
+			314784,
+			4032,
+			20736
+		],
+		"IndexBlocks": [
+			20568,
+			48,
+			26232,
+			336,
+			1728
+		],
+		"RotationX": 0,
+		"ImportFlags": 0,
+		"RotationZ": 0,
+		"RotationY": 0
+	},
+	"img/Default.bmp": {
+		"Width": 1,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 1,
+		"Height": 1,
+		"Color": 0
+	},
+	"img/auto_unite3.png": {
+		"Width": 1024,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 7,
+		"Height": 1024,
+		"Color": 0
+	},
+	"img/ray_tail_s1x_sub_alp_ovl.png": {
+		"Width": 256,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 5,
+		"Height": 64,
+		"Color": 0
+	},
+	"img/auto_unite3Alp.png": {
+		"Width": 1024,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 7,
+		"Height": 1024,
+		"Color": 0
+	},
+	"img/ray_marines_alp_ovl.png": {
+		"Width": 128,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 4,
+		"Height": 32,
+		"Color": 0
+	},
+	"img/p3_femc_sees_emission.png": {
+		"Width": 4096,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 9,
+		"Height": 2048,
+		"Color": 0
+	},
+	"img/searchlight.png": {
+		"Width": 256,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 5,
+		"Height": 256,
+		"Color": 0
+	},
+	"img/Normal.bmp": {
+		"Width": 1,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 1,
+		"Height": 1,
+		"Color": 0
+	},
+	"img/skybox.png": {
+		"Width": 512,
+		"Dimension": 1,
+		"Alpha": 0,
+		"Wrap": 0,
+		"Type": 0,
+		"Mipmap": 6,
+		"Height": 512,
+		"Color": 0
+	},
+	"mesh\femc.obj": {
+		"RotationZ": 0,
+		"ImportFlags": 0,
 		"IndexBlocks": [
 			6048,
 			5856,
 			8520,
 			138688
 		],
-		"Scale": 1,
-		"ImportFlags": 0
-	},
-	"img/viking_room.png": {
-		"Width": 1024,
-		"Alpha": 0,
-		"Mipmap": 7,
-		"Type": 0,
-		"Height": 1024,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/ray_canopy_ovl_mod1120_emap.png": {
-		"Width": 64,
-		"Alpha": 0,
-		"Mipmap": 3,
-		"Type": 0,
-		"Height": 64,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"mesh/viking_room.obj": {
-		"VertexBlocks": [
-			551232
-		],
 		"RotationX": 0,
-		"RotationZ": 0,
 		"RotationY": 0,
-		"IndexBlocks": [
-			45936
-		],
-		"Scale": 1,
-		"ImportFlags": 0
-	},
-	"mesh/mgRAY.obj": {
 		"VertexBlocks": [
-			20736,
-			4032,
-			314784,
-			576,
-			246816
+			72576,
+			70272,
+			102240,
+			1664256
 		],
-		"RotationX": 0,
-		"RotationZ": 0,
-		"RotationY": 0,
-		"IndexBlocks": [
-			1728,
-			336,
-			26232,
-			48,
-			20568
-		],
-		"Scale": 1,
-		"ImportFlags": 0
-	},
-	"img/ray_eye_glow.png": {
-		"Width": 32,
-		"Alpha": 0,
-		"Mipmap": 2,
-		"Type": 0,
-		"Height": 32,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/Default.bmp": {
-		"Width": 1,
-		"Alpha": 0,
-		"Mipmap": 1,
-		"Type": 0,
-		"Height": 1,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/p3_femc_sees_tex.png": {
-		"Width": 4096,
-		"Alpha": 0,
-		"Mipmap": 9,
-		"Type": 0,
-		"Height": 2048,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/auto_unite3.png": {
-		"Width": 1024,
-		"Alpha": 0,
-		"Mipmap": 7,
-		"Type": 0,
-		"Height": 1024,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/auto_unite3Alp.png": {
-		"Width": 1024,
-		"Alpha": 0,
-		"Mipmap": 7,
-		"Type": 0,
-		"Height": 1024,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/ray_tail_s1x_sub_alp_ovl.png": {
-		"Width": 256,
-		"Alpha": 0,
-		"Mipmap": 5,
-		"Type": 0,
-		"Height": 64,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/ray_marines_alp_ovl.png": {
-		"Width": 128,
-		"Alpha": 0,
-		"Mipmap": 4,
-		"Type": 0,
-		"Height": 32,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/p3_femc_sees_emission.png": {
-		"Width": 4096,
-		"Alpha": 0,
-		"Mipmap": 9,
-		"Type": 0,
-		"Height": 2048,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/searchlight.png": {
-		"Width": 256,
-		"Alpha": 0,
-		"Mipmap": 5,
-		"Type": 0,
-		"Height": 256,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/Normal.bmp": {
-		"Width": 1,
-		"Alpha": 0,
-		"Mipmap": 1,
-		"Type": 0,
-		"Height": 1,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
-	},
-	"img/skybox.png": {
-		"Width": 512,
-		"Alpha": 0,
-		"Mipmap": 6,
-		"Type": 0,
-		"Height": 512,
-		"Dimension": 1,
-		"Wrap": 0,
-		"Color": 0
+		"Scale": 1
 	}
 }
