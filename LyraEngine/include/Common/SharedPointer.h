@@ -123,6 +123,10 @@ public:
 		return *this;
 	}
 
+	template <class ... Args> NODISCARD static SharedPointer create(Args&&... args) {
+		return SharedPointer(new value_type(std::forward<Args>(args)...));
+	}
+
 	void reset() {
 		wrapper().swap(*this);
 	}
