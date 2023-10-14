@@ -1,5 +1,6 @@
 #include <Common/Array.h>
 #include <Common/Dynarray.h>
+#include <Common/SharedPointer.h>
 #include <Common/Logger.h>
 #include <Common/FunctionPointer.h>
 #include <Common/FileSystem.h>
@@ -57,10 +58,13 @@ int main(int argc, char* argv[]) {
 		lyra::log::exception("Catched an exception!\n");
 	}
 
-	lyra::CharVectorStream file("test.json");
-	lyra::Json jsonFile1 = lyra::Json::parse(file.data());
+	lyra::SharedPointer<int> shared1 = lyra::SharedPointer<int>::create(12211141);
+	lyra::log::debug("\nShared pointer value and count: {}, {}", shared1.count(), *shared1);
 
-	lyra::log::info("Json Parsing Test: {}\n", jsonFile1.stringify());
+	// lyra::CharVectorStream file("test.json");
+	// lyra::Json jsonFile1 = lyra::Json::parse(file.data());
+
+	// lyra::log::info("Json Parsing Test: {}\n", jsonFile1.stringify());
 
 	return 0;
 }
