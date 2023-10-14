@@ -12,7 +12,6 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/IteratorBase.h>
 
 namespace lyra {
 
@@ -133,11 +132,6 @@ public:
 	using pointer = Ty*;
 	using deleter_type = DTy;
 	using wrapper = UniquePointer;
-
-	using iterator = IteratorBase<Ty>;
-	using const_iterator = IteratorBase<const Ty>; 
-	using reference = value_type&;
-	using const_reference = const value_type&;
 
 	constexpr UniquePointer() = default;
 	constexpr UniquePointer(nullpointer) : m_pointer(nullptr) { }
