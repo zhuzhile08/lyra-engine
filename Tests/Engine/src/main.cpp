@@ -1,5 +1,3 @@
-#define SDL_MAIN_HANDLED
-
 #include <Lyra/Lyra.h>
 #include <Common/Common.h>
 #include <Common/FileSystem.h>
