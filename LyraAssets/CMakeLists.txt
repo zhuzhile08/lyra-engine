@@ -13,7 +13,7 @@ PUBLIC
 
 	# graphics and windowing libraries
 	Vulkan::Headers
-	${LIBRARY_PATH}/sdl2/include/
+	${LIBRARY_PATH}/sdl/include/
 	${LIBRARY_PATH}/imgui/
 
 	# math and physics libraries

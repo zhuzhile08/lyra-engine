@@ -9,7 +9,7 @@ PRIVATE
 
 	# graphics and windowing libraries
 	Vulkan::Headers
-	${LIBRARY_PATH}/sdl2/include/
+	${LIBRARY_PATH}/sdl/include/
 
 	# math and physics libraries
 	${LIBRARY_PATH}/glm/

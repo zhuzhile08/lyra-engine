@@ -16,7 +16,7 @@ else ()
 	option(IMGUI_BUILD_STATIC "Build ImGUI statically" OFF)
 endif ()
 
-add_subdirectory("sdl2")
+add_subdirectory("sdl")
 add_subdirectory("lz4/build/cmake")
 add_subdirectory("imgui")
 add_subdirectory("fmt")

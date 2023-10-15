@@ -20,7 +20,7 @@ PUBLIC
 
 	# graphics and windowing libraries
 	Vulkan::Headers
-	${LIBRARY_PATH}/sdl2/include/
+	${LIBRARY_PATH}/sdl/include/
 	${LIBRARY_PATH}/imgui/
 
 	# math and physics libraries
@@ -99,8 +99,7 @@ target_link_libraries(LyraEngine
 LINK_PUBLIC
 	# graphics and windowing libraries
 	Vulkan::Vulkan
-	SDL2::SDL2-static
-	SDL2::SDL2main
+	SDL3::SDL3-static
 	ImGui
 
 	# math and physics libraries
