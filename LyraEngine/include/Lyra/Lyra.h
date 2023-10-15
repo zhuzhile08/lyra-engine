@@ -11,13 +11,19 @@
 
 #pragma once
 
+#ifdef _WIN32
+#define SDL_MAIN_HANDLED
+#endif
+
+#include <SDL_main.h>
+
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/SDLWindow.h>
 
 namespace lyra {
 
 inline void init() {
-	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
+	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS) != 0) {
 		ASSERT(false, "lyra::init(): SDL init error: {}!", SDL_GetError());
 	}
 }

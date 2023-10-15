@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <string_view>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <SDL_vulkan.h>
 
 #include <vulkan/vulkan.h>
@@ -239,14 +239,12 @@ public:
 	 */
 	constexpr RAIIContainer(
 		std::string_view title, 
-		int x, 
-		int y, 
-		int w, 
-		int h, 
+		int x,
+		int y,
 		uint32_t flags
 	) requires(std::is_same_v<handle_type, SDL_Window*>) {
 		if (!m_handle) {
-			m_handle = SDL_CreateWindow(title.data(), x, y, w, h, flags);
+			m_handle = SDL_CreateWindow(title.data(), x, y, flags);
 		}
 	}
 

@@ -9,7 +9,7 @@
 
 #include <SDL_vulkan.h>
 #include <backends/imgui_impl_vulkan.h>
-#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdl3.h>
 
 
 #include <utility>
@@ -1873,7 +1873,7 @@ VulkanImGuiRenderer::VulkanImGuiRenderer(const Window& window) : ImGuiRenderer(w
 
 	m_descriptorPools = vulkan::DescriptorPools(poolSizes);
 
-	ImGui_ImplSDL2_InitForVulkan(m_window->get());
+	ImGui_ImplSDL3_InitForVulkan(m_window->get());
 	ImGui_ImplVulkan_InitInfo initInfo{
 		vulkan::globalRenderSystem->instance,
 		vulkan::globalRenderSystem->physicalDevice,
@@ -1901,14 +1901,14 @@ void VulkanImGuiRenderer::uploadFonts() {
 
 VulkanImGuiRenderer::~VulkanImGuiRenderer() {
 	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplSDL2_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
 }
 
 void VulkanImGuiRenderer::beginFrame() {
 	m_framebuffers.begin();
 
 	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame(m_window->get());
+	ImGui_ImplSDL3_NewFrame();
 }
 
 void VulkanImGuiRenderer::endFrame() {

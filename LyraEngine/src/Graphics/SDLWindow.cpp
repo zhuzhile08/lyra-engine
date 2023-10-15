@@ -1,7 +1,7 @@
 #include <Graphics/SDLWindow.h>
 
 #include <SDL_error.h>
-#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdl3.h>
 
 #include <Common/Logger.h>
 // #include <Common/Config.h>
@@ -17,29 +17,30 @@ Window::Window() {
 	if (config::alwaysOnTop) flags |= SDL_WINDOW_ALWAYS_ON_TOP;
 	if (config::borderless) flags |= SDL_WINDOW_BORDERLESS;
 
-	m_window = sdl::Window(config::title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, config::windowWidth, config::windowHeight, flags);
+	m_window = sdl::Window(config::title, config::windowWidth, config::windowHeight, flags);
 
 	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
-Window::Window(std::string_view title, Flags flags, const glm::ivec2& size, const glm::ivec2& position) {
-	m_window = sdl::Window(title, position.x, position.y, size.x, size.y, static_cast<uint32>(flags));
+Window::Window(std::string_view title, Flags flags, const glm::ivec2& size) {
+	m_window = sdl::Window(title, size.x, size.y, static_cast<uint32>(flags));
 
 	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
 std::vector<const char*> Window::instanceExtensions() const {
 	uint32 instanceExtensionCount = 0;
-	ASSERT(SDL_Vulkan_GetInstanceExtensions(m_window, &instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
+	ASSERT(SDL_Vulkan_GetInstanceExtensions(&instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
 	std::vector<const char*> instanceExtensions(instanceExtensionCount);
-	ASSERT(SDL_Vulkan_GetInstanceExtensions(m_window, &instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+	ASSERT(SDL_Vulkan_GetInstanceExtensions(&instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
 
 	return instanceExtensions;
 }
 
 glm::uvec2 Window::getDrawableSize() const {
 	glm::ivec2 r;
-	SDL_Vulkan_GetDrawableSize(m_window, &r.x, &r.y);
+	SDL_GetWindowSizeInPixels(m_window, &r.x, &r.y);
+
 	return r;
 }
 

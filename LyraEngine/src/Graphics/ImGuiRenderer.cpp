@@ -4,7 +4,7 @@
 
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
-#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdl3.h>
 
 namespace lyra {
 

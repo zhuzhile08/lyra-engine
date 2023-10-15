@@ -16,15 +16,13 @@
 #include <Common/Common.h>
 #include <Common/RAIIContainers.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <glm/glm.hpp>
 
 namespace lyra {
 
 class Window {
 public:
-	static constexpr int centered = SDL_WINDOWPOS_CENTERED;
-
 	enum class Flags {
 		fullscreen = 0x00000001,
 		fullscreenDesktop = ( fullscreen | 0x00001000 ),
@@ -58,7 +56,7 @@ public:
 	// construct a window in default engine configuration
 	Window();
 	// construct a window with custom settings
-	Window(std::string_view title, Flags flags, const glm::ivec2& size, const glm::ivec2& position = {centered, centered});
+	Window(std::string_view title, Flags flags, const glm::ivec2& size);
 
 	virtual ~Window() noexcept {
 		m_running = false;

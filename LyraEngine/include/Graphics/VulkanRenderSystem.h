@@ -20,7 +20,7 @@
 #include <Graphics/ImGuiRenderer.h>
 
 #include <glm/glm.hpp>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <vulkan/vulkan.h>
 #ifdef __APPLE__
 #pragma clang diagnostic push

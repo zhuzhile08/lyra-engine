@@ -1,6 +1,6 @@
 #include <Input/InputSystem.h>
 
-#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdl3.h>
 
 namespace lyra {
 
@@ -39,7 +39,7 @@ const MouseButton& mouseInput(MouseButtonType type) noexcept {
 const ControllerButton& controllerInput(ControllerButtonType type) noexcept {
 	return globalInputSystem->controllerInput(type);
 }
-const glm::ivec2& mousePos() noexcept {
+const glm::vec2& mousePos() noexcept {
 	return globalInputSystem->mousePos();
 }
 const glm::vec2& analogueStickPos() noexcept {
@@ -60,9 +60,6 @@ void disableImGui() noexcept {
 void InputSystem::update() {
 	m_window->m_changed = false;
 
-	// get new events and set the passed events
-	SDL_PumpEvents();
-
 	m_mouseState = SDL_GetMouseState(&m_mousePos.x, &m_mousePos.y);
 	for (auto& button : m_mouseButtons) {
 		if ((m_mouseState & static_cast<uint32>(button.first)) == static_cast<uint32>(button.first)) button.second.held = true;
@@ -75,42 +72,41 @@ void InputSystem::update() {
 
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
-		if (m_imGUI) ImGui_ImplSDL2_ProcessEvent(&event);	
+		if (m_imGUI) ImGui_ImplSDL3_ProcessEvent(&event);
 		
 		// implement controller events @todo
 
 		// default events that are always checked
 		switch (event.type) {
-			case SDL_QUIT:
+			case SDL_EVENT_QUIT:
 				m_window->m_running = false;
-			case SDL_WINDOWEVENT: 
-				if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || 
-					event.window.event == SDL_WINDOWEVENT_MINIMIZED || 
-					event.window.event == SDL_WINDOWEVENT_MAXIMIZED)
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: 
+			case SDL_EVENT_WINDOW_MINIMIZED:
+			case SDL_EVENT_WINDOW_MAXIMIZED:
 					m_window->m_changed = true;
-			case SDL_KEYDOWN:
+			case SDL_EVENT_KEY_DOWN:
 				for (auto& key : m_keys) {
 					if (event.key.keysym.sym == static_cast<int>(key.first)) key.second.pressed = true;
 				}
-			case SDL_KEYUP:
+			case SDL_EVENT_KEY_UP:
 				for (auto& key : m_keys) {
 					if (event.key.keysym.sym == static_cast<int>(key.first)) key.second.released = true;
 				}
-			case SDL_MOUSEBUTTONDOWN:
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				for (auto& key : m_mouseButtons) {
 					if (event.button.button == static_cast<uint8>(key.first)) key.second.pressed = true;
 				}
-			case SDL_MOUSEBUTTONUP:
+			case SDL_EVENT_MOUSE_BUTTON_UP:
 				for (auto& key : m_mouseButtons) {
 					if (event.button.button == static_cast<uint8>(key.first)) key.second.released = true;
 				}
-			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 				for (auto& key : m_controllerButtons) {
-					if (event.cbutton.button == static_cast<uint8>(key.first)) key.second.pressed = true;
+					if (event.button.button == static_cast<uint8>(key.first)) key.second.pressed = true;
 				}
-			case SDL_CONTROLLERBUTTONUP:
+			case SDL_EVENT_GAMEPAD_BUTTON_UP:
 				for (auto& key : m_controllerButtons) {
-					if (event.cbutton.button == static_cast<uint8>(key.first)) key.second.released = true;
+					if (event.button.button == static_cast<uint8>(key.first)) key.second.released = true;
 				}	
 		}
 	}

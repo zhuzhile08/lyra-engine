@@ -18,7 +18,7 @@
 #include <Input/InputEnums.h>
 
 #include <glm/glm.hpp>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <imgui.h>
 
 #include <unordered_map>
@@ -60,7 +60,7 @@ void addControllerButtonInput(ControllerButtonType type);
 const Key& keyboardInput(KeyType type) noexcept;
 const MouseButton& mouseInput(MouseButtonType type) noexcept;
 const ControllerButton& controllerInput(ControllerButtonType type) noexcept;
-const glm::ivec2& mousePos() noexcept;
+const glm::vec2& mousePos() noexcept;
 const glm::vec2& analogueStickPos() noexcept;
 void update();
 void enableImGui(const ImGuiContext* context) noexcept;
@@ -93,11 +93,11 @@ public:
 		return m_controllerButtons.at(type);
 	}
 
-	const glm::ivec2& mousePos() const noexcept {
+	const glm::vec2& mousePos() const noexcept {
 		return m_mousePos;
 	}
 	const glm::vec2& analogueStickPos() const noexcept {
-		return mStickPos;
+		return m_stickPos;
 	}
 
 	constexpr void enableImGui(const ImGuiContext* context) noexcept {
@@ -117,8 +117,8 @@ private:
 	uint32 m_mouseState;
 	const uint8* m_keyboardState;
 
-	glm::ivec2 m_mousePos;
-	glm::vec2 mStickPos;
+	glm::vec2 m_mousePos;
+	glm::vec2 m_stickPos;
 
 	Window* m_window;
 	const ImGuiContext* m_imGUI = nullptr;
