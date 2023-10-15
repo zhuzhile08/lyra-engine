@@ -7,18 +7,18 @@ project (LyraEngineToolchain)
 
 
 # project options
-option(BUILD_STATIC "Build LyraEngine statically" TRUE)
+option(BUILD_STATIC "Build LyraEngine statically" ON)
 if (BUILD_STATIC)
-	set (BUILD_SHARED_LIBS FALSE)
+	option(BUILD_SHARED_LIBS "Build all 3rd party libraries and LyraEngine as shared" OFF)
 else ()
-	set (BUILD_SHARED_LIBS TRUE)
-endif ()
+	option(BUILD_SHARED_LIBS "Build all 3rd party libraries and LyraEngine as shared" ON)
+endif()
 
-option(BUILD_DEBUG "Build the toolchain in debug mode" TRUE)
+option(BUILD_DEBUG "Build the toolchain in debug mode" ON)
 if (BUILD_DEBUG)
-	set (BUILD_MODE DEBUG)
+	set(CMAKE_BUILD_TYPE Debug)
 else ()
-	set (BUILD_MODE RELEASE)
+	set(CMAKE_BUILD_TYPE Release)
 endif ()
 
 
@@ -29,7 +29,7 @@ if (APPLE)
 endif()
 
 
-# set some variables
+# 3rd party library path
 set(LIBRARY_PATH ${CMAKE_SOURCE_DIR}/3rdParty)
 
 
@@ -38,7 +38,6 @@ set(LYRA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/LyraEngine/include/)
 
 
 # set global options
-set(CMAKE_BUILD_TYPE BUILD_MODE)
 set(CMAKE_CXX_STANDARD 23)
 
 # Include sub-projects.
