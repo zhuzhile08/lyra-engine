@@ -15,7 +15,7 @@
 	url = https://github.com/nothings/stb
 	branch = master
 [submodule "3rdParty/sdl2"]
-	path = 3rdParty/sdl2
+	path = 3rdParty/sdl
 	url = https://github.com/libsdl-org/SDL
 	branch = SDL2
 [submodule "3rdParty/lz4"]
