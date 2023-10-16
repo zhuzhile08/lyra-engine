@@ -14,10 +14,10 @@
 	path = 3rdParty/stb
 	url = https://github.com/nothings/stb
 	branch = master
-[submodule "3rdParty/sdl2"]
+[submodule "3rdParty/sdl"]
 	path = 3rdParty/sdl
 	url = https://github.com/libsdl-org/SDL
-	branch = SDL2
+	branch = main
 [submodule "3rdParty/lz4"]
 	path = 3rdParty/lz4
 	url = https://github.com/lz4/lz4
