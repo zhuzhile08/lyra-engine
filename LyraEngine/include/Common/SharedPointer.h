@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <common/UniquePointer.h>
+#include <Common/UniquePointer.h>
 
 namespace lyra {
 
@@ -26,6 +26,7 @@ public:
 private:
 	struct DeleterBase {
 		using pointer = UniquePointer<DeleterBase>;
+		virtual constexpr ~DeleterBase() = default;
 		virtual constexpr void destroy(value_type*) = 0;
 	};
 
@@ -82,11 +83,13 @@ public:
 	constexpr SharedPointer() noexcept = default;
 	constexpr SharedPointer(nullpointer) noexcept { }
 	template <class Other> constexpr SharedPointer(Other* ptr) { 
-		if (m_refCount) if (m_refCount->destroy(std::exchange(m_pointer, ptr)) == 0) delete m_refCount;
+		auto p = std::exchange(m_pointer, ptr);
+		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type();
 	}
 	template <class Other, class Deleter> constexpr SharedPointer(Other* ptr, Deleter del) { 
-		if (m_refCount) if (m_refCount->destroy(std::exchange(m_pointer, ptr)) == 0) delete m_refCount;
+		auto p = std::exchange(m_pointer, ptr);
+		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type(std::forward<Deleter>(del));
 	}
 	constexpr SharedPointer(const wrapper& other) : m_pointer(other.m_pointer), m_refCount(other.m_refCount) { m_refCount->increment(); }
@@ -94,7 +97,8 @@ public:
 	template <class T> constexpr SharedPointer(const SharedPointer<T>& other) : m_pointer(other.m_pointer), m_refCount(other.m_refCount) { m_refCount->increment(); }
 	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(std::move(other.m_pointer)), m_refCount(std::move(other.m_refCount->increment())) { }
 	template <class T, class D> constexpr SharedPointer(UniquePointer<T, D>&& other) { 
-		if (m_refCount) if (m_refCount->destroy(std::exchange(m_pointer, std::move(other.release()))) == 0) delete m_refCount;
+		auto p = std::exchange(m_pointer, std::move(other.release()));
+		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type(std::move<D>(other.deleter()));
 	}
 
