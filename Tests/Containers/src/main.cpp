@@ -55,16 +55,28 @@ int main(int argc, char* argv[]) {
 	try {
 		foo.insert(foo.begin(), 30, 8);
 	} catch(...) {
-		lyra::log::exception("Catched an exception!\n");
+		lyra::log::error("Catched an exception!\n");
 	}
 
-	lyra::SharedPointer<int> shared1 = lyra::SharedPointer<int>::create(12211141);
-	lyra::log::debug("\nShared pointer value and count: {}, {}", shared1.count(), *shared1);
+	lyra::SharedPointer<lyra::uint64> shared1 = lyra::SharedPointer<lyra::uint64>::create(12211411);
+	lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());
+
+	lyra::SharedPointer<lyra::uint64> shared2 = shared1;
+	*shared2 = 9381295254938;
+	lyra::log::debug("Shared pointer value and count after copy and modification: {}, {}", *shared2, shared2.count());
+
+	{
+		lyra::SharedPointer<lyra::uint64> shared3 = shared2;
+		lyra::log::debug("Unnamed scope shared pointer value and count after copy: {}, {}\n", *shared3, shared3.count());
+	}
+
+	lyra::log::debug("Shared pointer count after previous exited scope: {}\n", shared2.count());
+		
 
 	// lyra::CharVectorStream file("test.json");
 	// lyra::Json jsonFile1 = lyra::Json::parse(file.data());
 
-	// lyra::log::info("Json Parsing Test: {}\n", jsonFile1.stringify());
+	// lyra::log::info("\nJson Parsing Test: {}\n", jsonFile1.stringify());
 
 	return 0;
 }
