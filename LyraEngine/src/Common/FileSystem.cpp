@@ -36,6 +36,10 @@ public:
 	}
 
 	NODISCARD FILE* loadFile(const std::filesystem::path& path, const char* mode) {
+		// @todo implement as multithreaded
+		// return signal (bool mutex?)
+		// run on different thread and set bool to true when done
+
 		PathStringType p(path.native());
 #ifdef _WIN32
 		wchar m[4];
