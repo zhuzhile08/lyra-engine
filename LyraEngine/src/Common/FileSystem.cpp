@@ -1,7 +1,6 @@
 #include <Common/FileSystem.h>
 
 #include <Common/Logger.h>
-#include <Common/Dynarray.h>
 #include <Common/SharedPointer.h>
 
 #include <fmt/core.h>
@@ -25,10 +24,6 @@ public:
 
 	FileSystem(char** argv) : absolutePathBase(argv[0]) {
 		absolutePathBase.remove_filename();
-
-		for (uint32 i = 0; i < maxFiles; i++) {
-			buffers.push_back(new char[maxFiles]);
-		}
 	}
 
 	NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path) const { 
@@ -77,6 +72,8 @@ public:
 	}
 
 	NODISCARD char* unusedBuffer() {
+		if (buffers.empty()) buffers.push_back(new char[bufferSize]);
+
 		auto r = buffers.back();
 		buffers.pop_back();
 		return r;
@@ -87,7 +84,7 @@ public:
 		buffers.push_back(buffer);
 	}
 
-	Dynarray<char*, maxFiles> buffers;
+	std::vector<char*> buffers;
 
 	std::unordered_map<PathStringType, SharedPointer<FILE>> loadedFiles;
 
@@ -145,6 +142,12 @@ std::filesystem::path assetsFilePath() {
 
 bool fileLoaded(const std::filesystem::path& path) {
 	return globalFileSystem->loadedFiles.contains(path);
+}
+
+ByteFile tmpFile() {
+	auto s = std::to_string(std::time(nullptr)); // dirty hack for the name, but who gives, aslong as it works
+	globalFileSystem->loadedFiles.insert({ s, std::tmpfile() });
+	return ByteFile(globalFileSystem->loadedFiles.at(s), nullptr);
 }
 
 

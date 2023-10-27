@@ -13,7 +13,7 @@
 
 #include <Common/Common.h>
 #include <Common/Array.h>
-#include <Common/UniquePointer.h>
+#include <Common/SharedPointer.h>
 
 #include <type_traits>
 #include <algorithm>
@@ -22,15 +22,6 @@
 namespace lyra {
 
 void initFileSystem(char** argv);
-
-NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path);
-NODISCARD std::filesystem::path localPath(const std::filesystem::path& path);
-NODISCARD std::filesystem::path assetsFilePath();
-inline bool fileExists(const std::filesystem::path& path) {
-	return std::filesystem::exists(absolutePath(path));
-}
-bool fileLoaded(const std::filesystem::path& path);
-
 
 enum class OpenMode {
 	read,
@@ -59,11 +50,14 @@ template <class Ty> class File;
 template<> class File<char> {
 public: 
 	using literal_type = char;
+	using file_type = SharedPointer<std::FILE>;
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
 	File(const std::filesystem::path& path, const char* mode = "r", bool buffered = true);
-	File(FILE* file, char* buffer) : m_stream(file), m_buffer(buffer) { }
+	File(file_type file, char* buffer) : m_stream(file), m_buffer(buffer) { 
+		if (m_buffer) enableBuffering();
+	}
 	~File();
 	void close();
 
@@ -114,15 +108,15 @@ public:
 	NODISCARD bool buffered() const noexcept {
 		return m_buffered;
 	}
-	NODISCARD const std::FILE* const stream() const noexcept {
+	NODISCARD const file_type& stream() const noexcept {
 		return m_stream;
 	}
-	NODISCARD std::FILE* stream() noexcept {
+	NODISCARD file_type& stream() noexcept {
 		return m_stream;
 	}
 
 private:
-	std::FILE* m_stream = nullptr;
+	SharedPointer<std::FILE> m_stream = nullptr;
 	char* m_buffer = nullptr;
 
 	std::filesystem::path m_path;
@@ -133,11 +127,14 @@ private:
 template<> class File<wchar> {
 public:
 	using literal_type = wchar;
+	using file_type = SharedPointer<std::FILE>;
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
 	File(const std::filesystem::path& path, const char* mode = "r", bool buffered = true);
-	File(FILE* file, char* buffer) : m_stream(file), m_buffer(buffer) { }
+	File(file_type file, char* buffer) : m_stream(file), m_buffer(buffer) { 
+		if (m_buffer) enableBuffering();
+	}
 	~File();
 	void close();
 
@@ -188,15 +185,15 @@ public:
 	NODISCARD bool buffered() const noexcept {
 		return m_buffered;
 	}
-	NODISCARD const std::FILE* const stream() const noexcept {
+	NODISCARD const file_type& stream() const noexcept {
 		return m_stream;
 	}
-	NODISCARD std::FILE* stream() noexcept {
+	NODISCARD file_type& stream() noexcept {
 		return m_stream;
 	}
 
 private:
-	std::FILE* m_stream = nullptr;
+	file_type m_stream = nullptr;
 	char* m_buffer = nullptr;
 
 	std::filesystem::path m_path;
@@ -503,5 +500,17 @@ using CharVectorStream = FileStream<std::vector, char>;
 using WideCharVectorStream = FileStream<std::vector, wchar_t>;
 using Uint8VectorStream = FileStream<std::vector, uint8>;
 using Uint16VectorStream = FileStream<std::vector, uint16>;
+
+NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path);
+NODISCARD std::filesystem::path localPath(const std::filesystem::path& path);
+NODISCARD std::filesystem::path assetsFilePath();
+
+inline bool fileExists(const std::filesystem::path& path) {
+	return std::filesystem::exists(absolutePath(path));
+}
+
+bool fileLoaded(const std::filesystem::path& path);
+
+NODISCARD ByteFile tmpFile();
 
 } // namespace lyra
