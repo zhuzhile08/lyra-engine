@@ -145,7 +145,13 @@ bool fileLoaded(const std::filesystem::path& path) {
 }
 
 ByteFile tmpFile() {
-	auto s = std::to_string(std::time(nullptr)); // dirty hack for the name, but who gives, aslong as it works
+	auto s = 
+#ifdef _WIN32
+		std::to_wstring(
+#else
+		std::to_string(
+#endif
+			std::time(nullptr)); // dirty hack for the name, but who gives, aslong as it works
 	globalFileSystem->loadedFiles.insert({ s, std::tmpfile() });
 	return ByteFile(globalFileSystem->loadedFiles.at(s), nullptr);
 }
