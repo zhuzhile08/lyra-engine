@@ -13,15 +13,15 @@
 #pragma once
 
 #include <Common/Common.h>
-
-#include <vector>
 #include <Common/Array.h>
+
+#include <Resource/LoadMeshFile.h>
 
 #include <glm/glm.hpp>
 
 #include <vulkan/vulkan.h>
 
-// #include <Resource/LoadMesh.h>
+#include <vector>
 
 namespace lyra {
 
@@ -35,7 +35,6 @@ public:
 
 		constexpr Vertex() = default;
 		constexpr Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& uvw, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uvw(uvw) { }
-		// constexpr Vertex(resource::MeshFile::Vertex vertex) : pos(vertex.pos), normal(vertex.normal), color(vertex.color), uvw(vertex.uvw)  { }
 
 		NODISCARD static constexpr VkVertexInputBindingDescription bindingDescription() noexcept {
 			return {
@@ -45,7 +44,7 @@ public:
 			};
 		}
 
-		NODISCARD static constexpr Array<VkVertexInputAttributeDescription, 4> getAttribute_descriptions() noexcept {
+		NODISCARD static constexpr Array<VkVertexInputAttributeDescription, 4> attributeDescriptions() noexcept {
 			return {
 				{{
 					0,
@@ -76,7 +75,15 @@ public:
 	};
 
 	constexpr Mesh() = default;
-	// constexpr Mesh(const resource::MeshFile& mesh) : m_vertices(mesh.vertices.begin(), mesh.vertices.end()), m_indices(mesh.indices) { }
+	constexpr Mesh(const resource::MeshFile& mesh, uint32 index) : 
+		m_vertices(mesh.vertexBlocks[index]), 
+		m_indices(mesh.indexData[index]) { 
+		std::memcpy(
+			m_vertices.data(),
+			mesh.vertexData[index].data(), 
+			mesh.vertexData[index].size()
+		);
+	}
 
 	Mesh(
 		const std::vector <Vertex>& vertices, 
