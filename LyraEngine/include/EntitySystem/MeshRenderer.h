@@ -12,42 +12,24 @@
 #pragma once
 
 #include <Common/Common.h>
-
-#include <vector>
-
-#include <Graphics/VulkanImpl/GPUBuffer.h>
+#include <Common/RenderSystem.h>
 
 #include <EntitySystem/Entity.h>
 
+#include <Graphics/VulkanRenderSystem.h>
+
+#include <vector>
+
 namespace lyra {
 
-/**
- * @brief a mesh renderer to render (multiple) meshes
- */
-class MeshRenderer : public ComponentBase {
+class MeshRenderer : public ComponentBase, public RenderObject {
 public:
 	MeshRenderer() = default;
-	/**
-	 * @brief construct a mesh renderer
-	 * 
-	 * @param mesh mesh to render
-	 * @param material material to render the mesh with
-	 */
 	MeshRenderer(const Mesh* const mesh, const Material* const material);
 
 	DEFINE_DEFAULT_MOVE(MeshRenderer)
 
-	/**
-	 * @brief get the vertex buffer
-	 *
-	 * @return const vulkan::GPUBuffer&
-	*/
 	NODISCARD constexpr const vulkan::GPUBuffer& vertexBuffer() const noexcept { return m_vertexBuffer; }
-	/**
-	 * @brief get the index buffer
-	 *
-	 * @return const vulkan::GPUBuffer&
-	*/
 	NODISCARD constexpr const vulkan::GPUBuffer& indexBuffer() const noexcept { return m_indexBuffer; }
 
 private:
@@ -56,8 +38,6 @@ private:
 
 	vulkan::GPUBuffer m_vertexBuffer;
 	vulkan::GPUBuffer m_indexBuffer;
-
-	std::vector<MeshRenderer*>::iterator m_iterator;
 
 	void update() { };
 	
