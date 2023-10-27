@@ -14,6 +14,8 @@
 #include <Common/Common.h>
 #include <Common/Utility.h>
 
+#include <Json/Json.h>
+
 #include <vector>
 #include <string_view>
 #include <filesystem>
@@ -26,11 +28,15 @@ struct MeshFile {
     std::vector <uint32> vertexBlocks;
     std::vector <uint32> indexBlocks;
 
-	std::vector <std::vector <char>> vertexData;
+	std::vector <std::vector <float>> vertexData;
     std::vector <std::vector <uint32>> indexData;
 };
 
-NODISCARD MeshFile loadMeshFile(std::filesystem::path path, const std::vector <uint32>& vertexBlocks, const std::vector <uint32>& indexBlocks);
+NODISCARD MeshFile loadMeshFile(
+	std::filesystem::path path, 
+	const Json::array_type& vertexBlocks,
+	const Json::array_type& indexBlocks
+);
 
 } // namespace resource
 
