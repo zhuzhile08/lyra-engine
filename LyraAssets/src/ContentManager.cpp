@@ -62,11 +62,12 @@ void ContentManager::createProjectFile() {
 		if (r == pfd::button::cancel) return;
 	} 
 
-	auto f = (pfd::select_folder("Select a folder for the project file").result()).append("/Assets.lyproj");
+	auto f = pfd::select_folder("Select a folder for the project file").result();
 	if (!f.empty()) {
+		f.append("/Assets.lyproj");
 		lyra::log::info("Creating new project file...");
 
-		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f[0]));
+		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f));
 		m_projectFilePath = f;
 
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
@@ -251,8 +252,8 @@ void ContentManager::build() {
 					}
 				}
 
-				js->operator[]("VertexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(sizeof(float) * 3 * 4 * mesh->mNumVertices)));
-				js->operator[]("IndexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices * sizeof(lyra::uint32))));
+				js->operator[]("VertexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(mesh->mNumVertices)));
+				js->operator[]("IndexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices)));
 			}
 
 			auto totalSize = vertexBlocks.size() * sizeof(float) * 3 * 4 + indexBlock.size() * sizeof(lyra::uint8);
