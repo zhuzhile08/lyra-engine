@@ -23,18 +23,14 @@ namespace lyra {
 namespace resource {
 
 struct MeshFile {
-	struct Vertex {
-		glm::vec3 pos = glm::vec3(1.0f);
-		glm::vec3 normal = glm::vec3(1.0f);
-		glm::vec3 color = glm::vec3(1.0f);
-		glm::vec3 uvw = glm::vec3(1.0f);
-	};
+    std::vector <uint32> vertexBlocks;
+    std::vector <uint32> indexBlocks;
 
-	std::vector<uint32> indices;
-	std::vector<Vertex> vertices;
+	std::vector <std::vector <char>> vertexData;
+    std::vector <std::vector <uint32>> indexData;
 };
 
-NODISCARD MeshFile loadMeshFile(std::filesystem::path path);
+NODISCARD MeshFile loadMeshFile(std::filesystem::path path, const std::vector <uint32>& vertexBlocks, const std::vector <uint32>& indexBlocks);
 
 } // namespace resource
 

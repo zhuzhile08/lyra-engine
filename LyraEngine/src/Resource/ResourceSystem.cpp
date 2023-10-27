@@ -60,7 +60,27 @@ const TextureFile& texture(std::filesystem::path path) {
 
 const MeshFile& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path.string())) {
-		// globalResourceSystem->meshes.emplace(path, loadMeshFile(absolutePath(path)));
+		const auto& js = globalResourceSystem->assetsFile.at(path.string());
+		const auto& vertexBlocksJs = js.at("VertexBlocks").get<Json::array_type>();
+		const auto& indexBlocksJs = js.at("IndexBlocks").get<Json::array_type>();
+
+		// convert the json arrays to integer arrays
+		std::vector<uint32> vertexBlocks(vertexBlocksJs.size());
+		std::vector<uint32> indexBlocks(indexBlocksJs.size());
+
+		for (const auto& i : vertexBlocksJs) {
+			vertexBlocks.push_back(i->get<uint32>());
+		}
+
+		for (const auto& i : indexBlocksJs) {
+			indexBlocks.push_back(i->get<uint32>());
+		}
+
+		globalResourceSystem->meshes.emplace(path, loadMeshFile(
+			absolutePath(std::filesystem::path("data")/(path)),
+			vertexBlocks,
+			indexBlocks
+		));
 		globalResourceSystem->meshes.emplace(path.string(), MeshFile{});
 	}
 
