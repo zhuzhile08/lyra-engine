@@ -1683,7 +1683,7 @@ GraphicsPipeline::Builder::Builder(const Framebuffers& renderer) :
 	m_createInfo = GraphicsPipelineCreateInfo {
 		// shader information
 		Mesh::Vertex::bindingDescription(),
-		Mesh::Vertex::getAttribute_descriptions(),
+		Mesh::Vertex::attributeDescriptions(),
 		{	// describe how vertices are inputed into shaders
 			VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
 			nullptr,
