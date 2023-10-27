@@ -63,7 +63,7 @@ Logger* const addLogger(UniquePointer<Logger>&& logger) {
 
 UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger) {
 	auto p = globalLoggingContext->defaultLogger.release();
-	globalLoggingContext->defaultLogger = std::move(logger);
+	globalLoggingContext->defaultLogger = UniquePointer<Logger>(logger.release());
 	return p;
 }
 
