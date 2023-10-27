@@ -40,7 +40,6 @@ public:
 	using key_type = Key;
 	using hash_function = HashOrCompare;
 	using container = Container<key_type, pointer, hash_function>;
-	// special check in case key is a std::string, then set the key type passed in functions to a std::string, else use a const reference
 	using key_reference = key_type&;
 	using const_key_reference = const key_type&;
 	using key_rvreference = key_type&&;
@@ -49,19 +48,19 @@ public:
 	using iterator_pair = std::pair<iterator, bool>;
 
 	Node() = default;
-	Node(
+	template <class NameType> Node(
 		pointer self, 
-		const_key_reference name,
+		NameType name,
 		reference parent
 	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
-	Node(
+	template <class NameType> Node(
 		pointer self,
-		const_key_reference name,
+		NameType name,
 		movable parent
 	) noexcept : m_name(name), m_self(self) { parent.insert_child(self); }
-	Node(
+	template <class NameType> Node(
 		pointer self,
-		const_key_reference name,
+		NameType name,
 		pointer parent = nullptr
 	) noexcept : m_name(name), m_self(self) { if (parent) parent->insert_child(self); }
 
@@ -119,6 +118,11 @@ public:
 		m_name = std::move(name);
 		insert_behind(m_parent);
 	}
+	template <class KeyType> void rename(KeyType name) {
+		m_parent->erase(m_name);
+		m_name = std::move(name);
+		insert_behind(m_parent);
+	}
 
 	iterator erase(iterator pos) { 
 		return m_children.erase(pos); 
@@ -161,11 +165,19 @@ public:
 	}
 
 	const_reference at(const_key_reference name) const { return *m_children.at(name); }
+	template <class KeyType> const_reference at(KeyType name) const { return *m_children.at(name); }
 	reference at(const_key_reference name) { return *m_children.at(name); }
+	template <class KeyType> reference at(KeyType name) { return *m_children.at(name); }
+
 	const_reference operator/(const_key_reference name) const { return *m_children.at(name); }
+	template <class KeyType> const_reference operator/(KeyType name) const { return *m_children.at(name); }
 	reference operator/(const_key_reference name) { return *m_children.at(name); }
+	template <class KeyType> reference operator/(KeyType name) { return *m_children.at(name); }
+	
 	reference operator[](const_key_reference name) { return *m_children[name]; }
+	template <class KeyType> const_reference operator[](KeyType name) const { return *m_children[name]; }
 	reference operator[](key_rvreference name) { return *m_children[name]; }
+	template <class KeyType> reference operator[](KeyType name) { return *m_children[name]; }
 
 	NODISCARD size_t size() const noexcept { return m_children.size(); }
 	NODISCARD std::string name() const noexcept { return m_name; }
