@@ -41,10 +41,7 @@ int main(int argc, char* argv[]) {
 	lyra::vulkan::GraphicsPipeline graphicsPipeline(graphicsProgram, pipelineBuilder);
 
 	lyra::Texture texture(lyra::resource::texture("img/viking_room.png"));
-	{
-		lyra::Benchmark b;
-		lyra::Mesh room(lyra::resource::mesh("mesh/femc.obj"), 0);
-	}
+	lyra::Mesh room(lyra::resource::mesh("mesh/viking_room.obj"), 0);
 
 	while (window.running()) {
 		lyra::input::update();
