@@ -59,7 +59,9 @@ public:
 	}
 
 	constexpr counter_type destroy(Ty* ptr) {
-		if (counter == 1) deleter->destroy(ptr);
+		if (counter == 1 && deleter) {
+			deleter->destroy(ptr);
+		}
 
 		ptr = nullptr;
 		return --counter;
@@ -103,7 +105,9 @@ public:
 	}
 
 	constexpr ~SharedPointer() {
-		if (m_refCount) if (m_refCount->destroy(m_pointer) == 0) delete m_refCount;
+		if (m_refCount) {
+			if (m_refCount->destroy(m_pointer) == 0) delete m_refCount;
+		} else delete m_pointer;
 	}
 
 	constexpr SharedPointer& operator=(const wrapper& other) {
