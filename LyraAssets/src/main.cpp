@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
 	lyra::initLoggingSystem();
 	lyra::initFileSystem(argv);
 
-	lyra::log::setDefaultLogger(lyra::UniquePointer<lyra::Logger>::create(std::tmpfile(), "default"));
+	lyra::ByteFile logFile = lyra::tmpFile();
+	lyra::log::setDefaultLogger(lyra::UniquePointer<lyra::Logger>::create(logFile.stream(), "default"));
 
 	lyra::Window window("LyraAssets - Lyra Engine Assets Pipeline Tool", lyra::Window::Flags::resizable, {860, 645});
 	SDLImGuiRenderer guiRenderer(window);
