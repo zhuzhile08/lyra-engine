@@ -271,7 +271,7 @@ private:
 			case '7':
 			case '8':
 			case '9':
-				string_type r;
+				string_type r { };
 				bool isUnsigned = true;
 				bool isFloat = false;
 
