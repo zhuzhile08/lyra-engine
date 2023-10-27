@@ -23,9 +23,6 @@ TextureFile loadTextureFile(
 	std::vector<char> fileData(compressedFile.seekg(0, SeekDirection::end).tellg());
 	compressedFile.seekg(0).read(fileData.data(), fileData.size());
 
-	std::vector<char> file(fileData.size() * sizeof(char) * 255);
-	LZ4_decompress_safe(fileData.data(), file.data(), fileData.size(), file.size());
-
 	TextureFile data {
 		width,
 		height,
@@ -35,8 +32,9 @@ TextureFile loadTextureFile(
 		dimension,
 		wrap
 	};
-	data.data.resize(file.size());
-	std::copy(file.begin(), file.end(), data.data.data()); // slightly cursed
+	data.data.reserve(fileData.size() * sizeof(char) * 255);
+
+	LZ4_decompress_safe(fileData.data(), data.data.data(), fileData.size(), data.data.size());
 
 	return data;
 }

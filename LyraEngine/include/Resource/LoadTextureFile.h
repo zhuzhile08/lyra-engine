@@ -30,7 +30,7 @@ struct TextureFile {
 	uint32 dimension;
 	uint32 wrap;
 
-	std::vector<uint8> data;
+	std::vector<char> data;
 };
 
 NODISCARD TextureFile loadTextureFile(
