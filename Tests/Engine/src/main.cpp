@@ -1,10 +1,12 @@
 #include <Lyra/Lyra.h>
 #include <Common/Common.h>
 #include <Common/FileSystem.h>
+#include <Common/Benchmark.h>
 
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/SDLWindow.h>
 #include <Graphics/Texture.h>
+#include <Graphics/Mesh.h>
 
 #include <Resource/ResourceSystem.h>
 
@@ -39,6 +41,10 @@ int main(int argc, char* argv[]) {
 	lyra::vulkan::GraphicsPipeline graphicsPipeline(graphicsProgram, pipelineBuilder);
 
 	lyra::Texture texture(lyra::resource::texture("img/viking_room.png"));
+	{
+		lyra::Benchmark b;
+		lyra::Mesh room(lyra::resource::mesh("mesh/femc.obj"), 0);
+	}
 
 	while (window.running()) {
 		lyra::input::update();
