@@ -48,16 +48,6 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Common/Benchmark.cpp"
 	"src/Common/FileSystem.cpp"
 
-	#"src/Graphics/VulkanImpl/CommandBuffer.cpp"
-	#"src/Graphics/VulkanImpl/DescriptorSystem.cpp"
-	#"src/Graphics/VulkanImpl/Device.cpp"
-	#"src/Graphics/VulkanImpl/GPUBuffer.cpp"
-	#"src/Graphics/VulkanImpl/Image.cpp"
-	#"src/Graphics/VulkanImpl/PipelineBase.cpp"
-	#"src/Resource/Shader.cpp"
-	#"src/Graphics/VulkanImpl/Window.cpp"
-	#"src/Graphics/VulkanImpl/Frame.cpp"
-
 	"src/Graphics/VulkanRenderSystem.cpp"
 	"src/Graphics/SDLWindow.cpp"
 	"src/Graphics/ImGuiRenderer.cpp"
@@ -72,7 +62,7 @@ set (LYRA_ENGINE_SOURCE_FILES
 	#"src/Math/ComputePipeline.cpp"
 
 	#"src/Resource/LoadResources.cpp"
-	#"src/Resource/LoadMesh.cpp"
+	"src/Resource/LoadMeshFile.cpp"
 	#"src/Resource/LoadMaterial.cpp"
 	"src/Resource/LoadTextureFile.cpp"
 	"src/Resource/ResourceSystem.cpp"
@@ -80,7 +70,7 @@ set (LYRA_ENGINE_SOURCE_FILES
 	#"src/EntitySystem/Entity.cpp"
 	#"src/EntitySystem/Camera.cpp"
 	#"src/EntitySystem/Cubemap.cpp"
-	#"src/EntitySystem/MeshFramebuffers.cpp"
+	#"src/EntitySystem/MeshRenderer.cpp"
 
 	"src/Input/InputSystem.cpp"
 )
