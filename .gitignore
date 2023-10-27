@@ -30,7 +30,7 @@
 *.out
 *.app
 
-# mac specific files
+# macOS specific files
 *.DS_Store
 
 # folders
@@ -49,3 +49,4 @@ imgui.ini
 # data files
 *.dat
 *.spv
+*.lyproj
