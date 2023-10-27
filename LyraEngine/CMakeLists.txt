@@ -67,10 +67,10 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Resource/LoadTextureFile.cpp"
 	"src/Resource/ResourceSystem.cpp"
 
-	#"src/EntitySystem/Entity.cpp"
-	#"src/EntitySystem/Camera.cpp"
+	"src/EntitySystem/Entity.cpp"
+	"src/EntitySystem/Camera.cpp"
 	#"src/EntitySystem/Cubemap.cpp"
-	#"src/EntitySystem/MeshRenderer.cpp"
+	"src/EntitySystem/MeshRenderer.cpp"
 
 	"src/Input/InputSystem.cpp"
 )
