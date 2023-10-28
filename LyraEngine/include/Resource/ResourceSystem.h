@@ -22,6 +22,7 @@ void initResourceSystem();
 
 namespace resource {
 
+const std::vector<char>& shader(std::filesystem::path name);
 const TextureFile& texture(std::filesystem::path name);
 const MeshFile& mesh(std::filesystem::path name);
 const MaterialFile& material(std::filesystem::path name);

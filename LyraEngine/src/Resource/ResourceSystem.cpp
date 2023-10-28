@@ -18,6 +18,7 @@ public:
 		
 	}
 
+	std::unordered_map<std::string, std::vector<char>> shaders;
 	std::unordered_map<std::string, resource::TextureFile> textures;
 	std::unordered_map<std::string, resource::MeshFile> meshes;
 	std::unordered_map<std::string, resource::MaterialFile> materials;
@@ -39,6 +40,20 @@ void initResourceSystem() {
 }
 
 namespace resource {
+
+const std::vector<char>& shader(std::filesystem::path path) {
+	if (!globalResourceSystem->shaders.contains(path.string())) {
+		globalResourceSystem->shaders.emplace(
+			path.string(), 
+			lyra::CharVectorStream(
+				absolutePath(std::filesystem::path("data")/(path)), 
+				lyra::OpenMode::read | lyra::OpenMode::binary
+			).data()
+		);
+	}
+
+	return globalResourceSystem->shaders.at(path.string());
+}
 
 const TextureFile& texture(std::filesystem::path path) {
 	if (!globalResourceSystem->textures.contains(path.string())) {
