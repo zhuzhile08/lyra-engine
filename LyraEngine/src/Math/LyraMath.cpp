@@ -2,7 +2,7 @@
 
 namespace lyra {
 
-float32 randDoub(const float32 x, const float32 y) {
+float32 randDoub(float32 x, float32 y) {
 	int precision = rand() % 1000000 + 100;			// calculate the precision
 	/**
 	 * if roughly works like this:

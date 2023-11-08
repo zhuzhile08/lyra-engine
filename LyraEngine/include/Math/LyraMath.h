@@ -87,7 +87,7 @@ template <class Ty> constexpr Ty bezier(std::vector<Ty> points, float32 value) {
  * 
  * @return float32
  */
-NODISCARD float32 randfloat32(const float32 x, const float32 y);
+NODISCARD float32 randfloat32(float32 x, float32 y);
 
 /**
  * @brief decompose the transformation matrix
@@ -120,7 +120,7 @@ enum AlignMode : uint8 {
  * @param alignment alignment
  * @param mode align mode
  */
-void alignPointer(void* address, const uint8 alignment, const uint8 mode = 0);
+void alignPointer(void* address, uint8 alignment, uint8 mode = 0);
 
 /**
  * @brief calculate by how many bytes the address has to be shifted to be aligned
@@ -131,6 +131,6 @@ void alignPointer(void* address, const uint8 alignment, const uint8 mode = 0);
  *
  * @return uint8
  */
-NODISCARD uint8 alignPointerAdjustment(const void* address, const uint8 alignment, const uint8 mode = 0);
+NODISCARD uint8 alignPointerAdjustment(const void* address, uint8 alignment, uint8 mode = 0);
 
 } // namespace lyra
