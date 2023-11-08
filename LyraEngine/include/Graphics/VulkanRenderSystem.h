@@ -836,6 +836,10 @@ public:
 		Type type;
 		bool variableCount = false;
 	};
+	
+	DescriptorSets() = default;
+	DescriptorSets(uint32 layoutIndex) : layoutIndex(layoutIndex) { }
+	~DescriptorSets();
 
 	constexpr void addWrites(const std::vector<ImageWrite>& newWrites) noexcept {
 		dirty = true;
@@ -849,10 +853,6 @@ public:
 		bufferWrites.reserve(bufferWrites.size() + newWrites.size());
 		bufferWrites.insert(bufferWrites.end(), newWrites.begin(), newWrites.end());
 	}
-	
-	DescriptorSets() = default;
-	DescriptorSets(uint32 layoutIndex) : layoutIndex(layoutIndex) { }
-	~DescriptorSets();
 
 	void update(const GraphicsProgram* program = nullptr, uint32 index = std::numeric_limits<uint32>::max());
 
