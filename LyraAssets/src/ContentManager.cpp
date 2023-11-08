@@ -273,7 +273,7 @@ void ContentManager::build() {
 				result.size()
 			);
 		} else if (ext == ".ttf") {
-
+			
 		} else if (ext == ".ogg" || ext == ".wav") {
 
 		}
@@ -367,7 +367,9 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 
 	} else if (ext == ".ogg" || ext == ".wav") {
 
-	} else if (ext == ".lua" || ext == ".txt" || ext == ".json" || ext == ".spv") {
+	} else if (ext == ".spv") {
+		js->insert("Type", 1U);
+	} else if (ext == ".lua" || ext == ".txt" || ext == ".json") {
 
 	} 
 
