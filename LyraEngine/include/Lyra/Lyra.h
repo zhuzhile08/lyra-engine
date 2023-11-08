@@ -17,7 +17,7 @@
 
 #include <SDL_main.h>
 
-#include <Graphics/VulkanRenderSystem.h>
+#include <Graphics/Renderer.h>
 #include <Graphics/SDLWindow.h>
 
 namespace lyra {
