@@ -82,11 +82,11 @@ protected:
 	std::set<RenderObject*> m_objects;
 };
 
-class QueuedRenderSystem : public RenderSystem {
+class VectorRenderSystem : public RenderSystem {
 public:
 	void drawAll() const final {
-		for (auto it = m_objects.begin(); it != m_objects.end(); it++) {
-			(*it)->draw();
+		for (uint32 i = 0; i < m_objects.size(); i++) {
+			m_objects[i]->draw();
 		}
 	}
 
@@ -98,7 +98,7 @@ protected:
 		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), o), m_objects.end());
 	}
 
-	std::deque<RenderObject*> m_objects;
+	std::vector<RenderObject*> m_objects;
 };
 
 } // namespace lyra
