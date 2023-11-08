@@ -12,9 +12,10 @@
 
 #include <Common/Common.h>
 
-#include <Resource/LoadTextureFile.h>
-#include <Resource/LoadMaterialFile.h>
-#include <Resource/LoadMeshFile.h>
+#include <Graphics/VulkanRenderSystem.h>
+#include <Graphics/Texture.h>
+#include <Graphics/Mesh.h>
+#include <Graphics/Material.h>
 
 namespace lyra {
 
@@ -22,10 +23,13 @@ void initResourceSystem();
 
 namespace resource {
 
-const std::vector<char>& shader(std::filesystem::path name);
-const TextureFile& texture(std::filesystem::path name);
-const MeshFile& mesh(std::filesystem::path name);
-const MaterialFile& material(std::filesystem::path name);
+const vulkan::Shader& shader(std::filesystem::path name);
+const Texture& texture(std::filesystem::path name);
+const Material& material(std::filesystem::path name);
+const std::vector<Mesh>& mesh(std::filesystem::path name);
+inline const Mesh& mesh(std::filesystem::path path, uint32 index) {
+	return mesh(path)[index];
+}
 
 } // namespace resource
 
