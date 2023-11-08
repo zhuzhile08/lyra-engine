@@ -36,6 +36,7 @@
 
 #include <variant>
 #include <vector>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace lyra {
@@ -66,7 +67,7 @@ using Event = RAIIContainer<VkEvent, VkDevice>;
 using QueryPool = RAIIContainer<VkQueryPool, VkDevice>;
 using DescriptorSetLayout = RAIIContainer<VkDescriptorSetLayout, VkDevice>;
 using DescriptorPool = RAIIContainer<VkDescriptorPool, VkDevice>;
-using DescriptorSet = RAIIContainer<VkDescriptorSet, VkDevice>;
+using DescriptorSet = RAIIContainer<VkDescriptorSet, VkDescriptorPool>;
 using DescriptorUpdateTemplate = RAIIContainer<VkDescriptorUpdateTemplate, VkDevice>;
 using ShaderModule = RAIIContainer<VkShaderModule, VkDevice>;
 using PipelineLayout = RAIIContainer<VkPipelineLayout, VkDevice>;
@@ -87,11 +88,6 @@ using Pool = RAIIContainer<VmaPool, VmaAllocator>;
 using DefragmentationContext = RAIIContainer<VmaDefragmentationContext, VmaAllocator>;
 
 } // namespace vma 
-
-struct InitInfo {
-	Array<uint32, 3> version;
-	const Window* window;
-};
 
 class CommandQueue {
 public:
@@ -146,6 +142,14 @@ public:
 			VkPipelineBindPoint pipelineBindPoint,
 			const vk::PipelineLayout& layout,
 			uint32 firstSet,
+			const vk::DescriptorSet& descriptorSet
+		) const {
+			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, 1, &descriptorSet.get(), 0, nullptr);
+		}
+		void bindDescriptorSet(
+			VkPipelineBindPoint pipelineBindPoint,
+			const vk::PipelineLayout& layout,
+			uint32 firstSet,
 			const vk::DescriptorSet& descriptorSet,
 			uint32 dynamicOffset
 		) const {
@@ -160,16 +164,16 @@ public:
 		) const {
 			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSets.size(), descriptorSets.data(), dynamicOffsets.size(), dynamicOffsets.data());
 		}
-		void bindIndexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, VkIndexType indexType) const {
+		void bindIndexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, VkIndexType indexType = VK_INDEX_TYPE_UINT32) const {
 			vkCmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
 		}
 		void bindPipeline(VkPipelineBindPoint pipelineBindPoint, const vk::Pipeline& pipeline) const {
 			vkCmdBindPipeline(commandBuffer, pipelineBindPoint, pipeline);
 		}
-		void bindVertexBuffer(uint32 firstBinding, const vk::Buffer& buffer, VkDeviceSize offset) const {
+		void bindVertexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, uint32 firstBinding) const {
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, 1, &buffer.get(), &offset);
 		}
-		void bindVertexBuffers(uint32 firstBinding, const std::vector<VkBuffer>& buffers, const std::vector<VkDeviceSize>& offsets) const {
+		void bindVertexBuffers(const std::vector<VkBuffer>& buffers, const std::vector<VkDeviceSize>& offsets, uint32 firstBinding) const {
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, buffers.size(), buffers.data(), offsets.data());
 		}
 		void blitImage(
@@ -405,7 +409,7 @@ public:
 			const std::vector<VkImageResolve>& regions) const {
 			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regions.size(), regions.data());
 		}
-		void setBlendConstants(const float32 blendConstants[4]) const {
+		void setBlendConstants(float32 blendConstants[4]) const {
 			vkCmdSetBlendConstants(commandBuffer, blendConstants);
 		}
 		void setDepthBias(float32 depthBiasConstantFactor, float32 depthBiasClamp, float32 depthBiasSlopeFactor) const {
@@ -420,10 +424,10 @@ public:
 		void setLineWidth(float32 lineWidth) const {
 			vkCmdSetLineWidth(commandBuffer, lineWidth);
 		}
-		void setScissor(uint32 firstScissor, const VkRect2D& scissor) const {
-			vkCmdSetScissor(commandBuffer, firstScissor, 1, &scissor);
+		void setScissor(const VkRect2D& scissor) const {
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 		}
-		void setScissor(uint32 firstScissor, const std::vector<VkRect2D>& scissors) const {
+		void setScissors(const std::vector<VkRect2D>& scissors, uint32 firstScissor = 0) const {
 			vkCmdSetScissor(commandBuffer, firstScissor, scissors.size(), scissors.data());
 		}
 		void setStencilCompareMask(VkStencilFaceFlags faceMask, uint32 compareMask) const {
@@ -435,10 +439,10 @@ public:
 		void setStencilWriteMask(VkStencilFaceFlags faceMask, uint32 writeMask) const {
 			vkCmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
 		}
-		void setViewport(uint32 firstViewport, const VkViewport& pViewport) const {
-			vkCmdSetViewport(commandBuffer, firstViewport, 1, &pViewport);
+		void setViewport(const VkViewport& pViewport) const {
+			vkCmdSetViewport(commandBuffer, 0, 1, &pViewport);
 		}
-		void setViewport(uint32 firstViewport, const std::vector<VkViewport>& viewports) const {
+		void setViewport(const std::vector<VkViewport>& viewports, uint32 firstViewport = 0) const {
 			vkCmdSetViewport(commandBuffer, firstViewport, viewports.size(), viewports.data());
 		}
 		void updateBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* data) const {
@@ -541,7 +545,6 @@ class GPUBuffer : public GPUMemory {
 public:
 	constexpr GPUBuffer() = default;
 	GPUBuffer(VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
-	DEFINE_DEFAULT_MOVE(GPUBuffer);
 
 	void copy(const GPUBuffer& srcBuffer);
 	void copyData(const void* src, size_t copySize = 0);
@@ -558,8 +561,8 @@ public:
 	NODISCARD constexpr VkBufferMemoryBarrier bufferMemoryBarrier(
 		const VkAccessFlags srcAccessMask, 
 		const VkAccessFlags dstAccessMask,
-		const uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		const uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+		uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
 	) const noexcept {
 		return {
 			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -726,7 +729,7 @@ public:
 	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
 	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
-	std::unordered_set<Framebuffers*> framebuffers;
+	std::vector<Framebuffers*> framebuffers;
 
 	uint32 imageIndex = 0;
 	uint32 currentFrame = 0;
@@ -739,7 +742,7 @@ public:
 	CommandQueue::CommandBuffer commandBuffer;
 };
 
-class Framebuffers {
+class Framebuffers : public VectorRenderSystem {
 public:
 	// construct a framebuffer in the engine default configuration
 	Framebuffers();
@@ -804,7 +807,7 @@ public:
 	Type type;
 };
 
-class DescriptorWriter {
+class DescriptorSets {
 public:
 	enum Type {
 		sampler = 0,
@@ -817,104 +820,97 @@ public:
 		storageBuffer = 7,
 		dynamicUniformBuffer = 8,  
 		dynamicStorageBuffer = 9,
-		inputAttachment = 10,
-		inlineUniformBlock = 1000138000,
-		mutableValve = 1000351000,
+		inputAttachment = 10
 	};
 
-	// creation data for a single descriptor with both image and buffer information
-	struct Data {
-		// image info
-		VkDescriptorImageInfo imageInfo;
-		// buffer info
-		VkDescriptorBufferInfo bufferInfo;
-		// binding to bind these to
-		uint16 binding;
-		// type of shader to bind these to
+	struct ImageWrite {
+		std::vector<VkDescriptorImageInfo> infos;
+		uint32 binding;
 		Type type;
+		bool variableCount = false;
 	};
 
-	// creation data for a single descriptor with only image information
-	struct ImageOnlyData {
-		// image info
-		VkDescriptorImageInfo imageInfo;
-		// binding to bind these to
-		uint16 binding;
-		// type of shader to bind these to
+	struct BufferWrite {
+		std::vector<VkDescriptorBufferInfo> infos;
+		uint32 binding;
 		Type type;
+		bool variableCount = false;
 	};
 
-	// creation data for a single descriptor with only buffer information
-	struct BufferOnlyData {
-		// buffer info
-		VkDescriptorBufferInfo bufferInfo;
-		// binding to bind these to
-		uint16 binding;
-		// type of shader to bind these to
-		Type type;
-	};
+	constexpr void addWrites(const std::vector<ImageWrite>& newWrites) noexcept {
+		dirty = true;
 
-	constexpr void addWrites(const std::vector<ImageOnlyData>& newWrites) noexcept {
-		for (const auto& newWrite : newWrites) {
-			m_writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				nullptr,
-				newWrite.binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(newWrite.type),
-				&newWrite.imageInfo,
-				nullptr,
-				nullptr
-			});
-		}
+		imageWrites.reserve(imageWrites.size() + newWrites.size());
+		imageWrites.insert(imageWrites.end(), newWrites.begin(), newWrites.end());
 	}
-	constexpr void addWrites(const std::vector<BufferOnlyData>& newWrites) noexcept {
-		for (const auto& newWrite : newWrites) {
-			m_writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				nullptr,
-				newWrite.binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(newWrite.type),
-				nullptr,
-				&newWrite.bufferInfo,
-				nullptr
-			});
-		}
+	constexpr void addWrites(const std::vector<BufferWrite>& newWrites) noexcept {
+		dirty = true;
+
+		bufferWrites.reserve(bufferWrites.size() + newWrites.size());
+		bufferWrites.insert(bufferWrites.end(), newWrites.begin(), newWrites.end());
 	}
-	constexpr void addWrites(const std::vector<Data>& newWrites) noexcept {
-		for (const auto& [image_info, buffer_info, binding, type] : newWrites) {
-			m_writes.push_back({
-				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				nullptr,
-				nullptr,
-				binding,
-				0,
-				1,
-				static_cast<VkDescriptorType>(type),
-				&image_info,
-				&buffer_info,
-				nullptr
-				});
-		}
-	}
+	
+	DescriptorSets() = default;
+	DescriptorSets(uint32 layoutIndex) : layoutIndex(layoutIndex) { }
+	~DescriptorSets();
+
+	void update(const GraphicsProgram* program = nullptr, uint32 index = std::numeric_limits<uint32>::max());
+
+	void addDescriptorSets(const GraphicsProgram& program, uint32 count);
+
+	void bind(const GraphicsProgram& program, uint32 index);
+
+	std::unordered_map<const GraphicsProgram*, std::vector<vk::DescriptorSet>> descriptorSets;
+	std::vector<ImageWrite> imageWrites;
+	std::vector<BufferWrite> bufferWrites;
+
+	uint32 layoutIndex;
 
 private:
-	std::vector<VkWriteDescriptorSet> m_writes;
+	std::vector<VkWriteDescriptorSet> writes;
+	std::vector<VkDescriptorSetVariableDescriptorCountAllocateInfo> variableCountInfo;
+	std::vector<uint32> count;
+
+	bool dirty = false;
+};
+
+class DescriptorPools {
+public:
+	struct Size {
+		DescriptorSets::Type type;
+		uint32 multiplier = 1;
+	};
+
+	enum class Flags {
+		freeDescriptorSet = 0x00000001,
+		updateAfterBind = 0x00000002,
+		hostOnly = 0x00000004
+	};
+
+	DescriptorPools() = default;
+	DescriptorPools(const std::vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
+
+	void reset();
+	vk::DescriptorSet allocate(
+		const GraphicsProgram& program,
+		uint32 layoutIndex
+	);
+
+	std::vector<vk::DescriptorPool> descriptorPools;
+
+	uint32 allocationIndex = 0;
+
+	VkDescriptorPoolCreateInfo createInfo;
+	std::vector<VkDescriptorPoolSize> sizes;
 };
 
 class GraphicsProgram {
 public:
 	class Binder {
 	public:
-		// binding data
 		struct Binding {
 			// descriptor type
-			DescriptorWriter::Type type;
+			DescriptorSets::Type type;
 			// shader the binding is in
 			Shader::Type shaderType;
 			// binding number
@@ -929,6 +925,9 @@ public:
 			const std::vector<VkSampler>& immutableSamplers = { };
 		};
 
+
+		// push constant data
+		
 		// push constant data
 		struct PushConstant {
 			// shader the push constant is in
@@ -1009,16 +1008,75 @@ class GraphicsPipeline {
 public:
 	static constexpr VkPipelineBindPoint bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
+	struct Viewport {
+		glm::vec2 extent;
+		glm::vec2 offset = {0, 0};
+		float32 minDepth = 0.0f;
+		float32 maxDepth = 1.0f;
+	};
+
+	struct Scissor {
+		glm::uvec2 extent;
+		glm::ivec2 offset = {0, 0};
+	};
+
 	class Builder {
 	public:
+		enum class Topology {
+			pointList,
+			lineList,
+			lineStrip,
+			triangleList,
+			triangleStrip,
+			triangleFan,
+			lineListAdjacent,
+			lineStripAdjacent,
+			triangleListAdjacent,
+			triangleStripAdjacent,
+			patchList,
+		};
+
+		/**
+		enum class ColorBlending {
+			enable = 1U,
+			disale = 0U
+		};
+		using Colourblending = ColorBlending;
+
+		enum class Tessellation {
+			enable = 1U,
+			disale = 0U
+		};
+
+		enum class Multisampling {
+			enable = 1U,
+			disale = 0U
+		};
+		*/
+
+		enum class RenderMode {
+			fill,
+			line,
+			point
+		};
+
+		enum class Culling {
+			none,
+			front,
+			back,
+			all
+		};
+
+		enum class PolygonFrontFace {
+			counterClockwise,
+			clockwise
+		};
+
 		struct GraphicsPipelineCreateInfo {
-			VkVertexInputBindingDescription meshBindingDescription;
-			Array<VkVertexInputAttributeDescription, 4> meshAttributeDescriptions;
-			VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-			VkPipelineInputAssemblyStateCreateInfo inputAssembly;
-			VkPipelineTessellationStateCreateInfo tesselation;
 			std::variant<bool, VkViewport> viewport;
 			std::variant<bool, VkRect2D> scissor;
+			Topology topology;
+			VkPipelineTessellationStateCreateInfo tesselation;
 			VkPipelineRasterizationStateCreateInfo rasterizer;
 			VkPipelineMultisampleStateCreateInfo multisampling;
 			VkPipelineDepthStencilStateCreateInfo depthStencilState;
@@ -1026,58 +1084,10 @@ public:
 			VkPipelineColorBlendStateCreateInfo colorBlending;
 		};
 
-		struct Viewport {
-			glm::vec2 extent;
-			glm::vec2 offset = {0, 0};
-			float32 minDepth = 0.0f;
-			float32 maxDepth = 1.0f;
-		};
+		Builder() noexcept;
 
-		struct Scissor {
-			glm::uvec2 extent;
-			glm::ivec2 offset = {0, 0};
-		};
-
-		enum class ColorBlending {
-			BLEND_ENABLE = 1U,
-			BLEND_DISABLE = 0U
-		};
-		using Colourblending = ColorBlending;
-
-		enum class Tessellation {
-			TESSELLATION_ENABLE = 1U,
-			TESSELLATION_DISABLE = 0U
-		};
-
-		enum class Multisampling {
-			MULTISAMPLING_ENABLE = 1U,
-			MULTISAMPLING_DISABLE = 0U
-		};
-
-		enum class RenderMode {
-			MODE_FILL = 0,
-			MODE_LINE = 1,
-			MODE_POINT = 2
-		};
-
-		enum class Culling {
-			CULLING_NONE = 0x00000000,
-			CULLING_FRONT = 0x00000001,
-			CULLING_BACK = 0x00000002,
-			CULLING_ALL = 0x00000003
-		};
-
-		enum class PolygonFrontFace {
-			FRONT_FACE_COUNTER_CLOCKWISE = 0,
-			FRONT_FACE_CLOCKWISE = 1
-		};
-
-		Builder() noexcept = default;
-		Builder(const Framebuffers& renderer);
-
-		constexpr void enableSampleShading(float32 strength) noexcept {
-			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-			m_createInfo.multisampling.minSampleShading = strength;
+		constexpr void setTopology(Topology topology) {
+			m_createInfo.topology = topology;
 		}
 		constexpr void setCullingMode(Culling cullingMode) noexcept {
 			m_createInfo.rasterizer.cullMode = static_cast<VkCullModeFlags>(cullingMode);
@@ -1088,6 +1098,11 @@ public:
 		constexpr void setPolyonFrontFace(PolygonFrontFace frontFace) noexcept {
 			m_createInfo.rasterizer.frontFace = static_cast<VkFrontFace>(frontFace);
 		}
+		constexpr void enableSampleShading(float32 strength) noexcept {
+			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
+			m_createInfo.multisampling.minSampleShading = strength;
+		}
+
 		constexpr void setViewport(const Viewport& viewport) noexcept {
 			m_createInfo.viewport = VkViewport {
 				viewport.offset.x,
@@ -1098,26 +1113,37 @@ public:
 				viewport.maxDepth
 			};
 		}
+
+		constexpr void dynamicViewport() noexcept {
+			m_createInfo.viewport = false;
+		}
 		constexpr void setScissor(const Scissor& scissor) noexcept {
 			m_createInfo.scissor = VkRect2D {
 				{ scissor.offset.x, scissor.offset.y },
 				{ scissor.extent.x, scissor.extent.y }
 			};
 		}
+		constexpr void dynamicScissor() noexcept {
+			m_createInfo.scissor = false;
+		}
 
 	private:
 		GraphicsPipelineCreateInfo m_createInfo;
-		const Framebuffers* m_renderer;
 
 		friend class GraphicsPipeline;
 	};
 
 	GraphicsPipeline() noexcept = default;
-	GraphicsPipeline(const GraphicsProgram& program, const Builder& builder);
+	GraphicsPipeline(const Framebuffers& framebuffers, const GraphicsProgram& program, const Builder& builder);
 
-	void bind();
+	void bind() const;
 
 	vk::Pipeline pipeline;
+
+	std::variant<bool, VkViewport> dynamicViewport;
+	std::variant<bool, VkRect2D> dynamicScissor;
+
+	const GraphicsProgram* program;
 };
 
 class ComputeProgram {
@@ -1130,49 +1156,11 @@ public:
 
 };
 
-class DescriptorPools {
+class ImGuiRenderer : public lyra::ImGuiRenderer {
 public:
-	struct Size {
-		DescriptorWriter::Type type;
-		uint32 multiplier = 1;
-	};
-
-	enum class Flags {
-		freeDescriptorSet = 0x00000001,
-		updateAfterBind = 0x00000002,
-		hostOnly = 0x00000004
-	};
-
-	DescriptorPools() = default;
-	DescriptorPools(const std::vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
-
-	void reset();
-	void allocAndBind(
-		const CommandQueue::CommandBuffer& cmdBuff, 
-		const DescriptorWriter& writer, 
-		const GraphicsProgram& program,
-		uint32 layoutIndex
-	);
-
-	std::vector<vk::DescriptorPool> descriptorPools;
-
-	VkDescriptorPoolCreateInfo createInfo;
-	std::vector<VkDescriptorPoolSize> sizes;
-};
-
-} // namespace vulkan
-
-bool beginFrame();
-void endFrame();
-
-void initRenderSystem(const vulkan::InitInfo& info);
-void quitRenderSystem();
-
-class VulkanImGuiRenderer : public ImGuiRenderer {
-public:
-	VulkanImGuiRenderer() = default;
-	VulkanImGuiRenderer(const Window& window);
-	~VulkanImGuiRenderer();
+	ImGuiRenderer() = default;
+	ImGuiRenderer(const Window& window);
+	~ImGuiRenderer();
 
 	// Call this after adding all fonts
 	void uploadFonts();
@@ -1184,5 +1172,7 @@ private:
 	vulkan::DescriptorPools m_descriptorPools;
 	vulkan::Framebuffers m_framebuffers;
 };
+
+} // namespace vulkan
 
 } // namespace lyra
