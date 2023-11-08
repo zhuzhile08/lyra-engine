@@ -33,7 +33,8 @@ Material::Material(
 	m_normalMapTexture(normalMapTexture),
 	m_displacementMapTexture(displacementMapTexture),
 	m_occlusionColor(occlusionColor),
-	m_occlusionMapTexture(occlusionMapTexture)
+	m_occlusionMapTexture(occlusionMapTexture),
+	m_descriptorSets(1)
 {
 	// uniform data to send to the fragment shader
 	FragmentShaderData fragDat {
