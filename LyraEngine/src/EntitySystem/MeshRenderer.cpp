@@ -1,11 +1,6 @@
 #include <EntitySystem/MeshRenderer.h>
 
-#include <Resource/Mesh.h>
-
-#include <Graphics/VulkanImpl/CommandBuffer.h>
-#include <Graphics/VulkanImpl/GPUBuffer.h>
-
-#include <Application/Application.h>
+#include <Graphics/Mesh.h>
 
 namespace lyra {
 
@@ -27,14 +22,6 @@ MeshRenderer::MeshRenderer(const Mesh* const mesh, const Material* const materia
 	indexStagingBuffer.copyData(m_mesh->indices().data());
 	// copy the buffer
 	m_indexBuffer.copy(indexStagingBuffer);
-}
-
-void MeshRenderer::draw() const noexcept {
-	// bind index and vertex buffer
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindVertexBuffer(0, 1, m_vertexBuffer.buffer(), 0);
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindIndexBuffer(m_indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT32);
-	// draw
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().drawIndexed(static_cast<uint32>(m_mesh->indices().size()), 1, 0, 0, 0);
 }
 
 } // namespace lyra

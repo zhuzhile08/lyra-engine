@@ -20,20 +20,8 @@
 
 namespace lyra {
 
-/**
- * @brief a base class for all components
- */
 class ComponentBase { 
 public:
-	virtual ~ComponentBase() { }
-
-	// virtual void update() = 0; maybe one day
-
-	/**
-	 * @brief get the entity which owns this component
-	 * 
-	 * @return lyra::Entity* 
-	 */
 	Entity* entity() { return m_entity; }
 protected:
 	Entity* m_entity;
@@ -41,12 +29,8 @@ protected:
 
 template <class Ty> concept DerivedComponentType = std::is_base_of_v<ComponentBase, Ty>;
 
-/**
- * @brief Implementation of a basic entity class
- */
 class Entity : public Node<Entity> {
 public:
-	// enum containing all types of components
 	enum class ComponentType {
 		TRANSFORM = 0U,
 		MESH_RENDERER,
@@ -78,13 +62,6 @@ public:
 	};
 
 private:
-	/**
-	 * @brief cast a type of entity to the entity type enum
-	 * 
-	 * @tparam Ty type of entity
-	 * 
-	 * @return lyra::Node::ComponentType 
-	 */
 	template <DerivedComponentType Ty> static constexpr ComponentType cast_enum_type() {
 		if constexpr (std::is_same_v<Ty, Transform>) return ComponentType::TRANSFORM;
 		else if constexpr (std::is_same_v<Ty, MeshRenderer>) return ComponentType::MESH_RENDERER;
@@ -116,16 +93,7 @@ private:
 	}
 public:
 	Entity() = default;
-	/**
-	 * @brief constuct a new entity
-	 * 
-	 * @param name name of the object
-	 * @param parent parent of the object
-	 * @param script script pointer
-	 * @param tag tag(s) applied to the object
-	 * @param visible visiblility option
-	 * @param constant constant option
-	 */
+	
 	Entity(
 		std::string_view name = "Entity", 
 		Entity* parent = nullptr, 
@@ -134,16 +102,6 @@ public:
 		bool visible = true, 
 		bool constant = false
 	);
-	/**
-	 * @brief constuct a new entity
-	 * 
-	 * @param name name of the object
-	 * @param parent parent of the object
-	 * @param script script pointer
-	 * @param tag tag(s) applied to the object
-	 * @param visible visiblility option
-	 * @param constant constant option
-	 */
 	Entity(
 		Entity&& parent, 
 		std::string_view name = "Entity", 
@@ -152,87 +110,39 @@ public:
 		bool visible = true, 
 		bool constant = false
 	);
-	/**
-	 * @brief move constructor for a structure holding the data for an entity
-	 * 
-	 * @param entityData structure to move data from
-	 */
+	
 	Entity(Entity&& entityData);
 	
-	/**
-	 * @brief update function, updates the script
-	 */
 	void update();
 
-	/**
-	 * @brief add a component of a certain type
-	 * 
-	 * @tparam Ty type of component to add
-	 * @tparam Args arguments to construct that component
-	 */
 	template <DerivedComponentType Ty, class... Args> void addComponent(Args... args) {
 		m_components.emplace(cast_enum_type<Ty>(), UniquePointer<Ty>::create(std::forward<Args>(args)...));
 	}
-	/**
-	 * @brief add a component of a certain type
-	 * 
-	 * @tparam Ty type of component to add
-	 * @tparam Args arguments to construct that component
-	 */
 	template <DerivedComponentType Ty> void addComponent(UniquePointer<Ty>&& component) {
 		m_components.emplace(cast_enum_type<Ty>(), std::move(component));
 	}
 
-	/**
-	 * @brief get a component by its type
-	 * 
-	 * @tparam Ty type of component to get
-	 * 
-	 * @return Ty 
-	 */
 	template <DerivedComponentType Ty> NODISCARD Ty* component() {
 		return static_cast<Ty*>(m_components[cast_enum_type<Ty>()]);
 	}
-	/**
-	 * @brief get a component by its type
-	 * 
-	 * @tparam Ty type of component to get
-	 * 
-	 * @return Ty 
-	 */
 	template <DerivedComponentType Ty> NODISCARD Ty* component() const {
 		return static_cast<Ty*>(m_components.at(cast_enum_type<Ty>()));
 	}
 
-	/**
-	 * @brief get the tag(s) of the entity
-	 * 
-	 * @return uint32_t
-	 */
 	NODISCARD constexpr uint32 tag() const noexcept {
 		return m_tag;
 	}
-	/**
-	 * @brief get the visibility of the entity
-	 * 
-	 * @return uint32
-	 */
 	NODISCARD constexpr bool visible() const noexcept {
 		return m_visible;
 	}
-	/**
-	 * @brief get the constantity of the entity (is constantity a word?)
-	 * 
-	 * @return uint32
-	 */
 	NODISCARD constexpr bool constant() const noexcept {
-		return mConstant;
+		return m_constant;
 	}
 
 private:
 	uint32 m_tag;
 	bool m_visible;
-	bool mConstant;
+	bool m_constant;
 
 	UniquePointer<Script> m_script;
 	std::unordered_map<ComponentType, UniquePointer<ComponentBase>> m_components;

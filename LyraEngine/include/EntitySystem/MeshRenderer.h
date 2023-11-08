@@ -16,21 +16,17 @@
 
 #include <EntitySystem/Entity.h>
 
+#include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>
 
 #include <vector>
 
 namespace lyra {
 
-class MeshRenderer : public ComponentBase, public RenderObject {
+class MeshRenderer : public ComponentBase {
 public:
 	MeshRenderer() = default;
 	MeshRenderer(const Mesh* const mesh, const Material* const material);
-
-	DEFINE_DEFAULT_MOVE(MeshRenderer)
-
-	NODISCARD constexpr const vulkan::GPUBuffer& vertexBuffer() const noexcept { return m_vertexBuffer; }
-	NODISCARD constexpr const vulkan::GPUBuffer& indexBuffer() const noexcept { return m_indexBuffer; }
 
 private:
 	const Mesh* m_mesh;
@@ -40,14 +36,9 @@ private:
 	vulkan::GPUBuffer m_indexBuffer;
 
 	void update() { };
-	
-	/**
-	 * bind the buffers of the mesh and draw it
-	 */
-	void draw() const noexcept;
 
 	friend class Material;
-	friend class CubemapBase;
+	friend class renderSystem::Renderer;
 };
 
 } // namespace lyra
