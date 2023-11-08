@@ -4,9 +4,9 @@ project(LyraEngine VERSION 0.5.0)
 
 # compile shader commands
 if (WIN32) 
-	set(SHADER_COMPILE_COMMANDS_DIR "${CMAKE_SOURCE_DIR}/compileShader.bat")
+	set(SHADER_COMPILE_COMMANDS_DIR ${CMAKE_SOURCE_DIR}/compileShader.bat)
 else () 
-	set(SHADER_COMPILE_COMMANDS_DIR "${CMAKE_SOURCE_DIR}/compileShader.sh")
+	set(SHADER_COMPILE_COMMANDS_DIR ${CMAKE_SOURCE_DIR}/compileShader.sh)
 endif ()
 
 # find vulkan 
@@ -51,7 +51,7 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Graphics/VulkanRenderSystem.cpp"
 	"src/Graphics/SDLWindow.cpp"
 	"src/Graphics/ImGuiRenderer.cpp"
-	#"src/Resource/Material.cpp"
+	"src/Graphics/Material.cpp"
 	"src/Graphics/Texture.cpp"
 	
 	#"src/Application/Application.cpp"
