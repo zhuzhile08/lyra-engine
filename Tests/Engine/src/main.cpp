@@ -4,9 +4,12 @@
 #include <Common/Benchmark.h>
 
 #include <Graphics/VulkanRenderSystem.h>
+#include <Graphics/Renderer.h>
 #include <Graphics/SDLWindow.h>
 #include <Graphics/Texture.h>
 #include <Graphics/Mesh.h>
+
+#include <EntitySystem/Camera.h>
 
 #include <Resource/ResourceSystem.h>
 
@@ -23,37 +26,28 @@ int main(int argc, char* argv[]) {
 	lyra::initInputSystem(window);
 	lyra::initRenderSystem({{0, 7, 0}, &window});
 
+	auto& vertexShader = lyra::resource::shader("shader/vert.spv");
+	auto& fragmentShader = lyra::resource::shader("shader/frag.spv");
+
+	auto& texture = lyra::resource::texture("img/viking_room.png");
+	auto& room = lyra::resource::mesh("mesh/viking_room.obj", 0);
+
 	lyra::vulkan::Framebuffers framebuffers;
-
-	lyra::CharVectorStream vertexShaderFile("data/shader/vert.spv", lyra::OpenMode::read | lyra::OpenMode::binary);
-	lyra::vulkan::Shader vertexShader(lyra::vulkan::Shader::Type::vertex, vertexShaderFile.data());
-
-	lyra::CharVectorStream fragmentShaderFile("data/shader/frag.spv", lyra::OpenMode::read | lyra::OpenMode::binary);
-	lyra::vulkan::Shader fragmentShader(lyra::vulkan::Shader::Type::fragment, fragmentShaderFile.data());
-
 	lyra::vulkan::GraphicsProgram graphicsProgram(vertexShader, fragmentShader);
 
-	lyra::vulkan::DescriptorPools descriptorPools({{lyra::vulkan::DescriptorWriter::Type::imageSampler, 2}, {lyra::vulkan::DescriptorWriter::Type::uniformBuffer}});
+	lyra::renderSystem::Renderer renderer(framebuffers, graphicsProgram);
 
-	lyra::vulkan::GraphicsPipeline::Builder pipelineBuilder(framebuffers);
-	pipelineBuilder.setScissor({{lyra::config::windowWidth, lyra::config::windowHeight}});
-	pipelineBuilder.setViewport({{lyra::config::windowWidth, lyra::config::windowHeight}});
-	lyra::vulkan::GraphicsPipeline graphicsPipeline(graphicsProgram, pipelineBuilder);
+	lyra::Camera camera;
 
-	lyra::Texture texture(lyra::resource::texture("img/viking_room.png"));
-	lyra::Mesh room(lyra::resource::mesh("mesh/viking_room.obj"), 0);
+	renderer.bindCamera(camera);
 
 	while (window.running()) {
 		lyra::input::update();
-		if (!lyra::beginFrame()) continue;
-		
-		framebuffers.begin();
+		if (!lyra::renderSystem::beginFrame()) continue;
 
-		graphicsPipeline.bind();
+		lyra::renderSystem::draw();
 
-		framebuffers.end();
-
-		lyra::endFrame();
+		lyra::renderSystem::endFrame();
 	}
 
 	lyra::quit();
