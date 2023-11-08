@@ -29,10 +29,10 @@ Window::Window(std::string_view title, Flags flags, const glm::ivec2& size) {
 }
 
 std::vector<const char*> Window::instanceExtensions() const {
-	uint32 instanceExtensionCount = 0;
-	ASSERT(SDL_Vulkan_GetInstanceExtensions(&instanceExtensionCount, nullptr) == SDL_TRUE, "Failed to get number of Vulkan instance extensions");
-	std::vector<const char*> instanceExtensions(instanceExtensionCount);
-	ASSERT(SDL_Vulkan_GetInstanceExtensions(&instanceExtensionCount, instanceExtensions.data()) == SDL_TRUE, "Failed to get Vulkan instance extensions");
+	uint32 instanceExtensionCount;
+	auto extensions = SDL_Vulkan_GetInstanceExtensions(&instanceExtensionCount);
+	
+	std::vector<const char*> instanceExtensions(extensions, extensions + instanceExtensionCount);
 
 	return instanceExtensions;
 }
