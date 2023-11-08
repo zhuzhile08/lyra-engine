@@ -209,19 +209,22 @@ void Window::draw() {
 
 		std::fseek(f, 0, SEEK_SET);
 
-		m_state->logBuffer.resize(s);
+		m_state->logBuffer.clear();
+		m_state->logBuffer.reserve(s);
 
 		int c = std::fgetc(f);
 
 		while (c != EOF) { // skip ansi sequences
-			if (c == '\033') {
-				c = std::fgetc(f);
-
-				while (c != 'm') c = std::fgetc(f);
+			switch (c) {
+				case '\033':
+					while (c != 'm') c = std::fgetc(f);
+					c = std::fgetc(f);
+					break;
 			}
+			
+			m_state->logBuffer.push_back(c);
 
 			c = std::fgetc(f);
-			m_state->logBuffer.push_back(c);
 		}
 
 		ImGui::Text("%s", m_state->logBuffer.data());
@@ -344,6 +347,44 @@ void Window::draw() {
 					}
 				} else if (ext == ".ttf") {
 
+				} else if (ext == ".spv") {
+					static constexpr lyra::Array<std::pair<const char*, lyra::uint32>, 16> shaderTypeComboPreview {{
+						{ "Vertex", 0x00000001 },
+						{ "Tessellation Control", 0x00000002 },
+						{ "Tessellation Evaluation", 0x00000004 },
+						{ "Geometry", 0x00000008 },
+						{ "Fragment", 0x00000010 },
+						{ "Graphics", 0x0000001F },
+						{ "Compute", 0x00000020 },
+						{ "Ray Generation", 0x00000100 },
+						{ "Any Hit", 0x00000200 },
+						{ "Closest Hit", 0x00000400 },
+						{ "Miss", 0x00000800 },
+						{ "Intersection", 0x00001000 },
+						{ "Callable",0x00001000  },
+						{ "Task", 0x00000040 },
+						{ "Mesh", 0x00000080 },
+						{ "All", 0x7FFFFFFF }
+					}};
+
+					constexpr static auto findInShaderTypeComboPreview = [](lyra::uint32 v) {
+						for (lyra::uint32 i = 0; i < shaderTypeComboPreview.size(); i++)
+							if (shaderTypeComboPreview[i].second == v) 
+								return shaderTypeComboPreview[i].first;
+
+						return "All";
+					};
+
+					if (ImGui::BeginCombo("Type", findInShaderTypeComboPreview(js["Type"].get<lyra::uint32>()))) {	
+						for (lyra::uint32 i = 0; i < shaderTypeComboPreview.size(); i++) {
+							if (ImGui::Selectable(shaderTypeComboPreview[i].first, js["Type"] == shaderTypeComboPreview[i].second)) {
+								js["Type"] = shaderTypeComboPreview[i].second;
+								m_state->contentManager->unsaved = true;
+							}
+						}
+
+						ImGui::EndCombo();
+					}
 				} else if (ext == ".ogg" || ext == ".wav") {
 					
 				}
