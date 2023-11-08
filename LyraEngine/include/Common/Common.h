@@ -85,8 +85,16 @@ class Texture;
 class RenderSystem;
 class UnorderedRenderSystem;
 class OrderedRenderSystem;
-class QueuedRenderSystem;
+class VectorRenderSystem;
 class RenderObject;
+
+// render system
+namespace renderSystem {
+
+class RendererImpl;
+class Renderer;
+
+} // namespace renderSystem
 
 // core vulkan wrappers
 
@@ -99,13 +107,13 @@ class Image;
 class Swapchain;
 class Framebuffers;
 class Shader;
-class DescriptorWriter;
+class DescriptorSets;
 class GraphicsProgram;
 class GraphicsPipeline;
 class ComputeProgram;
 class ComputePipeline;
 class DescriptorPools;
-class VulkanImGuiRenderer;
+class ImGuiRenderer;
 
 } // namespace vulkan
 
