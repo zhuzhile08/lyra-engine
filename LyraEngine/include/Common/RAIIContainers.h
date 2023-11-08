@@ -66,7 +66,16 @@ public:
 		m_handle(std::exchange(container.m_handle, handle_type { } )), 
 		m_owner(std::exchange(container.m_owner, owner_type { } )) { }
 		
-	template <class CI> constexpr RAIIContainer(owner_type owner, const CI& createInfo) : RAIIContainer<Ty, OTy>(Ty { }, owner) { 
+	template <class CI> constexpr RAIIContainer(owner_type owner, const CI& createInfo)
+		requires(
+			!std::is_same_v<handle_type, VkBuffer> &&
+			!std::is_same_v<handle_type, VkImage> &&
+			!std::is_same_v<handle_type, VkDescriptorSet> &&
+			!std::is_same_v<handle_type, VkPipeline> &&
+			!std::is_same_v<handle_type, VkQueue> &&
+			!std::is_same_v<handle_type, VkSurfaceKHR> &&
+			!std::is_same_v<handle_type, SDL_Window*>
+		) : RAIIContainer<Ty, OTy>(Ty { }, owner) { 
 		if (!this->m_handle) {
 			if constexpr (std::same_as<handle_type, VkFramebuffer>) {
 				VULKAN_ASSERT(vkCreateFramebuffer(this->m_owner, &createInfo, nullptr, &this->m_handle), "create framebuffer");
@@ -82,8 +91,6 @@ public:
 				VULKAN_ASSERT(vkCreateDescriptorSetLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor set layout");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorPool>) {
 				VULKAN_ASSERT(vkCreateDescriptorPool(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor pool");
-			} else if constexpr (std::same_as<handle_type, VkDescriptorSet>) {
-				VULKAN_ASSERT(vkAllocateDescriptorSets(this->m_owner, &createInfo, &this->m_handle), "allocate descriptor sets");
 			} else if constexpr (std::same_as<handle_type, VkDescriptorUpdateTemplate>) {
 				VULKAN_ASSERT(vkCreateDescriptorUpdateTemplate(this->m_owner, &createInfo, nullptr, &this->m_handle), "create descriptor update template");
 			} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
@@ -187,6 +194,15 @@ public:
 			VULKAN_ASSERT(vmaCreateAliasingImage(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing image and/or its memory");
 		}
 	}
+	constexpr RAIIContainer(
+		VkDevice device,
+		const VkDescriptorSetAllocateInfo& allocInfo,
+		VkResult& result
+	) requires(std::is_same_v<handle_type, VkDescriptorSet> && std::is_same_v<owner_type, VkDescriptorPool>) : m_owner(allocInfo.descriptorPool) {
+		if (!m_handle) {
+			result = vkAllocateDescriptorSets(device, &allocInfo, &this->m_handle);
+		} 
+	}
 	/**
 	 * @brief construct a new RAIIContainer if the handle is a graphics pipeline
 	 */
@@ -231,7 +247,7 @@ public:
 		requires(std::is_same_v<handle_type, VkSurfaceKHR> && std::is_same_v<owner_type, VkInstance>)
 		 : m_owner(owner) {
 		if (!m_handle) {
-			SDL_Vulkan_CreateSurface(window, this->m_owner, &this->m_handle);
+			SDL_Vulkan_CreateSurface(window, this->m_owner, nullptr, &this->m_handle);
 		}
 	}
 	/**
@@ -265,7 +281,7 @@ public:
 					vkDestroyDescriptorPool(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkDescriptorUpdateTemplate>) {
 					vkDestroyDescriptorUpdateTemplate(m_owner, m_handle, nullptr);
-				}  else if constexpr (std::same_as<handle_type, VkSemaphore>) {
+				} else if constexpr (std::same_as<handle_type, VkSemaphore>) {
 					vkDestroySemaphore(m_owner, m_handle, nullptr);
 				} else if constexpr (std::same_as<handle_type, VkFence>) {
 					vkDestroyFence(m_owner, m_handle, nullptr);
@@ -340,9 +356,10 @@ public:
 	constexpr const_handle& get() const noexcept { return m_handle; }
 	constexpr operator handle_type&() noexcept { return m_handle; }
 	constexpr operator const_handle&() const noexcept { return m_handle; }
+	constexpr const_owner& owner() const noexcept { return m_owner; }
 	template <class DTy> constexpr operator RAIIContainer<handle_type, DTy>() noexcept { return RAIIContainer<handle_type, DTy>(m_handle, DTy()); } // specifically for casting to weak container variant
 
-protected:
+private:
 	handle_type m_handle { };
 	owner_type m_owner { };
 };
