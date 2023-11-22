@@ -238,8 +238,9 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	NODISCARD constexpr operator value_type*() noexcept { return m_array; }
 	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
-	array m_array = array();
+private:
 	size_t m_size = 0;
+	array m_array = array();
 };
 
 } // namespace lyra
