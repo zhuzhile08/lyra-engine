@@ -21,7 +21,7 @@ template <class Ty> struct DefaultDeleter {
 	using pointer = Ty*;
 
 	constexpr DefaultDeleter() = default;
-	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>& other) noexcept { }
+	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>&) noexcept { }
 
 	constexpr void operator()(pointer ptr) const noexcept {
 		delete ptr;
@@ -32,7 +32,7 @@ template <class Ty> struct DefaultDeleter<Ty []> {
 	using pointer = Ty*;
 
 	constexpr DefaultDeleter() = default;
-	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>& other) noexcept { }
+	template <class CTy> constexpr DefaultDeleter(const DefaultDeleter<CTy>&) noexcept { }
 
 	constexpr void operator()(pointer ptr) const noexcept {
 		delete[] ptr;
@@ -207,3 +207,14 @@ private:
 };
 
 } // namespace lyra
+
+namespace std {
+
+template <class Ty, class DTy> class hash<lyra::UniquePointer<Ty, DTy>> {
+public:
+	std::size_t operator()(const lyra::UniquePointer<Ty, DTy>& p) const {
+		return hash<Ty*>()(p.get());
+	}
+};
+
+}
