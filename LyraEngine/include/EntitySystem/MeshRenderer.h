@@ -1,10 +1,10 @@
 /*************************
- * @file   MeshRenderer.h
+ * @file MeshRenderer.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief  a renderer for the mesh
+ * @brief a renderer for the mesh
  * 
- * @date   2022-19-7
+ * @date 2022-19-7
  * 
  * @copyright Copyright (c) 2022
 *************************/
@@ -18,6 +18,8 @@
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>
+#include <Graphics/Mesh.h>
+#include <Graphics/Material.h>
 
 #include <vector>
 
@@ -26,19 +28,35 @@ namespace lyra {
 class MeshRenderer : public ComponentBase {
 public:
 	MeshRenderer() = default;
-	MeshRenderer(const Mesh* const mesh, const Material* const material);
+	MeshRenderer(const Mesh& mesh, Material& material);
+
+	NODISCARD constexpr const Material* material() const noexcept {
+		return m_material;
+	}
+	NODISCARD constexpr Material* material() noexcept {
+		return m_material;
+	}
+	NODISCARD constexpr const Mesh* mesh() const noexcept {
+		return m_mesh;
+	}
+	NODISCARD constexpr const vulkan::GPUBuffer& vertexBuffer() const noexcept {
+		return m_vertexBuffer;
+	}
+	NODISCARD constexpr const vulkan::GPUBuffer& indexBuffer() const noexcept {
+		return m_indexBuffer;
+	}
 
 private:
 	const Mesh* m_mesh;
-	const Material* m_material;
+	Material* m_material;
 
 	vulkan::GPUBuffer m_vertexBuffer;
 	vulkan::GPUBuffer m_indexBuffer;
 
 	void update() { };
 
-	friend class Material;
-	friend class renderSystem::Renderer;
+	friend void renderer::draw();
+	friend void renderer::setScene(Entity&);
 };
 
 } // namespace lyra
