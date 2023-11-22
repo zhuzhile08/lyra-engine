@@ -46,6 +46,7 @@ using float128 = long double; // not supported everywhere, so don't really use t
 using wchar = wchar_t;
 using filepos = fpos_t;
 using uintptr = uintptr_t;
+using ObjectID = uintptr_t;
 using nullpointer = decltype(nullptr);
 using size = size_t; // unreliable mostly because of size function in most containers, resort to 
 
@@ -88,14 +89,6 @@ class OrderedRenderSystem;
 class VectorRenderSystem;
 class RenderObject;
 
-// render system
-namespace renderSystem {
-
-class RendererImpl;
-class Renderer;
-
-} // namespace renderSystem
-
 // core vulkan wrappers
 
 namespace vulkan {
@@ -105,7 +98,7 @@ class GPUMemory;
 class GPUBuffer;
 class Image;
 class Swapchain;
-class Framebuffers;
+class RenderTarget;
 class Shader;
 class DescriptorSets;
 class GraphicsProgram;
@@ -177,8 +170,8 @@ template <class Format, typename ... Args> inline constexpr void vulkanAssert(in
 // utility macros
 
 #ifndef NDEBUG
-#define ASSERT(...) lyraAssert(__VA_ARGS__)
-#define VULKAN_ASSERT(...) vulkanAssert(__VA_ARGS__)
+#define ASSERT(...) lyra::lyraAssert(__VA_ARGS__)
+#define VULKAN_ASSERT(...) lyra::vulkanAssert(__VA_ARGS__)
 #else
 #define ASSERT(...)
 #define VULKAN_ASSERT(...)
