@@ -82,6 +82,13 @@ else ()
 	add_library(LyraEngine SHARED "${LYRA_ENGINE_SOURCE_FILES}")
 endif ()
 
+# build error level
+if (WIN32) 
+	target_compile_options(LyraEngine PRIVATE /W4 /WX)
+else () 
+	target_compile_options(LyraEngine PRIVATE -Wall -Wextra -Wpedantic)
+endif ()
+
 add_dependencies(LyraEngine build_shaders)
 
 # link some libraries

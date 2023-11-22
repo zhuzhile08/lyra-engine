@@ -40,6 +40,13 @@ add_executable(LyraAssets
 	"src/GuiElements.cpp"
 )
 
+# build error level
+if (WIN32) 
+	target_compile_options(LyraAssets PRIVATE /W4 /WX)
+else () 
+	target_compile_options(LyraAssets PRIVATE -Wall -Wextra -Wpedantic)
+endif ()
+
 target_link_libraries(LyraAssets
 PRIVATE
 	LyraEngine
