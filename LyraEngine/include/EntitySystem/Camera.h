@@ -48,42 +48,34 @@ public:
 		alignas(16) glm::mat4 proj;
 	};
 
-	Camera(
-		float32 fov = 45.0f, 
-		float32 near = 0.1f, 
-		float32 far = 10.0f
-	);
-	Camera(
-		const glm::vec4& viewport, 
-		float32 near = 0.1f, 
-		float32 far = 20.0f
-	);
+	Camera(float32 fov = 45.0f, float32 near = 0.1f, float32 far = 10.0f) {
+		projectionPerspective(fov, near, far);
+	}
+	Camera(const glm::vec4& viewport, float32 near = 0.1f, float32 far = 20.0f) {
+		projectionOrthographic(viewport, near, far);
+	}
 
 	void projectionPerspective(float32 fov = 45.0f, float32 near = 0.1f, float32 far = 10.0f) noexcept;
 	void projectionOrthographic(const glm::vec4& viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, float32 near = 0.1f, float32 far = 20.0f) noexcept;
 
 	void update();
 
-	NODISCARD float32 fov() const noexcept { return m_fov; }
-	NODISCARD float32 near() const noexcept { return m_near; }
-	NODISCARD float32 far() const noexcept { return m_far; }
-	NODISCARD float32 aspect() const noexcept { return m_aspect; }
-	NODISCARD glm::vec4 viewport() const noexcept { return m_viewport; }
+	NODISCARD constexpr float32 fov() const noexcept { return m_fov; }
+	NODISCARD constexpr float32 near() const noexcept { return m_near; }
+	NODISCARD constexpr float32 far() const noexcept { return m_far; }
+	NODISCARD constexpr float32 aspect() const noexcept { return m_aspect; }
+	NODISCARD constexpr glm::vec4 viewport() const noexcept { return m_viewport; }
+	NODISCARD const CameraData& data() noexcept;
 
 private:
-	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_buffers;
-	vulkan::DescriptorSets m_descriptorSets;
-
-	uint32 currentIndex;
-
 	Projection m_projection;
 
-	float32 m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_depth = 1.0f, m_aspect = config::windowWidth / (float32) config::windowHeight;
+	float32 m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_aspect = config::windowWidth / (float32) config::windowHeight;
 
 	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
-	glm::mat4 m_projection_matrix = glm::mat4(1.0f);
+	glm::mat4 m_projectionMatrix = glm::mat4(1.0f);
 
-	friend class renderSystem::Renderer;
+	CameraData m_data;
 };
 
 } // namespace lyra
