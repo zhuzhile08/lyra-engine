@@ -24,10 +24,11 @@
 #include <vulkan/vulkan.h>
 #ifdef __APPLE__
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-extension"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
-#pragma clang diagnostic ignored "-Wdeprecated-copy"
-#pragma clang diagnostic ignored "-Wignored-qualifiers"
-#pragma clang diagnostic ignored "-Wswitch"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #include <vk_mem_alloc.h>
 #pragma clang diagnostic pop
 #else
@@ -229,7 +230,7 @@ public:
 		void clearDepthStencilImage(
 			const vk::Image&image, 
 			VkImageLayout imageLayout, 
-			const VkClearDepthStencilValue& depthStencil,  
+			const VkClearDepthStencilValue& depthStencil, 
 			const std::vector<VkImageSubresourceRange>& ranges
 		) const {
 			vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, &depthStencil, ranges.size(), ranges.data());
@@ -340,21 +341,21 @@ public:
 			VkPipelineStageFlags srcStageFlags,
 			VkPipelineStageFlags dstStageFlags,
 			VkDependencyFlags dependency,
-			const VkMemoryBarrier& memory = VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-			const VkBufferMemoryBarrier& buffer = VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-			const VkImageMemoryBarrier& image = VkImageMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM }
+			const VkMemoryBarrier& memory = { },
+			const VkBufferMemoryBarrier& buffer = { },
+			const VkImageMemoryBarrier& image = { }
 		) const {
 			vkCmdPipelineBarrier(
 				commandBuffer,
 				srcStageFlags,
 				dstStageFlags,
 				dependency,
-				(memory.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
-				(memory.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? nullptr : &memory,
-				(buffer.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
-				(buffer.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? nullptr : &buffer,
-				(image.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? 0 : 1,
-				(image.sType == VK_STRUCTURE_TYPE_MAX_ENUM) ? nullptr : &image
+				(memory.sType != VK_STRUCTURE_TYPE_MEMORY_BARRIER) ? 0 : 1,
+				(memory.sType != VK_STRUCTURE_TYPE_MEMORY_BARRIER) ? nullptr : &memory,
+				(buffer.sType != VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER) ? 0 : 1,
+				(buffer.sType != VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER) ? nullptr : &buffer,
+				(image.sType != VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER) ? 0 : 1,
+				(image.sType != VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER) ? nullptr : &image
 			);
 		}
 		void pipelineBarrier(
@@ -583,6 +584,27 @@ public:
 
 class Image {
 public:
+	enum class Compare {
+		never,
+		less,
+		equal,
+		lessOrEqual,
+		greater,
+		notEqual,
+		greaterOrEqual,
+		always
+	};
+
+	enum class SampleCount {
+		bit1 = 0x00000001,
+		bit2 = 0x00000002,
+		bit4 = 0x00000004,
+		bit8 = 0x00000008,
+		bit6 = 0x00000010,
+		bit32 = 0x00000020,
+		bit64 = 0x00000040
+	};
+
 	void destroy() {
 		image.destroy();
 		view.destroy();
@@ -636,7 +658,6 @@ public:
 	void transitionLayout(
 		VkImageLayout oldLayout,
 		VkImageLayout newLayout,
-		VkFormat format,
 		const VkImageSubresourceRange& subresourceRange
 	) const;
 
@@ -729,8 +750,6 @@ public:
 	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
 	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
-	std::vector<Framebuffers*> framebuffers;
-
 	uint32 imageIndex = 0;
 	uint32 currentFrame = 0;
 
@@ -742,19 +761,19 @@ public:
 	CommandQueue::CommandBuffer commandBuffer;
 };
 
-class Framebuffers : public VectorRenderSystem {
+class RenderTarget {
 public:
 	// construct a framebuffer in the engine default configuration
-	Framebuffers();
+	RenderTarget();
 	// @todo add a constructor with custom attachments
-	// Framebuffers(const std::vector<Arrachment>& attachments);
-	~Framebuffers();
+	// RenderTarget(const std::vector<Arrachment>& attachments);
+	~RenderTarget();
 
 	void begin() const;
 	void end() const;
 
 	void destroyFramebuffers() {
-		for (auto& framebuffer : framebuffers) framebuffer.destroy();
+		for (auto& target : framebuffers) target.destroy();
 	}
 	void createFramebuffers();
 	
@@ -818,7 +837,7 @@ public:
 		texelStorageBuffer = 5,
 		uniformBuffer = 6,
 		storageBuffer = 7,
-		dynamicUniformBuffer = 8,  
+		dynamicUniformBuffer = 8, 
 		dynamicStorageBuffer = 9,
 		inputAttachment = 10
 	};
@@ -838,7 +857,10 @@ public:
 	};
 	
 	DescriptorSets() = default;
-	DescriptorSets(uint32 layoutIndex) : layoutIndex(layoutIndex) { }
+	DescriptorSets(
+		const GraphicsProgram& graphicsProgram, 
+		uint32 layoutIndex
+	) : layoutIndex(layoutIndex), graphicsProgram(&graphicsProgram) { }
 	~DescriptorSets();
 
 	constexpr void addWrites(const std::vector<ImageWrite>& newWrites) noexcept {
@@ -854,19 +876,20 @@ public:
 		bufferWrites.insert(bufferWrites.end(), newWrites.begin(), newWrites.end());
 	}
 
-	void update(const GraphicsProgram* program = nullptr, uint32 index = std::numeric_limits<uint32>::max());
+	void update(uint32 index = std::numeric_limits<uint32>::max());
 
-	void addDescriptorSets(const GraphicsProgram& program, uint32 count);
+	void addDescriptorSets(uint32 count);
 
-	void bind(const GraphicsProgram& program, uint32 index);
+	void bind(uint32 index);
 
-	std::unordered_map<const GraphicsProgram*, std::vector<vk::DescriptorSet>> descriptorSets;
+	std::vector<vk::DescriptorSet> descriptorSets;
 	std::vector<ImageWrite> imageWrites;
 	std::vector<BufferWrite> bufferWrites;
 
 	uint32 layoutIndex;
 
-private:
+	const GraphicsProgram* graphicsProgram;
+
 	std::vector<VkWriteDescriptorSet> writes;
 	std::vector<VkDescriptorSetVariableDescriptorCountAllocateInfo> variableCountInfo;
 	std::vector<uint32> count;
@@ -906,15 +929,13 @@ public:
 
 class GraphicsProgram {
 public:
-	class Binder {
+	class Builder {
 	public:
 		struct Binding {
 			// descriptor type
 			DescriptorSets::Type type;
 			// shader the binding is in
 			Shader::Type shaderType;
-			// binding number
-			uint32 binding;
 			// set number
 			uint32 set = 0;
 			// array size
@@ -924,18 +945,12 @@ public:
 			// immutable samplers
 			const std::vector<VkSampler>& immutableSamplers = { };
 		};
-
-
-		// push constant data
 		
-		// push constant data
 		struct PushConstant {
 			// shader the push constant is in
 			Shader::Type shaderType;
 			// size of the push constant
 			uint32 size;
-			// offset
-			uint32 offset = 0;
 		};
 
 		constexpr void addBinding(const Binding& binding) {
@@ -944,9 +959,10 @@ public:
 				m_bindingFlags.push_back({});
 				m_bindingFlagsCreateInfo.push_back({});
 			}
+
 			// add the new binding
 			m_bindings[binding.set].push_back({
-				binding.binding,
+				static_cast<uint32>(m_bindings[binding.set].size()),
 				static_cast<VkDescriptorType>(binding.type),
 				binding.arraySize,
 				static_cast<VkShaderStageFlags>(binding.shaderType),
@@ -965,6 +981,16 @@ public:
 			} else {
 				m_bindingFlags[binding.set].push_back(0);
 			}
+
+			// compute the hash from the binding
+			m_bindingHash.append(
+				std::to_string(binding.type) + 
+				std::to_string(binding.shaderType) + 
+				std::to_string(binding.set) + 
+				std::to_string(binding.arraySize) + 
+				std::to_string(binding.dynamic) + 
+				std::to_string(binding.immutableSamplers.size())
+			);
 		}
 		constexpr void addBindings(const std::vector<Binding>& bindings) {
 			for (const auto& binding : bindings) addBinding(binding);
@@ -973,12 +999,25 @@ public:
 		constexpr void addPushConstant(const PushConstant& pushConstant) {
 			m_pushConstants.push_back({
 				static_cast<VkShaderStageFlags>(pushConstant.shaderType),
-				pushConstant.offset,
+				m_pushConstants.back().size + m_pushConstants.back().offset,
 				pushConstant.size
 			});
+
+			m_pushConstantHash.append(std::to_string(pushConstant.shaderType) + std::to_string(pushConstant.size));
 		}
 		constexpr void addPushConstants(const std::vector<PushConstant>& pushConstants) {
 			for (const auto& pushConstant : pushConstants) addPushConstant(pushConstant);
+		}
+
+		constexpr void setVertexShader(const Shader& shader) {
+			m_vertexShader = &shader;
+		}
+		constexpr void setFragmentShader(const Shader& shader) {
+			m_fragmentShader = &shader;
+		}
+
+		std::string hash() const noexcept {
+			return std::string(m_bindingHash).append(m_pushConstantHash).append(std::to_string(reinterpret_cast<uintptr>(m_vertexShader)) + std::to_string(reinterpret_cast<uintptr>(m_fragmentShader)));
 		}
 
 	private:
@@ -987,21 +1026,28 @@ public:
 		Dynarray<VkDescriptorSetLayoutBindingFlagsCreateInfo, config::maxShaderSets> m_bindingFlagsCreateInfo;
 		std::vector<VkPushConstantRange> m_pushConstants;
 
+		const Shader* m_vertexShader;
+		const Shader* m_fragmentShader;
+
+		std::string m_bindingHash;
+		std::string m_pushConstantHash;
+
 		friend class GraphicsProgram;
 	};
 
-	GraphicsProgram() = default;
 	// Constructs a shader program in engine standard layout
 	// You should prefer to write your shaders in the engine standard layout
-	GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader);
+	GraphicsProgram();
 	// Constructs a shader program with a custom layout
-	GraphicsProgram(const Shader& vertexShader, const Shader& fragmentShader, const Binder& binder);
+	GraphicsProgram(const Builder& builder);
+
+	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
+	vk::PipelineLayout pipelineLayout;
 
 	const Shader* vertexShader;
 	const Shader* fragmentShader;
 
-	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
-	vk::PipelineLayout pipelineLayout;
+	std::string hash;
 };
 
 class GraphicsPipeline {
@@ -1036,24 +1082,6 @@ public:
 			patchList,
 		};
 
-		/**
-		enum class ColorBlending {
-			enable = 1U,
-			disale = 0U
-		};
-		using Colourblending = ColorBlending;
-
-		enum class Tessellation {
-			enable = 1U,
-			disale = 0U
-		};
-
-		enum class Multisampling {
-			enable = 1U,
-			disale = 0U
-		};
-		*/
-
 		enum class RenderMode {
 			fill,
 			line,
@@ -1072,39 +1100,53 @@ public:
 			clockwise
 		};
 
-		struct GraphicsPipelineCreateInfo {
-			std::variant<bool, VkViewport> viewport;
-			std::variant<bool, VkRect2D> scissor;
-			Topology topology;
-			VkPipelineTessellationStateCreateInfo tesselation;
-			VkPipelineRasterizationStateCreateInfo rasterizer;
-			VkPipelineMultisampleStateCreateInfo multisampling;
-			VkPipelineDepthStencilStateCreateInfo depthStencilState;
-			VkPipelineColorBlendAttachmentState colorBlendAttachment;
-			VkPipelineColorBlendStateCreateInfo colorBlending;
+		struct DepthStencil {
+			bool write;
+			Image::Compare compare;
 		};
 
-		Builder() noexcept;
+		constexpr Builder() noexcept : 
+			m_viewport(false),
+			m_scissor(false),
+			m_topology(Topology::triangleList),
+			m_renderMode(RenderMode::fill),
+			m_culling(Culling::back),
+			m_polyFrontFace(PolygonFrontFace::counterClockwise),	
+			m_sampleCount(static_cast<Image::SampleCount>(0)),
+			m_sampleShading(false),
+			m_depthStencil(DepthStencil {
+				true,
+				Image::Compare::less
+			}),
+			m_blendAttachments({{	// configure color blending
+				VK_FALSE,
+				VK_BLEND_FACTOR_SRC_ALPHA,
+				VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+				VK_BLEND_OP_ADD,
+				VK_BLEND_FACTOR_ONE,
+				VK_BLEND_FACTOR_ZERO,
+				VK_BLEND_OP_ADD,
+				VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
+			}}) { }
 
-		constexpr void setTopology(Topology topology) {
-			m_createInfo.topology = topology;
+		constexpr void setTopology(Topology topology) noexcept {
+			m_topology = topology;
 		}
-		constexpr void setCullingMode(Culling cullingMode) noexcept {
-			m_createInfo.rasterizer.cullMode = static_cast<VkCullModeFlags>(cullingMode);
+		constexpr void setCullingMode(Culling culling) noexcept {
+			m_culling = culling;
 		}
 		constexpr void setRenderMode(RenderMode renderMode) noexcept {
-			m_createInfo.rasterizer.polygonMode = static_cast<VkPolygonMode>(renderMode);
+			m_renderMode = renderMode;
 		}
 		constexpr void setPolyonFrontFace(PolygonFrontFace frontFace) noexcept {
-			m_createInfo.rasterizer.frontFace = static_cast<VkFrontFace>(frontFace);
+			m_polyFrontFace = frontFace;
 		}
 		constexpr void enableSampleShading(float32 strength) noexcept {
-			m_createInfo.multisampling.sampleShadingEnable = VK_TRUE;
-			m_createInfo.multisampling.minSampleShading = strength;
+			m_sampleShading = strength;
 		}
 
 		constexpr void setViewport(const Viewport& viewport) noexcept {
-			m_createInfo.viewport = VkViewport {
+			m_viewport = VkViewport {
 				viewport.offset.x,
 				viewport.offset.y,
 				viewport.extent.x,
@@ -1115,26 +1157,56 @@ public:
 		}
 
 		constexpr void dynamicViewport() noexcept {
-			m_createInfo.viewport = false;
+			m_viewport = false;
 		}
 		constexpr void setScissor(const Scissor& scissor) noexcept {
-			m_createInfo.scissor = VkRect2D {
+			m_scissor = VkRect2D {
 				{ scissor.offset.x, scissor.offset.y },
 				{ scissor.extent.x, scissor.extent.y }
 			};
 		}
 		constexpr void dynamicScissor() noexcept {
-			m_createInfo.scissor = false;
+			m_scissor = false;
 		}
 
+		constexpr void addBlendAttachment(const VkPipelineColorBlendAttachmentState& attachment) noexcept {
+			m_blendAttachments.push_back(attachment);
+		}
+		constexpr void addBlendAttachments(const std::vector<VkPipelineColorBlendAttachmentState>& attachments) noexcept {
+			m_blendAttachments.insert(m_blendAttachments.end(), attachments.begin(), attachments.end());
+		}
+
+		constexpr void setRenderTarget(const RenderTarget& renderTarget) {
+			m_renderTarget = &renderTarget;
+		}
+		constexpr void setGraphicsProgram(const GraphicsProgram& graphicsProgram) {
+			m_graphicsProgram = &graphicsProgram;
+		}
+
+		NODISCARD std::string hash() const noexcept;
+
 	private:
-		GraphicsPipelineCreateInfo m_createInfo;
+		std::variant<bool, VkViewport> m_viewport;
+		std::variant<bool, VkRect2D> m_scissor;
+		Topology m_topology;
+		RenderMode m_renderMode;
+		Culling m_culling;
+		PolygonFrontFace m_polyFrontFace;
+		Image::SampleCount m_sampleCount;
+		std::variant<bool, float32> m_sampleShading;
+		std::variant<bool, DepthStencil> m_depthStencil;
+		std::vector<VkPipelineColorBlendAttachmentState> m_blendAttachments; // I have no idea what this does @todo
+
+		const RenderTarget* m_renderTarget;
+		const GraphicsProgram* m_graphicsProgram;
 
 		friend class GraphicsPipeline;
 	};
 
-	GraphicsPipeline() noexcept = default;
-	GraphicsPipeline(const Framebuffers& framebuffers, const GraphicsProgram& program, const Builder& builder);
+	// create a graphics pipeline with default engine properties
+	GraphicsPipeline();
+	// create a graphics pipeline with custom properties
+	GraphicsPipeline(const Builder& builder);
 
 	void bind() const;
 
@@ -1143,7 +1215,10 @@ public:
 	std::variant<bool, VkViewport> dynamicViewport;
 	std::variant<bool, VkRect2D> dynamicScissor;
 
+	const RenderTarget* renderTarget;
 	const GraphicsProgram* program;
+
+	std::string hash;
 };
 
 class ComputeProgram {
@@ -1170,7 +1245,7 @@ private:
 	void endFrame() final;
 
 	vulkan::DescriptorPools m_descriptorPools;
-	vulkan::Framebuffers m_framebuffers;
+	vulkan::RenderTarget m_renderTarget;
 };
 
 } // namespace vulkan
