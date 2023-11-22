@@ -3,10 +3,11 @@
 
 #ifdef __APPLE__
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-extension"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
-#pragma clang diagnostic ignored "-Wdeprecated-copy"
-#pragma clang diagnostic ignored "-Wignored-qualifiers"
-#pragma clang diagnostic ignored "-Wswitch"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #include <vk_mem_alloc.h>
 #pragma clang diagnostic pop
 #else

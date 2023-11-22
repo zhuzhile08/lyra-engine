@@ -21,10 +21,11 @@
 #include <vulkan/vulkan.h>
 #ifdef __APPLE__
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullability-extension"
 #pragma clang diagnostic ignored "-Wnullability-completeness"
-#pragma clang diagnostic ignored "-Wdeprecated-copy"
-#pragma clang diagnostic ignored "-Wignored-qualifiers"
-#pragma clang diagnostic ignored "-Wswitch"
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #include <vk_mem_alloc.h>
 #pragma clang diagnostic pop
 #else
@@ -103,7 +104,7 @@ public:
 				VULKAN_ASSERT(vkCreatePipelineLayout(this->m_owner, &createInfo, nullptr, &this->m_handle), "create pipeline layout");
 			} else if constexpr (std::same_as<handle_type, VkShaderModule>) {
 				VULKAN_ASSERT(vkCreateShaderModule(this->m_owner, &createInfo, nullptr, &this->m_handle), "create shader module");
-			}  else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
+			} else if constexpr (std::same_as<handle_type, VkPipelineCache>) {
 				VULKAN_ASSERT(vkCreatePipelineCache(&createInfo, nullptr, &this->m_handle), "create pipeline cache");
 			} else if constexpr (std::same_as<handle_type, VkSwapchainKHR>) {
 				VULKAN_ASSERT(vkCreateSwapchainKHR(this->m_owner, &createInfo, nullptr, &this->m_handle), "create swapchain");
