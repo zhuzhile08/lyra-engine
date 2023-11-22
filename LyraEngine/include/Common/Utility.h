@@ -82,3 +82,11 @@ template<EnumType Enum> Enum constexpr inline operator^=(Enum& first, Enum secon
 }
 
 } // namespace lyra
+
+namespace std {
+
+template<lyra::EnumType Enum> constexpr inline string to_string(Enum e) {
+	return to_string(static_cast<std::underlying_type_t<Enum>>(e));
+}
+
+};
