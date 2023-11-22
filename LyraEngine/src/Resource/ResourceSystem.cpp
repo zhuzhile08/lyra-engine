@@ -91,7 +91,8 @@ const std::vector<Mesh>& mesh(std::filesystem::path path) {
 			vertexBlocks,
 			indexBlocks
 		);
-		auto& vec = globalResourceSystem->meshes.emplace(path.string(), std::vector<Mesh>(vertexBlocks.size())).first->second;
+		auto& vec = globalResourceSystem->meshes.emplace(path.string(), std::vector<Mesh>()).first->second;
+		vec.reserve(vertexBlocks.size());
 
 		for (uint32 i = 0; i < vertexBlocks.size(); i++) {
 			vec.emplace_back(meshData, i);
