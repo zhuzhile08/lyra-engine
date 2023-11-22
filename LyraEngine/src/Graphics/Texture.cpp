@@ -5,9 +5,9 @@
 namespace lyra {
 
 Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format) : 
+	m_type(static_cast<Type>(imageData.type)),
 	m_width(imageData.width), 
-	m_height(imageData.height),
-	m_type(static_cast<Type>(imageData.type))
+	m_height(imageData.height)
 {
 	{
 		// create a staging buffer
@@ -32,7 +32,7 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 		);
 
 		// convert the image layout and copy it from the buffer
-		m_image.transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FORMAT_R8G8B8A8_SRGB, {VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1});
+		m_image.transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, {VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1});
 		m_image.copyFromBuffer(stagingBuffer, imageExtent);
 
 		// generate the mipmaps
@@ -51,8 +51,8 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 					VK_PIPELINE_STAGE_TRANSFER_BIT,
 					VK_PIPELINE_STAGE_TRANSFER_BIT, 
 					0,
-					VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-					VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+					{ },
+					{ },
 					m_image.imageMemoryBarrier(
 						VK_ACCESS_TRANSFER_WRITE_BIT,
 						VK_ACCESS_TRANSFER_READ_BIT,
@@ -83,8 +83,8 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 					VK_PIPELINE_STAGE_TRANSFER_BIT,
 					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 					0,
-					VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-					VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+					{ },
+					{ },
 					m_image.imageMemoryBarrier(
 						VK_ACCESS_TRANSFER_READ_BIT,
 						VK_ACCESS_SHADER_READ_BIT,
@@ -102,8 +102,8 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 				VK_PIPELINE_STAGE_TRANSFER_BIT,
 				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 				0,
-				VkMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
-				VkBufferMemoryBarrier{ VK_STRUCTURE_TYPE_MAX_ENUM },
+				{ },
+				{ },
 				m_image.imageMemoryBarrier(
 					VK_ACCESS_TRANSFER_WRITE_BIT,
 					VK_ACCESS_SHADER_READ_BIT,
