@@ -91,6 +91,7 @@ template <class Ty, size_t Size> struct Array {
 	NODISCARD constexpr operator value_type* () noexcept { return m_array; }
 	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
+private:
 	array m_array;
 };
 
