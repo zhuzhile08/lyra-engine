@@ -157,18 +157,18 @@ ByteFile tmpFile() {
 }
 
 
-File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
-	: m_path(path),
-	m_buffered(buffered),
-	m_stream(globalFileSystem->loadFile(path, enumToOpenMode(mode))) {
+File<char>::File(const std::filesystem::path& path, OpenMode mode, bool buffered) : 
+	m_stream(globalFileSystem->loadFile(path, enumToOpenMode(mode))),
+	m_path(path),
+	m_buffered(buffered){
 	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, FileSystem::bufferSize);
 	}
 }
-File<char>::File(const std::filesystem::path& path, const char* mode, bool buffered)
-	: m_path(path),
-	m_buffered(buffered),
-	m_stream(globalFileSystem->loadFile(path, mode)) {
+File<char>::File(const std::filesystem::path& path, const char* mode, bool buffered) : 
+	m_stream(globalFileSystem->loadFile(path, mode)),
+	m_path(path),
+	m_buffered(buffered) {
 	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, FileSystem::bufferSize);
 	}
@@ -281,7 +281,7 @@ void File<char>::clear() {
 	std::clearerr(m_stream);
 }
 
-void File<char>::swap(File<char>& file)  {
+void File<char>::swap(File<char>& file) {
 	std::swap(flush().m_stream, file.flush().m_stream);
 	std::swap(m_buffer, file.m_buffer);
 	m_path.swap(file.m_path);
@@ -296,20 +296,20 @@ std::filesystem::path File<char>::absolutePath() const {
 }
 
 
-File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffered)
-  : m_path(path), 
- 	m_buffered(buffered), 
-	m_stream(globalFileSystem->loadFile(path, enumToOpenMode(mode))) {
+File<wchar>::File(const std::filesystem::path& path, OpenMode mode, bool buffered) : 
+	m_stream(globalFileSystem->loadFile(path, enumToOpenMode(mode))), 
+	m_path(path), 
+ 	m_buffered(buffered) {
 	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, FileSystem::bufferSize);
 	}
 
 	std::fwide(m_stream, 1);
 }
-File<wchar>::File(const std::filesystem::path& path, const char* mode, bool buffered)
-	: m_path(path),
-	m_buffered(buffered),
-	m_stream(globalFileSystem->loadFile(path, mode)) {
+File<wchar>::File(const std::filesystem::path& path, const char* mode, bool buffered) : 
+	m_stream(globalFileSystem->loadFile(path, mode)), 
+	m_path(path),
+	m_buffered(buffered) {
 	if (m_buffered) { 
 		std::setvbuf(m_stream, globalFileSystem->unusedBuffer(), _IOFBF, FileSystem::bufferSize);
 	}
@@ -423,7 +423,7 @@ void File<wchar>::clear() {
 	std::clearerr(m_stream);
 }
 
-void File<wchar>::swap(File& file)  {
+void File<wchar>::swap(File& file) {
 	std::swap(flush().m_stream, file.flush().m_stream);
 	std::swap(m_buffer, file.m_buffer);
 	m_path.swap(file.m_path);
