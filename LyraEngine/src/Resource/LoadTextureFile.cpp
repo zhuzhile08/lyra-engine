@@ -30,9 +30,9 @@ TextureFile loadTextureFile(
 		alpha,
 		mipmap,
 		dimension,
-		wrap
+		wrap,
+		std::vector<char>(fileData.size() * sizeof(char) * 255)
 	};
-	data.data.reserve(fileData.size() * sizeof(char) * 255);
 
 	LZ4_decompress_safe(fileData.data(), data.data.data(), fileData.size(), data.data.size());
 
