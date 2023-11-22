@@ -17,43 +17,21 @@
 
 #include <Graphics/VulkanRenderSystem.h>
 
+#include <EntitySystem/Entity.h>
+
 #include <unordered_map>
 
 namespace lyra {
 
-struct InitInfo {
-	Array<uint32, 3> version;
-	const Window* window;
-};
-
-void initRenderSystem(const InitInfo& info);
+void initRenderSystem(
+	const Array<uint32, 3>& version, 
+	const Window& window, 
+	std::string_view defaultVertexShaderPath = "shader/vert.spv", 
+	std::string_view defaultFragmentShaderPath = "shader/frag.spv"
+);
 void quitRenderSystem();
 
-namespace renderSystem {
-
-class Renderer : public RenderObject {
-public:
-	Renderer() = default;
-	Renderer(vulkan::Framebuffers& framebuffers, const vulkan::GraphicsProgram& graphicsProgram);
-	~Renderer();
-
-	void bindCamera(Camera& camera) {
-		m_camera = &camera;
-	}
-
-	void draw();
-
-private:
-	UniquePointer<RendererImpl> m_impl;
-
-	std::unordered_map<Material*, std::vector<MeshRenderer*>> m_meshes;
-
-	Camera* m_camera;
-
-	friend class lyra::MeshRenderer;
-	friend class lyra::Camera;
-	friend class lyra::Material;
-};
+namespace renderer {
 
 bool beginFrame();
 void endFrame();
@@ -64,6 +42,16 @@ uint32 drawWidth();
 uint32 drawHeight();
 uint32 currentFrameIndex();
 
-}
+const vulkan::GraphicsPipeline* graphicsPipeline(
+	const vulkan::Shader& vertexShader, 
+	const vulkan::Shader& fragmentShader,
+	vulkan::GraphicsProgram::Builder programBuilder = { },
+	vulkan::GraphicsPipeline::Builder pipelineBuilder = { }
+);
+
+void setScene(Entity& sceneRoot);
+Entity& scene();
+
+} // namespace renderer
 
 } // namespace lyra
