@@ -21,7 +21,7 @@
 
 namespace lyra {
 
-class Material : public VectorRenderSystem {
+class Material {
 public:
 	struct FragmentShaderData {
 		alignas(16) Color albedoColor;
@@ -33,6 +33,8 @@ public:
 	};
 
 	Material(
+		const vulkan::Shader& vertexShader = { },
+		const vulkan::Shader& fragmentShader = { },
 		const Color& albedoColor = Color(),
 		const std::vector<const Texture*>& albedoTextures = { },
 		float32 metallic = 0.0f,
@@ -51,6 +53,8 @@ public:
 private:
 	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_fragShaderBuffers;
 	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_vertShaderBuffers;
+
+	const vulkan::GraphicsPipeline* m_graphicsPipeline = nullptr;
 
 	vulkan::DescriptorSets m_descriptorSets;
 
@@ -74,7 +78,7 @@ private:
 	Color m_occlusionColor;
 	const Texture* m_occlusionMapTexture;
 
-	friend class renderSystem::Renderer;
+	friend void renderer::draw();
 };
 
 } // namespace lyra

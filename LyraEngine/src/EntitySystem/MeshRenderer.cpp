@@ -1,13 +1,11 @@
 #include <EntitySystem/MeshRenderer.h>
 
-#include <Graphics/Mesh.h>
-
 namespace lyra {
 
 // mesh renderer
-MeshRenderer::MeshRenderer(const Mesh* const mesh, const Material* const material
-) : m_mesh(mesh),
-	m_material(material),
+MeshRenderer::MeshRenderer(const Mesh& mesh, Material& material
+) : m_mesh(&mesh),
+	m_material(&material),
 	m_vertexBuffer(sizeof(m_mesh->vertices()[0]) * m_mesh->vertices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU),
 	m_indexBuffer(sizeof(m_mesh->indices()[0]) * m_mesh->indices().size(), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU)
 {
