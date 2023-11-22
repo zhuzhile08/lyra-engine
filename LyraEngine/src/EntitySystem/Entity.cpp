@@ -21,15 +21,15 @@ Entity::Entity(
 }
 
 Entity::Entity(
-	Entity&& parent,
+	Entity& parent,
 	std::string_view name, 
 	Script* script, 
 	uint32 tag, 
 	bool visible, 
 	bool constant
-) : Node<Entity>(this, name, std::move(parent)), m_tag(tag), m_visible(visible), m_script(script), m_constant(constant), m_components(31) { 
+) : Node<Entity>(this, name, parent), m_tag(tag), m_visible(visible), m_script(script), m_constant(constant), m_components(31) { 
 	addComponent<Transform>();
-	if (m_script) m_script->init(); {
+	if (m_script) {
 		m_script->node = this;
 		m_script->init(); 
 	}
