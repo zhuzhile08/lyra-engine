@@ -26,5 +26,5 @@ private:
 	void beginFrame() final;
 	void endFrame() final;
 
-    SDL_Renderer* m_renderer;
+	SDL_Renderer* m_renderer;
 };

@@ -17,7 +17,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-int main(int argc, char* argv[]) {
+int main(int, char* argv[]) {
 	lyra::init();
 	lyra::initLoggingSystem();
 	lyra::initFileSystem(argv);
@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 	config.PixelSnapH = true; 
 	config.GlyphMinAdvanceX = 15.0f;
 	config.GlyphOffset = {0, 4.5f};
-	ImWchar range[] =  { ICON_MIN_CI, ICON_MAX_16_CI, 0 };
+	ImWchar range[] = { ICON_MIN_CI, ICON_MAX_16_CI, 0 };
 	guiRenderer.setIconFont("data/fonts/codicon.ttf", config, range, 15.0f);
 
 	gui::MainMenuBar mainMenuBar(guiRenderer, state);

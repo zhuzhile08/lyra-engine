@@ -176,7 +176,7 @@ public:
 		return m_nodes.emplace_back(unique_json::create(std::move(value)));
 	}
 
-	const_reference at(size_t i) const { return *get<array_type>().at(); }
+	const_reference at(size_t i) const { return *get<array_type>().at(i); }
 	reference operator[](size_t i) { return *get<array_type>()[i]; }
 
 	const_reference at(const literal_type* name) const { return *this->m_children.at(name); }
@@ -342,7 +342,7 @@ private:
 
 				default:
 					json.insert_child(
-						json.m_nodes.emplace_back(unique_json::create(parsePair(begin, end, json)).release()).get()
+						json.m_nodes.emplace_back(unique_json::create(parsePair(begin, end)).release()).get()
 					);
 			}
 		}
@@ -391,7 +391,7 @@ private:
 
 		return r;
 	}
-	template <class Iterator> static constexpr json_type parsePair(Iterator& begin, Iterator& end, json_type& json) {
+	template <class Iterator> static constexpr json_type parsePair(Iterator& begin, Iterator& end) {
 		json_type tok;
 		tok.m_self = &tok;
 

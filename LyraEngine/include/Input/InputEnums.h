@@ -309,11 +309,11 @@ enum class ControllerButtonType {
 	dpadDown,
 	dpadLeft,
 	dpadRight,
-	misc1,	/* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
-	paddle1,  /* Xbox Elite paddle P1 */
-	paddle2,  /* Xbox Elite paddle P3 */
-	paddle3,  /* Xbox Elite paddle P2 */
-	paddle4,  /* Xbox Elite paddle P4 */
+	misc1, /* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
+	paddle1, /* Xbox Elite paddle P1 */
+	paddle2, /* Xbox Elite paddle P3 */
+	paddle3, /* Xbox Elite paddle P2 */
+	paddle4, /* Xbox Elite paddle P4 */
 	touchpad, /* PS4/PS5 touchpad button */
 
 	maxEnum

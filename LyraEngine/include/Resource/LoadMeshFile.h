@@ -25,11 +25,11 @@ namespace lyra {
 namespace resource {
 
 struct MeshFile {
-    std::vector <uint32> vertexBlocks;
-    std::vector <uint32> indexBlocks;
+	std::vector <uint32> vertexBlocks;
+	std::vector <uint32> indexBlocks;
 
 	std::vector <std::vector <float>> vertexData;
-    std::vector <std::vector <uint32>> indexData;
+	std::vector <std::vector <uint32>> indexData;
 };
 
 NODISCARD MeshFile loadMeshFile(

@@ -176,7 +176,7 @@ void ContentManager::build() {
 		auto* js = &m_projectFile[m_newFiles[i].string()];
 		concat.concat(".dat");
 
-		if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+		if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 			lyra::log::debug("\tTexture: {}", filepath.string());
 
 			int width, height, channels;
@@ -347,7 +347,7 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 	
 	js = js->insert(rel.string(), js)->second;
 
-	if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 		js->insert("Width", 0U);
 		js->insert("Height", 0U);
 		js->insert("Type", 0U);

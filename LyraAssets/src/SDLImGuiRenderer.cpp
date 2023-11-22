@@ -7,7 +7,7 @@ SDLImGuiRenderer::SDLImGuiRenderer(const lyra::Window& window) :
 	ImGuiRenderer(window), 
 	m_renderer(SDL_CreateRenderer(window.get(), nullptr, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)) {
 	ImGui_ImplSDL3_InitForSDLRenderer(window.get(), m_renderer);
-    ImGui_ImplSDLRenderer3_Init(m_renderer);
+	ImGui_ImplSDLRenderer3_Init(m_renderer);
 }
 
 SDLImGuiRenderer::~SDLImGuiRenderer() {

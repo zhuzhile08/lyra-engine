@@ -1,10 +1,10 @@
 /*************************
- * @file   texture.h
+ * @file texture.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief  texture class
+ * @brief texture class
  * 
- * @date   2022-31-7
+ * @date 2022-31-7
  * 
  * @copyright Copyright (c) 2022
 *************************/

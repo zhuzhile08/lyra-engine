@@ -79,7 +79,7 @@ public:
 	friend bool operator<(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer < second.m_pointer; }
 	friend bool operator>=(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer >= second.m_pointer; }
 	friend bool operator<=(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer <= second.m_pointer; }
-	  
+
 	pointer m_pointer;
 };
 

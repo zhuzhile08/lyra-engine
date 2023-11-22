@@ -93,7 +93,7 @@ enum class Level {
 class Logger {
 public:
 	Logger() = default;
-	Logger(FILE* out, FILE* err, std::string_view name) : m_name(name), m_outStream(out), m_errStream(err) { }
+	Logger(FILE* out, FILE* err, std::string_view name) : m_outStream(out), m_errStream(err), m_name(name) { }
 	Logger(FILE* stream, std::string_view name) : m_outStream(stream), m_errStream(stream), m_name(name) { }
 
 	template <class Format, typename ... Args> constexpr void log(Format&& format, Args&&... message) {
@@ -144,10 +144,10 @@ public:
 		fmt::print(m_outStream, "\n");
 	}
 	
-	NODISCARD constexpr const std::FILE* const outStream() const noexcept {
+	NODISCARD constexpr const std::FILE* outStream() const noexcept {
 		return m_outStream;
 	}
-	NODISCARD constexpr const std::FILE* const errStream() const noexcept {
+	NODISCARD constexpr const std::FILE* errStream() const noexcept {
 		return m_errStream;
 	}
 	NODISCARD constexpr std::FILE* outStream() noexcept {
@@ -203,11 +203,11 @@ private:
 
 namespace log {
 
-Logger* const logger(std::string_view name);
+Logger* logger(std::string_view name);
 UniquePointer<Logger> releaseLogger(std::string_view name);
-Logger* const defaultLogger();
+Logger* defaultLogger();
 
-Logger* const addLogger(UniquePointer<Logger>&& logger);
+Logger* addLogger(UniquePointer<Logger>&& logger);
 UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger);
 
 void disableColor();

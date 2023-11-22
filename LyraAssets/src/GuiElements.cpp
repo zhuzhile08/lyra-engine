@@ -261,7 +261,7 @@ void Window::draw() {
 			auto& js = m_state->contentManager->projectFile()[m_state->nameBuffer.string()];
 
 			if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
-				if (ext == ".png" || ext == ".bmp" || ext == ".jpg"  || ext == ".jpeg"  || ext == ".psd") {
+				if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 					static constexpr lyra::Array<const char*, 5> textureTypeComboPreview {"Texture", "Normal Map", "Light Map", "Directional Light Map", "Shadow Mask"};
 
 					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js["Type"]])) {	
@@ -361,7 +361,7 @@ void Window::draw() {
 						{ "Closest Hit", 0x00000400 },
 						{ "Miss", 0x00000800 },
 						{ "Intersection", 0x00001000 },
-						{ "Callable",0x00001000  },
+						{ "Callable", 0x00001000 },
 						{ "Task", 0x00000040 },
 						{ "Mesh", 0x00000080 },
 						{ "All", 0x7FFFFFFF }

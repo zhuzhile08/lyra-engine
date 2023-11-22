@@ -354,7 +354,7 @@ public:
 		m_file.seekg(m_fpos, SeekDirection::begin);
 		m_file.write(string, count);
 		for (size_t i = 0; i < count; i++) {
-			if (m_fpos >= m_data.size()) m_data.push_back(static_cast<literal_type>(string[i]));
+			if (m_fpos >= static_cast<filepos>(m_data.size())) m_data.push_back(static_cast<literal_type>(string[i]));
 			else m_data[m_fpos] = static_cast<literal_type>(string[i]);
 			m_fpos++;
 		}
