@@ -43,7 +43,7 @@ static LoggingContext* globalLoggingContext = nullptr;
 
 namespace log {
 
-Logger* const logger(std::string_view name) {
+Logger* logger(std::string_view name) {
 	std::lock_guard<std::mutex> guard(globalLoggingContext->mutex);
 	return globalLoggingContext->loggers.find(name.data())->second.get();
 }
@@ -52,12 +52,12 @@ UniquePointer<Logger> releaseLogger(std::string_view name) {
 	return globalLoggingContext->loggers.extract(name.data()).mapped().release();
 }
 
-Logger* const defaultLogger() {
+Logger* defaultLogger() {
 	std::lock_guard<std::mutex> guard(globalLoggingContext->mutex);
 	return globalLoggingContext->defaultLogger.get();
 }
 
-Logger* const addLogger(UniquePointer<Logger>&& logger) {
+Logger* addLogger(UniquePointer<Logger>&& logger) {
 	return globalLoggingContext->loggers.emplace(logger->name(), logger.release()).first->second.get();
 }
 
