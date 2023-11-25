@@ -27,6 +27,9 @@ const vulkan::Shader& shader(std::filesystem::path name);
 const Texture& texture(std::filesystem::path name);
 const Material& material(std::filesystem::path name);
 const std::vector<Mesh>& mesh(std::filesystem::path name);
+
+const Texture& defaultTexture();
+const Texture& defaultNormal();
 inline const Mesh& mesh(std::filesystem::path path, uint32 index) {
 	return mesh(path)[index];
 }
