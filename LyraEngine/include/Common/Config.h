@@ -58,8 +58,8 @@ inline constexpr bool borderless = false;
 inline constexpr bool fullscreen = false;
 inline constexpr bool alwaysOnTop = false;
 inline constexpr bool vSync = false;
+inline constexpr uint32 maxDynamicBindings = 64;
 inline constexpr size_t maxShaderSets = 4;
-inline constexpr size_t maxTexturesPerBinding = 64;
 inline constexpr size_t descriptorPoolAllocCount = 16;
 
 } // namespace config
