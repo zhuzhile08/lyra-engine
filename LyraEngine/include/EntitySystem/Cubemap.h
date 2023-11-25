@@ -1,10 +1,10 @@
 /*************************
- * @file   Cubemap.h
+ * @file Cubemap.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
- * @brief  a cubemap/skybox
+ * @brief a cubemap/skybox
  * 
- * @date   2022-19-8
+ * @date 2022-19-8
  * 
  * @copyright Copyright (c) 2022
 *************************/

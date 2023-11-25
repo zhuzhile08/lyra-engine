@@ -7,12 +7,12 @@ namespace lyra {
 BoxCollider::BoxCollider(
 		Rigidbody* parent,
 		std::string_view name,
-		const glm::vec3 dimensions,
-		const bool active,
-		const uint32 tag,
-		const glm::vec3 position,
-		const glm::vec3 rotation,
-		const glm::vec3 scale,
+		const glm::vec3& dimensions,
+		bool active,
+		uint32 tag,
+		const glm::vec3& position,
+		const glm::vec3& rotation,
+		const glm::vec3& scale,
 		const RotationOrder rotationOrder
 	) : Collider(parent, name, tag, active, position, rotation, scale, rotationOrder), 
 		_dimensions(dimensions) { 

@@ -47,7 +47,6 @@ public:
 	 * @param builder builder that contains the information to build the pipeline
 	 */
 	ComputePipeline(const Builder& builder);
-	DEFINE_DEFAULT_MOVE(ComputePipeline)
 
 	friend class Builder;
 };

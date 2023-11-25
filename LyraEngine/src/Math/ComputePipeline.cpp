@@ -17,7 +17,7 @@ void ComputePipeline::Builder::build_compute_pipeline(ComputePipeline* const com
 	};
 
 	// create the compute pipeline
-	computePipeline->m_pipeline = vulkan::vk::ComputePipeline(Application::renderSystem.device.device(), VK_NULL_HANDLE, createInfo, { });
+	computePipeline->m_pipeline = vulkan::vk::ComputePipeline(Application::renderer.device.device(), VK_NULL_HANDLE, createInfo, { });
 }
 
 ComputePipeline::ComputePipeline(const ComputePipeline::Builder& builder) {

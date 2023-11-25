@@ -29,8 +29,8 @@ CubemapBase::CubemapBase(
 			{ vulkan::Shader::Type::FRAGMENT, fragShaderPath, "main" }
 		}, 
 		{
-			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer, config::maxFramesInFlight, vulkan::Shader::Type::VERTEX },
-			{ 0, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler, config::maxFramesInFlight, vulkan::Shader::Type::FRAGMENT }
+			{ 0, vulkan::DescriptorSystem::DescriptorSets::Type::uniformBuffer, config::maxFramesInFlight, vulkan::Shader::Type::VERTEX },
+			{ 0, vulkan::DescriptorSystem::DescriptorSets::Type::imageSampler, config::maxFramesInFlight, vulkan::Shader::Type::FRAGMENT }
 		}, 
 		{},
 		colorBlending,
@@ -40,12 +40,12 @@ CubemapBase::CubemapBase(
 	m_cubeMesh(
 		{
 			Mesh::Vertex({-1.0f,	-1.0f,	1.0f}, glm::vec3(), glm::vec3()),
-			Mesh::Vertex({1.0f, 	-1.0f,  1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({1.0f, 	-1.0f, 1.0f}, glm::vec3(), glm::vec3()),
 			Mesh::Vertex({1.0f, 	-1.0f, 	-1.0f}, glm::vec3(), glm::vec3()),
 			Mesh::Vertex({-1.0f, 	-1.0f, 	-1.0f}, glm::vec3(), glm::vec3()),
-			Mesh::Vertex({-1.0f,	1.0f,  	1.0f}, glm::vec3(), glm::vec3()),
-			Mesh::Vertex({1.0f,  	1.0f,  	1.0f}, glm::vec3(), glm::vec3()),
-			Mesh::Vertex{{1.0f,  	1.0f, 	-1.0f}, glm::vec3(), glm::vec3()},
+			Mesh::Vertex({-1.0f,	1.0f, 	1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex({1.0f, 	1.0f, 	1.0f}, glm::vec3(), glm::vec3()),
+			Mesh::Vertex{{1.0f, 	1.0f, 	-1.0f}, glm::vec3(), glm::vec3()},
 			Mesh::Vertex({-1.0f, 	1.0f, 	-1.0f}, glm::vec3(), glm::vec3())
 		},
 		{
@@ -93,7 +93,7 @@ CubemapBase::CubemapBase(
 		stagingBuffer.copyData(combinedImageData, 6, width * height * 4);
 
 		// create the image
-		VULKAN_ASSERT(Application::renderSystem.device.createImage(
+		VULKAN_ASSERT(Application::renderer.device.createImage(
 			imageCreateInfo(
 				format,
 				imageExtent,
@@ -118,7 +118,7 @@ CubemapBase::CubemapBase(
 
 	{ // create a sampler for the image
 		VkPhysicalDeviceProperties properties;
-		vkGetPhysicalDeviceProperties(Application::renderSystem.device.physicalDevice(), &properties);
+		vkGetPhysicalDeviceProperties(Application::renderer.device.physicalDevice(), &properties);
 
 		VkSamplerCreateInfo samplerInfo {
 			VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -141,18 +141,18 @@ CubemapBase::CubemapBase(
 			VK_FALSE
 		};
 
-		m_sampler = vulkan::vk::Sampler(Application::renderSystem.device.device(), samplerInfo);
+		m_sampler = vulkan::vk::Sampler(Application::renderer.device.device(), samplerInfo);
 	}
 
 	{ // next, create the descriptors
 		// write the bindings
-		vulkan::DescriptorSystem::DescriptorSet::Writer writer;
+		vulkan::DescriptorSystem::DescriptorSets::Writer writer;
 		writer.addWrites({
-			{ getDescriptorcubemapInfo(), 1, vulkan::DescriptorSystem::DescriptorSet::Type::imageSampler}
+			{ getDescriptorcubemapInfo(), 1, vulkan::DescriptorSystem::DescriptorSets::Type::imageSampler}
 		});
 		writer.addWrites({
-			{ camera->m_buffers.at(0).getDescriptorBufferInfo(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer },
-			{ camera->m_buffers.at(1).getDescriptorBufferInfo(), 0, lyra::vulkan::DescriptorSystem::DescriptorSet::Type::uniformBuffer }
+			{ camera->m_buffers.at(0).getDescriptorBufferInfo(), 0, lyra::vulkan::DescriptorSystem::DescriptorSets::Type::uniformBuffer },
+			{ camera->m_buffers.at(1).getDescriptorBufferInfo(), 0, lyra::vulkan::DescriptorSystem::DescriptorSets::Type::uniformBuffer }
 		});
 
 		// create both descriptors
@@ -167,12 +167,12 @@ CubemapBase::CubemapBase(
 }
 
 void CubemapBase::draw() const {
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindPipeline(bindPoint(), pipeline());
-	Application::renderSystem.frames[Application::renderSystem.currentFrame()].commandBuffer().bindDescriptorSet(
+	Application::renderer.frames[Application::renderer.currentFrame()].commandBuffer().bindPipeline(bindPoint(), pipeline());
+	Application::renderer.frames[Application::renderer.currentFrame()].commandBuffer().bindDescriptorSet(
 		bindPoint(), 
 		layout(),
 		0, 
-		m_descriptorSets[Application::renderSystem.currentFrame()]);
+		m_descriptorSets[Application::renderer.currentFrame()]);
 	m_cubeMeshRenderer.draw();
 }
 
