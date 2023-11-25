@@ -111,6 +111,40 @@ const Material& material(std::filesystem::path path) {
 	return globalResourceSystem->materials.at(path.string());
 }
 
+const Texture& defaultTexture() {
+	if (!globalResourceSystem->textures.contains("defaultTexture")) {
+		globalResourceSystem->textures.emplace("defaultTexture", Texture({
+			1,
+			1,
+			0,
+			1,
+			1,
+			1,
+			0,
+			{ '\xff', '\xff', '\xff' }
+		}));
+	}
+
+	return globalResourceSystem->textures.at("defaultTexture");
+}
+
+const Texture& defaultNormal() {
+	if (!globalResourceSystem->textures.contains("defaultNormal")) {
+		globalResourceSystem->textures.emplace("defaultNormal", Texture({
+			1,
+			1,
+			1,
+			1,
+			1,
+			1,
+			0,
+			{ '\x80', '\x80', '\xff' }
+		}));
+	}
+
+	return globalResourceSystem->textures.at("defaultNormal");
+}
+
 } // namespace resource
 
 } // namespace lyra
