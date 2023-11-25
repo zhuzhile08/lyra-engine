@@ -49,14 +49,14 @@ public:
 	};
 
 	Camera(float32 fov = 45.0f, float32 near = 0.1f, float32 far = 10.0f) {
-		projectionPerspective(fov, near, far);
+		projectionPerspective(config::windowWidth / static_cast<float32>(config::windowHeight), fov, near, far);
 	}
-	Camera(const glm::vec4& viewport, float32 near = 0.1f, float32 far = 20.0f) {
-		projectionOrthographic(viewport, near, far);
+	Camera(float32 near, float32 far) {
+		projectionOrthographic(near, far);
 	}
 
-	void projectionPerspective(float32 fov = 45.0f, float32 near = 0.1f, float32 far = 10.0f) noexcept;
-	void projectionOrthographic(const glm::vec4& viewport = { 0.0f, 0.0f, 1.0f, 1.0f }, float32 near = 0.1f, float32 far = 20.0f) noexcept;
+	void projectionPerspective(float32 aspect, float32 fov = 45.0f, float32 near = 0.1f, float32 far = 10.0f) noexcept;
+	void projectionOrthographic(float32 near = 0.1f, float32 far = 20.0f) noexcept;
 
 	void update();
 
@@ -64,15 +64,15 @@ public:
 	NODISCARD constexpr float32 near() const noexcept { return m_near; }
 	NODISCARD constexpr float32 far() const noexcept { return m_far; }
 	NODISCARD constexpr float32 aspect() const noexcept { return m_aspect; }
-	NODISCARD constexpr glm::vec4 viewport() const noexcept { return m_viewport; }
 	NODISCARD const CameraData& data() noexcept;
+
+	glm::vec2 viewportSize = { 1.0f, 1.0f };
+	glm::vec2 viewportPosition = { 0.0f, 0.0f };
 
 private:
 	Projection m_projection;
 
 	float32 m_fov = 45.0f, m_near = 0.1f, m_far = 20.0f, m_aspect = config::windowWidth / (float32) config::windowHeight;
-
-	glm::vec4 m_viewport = { 0.0f, 0.0f, 1.0f, 1.0f };
 	glm::mat4 m_projectionMatrix = glm::mat4(1.0f);
 
 	CameraData m_data;
