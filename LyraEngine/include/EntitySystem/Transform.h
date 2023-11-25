@@ -45,20 +45,20 @@ public:
 		orientation = glm::rotate(orientation, angle, glm::normalize(axis));
 		m_dirty = true;
 	}
-	void rotate_x(float32 angle) {
+	void rotateX(float32 angle) {
 		orientation = glm::rotate(orientation, angle, {1.0f, 0.0f, 0.0f});
 		m_dirty = true;
 	}
-	void rotate_y( float32 angle) {
+	void rotateY( float32 angle) {
 		orientation = glm::rotate(orientation, angle, {0.0f, 1.0f, 0.0f});
 		m_dirty = true;
 	}
-	void rotate_z(float32 angle) {
+	void rotateZ(float32 angle) {
 		orientation = glm::rotate(orientation, angle, {0.0f, 0.0f, 1.0f});
 		m_dirty = true;
 	}
 	
-	void look_at(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f)) {
+	void lookAt(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f)) {
 		orientation = glm::quatLookAt(target, up);
 		m_dirty = true;
 	}
@@ -82,30 +82,30 @@ public:
 		return glm::rotate(orientation, {0.0f, 0.0f, -1.0f});
 	}
 
-	NODISCARD glm::vec3 local_rotation() const {
+	NODISCARD glm::vec3 localRotation() const {
 		return glm::eulerAngles(orientation);
 	}
-	NODISCARD glm::quat global_orientation() const {
+	NODISCARD glm::quat globalOrientation() const {
 		return orientation * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->orientation : glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 	}
-	NODISCARD glm::vec3 global_rotation() const {
-		return glm::eulerAngles(global_orientation());
+	NODISCARD glm::vec3 globalRotation() const {
+		return glm::eulerAngles(globalOrientation());
 	}
-	NODISCARD glm::vec3 global_translation() const {
+	NODISCARD glm::vec3 globalTranslation() const {
 		auto parent = m_entity->parent();
 
 		if (parent) {
 			auto parentTransform = parent->component<Transform>();
-			return glm::rotate(parentTransform->orientation, translation) + parentTransform->global_translation();
+			return glm::rotate(parentTransform->orientation, translation) + parentTransform->globalTranslation();
 		} else {
 			return glm::rotate(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), translation);
 		}
 	}
-	NODISCARD glm::vec3 global_scale() const {
+	NODISCARD glm::vec3 globalScale() const {
 		return orientation * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->scale : glm::vec3(0.0f));
 	}
 
-	NODISCARD constexpr glm::mat4 local_transform() {
+	NODISCARD constexpr glm::mat4 localTransform() {
 		if (m_dirty) {
 			m_localTransform = glm::toMat4(orientation);
 			m_localTransform = glm::translate(m_localTransform, translation);
@@ -114,8 +114,8 @@ public:
 		}
 		return m_localTransform;
 	}
-	NODISCARD constexpr glm::mat4 global_transform() {
-		return local_transform() * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->global_transform() : glm::mat4(1.0f));
+	NODISCARD constexpr glm::mat4 globalTransform() {
+		return localTransform() * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->globalTransform() : glm::mat4(1.0f));
 	}
 
 	glm::vec3 translation;
