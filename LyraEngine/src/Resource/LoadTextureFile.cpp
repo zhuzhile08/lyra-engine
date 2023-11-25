@@ -34,7 +34,7 @@ TextureFile loadTextureFile(
 		std::vector<char>(fileData.size() * sizeof(char) * 255)
 	};
 
-	LZ4_decompress_safe(fileData.data(), data.data.data(), fileData.size(), data.data.size());
+	LZ4_decompress_safe(fileData.data(), data.data.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(data.data.size()));
 
 	return data;
 }

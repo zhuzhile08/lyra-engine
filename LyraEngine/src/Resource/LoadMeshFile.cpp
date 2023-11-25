@@ -15,7 +15,7 @@ MeshFile loadMeshFile(std::filesystem::path path, const Json::array_type& vertex
 	compressedFile.seekg(0).read(fileData.data(), fileData.size());
 
 	std::vector<char> file(fileData.size() * sizeof(char) * 255);
-	LZ4_decompress_safe(fileData.data(), file.data(), fileData.size(), file.size());
+	LZ4_decompress_safe(fileData.data(), file.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(file.size()));
 
 	MeshFile meshes { };
 

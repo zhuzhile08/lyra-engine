@@ -201,7 +201,7 @@ File<char>& File<char>::get(char& c) {
 	return *this;
 }
 File<char>& File<char>::get(char* string, size_t count) {
-	std::fgets(string, count, m_stream);
+	std::fgets(string, static_cast<uint32>(count), m_stream);
 	return *this;
 }
 File<char>& File<char>::putback(int c) {
@@ -343,7 +343,7 @@ File<wchar>& File<wchar>::get(wchar& c) {
 	return *this;
 }
 File<wchar>& File<wchar>::get(wchar* string, size_t count) {
-	std::fgetws(string, count, m_stream);
+	std::fgetws(string, static_cast<uint32>(count), m_stream);
 	return *this;
 }
 File<wchar>& File<wchar>::putback(int c) {

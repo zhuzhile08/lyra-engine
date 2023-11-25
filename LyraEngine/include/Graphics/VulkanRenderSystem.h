@@ -163,7 +163,7 @@ public:
 			const std::vector<VkDescriptorSet>& descriptorSets,
 			const std::vector<uint32>& dynamicOffsets
 		) const {
-			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, descriptorSets.size(), descriptorSets.data(), dynamicOffsets.size(), dynamicOffsets.data());
+			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, static_cast<uint32>(descriptorSets.size()), descriptorSets.data(), static_cast<uint32>(dynamicOffsets.size()), dynamicOffsets.data());
 		}
 		void bindIndexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, VkIndexType indexType = VK_INDEX_TYPE_UINT32) const {
 			vkCmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
@@ -175,7 +175,7 @@ public:
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, 1, &buffer.get(), &offset);
 		}
 		void bindVertexBuffers(const std::vector<VkBuffer>& buffers, const std::vector<VkDeviceSize>& offsets, uint32 firstBinding) const {
-			vkCmdBindVertexBuffers(commandBuffer, firstBinding, buffers.size(), buffers.data(), offsets.data());
+			vkCmdBindVertexBuffers(commandBuffer, firstBinding, static_cast<uint32>(buffers.size()), buffers.data(), offsets.data());
 		}
 		void blitImage(
 			const vk::Image& srcImage, 
@@ -195,13 +195,13 @@ public:
 			const std::vector<VkImageBlit>& regions, 
 			VkFilter filter
 		) const {
-			vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regions.size(), regions.data(), filter);
+			vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data(), filter);
 		}
 		void clearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect) const {
 			vkCmdClearAttachments(commandBuffer, 1, &attachment, 1, &rect);
 		}
 		void clearAttachments(const std::vector<VkClearAttachment> attachments, const std::vector<VkClearRect>& rects) const {
-			vkCmdClearAttachments(commandBuffer, attachments.size(), attachments.data(), rects.size(), rects.data());
+			vkCmdClearAttachments(commandBuffer, static_cast<uint32>(attachments.size()), attachments.data(), static_cast<uint32>(rects.size()), rects.data());
 		}
 		void clearColorImage(
 			const vk::Image& image, 
@@ -217,7 +217,7 @@ public:
 			const VkClearColorValue& color, 
 			const std::vector<VkImageSubresourceRange>& ranges
 		) const {
-			vkCmdClearColorImage(commandBuffer, image, imageLayout, &color, ranges.size(), ranges.data());
+			vkCmdClearColorImage(commandBuffer, image, imageLayout, &color, static_cast<uint32>(ranges.size()), ranges.data());
 		}
 		void clearDepthStencilImage(
 			const vk::Image& image, 
@@ -233,13 +233,13 @@ public:
 			const VkClearDepthStencilValue& depthStencil, 
 			const std::vector<VkImageSubresourceRange>& ranges
 		) const {
-			vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, &depthStencil, ranges.size(), ranges.data());
+			vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, &depthStencil, static_cast<uint32>(ranges.size()), ranges.data());
 		}
 		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const VkBufferCopy& region) const {
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &region);
 		}
 		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const std::vector<VkBufferCopy>& regions) const {
-			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, regions.size(), regions.data());
+			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyBufferToImage(
 			const vk::Buffer& srcBuffer, 
@@ -255,7 +255,7 @@ public:
 			VkImageLayout dstImageLayout, 
 			const std::vector<VkBufferImageCopy>& regions
 		) const {
-			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, regions.size(), regions.data());
+			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyImage(
 			const vk::Image& srcImage, 
@@ -273,7 +273,7 @@ public:
 			VkImageLayout dstImageLayout, 
 			const std::vector<VkImageCopy>& regions
 		) const {
-			vkCmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regions.size(), regions.data());
+			vkCmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyImageToBuffer(
 			const vk::Image& srcImage, 
@@ -289,7 +289,7 @@ public:
 			const vk::Buffer& dstBuffer, 
 			const std::vector<VkBufferImageCopy>& regions
 		) const {
-			vkCmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regions.size(), regions.data());
+			vkCmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyQueryPoolResults(
 			const VkQueryPool queryPool,
@@ -329,7 +329,7 @@ public:
 			vkCmdExecuteCommands(commandBuffer, 1, &commandBuffer.get());
 		}
 		void executeCommands(const std::vector<VkCommandBuffer>& commandBuffers) const {
-			vkCmdExecuteCommands(commandBuffer, commandBuffers.size(), commandBuffers.data());
+			vkCmdExecuteCommands(commandBuffer, static_cast<uint32>(commandBuffers.size()), commandBuffers.data());
 		}
 		void fillBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32 data) const {
 			vkCmdFillBuffer(commandBuffer, dstBuffer, dstOffset, size, data);
@@ -371,11 +371,11 @@ public:
 				srcStageFlags,
 				dstStageFlags,
 				dependency,
-				memory.size(),
+                static_cast<uint32>(memory.size()),
 				memory.data(),
-				buffer.size(),
+                static_cast<uint32>(buffer.size()),
 				buffer.data(),
-				image.size(),
+                static_cast<uint32>(image.size()),
 				image.data()
 			);
 		}
@@ -408,7 +408,7 @@ public:
 			const vk::Image& dstImage, 
 			VkImageLayout dstImageLayout, 
 			const std::vector<VkImageResolve>& regions) const {
-			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regions.size(), regions.data());
+			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void setBlendConstants(float32 blendConstants[4]) const {
 			vkCmdSetBlendConstants(commandBuffer, blendConstants);
@@ -429,7 +429,7 @@ public:
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 		}
 		void setScissors(const std::vector<VkRect2D>& scissors, uint32 firstScissor = 0) const {
-			vkCmdSetScissor(commandBuffer, firstScissor, scissors.size(), scissors.data());
+			vkCmdSetScissor(commandBuffer, firstScissor, static_cast<uint32>(scissors.size()), scissors.data());
 		}
 		void setStencilCompareMask(VkStencilFaceFlags faceMask, uint32 compareMask) const {
 			vkCmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
@@ -444,7 +444,7 @@ public:
 			vkCmdSetViewport(commandBuffer, 0, 1, &pViewport);
 		}
 		void setViewport(const std::vector<VkViewport>& viewports, uint32 firstViewport = 0) const {
-			vkCmdSetViewport(commandBuffer, firstViewport, viewports.size(), viewports.data());
+			vkCmdSetViewport(commandBuffer, firstViewport, static_cast<uint32>(viewports.size()), viewports.data());
 		}
 		void updateBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* data) const {
 			vkCmdUpdateBuffer(commandBuffer, dstBuffer, dstOffset, dataSize, data);
@@ -481,15 +481,15 @@ public:
 		) const {
 			vkCmdWaitEvents(
 				commandBuffer, 
-				events.size(), 
-				events.data(), 
+                static_cast<uint32>(events.size()),
+				events.data(),
 				srcStageMask, 
 				dstStageMask, 
-				memory.size(),
+                static_cast<uint32>(memory.size()),
 				memory.data(),
-				buffer.size(),
+                static_cast<uint32>(buffer.size()),
 				buffer.data(),
-				image.size(),
+                static_cast<uint32>(image.size()),
 				image.data()
 			);
 		}

@@ -488,13 +488,13 @@ public:
 		return vmaFlushAllocation(allocator, allocation, offset, size);
 	}
 	VkResult flushAllocations(const std::vector<VmaAllocation>& allocations, const std::vector<VkDeviceSize> offsets, const std::vector<VkDeviceSize> sizes) {
-		return vmaFlushAllocations(allocator, allocations.size(), allocations.data(), offsets.data(), sizes.data());
+		return vmaFlushAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult invalidateAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
 		return vmaInvalidateAllocation(allocator, allocation.get(), offset, size);
 	}
 	VkResult invalidateAllocations(const std::vector<VmaAllocation>& allocations, const std::vector<VkDeviceSize> offsets, const std::vector<VkDeviceSize> sizes) {
-		return vmaInvalidateAllocations(allocator, allocations.size(), allocations.data(), offsets.data(), sizes.data());
+		return vmaInvalidateAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult checkCorruption(uint32 memoryTypeBits) {
 		return vmaCheckCorruption(allocator, memoryTypeBits);
@@ -530,7 +530,7 @@ public:
 		return vkFlushMappedMemoryRanges(device, 1, &memoryRange);
 	}
 	VkResult flushMappedMemoryRanges(const std::vector<VkMappedMemoryRange>& memoryRanges) {
-		return vkFlushMappedMemoryRanges(device, memoryRanges.size(), memoryRanges.data());
+		return vkFlushMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
 	}
 	VkResult getEventStatus(const vk::Event& event) {
 		return vkGetEventStatus(device, event);
@@ -563,7 +563,7 @@ public:
 		return vkInvalidateMappedMemoryRanges(device, 1, &memoryRange);
 	}
 	VkResult invalidateMappedMemoryRanges(const std::vector<VkMappedMemoryRange>& memoryRanges) {
-		return vkInvalidateMappedMemoryRanges(device, memoryRanges.size(), memoryRanges.data());
+		return vkInvalidateMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
 	}
 	VkResult mapMemory(const vma::Allocation& allocation, void** ppData) {
 		return vmaMapMemory(allocator, allocation, ppData);
@@ -572,7 +572,7 @@ public:
 		return vkMergePipelineCaches(device, dstCache, 1, &srcCache.get());
 	}
 	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const std::vector<VkPipelineCache>& srcCaches) {
-		return vkMergePipelineCaches(device, dstCache, srcCaches.size(), srcCaches.data());
+		return vkMergePipelineCaches(device, dstCache, static_cast<uint32>(srcCaches.size()), srcCaches.data());
 	}
 	VkResult resetCommandPool(const vk::CommandPool& commandPool, VkCommandPoolResetFlags flags) {
 		return vkResetCommandPool(device, commandPool, flags);
@@ -1153,7 +1153,7 @@ void Swapchain::createSwapchain() {
 		vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, tempImages.data());
 
 		for (auto& image : images) {
-			uint32 i = &image - &images[0];
+			auto i = &image - &images[0];
 			image.image = std::move(tempImages[i]);
 
 			image.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
@@ -1817,7 +1817,7 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 	vertexShader(builder.m_vertexShader), 
 	fragmentShader(builder.m_fragmentShader), 
 	hash(builder.hash()) {
-	uint32 setCount = builder.m_bindings.size();
+	auto setCount = builder.m_bindings.size();
 
 	std::vector<VkDescriptorSetLayout> tmpLayouts(setCount);
 
@@ -1842,7 +1842,7 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
-		setCount,
+        static_cast<uint32>(setCount),
 		tmpLayouts.data(),
 		static_cast<uint32>(builder.m_pushConstants.size()),
 		builder.m_pushConstants.data()
@@ -2318,7 +2318,7 @@ void draw() {
 				for (uint32 i = 0; i < meshes.size(); i++) {
 					cmd->bindVertexBuffer(meshes[i]->m_vertexBuffer.buffer, 0, 0);
 					cmd->bindIndexBuffer(meshes[i]->m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-					cmd->drawIndexed(meshes[i]->m_mesh->indices().size(), 1, 0, 0, 0);
+					cmd->drawIndexed(static_cast<uint32>(meshes[i]->m_mesh->indices().size()), 1, 0, 0, 0);
 				}
 			}
 		}
