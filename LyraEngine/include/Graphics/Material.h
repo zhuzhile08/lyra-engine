@@ -54,7 +54,7 @@ private:
 	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_fragShaderBuffers;
 	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_vertShaderBuffers;
 
-	const vulkan::GraphicsPipeline* m_graphicsPipeline = nullptr;
+	vulkan::GraphicsPipeline* m_graphicsPipeline = nullptr;
 
 	vulkan::DescriptorSets m_descriptorSets;
 

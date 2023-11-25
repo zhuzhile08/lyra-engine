@@ -427,8 +427,7 @@ public:
 		defaultRenderTarget = renderTargets.back();
 		defaultGraphicsProgram = new GraphicsProgram();
 		graphicsPrograms.emplace(defaultGraphicsProgram->hash, defaultGraphicsProgram);
-		defaultGraphicsPipeline = new GraphicsPipeline();
-		graphicsPipelines.emplace(defaultGraphicsPipeline->hash, defaultGraphicsPipeline);
+		graphicsPipelines.emplace(GraphicsPipeline::Builder().hash(), new GraphicsPipeline());
 	}
 
 	/**
@@ -633,11 +632,10 @@ public:
 
 	std::vector<RenderTarget*> renderTargets;
 	std::unordered_map<std::string, const GraphicsProgram*> graphicsPrograms;
-	std::unordered_map<std::string, const GraphicsPipeline*> graphicsPipelines;
+	std::unordered_map<std::string, GraphicsPipeline*> graphicsPipelines;
 
 	RenderTarget* defaultRenderTarget;
 	const GraphicsProgram* defaultGraphicsProgram;
-	const GraphicsPipeline* defaultGraphicsPipeline;
 
 	std::filesystem::path defaultVertexShaderPath;
 	std::filesystem::path defaultFragmentShaderPath;
@@ -651,6 +649,10 @@ public:
 	std::unordered_map<Material*, std::vector<const MeshRenderer*>> meshRenderers;
 
 	const Window* window;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+
+	float deltaTime;
 };
 
 }
@@ -1465,7 +1467,7 @@ void RenderTarget::createFramebuffers() { // create the framebuffers
 void RenderTarget::begin() const {
 	static constexpr Array<VkClearValue, 2> clear {{
 		{
-			{{ 0.0f, 0.0f, 0.0f, 0.0f }},
+			{{ 0.0f, 0.0f, 0.0f, 1.0f }},
 		},
 		{
 			{{ 1.0f, 0 }}
@@ -1526,24 +1528,11 @@ DescriptorSets::~DescriptorSets() {
 void DescriptorSets::update(uint32 index) {
 	if (dirty) {
 		writes.reserve(imageWrites.size() + bufferWrites.size());
-		variableCountInfo.reserve(writes.size());
-		count.reserve(variableCountInfo.size());
 
 		for (const auto& write : imageWrites) {
-			if (write.variableCount) {
-				count.push_back(write.infos.size());
-
-				variableCountInfo.push_back({
-					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
-					nullptr,
-					1,
-					&count.back()
-				});
-			}
-
 			writes.push_back({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				write.variableCount ? &variableCountInfo.back() : nullptr,
+				nullptr,
 				VK_NULL_HANDLE,
 				write.binding,
 				0,
@@ -1556,20 +1545,9 @@ void DescriptorSets::update(uint32 index) {
 		}
 
 		for (const auto& write : bufferWrites) {
-			if (write.variableCount) {
-				count.push_back(write.infos.size());
-
-				variableCountInfo.push_back({
-					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
-					nullptr,
-					1,
-					&count.back()
-				});
-			}
-
 			writes.push_back({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-				write.variableCount ? &variableCountInfo.back() : nullptr,
+				nullptr,
 				VK_NULL_HANDLE,
 				write.binding,
 				0,
@@ -1598,7 +1576,11 @@ void DescriptorSets::update(uint32 index) {
 }
 
 void DescriptorSets::addDescriptorSets(uint32 count) {
-	for (uint32 i = 0; i < count; i++) descriptorSets.emplace_back(globalRenderSystem->descriptorPools->allocate(*graphicsProgram, layoutIndex));
+	for (uint32 i = 0; i < count; i++) {
+		descriptorSets.emplace_back(
+			globalRenderSystem->descriptorPools->allocate(*graphicsProgram, layoutIndex, variableCount)
+		);
+	}
 
 	update();
 }
@@ -1640,10 +1622,17 @@ void DescriptorPools::reset() {
 		globalRenderSystem->resetDescriptorPool(pool, 0);
 }
 
-vk::DescriptorSet DescriptorPools::allocate(const GraphicsProgram& program, uint32 layoutIndex) {
+vk::DescriptorSet DescriptorPools::allocate(const GraphicsProgram& program, uint32 layoutIndex, bool variableCount) {
+	VkDescriptorSetVariableDescriptorCountAllocateInfo variableCountAlloc {
+		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
+		nullptr,
+		1,
+		&program.dynamicDescriptorCounts[layoutIndex]
+	};
+
 	VkDescriptorSetAllocateInfo allocInfo {
 		VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		nullptr,
+		(variableCount) ? &variableCountAlloc : nullptr,
 		descriptorPools[allocationIndex],
 		1,
 		&program.descriptorSetLayouts[layoutIndex].get()
@@ -1685,6 +1674,7 @@ std::string GraphicsProgram::Builder::hash() const noexcept {
 }
 
 GraphicsProgram::GraphicsProgram() : 
+	dynamicDescriptorCounts({ config::maxDynamicBindings, 0 }),
 	vertexShader(globalRenderSystem->defaultVertexShader), 
 	fragmentShader(globalRenderSystem->defaultFragmentShader), 
 	hash(Builder().hash()) {
@@ -1761,7 +1751,7 @@ GraphicsProgram::GraphicsProgram() :
 			{ 
 				7,
 				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-				config::maxTexturesPerBinding,
+				config::maxDynamicBindings,
 				VK_SHADER_STAGE_FRAGMENT_BIT,
 				nullptr
 			}
@@ -1800,9 +1790,9 @@ GraphicsProgram::GraphicsProgram() :
 		if (i == 0) {
 			createInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
-			if (config::maxTexturesPerBinding >= globalRenderSystem->descriptorIndexingProperties.maxPerStageDescriptorUpdateAfterBindSamplers - 3) {
+			if (config::maxDynamicBindings >= globalRenderSystem->descriptorIndexingProperties.maxPerStageDescriptorUpdateAfterBindSamplers - 3) {
 				auto data = bindings[i];
-				data[7].descriptorCount = globalRenderSystem->descriptorIndexingProperties.maxPerStageDescriptorUpdateAfterBindSamplers - 3;
+				data[7].descriptorCount = (dynamicDescriptorCounts[0] = globalRenderSystem->descriptorIndexingProperties.maxPerStageDescriptorUpdateAfterBindSamplers - 3);
 				createInfo.pBindings = data.data();
 			}
 		}
@@ -1832,6 +1822,7 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 	std::vector<VkDescriptorSetLayout> tmpLayouts(setCount);
 
 	descriptorSetLayouts.resize(setCount);
+	dynamicDescriptorCounts.resize(setCount);
 
 	for (uint32 i = 0; i < setCount; i++) {
 		VkDescriptorSetLayoutCreateInfo createInfo {
@@ -1841,6 +1832,8 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 			static_cast<uint32>(builder.m_bindings[i].size()),
 			builder.m_bindings[i].data()
 		};
+
+		dynamicDescriptorCounts[i] = builder.m_bindingFlagsCreateInfo[i].bindingCount;
 
 		tmpLayouts[i] = (descriptorSetLayouts[i] = vk::DescriptorSetLayout(globalRenderSystem->device, createInfo)).get();
 	}
@@ -1884,6 +1877,8 @@ std::string GraphicsPipeline::Builder::hash() const noexcept {
 }
 
 GraphicsPipeline::GraphicsPipeline() : 
+	dynamicViewport(VkViewport()),
+	dynamicScissor(VkRect2D()),
 	renderTarget(globalRenderSystem->defaultRenderTarget), 
 	program(globalRenderSystem->defaultGraphicsProgram), 
 	hash(Builder().hash()) {
@@ -2130,6 +2125,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 	// viewport
 	if (std::holds_alternative<bool>(builder.m_viewport)) {
 		dynamicState.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+		dynamicViewport = VkViewport();
 	} else {
 		viewportState.viewportCount = 1;
 		viewportState.pViewports = &std::get<VkViewport>(builder.m_viewport);
@@ -2137,6 +2133,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 	// scissor
 	if (std::holds_alternative<bool>(builder.m_scissor)) {
 		dynamicState.push_back(VK_DYNAMIC_STATE_SCISSOR);
+		dynamicScissor = VkRect2D();
 	} else {
 		viewportState.scissorCount = 1;
 		viewportState.pScissors = &std::get<VkRect2D>(builder.m_scissor);
@@ -2259,6 +2256,10 @@ void ImGuiRenderer::endFrame() {
 namespace renderer {
 
 bool beginFrame() {
+	auto now = std::chrono::high_resolution_clock::now();
+	vulkan::globalRenderSystem->deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - vulkan::globalRenderSystem->startTime).count();
+	vulkan::globalRenderSystem->startTime = now;
+
 	if (!vulkan::globalRenderSystem->swapchain->aquire()) return false;
 	vulkan::globalRenderSystem->swapchain->begin();
 	vulkan::globalRenderSystem->commandQueue->activeCommandBuffer->begin();
@@ -2282,12 +2283,34 @@ void draw() {
 		renderTargets[i]->begin();
 
 		for (uint32 j = 0; j < cameras.size(); j++) {
-			for (const auto& [material, meshes] : meshRenderers) {
-				if (material->m_graphicsPipeline) {
-					material->m_graphicsPipeline->bind();
-				} else {
-					vulkan::globalRenderSystem->defaultGraphicsPipeline->bind();
+			for (auto& [material, meshes] : meshRenderers) {
+				auto p = material->m_graphicsPipeline;
+				
+				if (std::holds_alternative<VkViewport>(p->dynamicViewport)) {
+					p->dynamicViewport = VkViewport {
+						0.0f,
+						0.0f,
+						static_cast<float32>(drawWidth()),
+						static_cast<float32>(drawHeight()),
+						0.0f,
+						1.0f
+					};
 				}
+
+				if (std::holds_alternative<VkRect2D>(p->dynamicScissor)) {
+					p->dynamicScissor = VkRect2D {
+						{ 
+							static_cast<int32>(cameras[j]->viewportPosition.x * drawWidth()), 
+							static_cast<int32>(cameras[j]->viewportPosition.y * drawHeight()) 
+						},
+						{  
+							static_cast<uint32>(cameras[j]->viewportSize.x * drawWidth()), 
+							static_cast<uint32>(cameras[j]->viewportSize.y * drawHeight()) 
+						},
+					};
+				}
+
+				p->bind();
 
 				cmd->pushConstants(material->m_graphicsPipeline->program->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Camera::CameraData), &cameras[j]->data());
 				material->m_descriptorSets.bind(currentFrameIndex());
@@ -2316,6 +2339,14 @@ uint32 currentFrameIndex() {
 	return vulkan::globalRenderSystem->swapchain->currentFrame;
 }
 
+float framesPerSecond() {
+	return 1 / vulkan::globalRenderSystem->deltaTime;
+}
+
+float deltaTime() {
+	return vulkan::globalRenderSystem->deltaTime;
+}
+
 void setScene(Entity& sceneRoot) {
 	vulkan::globalRenderSystem->sceneRoot = &sceneRoot;
 
@@ -2340,7 +2371,7 @@ Entity& scene() {
 	return *vulkan::globalRenderSystem->sceneRoot;
 }
 
-const vulkan::GraphicsPipeline& graphicsPipeline(
+vulkan::GraphicsPipeline& graphicsPipeline(
 	const vulkan::GraphicsPipeline::Builder& pipelineBuilder,
 	const vulkan::GraphicsProgram::Builder& programBuilder
 ) {

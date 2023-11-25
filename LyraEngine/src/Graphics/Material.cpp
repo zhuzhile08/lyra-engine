@@ -24,7 +24,7 @@ Material::Material(
 	const vulkan::GraphicsPipeline::Builder& pipelineBuilder,
 	const vulkan::GraphicsProgram::Builder& programBuilder
 ) : m_graphicsPipeline(&renderer::graphicsPipeline(pipelineBuilder, programBuilder)),
-	m_descriptorSets(*m_graphicsPipeline->program, 0),
+	m_descriptorSets(*m_graphicsPipeline->program, 0, true),
 	m_albedoColor(albedoColor),
 	m_albedoTextures(albedoTextures),
 	m_metallic(metallic),
@@ -54,24 +54,52 @@ Material::Material(
 		m_fragShaderBuffers[i].copyData(&fragDat);
 
 		m_descriptorSets.addWrites({
-			{ { m_fragShaderBuffers[i].getDescriptorBufferInfo() }, 5, lyra::vulkan::DescriptorSets::Type::uniformBuffer}
+			{ { m_fragShaderBuffers[i].getDescriptorBufferInfo() }, 6, lyra::vulkan::DescriptorSets::Type::uniformBuffer}
 		});
 	}
 
 	std::vector<VkDescriptorImageInfo> albedoImageInfos(m_albedoTextures.size());
 
-	for (const auto& t : m_albedoTextures) {
-		albedoImageInfos.push_back(t->getDescriptorImageInfo());
+	for (uint32 i = 0; i < m_albedoTextures.size(); i++) {
+		albedoImageInfos[i] = m_albedoTextures[i]->getDescriptorImageInfo();
 	}
 
 	m_descriptorSets.addWrites({
-		{ { m_normalMapTexture->getDescriptorImageInfo() }, 0, lyra::vulkan::DescriptorSets::Type::imageSampler},
-		{ { m_specularTexture->getDescriptorImageInfo() }, 0, lyra::vulkan::DescriptorSets::Type::imageSampler},
-		{ { m_displacementMapTexture->getDescriptorImageInfo() }, 1, lyra::vulkan::DescriptorSets::Type::imageSampler},
-		{ { m_metallicTexture->getDescriptorImageInfo() }, 2, lyra::vulkan::DescriptorSets::Type::imageSampler},
-		{ { m_emissionTexture->getDescriptorImageInfo() }, 3, lyra::vulkan::DescriptorSets::Type::imageSampler},
-		{ { m_occlusionMapTexture->getDescriptorImageInfo() }, 4, lyra::vulkan::DescriptorSets::Type::imageSampler},
-		{ albedoImageInfos, 6, lyra::vulkan::DescriptorSets::Type::imageSampler}
+		{ 
+			{ m_normalMapTexture ? m_normalMapTexture->getDescriptorImageInfo() : resource::defaultNormal().getDescriptorImageInfo() }, 
+			0, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		},
+		{ 
+			{ m_specularTexture ? m_specularTexture->getDescriptorImageInfo() : resource::defaultTexture().getDescriptorImageInfo() }, 
+			1, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		},
+		{ 
+			{ m_displacementMapTexture ? m_displacementMapTexture->getDescriptorImageInfo() : resource::defaultTexture().getDescriptorImageInfo() }, 
+			2, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		},
+		{ 
+			{ m_metallicTexture ? m_metallicTexture->getDescriptorImageInfo() : resource::defaultTexture().getDescriptorImageInfo() }, 
+			3, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		},
+		{ 
+			{ m_emissionTexture ? m_emissionTexture->getDescriptorImageInfo() : resource::defaultTexture().getDescriptorImageInfo() }, 
+			4, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		},
+		{ 
+			{ m_occlusionMapTexture ? m_occlusionMapTexture->getDescriptorImageInfo() : resource::defaultTexture().getDescriptorImageInfo() }, 
+			5, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		},
+		{ 
+			albedoImageInfos.empty() ? std::vector<VkDescriptorImageInfo> { resource::defaultTexture().getDescriptorImageInfo() } : albedoImageInfos, 
+			7, 
+			lyra::vulkan::DescriptorSets::Type::imageSampler
+		}
 	});
 }
 

@@ -846,21 +846,20 @@ public:
 		std::vector<VkDescriptorImageInfo> infos;
 		uint32 binding;
 		Type type;
-		bool variableCount = false;
 	};
 
 	struct BufferWrite {
 		std::vector<VkDescriptorBufferInfo> infos;
 		uint32 binding;
 		Type type;
-		bool variableCount = false;
 	};
 	
 	DescriptorSets() = default;
 	DescriptorSets(
 		const GraphicsProgram& graphicsProgram, 
-		uint32 layoutIndex
-	) : layoutIndex(layoutIndex), graphicsProgram(&graphicsProgram) { }
+		uint32 layoutIndex,
+		bool variableCount = false
+	) : variableCount(variableCount), layoutIndex(layoutIndex), graphicsProgram(&graphicsProgram) { }
 	~DescriptorSets();
 
 	constexpr void addWrites(const std::vector<ImageWrite>& newWrites) noexcept {
@@ -883,18 +882,18 @@ public:
 	void bind(uint32 index);
 
 	std::vector<vk::DescriptorSet> descriptorSets;
+
 	std::vector<ImageWrite> imageWrites;
 	std::vector<BufferWrite> bufferWrites;
+	std::vector<VkWriteDescriptorSet> writes;
+
+	bool variableCount;
+
+	bool dirty = false;
 
 	uint32 layoutIndex;
 
 	const GraphicsProgram* graphicsProgram;
-
-	std::vector<VkWriteDescriptorSet> writes;
-	std::vector<VkDescriptorSetVariableDescriptorCountAllocateInfo> variableCountInfo;
-	std::vector<uint32> count;
-
-	bool dirty = false;
 };
 
 class DescriptorPools {
@@ -914,10 +913,7 @@ public:
 	DescriptorPools(const std::vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
 
 	void reset();
-	vk::DescriptorSet allocate(
-		const GraphicsProgram& program,
-		uint32 layoutIndex
-	);
+	vk::DescriptorSet allocate(const GraphicsProgram& program, uint32 layoutIndex, bool variableCount);
 
 	std::vector<vk::DescriptorPool> descriptorPools;
 
@@ -931,6 +927,13 @@ class GraphicsProgram {
 public:
 	class Builder {
 	public:
+		enum class Flags {
+			updateAfterBind = 0x00000001,
+			updateWhilePending = 0x00000002,
+			partiallyBound = 0x00000004,
+			variableCount = 0x00000008
+		};
+
 		struct Binding {
 			// descriptor type
 			DescriptorSets::Type type;
@@ -940,8 +943,8 @@ public:
 			uint32 set = 0;
 			// array size
 			uint32 arraySize = 1;
-			// uses VK_KHR_push_descriptors
-			bool dynamic = false;
+			// flags
+			Flags flags;
 			// immutable samplers
 			const std::vector<VkSampler>& immutableSamplers = { };
 		};
@@ -968,9 +971,11 @@ public:
 				static_cast<VkShaderStageFlags>(binding.shaderType),
 				binding.immutableSamplers.data()
 				});
+
+			m_bindingFlags[binding.set].push_back(static_cast<VkDescriptorBindingFlags>(binding.flags));
 			
-			if (binding.dynamic) {
-				m_bindingFlags[binding.set].push_back(VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT);
+			if ((binding.flags | Flags::variableCount) == Flags::variableCount) {
+				if (m_bindingFlagsCreateInfo.size() <= binding.set) m_bindingFlagsCreateInfo.resize(binding.set);
 
 				m_bindingFlagsCreateInfo[binding.set] = {
 					VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
@@ -978,8 +983,6 @@ public:
 					static_cast<uint32>(m_bindingFlags[binding.set].size()),
 					m_bindingFlags[binding.set].data()
 				}; // not very efficient, a lot of reassigning, though all types here are trivially copiable, still a @todo
-			} else {
-				m_bindingFlags[binding.set].push_back(0);
 			}
 
 			// compute the hash from the binding
@@ -988,7 +991,7 @@ public:
 				std::to_string(binding.shaderType) + 
 				std::to_string(binding.set) + 
 				std::to_string(binding.arraySize) + 
-				std::to_string(binding.dynamic) + 
+				std::to_string(binding.flags) + 
 				std::to_string(binding.immutableSamplers.size())
 			);
 		}
@@ -1040,6 +1043,7 @@ public:
 	GraphicsProgram(const Builder& builder);
 
 	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
+	Dynarray<uint32, config::maxShaderSets> dynamicDescriptorCounts;
 	vk::PipelineLayout pipelineLayout;
 
 	const Shader* vertexShader;

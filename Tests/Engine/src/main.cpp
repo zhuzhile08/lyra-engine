@@ -10,6 +10,8 @@
 #include <Graphics/Texture.h>
 #include <Graphics/Mesh.h>
 
+#include <EntitySystem/Entity.h>
+#include <EntitySystem/Transform.h>
 #include <EntitySystem/Camera.h>
 #include <EntitySystem/MeshRenderer.h>
 
@@ -33,35 +35,26 @@ int main(int argc, char* argv[]) {
 	lyra::Entity camera (sceneRoot, "Camera");
 	camera.addComponent<lyra::Camera>();
 
-	/**
-
-	auto& vertexShader = lyra::resource::shader("shader/vert.spv");
-	auto& fragmentShader = lyra::resource::shader("shader/frag.spv");
-
-	auto& texture = lyra::resource::texture("img/viking_room.png");
-	auto& room = lyra::resource::mesh("mesh/viking_room.obj", 0);
-
-	lyra::vulkan::Framebuffers framebuffers;
-	lyra::vulkan::GraphicsProgram graphicsProgram(vertexShader, fragmentShader);
-
-	lyra::renderSystem::Renderer renderer(framebuffers, graphicsProgram);
-
 	lyra::Material roomMat(
 		lyra::Color(),
-		{ &texture }
+		{ &lyra::resource::texture("img/viking_room.png") }
 	);
 
-	lyra::Camera camera;
+	lyra::Mesh quad(
+		{
+    		{{-0.5f, -0.5f, 0.0f}, glm::vec3(1), {1.0f, 0.0f, 0.0f}},
+    		{{0.5f, -0.5f, 0.0f}, glm::vec3(1), {0.0f, 1.0f, 0.0f}},
+    		{{0.5f, 0.5f, 0.0f}, glm::vec3(1), {0.0f, 0.0f, 1.0f}},
+   			{{-0.5f, 0.5f, 0.0f}, glm::vec3(1), {1.0f, 1.0f, 1.0f}}
+		},
+		{
+			0, 1, 2, 2, 3, 0
+		}
+	);
 
-	renderer.bindCamera(camera);
-
-	lyra::MeshRenderer roomRenderer(room, roomMat);
-
-	renderer.m_meshes.emplace(&roomMat, std::vector<lyra::MeshRenderer*>{ &roomRenderer });
-
-	*/
-
-	auto p = lyra::renderer::graphicsPipeline(lyra::resource::shader("shader/vert.spv"), lyra::resource::shader("shader/frag.spv"));
+	lyra::Entity room (sceneRoot, "Room");
+	room.addComponent<lyra::MeshRenderer>(quad, roomMat);
+	// room.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), roomMat);
 
 	lyra::renderer::setScene(sceneRoot);
 
@@ -70,6 +63,9 @@ int main(int argc, char* argv[]) {
 		if (!lyra::renderer::beginFrame()) continue;
 
 		lyra::renderer::draw();
+
+		camera.component<lyra::Transform>()->normalizeAndRotate({ 0.0f, 0.0f, 1.0f }, lyra::renderer::deltaTime() * 90.0f);
+		camera.component<lyra::Transform>()->lookAt({ 0.0f, 0.0f, 0.0f });
 
 		lyra::renderer::endFrame();
 	}
