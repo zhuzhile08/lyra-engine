@@ -28,6 +28,8 @@ public:
 	Entity* entity() { return m_entity; }
 protected:
 	Entity* m_entity;
+
+	friend class Entity;
 };
 
 template <class Ty> concept DerivedComponentType = std::is_base_of_v<ComponentBase, Ty>;
@@ -54,11 +56,11 @@ public:
 	
 	void update();
 
-	template <DerivedComponentType Ty, class... Args> void addComponent(Args... args) {
-		m_components.emplace(std::type_index(typeid(Ty)), UniquePointer<Ty>::create(std::forward<Args>(args)...));
+	template <DerivedComponentType Ty, class... Args> void addComponent(Args&&... args) {
+		m_components.emplace(std::type_index(typeid(Ty)), UniquePointer<Ty>::create(std::forward<Args>(args)...)).first->second->m_entity = this;
 	}
 	template <DerivedComponentType Ty> void addComponent(UniquePointer<Ty>&& component) {
-		m_components.emplace(std::type_index(typeid(Ty)), std::move(component));
+		m_components.emplace(std::type_index(typeid(Ty)), std::move(component)).first->second->m_entity = this;
 	}
 
 	template <DerivedComponentType Ty> NODISCARD Ty* component() {
