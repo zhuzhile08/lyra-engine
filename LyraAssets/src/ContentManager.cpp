@@ -128,12 +128,11 @@ void ContentManager::saveAs() {
 
 void ContentManager::loadItem() {
 	auto p = pfd::open_file("Load an item", ".", {
-		"Image Files", "*.png", "*.bmp", "*.jpg", "*.jpeg", "*.psd",
-		"3D Model Files", "*.obj", "*.gltf", "*.glb", "*.fbx", "*.dae", "*.blend"
+		"Image Files", "*.png *.bmp *.jpg *.jpeg *.psd",
+		"3D Model Files", "*.obj *.gltf *.glb *.fbx *.dae *.blend",
 		"Material Files", "*.mat",
 		"True Type Fonts", "*.ttf",
-		"Text/Binary Files", "*.txt", "*.json", "*.spv", "*.lua"
-
+		"Text/Binary Files", "*.txt *.json *.spv *.lua"
 	}, pfd::opt::multiselect).result();
 
 	for (const auto& f : p) {
