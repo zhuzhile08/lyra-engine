@@ -12,7 +12,7 @@ Entity::Entity(
 	uint32 tag, 
 	bool visible, 
 	bool constant
-) : Node<Entity>(this, name, parent), m_tag(tag), m_visible(visible), m_script(script), m_constant(constant), m_components(31) { 
+) : Node<Entity>(this, name, parent), m_tag(tag), m_visible(visible), m_constant(constant), m_script(script), m_components(31) { 
 	addComponent<Transform>();
 	if (m_script) {
 		m_script->node = this;
@@ -27,7 +27,7 @@ Entity::Entity(
 	uint32 tag, 
 	bool visible, 
 	bool constant
-) : Node<Entity>(this, name, parent), m_tag(tag), m_visible(visible), m_script(script), m_constant(constant), m_components(31) { 
+) : Node<Entity>(this, name, parent), m_tag(tag), m_visible(visible), m_constant(constant), m_script(script), m_components(31) { 
 	addComponent<Transform>();
 	if (m_script) {
 		m_script->node = this;
