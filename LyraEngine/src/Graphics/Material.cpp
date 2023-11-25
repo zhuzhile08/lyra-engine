@@ -20,8 +20,12 @@ Material::Material(
 	const Texture* normalMapTexture,
 	const Texture* displacementMapTexture,
 	const Color& occlusionColor,
-	const Texture* occlusionMapTexture
-) : m_albedoColor(albedoColor),
+	const Texture* occlusionMapTexture,
+	const vulkan::GraphicsPipeline::Builder& pipelineBuilder,
+	const vulkan::GraphicsProgram::Builder& programBuilder
+) : m_graphicsPipeline(&renderer::graphicsPipeline(pipelineBuilder, programBuilder)),
+	m_descriptorSets(*m_graphicsPipeline->program, 0),
+	m_albedoColor(albedoColor),
 	m_albedoTextures(albedoTextures),
 	m_metallic(metallic),
 	m_roughness(roughness),
@@ -33,8 +37,7 @@ Material::Material(
 	m_normalMapTexture(normalMapTexture),
 	m_displacementMapTexture(displacementMapTexture),
 	m_occlusionColor(occlusionColor),
-	m_occlusionMapTexture(occlusionMapTexture),
-	m_descriptorSets(1)
+	m_occlusionMapTexture(occlusionMapTexture)
 {
 	// uniform data to send to the fragment shader
 	FragmentShaderData fragDat {
@@ -63,6 +66,7 @@ Material::Material(
 
 	m_descriptorSets.addWrites({
 		{ { m_normalMapTexture->getDescriptorImageInfo() }, 0, lyra::vulkan::DescriptorSets::Type::imageSampler},
+		{ { m_specularTexture->getDescriptorImageInfo() }, 0, lyra::vulkan::DescriptorSets::Type::imageSampler},
 		{ { m_displacementMapTexture->getDescriptorImageInfo() }, 1, lyra::vulkan::DescriptorSets::Type::imageSampler},
 		{ { m_metallicTexture->getDescriptorImageInfo() }, 2, lyra::vulkan::DescriptorSets::Type::imageSampler},
 		{ { m_emissionTexture->getDescriptorImageInfo() }, 3, lyra::vulkan::DescriptorSets::Type::imageSampler},

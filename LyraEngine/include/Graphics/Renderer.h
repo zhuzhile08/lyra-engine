@@ -42,11 +42,9 @@ uint32 drawWidth();
 uint32 drawHeight();
 uint32 currentFrameIndex();
 
-const vulkan::GraphicsPipeline* graphicsPipeline(
-	const vulkan::Shader& vertexShader, 
-	const vulkan::Shader& fragmentShader,
-	vulkan::GraphicsProgram::Builder programBuilder = { },
-	vulkan::GraphicsPipeline::Builder pipelineBuilder = { }
+const vulkan::GraphicsPipeline& graphicsPipeline(
+	const vulkan::GraphicsPipeline::Builder& pipelineBuilder = { },
+	const vulkan::GraphicsProgram::Builder& programBuilder = { }
 );
 
 void setScene(Entity& sceneRoot);

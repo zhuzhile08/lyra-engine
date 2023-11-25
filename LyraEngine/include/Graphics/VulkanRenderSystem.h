@@ -1016,9 +1016,7 @@ public:
 			m_fragmentShader = &shader;
 		}
 
-		std::string hash() const noexcept {
-			return std::string(m_bindingHash).append(m_pushConstantHash).append(std::to_string(reinterpret_cast<uintptr>(m_vertexShader)) + std::to_string(reinterpret_cast<uintptr>(m_fragmentShader)));
-		}
+		std::string hash() const noexcept;
 
 	private:
 		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
@@ -1127,7 +1125,9 @@ public:
 				VK_BLEND_FACTOR_ZERO,
 				VK_BLEND_OP_ADD,
 				VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT
-			}}) { }
+			}}),
+			m_renderTarget(nullptr),
+			m_graphicsProgram(nullptr) { }
 
 		constexpr void setTopology(Topology topology) noexcept {
 			m_topology = topology;

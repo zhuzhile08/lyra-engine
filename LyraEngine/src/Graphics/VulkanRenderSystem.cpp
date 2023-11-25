@@ -419,10 +419,16 @@ public:
 			{ DescriptorSets::Type::dynamicStorageBuffer, 2 },
 			{ DescriptorSets::Type::inputAttachment, 1 }
 		}, DescriptorPools::Flags::freeDescriptorSet | DescriptorPools::Flags::updateAfterBind);
+
+		defaultVertexShader = &resource::shader(defaultVertexShaderPath);
+		defaultFragmentShader = &resource::shader(defaultFragmentShaderPath);
+
 		renderTargets.push_back(new RenderTarget());
 		defaultRenderTarget = renderTargets.back();
-		defaultGraphicsProgram = graphicsPrograms.emplace(std::string(), new GraphicsProgram()).first->second;
-		defaultGraphicsPipeline = graphicsPipelines.emplace(std::string(), new GraphicsPipeline()).first->second;
+		defaultGraphicsProgram = new GraphicsProgram();
+		graphicsPrograms.emplace(defaultGraphicsProgram->hash, defaultGraphicsProgram);
+		defaultGraphicsPipeline = new GraphicsPipeline();
+		graphicsPipelines.emplace(defaultGraphicsPipeline->hash, defaultGraphicsPipeline);
 	}
 
 	/**
@@ -626,20 +632,23 @@ public:
 	UniquePointer<DescriptorPools> descriptorPools;
 
 	std::vector<RenderTarget*> renderTargets;
-	std::unordered_map<std::string, GraphicsProgram*> graphicsPrograms;
-	std::unordered_map<std::string, GraphicsPipeline*> graphicsPipelines;
+	std::unordered_map<std::string, const GraphicsProgram*> graphicsPrograms;
+	std::unordered_map<std::string, const GraphicsPipeline*> graphicsPipelines;
 
 	RenderTarget* defaultRenderTarget;
-	GraphicsProgram* defaultGraphicsProgram;
-	GraphicsPipeline* defaultGraphicsPipeline;
+	const GraphicsProgram* defaultGraphicsProgram;
+	const GraphicsPipeline* defaultGraphicsPipeline;
 
 	std::filesystem::path defaultVertexShaderPath;
 	std::filesystem::path defaultFragmentShaderPath;
 
+	const Shader* defaultVertexShader;
+	const Shader* defaultFragmentShader;
+
 	Entity* sceneRoot;
 
 	std::vector<Camera*> cameras;
-	std::unordered_map<Material*, std::vector<MeshRenderer*>> meshRenderers;
+	std::unordered_map<Material*, std::vector<const MeshRenderer*>> meshRenderers;
 
 	const Window* window;
 };
@@ -1326,8 +1335,6 @@ bool Swapchain::present() {
 }
 
 RenderTarget::RenderTarget() {
-	globalRenderSystem->renderTargets.push_back(this);
-
 	{ // create the render pass
 		VkAttachmentDescription colorAttachmentDescriptions {
 			0,
@@ -1669,34 +1676,17 @@ vk::DescriptorSet DescriptorPools::allocate(const GraphicsProgram& program, uint
 	return descriptorSet;
 }
 
-std::string GraphicsPipeline::Builder::hash() const noexcept {
+std::string GraphicsProgram::Builder::hash() const noexcept {
 	return 
-		std::to_string(std::holds_alternative<bool>(m_viewport)) + 
-		std::to_string(std::holds_alternative<bool>(m_scissor)) +
-		std::to_string(m_topology) + 
-		std::to_string(m_renderMode) + 
-		std::to_string(m_polyFrontFace) + 
-		std::to_string(m_sampleCount) + 
-		(
-			std::holds_alternative<bool>(m_sampleShading) ? 
-				std::to_string(std::get<bool>(m_sampleShading)) : 
-				std::to_string(std::get<float32>(m_sampleShading))
-		) + 
-		(std::holds_alternative<bool>(m_depthStencil) ? 
-			std::to_string(std::get<bool>(m_sampleShading)) : 
-			(
-				std::to_string(std::get<Builder::DepthStencil>(m_depthStencil).write) + 
-					std::to_string(std::get<Builder::DepthStencil>(m_depthStencil).compare)
-			)
-		) + 
-		std::to_string(m_blendAttachments.size()) +
-		std::to_string(reinterpret_cast<uintptr>(m_renderTarget)) + 
-		std::to_string(reinterpret_cast<uintptr>(m_graphicsProgram));
+		std::string(m_bindingHash) + 
+		m_pushConstantHash + 
+		std::to_string(reinterpret_cast<uintptr>((m_vertexShader) ? m_vertexShader : globalRenderSystem->defaultVertexShader)) + 
+		std::to_string(reinterpret_cast<uintptr>((m_fragmentShader) ? m_fragmentShader : globalRenderSystem->defaultFragmentShader));
 }
 
 GraphicsProgram::GraphicsProgram() : 
-	vertexShader(&resource::shader(globalRenderSystem->defaultVertexShaderPath)), 
-	fragmentShader(&resource::shader(globalRenderSystem->defaultFragmentShaderPath)), 
+	vertexShader(globalRenderSystem->defaultVertexShader), 
+	fragmentShader(globalRenderSystem->defaultFragmentShader), 
 	hash(Builder().hash()) {
 	static constexpr Array<VkDescriptorBindingFlags, 8> bindingFlags = {{ 
 		0,
@@ -1790,7 +1780,7 @@ GraphicsProgram::GraphicsProgram() :
 		{
 			VK_SHADER_STAGE_VERTEX_BIT,
 			0,
-			2 * sizeof(glm::mat4)
+			sizeof(Camera::CameraData)
 		}
 	}};
 
@@ -1866,6 +1856,31 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 	};
 
 	pipelineLayout = vk::PipelineLayout(globalRenderSystem->device, pipelineLayoutCreateInfo);
+}
+
+std::string GraphicsPipeline::Builder::hash() const noexcept {
+	return 
+		std::to_string(std::holds_alternative<bool>(m_viewport)) + 
+		std::to_string(std::holds_alternative<bool>(m_scissor)) +
+		std::to_string(m_topology) + 
+		std::to_string(m_renderMode) + 
+		std::to_string(m_polyFrontFace) + 
+		std::to_string(m_sampleCount) + 
+		(
+			std::holds_alternative<bool>(m_sampleShading) ? 
+				std::to_string(std::get<bool>(m_sampleShading)) : 
+				std::to_string(std::get<float32>(m_sampleShading))
+		) + 
+		(std::holds_alternative<bool>(m_depthStencil) ? 
+			std::to_string(std::get<bool>(m_sampleShading)) : 
+			(
+				std::to_string(std::get<Builder::DepthStencil>(m_depthStencil).write) + 
+					std::to_string(std::get<Builder::DepthStencil>(m_depthStencil).compare)
+			)
+		) + 
+		std::to_string(m_blendAttachments.size()) +
+		std::to_string(reinterpret_cast<uintptr>((m_renderTarget) ? m_renderTarget : vulkan::globalRenderSystem->defaultRenderTarget)) + 
+		std::to_string(reinterpret_cast<uintptr>((m_graphicsProgram) ? m_graphicsProgram : vulkan::globalRenderSystem->defaultGraphicsProgram));
 }
 
 GraphicsPipeline::GraphicsPipeline() : 
@@ -2325,30 +2340,33 @@ Entity& scene() {
 	return *vulkan::globalRenderSystem->sceneRoot;
 }
 
-const vulkan::GraphicsPipeline* graphicsPipeline(
-	const vulkan::Shader& vertexShader, 
-	const vulkan::Shader& fragmentShader,
-	vulkan::GraphicsProgram::Builder programBuilder,
-	vulkan::GraphicsPipeline::Builder pipelineBuilder
+const vulkan::GraphicsPipeline& graphicsPipeline(
+	const vulkan::GraphicsPipeline::Builder& pipelineBuilder,
+	const vulkan::GraphicsProgram::Builder& programBuilder
 ) {
 	auto renderSystem = vulkan::globalRenderSystem;
-
-	programBuilder.setVertexShader(vertexShader);
-	programBuilder.setFragmentShader(fragmentShader);
-
-	auto programHash = programBuilder.hash();
-
-	if (!renderSystem->graphicsPrograms.contains(programHash)) {
-		pipelineBuilder.setGraphicsProgram(*renderSystem->graphicsPrograms.emplace(programHash, new vulkan::GraphicsProgram(programBuilder)).first->second);
-	}
 
 	auto pipelineHash = pipelineBuilder.hash();
 
 	if (!renderSystem->graphicsPipelines.contains(pipelineHash)) {
-		renderSystem->graphicsPipelines.emplace(pipelineHash, new vulkan::GraphicsPipeline(pipelineBuilder));
+		auto programHash = programBuilder.hash();
+
+		if (!renderSystem->graphicsPrograms.contains(programHash)) {
+			vulkan::GraphicsPipeline::Builder modifiedPipelineBuilder = pipelineBuilder;
+			modifiedPipelineBuilder.setGraphicsProgram(
+				*renderSystem->graphicsPrograms.emplace(
+					programHash, 
+					new vulkan::GraphicsProgram(programBuilder)
+				).first->second
+			);
+
+			return *renderSystem->graphicsPipelines.emplace(pipelineHash, new vulkan::GraphicsPipeline(modifiedPipelineBuilder)).first->second;
+		}
+
+		return *renderSystem->graphicsPipelines.emplace(pipelineHash, new vulkan::GraphicsPipeline(pipelineBuilder)).first->second;
 	}
 
-	return renderSystem->graphicsPipelines.at(pipelineHash);
+	return *renderSystem->graphicsPipelines.at(pipelineHash);
 }
 
 } // namespace renderer

@@ -33,8 +33,6 @@ public:
 	};
 
 	Material(
-		const vulkan::Shader& vertexShader = { },
-		const vulkan::Shader& fragmentShader = { },
 		const Color& albedoColor = Color(),
 		const std::vector<const Texture*>& albedoTextures = { },
 		float32 metallic = 0.0f,
@@ -47,7 +45,9 @@ public:
 		const Texture* normalMapTexture = nullptr,
 		const Texture* displacementMapTexture = nullptr,
 		const Color& occlusionColor = Color(),
-		const Texture* occlusionMapTexture = nullptr
+		const Texture* occlusionMapTexture = nullptr,
+		const vulkan::GraphicsPipeline::Builder& pipelineBuilder = { },
+		const vulkan::GraphicsProgram::Builder& programBuilder = { }
 	);
 
 private:
