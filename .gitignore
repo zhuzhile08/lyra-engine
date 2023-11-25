@@ -35,9 +35,9 @@
 
 # folders
 /include
+/.vscode/*
 /out
 /.vs
-/.vscode
 /lib
 /data/log/
 
@@ -45,6 +45,9 @@
 CMakeSettings.json
 CMakePresets.json
 imgui.ini
+
+# exceptions
+!.vscode/launch.json
 
 # data files
 *.dat
