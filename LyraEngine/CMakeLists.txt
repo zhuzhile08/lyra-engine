@@ -84,7 +84,7 @@ endif ()
 
 # build error level
 if (WIN32) 
-	target_compile_options(LyraEngine PRIVATE /W4 /WX)
+	target_compile_options(LyraEngine PRIVATE /WX)
 else () 
 	target_compile_options(LyraEngine PRIVATE -Wall -Wextra -Wpedantic)
 endif ()
