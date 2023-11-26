@@ -25,12 +25,12 @@ namespace lyra {
 
 class Transform : public ComponentBase {
 public:
-	constexpr Transform(
+	GLM_CONSTEXPR Transform(
 		const glm::vec3& translation = glm::vec3(0.0f), 
 		const glm::quat& orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 
 		const glm::vec3& scale = glm::vec3(1.0f)
 	) : translation(translation), orientation(orientation), scale(scale), m_dirty(true) { }
-	constexpr Transform(
+	GLM_CONSTEXPR Transform(
 		const glm::vec3& translation,
 		const glm::vec3& axis,
 		float32 angle,
@@ -105,7 +105,7 @@ public:
 		return orientation * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->scale : glm::vec3(0.0f));
 	}
 
-	NODISCARD constexpr glm::mat4 localTransform() {
+	NODISCARD GLM_CONSTEXPR glm::mat4 localTransform() {
 		if (m_dirty) {
 			m_localTransform = glm::toMat4(orientation);
 			m_localTransform = glm::translate(m_localTransform, translation);
@@ -114,7 +114,7 @@ public:
 		}
 		return m_localTransform;
 	}
-	NODISCARD constexpr glm::mat4 globalTransform() {
+	NODISCARD GLM_CONSTEXPR glm::mat4 globalTransform() {
 		return localTransform() * ((m_entity->parent()) ? m_entity->parent()->component<Transform>()->globalTransform() : glm::mat4(1.0f));
 	}
 

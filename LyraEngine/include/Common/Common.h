@@ -56,7 +56,7 @@ struct Color {
 	constexpr Color(float32 r, float32 g, float32 b, float32 a = 1.0f) : r(r), g(g), b(b), a(a) { }
 	constexpr Color(const Color& col) : r(col.r), g(col.g), b(col.b), a(col.a) { }
 	constexpr Color& operator=(const Color& col) { r = col.r; g = col.g; b = col.b; a = col.a; return *this; }
-	constexpr glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
+	GLM_CONSTEXPR glm::vec4 vec() const { return glm::vec4(r, g, b, a); }
 	float32 r, g, b, a;
 };
 using Colour = Color;
