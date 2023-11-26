@@ -42,7 +42,7 @@ add_executable(LyraAssets
 
 # build error level
 if (WIN32) 
-	target_compile_options(LyraAssets PRIVATE /W4 /WX)
+	target_compile_options(LyraAssets PRIVATE /WX)
 else () 
 	target_compile_options(LyraAssets PRIVATE -Wall -Wextra -Wpedantic)
 endif ()

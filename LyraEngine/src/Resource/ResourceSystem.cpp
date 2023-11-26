@@ -47,7 +47,7 @@ namespace resource {
 
 const vulkan::Shader& shader(std::filesystem::path path) {
 	if (!globalResourceSystem->shaders.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.at(path.string());
+		const auto& js = globalResourceSystem->assetsFile.at(path.generic_string());
 
 		ByteFile compressedFile(absolutePath(std::filesystem::path("data")/(path)), OpenMode::read | OpenMode::binary, false);
 		std::vector<char> data(compressedFile.seekg(0, SeekDirection::end).tellg());
@@ -64,7 +64,7 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 
 const Texture& texture(std::filesystem::path path) {
 	if (!globalResourceSystem->textures.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.at(path.string());
+		const auto& js = globalResourceSystem->assetsFile.at(path.generic_string());
 		globalResourceSystem->textures.emplace(path.string(), Texture(loadTextureFile(
 			absolutePath(std::filesystem::path("data")/(path)),
 			js.at("Width").get<uint32>(),

@@ -96,7 +96,7 @@ void ContentManager::save() {
 	if (unsaved) {
 		lyra::log::info("Saving current project file...");
 
-		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::write | lyra::OpenMode::extend);
+		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::write, false);
 		auto s = m_projectFile.stringify();
 		f.write(s.data(), s.size());
 		unsaved = false;
@@ -111,7 +111,7 @@ void ContentManager::saveAs() {
 		if (!p.empty()) {
 			lyra::log::info("Saving current project file to new file...");
 
-			lyra::ByteFile f(p, lyra::OpenMode::write | lyra::OpenMode::extend);
+			lyra::ByteFile f(p, lyra::OpenMode::write, false);
 			auto s = m_projectFile.stringify();
 			f.write(s.data(), s.size());
 
@@ -172,7 +172,7 @@ void ContentManager::build() {
 		auto ext = m_newFiles[i].extension();
 		auto filepath = std::filesystem::path(m_projectFilePath).remove_filename() /= m_newFiles[i];
 		auto concat = filepath;
-		auto* js = &m_projectFile[m_newFiles[i].string()];
+		auto* js = &m_projectFile[m_newFiles[i].generic_string()];
 		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
@@ -209,7 +209,7 @@ void ContentManager::build() {
 			Assimp::Importer importer;
 			importer.SetIOHandler(new AssimpFileSystem);
 
-			const aiScene* scene = importer.ReadFile(filepath.string(), m_projectFile[m_newFiles[i].string()]["ImportFlags"].get<lyra::uint32>());
+			const aiScene* scene = importer.ReadFile(filepath.string(), m_projectFile[m_newFiles[i].generic_string()]["ImportFlags"].get<lyra::uint32>());
 
 			std::vector<lyra::Array<lyra::Array<float, 3>, 4>> vertexBlocks;
 			std::vector<lyra::uint32> indexBlock;
@@ -344,7 +344,7 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		return;
 	} 
 	
-	js = js->insert(rel.string(), js)->second;
+	js = js->insert(rel.generic_string(), js)->second;
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 		js->insert("Width", 0U);

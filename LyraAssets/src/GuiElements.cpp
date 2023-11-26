@@ -123,7 +123,7 @@ void MainMenuBar::draw() {
 			ImGui::CloseCurrentPopup();
 		}
 		std::filesystem::rename(m_state->contentManager->projectFilePath().remove_filename()/m_state->nameBuffer, m_state->contentManager->projectFilePath().remove_filename()/m_state->stringBuffer);
-		m_state->contentManager->projectFile()[m_state->nameBuffer.string()].rename(m_state->stringBuffer);
+		m_state->contentManager->projectFile()[m_state->nameBuffer.generic_string()].rename(m_state->stringBuffer);
 		m_state->contentManager->unsaved = true;
 		
 		ImGui::EndPopup();
@@ -258,7 +258,7 @@ void Window::draw() {
 
 		if (!m_state->nameBuffer.empty()) {
 			auto ext = m_state->nameBuffer.extension();
-			auto& js = m_state->contentManager->projectFile()[m_state->nameBuffer.string()];
+			auto& js = m_state->contentManager->projectFile()[m_state->nameBuffer.generic_string()];
 
 			if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
 				if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
