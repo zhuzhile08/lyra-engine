@@ -34,7 +34,7 @@ public:
 		glm::vec3 uvw = glm::vec3(1.0f);
 
 		constexpr Vertex() = default;
-		constexpr Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& uvw, const glm::vec3& color = { 0, 0, 0 }) : pos(pos), normal(normal), color(color), uvw(uvw) { }
+		constexpr Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& color, const glm::vec3& uvw) : pos(pos), normal(normal), color(color), uvw(uvw) { }
 
 		NODISCARD static constexpr VkVertexInputBindingDescription bindingDescription() noexcept {
 			return {
