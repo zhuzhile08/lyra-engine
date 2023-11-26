@@ -264,9 +264,9 @@ void Window::draw() {
 				if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 					static constexpr lyra::Array<const char*, 5> textureTypeComboPreview {"Texture", "Normal Map", "Light Map", "Directional Light Map", "Shadow Mask"};
 
-					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js["Type"]])) {	
+					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js["Type"].get<lyra::uint32>()])) {	
 						for (lyra::uint32 i = 0; i < textureTypeComboPreview.size(); i++) {
-							if (ImGui::Selectable(textureTypeComboPreview[i], js["Type"] == i)) {
+							if (ImGui::Selectable(textureTypeComboPreview[i], js["Type"].get<lyra::uint32>() == i)) {
 								js["Type"] = i;
 								m_state->contentManager->unsaved = true;
 							}
@@ -295,7 +295,7 @@ void Window::draw() {
 
 					static constexpr lyra::Array<const char*, 3> textureAlphaComboPreview {"Transparent", "Opaque Black", "Opaque White"};
 					
-					if (ImGui::BeginCombo("Alpha", textureAlphaComboPreview[js["Alpha"]])) {	
+					if (ImGui::BeginCombo("Alpha", textureAlphaComboPreview[js["Alpha"].get<lyra::uint32>()])) {	
 						for (lyra::uint32 i = 0; i < textureAlphaComboPreview.size(); i++) {
 							if (ImGui::Selectable(textureAlphaComboPreview[i], js["Alpha"] == i)) {
 								js["Alpha"] = i;
