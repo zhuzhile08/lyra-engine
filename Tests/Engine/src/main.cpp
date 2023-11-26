@@ -40,21 +40,21 @@ int main(int argc, char* argv[]) {
 		{ &lyra::resource::texture("img/viking_room.png") }
 	);
 
-	lyra::Mesh quad(
-		{
-    		{{-0.5f, -0.5f, 0.0f}, glm::vec3(1), {1.0f, 0.0f, 0.0f}},
-    		{{0.5f, -0.5f, 0.0f}, glm::vec3(1), {0.0f, 1.0f, 0.0f}},
-    		{{0.5f, 0.5f, 0.0f}, glm::vec3(1), {0.0f, 0.0f, 1.0f}},
-   			{{-0.5f, 0.5f, 0.0f}, glm::vec3(1), {1.0f, 1.0f, 1.0f}}
-		},
-		{
-			0, 1, 2, 2, 3, 0
-		}
-	);
+	// lyra::Mesh quad(
+	//	{
+    //		{ { -0.5f, -0.5f, 0.0f }, glm::vec3(1), { 1.0f, 0.0f, 0.0f }, glm::vec3(1) },
+    //		{ { 0.5f, -0.5f, 0.0f }, glm::vec3(1), { 0.0f, 1.0f, 0.0f }, glm::vec3(1) },
+    //		{ { 0.5f, 0.5f, 0.0f }, glm::vec3(1), { 0.0f, 0.0f, 1.0f }, glm::vec3(1) },
+   	//		{ { -0.5f, 0.5f, 0.0f }, glm::vec3(1), { 1.0f, 1.0f, 1.0f }, glm::vec3(1) }
+	//	},
+	//	{
+	//		0, 1, 2, 2, 3, 0
+	//	}
+	// );
 
 	lyra::Entity room (sceneRoot, "Room");
-	room.addComponent<lyra::MeshRenderer>(quad, roomMat);
-	// room.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), roomMat);
+	// room.addComponent<lyra::MeshRenderer>(quad, roomMat);
+	room.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), roomMat);
 
 	lyra::renderer::setScene(sceneRoot);
 
