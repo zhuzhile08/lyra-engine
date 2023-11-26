@@ -349,8 +349,8 @@ public:
 			VkPhysicalDeviceDescriptorIndexingFeaturesEXT descriptorIndexingFeatures { 
 				.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
 				.shaderSampledImageArrayNonUniformIndexing = VK_TRUE,
-				.descriptorBindingVariableDescriptorCount = VK_TRUE,
 				.descriptorBindingPartiallyBound = VK_TRUE,
+				.descriptorBindingVariableDescriptorCount = VK_TRUE,
 				.runtimeDescriptorArray = VK_TRUE
 			};
 
@@ -2056,7 +2056,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 		nullptr,
 		0,
-		(globalRenderSystem->swapchain->maxMultisamples > static_cast<VkSampleCountFlagBits>(builder.m_sampleCount) > 0) ? globalRenderSystem->swapchain->maxMultisamples : static_cast<VkSampleCountFlagBits>(builder.m_sampleCount),
+		(globalRenderSystem->swapchain->maxMultisamples > static_cast<VkSampleCountFlagBits>(builder.m_sampleCount) && static_cast<VkSampleCountFlagBits>(builder.m_sampleCount) > 0) ? globalRenderSystem->swapchain->maxMultisamples : static_cast<VkSampleCountFlagBits>(builder.m_sampleCount),
 		VK_FALSE,
 		0.0f,
 		nullptr,
