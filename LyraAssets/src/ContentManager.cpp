@@ -193,7 +193,7 @@ void ContentManager::build() {
 			js->operator[]("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
 			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
-			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), result.size()));
+			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), static_cast<lyra::uint32>(result.size())));
 
 			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary);
 			buildFile.write(
@@ -261,8 +261,8 @@ void ContentManager::build() {
 			std::memcpy(&(*data.begin()), vertexBlocks.data(), vertexBlocks.size() * sizeof(float) * 3 * 4);
 			std::memcpy(&(*data.begin()) + vertexBlocks.size() * sizeof(float) * 3 * 4, indexBlock.data(), indexBlock.size() * sizeof(lyra::uint8));
 			
-			std::vector<char> result(LZ4_compressBound(data.size()));
-			result.resize(LZ4_compress_default(data.data(), result.data(), data.size(), result.size()));
+			std::vector<char> result(LZ4_compressBound(static_cast<lyra::uint32>(data.size())));
+			result.resize(LZ4_compress_default(data.data(), result.data(), static_cast<lyra::uint32>(data.size()), static_cast<lyra::uint32>(result.size())));
 
 			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary);
 
