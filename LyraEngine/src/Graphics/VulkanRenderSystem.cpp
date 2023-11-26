@@ -2021,7 +2021,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 		0,
 		1,
 		&bindingDescription,
-		4,
+		static_cast<uint32>(attributeDescriptions.size()),
 		attributeDescriptions.data()
 	};
 
