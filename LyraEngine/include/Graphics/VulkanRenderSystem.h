@@ -325,11 +325,11 @@ public:
 		void endRenderPass() const {
 			vkCmdEndRenderPass(commandBuffer);
 		}
-		void executeCommands(const vk::CommandBuffer& commandBuffer) const {
-			vkCmdExecuteCommands(commandBuffer, 1, &commandBuffer.get());
+		void executeCommands(const vk::CommandBuffer& cmdBuffer) const {
+			vkCmdExecuteCommands(commandBuffer, 1, &cmdBuffer.get());
 		}
-		void executeCommands(const std::vector<VkCommandBuffer>& commandBuffers) const {
-			vkCmdExecuteCommands(commandBuffer, static_cast<uint32>(commandBuffers.size()), commandBuffers.data());
+		void executeCommands(const std::vector<VkCommandBuffer>& cmdBuffers) const {
+			vkCmdExecuteCommands(commandBuffer, static_cast<uint32>(cmdBuffers.size()), cmdBuffers.data());
 		}
 		void fillBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32 data) const {
 			vkCmdFillBuffer(commandBuffer, dstBuffer, dstOffset, size, data);
