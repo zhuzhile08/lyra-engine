@@ -35,6 +35,7 @@
 
 # folders
 /include
+/XCode
 /.vscode/*
 /out
 /.vs
