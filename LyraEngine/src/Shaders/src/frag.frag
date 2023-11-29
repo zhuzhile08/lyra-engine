@@ -26,6 +26,6 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
 	// outColor = texture(albedo[uint(inUVWCoord.z)], inUVWCoord.xy);
-	// outColor = texture(albedo[1], inUVWCoord.xy);
+	// outColor = texture(albedo[0], inUVWCoord.xy);
 	outColor = vec4(inUVWCoord, 1.0);
 }

@@ -17,8 +17,7 @@ layout(set = 0, binding = 0) uniform sampler2D normalMap;
 layout(set = 0, binding = 1) uniform sampler2D displacementMap;
 
 void main() {
-	// gl_Position = ubo.proj * ubo.model* vec4(inPosition, 1.0f);
-    gl_Position = vec4(inPosition, 1.0f);
+	gl_Position = ubo.proj * ubo.model * vec4(inPosition, 1.0);
 	outColor = inColor;
 	outTexCoord = inUVW; 
 }
