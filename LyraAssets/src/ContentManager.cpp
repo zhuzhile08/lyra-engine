@@ -83,6 +83,7 @@ void ContentManager::createProjectFile() {
 			return;
 		}
 		s.write("{}", 2);
+		s.flush();
 		m_projectFile = lyra::Json::parse(s.data());
 
 		m_validProject = true;
@@ -99,6 +100,7 @@ void ContentManager::save() {
 		lyra::ByteFile f(m_projectFilePath, lyra::OpenMode::write, false);
 		auto s = m_projectFile.stringify();
 		f.write(s.data(), s.size());
+		f.flush();
 		unsaved = false;
 
 		lyra::log::info("Successfully saved current project file at path: {}!", m_projectFilePath.string());
@@ -114,6 +116,7 @@ void ContentManager::saveAs() {
 			lyra::ByteFile f(p, lyra::OpenMode::write, false);
 			auto s = m_projectFile.stringify();
 			f.write(s.data(), s.size());
+			f.flush();
 
 			m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(p[0]));
 			m_projectFilePath = p;
@@ -185,17 +188,17 @@ void ContentManager::build() {
 				&width, 
 				&height, 
 				&channels, 
-				0
+				4
 			);
 
 			js->operator[]("Width").get<lyra::uint32>() = static_cast<lyra::uint32>(width);
 			js->operator[]("Height").get<lyra::uint32>() = static_cast<lyra::uint32>(height);
 			js->operator[]("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
-			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8)));
-			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8), static_cast<lyra::uint32>(result.size())));
+			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8) * 4));
+			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8) * 4, static_cast<lyra::uint32>(result.size())));
 
-			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary);
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary, false);
 			buildFile.write(
 				result.data(), 
 				sizeof(lyra::uint8), 
@@ -211,13 +214,21 @@ void ContentManager::build() {
 
 			const aiScene* scene = importer.ReadFile(filepath.string(), m_projectFile[m_newFiles[i].generic_string()]["ImportFlags"].get<lyra::uint32>());
 
-			std::vector<lyra::Array<lyra::Array<float, 3>, 4>> vertexBlocks;
+			std::vector<lyra::Array<lyra::Array<lyra::float32, 3>, 4>> vertexBlock;
 			std::vector<lyra::uint32> indexBlock;
+            
+            auto& jsVertexBlocks = js->operator[]("VertexBlocks").get<lyra::Json::array_type>();
+            auto& jsIndexBlocks = js->operator[]("IndexBlocks").get<lyra::Json::array_type>();
+            
+            jsVertexBlocks.clear();
+            jsIndexBlocks.clear();
 
 			for (lyra::uint32 i = 0; i < scene->mNumMeshes; i++) {
 				const auto* mesh = scene->mMeshes[i];
+                
+                vertexBlock.reserve(vertexBlock.size() + mesh->mNumVertices);
 				for (lyra::uint32 j = 0; j < mesh->mNumVertices; j++) {
-					vertexBlocks.push_back({{
+					vertexBlock.push_back({{
 						{{
 							mesh->mVertices[j].x,
 							mesh->mVertices[j].y,
@@ -225,8 +236,8 @@ void ContentManager::build() {
 						}},
 						{{
 							(mesh->HasNormals()) ? mesh->mNormals[j].x : 0.0f,
-							(mesh->HasNormals()) ? mesh->mNormals[j].z : 0.0f,
-							(mesh->HasNormals()) ? mesh->mNormals[j].y : 0.0f
+							(mesh->HasNormals()) ? mesh->mNormals[j].y : 0.0f,
+                            (mesh->HasNormals()) ? mesh->mNormals[j].z : 1.0f
 						}},
 						{{
 							(mesh->HasVertexColors(0)) ? mesh->mColors[0][j].r : 0.0f,
@@ -235,40 +246,43 @@ void ContentManager::build() {
 						}},
 						{{
 							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].x : 0.0f,
-							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].z : 0.0f,
-							static_cast<float>(mesh->mMaterialIndex)
+							(mesh->HasTextureCoords(0)) ? mesh->mTextureCoords[0][j].y : 0.0f,
+							static_cast<lyra::float32>(mesh->mMaterialIndex)
 						}}
 					}});
 				}
 
-				lyra::uint32 indices = 0;
+				lyra::uint32 indices = mesh->mNumFaces * 3;
+                indexBlock.reserve(indices);
 
 				for (lyra::uint32 j = 0; j < mesh->mNumFaces; j++) {
 					const auto* face = &mesh->mFaces[j];
-					indices += face->mNumIndices;
-					for (lyra::uint32 k = 0; k < face->mNumIndices; k++) {
-						indexBlock.push_back(face->mIndices[k]);
-					}
+                    
+                    indexBlock.push_back(face->mIndices[0]);
+                    indexBlock.push_back(face->mIndices[1]);
+                    indexBlock.push_back(face->mIndices[2]);
 				}
 
-				js->operator[]("VertexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(mesh->mNumVertices)));
-				js->operator[]("IndexBlocks").get<lyra::Json::array_type>().push_back(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices)));
+				jsVertexBlocks.push_back(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(mesh->mNumVertices)));
+				jsIndexBlocks.push_back(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices)));
 			}
-
-			auto totalSize = vertexBlocks.size() * sizeof(float) * 3 * 4 + indexBlock.size() * sizeof(lyra::uint8);
+            
+            auto vertexBlockSize = vertexBlock.size() * sizeof(lyra::float32) * 3 * 4;
+            auto indexBlockSize = indexBlock.size() * sizeof(lyra::uint32);
+            auto totalSize = vertexBlockSize + indexBlockSize;
 
 			std::vector<char> data(totalSize);
-			std::memcpy(&(*data.begin()), vertexBlocks.data(), vertexBlocks.size() * sizeof(float) * 3 * 4);
-			std::memcpy(&(*data.begin()) + vertexBlocks.size() * sizeof(float) * 3 * 4, indexBlock.data(), indexBlock.size() * sizeof(lyra::uint8));
-			
+			std::memcpy(data.data(), vertexBlock.data(), vertexBlockSize);
+			std::memcpy(data.data() + vertexBlockSize, indexBlock.data(), indexBlockSize);
+            
 			std::vector<char> result(LZ4_compressBound(static_cast<lyra::uint32>(data.size())));
 			result.resize(LZ4_compress_default(data.data(), result.data(), static_cast<lyra::uint32>(data.size()), static_cast<lyra::uint32>(result.size())));
 
-			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary);
+			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary, false);
 
 			buildFile.write(
 				result.data(), 
-				sizeof(lyra::uint8), 
+				sizeof(char),
 				result.size()
 			);
 		} else if (ext == ".ttf") {
@@ -282,6 +296,7 @@ void ContentManager::build() {
 
 	m_newFiles.clear();
 	unsaved = true;
+    save();
 
 	lyra::log::info("Build successful!");
 }
