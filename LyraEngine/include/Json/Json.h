@@ -441,9 +441,9 @@ private:
 				s.append(std::to_wstring(t.get<integer_type>()));
 		} else if (t.isFloating()) {
 			if constexpr(sizeof(literal_type) <= 1)
-				s.append(std::to_string(t.get<float>()));
+				s.append(std::to_string(t.get<float32>()));
 			else
-				s.append(std::to_wstring(t.get<float>()));
+				s.append(std::to_wstring(t.get<float32>()));
 		} else 
 			s.append("null");
 	}

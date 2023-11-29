@@ -42,8 +42,8 @@ uint32 drawWidth();
 uint32 drawHeight();
 uint32 currentFrameIndex();
 
-float framesPerSecond();
-float deltaTime();
+float32 framesPerSecond();
+float32 deltaTime();
 
 vulkan::GraphicsPipeline& graphicsPipeline(
 	const vulkan::GraphicsPipeline::Builder& pipelineBuilder = { },

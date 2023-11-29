@@ -21,7 +21,7 @@ public:
 	virtual ~ImGuiRenderer();
 
 	void draw();
-	void setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size = 13.0f);
+	void setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float32 size = 13.0f);
 	void enableDocking();
 
 	ImGuiViewport& viewport() {

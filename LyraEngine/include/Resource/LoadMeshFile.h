@@ -28,7 +28,7 @@ struct MeshFile {
 	std::vector <uint32> vertexBlocks;
 	std::vector <uint32> indexBlocks;
 
-	std::vector <std::vector <float>> vertexData;
+	std::vector <std::vector <float32>> vertexData;
 	std::vector <std::vector <uint32>> indexData;
 };
 

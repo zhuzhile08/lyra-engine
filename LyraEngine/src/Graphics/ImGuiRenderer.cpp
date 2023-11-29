@@ -27,7 +27,7 @@ void ImGuiRenderer::draw() {
 	endFrame();
 }
 
-void ImGuiRenderer::setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float size) {
+void ImGuiRenderer::setIconFont(const std::filesystem::path& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float32 size) {
 	m_io->Fonts->AddFontDefault();
 	m_io->Fonts->AddFontFromFileTTF(lyra::absolutePath(path).string().c_str(), size, &fontConfig, ranges);
 }

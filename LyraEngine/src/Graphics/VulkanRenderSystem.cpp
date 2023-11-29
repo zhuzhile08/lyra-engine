@@ -652,7 +652,7 @@ public:
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 
-	float deltaTime;
+	float32 deltaTime;
 };
 
 }
@@ -946,9 +946,9 @@ vk::Sampler Image::createSampler(
 	VkSamplerAddressMode addressModeV,
 	VkSamplerAddressMode addressModeW,
 	VkBorderColor borderColor,
-	float maxLod,
-	float minLod,
-	float mipLodBias,
+	float32 maxLod,
+	float32 minLod,
+	float32 mipLodBias,
 	VkFilter magFilter,
 	VkFilter minFilter,
 	VkSamplerMipmapMode mipmapMode,
@@ -2256,8 +2256,9 @@ void ImGuiRenderer::endFrame() {
 namespace renderer {
 
 bool beginFrame() {
+	// calculate deltatime
 	auto now = std::chrono::high_resolution_clock::now();
-	vulkan::globalRenderSystem->deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - vulkan::globalRenderSystem->startTime).count();
+	vulkan::globalRenderSystem->deltaTime = std::chrono::duration<float32, std::chrono::seconds::period>(now - vulkan::globalRenderSystem->startTime).count();
 	vulkan::globalRenderSystem->startTime = now;
 
 	if (!vulkan::globalRenderSystem->swapchain->aquire()) return false;
@@ -2339,11 +2340,11 @@ uint32 currentFrameIndex() {
 	return vulkan::globalRenderSystem->swapchain->currentFrame;
 }
 
-float framesPerSecond() {
-	return 1 / vulkan::globalRenderSystem->deltaTime;
+float32 framesPerSecond() {
+	return 1000 / vulkan::globalRenderSystem->deltaTime;
 }
 
-float deltaTime() {
+float32 deltaTime() {
 	return vulkan::globalRenderSystem->deltaTime;
 }
 

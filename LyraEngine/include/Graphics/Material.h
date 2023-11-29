@@ -28,8 +28,8 @@ public:
 		alignas(16) Color emissionColor;
 		alignas(16) Color specularColor;
 		alignas(16) Color occlusionColor;
-		alignas(8) float metallic;
-		alignas(8) float roughness;
+		alignas(8) float32 metallic;
+		alignas(8) float32 roughness;
 	};
 
 	Material(
