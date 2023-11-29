@@ -36,6 +36,10 @@ set(LIBRARY_PATH ${CMAKE_SOURCE_DIR}/3rdParty)
 # set the local include directory for the engine
 set(LYRA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/LyraEngine/include/)
 
+# copy data to the binary folder
+file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/Tests/Engine)
+file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/LyraAssets)
+
 
 # set global options
 set(CMAKE_CXX_STANDARD 23)
