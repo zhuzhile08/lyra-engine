@@ -32,40 +32,46 @@ int main(int argc, char* argv[]) {
 
 	lyra::Entity sceneRoot;
 
-	lyra::Entity camera (sceneRoot, "Camera");
-	camera.addComponent<lyra::Camera>();
+	lyra::Entity cameraArm (sceneRoot, "CameraArm");
 
-	lyra::Material roomMat(
-		lyra::Color(),
-		{ &lyra::resource::texture("img/viking_room.png") }
+	lyra::Entity camera (cameraArm, "Camera");
+	camera.addComponent<lyra::Camera>();
+    
+    camera.component<lyra::Transform>()->translation = { 10.0f, 10.0f, 10.0f };
+    camera.component<lyra::Transform>()->lookAt({ 0.0f, 0.0f, 3.0f });
+    
+    lyra::Material material(
+        lyra::Color(),
+        { &lyra::resource::texture("img/viking_room.png") } // very slow, 6 seconds
+    );
+
+	lyra::Mesh quad(
+		{
+    		{ { -0.5f, -0.5f, 0.0f }, glm::vec3(1), { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+    		{ { 0.5f, -0.5f, 0.0f }, glm::vec3(1), { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } },
+    		{ { 0.5f, 0.5f, 0.0f }, glm::vec3(1), { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f } },
+   			{ { -0.5f, 0.5f, 0.0f }, glm::vec3(1), { 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 0.0f } }
+        },
+		{
+			0, 1, 2, 2, 3, 0
+		}
 	);
 
-	// lyra::Mesh quad(
-	//	{
-    //		{ { -0.5f, -0.5f, 0.0f }, glm::vec3(1), { 1.0f, 0.0f, 0.0f }, glm::vec3(1) },
-    //		{ { 0.5f, -0.5f, 0.0f }, glm::vec3(1), { 0.0f, 1.0f, 0.0f }, glm::vec3(1) },
-    //		{ { 0.5f, 0.5f, 0.0f }, glm::vec3(1), { 0.0f, 0.0f, 1.0f }, glm::vec3(1) },
-   	//		{ { -0.5f, 0.5f, 0.0f }, glm::vec3(1), { 1.0f, 1.0f, 1.0f }, glm::vec3(1) }
-	//	},
-	//	{
-	//		0, 1, 2, 2, 3, 0
-	//	}
-	// );
-
-	lyra::Entity room (sceneRoot, "Room");
-	// room.addComponent<lyra::MeshRenderer>(quad, roomMat);
-	room.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), roomMat);
+	lyra::Entity meshRenderer (sceneRoot, "MeshRenderer");
+	// meshRenderer.addComponent<lyra::MeshRenderer>(quad, material);
+    meshRenderer.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), material);
+    
+    // meshRenderer.component<lyra::Transform>()->scale.z *= -1;
 
 	lyra::renderer::setScene(sceneRoot);
 
 	while (window.running()) {
 		lyra::input::update();
 		if (!lyra::renderer::beginFrame()) continue;
-
+        
 		lyra::renderer::draw();
-
-		camera.component<lyra::Transform>()->normalizeAndRotate({ 0.0f, 0.0f, 1.0f }, lyra::renderer::deltaTime() * 90.0f);
-		camera.component<lyra::Transform>()->lookAt({ 0.0f, 0.0f, 0.0f });
+        
+        cameraArm.component<lyra::Transform>()->rotate({ 0.0f, 0.0f, 1.0f }, lyra::renderer::deltaTime() * 1.0f);
 
 		lyra::renderer::endFrame();
 	}
