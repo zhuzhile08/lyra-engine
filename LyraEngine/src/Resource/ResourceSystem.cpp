@@ -50,8 +50,8 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 		const auto& js = globalResourceSystem->assetsFile.at(path.generic_string());
 
 		ByteFile compressedFile(absolutePath(std::filesystem::path("data")/(path)), OpenMode::read | OpenMode::binary, false);
-		std::vector<char> data(compressedFile.seekg(0, SeekDirection::end).tellg());
-		compressedFile.seekg(0).read(data.data(), data.size());
+		std::vector<char> data(compressedFile.size());
+		compressedFile.read(data.data(), data.size());
 
 		globalResourceSystem->shaders.emplace(path.string(), vulkan::Shader(
 			static_cast<vulkan::Shader::Type>(js.at("Type").get<uint32>()), 

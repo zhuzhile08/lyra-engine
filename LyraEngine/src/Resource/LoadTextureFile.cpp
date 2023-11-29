@@ -3,6 +3,8 @@
 #include <Common/FileSystem.h>
 #include <Common/Logger.h>
 
+#include <Common/Benchmark.h>
+
 #include <lz4.h>
 
 namespace lyra {
@@ -19,9 +21,11 @@ TextureFile loadTextureFile(
 	uint32 dimension,
 	uint32 wrap
 ) {
+    Benchmark b;
+    
 	ByteFile compressedFile(path.concat(".dat"), OpenMode::read | OpenMode::binary, false);
-	std::vector<char> fileData(compressedFile.seekg(0, SeekDirection::end).tellg());
-	compressedFile.seekg(0).read(fileData.data(), fileData.size());
+	std::vector<char> fileData(compressedFile.size());
+	compressedFile.read(fileData.data(), fileData.size());
 
 	TextureFile data {
 		width,
@@ -31,10 +35,11 @@ TextureFile loadTextureFile(
 		mipmap,
 		dimension,
 		wrap,
-		std::vector<char>(fileData.size() * sizeof(char) * 255)
+		{ }
 	};
-
-	LZ4_decompress_safe(fileData.data(), data.data.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(data.data.size()));
+    
+    data.data.resize(fileData.size() * 255);
+    data.data.resize(LZ4_decompress_safe(fileData.data(), data.data.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(data.data.size())));
 
 	return data;
 }
