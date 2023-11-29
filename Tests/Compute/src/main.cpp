@@ -16,14 +16,14 @@
 
 struct Sphere {
 	glm::vec3 pos;
-	float rad;
+	lyra::float32 rad;
 };
 
 struct Camera {
-	float fov;
-	float aspect;
-	float near;
-	float far;
+	lyra::float32 fov;
+	lyra::float32 aspect;
+	lyra::float32 near;
+	lyra::float32 far;
 };
 
 int main() {
