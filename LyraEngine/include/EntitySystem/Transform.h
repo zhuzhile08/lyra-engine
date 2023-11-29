@@ -58,9 +58,20 @@ public:
 		m_dirty = true;
 	}
 	
-	void lookAt(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f)) {
-		orientation = glm::quatLookAt(target, up);
-		m_dirty = true;
+    void lookAt(const glm::vec3& target, const glm::vec3& up = glm::vec3(0.0f, 0.0f, 1.0f)) {
+        m_dirty = true;
+        
+        glm::vec3 direction = translation - target;
+        float32 length = glm::length(direction);
+        
+        if (length < 0.0001) return;
+        
+        direction /= length;
+        
+        if (glm::abs(glm::dot(direction, up)) < 0.1)
+            orientation = glm::inverse(glm::quatLookAt(direction, this->up()));
+        else
+            orientation = glm::inverse(glm::quatLookAt(direction, up));
 	}
 
 	NODISCARD glm::vec3 front() const {
@@ -107,9 +118,7 @@ public:
 
 	NODISCARD GLM_CONSTEXPR glm::mat4 localTransform() {
 		if (m_dirty) {
-			m_localTransform = glm::toMat4(orientation);
-			m_localTransform = glm::translate(m_localTransform, translation);
-			m_localTransform = glm::scale(m_localTransform, scale);
+            m_localTransform = glm::scale(glm::translate(glm::toMat4(orientation), translation), scale);
 			m_dirty = false;
 		}
 		return m_localTransform;
