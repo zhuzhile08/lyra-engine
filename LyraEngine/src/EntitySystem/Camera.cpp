@@ -20,7 +20,7 @@ void Camera::projectionPerspective(float32 aspect, float32 fov, float32 near, fl
 	m_far = far;
 	m_aspect = aspect;
 	m_projectionMatrix = glm::perspective(glm::radians(fov), m_aspect, m_near, m_far); 
-	m_projectionMatrix[1][1] *= -1;
+	//m_projectionMatrix[1][1] *= -1;
 }
 
 void Camera::projectionOrthographic(float32 near, float32 far) noexcept {
