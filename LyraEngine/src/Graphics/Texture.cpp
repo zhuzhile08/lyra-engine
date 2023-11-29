@@ -32,7 +32,7 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 		);
 
 		// convert the image layout and copy it from the buffer
-		m_image.transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, {VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1});
+		m_image.transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, { VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1 });
 		m_image.copyFromBuffer(stagingBuffer, imageExtent);
 
 		// generate the mipmaps
