@@ -84,18 +84,22 @@ public:
 	}
 
 	template <class Iterator> NODISCARD static constexpr JsonNode parse(Iterator begin, Iterator end) {
-		ASSERT(*begin != '{' || *begin != '[', "lyra::Json::parse(): invalid begin of file!");
-
 		// first node
 		JsonNode json;
 		json.m_self = &json;
 
+		skipCharacters(begin, end);
+
 		// start parsing
 		if (*begin == '{') {
 			json.m_value = parseObject(begin, end, json);
-		}
-		else {
+		} else if (*begin == '[') {
 			json.m_value = parseArray(begin, end, json);
+		} else if (++begin == end) {
+			log::warning("Requested JSON file to parse was empty! JSON node defaults to object type.");
+			json.m_value = &json;
+		} else {
+			ASSERT(false, "lyra::Json::parse(): invalid file!");
 		}
 
 		return json;
@@ -192,7 +196,7 @@ private:
 
 	value_type m_value;
 
-	template <class Iterator> static constexpr int skip_characters(Iterator& begin, Iterator& end) {
+	template <class Iterator> static constexpr int skipCharacters(Iterator& begin, Iterator& end) {
 		for (; begin != end; begin++) {
 			switch (*begin) { // skip whitespaces
 				case '\n':
@@ -333,7 +337,7 @@ private:
 	}
 	template <class Iterator> static constexpr pointer parseObject(Iterator& begin, Iterator& end, json_type& json) {
 		for (++begin; begin != end; begin++) {
-			switch(skip_characters(begin, end)) {
+			switch(skipCharacters(begin, end)) {
 				case '}':
 					return &json;
 					break;
@@ -358,7 +362,7 @@ private:
 			json_type tok;
 			tok.m_self = &tok;
 
-			switch(skip_characters(begin, end)) {
+			switch(skipCharacters(begin, end)) {
 				case '{':
 					tok.m_value = parseObject(begin, end, tok);
 
@@ -398,7 +402,7 @@ private:
 		tok.m_name = parseString(begin, end);
 		ASSERT(*begin++ == ':', "lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
 
-		switch(skip_characters(begin, end)) {
+		switch(skipCharacters(begin, end)) {
 			case '{':
 				tok.m_value = parseObject(begin, end, tok);
 
