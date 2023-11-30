@@ -28,3 +28,6 @@
 [submodule "3rdParty/pfd"]
 	path = 3rdParty/pfd
 	url = https://github.com/samhocevar/portable-file-dialogs
+[submodule "3rdParty/tinygltf"]
+	path = 3rdParty/tinygltf
+	url = https://github.com/syoyo/tinygltf.git
