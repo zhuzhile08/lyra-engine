@@ -38,7 +38,7 @@ set(LYRA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/LyraEngine/include/)
 
 # copy data to the binary folder
 file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/Tests/Engine)
-file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/LyraAssets)
+file(COPY ${CMAKE_SOURCE_DIR}/LyraAssets/data DESTINATION ${CMAKE_BINARY_DIR}/LyraAssets)
 
 
 # set global options
