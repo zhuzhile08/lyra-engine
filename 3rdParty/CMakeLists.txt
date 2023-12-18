@@ -20,7 +20,6 @@ add_subdirectory("sdl")
 add_subdirectory("lz4/build/cmake")
 add_subdirectory("imgui")
 add_subdirectory("fmt")
-add_subdirectory("assimp")
 
 # GLM and VMA aren't build here because they only build the tests, 
 # which is not necceceary for the library to function 
