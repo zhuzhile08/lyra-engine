@@ -21,6 +21,12 @@
 
 namespace lyra {
 
+namespace input {
+
+void update();
+
+}
+
 class Window {
 public:
 	enum class Flags {
@@ -58,10 +64,6 @@ public:
 	// construct a window with custom settings
 	Window(std::string_view title, Flags flags, const glm::ivec2& size);
 
-	virtual ~Window() noexcept {
-		m_running = false;
-	}
-
 	std::vector<const char*> instanceExtensions() const;
 	glm::uvec2 getDrawableSize() const;
 	uint32 getWindowFlags() const;
@@ -78,7 +80,7 @@ private:
 	bool m_running = true;
 	bool m_changed = false;
 
-	friend class InputSystem;
+	friend void input::update();
 };
 
 } // namespace lyra
