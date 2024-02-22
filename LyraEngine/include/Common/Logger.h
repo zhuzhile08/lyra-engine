@@ -31,7 +31,7 @@
 
 template <class Type> struct fmt::formatter<Type, std::enable_if_t<std::is_enum<Type>::value, char>> : 
 	fmt::formatter<int> {
-	auto format(const Type& value, fmt::format_context& context) {
+	auto format(const Type& value, fmt::format_context& context) const {
 		return fmt::formatter<int>::format(static_cast<int>(value), context);
 	}
 };
