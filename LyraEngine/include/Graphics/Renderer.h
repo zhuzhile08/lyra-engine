@@ -17,7 +17,7 @@
 
 #include <Graphics/VulkanRenderSystem.h>
 
-#include <EntitySystem/Entity.h>
+#include <Entity/Entity.h>
 
 #include <unordered_map>
 
