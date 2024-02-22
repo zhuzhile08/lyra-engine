@@ -11,6 +11,8 @@
 
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <stddef.h>
 #include <stdint.h>
 #include <cassert>
@@ -45,8 +47,8 @@ using float128 = long double; // not supported everywhere, so don't really use t
 
 using wchar = wchar_t;
 using filepos = fpos_t;
+using objectid = uint64;
 using uintptr = uintptr_t;
-using ObjectID = uintptr_t;
 using nullpointer = decltype(nullptr);
 using size = size_t; // unreliable mostly because of size function in most containers, resort to 
 
@@ -115,8 +117,6 @@ class ImGuiRenderer;
 // entities and components
 
 class Entity;
-struct Script;
-class ComponentBase;
 
 class Transform;
 
