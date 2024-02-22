@@ -36,6 +36,7 @@ enum class DisableLog {
 inline constexpr DisableLog disableLog = DisableLog::none;
 inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
+
 inline constexpr Array<const char*, 2> requestedDeviceExtensions({
 	"VK_EXT_descriptor_indexing",
 	"VK_KHR_swapchain"
@@ -45,9 +46,13 @@ inline constexpr size_t maxFramesInFlight = 2;
 inline constexpr size_t maxSwapchainImages = 8;
 inline constexpr size_t maxConcurrentRenderers = 16;
 inline constexpr size_t maxDescriptorPoolSets = 512;
+inline constexpr size_t maxShaderSets = 4;
+inline constexpr size_t descriptorPoolAllocCount = 16;
+inline constexpr uint32 maxDynamicBindings = 64;
 inline constexpr bool enableAnistropy = true;
 inline constexpr float32 anistropyStrength = 1.0f;
 inline constexpr float32 resolution = 100;
+
 inline constexpr std::string_view title = "Lyra Engine";
 inline constexpr std::string_view iconPath = "";
 inline constexpr uint32 windowWidth = 1280; // window width and height
@@ -58,9 +63,6 @@ inline constexpr bool borderless = false;
 inline constexpr bool fullscreen = false;
 inline constexpr bool alwaysOnTop = false;
 inline constexpr bool vSync = false;
-inline constexpr uint32 maxDynamicBindings = 64;
-inline constexpr size_t maxShaderSets = 4;
-inline constexpr size_t descriptorPoolAllocCount = 16;
 
 } // namespace config
 
