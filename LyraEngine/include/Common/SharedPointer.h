@@ -16,67 +16,71 @@
 
 namespace lyra {
 
-namespace detail {
-
-template <class Ty> class ReferenceCounter {
-public:
-	using value_type = Ty;
-	using counter_type = uint32;
-
+template <class Ty> class SharedPointer {
 private:
-	struct DeleterBase {
-		using pointer = UniquePointer<DeleterBase>;
-		virtual constexpr ~DeleterBase() = default;
-		virtual constexpr void destroy(value_type*) = 0;
-	};
-
-	template <class D = detail::DefaultDeleter<Ty>> class Deleter : DeleterBase {
+	class ReferenceCounter {
 	public:
-		using deleter_type = D;
+		using value_type = Ty;
+		using counter_type = uint32;
 
-		constexpr Deleter() = default;
-		constexpr Deleter(const deleter_type& d) : m_d(d) { }
+	private:
+		struct DeleterBase {
+			virtual constexpr ~DeleterBase() = default;
+			virtual constexpr void destroy(value_type*) = 0;
+		};
 
-		constexpr void destroy(value_type* ptr) final override {
-			m_d(ptr);
+		template <class D = detail::DefaultDeleter<value_type>> class Deleter : public DeleterBase {
+		public:
+			using deleter_type = D;
+
+			constexpr Deleter() = default;
+			constexpr Deleter(const deleter_type& d) : m_d(d) { }
+
+			constexpr void destroy(value_type* ptr) final override {
+				m_d(ptr);
+			}
+
+		private:
+			deleter_type m_d = deleter_type();
+		};
+
+		using deleter_type = UniquePointer<DeleterBase>;
+
+	public:
+		constexpr ReferenceCounter() noexcept = default;
+		template <class D> constexpr ReferenceCounter(D del) noexcept : m_deleter(UniquePointer<Deleter<D>>::create(std::forward<D>(del))) { }
+		constexpr ReferenceCounter(ReferenceCounter&& other) : m_counter(other.m_counter), m_deleter(std::move(other.m_deleter)) { }
+		template <class OTy> constexpr ReferenceCounter(SharedPointer<OTy>::ReferenceCounter&& other) : m_counter(other.m_counter), m_deleter(std::move(other.m_deleter)) { }
+
+		constexpr ReferenceCounter* increment() noexcept {
+			++m_counter;
+			return this;
+		}
+		constexpr ReferenceCounter* decrement() noexcept {
+			--m_counter;
+			return this;
+		}
+		constexpr counter_type counter() const noexcept {
+			return m_counter;
+		}
+
+		constexpr counter_type destroy(value_type* ptr) {
+			if (m_counter == 1 && m_deleter) {
+				m_deleter->destroy(ptr);
+			}
+
+			ptr = nullptr;
+			return --m_counter;
 		}
 
 	private:
-		deleter_type m_d = deleter_type();
+		counter_type m_counter = 1;
+		deleter_type m_deleter = nullptr;
 	};
 
 public:
-	constexpr ReferenceCounter() noexcept = default;
-	template <class D> constexpr ReferenceCounter(D del) noexcept : deleter(UniquePointer<Deleter<D>>::create(std::forward<D>(del))) { }
-
-	constexpr ReferenceCounter* increment() noexcept {
-		++counter;
-		return this;
-	}
-	constexpr ReferenceCounter* decrement() noexcept {
-		--counter;
-		return this;
-	}
-
-	constexpr counter_type destroy(Ty* ptr) {
-		if (counter == 1 && deleter) {
-			deleter->destroy(ptr);
-		}
-
-		ptr = nullptr;
-		return --counter;
-	}
-
-	counter_type counter = 1;
-	DeleterBase::pointer deleter = nullptr;
-};
-
-}
-
-template <class Ty> class SharedPointer {
-public:
 	using value_type = std::remove_extent_t<Ty>;
-	using reference_counter_type = detail::ReferenceCounter<value_type>;
+	using reference_counter_type = ReferenceCounter;
 	using reference_counter = reference_counter_type*;
 	using counter_type = typename reference_counter_type::counter_type;
 	using pointer = Ty*;
@@ -89,19 +93,24 @@ public:
 		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type();
 	}
-	template <class Other, class Deleter> constexpr SharedPointer(Other* ptr, Deleter del) { 
+	template <class Other, class Deleter> constexpr SharedPointer(Other* ptr, Deleter del) requires std::is_copy_constructible_v<Deleter> { 
 		auto p = std::exchange(m_pointer, ptr);
 		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type(std::forward<Deleter>(del));
 	}
 	constexpr SharedPointer(const wrapper& other) : m_pointer(other.m_pointer), m_refCount(other.m_refCount) { m_refCount->increment(); }
-	constexpr SharedPointer(wrapper&& other) : m_pointer(std::move(other.m_pointer)), m_refCount(std::move(other.m_refCount->increment())) { }
-	template <class T> constexpr SharedPointer(const SharedPointer<T>& other) : m_pointer(other.m_pointer), m_refCount(other.m_refCount) { m_refCount->increment(); }
-	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(std::move(other.m_pointer)), m_refCount(std::move(other.m_refCount->increment())) { }
-	template <class T, class D> constexpr SharedPointer(UniquePointer<T, D>&& other) { 
+	constexpr SharedPointer(wrapper&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)), m_refCount(std::move(other.m_refCount)) { }
+	template <class T> constexpr SharedPointer(const SharedPointer<T>& other) : m_pointer(other.m_pointer), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { m_refCount->increment(); }
+	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { }
+	template <class T> constexpr SharedPointer(UniquePointer<T>&& other) {
 		auto p = std::exchange(m_pointer, std::move(other.release()));
 		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
-		if (m_pointer) m_refCount = new reference_counter_type(std::move<D>(other.deleter()));
+		if (m_pointer) m_refCount = new reference_counter_type();
+	}
+	template <class T, class D> constexpr SharedPointer(UniquePointer<T, D>&& other) {
+		auto p = std::exchange(m_pointer, std::move(other.release()));
+		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
+		if (m_pointer) m_refCount = new reference_counter_type(other.deleter());
 	}
 
 	constexpr ~SharedPointer() {
@@ -161,11 +170,11 @@ public:
 	}
 
 	constexpr counter_type count() const noexcept {
-		if (m_refCount) return m_refCount->counter;
+		if (m_refCount) return m_refCount->counter();
 		return 0;
 	}
 	DEPRECATED constexpr counter_type use_count() const noexcept {
-		if (m_refCount) return m_refCount->counter;
+		if (m_refCount) return m_refCount->counter();
 		return 0;
 	}
 
@@ -185,8 +194,6 @@ public:
 private:
 	pointer m_pointer = nullptr;
 	reference_counter m_refCount = nullptr;
-
-	template <class> friend class SharedPointer;
 };
 
 }
