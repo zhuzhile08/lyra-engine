@@ -14,7 +14,8 @@
 #include <Common/Common.h>
 #include <Common/RenderSystem.h>
 
-#include <EntitySystem/Entity.h>
+#include <Entity/Entity.h>
+#include <Entity/ECS.h>
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>
@@ -25,7 +26,7 @@
 
 namespace lyra {
 
-class MeshRenderer : public ComponentBase {
+class MeshRenderer : public BasicComponent {
 public:
 	MeshRenderer() = default;
 	MeshRenderer(const Mesh& mesh, Material& material);

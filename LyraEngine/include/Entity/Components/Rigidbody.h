@@ -15,7 +15,7 @@
 
 
 #include <Common/Node.h>
-#include <EntitySystem/Entity.h>
+#include <Entity/Entity.h>
 
 namespace lyra {
 

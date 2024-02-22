@@ -1,13 +1,9 @@
-#include <EntitySystem/Camera.h>
-
-#include <Graphics/Renderer.h>
+#include <Entity/Components/Camera.h>
 
 #include <Math/LyraMath.h>
 
-#include <EntitySystem/Entity.h>
-#include <EntitySystem/Script.h>
-#include <EntitySystem/Transform.h>
-// #include <EntitySystem/Cubemap.h>
+#include <Entity/Entity.h>
+// #include <Entity/Cubemap.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -19,8 +15,7 @@ void Camera::projectionPerspective(float32 aspect, float32 fov, float32 near, fl
 	m_near = near;
 	m_far = far;
 	m_aspect = aspect;
-	m_projectionMatrix = glm::perspective(glm::radians(fov), m_aspect, m_near, m_far); 
-	//m_projectionMatrix[1][1] *= -1;
+	m_projectionMatrix = glm::perspective(glm::radians(fov), m_aspect, m_near, m_far);
 }
 
 void Camera::projectionOrthographic(float32 near, float32 far) noexcept {
@@ -28,7 +23,6 @@ void Camera::projectionOrthographic(float32 near, float32 far) noexcept {
 	m_near = near;
 	m_far = far;
 	// m_projectionMatrix = glm::ortho(m_viewport[0], m_viewport[1] + m_viewport[0], m_viewport[2], m_viewport[3] + m_viewport[2], m_near, m_far); implement orthographic rendering @todo
-	m_projectionMatrix[1][1] *= -1;
 }
 
 void Camera::update() {
@@ -39,11 +33,12 @@ void Camera::update() {
 	}
 }
 
-const Camera::CameraData& Camera::data() noexcept { 
-	return (m_data = CameraData { 
-		m_entity->component<Transform>()->globalTransform(), 
-		m_projectionMatrix 
-	}); 
+Camera::TransformData Camera::data(const glm::mat4& meshTransform) const noexcept {
+	return TransformData {
+		entity->component<Transform>().globalTransform(),
+		m_projectionMatrix,
+		meshTransform
+	};
 }
 
 } // namespace lyra

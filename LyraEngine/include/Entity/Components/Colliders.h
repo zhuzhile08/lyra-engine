@@ -16,9 +16,9 @@
 #include <glm/glm.hpp>
 
 #include <Common/Node.h>
-#include <EntitySystem/Entity.h>
+#include <Entity/Entity.h>
 
-#include <EntitySystem/Rigidbody.h>
+#include <Entity/Rigidbody.h>
 
 namespace lyra {
 
