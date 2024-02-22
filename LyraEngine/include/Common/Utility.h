@@ -14,6 +14,10 @@
 
 #include <Common/Common.h>
 
+#include <functional>
+#include <string>
+#include <string_view>
+
 namespace lyra {
 
 template <typename Ty> NODISCARD constexpr const void* getAddress(const Ty& type);
@@ -22,14 +26,39 @@ template <typename Ty> constexpr const void* getAddress(const Ty& type) {
 	return static_cast<const void*>(type);
 }
 
-template <class Ty> concept EnumType = std::is_enum_v<Ty>;
+inline std::vector<std::string> parse(std::string_view s, std::string_view d) {
+	std::vector<std::string> r;
 
-class EnumHash {
-public:
-	template <EnumType Ty> size_t operator()(Ty t) const {
-		return static_cast<size_t>(t);
+	size_t begin = 0;
+	size_t current;
+
+	while ((current = s.find(d, begin)) != std::string::npos) {
+		r.emplace_back(s.substr(begin, current - begin));
+		begin = current + d.size();
 	}
-};
+	
+	r.emplace_back(s.substr(begin));
+
+	return r;
+}
+
+inline std::vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) {
+	std::vector<std::wstring> r;
+
+	size_t begin = 0;
+	size_t current;
+
+	while ((current = s.find(d, begin)) != std::string::npos) {
+		r.emplace_back(s.substr(begin, current - begin));
+		begin = current + d.size();
+	}
+	
+	r.emplace_back(s.substr(begin));
+
+	return r;
+}
+
+template <class Ty> concept EnumType = std::is_enum_v<Ty>;
 
 // credits to https://gist.github.com/StrikerX3/46b9058d6c61387b3f361ef9d7e00cd4 for these operators!
 
@@ -85,8 +114,14 @@ template<EnumType Enum> Enum constexpr inline operator^=(Enum& first, Enum secon
 
 namespace std {
 
-template<lyra::EnumType Enum> constexpr inline string to_string(Enum e) {
-	return to_string(static_cast<std::underlying_type_t<Enum>>(e));
+template<lyra::EnumType Enum> constexpr inline std::string to_string(Enum e) {
+	return std::to_string(static_cast<std::underlying_type_t<Enum>>(e));
 }
 
+template<lyra::EnumType Enum> struct hash<Enum> {
+	std::size_t operator()(Enum t) const noexcept {
+		return static_cast<std::size_t>(t);
+	}
 };
+
+}
