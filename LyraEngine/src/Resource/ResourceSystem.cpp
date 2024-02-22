@@ -3,7 +3,7 @@
 #include <Common/Logger.h>
 #include <Common/FileSystem.h>
 
-#include <Json/Json.h>
+#include <Common/JSON.h>
 
 #include <Resource/LoadTextureFile.h>
 #include <Resource/LoadMaterialFile.h>
@@ -47,14 +47,14 @@ namespace resource {
 
 const vulkan::Shader& shader(std::filesystem::path path) {
 	if (!globalResourceSystem->shaders.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.at(path.generic_string());
+		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
 
 		ByteFile compressedFile(absolutePath(std::filesystem::path("data")/(path)), OpenMode::read | OpenMode::binary, false);
 		std::vector<char> data(compressedFile.size());
 		compressedFile.read(data.data(), data.size());
 
 		globalResourceSystem->shaders.emplace(path.string(), vulkan::Shader(
-			static_cast<vulkan::Shader::Type>(js.at("Type").get<uint32>()), 
+			static_cast<vulkan::Shader::Type>(js.child("Type").get<uint32>()), 
 			data
 		));
 	}
@@ -64,16 +64,17 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 
 const Texture& texture(std::filesystem::path path) {
 	if (!globalResourceSystem->textures.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.at(path.generic_string());
+		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
 		globalResourceSystem->textures.emplace(path.string(), Texture(loadTextureFile(
 			absolutePath(std::filesystem::path("data")/(path)),
-			js.at("Width").get<uint32>(),
-			js.at("Height").get<uint32>(),
-			js.at("Type").get<uint32>(),
-			js.at("Alpha").get<uint32>(),
-			js.at("Mipmap").get<uint32>(),
-			js.at("Dimension").get<uint32>(),
-			js.at("Wrap").get<uint32>()
+			js.child("Uncompressed").get<uint32>(),
+			js.child("Width").get<uint32>(),
+			js.child("Height").get<uint32>(),
+			js.child("Type").get<uint32>(),
+			js.child("Alpha").get<uint32>(),
+			js.child("Mipmap").get<uint32>(),
+			js.child("Dimension").get<uint32>(),
+			js.child("Wrap").get<uint32>()
 		)));
 	}
 
@@ -82,12 +83,13 @@ const Texture& texture(std::filesystem::path path) {
 
 const std::vector<Mesh>& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.at(path.string());
-		const auto& vertexBlocks = js.at("VertexBlocks").get<Json::array_type>();
-		const auto& indexBlocks = js.at("IndexBlocks").get<Json::array_type>();
+		const auto& js = globalResourceSystem->assetsFile.child(path.string());
+		const auto& vertexBlocks = js.child("VertexBlocks").get<Json::array_type>();
+		const auto& indexBlocks = js.child("IndexBlocks").get<Json::array_type>();
 
 		auto meshData = loadMeshFile(
 			absolutePath(std::filesystem::path("data")/(path)),
+			js.child("Uncompressed").get<uint32>(),
 			vertexBlocks,
 			indexBlocks
 		);
