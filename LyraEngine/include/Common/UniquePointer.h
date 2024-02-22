@@ -70,6 +70,7 @@ public:
 		reset(right);
 		return *this;
 	}
+	UniquePointer& operator=(const UniquePointer&) = delete;
 
 	template <class ... Args> NODISCARD static UniquePointer create(Args&&... args) {
 		return UniquePointer(new value_type(std::forward<Args>(args)...));
