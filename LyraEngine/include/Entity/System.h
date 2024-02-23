@@ -24,13 +24,13 @@ namespace lyra {
 template <class... Types> class System {
 public:
 	template <class Callable> void each(Callable&& callable) const {
-		for (const auto& e : ecs::findEntities({ typeid(Types)... })) {
-			callable(*e, e->template component<Types>()...);
-		}
+		ecs::executeSystem({ ecs::typeID<Types>()... }, [callable](Entity* entity) {
+			callable(*entity, entity->component<Types>()...);
+		});
 	}
 
 	std::vector<Entity*> entites() const {
-		return ecs::findEntities({ typeid(Types)... });
+		return ecs::findEntities({ ecs::typeID<Types>()... });
 	}
 };
 

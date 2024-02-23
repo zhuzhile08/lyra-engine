@@ -11,6 +11,7 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/FunctionPointer.h>
 
 #include <typeindex>
 
@@ -20,16 +21,25 @@ void initECS();
 
 namespace ecs {
 
-void* addComponent(std::type_index type, size_t size, objectid e);
-void removeComponent(std::type_index type, objectid e);
+Entity* entity(objectid id);
+
+void* addComponent(objectid type, size_t size, objectid e);
+void removeComponent(objectid type, objectid e);
 void removeAllComponents(objectid e);
 
-void* component(std::type_index type, objectid e);
-const void* c_component(std::type_index type, objectid e);
-bool containsComponent(std::type_index type, objectid e);
+void* component(objectid type, objectid e);
+const void* c_component(objectid type, objectid e);
+bool containsComponent(objectid type, objectid e);
 
-Entity* entity(objectid id);
-std::vector<Entity*> findEntities(std::initializer_list<std::type_index>&& types);
+std::vector<Entity*> findEntities(std::initializer_list<objectid>&& types);
+void executeSystem(std::initializer_list<objectid>&& types, const Function<void(Entity*)>& system);
+
+objectid uniqueID();
+
+template <class> objectid typeID() {
+    static objectid id = uniqueID();
+    return id;
+}
 
 } // namespace ecs
 

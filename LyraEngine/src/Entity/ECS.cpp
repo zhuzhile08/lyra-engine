@@ -56,12 +56,12 @@ private:
 				auto s = m_data.size();
 				m_data.resize(s + m_size);
 				memory = &m_data[s];
-				return s / m_size;
+				return s / m_size + 1;
 			} else {
 				auto i = m_unused.back();
 				memory = &m_data[i * m_size];
 				m_unused.pop_back();
-				return i;
+				return i + 1;
 			}
 		}
 
@@ -70,10 +70,10 @@ private:
 		}
 
 		void* componentMemory(objectid id) {
-			return &m_data[id * m_size];
+			return &m_data[id * m_size - id];
 		}
 		const void* componentMemory(objectid id) const {
-			return &m_data[id * m_size];
+			return &m_data[id * m_size - id];
 		}
 
 	private:
@@ -85,66 +85,90 @@ private:
 
 public:
 	// component functions
-	void* addComponent(std::type_index type, size_t size, objectid e) {
-		auto& alloc = componentManagers.try_emplace(type, size).first->second;
+	void* addComponent(objectid type, size_t size, objectid e) {
+		if ((componentManagers.size() + 1) > type) {
+			componentManagers.resize(type);
+			componentManagers.emplace_back(size);
+		}
+
+		auto& alloc = componentManagers[type];
 		void* data;
-		auto id = alloc.allocateComponent(data);
 
 		lookup.resize(std::max(size_t(e + 1), size_t(lookup.size() + 1)));
-		lookup[e].emplace(type, id);
+		lookup[e].resize(std::max(size_t(type + 1), size_t(lookup[e].size() + 1)));
+		lookup[e][type] = alloc.allocateComponent(data);
 
 		return data;
 	}	
-	void removeComponent(std::type_index type, objectid e) {
-		auto& entity = lookup.at(e);
-		auto it = entity.find(type);
+	void removeComponent(objectid type, objectid e) {
+		auto& entity = lookup[e];
 
-		componentManagers.at(type).returnComponent(it->second);
+		componentManagers[type].returnComponent(entity[type]);
 
-		entity.erase(it);
+		entity[type] = 0;
 	} 
 	void removeAllComponents(objectid e) {
-		for (auto& component : lookup.at(e)) {
-			componentManagers.at(component.first).returnComponent(component.second);
+		for (objectid i = 0; i < lookup[e].size(); i++) {
+			componentManagers[i].returnComponent(lookup[e][i]);
 		}
 
 		lookup.at(e).clear();
 	}
 
-	void* component(std::type_index type, objectid e) {
-		return componentManagers.at(type).componentMemory(lookup.at(e).at(type));
+	void* component(objectid type, objectid e) {
+		if (containsComponent(type, e)) {
+			return componentManagers[type].componentMemory(lookup[e][type]);
+		} else {
+			return nullptr;
+		}
 	}
-	const void* component(std::type_index type, objectid e) const {
-		return componentManagers.at(type).componentMemory(lookup.at(e).at(type));
+	const void* component(objectid type, objectid e) const {
+		if (containsComponent(type, e)) {
+			return componentManagers[type].componentMemory(lookup[e][type]);
+		} else {
+			return nullptr;
+		}
 	}
-	bool containsComponent(std::type_index type, objectid e) const {
-		return lookup.at(e).contains(type);
+	bool containsComponent(objectid type, objectid e) const {
+		return (lookup[e].size() > type) && (lookup[e][type] != 0);
 	}
 
 
-	// find functions
-	std::vector<Entity*> findEntities(std::initializer_list<std::type_index>&& types) {
+	// find function
+	std::vector<Entity*> findEntities(std::initializer_list<objectid>&& types) {
 		std::vector<Entity*> r;
 
 		for (objectid i = 0; i < lookup.size(); i++) {
 			if (std::all_of(
 				types.begin(), 
 				types.end(), 
-				[this, i](const std::type_index& key) {
-					return lookup[i].contains(key);
+				[this, i](objectid key) {
+					return (lookup[i].size() > key) && (lookup[i][key] != 0);
 				}
 			)) r.push_back(entityManager.entity(i));
 		}
 
 		return r;
 	}
-
-	// system 
+	// systems function
+	void executeSystem(std::initializer_list<objectid>&& types, const Function<void(Entity*)>& system) {
+		for (objectid i = 0; i < lookup.size(); i++) {
+			if (std::all_of(
+				types.begin(), 
+				types.end(), 
+				[this, i](objectid key) {
+					return (lookup[i].size() > key) && (lookup[i][key] != 0);
+				}
+			)) system(entityManager.entity(i));
+		}
+	}
 
 	EntityManager entityManager;
-	std::unordered_map<std::type_index, ComponentManager> componentManagers;
+	std::vector<ComponentManager> componentManagers;
 	
-	std::vector<std::unordered_map<std::type_index, objectid>> lookup;
+	std::vector<std::vector<objectid>> lookup;
+
+	objectid uniqueID;
 };
 
 static EntityComponentSystem* globalECS;
@@ -169,12 +193,7 @@ Entity::Entity(std::string_view name, Entity* parent) :
 }
 
 Entity::~Entity() {
-	auto& lookup = globalECS->lookup.at(m_id);
-
-	for (const auto& [type, id] : lookup) {
-		globalECS->componentManagers.at(type).returnComponent(id);
-	}
-	lookup.clear();
+	globalECS->removeAllComponents(m_id);
 	globalECS->entityManager.returnEntity(m_id);
 }
 
@@ -185,28 +204,35 @@ Entity* entity(objectid id) {
 	return globalECS->entityManager.entity(id);
 }
 
-void* addComponent(std::type_index type, size_t size, objectid e) {
+void* addComponent(objectid type, size_t size, objectid e) {
 	return globalECS->addComponent(type, size, e);
 }
-void removeComponent(std::type_index type, objectid e) {
+void removeComponent(objectid type, objectid e) {
 	globalECS->removeComponent(type, e);
 }
 void removeAllComponents(objectid e) {
 	globalECS->removeAllComponents(e);
 }
 
-void* component(std::type_index type, objectid e) {
+void* component(objectid type, objectid e) {
 	return globalECS->component(type, e);
 }
-const void* c_component(std::type_index type, objectid e) {
+const void* c_component(objectid type, objectid e) {
 	return globalECS->component(type, e);
 }
-bool containsComponent(std::type_index type, objectid e) {
+bool containsComponent(objectid type, objectid e) {
 	return globalECS->containsComponent(type, e);
 }
 
-std::vector<Entity*> findEntities(std::initializer_list<std::type_index>&& types) {
+std::vector<Entity*> findEntities(std::initializer_list<objectid>&& types) {
 	return globalECS->findEntities(std::move(types));
+}
+void executeSystem(std::initializer_list<objectid>&& types, const Function<void(Entity*)>& system) {
+	globalECS->executeSystem(std::move(types), system);
+}
+
+objectid uniqueID() {
+	return globalECS->uniqueID++;
 }
 
 } // namespace ecs
