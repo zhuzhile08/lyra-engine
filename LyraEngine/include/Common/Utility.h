@@ -58,6 +58,15 @@ inline std::vector<std::wstring> parse(std::wstring_view s, std::wstring_view d)
 	return r;
 }
 
+
+template <class Ty> struct CallableUnderlying {
+	using type = Ty;
+};
+
+template <class Ty, class... Args> struct CallableUnderlying<Ty(Args...)> {
+	typedef Ty(*type)(Args...);
+};
+
 template <class Ty> concept EnumType = std::is_enum_v<Ty>;
 
 // credits to https://gist.github.com/StrikerX3/46b9058d6c61387b3f361ef9d7e00cd4 for these operators!

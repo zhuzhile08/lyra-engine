@@ -11,6 +11,10 @@
 
 #pragma once
 
+#include <Common/Common.h>
+#include <Common/UniquePointer.h>
+#include <Common/Utility.h>
+
 #include <utility>
 
 namespace lyra {
@@ -18,43 +22,67 @@ namespace lyra {
 template <class> class Function;
 
 template <class Ty, class... Args> class Function <Ty(Args...)> {
-public:
+private:
 	using result = Ty;
 	using wrapper = Function;
-	typedef result(*callable)(Args...); // don't know how to make this with C++ type aliases, but this is good enough anyways
 
+	class BasicCallable {
+	public:
+		BasicCallable() = default;
+		BasicCallable(const BasicCallable&) = default;
+		BasicCallable(BasicCallable&&) = default;
+		virtual ~BasicCallable() = default;
+		virtual constexpr UniquePointer<BasicCallable> clone() const noexcept = 0;
+		virtual constexpr Ty operator()(Args&&...) const noexcept = 0;
+	};
+
+	template <class C> class Callable : public BasicCallable {
+	public:
+		using callable_type = C;
+		using pointer = UniquePointer<Callable>;
+
+		template <class OC> Callable(const OC& c) : callable(c) { }
+		template <class OC> Callable(OC&& c) : callable(std::forward<OC>(c)) { }
+
+		constexpr UniquePointer<BasicCallable> clone() const noexcept {
+			return pointer::create(callable);
+		}
+
+		constexpr Ty operator()(Args&&... args) const noexcept {
+			return callable(std::forward<Args>(args)...);
+		}
+	
+	private:
+		callable_type callable;
+	};
+
+	using basic_callable = UniquePointer<BasicCallable>;
+	template <class C> using real_callable = UniquePointer<Callable<C>>;
+
+public:
 	constexpr Function() noexcept = default;
-	constexpr Function(const wrapper& function) noexcept : function(function.function) { }
-	constexpr Function(wrapper&& function) noexcept : function(std::move(function.function)) { }
-	constexpr Function(const callable& callable) noexcept : function(callable) { }
-	constexpr Function(callable&& callable) noexcept : function(std::move(callable)) { }
-	template <class FPtr> constexpr Function(const FPtr& callable) noexcept : function(callable) { }
-	template <class FPtr> constexpr Function(FPtr&& callable) noexcept : function(std::move(callable)) { }
+	constexpr Function(const wrapper& function) noexcept : callable((function.callable) ? function.callable->clone() : nullptr) { }
+	constexpr Function(wrapper&& function) noexcept : callable(std::move(function.function)) { }
+	template <class Callable> constexpr Function(const Callable& callable) noexcept : 
+		callable(real_callable<typename CallableUnderlying<Callable>::type>::create(callable)) { }
+	template <class Callable> constexpr Function(Callable&& callable) noexcept : 
+		callable(real_callable<typename CallableUnderlying<Callable>::type>::create(std::forward<Callable>(callable))) { }
 
 	constexpr Function& operator=(const wrapper& function) noexcept {
-		this->function = function.function;
+		this->callable = (function.callable) ? function.callable->clone() : nullptr;
 	}
 	constexpr Function& operator=(wrapper&& function) noexcept {
-		this->function = std::move(function.function);
+		this->callable = std::move(function.callable);
 	}
-	constexpr Function& operator=(const callable& callable) noexcept {
-		this->function = callable;
+	template <class Callable> constexpr Function& operator=(const Callable& callable) noexcept {
+		this->callable = real_callable<Callable>::create(callable);
 	}
-	constexpr Function& operator=(callable&& callable) noexcept {
-		this->function = std::move(callable);
+	template <class Callable> constexpr Function& operator=(Callable&& callable) noexcept {
+		this->callable = real_callable<Callable>::create(std::forward<Callable>(callable));
 	}
 
 	constexpr void swap(wrapper& second) noexcept {
-		std::swap(this->function, second->function);
-	}
-	constexpr void swap(callable& second) noexcept {
-		std::swap(this->function, second);
-	}
-	constexpr void swap(wrapper&& second) noexcept {
-		std::swap(this->function, std::move(second->function));
-	}
-	constexpr void swap(callable&& second) noexcept {
-		std::swap(this->function, std::move(second));
+		this->callable.swap(second->callable);
 	}
 
 	constexpr const std::type_info& targetType() const noexcept {
@@ -62,23 +90,23 @@ public:
 		return typeid(void);	
 	}
 	template<class TTy> constexpr TTy* target() noexcept {
-		if (targetType() == typeid(TTy)) return function;
+		if (targetType() == typeid(TTy)) return callable;
 		return nullptr;
 	}
 	template<class TTy> constexpr const TTy* target() const noexcept{
-		if (targetType() == typeid(TTy)) return function;
+		if (targetType() == typeid(TTy)) return callable;
 		return nullptr;
 	}
 
 	constexpr operator bool() const noexcept {
-		return static_cast<bool>(function);
+		return static_cast<bool>(callable);
 	}
 	constexpr result operator()(Args&&... arguments) const {
-		return (*function)(std::forward<Args>(arguments)...);
+		return (*callable)(std::forward<Args>(arguments)...);
 	}
 
 private:
-	callable function = nullptr;
+	basic_callable callable {};
 };
 
 } // namespace lyra
