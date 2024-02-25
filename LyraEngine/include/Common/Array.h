@@ -11,10 +11,10 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/IteratorBase.h>
 
 #include <utility>
 #include <algorithm>
-#include <Common/IteratorBase.h>
 
 namespace lyra {
 
@@ -55,10 +55,16 @@ template <class Ty, size_t Size> struct Array {
 	NODISCARD constexpr const_iterator begin() const noexcept {
 		return m_array[0];
 	}
+	NODISCARD constexpr const_iterator cbegin() const noexcept {
+		return m_array[0];
+	}
 	NODISCARD constexpr iterator end() noexcept {
 		return &m_array[Size];
 	}
 	NODISCARD constexpr const_iterator end() const noexcept {
+		return &m_array[Size];
+	}
+	NODISCARD constexpr const_iterator cend() const noexcept {
 		return &m_array[Size];
 	}
 
