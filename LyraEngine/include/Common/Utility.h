@@ -26,34 +26,34 @@ template <typename Ty> constexpr const void* getAddress(const Ty& type) {
 	return static_cast<const void*>(type);
 }
 
-inline std::vector<std::string> parse(std::string_view s, std::string_view d) {
-	std::vector<std::string> r;
+inline Vector<std::string> parse(std::string_view s, std::string_view d) {
+	Vector<std::string> r;
 
 	size_t begin = 0;
 	size_t current;
 
 	while ((current = s.find(d, begin)) != std::string::npos) {
-		r.emplace_back(s.substr(begin, current - begin));
+		r.emplaceBack(s.substr(begin, current - begin));
 		begin = current + d.size();
 	}
 	
-	r.emplace_back(s.substr(begin));
+	r.emplaceBack(s.substr(begin));
 
 	return r;
 }
 
-inline std::vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) {
-	std::vector<std::wstring> r;
+inline Vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) {
+	Vector<std::wstring> r;
 
 	size_t begin = 0;
 	size_t current;
 
 	while ((current = s.find(d, begin)) != std::string::npos) {
-		r.emplace_back(s.substr(begin, current - begin));
+		r.emplaceBack(s.substr(begin, current - begin));
 		begin = current + d.size();
 	}
 	
-	r.emplace_back(s.substr(begin));
+	r.emplaceBack(s.substr(begin));
 
 	return r;
 }
