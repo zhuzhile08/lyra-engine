@@ -36,7 +36,7 @@
 #endif
 
 #include <variant>
-#include <vector>
+#include <Common/Vector.h>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -160,8 +160,8 @@ public:
 			VkPipelineBindPoint pipelineBindPoint,
 			const vk::PipelineLayout& layout,
 			uint32 firstSet,
-			const std::vector<VkDescriptorSet>& descriptorSets,
-			const std::vector<uint32>& dynamicOffsets
+			const Vector<VkDescriptorSet>& descriptorSets,
+			const Vector<uint32>& dynamicOffsets
 		) const {
 			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, static_cast<uint32>(descriptorSets.size()), descriptorSets.data(), static_cast<uint32>(dynamicOffsets.size()), dynamicOffsets.data());
 		}
@@ -174,7 +174,7 @@ public:
 		void bindVertexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, uint32 firstBinding) const {
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, 1, &buffer.get(), &offset);
 		}
-		void bindVertexBuffers(const std::vector<VkBuffer>& buffers, const std::vector<VkDeviceSize>& offsets, uint32 firstBinding) const {
+		void bindVertexBuffers(const Vector<VkBuffer>& buffers, const Vector<VkDeviceSize>& offsets, uint32 firstBinding) const {
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, static_cast<uint32>(buffers.size()), buffers.data(), offsets.data());
 		}
 		void blitImage(
@@ -192,7 +192,7 @@ public:
 			VkImageLayout srcImageLayout, 
 			const vk::Image& dstImage, 
 			VkImageLayout dstImageLayout, 
-			const std::vector<VkImageBlit>& regions, 
+			const Vector<VkImageBlit>& regions, 
 			VkFilter filter
 		) const {
 			vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data(), filter);
@@ -200,7 +200,7 @@ public:
 		void clearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect) const {
 			vkCmdClearAttachments(commandBuffer, 1, &attachment, 1, &rect);
 		}
-		void clearAttachments(const std::vector<VkClearAttachment> attachments, const std::vector<VkClearRect>& rects) const {
+		void clearAttachments(const Vector<VkClearAttachment> attachments, const Vector<VkClearRect>& rects) const {
 			vkCmdClearAttachments(commandBuffer, static_cast<uint32>(attachments.size()), attachments.data(), static_cast<uint32>(rects.size()), rects.data());
 		}
 		void clearColorImage(
@@ -215,7 +215,7 @@ public:
 			const vk::Image& image, 
 			VkImageLayout imageLayout,
 			const VkClearColorValue& color, 
-			const std::vector<VkImageSubresourceRange>& ranges
+			const Vector<VkImageSubresourceRange>& ranges
 		) const {
 			vkCmdClearColorImage(commandBuffer, image, imageLayout, &color, static_cast<uint32>(ranges.size()), ranges.data());
 		}
@@ -231,14 +231,14 @@ public:
 			const vk::Image&image, 
 			VkImageLayout imageLayout, 
 			const VkClearDepthStencilValue& depthStencil, 
-			const std::vector<VkImageSubresourceRange>& ranges
+			const Vector<VkImageSubresourceRange>& ranges
 		) const {
 			vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, &depthStencil, static_cast<uint32>(ranges.size()), ranges.data());
 		}
 		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const VkBufferCopy& region) const {
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &region);
 		}
-		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const std::vector<VkBufferCopy>& regions) const {
+		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const Vector<VkBufferCopy>& regions) const {
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyBufferToImage(
@@ -253,7 +253,7 @@ public:
 			const vk::Buffer& srcBuffer, 
 			const vk::Image& dstImage, 
 			VkImageLayout dstImageLayout, 
-			const std::vector<VkBufferImageCopy>& regions
+			const Vector<VkBufferImageCopy>& regions
 		) const {
 			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
 		}
@@ -271,7 +271,7 @@ public:
 			VkImageLayout srcImageLayout, 
 			const vk::Image& dstImage, 
 			VkImageLayout dstImageLayout, 
-			const std::vector<VkImageCopy>& regions
+			const Vector<VkImageCopy>& regions
 		) const {
 			vkCmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
 		}
@@ -287,7 +287,7 @@ public:
 			const vk::Image& srcImage, 
 			VkImageLayout srcImageLayout, 
 			const vk::Buffer& dstBuffer, 
-			const std::vector<VkBufferImageCopy>& regions
+			const Vector<VkBufferImageCopy>& regions
 		) const {
 			vkCmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
@@ -328,7 +328,7 @@ public:
 		void executeCommands(const vk::CommandBuffer& cmdBuffer) const {
 			vkCmdExecuteCommands(commandBuffer, 1, &cmdBuffer.get());
 		}
-		void executeCommands(const std::vector<VkCommandBuffer>& cmdBuffers) const {
+		void executeCommands(const Vector<VkCommandBuffer>& cmdBuffers) const {
 			vkCmdExecuteCommands(commandBuffer, static_cast<uint32>(cmdBuffers.size()), cmdBuffers.data());
 		}
 		void fillBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32 data) const {
@@ -362,20 +362,20 @@ public:
 			VkPipelineStageFlags srcStageFlags,
 			VkPipelineStageFlags dstStageFlags,
 			VkDependencyFlags dependency,
-			const std::vector<VkMemoryBarrier>& memory,
-			const std::vector<VkBufferMemoryBarrier>& buffer,
-			const std::vector<VkImageMemoryBarrier>& image
+			const Vector<VkMemoryBarrier>& memory,
+			const Vector<VkBufferMemoryBarrier>& buffer,
+			const Vector<VkImageMemoryBarrier>& image
 		) const {
 			vkCmdPipelineBarrier(
 				commandBuffer,
 				srcStageFlags,
 				dstStageFlags,
 				dependency,
-                static_cast<uint32>(memory.size()),
+				static_cast<uint32>(memory.size()),
 				memory.data(),
-                static_cast<uint32>(buffer.size()),
+				static_cast<uint32>(buffer.size()),
 				buffer.data(),
-                static_cast<uint32>(image.size()),
+				static_cast<uint32>(image.size()),
 				image.data()
 			);
 		}
@@ -407,7 +407,7 @@ public:
 			VkImageLayout srcImageLayout, 
 			const vk::Image& dstImage, 
 			VkImageLayout dstImageLayout, 
-			const std::vector<VkImageResolve>& regions) const {
+			const Vector<VkImageResolve>& regions) const {
 			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void setBlendConstants(float32 blendConstants[4]) const {
@@ -428,7 +428,7 @@ public:
 		void setScissor(const VkRect2D& scissor) const {
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 		}
-		void setScissors(const std::vector<VkRect2D>& scissors, uint32 firstScissor = 0) const {
+		void setScissors(const Vector<VkRect2D>& scissors, uint32 firstScissor = 0) const {
 			vkCmdSetScissor(commandBuffer, firstScissor, static_cast<uint32>(scissors.size()), scissors.data());
 		}
 		void setStencilCompareMask(VkStencilFaceFlags faceMask, uint32 compareMask) const {
@@ -443,7 +443,7 @@ public:
 		void setViewport(const VkViewport& pViewport) const {
 			vkCmdSetViewport(commandBuffer, 0, 1, &pViewport);
 		}
-		void setViewport(const std::vector<VkViewport>& viewports, uint32 firstViewport = 0) const {
+		void setViewport(const Vector<VkViewport>& viewports, uint32 firstViewport = 0) const {
 			vkCmdSetViewport(commandBuffer, firstViewport, static_cast<uint32>(viewports.size()), viewports.data());
 		}
 		void updateBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* data) const {
@@ -472,24 +472,24 @@ public:
 			);
 		}
 		void waitEvents(
-			const std::vector<VkEvent>& events,
+			const Vector<VkEvent>& events,
 			VkPipelineStageFlags srcStageMask,
 			VkPipelineStageFlags dstStageMask,
-			const std::vector<VkMemoryBarrier>& memory,
-			const std::vector<VkBufferMemoryBarrier>& buffer,
-			const std::vector<VkImageMemoryBarrier>& image
+			const Vector<VkMemoryBarrier>& memory,
+			const Vector<VkBufferMemoryBarrier>& buffer,
+			const Vector<VkImageMemoryBarrier>& image
 		) const {
 			vkCmdWaitEvents(
 				commandBuffer, 
-                static_cast<uint32>(events.size()),
+				static_cast<uint32>(events.size()),
 				events.data(),
 				srcStageMask, 
 				dstStageMask, 
-                static_cast<uint32>(memory.size()),
+				static_cast<uint32>(memory.size()),
 				memory.data(),
-                static_cast<uint32>(buffer.size()),
+				static_cast<uint32>(buffer.size()),
 				buffer.data(),
-                static_cast<uint32>(image.size()),
+				static_cast<uint32>(image.size()),
 				image.data()
 			);
 		}
@@ -512,12 +512,12 @@ public:
 	
 	VkQueue queue = VK_NULL_HANDLE;
 
-	std::vector<VkSemaphore> waitSemaphores;
-	std::vector<VkSemaphore> signalSemaphores;
-	std::vector<VkPipelineStageFlags> pipelineStageFlags;
+	Vector<VkSemaphore> waitSemaphores;
+	Vector<VkSemaphore> signalSemaphores;
+	Vector<VkPipelineStageFlags> pipelineStageFlags;
 
 	const CommandBuffer* activeCommandBuffer;
-	std::vector<CommandPool> commandPools;
+	Vector<CommandPool> commandPools;
 
 	uint32 currentFrame = 0;
 };
@@ -678,7 +678,7 @@ public:
 		VkBool32 unnormalizedCoordinates = VK_FALSE
 	) noexcept;
 	
-	NODISCARD static VkFormat bestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
+	NODISCARD static VkFormat bestFormat(const Vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
 
 	NODISCARD constexpr VkImageMemoryBarrier imageMemoryBarrier(
 		VkAccessFlags srcAccessMask,
@@ -766,7 +766,7 @@ public:
 	// construct a framebuffer in the engine default configuration
 	RenderTarget();
 	// @todo add a constructor with custom attachments
-	// RenderTarget(const std::vector<Arrachment>& attachments);
+	// RenderTarget(const Vector<Arrachment>& attachments);
 	~RenderTarget();
 
 	void begin() const;
@@ -805,8 +805,8 @@ public:
 	}; // Refer to the API for the documentation of these enums
 
 	Shader() = default;
-	Shader(Type type, std::vector<char>&& source);
-	Shader(Type type, const std::vector<char>& source);
+	Shader(Type type, Vector<char>&& source);
+	Shader(Type type, const Vector<char>& source);
 
 	NODISCARD constexpr VkPipelineShaderStageCreateInfo stageCreateInfo() const noexcept {
 		return {
@@ -821,7 +821,7 @@ public:
 	}
 
 	vk::ShaderModule module;
-	std::vector<char> shaderSrc;
+	Vector<char> shaderSrc;
 
 	Type type;
 };
@@ -843,13 +843,13 @@ public:
 	};
 
 	struct ImageWrite {
-		std::vector<VkDescriptorImageInfo> infos;
+		Vector<VkDescriptorImageInfo> infos;
 		uint32 binding;
 		Type type;
 	};
 
 	struct BufferWrite {
-		std::vector<VkDescriptorBufferInfo> infos;
+		Vector<VkDescriptorBufferInfo> infos;
 		uint32 binding;
 		Type type;
 	};
@@ -862,13 +862,13 @@ public:
 	) : variableCount(variableCount), layoutIndex(layoutIndex), graphicsProgram(&graphicsProgram) { }
 	~DescriptorSets();
 
-	constexpr void addWrites(const std::vector<ImageWrite>& newWrites) noexcept {
+	constexpr void addWrites(const Vector<ImageWrite>& newWrites) noexcept {
 		dirty = true;
 
 		imageWrites.reserve(imageWrites.size() + newWrites.size());
 		imageWrites.insert(imageWrites.end(), newWrites.begin(), newWrites.end());
 	}
-	constexpr void addWrites(const std::vector<BufferWrite>& newWrites) noexcept {
+	constexpr void addWrites(const Vector<BufferWrite>& newWrites) noexcept {
 		dirty = true;
 
 		bufferWrites.reserve(bufferWrites.size() + newWrites.size());
@@ -881,11 +881,11 @@ public:
 
 	void bind(uint32 index);
 
-	std::vector<vk::DescriptorSet> descriptorSets;
+	Vector<vk::DescriptorSet> descriptorSets;
 
-	std::vector<ImageWrite> imageWrites;
-	std::vector<BufferWrite> bufferWrites;
-	std::vector<VkWriteDescriptorSet> writes;
+	Vector<ImageWrite> imageWrites;
+	Vector<BufferWrite> bufferWrites;
+	Vector<VkWriteDescriptorSet> writes;
 
 	bool variableCount;
 
@@ -910,17 +910,17 @@ public:
 	};
 
 	DescriptorPools() = default;
-	DescriptorPools(const std::vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
+	DescriptorPools(const Vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
 
 	void reset();
 	vk::DescriptorSet allocate(const GraphicsProgram& program, uint32 layoutIndex, bool variableCount);
 
-	std::vector<vk::DescriptorPool> descriptorPools;
+	Vector<vk::DescriptorPool> descriptorPools;
 
 	uint32 allocationIndex = 0;
 
 	VkDescriptorPoolCreateInfo createInfo;
-	std::vector<VkDescriptorPoolSize> sizes;
+	Vector<VkDescriptorPoolSize> sizes;
 };
 
 class GraphicsProgram {
@@ -946,7 +946,7 @@ public:
 			// flags
 			Flags flags;
 			// immutable samplers
-			const std::vector<VkSampler>& immutableSamplers = { };
+			const Vector<VkSampler>& immutableSamplers = { };
 		};
 		
 		struct PushConstant {
@@ -958,13 +958,13 @@ public:
 
 		constexpr void addBinding(const Binding& binding) {
 			if (m_bindings.size() <= binding.set) {
-				m_bindings.push_back({});
-				m_bindingFlags.push_back({});
-				m_bindingFlagsCreateInfo.push_back({});
+				m_bindings.pushBack({});
+				m_bindingFlags.pushBack({});
+				m_bindingFlagsCreateInfo.pushBack({});
 			}
 
 			// add the new binding
-			m_bindings[binding.set].push_back({
+			m_bindings[binding.set].pushBack({
 				static_cast<uint32>(m_bindings[binding.set].size()),
 				static_cast<VkDescriptorType>(binding.type),
 				binding.arraySize,
@@ -972,7 +972,7 @@ public:
 				binding.immutableSamplers.data()
 				});
 
-			m_bindingFlags[binding.set].push_back(static_cast<VkDescriptorBindingFlags>(binding.flags));
+			m_bindingFlags[binding.set].pushBack(static_cast<VkDescriptorBindingFlags>(binding.flags));
 			
 			if ((binding.flags | Flags::variableCount) == Flags::variableCount) {
 				if (m_bindingFlagsCreateInfo.size() <= binding.set) m_bindingFlagsCreateInfo.resize(binding.set);
@@ -995,12 +995,12 @@ public:
 				std::to_string(binding.immutableSamplers.size())
 			);
 		}
-		constexpr void addBindings(const std::vector<Binding>& bindings) {
+		constexpr void addBindings(const Vector<Binding>& bindings) {
 			for (const auto& binding : bindings) addBinding(binding);
 		}
 
 		constexpr void addPushConstant(const PushConstant& pushConstant) {
-			m_pushConstants.push_back({
+			m_pushConstants.pushBack({
 				static_cast<VkShaderStageFlags>(pushConstant.shaderType),
 				m_pushConstants.back().size + m_pushConstants.back().offset,
 				pushConstant.size
@@ -1008,7 +1008,7 @@ public:
 
 			m_pushConstantHash.append(std::to_string(pushConstant.shaderType) + std::to_string(pushConstant.size));
 		}
-		constexpr void addPushConstants(const std::vector<PushConstant>& pushConstants) {
+		constexpr void addPushConstants(const Vector<PushConstant>& pushConstants) {
 			for (const auto& pushConstant : pushConstants) addPushConstant(pushConstant);
 		}
 
@@ -1022,10 +1022,10 @@ public:
 		std::string hash() const noexcept;
 
 	private:
-		Dynarray<std::vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
-		Dynarray<std::vector<VkDescriptorBindingFlags>, config::maxShaderSets> m_bindingFlags;
+		Dynarray<Vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
+		Dynarray<Vector<VkDescriptorBindingFlags>, config::maxShaderSets> m_bindingFlags;
 		Dynarray<VkDescriptorSetLayoutBindingFlagsCreateInfo, config::maxShaderSets> m_bindingFlagsCreateInfo;
-		std::vector<VkPushConstantRange> m_pushConstants;
+		Vector<VkPushConstantRange> m_pushConstants;
 
 		const Shader* m_vertexShader;
 		const Shader* m_fragmentShader;
@@ -1174,9 +1174,9 @@ public:
 		}
 
 		constexpr void addBlendAttachment(const VkPipelineColorBlendAttachmentState& attachment) noexcept {
-			m_blendAttachments.push_back(attachment);
+			m_blendAttachments.pushBack(attachment);
 		}
-		constexpr void addBlendAttachments(const std::vector<VkPipelineColorBlendAttachmentState>& attachments) noexcept {
+		constexpr void addBlendAttachments(const Vector<VkPipelineColorBlendAttachmentState>& attachments) noexcept {
 			m_blendAttachments.insert(m_blendAttachments.end(), attachments.begin(), attachments.end());
 		}
 
@@ -1199,7 +1199,7 @@ public:
 		Image::SampleCount m_sampleCount;
 		std::variant<bool, float32> m_sampleShading;
 		std::variant<bool, DepthStencil> m_depthStencil;
-		std::vector<VkPipelineColorBlendAttachmentState> m_blendAttachments; // I have no idea what this does @todo
+		Vector<VkPipelineColorBlendAttachmentState> m_blendAttachments; // I have no idea what this does @todo
 
 		const RenderTarget* m_renderTarget;
 		const GraphicsProgram* m_graphicsProgram;

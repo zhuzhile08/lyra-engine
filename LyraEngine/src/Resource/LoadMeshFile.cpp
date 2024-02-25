@@ -9,13 +9,13 @@ namespace lyra {
 
 namespace resource {
 
-MeshFile loadMeshFile(std::filesystem::path path, const Json::array_type& vertexBlocks, const Json::array_type& indexBlocks) {
+MeshFile loadMeshFile(std::filesystem::path path, uint32 uncompressed, const Json::array_type& vertexBlocks, const Json::array_type& indexBlocks) {
 	ByteFile compressedFile(path.concat(".dat"), OpenMode::read | OpenMode::binary, false);
-	std::vector<char> fileData(compressedFile.size());
+	Vector<char> fileData(compressedFile.size());
 	compressedFile.read(fileData.data(), fileData.size());
 
-	std::vector<char> file(fileData.size() * 255);
-	file.resize(LZ4_decompress_safe(fileData.data(), file.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(file.size())));
+	Vector<char> file(uncompressed);
+	LZ4_decompress_safe(fileData.data(), file.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(file.size()));
 
 	MeshFile meshes { };
 

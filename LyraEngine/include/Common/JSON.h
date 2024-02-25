@@ -18,7 +18,7 @@
 #include <Common/Node.h>
 #include <Common/FileSystem.h>
 
-#include <vector>
+#include <Common/Vector.h>
 #include <unordered_map>
 #include <variant>
 
@@ -26,7 +26,7 @@ namespace lyra {
 
 template <
 	class Literal = char, 
-	template <class...> class ArrayContainer = std::vector,
+	template <class...> class ArrayContainer = Vector,
 	class Integer = int32,
 	class Unsigned = uint32,
 	class Floating = float32,
@@ -383,7 +383,7 @@ private:
 					break;
 			}
 
-			r.emplace_back(tok.release());
+			r.emplaceBack(tok.release());
 		}
 
 		ASSERT(false, "lyra::Json::parseArray(): JSON Syntax Error: missing token!");
@@ -489,7 +489,7 @@ private:
 			if (it != t.begin()) s.append(",\n");
 			stringifyPairPretty(indent, *it->second, s);
 		}
-		s.append("\n").append(--indent, '\t').push_back('}');
+		s.append("\n").append(--indent, '\t').pushBack('}');
 	}
 	static constexpr void stringifyArrayPretty(size_t indent, const json_type& t, string_type& s) {
 		indent += 1;
@@ -500,7 +500,7 @@ private:
 			s.append(indent, '\t');
 
 			if ((*it)->isString())
-				s.append("\"").append((*it)->template get<string_type>()).push_back('\"');
+				s.append("\"").append((*it)->template get<string_type>()).pushBack('\"');
 			else if ((*it)->isObject())
 				stringifyObjectPretty(indent, **it, s);
 			else if ((*it)->isArray())
@@ -508,13 +508,13 @@ private:
 			else
 				stringifyPrimitive(**it, s);
 		}
-		s.append("\n").append(--indent, '\t').push_back(']');
+		s.append("\n").append(--indent, '\t').pushBack(']');
 	}
 	static constexpr void stringifyPairPretty(size_t indent, const json_type& t, string_type& s) {
 		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
 		
 		if (t.isString())
-			s.append("\"").append(t.get<string_type>()).push_back('\"');
+			s.append("\"").append(t.get<string_type>()).pushBack('\"');
 		else if (t.isObject())
 			stringifyObjectPretty(indent, t, s);
 		else if (t.isArray())
@@ -525,6 +525,6 @@ private:
 };
 
 using Json = BasicJson<>;
-using SharedJson = BasicJson<char, std::vector, int32, uint32, float32, std::hash<std::basic_string<char>>, std::unordered_map, UniquePointer>;
+using SharedJson = BasicJson<char, Vector, int32, uint32, float32, std::hash<std::basic_string<char>>, std::unordered_map, UniquePointer>;
 
 } // namespace lyra

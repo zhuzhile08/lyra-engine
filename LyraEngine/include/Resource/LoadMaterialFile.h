@@ -19,7 +19,7 @@ namespace lyra {
 namespace resource {
 
 struct MaterialFile {
-	// std::vector<tinyobj::material_t> mats;
+	// Vector<tinyobj::material_t> mats;
 };
 
 NODISCARD MaterialFile loadMaterialFile(std::filesystem::path path);

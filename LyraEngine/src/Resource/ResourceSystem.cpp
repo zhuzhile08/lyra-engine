@@ -24,7 +24,7 @@ public:
 
 	std::unordered_map<std::string, vulkan::Shader> shaders;
 	std::unordered_map<std::string, Texture> textures;
-	std::unordered_map<std::string, std::vector<Mesh>> meshes;
+	std::unordered_map<std::string, Vector<Mesh>> meshes;
 	std::unordered_map<std::string, Material> materials;
 
 	Json assetsFile;
@@ -50,7 +50,7 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
 
 		ByteFile compressedFile(absolutePath(std::filesystem::path("data")/(path)), OpenMode::read | OpenMode::binary, false);
-		std::vector<char> data(compressedFile.size());
+		Vector<char> data(compressedFile.size());
 		compressedFile.read(data.data(), data.size());
 
 		globalResourceSystem->shaders.emplace(path.string(), vulkan::Shader(
@@ -81,7 +81,7 @@ const Texture& texture(std::filesystem::path path) {
 	return globalResourceSystem->textures.at(path.string());
 }
 
-const std::vector<Mesh>& mesh(std::filesystem::path path) {
+const Vector<Mesh>& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path.string())) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.string());
 		const auto& vertexBlocks = js.child("VertexBlocks").get<Json::array_type>();
@@ -93,11 +93,11 @@ const std::vector<Mesh>& mesh(std::filesystem::path path) {
 			vertexBlocks,
 			indexBlocks
 		);
-		auto& vec = globalResourceSystem->meshes.emplace(path.string(), std::vector<Mesh>()).first->second;
+		auto& vec = globalResourceSystem->meshes.emplace(path.string(), Vector<Mesh>()).first->second;
 		vec.reserve(vertexBlocks.size());
 
 		for (uint32 i = 0; i < vertexBlocks.size(); i++) {
-			vec.emplace_back(meshData, i);
+			vec.emplaceBack(meshData, i);
 		}
 	}
 

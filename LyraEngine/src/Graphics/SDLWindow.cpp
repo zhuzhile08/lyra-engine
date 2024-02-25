@@ -28,11 +28,11 @@ Window::Window(std::string_view title, Flags flags, const glm::ivec2& size) {
 	ASSERT(m_window, "Failed to create SDL window with error: {}!", SDL_GetError());
 }
 
-std::vector<const char*> Window::instanceExtensions() const {
+Vector<const char*> Window::instanceExtensions() const {
 	uint32 instanceExtensionCount;
 	auto extensions = SDL_Vulkan_GetInstanceExtensions(&instanceExtensionCount);
 	
-	std::vector<const char*> instanceExtensions(extensions, extensions + instanceExtensionCount);
+	Vector<const char*> instanceExtensions(extensions, extensions + instanceExtensionCount);
 
 	return instanceExtensions;
 }

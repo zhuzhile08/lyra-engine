@@ -2,6 +2,7 @@
 
 #include <Common/Logger.h>
 #include <Common/SharedPointer.h>
+#include <Common/Vector.h>
 
 #include <fmt/core.h>
 
@@ -72,19 +73,19 @@ public:
 	}
 
 	NODISCARD char* unusedBuffer() {
-		if (buffers.empty()) buffers.push_back(new char[bufferSize]);
+		if (buffers.empty()) buffers.pushBack(new char[bufferSize]);
 
 		auto r = buffers.back();
-		buffers.pop_back();
+		buffers.popBack();
 		return r;
 	}
 	
 	void returnBuffer(char* buffer) {
 		memset(buffer, '\0', bufferSize);
-		buffers.push_back(buffer);
+		buffers.pushBack(buffer);
 	}
 
-	std::vector<char*> buffers;
+	Vector<char*> buffers;
 
 	std::unordered_map<PathStringType, SharedPointer<FILE>> loadedFiles;
 

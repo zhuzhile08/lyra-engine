@@ -14,9 +14,9 @@
 #include <Common/Common.h>
 #include <Common/Utility.h>
 
-#include <Json/Json.h>
+#include <Common/JSON.h>
 
-#include <vector>
+#include <Common/Vector.h>
 #include <string_view>
 #include <filesystem>
 
@@ -25,15 +25,16 @@ namespace lyra {
 namespace resource {
 
 struct MeshFile {
-	std::vector <uint32> vertexBlocks;
-	std::vector <uint32> indexBlocks;
+	Vector <uint32> vertexBlocks;
+	Vector <uint32> indexBlocks;
 
-	std::vector <std::vector <float32>> vertexData;
-	std::vector <std::vector <uint32>> indexData;
+	Vector <Vector <float32>> vertexData;
+	Vector <Vector <uint32>> indexData;
 };
 
 NODISCARD MeshFile loadMeshFile(
 	std::filesystem::path path, 
+	uint32 uncompressed,
 	const Json::array_type& vertexBlocks,
 	const Json::array_type& indexBlocks
 );

@@ -92,13 +92,13 @@ public:
 
 protected:
 	void addRenderObject(RenderObject* o) final {
-		m_objects.push_back(o);
+		m_objects.pushBack(o);
 	}
 	void removeRenderObject(RenderObject* o) final {
 		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), o), m_objects.end());
 	}
 
-	std::vector<RenderObject*> m_objects;
+	Vector<RenderObject*> m_objects;
 };
 
 } // namespace lyra

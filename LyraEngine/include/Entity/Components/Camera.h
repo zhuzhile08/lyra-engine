@@ -28,7 +28,7 @@
 
 #include <glm/glm.hpp>
 
-#include <vector>
+#include <Common/Vector.h>
 
 namespace lyra {
 

@@ -9,8 +9,10 @@
 #include <Graphics/Material.h>
 #include <Graphics/Mesh.h>
 
-#include <EntitySystem/Camera.h>
-#include <EntitySystem/MeshRenderer.h>
+#include <Entity/Entity.h>
+#include <Entity/Components/Transform.h>
+#include <Entity/Components/Camera.h>
+#include <Entity/Components/MeshRenderer.h>
 
 #include <Resource/ResourceSystem.h>
 
@@ -68,7 +70,7 @@ public:
 		uint32 copyFamilyIndex = std::numeric_limits<uint32>::max();
 		// uint32 videoFamilyIndex = VK_QUEUE_FAMILY_IGNORED; @todo
 		
-		std::vector <VkQueueFamilyProperties> queueFamilyProperties;
+		Vector <VkQueueFamilyProperties> queueFamilyProperties;
 	};
 
 	RenderSystem(
@@ -86,7 +88,7 @@ public:
 #ifndef NDEBUG
 			uint32 availableValidationLayerCount = 0;
 			vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, nullptr);
-			std::vector <VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
+			Vector <VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
 			vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.data());
 
 			// go through every requested layers and see if they are available
@@ -106,14 +108,14 @@ public:
 			}
 #endif
 			// get all extensions
-			std::vector<const char*> instanceExtensions(this->window->instanceExtensions());
+			Vector<const char*> instanceExtensions(this->window->instanceExtensions());
 			// add some required extensions
-			instanceExtensions.push_back("VK_KHR_get_physical_device_properties2");
+			instanceExtensions.pushBack("VK_KHR_get_physical_device_properties2");
 #ifndef NDEBUG
-			instanceExtensions.push_back("VK_EXT_debug_utils");
+			instanceExtensions.pushBack("VK_EXT_debug_utils");
 #endif
 #ifdef __APPLE__
-			instanceExtensions.push_back("VK_KHR_portability_enumeration");
+			instanceExtensions.pushBack("VK_KHR_portability_enumeration");
 #endif
 
 #ifndef NDEBUG // debug messenger create info
@@ -189,7 +191,7 @@ public:
 			// get all devices
 			uint32 deviceCount = 0;
 			VULKAN_ASSERT(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), "find any Vulkan suitable GPUs");
-			std::vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
+			Vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
 			vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 			// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
@@ -251,7 +253,7 @@ public:
 					// get the available extensions
 					uint32 availableDeviceExtensionCount = 0;
 					vkEnumerateDeviceExtensionProperties(device, nullptr, &availableDeviceExtensionCount, nullptr);
-					std::vector <VkExtensionProperties> availableDeviceExtensions(availableDeviceExtensionCount);
+					Vector <VkExtensionProperties> availableDeviceExtensions(availableDeviceExtensionCount);
 					vkEnumerateDeviceExtensionProperties(device, nullptr, &availableDeviceExtensionCount, availableDeviceExtensions.data());	
 
 					VkPhysicalDeviceDescriptorIndexingProperties descriptorIndexingProperties {
@@ -266,7 +268,7 @@ public:
 					vkGetPhysicalDeviceFeatures(device, &features);
 
 					// some required features. If not available, make the GPU unavailable
-					if ([&]() -> bool {
+					if ([&availableDeviceExtensions]() -> bool {
 #ifndef NDEBUG
 							// print all all availabe extensions
 							log::info("Available device extensions:");
@@ -324,12 +326,12 @@ public:
 		}
 
 		{ // create logical device
-			std::vector <VkDeviceQueueCreateInfo> queueCreateInfos;
+			Vector <VkDeviceQueueCreateInfo> queueCreateInfos;
 			std::unordered_set <uint32> uniqueQueueFamilies { queueFamilies.graphicsFamilyIndex, queueFamilies.computeFamilyIndex, queueFamilies.copyFamilyIndex };
 			
 			float32 queuePriority = 1.0f;
 			for (const auto& queueFamily : uniqueQueueFamilies) {
-				queueCreateInfos.push_back({
+				queueCreateInfos.pushBack({
 					VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 					nullptr,
 					0,
@@ -341,7 +343,7 @@ public:
 
 #ifdef __APPLE__
 			Dynarray<const char*, config::requestedDeviceExtensions.size() + 1> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
-			requestedExtensions.push_back("VK_KHR_portability_subset");
+			requestedExtensions.pushBack("VK_KHR_portability_subset");
 #else
 			auto& requestedExtensions = config::requestedDeviceExtensions;
 #endif
@@ -406,7 +408,7 @@ public:
 	void initRenderComponents() {
 		commandQueue = commandQueue.create();
 		swapchain = swapchain.create(*commandQueue);
-		descriptorPools = descriptorPools.create( std::vector<DescriptorPools::Size> {
+		descriptorPools = descriptorPools.create( Vector<DescriptorPools::Size> {
 			{ DescriptorSets::Type::sampler, 1 },
 			{ DescriptorSets::Type::imageSampler, 8 },
 			{ DescriptorSets::Type::sampledImage, 8 },
@@ -423,7 +425,7 @@ public:
 		defaultVertexShader = &resource::shader(defaultVertexShaderPath);
 		defaultFragmentShader = &resource::shader(defaultFragmentShaderPath);
 
-		renderTargets.push_back(new RenderTarget());
+		renderTargets.pushBack(new RenderTarget());
 		defaultRenderTarget = renderTargets.back();
 		defaultGraphicsProgram = new GraphicsProgram();
 		graphicsPrograms.emplace(defaultGraphicsProgram->hash, defaultGraphicsProgram);
@@ -457,7 +459,7 @@ public:
 	VkResult allocateMemoryPage(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
 		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, 1, &allocation.get(), &allocationInfo);
 	}
-	VkResult allocateMemoryPages(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, std::vector<VmaAllocation>& allocations, VmaAllocationInfo& allocationInfo) {
+	VkResult allocateMemoryPages(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, Vector<VmaAllocation>& allocations, VmaAllocationInfo& allocationInfo) {
 		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, allocations.size(), allocations.data(), &allocationInfo);
 	}
 	VkResult allocateMemoryForBuffer(const vk::Buffer& buffer, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
@@ -469,7 +471,7 @@ public:
 	void freeMemoryPage(const vma::Allocation& allocation) {
 		vmaFreeMemoryPages(allocator, 1, &allocation.get());
 	}
-	void freeMemoryPages(const std::vector<VmaAllocation>& allocations) {
+	void freeMemoryPages(const Vector<VmaAllocation>& allocations) {
 		vmaFreeMemoryPages(allocator, allocations.size(), allocations.data());
 	}
 	void getAllocationInfo(const vma::Allocation& allocation, VmaAllocationInfo& pAllocationInfo) {
@@ -487,13 +489,13 @@ public:
 	VkResult flushAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
 		return vmaFlushAllocation(allocator, allocation, offset, size);
 	}
-	VkResult flushAllocations(const std::vector<VmaAllocation>& allocations, const std::vector<VkDeviceSize> offsets, const std::vector<VkDeviceSize> sizes) {
+	VkResult flushAllocations(const Vector<VmaAllocation>& allocations, const Vector<VkDeviceSize> offsets, const Vector<VkDeviceSize> sizes) {
 		return vmaFlushAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult invalidateAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
 		return vmaInvalidateAllocation(allocator, allocation.get(), offset, size);
 	}
-	VkResult invalidateAllocations(const std::vector<VmaAllocation>& allocations, const std::vector<VkDeviceSize> offsets, const std::vector<VkDeviceSize> sizes) {
+	VkResult invalidateAllocations(const Vector<VmaAllocation>& allocations, const Vector<VkDeviceSize> offsets, const Vector<VkDeviceSize> sizes) {
 		return vmaInvalidateAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult checkCorruption(uint32 memoryTypeBits) {
@@ -529,7 +531,7 @@ public:
 	VkResult flushMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
 		return vkFlushMappedMemoryRanges(device, 1, &memoryRange);
 	}
-	VkResult flushMappedMemoryRanges(const std::vector<VkMappedMemoryRange>& memoryRanges) {
+	VkResult flushMappedMemoryRanges(const Vector<VkMappedMemoryRange>& memoryRanges) {
 		return vkFlushMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
 	}
 	VkResult getEventStatus(const vk::Event& event) {
@@ -541,7 +543,7 @@ public:
 	void getImageMemoryRequirements(const VkImage& image, VkMemoryRequirements& memoryRequirements) {
 		vkGetImageMemoryRequirements(device, image, &memoryRequirements);
 	}
-	void getImageSparseMemoryRequirements(const vk::Image& image, std::vector<VkSparseImageMemoryRequirements>& sparseMemoryRequirements) {
+	void getImageSparseMemoryRequirements(const vk::Image& image, Vector<VkSparseImageMemoryRequirements>& sparseMemoryRequirements) {
 		uint32 s;
 		vkGetImageSparseMemoryRequirements(device, image, &s, nullptr);
 		sparseMemoryRequirements.resize(s);
@@ -562,7 +564,7 @@ public:
 	VkResult invalidateMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
 		return vkInvalidateMappedMemoryRanges(device, 1, &memoryRange);
 	}
-	VkResult invalidateMappedMemoryRanges(const std::vector<VkMappedMemoryRange>& memoryRanges) {
+	VkResult invalidateMappedMemoryRanges(const Vector<VkMappedMemoryRange>& memoryRanges) {
 		return vkInvalidateMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
 	}
 	VkResult mapMemory(const vma::Allocation& allocation, void** ppData) {
@@ -571,7 +573,7 @@ public:
 	VkResult mergePipelineCache(const vk::PipelineCache& dstCache, const vk::PipelineCache srcCache) {
 		return vkMergePipelineCaches(device, dstCache, 1, &srcCache.get());
 	}
-	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const std::vector<VkPipelineCache>& srcCaches) {
+	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const Vector<VkPipelineCache>& srcCaches) {
 		return vkMergePipelineCaches(device, dstCache, static_cast<uint32>(srcCaches.size()), srcCaches.data());
 	}
 	VkResult resetCommandPool(const vk::CommandPool& commandPool, VkCommandPoolResetFlags flags) {
@@ -595,16 +597,16 @@ public:
 	void unmapMemory(const vma::Allocation& allocation) {
 		vmaUnmapMemory(allocator.get(), allocation);
 	}
-	void updateDescriptorSet(const std::vector<VkWriteDescriptorSet>& descriptorWrites) {
+	void updateDescriptorSet(const Vector<VkWriteDescriptorSet>& descriptorWrites) {
 		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
-	void updateDescriptorSet(const std::vector<VkWriteDescriptorSet>& descriptorWrites, const std::vector<VkCopyDescriptorSet>& descriptorCopies) {
+	void updateDescriptorSet(const Vector<VkWriteDescriptorSet>& descriptorWrites, const Vector<VkCopyDescriptorSet>& descriptorCopies) {
 		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), static_cast<uint32>(descriptorCopies.size()), descriptorCopies.data());
 	}
 	VkResult waitForFence(const vk::Fence& fence, VkBool32 waitAll, uint64 timeout) {
 		return vkWaitForFences(device, 1, &fence.get(), waitAll, timeout);
 	}
-	VkResult waitForFences(const std::vector<VkFence>& fences, VkBool32 waitAll, uint64 timeout) {
+	VkResult waitForFences(const Vector<VkFence>& fences, VkBool32 waitAll, uint64 timeout) {
 		return vkWaitForFences(device, static_cast<uint32>(fences.size()), fences.data(), waitAll, timeout);
 	}
 
@@ -630,7 +632,7 @@ public:
 	UniquePointer<Swapchain> swapchain;
 	UniquePointer<DescriptorPools> descriptorPools;
 
-	std::vector<RenderTarget*> renderTargets;
+	Vector<RenderTarget*> renderTargets;
 	std::unordered_map<std::string, const GraphicsProgram*> graphicsPrograms;
 	std::unordered_map<std::string, GraphicsPipeline*> graphicsPipelines;
 
@@ -645,8 +647,9 @@ public:
 
 	Entity* sceneRoot;
 
-	std::vector<Camera*> cameras;
-	std::unordered_map<Material*, std::vector<const MeshRenderer*>> meshRenderers;
+	Vector<Camera*> cameras;
+	std::unordered_map<GraphicsPipeline*, Vector<const Material*>> materials;
+	std::unordered_map<Material*, Vector<const MeshRenderer*>> meshRenderers;
 
 	const Window* window;
 
@@ -718,7 +721,7 @@ void CommandQueue::reset() {
 void CommandQueue::submit(VkFence fence, bool wait) {
 	if (activeCommandBuffer != nullptr && queue != VK_NULL_HANDLE) {
 		if (pipelineStageFlags.empty()) {
-			pipelineStageFlags.push_back(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+			pipelineStageFlags.pushBack(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
 		}
 
 		VkSubmitInfo submitInfo {
@@ -977,7 +980,7 @@ vk::Sampler Image::createSampler(
 	});
 }
 
-VkFormat Image::bestFormat(const std::vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
+VkFormat Image::bestFormat(const Vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
 	for (const auto& candidate : candidates) {
 		VkFormatProperties props;
 		vkGetPhysicalDeviceFormatProperties(globalRenderSystem->physicalDevice, candidate, &props);
@@ -1049,7 +1052,7 @@ void Swapchain::createSwapchain() {
 	{ // determine the best format
 		uint32 availableFormatCount = 0;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(globalRenderSystem->physicalDevice, surface, &availableFormatCount, nullptr);
-		std::vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
+		Vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(globalRenderSystem->physicalDevice, surface, &availableFormatCount, availableFormats.data());
 		// check the formats
 		for (const auto& availableFormat : availableFormats) {
@@ -1068,7 +1071,7 @@ void Swapchain::createSwapchain() {
 	{ // determine the presentation mode
 		uint32 availablePresentModeCount = 0;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(globalRenderSystem->physicalDevice, surface, &availablePresentModeCount, nullptr);
-		std::vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
+		Vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(globalRenderSystem->physicalDevice, surface, &availablePresentModeCount, availablePresentModes.data());
 		// check the presentation modess
 		for (const auto& availablePresentMode : availablePresentModes) {
@@ -1113,7 +1116,7 @@ void Swapchain::createSwapchain() {
 
 	{ // create swapchain
 		VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-		std::vector<uint32> queueFamilies;
+		Vector<uint32> queueFamilies;
 
 		if (presentFamilyIndex != globalRenderSystem->queueFamilies.graphicsFamilyIndex) {
 			sharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -1145,7 +1148,7 @@ void Swapchain::createSwapchain() {
 	}
 
 	{ // create swapchain images
-		std::vector<VkImage> tempImages;
+		Vector<VkImage> tempImages;
 		
 		uint32 imageCount;
 		VULKAN_ASSERT(vkGetSwapchainImagesKHR(globalRenderSystem->device, swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
@@ -1298,8 +1301,8 @@ void Swapchain::begin() {
 	globalRenderSystem->resetFence(renderFinishedFences[currentFrame]);
 
 	commandQueue->activeCommandBuffer = &(commandBuffer = lyra::vulkan::CommandQueue::CommandBuffer(commandQueue->commandPools[commandQueue->currentFrame]));
-	commandQueue->waitSemaphores.push_back(imageAquiredSemaphores[currentFrame]);
-	commandQueue->signalSemaphores.push_back(submitFinishedSemaphores[currentFrame]);
+	commandQueue->waitSemaphores.pushBack(imageAquiredSemaphores[currentFrame]);
+	commandQueue->signalSemaphores.pushBack(submitFinishedSemaphores[currentFrame]);
 }
 
 bool Swapchain::present() {
@@ -1494,7 +1497,7 @@ void RenderTarget::end() const {
 	globalRenderSystem->commandQueue->activeCommandBuffer->endRenderPass();
 }
 
-Shader::Shader(Type type, std::vector<char>&& source) : shaderSrc(source), type(type) {
+Shader::Shader(Type type, Vector<char>&& source) : shaderSrc(source), type(type) {
 	VkShaderModuleCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 		nullptr,
@@ -1506,7 +1509,7 @@ Shader::Shader(Type type, std::vector<char>&& source) : shaderSrc(source), type(
 	module = vk::ShaderModule(globalRenderSystem->device, createInfo);
 }
 
-Shader::Shader(Type type, const std::vector<char>& source) : shaderSrc(source), type(type) {
+Shader::Shader(Type type, const Vector<char>& source) : shaderSrc(source), type(type) {
 	VkShaderModuleCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 		nullptr,
@@ -1530,7 +1533,7 @@ void DescriptorSets::update(uint32 index) {
 		writes.reserve(imageWrites.size() + bufferWrites.size());
 
 		for (const auto& write : imageWrites) {
-			writes.push_back({
+			writes.pushBack({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 				nullptr,
 				VK_NULL_HANDLE,
@@ -1545,7 +1548,7 @@ void DescriptorSets::update(uint32 index) {
 		}
 
 		for (const auto& write : bufferWrites) {
-			writes.push_back({
+			writes.pushBack({
 				VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
 				nullptr,
 				VK_NULL_HANDLE,
@@ -1577,7 +1580,7 @@ void DescriptorSets::update(uint32 index) {
 
 void DescriptorSets::addDescriptorSets(uint32 count) {
 	for (uint32 i = 0; i < count; i++) {
-		descriptorSets.emplace_back(
+		descriptorSets.emplaceBack(
 			globalRenderSystem->descriptorPools->allocate(*graphicsProgram, layoutIndex, variableCount)
 		);
 	}
@@ -1593,11 +1596,11 @@ void DescriptorSets::bind(uint32 index) {
 	globalRenderSystem->commandQueue->activeCommandBuffer->bindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsProgram->pipelineLayout, layoutIndex, descriptorSets[index]);
 }
 
-DescriptorPools::DescriptorPools(const std::vector<Size>& sizes, Flags flags) {
+DescriptorPools::DescriptorPools(const Vector<Size>& sizes, Flags flags) {
 	constexpr static uint32 descriptorCount = config::descriptorPoolAllocCount * config::maxFramesInFlight;
 
 	for (const auto& size : sizes) {
-		this->sizes.push_back({
+		this->sizes.pushBack({
 			static_cast<VkDescriptorType>(size.type),
 			descriptorCount * size.multiplier
 		});
@@ -1612,7 +1615,7 @@ DescriptorPools::DescriptorPools(const std::vector<Size>& sizes, Flags flags) {
 		this->sizes.data()
 	};
 
-	descriptorPools.emplace_back(globalRenderSystem->device, createInfo);
+	descriptorPools.emplaceBack(globalRenderSystem->device, createInfo);
 }
 
 void DescriptorPools::reset() {
@@ -1648,7 +1651,7 @@ vk::DescriptorSet DescriptorPools::allocate(const GraphicsProgram& program, uint
 				++allocationIndex;
 				
 				if (allocationIndex >= descriptorPools.size()) {
-					allocInfo.descriptorPool = descriptorPools.emplace_back(globalRenderSystem->device, createInfo).get();
+					allocInfo.descriptorPool = descriptorPools.emplaceBack(globalRenderSystem->device, createInfo).get();
 				} else {
 					allocInfo.descriptorPool = descriptorPools[allocationIndex];
 				}
@@ -1688,16 +1691,15 @@ GraphicsProgram::GraphicsProgram() :
 		0,
 		VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT
 	}};
-	static constexpr Array<VkDescriptorSetLayoutBindingFlagsCreateInfo, 2> bindingExt {{
+	static constexpr Array<VkDescriptorSetLayoutBindingFlagsCreateInfo, 1> bindingExt {{
 		{
 			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
 			nullptr,
 			bindingFlags.size(),
 			bindingFlags.data()
-		},
-		{ .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO }
+		}
 	}};
-	static constexpr Array<Dynarray<VkDescriptorSetLayoutBinding, 8>, 2> bindings {{
+	static constexpr Array<Dynarray<VkDescriptorSetLayoutBinding, 8>, 1> bindings {{
 		{{
 			{
 				0,
@@ -1755,30 +1757,21 @@ GraphicsProgram::GraphicsProgram() :
 				VK_SHADER_STAGE_FRAGMENT_BIT,
 				nullptr
 			}
-		}},
-		{{
-			{
-				0,
-				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-				1,
-				VK_SHADER_STAGE_VERTEX_BIT,
-				nullptr
-			}
 		}}
 	}};
-	static constexpr Array<VkPushConstantRange, 1> pushConstants {{
+	static constexpr Array<VkPushConstantRange, bindings.size()> pushConstants {{
 		{
 			VK_SHADER_STAGE_VERTEX_BIT,
 			0,
-			sizeof(Camera::CameraData)
+			sizeof(Camera::TransformData)
 		}
 	}};
 
-	Array<VkDescriptorSetLayout, 2> tmpLayouts;
+	Array<VkDescriptorSetLayout, bindings.size()> tmpLayouts;
 
-	descriptorSetLayouts.resize(2);
+	descriptorSetLayouts.resize(bindings.size());
 
-	for (uint32 i = 0; i < 2; i++) {
+	for (uint32 i = 0; i < bindings.size(); i++) {
 		VkDescriptorSetLayoutCreateInfo createInfo{
 			VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
 			&bindingExt[i],
@@ -1819,7 +1812,7 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 	hash(builder.hash()) {
 	auto setCount = builder.m_bindings.size();
 
-	std::vector<VkDescriptorSetLayout> tmpLayouts(setCount);
+	Vector<VkDescriptorSetLayout> tmpLayouts(setCount);
 
 	descriptorSetLayouts.resize(setCount);
 	dynamicDescriptorCounts.resize(setCount);
@@ -1842,7 +1835,7 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 		VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		nullptr,
 		0,
-        static_cast<uint32>(setCount),
+		static_cast<uint32>(setCount),
 		tmpLayouts.data(),
 		static_cast<uint32>(builder.m_pushConstants.size()),
 		builder.m_pushConstants.data()
@@ -2121,10 +2114,10 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 	};
 
 	// configure dynamic state
-	std::vector<VkDynamicState> dynamicState;
+	Vector<VkDynamicState> dynamicState;
 	// viewport
 	if (std::holds_alternative<bool>(builder.m_viewport)) {
-		dynamicState.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+		dynamicState.pushBack(VK_DYNAMIC_STATE_VIEWPORT);
 		dynamicViewport = VkViewport();
 	} else {
 		viewportState.viewportCount = 1;
@@ -2132,7 +2125,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 	} 
 	// scissor
 	if (std::holds_alternative<bool>(builder.m_scissor)) {
-		dynamicState.push_back(VK_DYNAMIC_STATE_SCISSOR);
+		dynamicState.pushBack(VK_DYNAMIC_STATE_SCISSOR);
 		dynamicScissor = VkRect2D();
 	} else {
 		viewportState.scissorCount = 1;
@@ -2176,7 +2169,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 
 void GraphicsPipeline::bind() const {
 	globalRenderSystem->commandQueue->activeCommandBuffer->bindPipeline(bindPoint, pipeline);
-	globalRenderSystem->commandQueue->pipelineStageFlags.push_back(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+	globalRenderSystem->commandQueue->pipelineStageFlags.pushBack(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
 	if (std::holds_alternative<VkViewport>(dynamicViewport)) {
 		globalRenderSystem->commandQueue->activeCommandBuffer->setViewport(std::get<VkViewport>(dynamicViewport));
@@ -2188,7 +2181,7 @@ void GraphicsPipeline::bind() const {
 }
 
 ImGuiRenderer::ImGuiRenderer(const Window& window) : lyra::ImGuiRenderer(window) {
-	std::vector<vulkan::DescriptorPools::Size> poolSizes ({
+	Vector<vulkan::DescriptorPools::Size> poolSizes ({
 		{ vulkan::DescriptorSets::Type::sampler, 512 },
 		{ vulkan::DescriptorSets::Type::imageSampler, 512 },
 		{ vulkan::DescriptorSets::Type::sampledImage, 512 },
@@ -2220,7 +2213,8 @@ ImGuiRenderer::ImGuiRenderer(const Window& window) : lyra::ImGuiRenderer(window)
 		false,
 		VK_FORMAT_UNDEFINED,
 		nullptr,
-		nullptr
+		nullptr,
+		1024 * 1024 // @todo what is this???
 	};
 	ImGui_ImplVulkan_Init(&initInfo, m_renderTarget.renderPass);
 }
@@ -2276,6 +2270,7 @@ void endFrame() {
 void draw() {
 	auto& renderTargets = vulkan::globalRenderSystem->renderTargets;
 	auto& cameras = vulkan::globalRenderSystem->cameras;
+	auto& materials = vulkan::globalRenderSystem->materials;
 	auto& meshRenderers = vulkan::globalRenderSystem->meshRenderers;
 
 	auto cmd = vulkan::globalRenderSystem->commandQueue->activeCommandBuffer;
@@ -2284,11 +2279,11 @@ void draw() {
 		renderTargets[i]->begin();
 
 		for (uint32 j = 0; j < cameras.size(); j++) {
-			for (auto& [material, meshes] : meshRenderers) {
-				auto p = material->m_graphicsPipeline;
-				
-				if (std::holds_alternative<VkViewport>(p->dynamicViewport)) {
-					p->dynamicViewport = VkViewport {
+			auto camera = cameras[j];
+			
+			for (auto& [graphicsPipeline, materials] : materials) {
+				if (std::holds_alternative<VkViewport>(graphicsPipeline->dynamicViewport)) {
+					graphicsPipeline->dynamicViewport = VkViewport {
 						0.0f,
 						0.0f,
 						static_cast<float32>(drawWidth()),
@@ -2297,29 +2292,43 @@ void draw() {
 						1.0f
 					};
 				}
-
-				if (std::holds_alternative<VkRect2D>(p->dynamicScissor)) {
-					p->dynamicScissor = VkRect2D {
-						{ 
-							static_cast<int32>(cameras[j]->viewportPosition.x * drawWidth()), 
-							static_cast<int32>(cameras[j]->viewportPosition.y * drawHeight()) 
+				
+				if (std::holds_alternative<VkRect2D>(graphicsPipeline->dynamicScissor)) {
+					graphicsPipeline->dynamicScissor = VkRect2D {
+						{
+							static_cast<int32>(camera->viewportPosition.x * drawWidth()),
+							static_cast<int32>(camera->viewportPosition.y * drawHeight())
 						},
-						{  
-							static_cast<uint32>(cameras[j]->viewportSize.x * drawWidth()), 
-							static_cast<uint32>(cameras[j]->viewportSize.y * drawHeight()) 
+						{
+							static_cast<uint32>(camera->viewportSize.x * drawWidth()),
+							static_cast<uint32>(camera->viewportSize.y * drawHeight())
 						},
 					};
 				}
-
-				p->bind();
-
-				cmd->pushConstants(material->m_graphicsPipeline->program->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Camera::CameraData), &cameras[j]->data());
-				material->m_descriptorSets.bind(currentFrameIndex());
-
-				for (uint32 i = 0; i < meshes.size(); i++) {
-					cmd->bindVertexBuffer(meshes[i]->m_vertexBuffer.buffer, 0, 0);
-					cmd->bindIndexBuffer(meshes[i]->m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-					cmd->drawIndexed(static_cast<uint32>(meshes[i]->m_mesh->indices().size()), 1, 0, 0, 0);
+				
+				graphicsPipeline->bind();
+				
+				for (auto& [material, meshes] : meshRenderers) {
+					
+					material->m_descriptorSets.bind(currentFrameIndex());
+					
+					for (uint32 i = 0; i < meshes.size(); i++) {
+						auto mesh = meshes[i];
+						
+						auto data = camera->data(mesh->entity->component<Transform>().globalTransform());
+						
+						cmd->pushConstants(
+						   material->m_graphicsPipeline->program->pipelineLayout,
+						   VK_SHADER_STAGE_VERTEX_BIT,
+						   0,
+						   sizeof(Camera::TransformData),
+						   &data
+						);
+						
+						cmd->bindVertexBuffer(mesh->m_vertexBuffer.buffer, 0, 0);
+						cmd->bindIndexBuffer(mesh->m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+						cmd->drawIndexed(static_cast<uint32>(mesh->m_mesh->indices().size()), 1, 0, 0, 0);
+					}
 				}
 			}
 		}
@@ -2351,16 +2360,17 @@ float32 deltaTime() {
 void setScene(Entity& sceneRoot) {
 	vulkan::globalRenderSystem->sceneRoot = &sceneRoot;
 
-	auto loopEntity = [&](const Entity& entity, auto&& func) -> void {
-		for (const auto& e : entity) {
-			if (e.second->containsComponent<Camera>()) {
-				vulkan::globalRenderSystem->cameras.push_back(e.second->component<Camera>());
-			} if (e.second->containsComponent<MeshRenderer>()) {
-				auto m = e.second->component<MeshRenderer>();
-				vulkan::globalRenderSystem->meshRenderers[m->m_material].push_back(m);
+	auto loopEntity = [](const Entity& entity, auto&& func) -> void {
+		for (const auto& [k, e] : entity) {
+			if (e->containsComponent<Camera>()) {
+				vulkan::globalRenderSystem->cameras.pushBack(&e->component<Camera>());
+			} if (e->containsComponent<MeshRenderer>()) {
+				auto& m = e->component<MeshRenderer>();
+				vulkan::globalRenderSystem->materials[m.m_material->m_graphicsPipeline].pushBack(m.m_material);
+				vulkan::globalRenderSystem->meshRenderers[m.m_material].pushBack(&m);
 			}
 
-			func(*e.second, func);
+			func(*e, func);
 		}
 	};
 

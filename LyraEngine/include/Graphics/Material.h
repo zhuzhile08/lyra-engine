@@ -34,7 +34,7 @@ public:
 
 	Material(
 		const Color& albedoColor = Color(),
-		const std::vector<const Texture*>& albedoTextures = { },
+		const Vector<const Texture*>& albedoTextures = { },
 		float32 metallic = 0.0f,
 		float32 roughness = 0.0f,
 		const Texture* metallicTexture = nullptr,
@@ -52,14 +52,13 @@ public:
 
 private:
 	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_fragShaderBuffers;
-	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_vertShaderBuffers;
 
 	vulkan::GraphicsPipeline* m_graphicsPipeline = nullptr;
 
 	vulkan::DescriptorSets m_descriptorSets;
 
 	Color m_albedoColor;
-	std::vector<const Texture*> m_albedoTextures;
+	Vector<const Texture*> m_albedoTextures;
 
 	float32 m_metallic;
 	float32 m_roughness;
@@ -79,6 +78,7 @@ private:
 	const Texture* m_occlusionMapTexture;
 
 	friend void renderer::draw();
+	friend void renderer::setScene(Entity&);
 };
 
 } // namespace lyra

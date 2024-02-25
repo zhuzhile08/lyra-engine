@@ -64,7 +64,7 @@ public:
 	// construct a window with custom settings
 	Window(std::string_view title, Flags flags, const glm::ivec2& size);
 
-	std::vector<const char*> instanceExtensions() const;
+	Vector<const char*> instanceExtensions() const;
 	glm::uvec2 getDrawableSize() const;
 	uint32 getWindowFlags() const;
 

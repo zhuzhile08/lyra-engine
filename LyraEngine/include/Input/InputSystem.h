@@ -13,15 +13,10 @@
 
 #include <Common/Common.h>
 
-#include <Graphics/SDLWindow.h>
-
 #include <Input/InputEnums.h>
 
 #include <glm/glm.hpp>
-#include <SDL3/SDL.h>
 #include <imgui.h>
-
-#include <unordered_map>
 
 namespace lyra {
 
@@ -34,94 +29,73 @@ public:
 	bool pressed;
 	bool released;
 	bool held;
+	
+	void reset() {
+		pressed = false;
+		released = false;
+		held = false;
+	}
 
 	friend class InputSystem;
 };
 
 class Key : public Button {
 public:
+	Key() = default;
+	Key(KeyType t) : type(t) { }
+	
 	KeyType type;
 };
 
 class MouseButton : public Button {
 public:
+	MouseButton() = default;
+	MouseButton(MouseButtonType t) : type(t) { }
+	
 	MouseButtonType type;
 };
 
 class ControllerButton : public Button {
 public:
+	ControllerButton() = default;
+	ControllerButton(ControllerButtonType t) : type(t) { }
+	
 	ControllerButtonType type;
 };
 
 
-void addKeyboardInput(KeyType type);
-void addMouseButtonInput(MouseButtonType type);
-void addControllerButtonInput(ControllerButtonType type);
-const Key& keyboardInput(KeyType type) noexcept;
-const MouseButton& mouseInput(MouseButtonType type) noexcept;
-const ControllerButton& controllerInput(ControllerButtonType type) noexcept;
+const Key& keyboard(KeyType type) noexcept;
+const MouseButton& mouse(MouseButtonType type) noexcept;
+const ControllerButton& controller(ControllerButtonType type) noexcept;
 const glm::vec2& mousePos() noexcept;
+const glm::vec2& mouseDelta() noexcept;
 const glm::vec2& analogueStickPos() noexcept;
 void update();
 void enableImGui(const ImGuiContext* context) noexcept;
 void disableImGui() noexcept;
 
-}
-
-class InputSystem {
-public:
-	InputSystem() noexcept = default;
-	InputSystem(Window& window, const ImGuiContext* context) noexcept : m_window(&window), m_imGUI(context) { }
-
-	void addKeyboardInput(input::KeyType type) {
-		m_keys.insert({type, input::Key()});
-	}
-	void addMouseButtonInput(input::MouseButtonType type) {
-		m_mouseButtons.insert({type, input::MouseButton()});
-	}
-	void addControllerButtonInput(input::ControllerButtonType type) {
-		m_controllerButtons.insert({type, input::ControllerButton()});
-	}
-
-	const input::Key& keyboardInput(input::KeyType type) const noexcept {
-		return m_keys.at(type);
-	}
-	const input::MouseButton& mouseInput(input::MouseButtonType type) const noexcept {
-		return m_mouseButtons.at(type);
-	}
-	const input::ControllerButton& controllerInput(input::ControllerButtonType type) const noexcept {
-		return m_controllerButtons.at(type);
-	}
-
-	const glm::vec2& mousePos() const noexcept {
-		return m_mousePos;
-	}
-	const glm::vec2& analogueStickPos() const noexcept {
-		return m_stickPos;
-	}
-
-	constexpr void enableImGui(const ImGuiContext* context) noexcept {
-		m_imGUI = context;
-	}
-	constexpr void disableImGui() noexcept {
-		m_imGUI = nullptr;
-	}
-
-	void update();
-
-private:
-	std::unordered_map<input::KeyType, input::Key> m_keys;
-	std::unordered_map<input::MouseButtonType, input::MouseButton> m_mouseButtons;
-	std::unordered_map<input::ControllerButtonType, input::ControllerButton> m_controllerButtons;
-
-	uint32 m_mouseState;
-	const uint8* m_keyboardState;
-
-	glm::vec2 m_mousePos;
-	glm::vec2 m_stickPos;
-
-	Window* m_window;
-	const ImGuiContext* m_imGUI = nullptr;
-};
+} // namespace input
 
 } // namespace lyra
+
+namespace std {
+
+template <> struct hash<lyra::input::Key> {
+	size_t operator()(const lyra::input::Key& k) const {
+		return static_cast<size_t>(k.type);
+	}
+};
+
+template <> struct hash<lyra::input::MouseButton> {
+	size_t operator()(const lyra::input::MouseButton& b) const {
+		return static_cast<size_t>(b.type);
+	}
+};
+
+template <> struct hash<lyra::input::ControllerButton> {
+	size_t operator()(const lyra::input::ControllerButton& b) const {
+		return static_cast<size_t>(b.type);
+	}
+};
+
+} // namespace std

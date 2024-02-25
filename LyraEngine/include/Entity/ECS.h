@@ -31,12 +31,12 @@ void* component(objectid type, objectid e);
 const void* c_component(objectid type, objectid e);
 bool containsComponent(objectid type, objectid e);
 
-std::vector<Entity*> findEntities(std::initializer_list<objectid>&& types);
-void executeSystem(std::initializer_list<objectid>&& types, const Function<void(Entity*)>& system);
+Vector<Entity*> findEntities(std::initializer_list<objectid>&& types);
+void executeSystem(std::initializer_list<objectid>&& types, void (*system)(void*, Entity*), void* c);
 
 objectid uniqueID();
 
-template <class> objectid typeID() {
+template <class> inline objectid typeID() {
     static objectid id = uniqueID();
     return id;
 }

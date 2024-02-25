@@ -346,7 +346,7 @@ public:
 	FileStream& put(literal_type c) {
 		m_file.seekg(m_fpos, SeekDirection::begin);
 		m_file.put(static_cast<typename file_type::literal_type>(c));
-		if (++m_fpos >= m_data.size()) m_data.push_back(c);
+		if (++m_fpos >= m_data.size()) m_data.pushBack(c);
 		else m_data[m_fpos] = c;
 		return *this;
 	}
@@ -495,10 +495,10 @@ private:
 
 using StringStream = FileStream<std::basic_string, char>;
 using WideStringStream = FileStream<std::basic_string, wchar_t>;
-using CharVectorStream = FileStream<std::vector, char>;
-using WideCharVectorStream = FileStream<std::vector, wchar_t>;
-using Uint8VectorStream = FileStream<std::vector, uint8>;
-using Uint16VectorStream = FileStream<std::vector, uint16>;
+using CharVectorStream = FileStream<Vector, char>;
+using WideCharVectorStream = FileStream<Vector, wchar_t>;
+using Uint8VectorStream = FileStream<Vector, uint8>;
+using Uint16VectorStream = FileStream<Vector, uint16>;
 
 NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path);
 NODISCARD std::filesystem::path localPath(const std::filesystem::path& path);

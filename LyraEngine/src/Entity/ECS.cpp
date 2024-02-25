@@ -2,6 +2,7 @@
 
 #include <Common/Logger.h>
 #include <Common/UniquePointer.h>
+#include <Common/Vector.h>
 
 #include <Entity/Component.h>
 #include <Entity/Entity.h>
@@ -24,7 +25,7 @@ private:
 				return s;
 			} else {
 				auto id = m_unused.back();
-				m_unused.pop_back();
+				m_unused.popBack();
 				return id;
 			}
 		}
@@ -37,13 +38,13 @@ private:
 		}
 
 		void returnEntity(objectid id) {
-			m_unused.push_back(id);
+			m_unused.pushBack(id);
 			m_entities[id] = nullptr;
 		}
 
 	private:
-		std::vector<Entity*> m_entities;
-		std::vector<objectid> m_unused;
+		Vector<Entity*> m_entities;
+		Vector<objectid> m_unused;
 	};
 
 	class ComponentManager {
@@ -60,13 +61,13 @@ private:
 			} else {
 				auto i = m_unused.back();
 				memory = &m_data[i * m_size];
-				m_unused.pop_back();
+				m_unused.popBack();
 				return i + 1;
 			}
 		}
 
 		void returnComponent(objectid id) {
-			m_unused.push_back(id);
+			m_unused.pushBack(id);
 		}
 
 		void* componentMemory(objectid id) {
@@ -77,8 +78,8 @@ private:
 		}
 
 	private:
-		std::vector<char> m_data;
-		std::vector<objectid> m_unused;
+		Vector<char> m_data;
+		Vector<objectid> m_unused;
 
 		size_t m_size;
 	};
@@ -88,7 +89,7 @@ public:
 	void* addComponent(objectid type, size_t size, objectid e) {
 		if ((componentManagers.size() + 1) > type) {
 			componentManagers.resize(type);
-			componentManagers.emplace_back(size);
+			componentManagers.emplaceBack(size);
 		}
 
 		auto& alloc = componentManagers[type];
@@ -135,38 +136,47 @@ public:
 
 
 	// find function
-	std::vector<Entity*> findEntities(std::initializer_list<objectid>&& types) {
-		std::vector<Entity*> r;
+	Vector<Entity*> findEntities(std::initializer_list<objectid>&& types) {
+		Vector<Entity*> r;
 
 		for (objectid i = 0; i < lookup.size(); i++) {
-			if (std::all_of(
-				types.begin(), 
-				types.end(), 
-				[this, i](objectid key) {
-					return (lookup[i].size() > key) && (lookup[i][key] != 0);
+			bool found = true;
+			auto& l = lookup[i];
+
+			for (objectid j = 0; j < types.size(); j++) {
+				if (!((l.size() > j) && (l[j] != 0))) {
+					found = false;
+					break;
 				}
-			)) r.push_back(entityManager.entity(i));
+			}
+
+			if (found) r.pushBack(entityManager.entity(i));
 		}
 
 		return r;
 	}
+
 	// systems function
-	void executeSystem(std::initializer_list<objectid>&& types, const Function<void(Entity*)>& system) {
+	void executeSystem(std::initializer_list<objectid>&& types, void (*system)(void*, Entity*), void* c) {
 		for (objectid i = 0; i < lookup.size(); i++) {
-			if (std::all_of(
-				types.begin(), 
-				types.end(), 
-				[this, i](objectid key) {
-					return (lookup[i].size() > key) && (lookup[i][key] != 0);
+			bool found = true;
+			auto& l = lookup[i];
+
+			for (objectid j = 0; j < types.size(); j++) {
+				if (!((l.size() > j) && (l[j] != 0))) {
+					found = false;
+					break;
 				}
-			)) system(entityManager.entity(i));
+			}
+
+			if (found) system(c, entityManager.entity(i));
 		}
 	}
 
 	EntityManager entityManager;
-	std::vector<ComponentManager> componentManagers;
+	Vector<ComponentManager> componentManagers;
 	
-	std::vector<std::vector<objectid>> lookup;
+	Vector<Vector<objectid>> lookup; // horizontal: component mappings, vertical: entity mappings
 
 	objectid uniqueID;
 };
@@ -224,11 +234,11 @@ bool containsComponent(objectid type, objectid e) {
 	return globalECS->containsComponent(type, e);
 }
 
-std::vector<Entity*> findEntities(std::initializer_list<objectid>&& types) {
+Vector<Entity*> findEntities(std::initializer_list<objectid>&& types) {
 	return globalECS->findEntities(std::move(types));
 }
-void executeSystem(std::initializer_list<objectid>&& types, const Function<void(Entity*)>& system) {
-	globalECS->executeSystem(std::move(types), system);
+void executeSystem(std::initializer_list<objectid>&& types, void (*system)(void*, Entity*), void* c) {
+	globalECS->executeSystem(std::move(types), system, c);
 }
 
 objectid uniqueID() {

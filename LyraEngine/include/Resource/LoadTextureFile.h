@@ -14,7 +14,7 @@
 #include <Common/Common.h>
 #include <Common/UniquePointer.h>
 
-#include <vector>
+#include <Common/Vector.h>
 #include <filesystem>
 
 namespace lyra {
@@ -30,11 +30,12 @@ struct TextureFile {
 	uint32 dimension;
 	uint32 wrap;
 
-	std::vector<char> data;
+	Vector<char> data;
 };
 
 NODISCARD TextureFile loadTextureFile(
-	std::filesystem::path path, 
+	std::filesystem::path path,
+	uint32 uncompressed,
 	uint32 width,
 	uint32 height,
 	uint32 type,

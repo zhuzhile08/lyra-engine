@@ -15,7 +15,7 @@
 #include <Common/Common.h>
 
 #include <cmath>
-#include <vector>
+#include <Common/Vector.h>
 #include <glm/glm.hpp>
 
 namespace lyra {
@@ -67,12 +67,12 @@ template <class Ty> constexpr Ty point_on_line(Ty first, Ty second, float32 valu
  * 
  * @return Ty 
 */
-template <class Ty> NODISCARD constexpr Ty bezier(std::vector<Ty> points, float32 value);
+template <class Ty> NODISCARD constexpr Ty bezier(Vector<Ty> points, float32 value);
 
-template <class Ty> constexpr Ty bezier(std::vector<Ty> points, float32 value) {
-	std::vector<Ty> remaining_points;
+template <class Ty> constexpr Ty bezier(Vector<Ty> points, float32 value) {
+	Vector<Ty> remaining_points;
 
-	for (uint32 i = 0; i <= points.size(); i++) remaining_points.push_back(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
+	for (uint32 i = 0; i <= points.size(); i++) remaining_points.pushBack(point_on_line<Ty>(points.at(i), points.at(i + 1), value));
 	
 	if (remaining_points.size() == 2) return point_on_line<Ty>(points.at(0), points.at(1), value);
 
