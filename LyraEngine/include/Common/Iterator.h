@@ -1,5 +1,5 @@
 /*************************
- * @file IteratorBase.h
+ * @file Iterator.h
  * @author zhuzhile08 (zhuzhile08@gmail.com)
  * 
  * @brief a iterator base class
@@ -16,7 +16,7 @@
 
 namespace lyra {
 
-template <class Ty> class IteratorBase {
+template <class Ty> class Iterator {
 public:
 	// using difference = DTy;
 	using value_type = Ty;
@@ -26,13 +26,13 @@ public:
 	using pointer_const = Ty* const;
 	using reference = Ty&;
 	using const_reference = Ty&;
-	using wrapper = IteratorBase;
+	using wrapper = Iterator;
 	using wrapper_reference = wrapper&;
 	using const_wrapper_reference = const wrapper&;
 
-	constexpr IteratorBase() noexcept = default;
-	constexpr IteratorBase(pointer pointer) noexcept : m_pointer(pointer) { }
-	constexpr IteratorBase(reference reference) noexcept : m_pointer(&reference) { }
+	constexpr Iterator() noexcept = default;
+	constexpr Iterator(pointer pointer) noexcept : m_pointer(pointer) { }
+	constexpr Iterator(reference reference) noexcept : m_pointer(&reference) { }
 
 	constexpr reference operator*() { return *m_pointer; }
 	constexpr const_reference operator*() const { return *m_pointer; }
@@ -79,7 +79,7 @@ public:
 		return first.m_pointer - second.m_pointer;
 	}
 
-	constexpr operator IteratorBase<const_value>() const noexcept {
+	constexpr operator Iterator<const_value>() const noexcept {
 		return m_pointer;
 	}
 

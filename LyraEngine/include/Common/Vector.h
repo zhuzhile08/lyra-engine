@@ -11,7 +11,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/IteratorBase.h>
+#include <Common/Iterator.h>
 
 #include <initializer_list>
 
@@ -26,8 +26,8 @@ public:
 	using const_array_type = const Ty*;
 
 	using size_type = size_t;
-	using iterator = IteratorBase<Ty>;
-	using const_iterator = IteratorBase<const Ty>; 
+	using iterator = Iterator<Ty>;
+	using const_iterator = Iterator<const Ty>; 
 	using wrapper = Vector;
 
 	constexpr Vector() noexcept : m_array(new value_type[1]), m_size(0), m_capacity(1) { }

@@ -11,7 +11,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/IteratorBase.h>
+#include <Common/Iterator.h>
 
 #include <utility>
 #include <algorithm>
@@ -20,8 +20,8 @@ namespace lyra {
 
 template <class Ty, size_t Size> struct Array {
 	using value_type = Ty;
-	using iterator = IteratorBase<Ty>;
-	using const_iterator = IteratorBase<const Ty>; 
+	using iterator = Iterator<Ty>;
+	using const_iterator = Iterator<const Ty>; 
 	using reference = value_type&;
 	using const_reference = const value_type&;
 	using array = value_type[Size];

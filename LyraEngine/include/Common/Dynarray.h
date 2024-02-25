@@ -13,7 +13,7 @@
 
 #include <Common/Common.h>
 #include <Common/Array.h>
-#include <Common/IteratorBase.h>
+#include <Common/Iterator.h>
 
 #include <type_traits>
 #include <span>
