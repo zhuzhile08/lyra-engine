@@ -102,7 +102,8 @@ public:
 		return static_cast<bool>(callable);
 	}
 	constexpr result operator()(Args&&... arguments) const {
-		return (*callable)(std::forward<Args>(arguments)...);
+		if (callable) return (*callable)(std::forward<Args>(arguments)...);
+		return result();
 	}
 
 private:
