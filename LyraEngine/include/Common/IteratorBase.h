@@ -59,26 +59,36 @@ public:
 		--(*this); 
 		return tmp; 
 	}
-	constexpr wrapper operator+(size_t i) const {
-		wrapper tmp = *this; 
-		tmp.m_pointer += i;
-		return tmp;
+
+	friend constexpr wrapper operator+(const wrapper& it, size_t i) noexcept {
+		return wrapper(it.m_pointer + i);
 	}
-	constexpr wrapper operator-(size_t i) const {
-		// gotta love pointer manipulation
-		return *this + (-i); 
+	friend constexpr wrapper operator-(const wrapper& it, size_t i) noexcept {
+		return it + (-i); 
+	}
+	friend constexpr wrapper operator+(size_t i, const wrapper& it) noexcept {
+		return wrapper(it.m_pointer + i);
+	}
+	friend constexpr wrapper operator-(size_t i, const wrapper& it) noexcept {
+		return it + (-i); 
+	}
+	friend constexpr size_t operator+(const wrapper& first, const wrapper& second) noexcept {
+		return wrapper(first.m_pointer + second.m_pointer);
+	}
+	friend constexpr size_t operator-(const wrapper& first, const wrapper& second) noexcept {
+		return first.m_pointer - second.m_pointer;
 	}
 
-	constexpr operator IteratorBase<const_value>() const {
+	constexpr operator IteratorBase<const_value>() const noexcept {
 		return m_pointer;
 	}
 
-	friend bool operator==(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer == second.m_pointer; }
-	friend bool operator!=(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer != second.m_pointer; }
-	friend bool operator>(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer > second.m_pointer; }
-	friend bool operator<(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer < second.m_pointer; }
-	friend bool operator>=(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer >= second.m_pointer; }
-	friend bool operator<=(const_wrapper_reference first, const_wrapper_reference second) { return first.m_pointer <= second.m_pointer; }
+	friend constexpr bool operator==(const_wrapper_reference first, const_wrapper_reference second) noexcept { return first.m_pointer == second.m_pointer; }
+	friend constexpr bool operator!=(const_wrapper_reference first, const_wrapper_reference second) noexcept { return first.m_pointer != second.m_pointer; }
+	friend constexpr bool operator>(const_wrapper_reference first, const_wrapper_reference second) noexcept { return first.m_pointer > second.m_pointer; }
+	friend constexpr bool operator<(const_wrapper_reference first, const_wrapper_reference second) noexcept { return first.m_pointer < second.m_pointer; }
+	friend constexpr bool operator>=(const_wrapper_reference first, const_wrapper_reference second) noexcept { return first.m_pointer >= second.m_pointer; }
+	friend constexpr bool operator<=(const_wrapper_reference first, const_wrapper_reference second) noexcept { return first.m_pointer <= second.m_pointer; }
 
 	pointer m_pointer;
 };
