@@ -46,7 +46,7 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	template <class Iterator> constexpr Dynarray(Iterator first, Iterator last) { 
 		for (; first != last; ++first) {
 			if (m_size == Capacity) break;
-			push_back(*first);
+			pushBack(*first);
 		}
 	}
 	template <size_t OtherSize> constexpr Dynarray(const Dynarray<value_type, OtherSize>& other) { 
@@ -192,30 +192,45 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 		return bc - 1;
 	}
 
-	constexpr void push_back(const_reference value) {
+	constexpr void pushBack(const_reference value) noexcept {
 		m_array[m_size] = std::move(value);
 		m_size++;
 	}
-	constexpr void push_back(value_type&& value) {
+	constexpr void pushBack(value_type&& value) noexcept {
 		m_array[m_size] = std::move(value);
 		m_size++;
 	}
-	constexpr void pop_back() {
+	DEPRECATED constexpr void push_back(const_reference value) noexcept {
+		m_array[m_size] = std::move(value);
+		m_size++;
+	}
+	DEPRECATED constexpr void push_back(value_type&& value) noexcept {
+		m_array[m_size] = std::move(value);
+		m_size++;
+	}
+	constexpr void popBack() noexcept {
 		back() = std::move(value_type());
 		m_size--;
 	}
-	constexpr void resize(size_t size) {
-		if (m_size <= size) m_size = size;
-		else for ( ; m_size > size; m_size--) pop_back();
+	DEPRECATED constexpr void pop_back() noexcept {
+		back() = std::move(value_type());
+		m_size--;
 	}
-	constexpr void swap(const wrapper array) {
+	constexpr void resize(size_t size) noexcept {
+		if (m_size <= size) m_size = size;
+		else for ( ; m_size > size; m_size--) popBack();
+	}
+	constexpr void swap(const wrapper array) noexcept {
 		std::swap(m_array, array.m_array);
 	}
 
 	NODISCARD constexpr size_t size() const noexcept {
 		return m_size;
 	}
-	NODISCARD constexpr size_t max_size() const noexcept {
+	NODISCARD constexpr size_t maxSize() const noexcept { 
+		return Capacity;
+	}
+	DEPRECATED NODISCARD constexpr size_t max_size() const noexcept {
 		return Capacity;
 	}
 	NODISCARD constexpr bool empty() const noexcept {
