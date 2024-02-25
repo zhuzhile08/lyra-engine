@@ -143,6 +143,10 @@ public:
 	IS_FMT_CONSTEXPR void newLine() {
 		fmt::print(m_outStream, "\n");
 	}
+	IS_FMT_CONSTEXPR void newLine(uint32 count) {
+		for (uint32 i = 0; i < count; i++)
+			fmt::print(m_outStream, "\n");
+	}
 	
 	NODISCARD constexpr const std::FILE* outStream() const noexcept {
 		return m_outStream;
@@ -259,6 +263,9 @@ template <class Msg> inline void exception(Msg&& message) {
 
 inline void newLine() {
 	defaultLogger()->newLine();
+}
+inline void newLine(uint32 count) {
+	defaultLogger()->newLine(count);
 }
 
 } // namespace log
