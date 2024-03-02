@@ -5,6 +5,7 @@
  * @brief Vector implementation
  * 
  * @date 2024-02-24
+ * 
  * @copyright Copyright (c) 2022
  *************************/
 
@@ -62,15 +63,18 @@ public:
 	constexpr wrapper& operator=(const wrapper& other) {
 		delete[] basicResize(other.size());
 		if (m_size > 0) std::move(other.begin(), other.end(), begin());
+		return *this;
 	}
 	constexpr wrapper& operator=(wrapper&& other) noexcept {
 		m_array = std::exchange(other.m_array, m_array);
-		m_size = std::exchange(other.m_size, m_size);
-		m_capacity = std::exchange(other.m_capacity, m_capacity);
+		m_size = other.m_size;
+		m_capacity = other.m_capacity;
+		return *this;
 	}
 	constexpr wrapper& operator=(std::initializer_list<value_type> ilist) {
 		delete[] basicResize(ilist.size());
 		if (m_size > 0) std::move(ilist.begin(), ilist.end(), begin());
+		return *this;
 	}
 
 	constexpr void assign(size_type count, const value_type& value) {
@@ -145,9 +149,10 @@ public:
 	}
 
 	constexpr void resize(size_type size) noexcept {
+		auto s = m_size;
 		auto a = basicResize(size);
 		if (a) {
-			std::move(&a[0], &a[m_size], begin());
+			std::move(&a[0], &a[s], begin());
 			delete[] a;
 		}
 	}
@@ -186,40 +191,41 @@ public:
 		return &(m_array[index] = std::move(value));
 	}
 	constexpr iterator insert(const_iterator pos, size_type count, const value_type& value) {
+		auto index = pos - begin();
+		
 		if (count > 0) {
-			auto index = pos - begin();
-
 			resizeWithGap(index, count);
 
 			for (size_type i = index; i < count;) {
 				m_array[i++] = value;
 			}
-
-			return &(m_array[index]);
 		}
+		
+		return &(m_array[index]);
 	}
 	template <class It> constexpr iterator insert(const_iterator pos, It first, It last) {
+		auto index = pos - begin();
+		
 		if (first != last) {
-			auto index = pos - begin();
 			auto size = first - last;
 
 			resizeWithGap(index, size);
 
 			std::move(first, last, &m_array[index]);
-
-			return &(m_array[index]);
 		}
+		
+		return &(m_array[index]);
 	}
 	constexpr iterator insert(const_iterator pos, std::initializer_list<value_type> ilist) {
+		auto index = pos - begin();
+		
 		if (ilist.size() > 0) {
-			auto index = pos - begin();
-
 			resizeWithGap(index, ilist.size());
 
 			std::move(ilist.begin(), ilist.end(), &m_array[index]);
-
-			return &(m_array[index]);
 		}
+		
+		return &(m_array[index]);
 	}
 
 	template <class... Args> constexpr iterator emplace(const_iterator pos, Args&&... args) {
@@ -232,10 +238,8 @@ public:
 		return r;
 	}
 	template <class... Args> constexpr reference emplaceBack(Args&&... args) {
-		auto a = basicResize(m_size + 1);
-		if (a) std::move(&a[0], &a[m_size - 1], begin());
+		resize(m_size + 1);
 
-		delete[] a;
 		return *(new (&m_array[m_size - 1]) value_type(std::forward<Args>(args)...));
 	}
 	template <class... Args> DEPRECATED constexpr reference emplace_back(Args&&... args) {
@@ -261,7 +265,7 @@ public:
 		auto it = begin() + (pos - begin());
 
 		std::move(it + 1, end(), it);
-		--m_size;
+		popBack();
 		
 		return it;
 	}
@@ -269,14 +273,16 @@ public:
 		auto rangeBegin = begin() + (first - begin());
 
 		if (first != last) std::move(rangeBegin + (last - first), end(), rangeBegin);
-		m_size -= (last - first);
+		destroyElementsAtEnd(m_size, m_size - (last - first));
 
 		return rangeBegin;
 	}
 
 	constexpr void popBack() noexcept {
-		m_array[m_size] = std::move(value_type());
-		if (m_size > 0) --m_size;
+		if (m_size > 0) {
+			m_array[m_size - 1] = std::move(value_type());
+			--m_size;
+		}
 	}
 	DEPRECATED constexpr void pop_back() noexcept {
 		popBack();
@@ -333,14 +339,20 @@ private:
 	constexpr array_type basicResize(size_type size) {
 		auto s = std::exchange(m_size, size);
 
-		if (s <= m_size) {
+		if (s < m_size) {
 			if (size > m_capacity) {
 				if ((m_capacity *= 2) < m_size) m_capacity = m_size;
-				return std::exchange(m_array, new value_type[(m_capacity = (m_capacity < m_size) ? m_size : m_capacity)]);
+				return std::exchange(m_array, new value_type[m_capacity]);
 			} 
-		} else destroyElementsAtEnd(s, m_size);
+		} else if (s > m_size) destroyElementsAtEnd(s, m_size);
 
 		return nullptr;
+	}
+	constexpr void resizeAndClear(size_type size) { // exclusively for hashmap utility
+		m_size = size;
+		m_capacity = m_size;
+		delete[] m_array;
+		m_array = new value_type[m_capacity];
 	}
 	constexpr void resizeWithGap(size_type index, size_type count) {
 		auto a = basicResize(m_size + count);
@@ -357,6 +369,8 @@ private:
 			m_array[newSize++] = std::move(value_type());
 		}
 	}
+
+	template <class, class, class, class> friend class SparseMap;
 };
 
 } // namespace lyra

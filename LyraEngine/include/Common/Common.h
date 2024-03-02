@@ -179,6 +179,7 @@ template <class Format, typename ... Args> inline constexpr void vulkanAssert(in
 
 #define NODISCARD [[nodiscard]]
 #define DEPRECATED [[deprecated]]
+#define NO_UNIQUE_ADDRESS [[no_unique_address]]
 #define FUNC_PTR(func) [&] { func }
 #define TO_FUNC_PTR(func, type) type(*)(func*)
 #define DEFINE_DEFAULT_MOVE(type) type(type&&) = default; type& operator=(type&&) = default;

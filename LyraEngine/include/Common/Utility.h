@@ -7,7 +7,6 @@
  * @date 2022-02-03
  * 
  * @copyright Copyright (c) 2022
- * 
  *************************/
 
 #pragma once
@@ -57,6 +56,43 @@ inline Vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) {
 
 	return r;
 }
+
+
+// prime number utility
+template <class Integer> inline bool isPrime(Integer n) requires std::is_integral_v<Integer> {
+	if (n == 2 || n == 3)
+		return true;
+	if (n <= 1 || n % 2 == 0 || n % 3 == 0)
+        return false;
+	for (int i = 5; i * i <= n; i += 6)
+        if (n % i == 0 || n % (i + 2) == 0)
+            return false;
+	return true;
+};
+
+template <class Integer> inline Integer nextPrime(Integer n) requires std::is_integral_v<Integer> {
+	if (n % 2 == 0)
+		--n;
+
+	while (true) {
+		n += 2;
+		if (isPrime(n)) {
+			return n;
+		}
+	}
+};
+
+template <class Integer> inline Integer lastPrime(Integer n) requires std::is_integral_v<Integer> {
+	if (n % 2 == 0)
+		++n;
+
+	while (true) {
+		n -= 2;
+		if (isPrime(n)) {
+			return n;
+		}
+	}
+};
 
 
 template <class Ty> struct CallableUnderlying {
