@@ -50,29 +50,29 @@ public:
 
 	constexpr UniquePointer() noexcept = default;
 	constexpr UniquePointer(nullpointer) noexcept : m_pointer(nullptr) { }
-	constexpr UniquePointer(pointer pointer) noexcept : m_pointer(pointer) { }
-	template <class P> constexpr UniquePointer(P pointer) noexcept : m_pointer(pointer) { }
+	explicit constexpr UniquePointer(pointer pointer) noexcept : m_pointer(pointer) { }
+	template <class P> explicit constexpr UniquePointer(P pointer) noexcept : m_pointer(pointer) { }
 	constexpr UniquePointer(pointer pointer, const deleter_type& deleter) noexcept : m_pointer(pointer), m_deleter(deleter) { }
 	constexpr UniquePointer(pointer pointer, deleter_type&& deleter) noexcept : m_pointer(pointer), m_deleter(std::move(deleter)) { }
 	constexpr UniquePointer(UniquePointer&& right) noexcept : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) noexcept : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 
-	~UniquePointer() noexcept {
+	constexpr ~UniquePointer() noexcept {
 		reset();
 	}
 
-	UniquePointer& operator=(UniquePointer&& right) {
+	constexpr UniquePointer& operator=(UniquePointer&& right) {
 		reset(right.release());
 		m_deleter = std::forward<deleter_type>(right.m_deleter);
 		return *this;
 	}
-	UniquePointer& operator=(pointer right) {
+	constexpr UniquePointer& operator=(pointer right) {
 		reset(right);
 		return *this;
 	}
-	UniquePointer& operator=(const UniquePointer&) = delete;
+	constexpr UniquePointer& operator=(const UniquePointer&) = delete;
 
-	template <class ... Args> NODISCARD static UniquePointer create(Args&&... args) {
+	template <class ... Args> NODISCARD static constexpr UniquePointer create(Args&&... args) {
 		return UniquePointer(new value_type(std::forward<Args>(args)...));
 	}
 
@@ -136,28 +136,28 @@ public:
 
 	constexpr UniquePointer() = default;
 	constexpr UniquePointer(nullpointer) : m_pointer(nullptr) { }
-	constexpr UniquePointer(pointer pointer) : m_pointer(pointer) { }
-	template <class P> constexpr UniquePointer(P pointer) : m_pointer(pointer) { }
+	explicit constexpr UniquePointer(pointer pointer) : m_pointer(pointer) { }
+	template <class P> explicit constexpr UniquePointer(P pointer) : m_pointer(pointer) { }
 	template <class P> constexpr UniquePointer(P pointer, const deleter_type& deleter) : m_pointer(pointer), m_deleter(deleter) { }
 	template <class P> constexpr UniquePointer(P pointer, deleter_type&& deleter) : m_pointer(pointer), m_deleter(std::move(deleter)) { }
 	constexpr UniquePointer(UniquePointer&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 	template <class P, class D> constexpr UniquePointer(UniquePointer<P, D>&& right) : m_pointer(std::move(right.release())), m_deleter(std::move(right.deleter())) {}
 
-	~UniquePointer() noexcept {
+	constexpr ~UniquePointer() noexcept {
 		reset(nullptr);
 	}
 
-	UniquePointer& operator=(UniquePointer&& right) {
+	constexpr UniquePointer& operator=(UniquePointer&& right) {
 		reset(right.release());
 		m_deleter = std::forward<deleter_type>(right.m_deleter);
 		return *this;
 	}
-	UniquePointer& operator=(pointer right) {
+	constexpr UniquePointer& operator=(pointer right) {
 		reset(right);
 		return *this;
 	}
 
-	template <class ... Args> NODISCARD static UniquePointer create(size_t size) {
+	template <class ... Args> NODISCARD static constexpr UniquePointer create(size_type size) {
 		return UniquePointer(new value_type[size]);
 	}
 
@@ -207,15 +207,12 @@ private:
 	friend class UniquePointer;
 };
 
-} // namespace lyra
 
-namespace std {
-
-template <class Ty, class DTy> class hash<lyra::UniquePointer<Ty, DTy>> {
+template <class Ty, class DTy> struct Hash<lyra::UniquePointer<Ty, DTy>> {
 public:
-	std::size_t operator()(const lyra::UniquePointer<Ty, DTy>& p) const {
+	constexpr size_type operator()(const lyra::UniquePointer<Ty, DTy>& p) const {
 		return hash<Ty*>()(p.get());
 	}
 };
 
-}
+} // namespace lyra
