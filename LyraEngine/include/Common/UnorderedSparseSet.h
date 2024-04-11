@@ -243,7 +243,7 @@ public:
 
 		size_type i = 0;
 		for (auto it = m_array.begin(); it != m_array.end(); it++, i++)
-			m_buckets[keyToBucket(*it)].emplace_front(i);
+			m_buckets[keyToBucket(*it)].emplaceFront(i);
 	}
 
 	constexpr pair_type<iterator, bool> insert(const_reference value) noexcept {
@@ -345,9 +345,9 @@ public:
 		{ // Since I don't want to find a good name for the other bucketList down below
 			auto& bucketList = m_buckets[keyToBucket(*it)];
 
-			for (auto bucketIt = bucketList.begin(), prev = bucketList.before_begin(); bucketIt != bucketList.end(); bucketIt++, prev++) {
+			for (auto bucketIt = bucketList.begin(), prev = bucketList.beforeBegin(); bucketIt != bucketList.end(); bucketIt++, prev++) {
 				if (*bucketIt == index) {
-					bucketList.erase_after(prev);
+					bucketList.eraseAfter(prev);
 					break;
 				}
 			}
@@ -559,7 +559,7 @@ private:
 		auto i = keyToBucket(value);
 	
 		m_array.emplaceBack(value);
-		m_buckets[i].emplace_front(m_array.size() - 1);
+		m_buckets[i].emplaceFront(m_array.size() - 1);
 		rehashIfNecessary();
 
 		return --m_array.end();
@@ -568,7 +568,7 @@ private:
 		auto i = keyToBucket(value);
 
 		m_array.emplaceBack(std::move(value));
-		m_buckets[i].emplace_front(m_array.size() - 1);
+		m_buckets[i].emplaceFront(m_array.size() - 1);
 		rehashIfNecessary();
 
 		return --m_array.end();
@@ -577,7 +577,7 @@ private:
 		auto i = keyToBucket(std::forward<K>(key));
 
 		m_array.emplaceBack(std::forward<K>(key), std::forward<Args>(args)...);
-		m_buckets[i].emplace_front(m_array.size() - 1);
+		m_buckets[i].emplaceFront(m_array.size() - 1);
 		rehashIfNecessary();
 
 		return --m_array.end();

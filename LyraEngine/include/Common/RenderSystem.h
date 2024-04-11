@@ -11,9 +11,8 @@
 
 #pragma once
 
-#include <deque>
-#include <set>
-#include <unordered_set>
+#include <Common/Common.h>
+#include <Common/UnorderedSparseSet.h>
 
 namespace lyra {
 
@@ -60,26 +59,7 @@ protected:
 		m_objects.erase(o);
 	}
 
-	std::unordered_set<RenderObject*> m_objects;
-};
-
-class OrderedRenderSystem : public RenderSystem {
-public:
-	void drawAll() const final {
-		for (auto& object : m_objects) {
-			object->draw();
-		}
-	}
-
-protected:
-	void addRenderObject(RenderObject* o) final {
-		m_objects.insert(o);
-	}
-	void removeRenderObject(RenderObject* o) final {
-		m_objects.erase(o);
-	}
-
-	std::set<RenderObject*> m_objects;
+	UnorderedSparseSet<RenderObject*> m_objects;
 };
 
 class VectorRenderSystem : public RenderSystem {
