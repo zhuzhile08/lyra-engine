@@ -20,7 +20,7 @@
 
 #include <string>
 #include <string_view>
-#include <unordered_map>
+#include <Common/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -54,113 +54,103 @@ public:
 	using const_iterator = typename container::const_iterator;
 	using iterator_pair = std::pair<iterator, bool>;
 
-	BasicNode() = default;
-	template <class NameType, class... Args> BasicNode(
-		NameType&& name,
-		reference parent
-	) noexcept : m_name(std::forward<NameType>(name)) { parent.insert(dynamic_cast<pointer>(this)); }
-	template <class NameType, class... Args> BasicNode(
-		NameType&& name,
-		movable parent
-	) noexcept : m_name(std::forward<NameType>(name)) { parent.insert(dynamic_cast<pointer>(this)); }
-	template <class NameType, class... Args> BasicNode(
-		NameType&& name,
-		pointer parent = nullptr
-	) noexcept : m_name(std::forward<NameType>(name)) { if (parent) parent->insert(dynamic_cast<pointer>(this)); }
-	BasicNode(BasicNode&&) = default;
-	BasicNode(const BasicNode&) requires std::is_copy_assignable_v<smart_pointer> = default;
-	virtual ~BasicNode() = default;
+	constexpr BasicNode() = default;
+	template <class KeyType> explicit constexpr BasicNode(const KeyType& name) : m_name(name) { }
+	template <class KeyType> explicit constexpr BasicNode(KeyType&& name) : m_name(std::forward<KeyType>(name)) { }
+	constexpr BasicNode(BasicNode&&) = default;
+	constexpr BasicNode(const BasicNode&) requires std::is_copy_assignable_v<smart_pointer> = default;
+	virtual constexpr ~BasicNode() = default;
 
-	BasicNode& operator=(BasicNode&&) = default;
-	BasicNode& operator=(const BasicNode&) requires std::is_copy_assignable_v<smart_pointer> = default;
+	constexpr BasicNode& operator=(BasicNode&&) = default;
+	constexpr BasicNode& operator=(const BasicNode&) requires std::is_copy_assignable_v<smart_pointer> = default;
 
-	reference clear() noexcept { 
+	constexpr reference clear() noexcept { 
 		m_children.clear();
 		return *this;
 	}
 
-	iterator begin() noexcept {
+	constexpr iterator begin() noexcept {
 		return m_children.begin();
 	}
-	const_iterator begin() const noexcept {
+	constexpr const_iterator begin() const noexcept {
 		return m_children.begin();
 	}
-	const_iterator cbegin() const noexcept {
+	constexpr const_iterator cbegin() const noexcept {
 		return m_children.begin();
 	}
 
-	iterator end() noexcept {
+	constexpr iterator end() noexcept {
 		return m_children.end();
 	}
-	const_iterator end() const noexcept {
+	constexpr const_iterator end() const noexcept {
 		return m_children.end();
 	}
-	const_iterator cend() const noexcept {
+	constexpr const_iterator cend() const noexcept {
 		return m_children.end();
 	}
 
-	reference insert(movable child) {
+	constexpr reference insert(movable child) {
 		child.m_parent = this;
 		return *m_children.emplace(child.m_name, smart_pointer::create(std::move(child))).first->second.get();
 	}
-	reference insert(pointer child) {
+	template <template <class...> class SPtr> constexpr reference insert(SPtr<pointer> child) {
 		child->m_parent = this;
-		return *m_children.emplace(child->m_name, smart_pointer(child)).first->second.get();
+		return *m_children.emplace(child->m_name, smart_pointer(child.release())).first->second.get();
 	}
-	template <class... Args> reference insert(Args&&... args) {
+	template <class... Args> constexpr reference insert(Args&&... args) {
 		auto child = smart_pointer::create(std::forward<Args>(args)...);
-		child->m_parent = this; // for extra safety
-		return *m_children.emplace(child->m_name, std::move(child)).first->second.get();
+		child->m_parent = this;
+		return *m_children.emplace(child->m_name, child.release()).first->second.get();
 	}
 
-	template <class KeyType> reference rename(KeyType&& name) {
+	template <class KeyType> constexpr reference rename(KeyType&& name) {
 		auto t = dynamic_cast<pointer>(this);
 		m_parent->m_children.extract(std::exchange(m_name, std::forward<KeyType>(name)));
 		m_parent->m_children.emplace(m_name, smart_pointer(t));
 		return *t;
 	}
 
-	reference erase(iterator pos) { 
+	constexpr reference erase(iterator pos) { 
 		return m_children.erase(pos); 
 		return *dynamic_cast<pointer>(this);
 	}
-	reference erase(const_iterator pos) { 
+	constexpr reference erase(const_iterator pos) { 
 		return m_children.erase(pos); 
 		return *dynamic_cast<pointer>(this);
 	}
-	reference erase(const_iterator first, const_iterator last) { 
+	constexpr reference erase(const_iterator first, const_iterator last) { 
 		return m_children.erase(first, last); 
 		return *dynamic_cast<pointer>(this);
 	}
-	template <class KeyType> requires std::is_convertible_v<KeyType, key_type> size_t erase(KeyType&& name)  { 
+	template <class KeyType> constexpr size_type erase(KeyType&& name) requires std::is_convertible_v<KeyType, key_type> { 
 		return m_children.erase(std::forward(name)); 
 	}
 
-	void swap(reference other) noexcept { 
+	constexpr void swap(reference other) noexcept { 
 		m_children.swap(other.m_children); 
 	}
-	DEPRECATED void swap(container& other) noexcept { 
+	DEPRECATED constexpr void swap(container& other) noexcept { 
 		m_children.swap(other); 
 	}
 
-	NODISCARD bool empty() const noexcept { 
+	NODISCARD constexpr bool empty() const noexcept { 
 		return m_children.empty(); 
 	}
-	operator bool() const noexcept { 
+	constexpr operator bool() const noexcept { 
 		return m_children.empty(); 
 	}
 
-	template <class KeyType> iterator find(KeyType&& name) { 
+	template <class KeyType> constexpr iterator find(KeyType&& name) { 
 		return m_children.find(std::forward<KeyType>(name)); 
 	}
-	template <class KeyType> const_iterator find(KeyType&& name) const { 
+	template <class KeyType> constexpr const_iterator find(KeyType&& name) const { 
 		return m_children.find(std::forward<KeyType>(name)); 
 	}
-	template <class KeyType> bool contains(KeyType&& name) const { 
+	template <class KeyType> constexpr bool contains(KeyType&& name) const { 
 		return m_children.contains(std::forward<KeyType>(name)); 
 	}
 
-	template <class KeyType> const_reference child(KeyType&& key) const {
+	template <class KeyType> constexpr const_reference child(KeyType&& key) const {
 		constexpr bool stringlike = requires(const KeyType& k) {
 			key_type(key);
 			key_type().find("");
@@ -169,7 +159,7 @@ public:
 
 		if constexpr (stringlike) {
 			key_type k(key);
-			size_t beg = 0, cur;
+			size_type beg = 0, cur;
 			pointer_const p = dynamic_cast<pointer_const>(this);
 
 			while ((cur = k.find("::", beg)) < k.size()) {
@@ -182,7 +172,7 @@ public:
 			return *m_children.at(key).get();
 		}
 	}
-	template <class KeyType> reference child(KeyType&& key) {
+	template <class KeyType> constexpr reference child(KeyType&& key) {
 		constexpr bool stringlike = requires(const KeyType& k) {
 			key_type(key);
 			key_type().find("");
@@ -191,7 +181,7 @@ public:
 
 		if constexpr (stringlike) {
 			key_type k(key);
-			size_t beg = 0, cur;
+			size_type beg = 0, cur;
 			pointer p = dynamic_cast<pointer>(this);
 
 			while ((cur = k.find("::", beg)) < k.size()) {
@@ -205,22 +195,22 @@ public:
 		}
 	}
 
-	template <class KeyType> const_reference at(KeyType&& name) const { *m_children.at(std::forward<KeyType>(name)); }
-	template <class KeyType> reference at(KeyType&& name) { *m_children.at(std::forward<KeyType>(name)); }
+	template <class KeyType> constexpr const_reference at(KeyType&& name) const { *m_children.at(std::forward<KeyType>(name)); }
+	template <class KeyType> constexpr reference at(KeyType&& name) { *m_children.at(std::forward<KeyType>(name)); }
 	
-	template <class KeyType> const_reference operator[](KeyType&& name) const { return *m_children[std::forward<KeyType>(name)]; }
-	template <class KeyType> reference operator[](KeyType&& name) { return *m_children[std::forward<KeyType>(name)]; }
+	template <class KeyType> constexpr const_reference operator[](KeyType&& name) const { return *m_children[std::forward<KeyType>(name)]; }
+	template <class KeyType> constexpr reference operator[](KeyType&& name) { return *m_children[std::forward<KeyType>(name)]; }
 
-	NODISCARD size_t size() const noexcept { return m_children.size(); }
-	NODISCARD key_type name() const noexcept { return m_name; }
-	NODISCARD pointer parent() noexcept { return dynamic_cast<pointer>(m_parent); }
-	NODISCARD const_pointer const parent() const noexcept { return dynamic_cast<pointer>(m_parent); }
+	NODISCARD constexpr size_type size() const noexcept { return m_children.size(); }
+	NODISCARD constexpr key_type name() const noexcept { return m_name; }
+	NODISCARD constexpr pointer parent() noexcept { return dynamic_cast<pointer>(m_parent); }
+	NODISCARD constexpr const_pointer const parent() const noexcept { return dynamic_cast<pointer>(m_parent); }
 
 protected:
-	key_type m_name;
+	key_type m_name { };
 
 	BasicNode* m_parent = nullptr;
-	container m_children;
+	container m_children { };
 };
 
 template <class Ty> using Node = BasicNode<Ty, UniquePointer>;
