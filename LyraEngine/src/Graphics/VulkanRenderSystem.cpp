@@ -276,7 +276,7 @@ public:
 								log::debug("\t{}", availableDeviceExtension.extensionName);
 							}
 #endif
-							std::unordered_set<std::string> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
+							UnorderedSparseSet<std::string> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
 #ifdef __APPLE__
 							requestedExtensions.emplace("VK_KHR_portability_subset"); 
 #endif
@@ -327,7 +327,7 @@ public:
 
 		{ // create logical device
 			Vector <VkDeviceQueueCreateInfo> queueCreateInfos;
-			std::unordered_set <uint32> uniqueQueueFamilies { queueFamilies.graphicsFamilyIndex, queueFamilies.computeFamilyIndex, queueFamilies.copyFamilyIndex };
+			UnorderedSparseSet <uint32> uniqueQueueFamilies { queueFamilies.graphicsFamilyIndex, queueFamilies.computeFamilyIndex, queueFamilies.copyFamilyIndex };
 			
 			float32 queuePriority = 1.0f;
 			for (const auto& queueFamily : uniqueQueueFamilies) {
@@ -552,10 +552,10 @@ public:
 	void getImageSubresourceLayout(const vk::Image& image, const VkImageSubresource& subresource, VkSubresourceLayout& layout) {
 		vkGetImageSubresourceLayout(device, image, &subresource, &layout);
 	}
-	VkResult getPipelineCacheData(const vk::PipelineCache& pipelineCache, size_t& pDataSize, void* pData) {
+	VkResult getPipelineCacheData(const vk::PipelineCache& pipelineCache, size_type& pDataSize, void* pData) {
 		return vkGetPipelineCacheData(device, pipelineCache, &pDataSize, pData);
 	}
-	VkResult getQueryPoolResults(const vk::QueryPool& queryPool, uint32 firstQuery, uint32 queryCount, size_t dataSize, void* pData, VkDeviceSize stride, VkQueryResultFlags flags) {
+	VkResult getQueryPoolResults(const vk::QueryPool& queryPool, uint32 firstQuery, uint32 queryCount, size_type dataSize, void* pData, VkDeviceSize stride, VkQueryResultFlags flags) {
 		return vkGetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 	}
 	void getRenderAreaGranularity(const vk::RenderPass& renderPass, VkExtent2D& pGranularity) {
@@ -633,8 +633,8 @@ public:
 	UniquePointer<DescriptorPools> descriptorPools;
 
 	Vector<RenderTarget*> renderTargets;
-	std::unordered_map<std::string, const GraphicsProgram*> graphicsPrograms;
-	std::unordered_map<std::string, GraphicsPipeline*> graphicsPipelines;
+	UnorderedSparseMap<std::string, const GraphicsProgram*> graphicsPrograms;
+	UnorderedSparseMap<std::string, GraphicsPipeline*> graphicsPipelines;
 
 	RenderTarget* defaultRenderTarget;
 	const GraphicsProgram* defaultGraphicsProgram;
@@ -648,8 +648,8 @@ public:
 	Entity* sceneRoot;
 
 	Vector<Camera*> cameras;
-	std::unordered_map<GraphicsPipeline*, Vector<const Material*>> materials;
-	std::unordered_map<Material*, Vector<const MeshRenderer*>> meshRenderers;
+	UnorderedSparseMap<GraphicsPipeline*, Vector<const Material*>> materials;
+	UnorderedSparseMap<Material*, Vector<const MeshRenderer*>> meshRenderers;
 
 	const Window* window;
 
@@ -803,18 +803,18 @@ GPUBuffer::GPUBuffer(
 	);
 }
 
-void GPUBuffer::copyData(const void* src, size_t copySize) {
+void GPUBuffer::copyData(const void* src, size_type copySize) {
 	void* data;
 	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, &data), "map buffer memory at {}", getAddress(memory));
 	
 #ifndef NDEBUG
-	memcpy(data, src, (copySize == 0) ? static_cast<size_t>(size) : copySize);
+	memcpy(data, src, (copySize == 0) ? static_cast<size_type>(size) : copySize);
 #else
 	// custom memcpy functionality, (probably) faster in release mode
 	const char* s = (char*)src;
 	char* d = (char*)data;
 
-	for (size_t i = 0; i < (copySize == 0) ? static_cast<size_t>(size) : copySize; i++) d[i] = s[i];
+	for (size_type i = 0; i < (copySize == 0) ? static_cast<size_type>(size) : copySize; i++) d[i] = s[i];
 
 	data = std::move(d);
 #endif
@@ -822,7 +822,7 @@ void GPUBuffer::copyData(const void* src, size_t copySize) {
 	globalRenderSystem->unmapMemory(memory);
 }
 
-void GPUBuffer::copyData(const void** src, uint32 arraySize, size_t elementSize) {
+void GPUBuffer::copyData(const void** src, uint32 arraySize, size_type elementSize) {
 	char* data;
 	VULKAN_ASSERT(globalRenderSystem->mapMemory(memory, (void**)&data), "map buffer memory at {}", getAddress(memory));
 
@@ -2204,19 +2204,14 @@ ImGuiRenderer::ImGuiRenderer(const Window& window) : lyra::ImGuiRenderer(window)
 		vulkan::globalRenderSystem->device,
 		vulkan::globalRenderSystem->queueFamilies.graphicsFamilyIndex,
 		vulkan::globalRenderSystem->graphicsQueue,
-		vulkan::globalRenderSystem->pipelineCache,
 		m_descriptorPools.descriptorPools[0],
 		0,
 		3,
 		3,
 		vulkan::globalRenderSystem->swapchain->maxMultisamples,
-		false,
-		VK_FORMAT_UNDEFINED,
-		nullptr,
-		nullptr,
-		1024 * 1024 // @todo what is this???
+		vulkan::globalRenderSystem->pipelineCache
 	};
-	ImGui_ImplVulkan_Init(&initInfo, m_renderTarget.renderPass);
+	ImGui_ImplVulkan_Init(&initInfo);
 }
 
 void ImGuiRenderer::uploadFonts() {
