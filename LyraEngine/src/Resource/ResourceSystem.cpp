@@ -10,7 +10,7 @@
 #include <Resource/LoadMeshFile.h>
 
 #include <utility>
-#include <unordered_map>
+#include <Common/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -22,10 +22,10 @@ public:
 		
 	}
 
-	std::unordered_map<std::string, vulkan::Shader> shaders;
-	std::unordered_map<std::string, Texture> textures;
-	std::unordered_map<std::string, Vector<Mesh>> meshes;
-	std::unordered_map<std::string, Material> materials;
+	UnorderedSparseMap<std::string, vulkan::Shader> shaders;
+	UnorderedSparseMap<std::string, Texture> textures;
+	UnorderedSparseMap<std::string, Vector<Mesh>> meshes;
+	UnorderedSparseMap<std::string, Material> materials;
 
 	Json assetsFile;
 };

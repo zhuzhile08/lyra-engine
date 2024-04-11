@@ -19,7 +19,7 @@
 
 #include <Entity/Entity.h>
 
-#include <unordered_map>
+#include <Common/UnorderedSparseMap.h>
 
 namespace lyra {
 

@@ -30,9 +30,9 @@ namespace lyra {
  * 
  * @return Ty 
  */
-template <size_t Size, class Ty> NODISCARD constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b);
+template <size_type Size, class Ty> NODISCARD constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b);
 
-template <size_t Size, class Ty> constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b) {
+template <size_type Size, class Ty> constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b) {
 	Ty result;
 	for (uint8 x = 0; x < Size; x++) {
 		result += pow(a[x] - b[x], 2);

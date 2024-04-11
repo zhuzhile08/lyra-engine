@@ -37,8 +37,8 @@
 
 #include <variant>
 #include <Common/Vector.h>
-#include <unordered_map>
-#include <unordered_set>
+#include <Common/UnorderedSparseMap.h>
+#include <Common/UnorderedSparseSet.h>
 
 namespace lyra {
 
@@ -548,8 +548,8 @@ public:
 	GPUBuffer(VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
 
 	void copy(const GPUBuffer& srcBuffer);
-	void copyData(const void* src, size_t copySize = 0);
-	void copyData(const void** src, uint32 arraySize, size_t elementSize = 0);
+	void copyData(const void* src, size_type copySize = 0);
+	void copyData(const void** src, uint32 arraySize, size_type elementSize = 0);
 
 	NODISCARD constexpr VkDescriptorBufferInfo getDescriptorBufferInfo() const noexcept {
 		return {
