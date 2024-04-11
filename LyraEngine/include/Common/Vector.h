@@ -12,84 +12,141 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Iterator.h>
+#include <Common/Allocator.h>
+#include <Common/Iterators.h>
 
+#include <cstdlib>
+#include <new>
+#include <utility>
 #include <initializer_list>
 
 namespace lyra {
 
-template <class Ty> class Vector {
+template <class Ty, class Alloc = std::allocator<Ty>> class Vector { // @todo custom compile time allocator implementation
 public:
+	using allocator_type = Alloc;
+	using const_alloc_reference = const allocator_type&;
+	using allocator_traits = AllocatorTraits<allocator_type>;
+
 	using value_type = Ty;
+	using const_value = const value_type;
 	using reference = value_type&;
-	using const_reference = const value_type&;
+	using const_reference = const_value&;
+	using rvreference = value_type&&;
 	using array_type = Ty*;
-	using const_array_type = const Ty*;
+	using const_array_type = const_value*;
 
-	using size_type = size_t;
-	using iterator = Iterator<Ty>;
-	using const_iterator = Iterator<const Ty>; 
+	using size_type = size_type;
+	using iterator = Iterator<value_type>;
+	using const_iterator = Iterator<const_value>; 
+	using reverse_iterator = ReverseIterator<value_type>;
+	using const_reverse_iterator = ReverseIterator<const_value>; 
+
 	using wrapper = Vector;
+	using wrapper_reference = wrapper&;
+	using const_wrapper_reference = const wrapper&;
+	using wrapper_rvreference = wrapper&&;
+	using init_list = std::initializer_list<value_type>;
 
-	constexpr Vector() noexcept : m_array(new value_type[1]), m_size(0), m_capacity(1) { }
-	constexpr Vector(size_type count) { basicResize(count); }
-	constexpr Vector(size_type count, const value_type& value) {
-		basicResize(count);
-		for (size_type i = 0; i < m_size; i++) {
-			m_array[i] = value;
-		}
+	constexpr Vector() noexcept : m_array(nullptr), m_size(0), m_capacity(0) { }
+	constexpr explicit Vector(const_alloc_reference alloc) :
+		m_alloc(alloc),
+		m_array(nullptr), 
+		m_size(0), 
+		m_capacity(0) { }
+	constexpr explicit Vector(size_type count, const_alloc_reference alloc = allocator_type()) : 
+		m_alloc(alloc),
+		m_array(allocator_traits::allocate(m_alloc, count)),
+		m_size(count), 
+		m_capacity(count) {
+		if (count > 0) assignImpl(count);
 	}
-	template <class It> constexpr Vector(It first, It last) {
-		basicResize(last - first);
-		if (m_size > 0) std::move(first, last, begin());
+	constexpr Vector(size_type count, const_reference value, const_alloc_reference alloc = allocator_type()) : 
+		m_alloc(alloc), 
+		m_array(allocator_traits::allocate(m_alloc, count)), 
+		m_size(count), 
+		m_capacity(count) {
+		if (count > 0) assignImpl(count, value);
 	}
-	constexpr Vector(const wrapper& other) {
-		basicResize(other.size());
-		if (m_size > 0) std::move(other.begin(), other.end(), begin());
+	template <class It> constexpr Vector(It first, It last, const_alloc_reference alloc = allocator_type()) requires isIteratorValue<It> : 
+		m_alloc(alloc),
+		m_array(allocator_traits::allocate(m_alloc, last - first)), 
+		m_size(last - first), 
+		m_capacity(last - first) {
+		if (m_size > 0) assignImpl(first, last);
 	}
-	constexpr Vector(wrapper&& other) : 
-		m_array(std::exchange(other.m_array, m_array)),
+	constexpr Vector(const_wrapper_reference other) : 
+		m_alloc(other.m_alloc), 
+		m_array(allocator_traits::allocate(m_alloc, other.size())), 
+		m_size(other.size()), 
+		m_capacity(other.size()) {
+		if (m_size > 0) assignImpl(other.begin(), other.end());
+	}
+	constexpr Vector(const_wrapper_reference other, const_alloc_reference alloc) : 
+		m_alloc(alloc), 
+		m_array(allocator_traits::allocate(m_alloc, other.size())), 
+		m_size(other.size()), 
+		m_capacity(other.size()) {
+		if (m_size > 0) assignImpl(other.begin(), other.end());
+	}
+	constexpr Vector(wrapper_rvreference other) : 
+		m_alloc(std::exchange(other.m_alloc, m_alloc)), 
+		m_array(std::exchange(other.m_array, nullptr)),
 		m_size(std::exchange(other.m_size, 0)),
 		m_capacity(std::exchange(other.m_capacity, 0)) { }
-	constexpr Vector(std::initializer_list<value_type> ilist) {
-		basicResize(ilist.size());
-		if (m_size > 0) std::move(ilist.begin(), ilist.end(), begin());
+	constexpr Vector(wrapper_rvreference other, const_alloc_reference alloc) : 
+		m_alloc(alloc),
+		m_array(std::exchange(other.m_array, nullptr)),
+		m_size(std::exchange(other.m_size, 0)),
+		m_capacity(std::exchange(other.m_capacity, 0)) { }
+	constexpr Vector(init_list ilist, const_alloc_reference alloc = allocator_type()) : 
+		m_alloc(alloc),
+		m_array(allocator_traits::allocate(m_alloc, ilist.size())), 
+		m_size(ilist.size()), 
+		m_capacity(ilist.size()) {
+		assignImpl(ilist.begin(), ilist.end());
 	}
 
 	constexpr ~Vector() {
-		delete[] m_array;
-	}
-
-	constexpr wrapper& operator=(const wrapper& other) {
-		delete[] basicResize(other.size());
-		if (m_size > 0) std::move(other.begin(), other.end(), begin());
-		return *this;
-	}
-	constexpr wrapper& operator=(wrapper&& other) noexcept {
-		m_array = std::exchange(other.m_array, m_array);
-		m_size = other.m_size;
-		m_capacity = other.m_capacity;
-		return *this;
-	}
-	constexpr wrapper& operator=(std::initializer_list<value_type> ilist) {
-		delete[] basicResize(ilist.size());
-		if (m_size > 0) std::move(ilist.begin(), ilist.end(), begin());
-		return *this;
-	}
-
-	constexpr void assign(size_type count, const value_type& value) {
-		delete[] basicResize(count);
-		for (size_type i = 0; i < m_size; i++) {
-			m_array[i] = value;
+		if (m_array) {
+			destroyElementsAtEnd(&m_array[0]);
 		}
+		allocator_traits::deallocate(m_alloc, m_array, m_capacity);
+		m_array = nullptr;
+		m_capacity = 0;
+		m_size = 0;
 	}
-	template <class It> constexpr void assign(It first, It last) noexcept {
-		delete[] basicResize(last - first);
-		if (m_size > 0) std::move(first, last, begin());
+
+	constexpr wrapper& operator=(const_wrapper_reference other) {
+		m_alloc = other.m_alloc;
+		assign(other.begin(), other.end());
+		return *this;
 	}
-	constexpr void assign(std::initializer_list<value_type> ilist) {
-		delete[] basicResize(ilist.size());
-		if (m_size > 0) std::move(ilist.begin(), ilist.end(), begin());
+	constexpr wrapper& operator=(wrapper_rvreference other) noexcept {
+		std::swap(other.m_alloc, m_alloc);
+		std::swap(other.m_array, m_array);
+		std::swap(other.m_size, m_size);
+		std::swap(other.m_capacity, m_capacity);
+		return *this;
+	}
+	constexpr wrapper& operator=(init_list ilist) {
+		assign(ilist.begin(), ilist.end());
+		return *this;
+	}
+
+	constexpr void assign(size_type count, const_reference value) {
+		clear();
+		resize(count, value);
+	}
+	template <class It> constexpr void assign(It first, It last) noexcept requires isIteratorValue<It> {
+		clear();
+		auto newSize = last - first;
+		smartReserve(newSize);
+		m_size = newSize;
+		assignImpl(first, last);
+	}
+	constexpr void assign(init_list ilist) {
+		assign(ilist.begin(), ilist.end());
 	}
 
 	constexpr void swap(wrapper& other) {
@@ -99,13 +156,13 @@ public:
 	}
 
 	NODISCARD constexpr iterator begin() noexcept {
-		return m_array[0];
+		return &m_array[0];
 	}
 	NODISCARD constexpr const_iterator begin() const noexcept {
-		return m_array[0];
+		return &m_array[0];
 	}
 	NODISCARD constexpr const_iterator cbegin() const noexcept {
-		return m_array[0];
+		return &m_array[0];
 	}
 	NODISCARD constexpr iterator end() noexcept {
 		return &m_array[m_size];
@@ -116,23 +173,23 @@ public:
 	NODISCARD constexpr const_iterator cend() const noexcept {
 		return &m_array[m_size];
 	}
-	NODISCARD constexpr iterator rbegin() noexcept {
-		return m_array[m_size - 1];
+	NODISCARD constexpr reverse_iterator rbegin() noexcept {
+		return (&m_array[m_size]) - 1;
 	}
-	NODISCARD constexpr const_iterator rbegin() const noexcept {
-		return m_array[m_size - 1];
+	NODISCARD constexpr const_reverse_iterator rbegin() const noexcept {
+		return (&m_array[m_size]) - 1;
 	}
-	NODISCARD constexpr const_iterator rcbegin() const noexcept {
-		return m_array[m_size - 1];
+	NODISCARD constexpr const_reverse_iterator crbegin() const noexcept {
+		return (&m_array[m_size]) - 1;
 	}
-	NODISCARD constexpr iterator rend() noexcept {
-		return &m_array[-1];
+	NODISCARD constexpr reverse_iterator rend() noexcept {
+		return (&m_array[0]) - 1;
 	}
-	NODISCARD constexpr const_iterator rend() const noexcept {
-		return &m_array[-1];
+	NODISCARD constexpr const_reverse_iterator rend() const noexcept {
+		return (&m_array[0]) - 1;
 	}
-	NODISCARD constexpr const_iterator rcend() const noexcept {
-		return &m_array[-1];
+	NODISCARD constexpr const_reverse_iterator crend() const noexcept {
+		return (&m_array[0]) - 1;
 	}
 
 	NODISCARD constexpr reference front() noexcept {
@@ -147,141 +204,157 @@ public:
 	NODISCARD constexpr const_reference back() const noexcept {
 		return m_array[m_size - 1];
 	}
-
+	
 	constexpr void resize(size_type size) noexcept {
-		auto s = m_size;
-		auto a = basicResize(size);
-		if (a) {
-			std::move(&a[0], &a[s], begin());
-			delete[] a;
-		}
+		if (size > m_size) {
+			smartReserve(size);
+			for (auto it = &m_array[m_size]; it != &m_array[size]; it++) allocator_traits::construct(m_alloc, it);
+		} else destroyElementsAtEnd(&m_array[size]);
+		m_size = size;
+	}
+	constexpr void resize(size_type size, const_reference value) noexcept {
+		if (size > m_size) {
+			smartReserve(size);
+			for (auto it = &m_array[m_size]; it != &m_array[size]; it++) allocator_traits::construct(m_alloc, it, value);
+		} else destroyElementsAtEnd(&m_array[size]);
+		m_size = size;
 	}
 	constexpr void reserve(size_type size) noexcept {
 		if (size > m_capacity) {
+			array_type a = m_array;
+			m_array = allocator_traits::allocate(m_alloc, size);
+			if (a) {
+				assignImpl(&a[0], &a[m_size]);
+				allocator_traits::deallocate(m_alloc, a, m_capacity);
+			}
 			m_capacity = size;
-			auto a = std::exchange(m_array, new value_type[m_capacity]);
-			std::move(&a[0], &a[m_size], begin());
-			delete[] a;
 		}
 	}
 	constexpr void shrinkToFit() noexcept {
-		if (m_capacity > m_size) {
+		if (m_size < m_capacity) {
+			array_type a = m_array;
+			m_array = allocator_traits::allocate(m_alloc, m_size);
+			if (a) {
+				assignImpl(&a[0], &a[m_size]);
+				allocator_traits::deallocate(m_alloc, a, m_capacity);
+			}
 			m_capacity = m_size;
-			auto a = std::exchange(m_array, new value_type[m_capacity]);
-			std::move(&a[0], &a[m_size], begin());
-			delete[] a;
 		}
 	}
 	DEPRECATED constexpr void shrink_to_fit() noexcept {
 		shrinkToFit();
 	}
 
-	constexpr iterator insert(const_iterator pos, const value_type& value) {
+	constexpr iterator insert(const_iterator pos, const_reference value) {
 		auto index = pos - begin();
 
 		resizeWithGap(index, 1);
+		allocator_traits::construct(m_alloc, &m_array[index], value);
 
-		return &(m_array[index] = value);
+		return &m_array[index]; // possible reallocation, therefore iterator has to be accessed again
 	}
-	constexpr iterator insert(const_iterator pos, value_type&& value) {
+	constexpr iterator insert(const_iterator pos, rvreference value) {
 		auto index = pos - begin();
 
 		resizeWithGap(index, 1);
+		allocator_traits::construct(m_alloc, &m_array[index], std::move(value));
 
-		return &(m_array[index] = std::move(value));
+		return &m_array[index]; // possible reallocation, therefore iterator has to be accessed again
 	}
-	constexpr iterator insert(const_iterator pos, size_type count, const value_type& value) {
-		auto index = pos - begin();
+	constexpr iterator insert(const_iterator pos, size_type count, const_reference value) {
+		auto index = pos - &m_array[0];
 		
 		if (count > 0) {
 			resizeWithGap(index, count);
-
-			for (size_type i = index; i < count;) {
-				m_array[i++] = value;
-			}
+			for (auto it = &m_array[index]; it < &m_array[index + count]; it++) allocator_traits::construct(m_alloc, it, value);
 		}
 		
-		return &(m_array[index]);
+		return &m_array[index];
 	}
-	template <class It> constexpr iterator insert(const_iterator pos, It first, It last) {
+	template <class It> constexpr iterator insert(const_iterator pos, It first, It last) requires isIteratorValue<It> {
 		auto index = pos - begin();
-		
+
 		if (first != last) {
-			auto size = first - last;
+			auto size = last - first;
 
 			resizeWithGap(index, size);
-
 			std::move(first, last, &m_array[index]);
 		}
 		
-		return &(m_array[index]);
+		return &m_array[index];
 	}
-	constexpr iterator insert(const_iterator pos, std::initializer_list<value_type> ilist) {
+	constexpr iterator insert(const_iterator pos, init_list ilist) {
 		auto index = pos - begin();
-		
+
 		if (ilist.size() > 0) {
 			resizeWithGap(index, ilist.size());
-
 			std::move(ilist.begin(), ilist.end(), &m_array[index]);
 		}
 		
-		return &(m_array[index]);
+		return &m_array[index];
 	}
 
 	template <class... Args> constexpr iterator emplace(const_iterator pos, Args&&... args) {
 		auto index = pos - begin();
 
 		resizeWithGap(index, 1);
+		allocator_traits::construct(m_alloc, &m_array[index], std::forward<Args>(args)...);
 
-		auto r = new (&m_array[index]) value_type(std::forward<Args>(args)...);
-
-		return r;
+		return &m_array[index];
 	}
 	template <class... Args> constexpr reference emplaceBack(Args&&... args) {
-		resize(m_size + 1);
-
-		return *(new (&m_array[m_size - 1]) value_type(std::forward<Args>(args)...));
+		smartReserve(m_size + 1);
+		allocator_traits::construct(m_alloc, &m_array[m_size++], std::forward<Args>(args)...);
+		return back();
 	}
 	template <class... Args> DEPRECATED constexpr reference emplace_back(Args&&... args) {
 		return emplaceBack(std::forward<Args>(args)...);
 	}
 
-	constexpr void pushBack(const value_type& value) {
-		resize(m_size + 1);
-		m_array[m_size - 1] = value;
+	constexpr void pushBack(const_reference value) {
+		smartReserve(m_size + 1);
+		allocator_traits::construct(m_alloc, &m_array[m_size++], value);
 	}
-	constexpr void pushBack(value_type&& value) {
-		resize(m_size + 1);
-		m_array[m_size - 1] = std::move(value);
+	constexpr void pushBack(rvreference value) {
+		smartReserve(m_size + 1);
+		allocator_traits::construct(m_alloc, &m_array[m_size++], std::move(value));
 	}
-	DEPRECATED constexpr void push_back(const value_type& value) {
+	DEPRECATED constexpr void push_back(const_reference value) {
 		pushBack(value);
 	}
-	DEPRECATED constexpr void push_back(value_type&& value) {
+	DEPRECATED constexpr void push_back(rvreference value) {
 		pushBack(std::move(value));
 	}
 
 	constexpr iterator erase(const_iterator pos) {
+		ASSERT(pos != end(), "Lyra::Vector::erase: past-end iterator passed to erase!");
 		auto it = begin() + (pos - begin());
+		allocator_traits::destroy(m_alloc, &*it);
 
 		std::move(it + 1, end(), it);
 		popBack();
-		
+
 		return it;
 	}
 	constexpr iterator erase(const_iterator first, const_iterator last) {
 		auto rangeBegin = begin() + (first - begin());
 
-		if (first != last) std::move(rangeBegin + (last - first), end(), rangeBegin);
-		destroyElementsAtEnd(m_size, m_size - (last - first));
+		if (first < last) {
+			auto distance = last - first;
+			auto l = rangeBegin + distance;
+
+			for (auto it = &*rangeBegin; it < l; it++) allocator_traits::destroy(m_alloc, it);
+			std::move(l, end(), rangeBegin);
+			destroyElementsAtEnd(&m_array[m_size -= distance]);
+		}
 
 		return rangeBegin;
 	}
 
 	constexpr void popBack() noexcept {
 		if (m_size > 0) {
-			m_array[m_size - 1] = std::move(value_type());
 			--m_size;
+			allocator_traits::destroy(m_alloc, &m_array[m_size]);
 		}
 	}
 	DEPRECATED constexpr void pop_back() noexcept {
@@ -289,17 +362,18 @@ public:
 	}
 
 	constexpr void clear() noexcept {
-		basicResize(0);
+		destroyElementsAtEnd(&m_array[0]);
+		m_size = 0;
 	}
 
 	NODISCARD constexpr size_type size() const noexcept {
 		return m_size;
 	}
 	NODISCARD constexpr size_type maxSize() const noexcept {
-		return size_t(-1);
+		return std::min<size_type>(-1, allocator_traits::maxSize(m_alloc));
 	}
 	DEPRECATED NODISCARD constexpr size_type max_size() const noexcept {
-		return size_t(-1);
+		return maxSize();
 	}
 	NODISCARD constexpr size_type capacity() const noexcept {
 		return m_capacity;
@@ -315,6 +389,13 @@ public:
 		return m_array;
 	}
 
+	NODISCARD constexpr allocator_type allocator() const noexcept {
+		return m_alloc;
+	}
+	DEPRECATED NODISCARD constexpr allocator_type get_allocator() const noexcept {
+		return allocator();
+	}
+
 	NODISCARD constexpr const_reference at(size_type index) const {
 		if (index >= m_size) throw std::out_of_range("lyra::Vector::at(): Index exceded current internal array bounds!");
 		return m_array[index];
@@ -324,53 +405,64 @@ public:
 		return m_array[index];
 	}
 	NODISCARD constexpr const_reference operator[](size_type index) const noexcept {
+		ASSERT(index < m_size, "lyra::Vector::operator[]: Index of: {} exceded array size of: {}!", index, m_size);
 		return m_array[index];
 	}
 	NODISCARD constexpr reference operator[](size_type index) noexcept {
+		ASSERT(index < m_size, "lyra::Vector::operator[]: Index of: {} exceded array size of: {}!", index, m_size);
 		return m_array[index];
 	}
 
 private:
-	array_type m_array;
+	NO_UNIQUE_ADDRESS allocator_type m_alloc { };
+
+	array_type m_array { };
 
 	size_type m_size { };
 	size_type m_capacity { };
 
-	constexpr array_type basicResize(size_type size) {
-		auto s = std::exchange(m_size, size);
-
-		if (s < m_size) {
-			if (size > m_capacity) {
-				if ((m_capacity *= 2) < m_size) m_capacity = m_size;
-				return std::exchange(m_array, new value_type[m_capacity]);
-			} 
-		} else if (s > m_size) destroyElementsAtEnd(s, m_size);
-
-		return nullptr;
+	template <class It> constexpr void assignImpl(It first, It last) noexcept requires isIteratorValue<It> {
+		if constexpr (std::is_copy_constructible_v<value_type>) for (auto it = &m_array[0]; first != last; first++, it++) allocator_traits::construct(m_alloc, it, *first);
+		else for (auto it = &m_array[0]; first != last; first++, it++) allocator_traits::construct(m_alloc, it, std::move(*first));
 	}
-	constexpr void resizeAndClear(size_type size) { // exclusively for hashmap utility
-		m_size = size;
-		m_capacity = m_size;
-		delete[] m_array;
-		m_array = new value_type[m_capacity];
+	constexpr void assignImpl(size_type count, const_reference value) noexcept {
+		for (auto it = &m_array[0]; it < &m_array[count]; it++) allocator_traits::construct(m_alloc, it, value);
 	}
-	constexpr void resizeWithGap(size_type index, size_type count) {
-		auto a = basicResize(m_size + count);
-		if (a) {
-			if (index != 0) std::move(&a[0], &a[index - 1], begin());
-			std::move(&a[index], &a[m_size - 1], &m_array[index + count]);
-		} else {
-			std::move(&m_array[index], &m_array[m_size - 1], &m_array[index + count]);
-		}
-		delete[] a;
-	} 
-	constexpr void destroyElementsAtEnd(size_type oldSize, size_type newSize) {
-		for (; newSize < oldSize;) {
-			m_array[newSize++] = std::move(value_type());
+	constexpr void assignImpl(size_type count) noexcept {
+		for (auto it = &m_array[0]; it < &m_array[count]; it++) allocator_traits::construct(m_alloc, it);
+	}
+
+	constexpr void smartReserve(size_type size) noexcept {
+		if (size > m_capacity) {
+			auto c = m_capacity * 2;
+			reserve((c < size) ? size : c);
 		}
 	}
+	constexpr void resizeAndClear(size_type size) noexcept { // exclusively for hashmap utility
+		clear();
+		resize(size);
+	}
+	constexpr void resizeWithGap(size_type index, size_type count) noexcept {
+		auto newSize = m_size + count;
+		smartReserve(newSize);
 
-	template <class, class, class, class> friend class SparseMap;
+		auto first = &m_array[index];
+		auto last = &m_array[index + count];
+
+		std::move(first, &m_array[m_size], last);
+
+		m_size = newSize;
+		for (; first != last; first++) allocator_traits::destroy(m_alloc, first);
+	}
+
+	template <class It> constexpr void destroyElementsAtEnd(It position) noexcept requires isIteratorValue<It> {
+		for (; position != &m_array[m_size]; position++) allocator_traits::destroy(m_alloc, position);
+	}
+
+	template <class, class, class, class, class> friend class SparseMap;
+	template <class, class, class, class, class> friend class UnorderedSparseMap;
+	template <class, class, class, class> friend class SparseSet;
+	template <class, class, class, class> friend class UnorderedSparseSet;
 };
 
 } // namespace lyra
