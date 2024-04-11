@@ -12,6 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/Vector.h>
 
 #include <functional>
 #include <string>
@@ -19,17 +20,15 @@
 
 namespace lyra {
 
-template <typename Ty> NODISCARD constexpr const void* getAddress(const Ty& type);
-
-template <typename Ty> constexpr const void* getAddress(const Ty& type) {
+template <typename Ty> NODISCARD constexpr inline const void* getAddress(const Ty& type) noexcept {
 	return static_cast<const void*>(type);
 }
 
-inline Vector<std::string> parse(std::string_view s, std::string_view d) {
+NODISCARD inline constexpr Vector<std::string> parse(std::string_view s, std::string_view d) noexcept {
 	Vector<std::string> r;
 
-	size_t begin = 0;
-	size_t current;
+	size_type begin = 0;
+	size_type current;
 
 	while ((current = s.find(d, begin)) != std::string::npos) {
 		r.emplaceBack(s.substr(begin, current - begin));
@@ -41,11 +40,11 @@ inline Vector<std::string> parse(std::string_view s, std::string_view d) {
 	return r;
 }
 
-inline Vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) {
+NODISCARD inline constexpr Vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) noexcept {
 	Vector<std::wstring> r;
 
-	size_t begin = 0;
-	size_t current;
+	size_type begin = 0;
+	size_type current;
 
 	while ((current = s.find(d, begin)) != std::string::npos) {
 		r.emplaceBack(s.substr(begin, current - begin));
@@ -59,18 +58,18 @@ inline Vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) {
 
 
 // prime number utility
-template <class Integer> inline bool isPrime(Integer n) requires std::is_integral_v<Integer> {
+template <class Integer> inline constexpr bool isPrime(Integer n) noexcept requires std::is_integral_v<Integer> {
 	if (n == 2 || n == 3)
 		return true;
 	if (n <= 1 || n % 2 == 0 || n % 3 == 0)
         return false;
-	for (int i = 5; i * i <= n; i += 6)
+	for (Integer i = 5; i * i <= n; i += 6)
         if (n % i == 0 || n % (i + 2) == 0)
             return false;
 	return true;
 };
 
-template <class Integer> inline Integer nextPrime(Integer n) requires std::is_integral_v<Integer> {
+template <class Integer> inline constexpr Integer nextPrime(Integer n) noexcept requires std::is_integral_v<Integer> {
 	if (n % 2 == 0)
 		--n;
 
@@ -82,7 +81,7 @@ template <class Integer> inline Integer nextPrime(Integer n) requires std::is_in
 	}
 };
 
-template <class Integer> inline Integer lastPrime(Integer n) requires std::is_integral_v<Integer> {
+template <class Integer> inline constexpr Integer lastPrime(Integer n) noexcept requires std::is_integral_v<Integer> {
 	if (n % 2 == 0)
 		++n;
 
@@ -93,7 +92,6 @@ template <class Integer> inline Integer lastPrime(Integer n) requires std::is_in
 		}
 	}
 };
-
 
 template <class Ty> struct CallableUnderlying {
 	using type = Ty;
@@ -107,48 +105,48 @@ template <class Ty> concept EnumType = std::is_enum_v<Ty>;
 
 // credits to https://gist.github.com/StrikerX3/46b9058d6c61387b3f361ef9d7e00cd4 for these operators!
 
-template<EnumType Enum> constexpr inline Enum operator|(Enum first, Enum second) {
+template<EnumType Enum> constexpr inline Enum operator|(Enum first, Enum second) noexcept {
 	return static_cast<Enum>(
 		static_cast<std::underlying_type_t<Enum>>(first) |
 		static_cast<std::underlying_type_t<Enum>>(second)
 	);
 }
 
-template<EnumType Enum> Enum constexpr inline operator&(Enum first, Enum second) {
+template<EnumType Enum> Enum constexpr inline operator&(Enum first, Enum second) noexcept {
 	return static_cast<Enum>(
 		static_cast<std::underlying_type_t<Enum>>(first) &
 		static_cast<std::underlying_type_t<Enum>>(second)
 	);
 }
 
-template<EnumType Enum> Enum constexpr inline operator^(Enum first, Enum second) {
+template<EnumType Enum> Enum constexpr inline operator^(Enum first, Enum second) noexcept {
 	return static_cast<Enum>(
 		static_cast<std::underlying_type_t<Enum>>(first) ^
 		static_cast<std::underlying_type_t<Enum>>(second)
 	);
 }
 
-template<EnumType Enum> Enum constexpr inline operator~(Enum first) {
+template<EnumType Enum> Enum constexpr inline operator~(Enum first) noexcept {
 	return static_cast<Enum>(
 		~static_cast<std::underlying_type_t<Enum>>(first)
 	);
 }
 
-template<EnumType Enum> Enum constexpr inline operator|=(Enum& first, Enum second) {
+template<EnumType Enum> Enum constexpr inline operator|=(Enum& first, Enum second) noexcept {
 	return (first = static_cast<Enum>(
 		static_cast<std::underlying_type_t<Enum>>(first) |
 		static_cast<std::underlying_type_t<Enum>>(second)
 	));
 }
 
-template<EnumType Enum> Enum constexpr inline operator&=(Enum& first, Enum second) {
+template<EnumType Enum> Enum constexpr inline operator&=(Enum& first, Enum second) noexcept {
 	return (first = static_cast<Enum>(
 		static_cast<std::underlying_type_t<Enum>>(first) &
 		static_cast<std::underlying_type_t<Enum>>(second)
 	));
 }
 
-template<EnumType Enum> Enum constexpr inline operator^=(Enum& first, Enum second) {
+template<EnumType Enum> Enum constexpr inline operator^=(Enum& first, Enum second) noexcept {
 	return (first = static_cast<Enum>(
 		static_cast<std::underlying_type_t<Enum>>(first) ^
 		static_cast<std::underlying_type_t<Enum>>(second)
@@ -159,14 +157,8 @@ template<EnumType Enum> Enum constexpr inline operator^=(Enum& first, Enum secon
 
 namespace std {
 
-template<lyra::EnumType Enum> constexpr inline std::string to_string(Enum e) {
+template<lyra::EnumType Enum> constexpr inline std::string to_string(Enum e) noexcept {
 	return std::to_string(static_cast<std::underlying_type_t<Enum>>(e));
 }
-
-template<lyra::EnumType Enum> struct hash<Enum> {
-	std::size_t operator()(Enum t) const noexcept {
-		return static_cast<std::size_t>(t);
-	}
-};
 
 }
