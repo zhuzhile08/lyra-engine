@@ -5,6 +5,7 @@
  * @brief Component and component manager implementation
  * 
  * @date 2024-02-11
+ * 
  * @copyright Copyright (c) 2022
  *************************/
 
@@ -17,7 +18,8 @@ namespace lyra {
 
 class BasicComponent {
 public:
-	BasicComponent() = default;
+	BasicComponent() noexcept = default;
+	virtual ~BasicComponent() noexcept = default;
 
 	virtual void init(void) { };
 	virtual void update(void) { };
