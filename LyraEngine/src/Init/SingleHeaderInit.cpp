@@ -1,5 +1,4 @@
 #define VMA_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 
 #ifdef __APPLE__
 #pragma clang diagnostic push
@@ -13,5 +12,3 @@
 #else
 #include <vk_mem_alloc.h>
 #endif
-
-#include <stb_image.h>
