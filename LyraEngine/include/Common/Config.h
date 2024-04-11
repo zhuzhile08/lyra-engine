@@ -42,12 +42,12 @@ inline constexpr Array<const char*, 2> requestedDeviceExtensions({
 	"VK_KHR_swapchain"
 });
 inline constexpr Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
-inline constexpr size_t maxFramesInFlight = 2;
-inline constexpr size_t maxSwapchainImages = 8;
-inline constexpr size_t maxConcurrentRenderers = 16;
-inline constexpr size_t maxDescriptorPoolSets = 512;
-inline constexpr size_t maxShaderSets = 4;
-inline constexpr size_t descriptorPoolAllocCount = 16;
+inline constexpr size_type maxFramesInFlight = 2;
+inline constexpr size_type maxSwapchainImages = 8;
+inline constexpr size_type maxConcurrentRenderers = 16;
+inline constexpr size_type maxDescriptorPoolSets = 512;
+inline constexpr size_type maxShaderSets = 4;
+inline constexpr size_type descriptorPoolAllocCount = 16;
 inline constexpr uint32 maxDynamicBindings = 64;
 inline constexpr bool enableAnistropy = true;
 inline constexpr float32 anistropyStrength = 1.0f;
