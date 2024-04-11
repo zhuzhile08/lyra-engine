@@ -19,7 +19,7 @@
 #include <Common/FileSystem.h>
 
 #include <Common/Vector.h>
-#include <unordered_map>
+#include <Common/UnorderedSparseMap.h>
 #include <variant>
 
 namespace lyra {
@@ -31,7 +31,7 @@ template <
 	class Unsigned = uint32,
 	class Floating = float32,
 	class HashOrCompare = std::hash<std::basic_string<Literal>>, 
-	template <class...> class NodeContainer = std::unordered_map,
+	template <class...> class NodeContainer = UnorderedSparseMap,
 	template <class...> class SmartPointer = UniquePointer> 
 class BasicJson : public BasicNode<
 	BasicJson<Literal, ArrayContainer, Integer, Unsigned, Floating, HashOrCompare, NodeContainer, SmartPointer>, 
@@ -188,8 +188,8 @@ public:
 		return *std::get<pointer>(m_value);
 	}
 
-	const_reference at(size_t i) const { return *get<array_type>().at(i); }
-	reference operator[](size_t i) { return *get<array_type>()[i]; }
+	const_reference at(size_type i) const { return *get<array_type>().at(i); }
+	reference operator[](size_type i) { return *get<array_type>()[i]; }
 
 	using node_type::operator[];
 
@@ -482,7 +482,7 @@ private:
 			stringifyPrimitive(t, s);
 	}
 
-	static constexpr void stringifyObjectPretty(size_t indent, const json_type& t, string_type& s) {
+	static constexpr void stringifyObjectPretty(size_type indent, const json_type& t, string_type& s) {
 		indent++;
 		s.append("{\n");
 		for (auto it = t.begin(); it != t.end(); it++) {
@@ -491,7 +491,7 @@ private:
 		}
 		s.append("\n").append(--indent, '\t').pushBack('}');
 	}
-	static constexpr void stringifyArrayPretty(size_t indent, const json_type& t, string_type& s) {
+	static constexpr void stringifyArrayPretty(size_type indent, const json_type& t, string_type& s) {
 		indent += 1;
 		s.append("[\n");
 		const auto& array = t.get<array_type>();
@@ -510,7 +510,7 @@ private:
 		}
 		s.append("\n").append(--indent, '\t').pushBack(']');
 	}
-	static constexpr void stringifyPairPretty(size_t indent, const json_type& t, string_type& s) {
+	static constexpr void stringifyPairPretty(size_type indent, const json_type& t, string_type& s) {
 		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
 		
 		if (t.isString())
@@ -525,6 +525,6 @@ private:
 };
 
 using Json = BasicJson<>;
-using SharedJson = BasicJson<char, Vector, int32, uint32, float32, std::hash<std::basic_string<char>>, std::unordered_map, UniquePointer>;
+using SharedJson = BasicJson<char, Vector, int32, uint32, float32, std::hash<std::basic_string<char>>, UnorderedSparseMap, UniquePointer>;
 
 } // namespace lyra

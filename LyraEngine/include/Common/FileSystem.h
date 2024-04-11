@@ -14,6 +14,7 @@
 #include <Common/Common.h>
 #include <Common/Array.h>
 #include <Common/SharedPointer.h>
+#include <Common/Vector.h>
 
 #include <type_traits>
 #include <algorithm>
@@ -66,15 +67,15 @@ public:
 
 	int get();
 	File& get(char& c);
-	File& get(char* string, size_t count);
+	File& get(char* string, size_type count);
 	File& putback(int c);
 	File& unget();
-	File& read(char* string, size_t count);
-	File& read(void* string, size_t size, size_t count);
+	File& read(char* string, size_type count);
+	File& read(void* string, size_type size, size_type count);
 
 	File& put(char c);
-	File& write(const void* string, size_t size, size_t count);
-	File& write(const char* string, size_t count);
+	File& write(const void* string, size_type size, size_type count);
+	File& write(const char* string, size_type count);
 
 	File& flush();
 	int sync();
@@ -85,7 +86,7 @@ public:
 	File& seekg(filepos off, SeekDirection dir);
 	File& seekp(filepos pos);
 	File& seekp(filepos off, SeekDirection dir);
-	size_t size() const;
+	size_type size() const;
 
 	bool good() const;
 	bool eof() const;
@@ -143,15 +144,15 @@ public:
 
 	int get();
 	File& get(wchar& c);
-	File& get(wchar* string, size_t count);
+	File& get(wchar* string, size_type count);
 	File& putback(int c);
 	File& unget();
-	File& read(wchar* string, size_t count);
-	File& read(void* string, size_t size, size_t count);
+	File& read(wchar* string, size_type count);
+	File& read(void* string, size_type size, size_type count);
 
 	File& put(wchar c);
-	File& write(const void* string, size_t size, size_t count);
-	File& write(const wchar* string, size_t count);
+	File& write(const void* string, size_type size, size_type count);
+	File& write(const wchar* string, size_type count);
 
 	File& flush();
 	int sync();
@@ -162,7 +163,7 @@ public:
 	File& seekg(filepos off, SeekDirection dir);
 	File& seekp(filepos pos);
 	File& seekp(filepos off, SeekDirection dir);
-	size_t size() const;
+	size_type size() const;
 	
 	bool good() const;
 	bool eof() const;
@@ -257,10 +258,10 @@ public:
 		c = static_cast<literal_type>(get());
 		return *this;
 	}
-	FileStream& get(literal_type* string, size_t count, literal_type delim) {
+	FileStream& get(literal_type* string, size_type count, literal_type delim) {
 		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
 		else string[0] = m_data[m_fpos++];
-		for (m_gcount = 1; m_gcount < std::max(count - 1, size_t(0)); m_gcount++) {
+		for (m_gcount = 1; m_gcount < std::max(count - 1, size_type(0)); m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
 				setState(FileState::eof);
 				break;
@@ -274,7 +275,7 @@ public:
 		m_gcount++;
 		return *this;
 	}
-	FileStream& get(literal_type* string, size_t count) {
+	FileStream& get(literal_type* string, size_type count) {
 		return get(string, count, '\n');
 	}
 	template<template<class...> class S> FileStream& get(S<literal_type>& container) {
@@ -283,10 +284,10 @@ public:
 	template<template<class...> class S> FileStream& get(S<literal_type>& container, literal_type delim) {
 		return get(container.data(), container.size(), delim);
 	}
-	FileStream& getline(literal_type* string, size_t count) {
+	FileStream& getline(literal_type* string, size_type count) {
 		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
 		else string[0] = m_data[m_fpos++];
-		for (m_gcount = 1; m_gcount < std::max(size_t(0), count - 1); m_gcount++) {
+		for (m_gcount = 1; m_gcount < std::max(size_type(0), count - 1); m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
 				setState(FileState::eof);
 				break;
@@ -298,10 +299,10 @@ public:
 		m_gcount++;
 		return *this;
 	}
-	FileStream& getline(literal_type* string, size_t count, literal_type delim) {
+	FileStream& getline(literal_type* string, size_type count, literal_type delim) {
 		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
 		else string[0] = m_data[m_fpos++];
-		for (m_gcount = 1; m_gcount < count - std::max(size_t(0), count - 1); m_gcount++) {
+		for (m_gcount = 1; m_gcount < count - std::max(size_type(0), count - 1); m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
 				setState(FileState::eof);
 				break;
@@ -313,7 +314,7 @@ public:
 		m_gcount++;
 		return *this;
 	}
-	FileStream& ignore(size_t count, literal_type delim) {
+	FileStream& ignore(size_type count, literal_type delim) {
 		for (m_gcount = 0; m_gcount > count; m_gcount++) {
 			if (m_fpos == m_data.size() - 1) {
 				setState(FileState::eof);
@@ -335,7 +336,7 @@ public:
 		m_fpos--;
 		return *this;
 	}
-	FileStream& read(literal_type* string, size_t count) {
+	FileStream& read(literal_type* string, size_type count) {
 		auto n = std::min(count, m_data.size() - m_fpos);
 		if (n != count) setState(FileState::eof);
 		for (m_gcount = 0; m_gcount < n; m_gcount++) string[m_gcount] = m_data(m_fpos++);
@@ -350,10 +351,10 @@ public:
 		else m_data[m_fpos] = c;
 		return *this;
 	}
-	FileStream& write(const literal_type* string, size_t count) {
+	FileStream& write(const literal_type* string, size_type count) {
 		m_file.seekg(m_fpos, SeekDirection::begin);
 		m_file.write(string, count);
-		for (size_t i = 0; i < count; i++) {
+		for (size_type i = 0; i < count; i++) {
 			if (m_fpos >= static_cast<filepos>(m_data.size())) m_data.push_back(static_cast<literal_type>(string[i]));
 			else m_data[m_fpos] = static_cast<literal_type>(string[i]);
 			m_fpos++;

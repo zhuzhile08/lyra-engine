@@ -3,7 +3,7 @@
 
 #include <ios>
 #include <mutex>
-#include <unordered_map>
+#include <Common/UnorderedSparseMap.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -34,7 +34,7 @@ public:
 	std::mutex mutex;
 
 	UniquePointer<Logger> defaultLogger;
-	std::unordered_map<std::string, UniquePointer<Logger>> loggers;
+	UnorderedSparseMap<std::string, UniquePointer<Logger>> loggers;
 };
 
 }
@@ -49,7 +49,7 @@ Logger* logger(std::string_view name) {
 }
 
 UniquePointer<Logger> releaseLogger(std::string_view name) {
-	return globalLoggingContext->loggers.extract(name.data()).mapped().release();
+	return globalLoggingContext->loggers.extract(name.data()).second;
 }
 
 Logger* defaultLogger() {
@@ -62,7 +62,7 @@ Logger* addLogger(UniquePointer<Logger>&& logger) {
 }
 
 UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger) {
-	auto p = globalLoggingContext->defaultLogger.release();
+	auto p = std::move(globalLoggingContext->defaultLogger);
 	globalLoggingContext->defaultLogger = UniquePointer<Logger>(logger.release());
 	return p;
 }

@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
-#include <unordered_set>
+#include <Common/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -17,8 +17,8 @@ namespace {
 
 class FileSystem {
 public:
-	static constexpr size_t bufferSize = BUFSIZ;
-	static constexpr size_t maxFiles = FOPEN_MAX;
+	static constexpr size_type bufferSize = BUFSIZ;
+	static constexpr size_type maxFiles = FOPEN_MAX;
 	static constexpr const char* assetsFilePath = "data/Assets.lyproj";
 
 	using PathStringType = std::filesystem::path::string_type;
@@ -87,7 +87,7 @@ public:
 
 	Vector<char*> buffers;
 
-	std::unordered_map<PathStringType, SharedPointer<FILE>> loadedFiles;
+	UnorderedSparseMap<PathStringType, SharedPointer<FILE>> loadedFiles;
 
 	std::filesystem::path absolutePathBase;
 };
@@ -111,7 +111,7 @@ const char* enumToOpenMode(OpenMode m) {
 		"a+b"
 	};
 
-	return openModes[static_cast<size_t>(m)];
+	return openModes[static_cast<size_type>(m)];
 }
 
 }
@@ -201,7 +201,7 @@ File<char>& File<char>::get(char& c) {
 	c = std::fgetc(m_stream);
 	return *this;
 }
-File<char>& File<char>::get(char* string, size_t count) {
+File<char>& File<char>::get(char* string, size_type count) {
 	std::fgets(string, static_cast<uint32>(count), m_stream);
 	return *this;
 }
@@ -213,11 +213,11 @@ File<char>& File<char>::unget() {
 	std::fseek(m_stream, -1, 0);
 	return *this;
 }
-File<char>& File<char>::read(char* string, size_t count) {
+File<char>& File<char>::read(char* string, size_type count) {
 	std::fread(string, sizeof(char), count, m_stream);
 	return *this;
 }
-File<char>& File<char>::read(void* string, size_t size, size_t count) {
+File<char>& File<char>::read(void* string, size_type size, size_type count) {
 	std::fread(string, size, count, m_stream);
 	return *this;
 }
@@ -225,11 +225,11 @@ File<char>& File<char>::put(char c) {
 	std::fputc(c, m_stream);
 	return *this;
 }
-File<char>& File<char>::write(const void* string, size_t size, size_t count) {
+File<char>& File<char>::write(const void* string, size_type size, size_type count) {
 	std::fwrite(string, size, count, m_stream);
 	return *this;
 }
-File<char>& File<char>::write(const char* string, size_t count) {
+File<char>& File<char>::write(const char* string, size_type count) {
 	std::fwrite(string, sizeof(char), count, m_stream);
 	return *this;
 }
@@ -256,7 +256,7 @@ File<char>& File<char>::seekp(filepos off, SeekDirection dir) {
 	std::fseek(m_stream, off, static_cast<int>(dir));
 	return *this;
 }
-size_t File<char>::size() const {
+size_type File<char>::size() const {
 	auto p = std::ftell(m_stream);
 	std::fseek(m_stream, 0, SEEK_END);
 	auto r = std::ftell(m_stream);
@@ -343,7 +343,7 @@ File<wchar>& File<wchar>::get(wchar& c) {
 	c = std::fgetwc(m_stream);
 	return *this;
 }
-File<wchar>& File<wchar>::get(wchar* string, size_t count) {
+File<wchar>& File<wchar>::get(wchar* string, size_type count) {
 	std::fgetws(string, static_cast<uint32>(count), m_stream);
 	return *this;
 }
@@ -355,11 +355,11 @@ File<wchar>& File<wchar>::unget() {
 	std::fseek(m_stream, -1, 0);
 	return *this;
 }
-File<wchar>& File<wchar>::read(wchar* string, size_t count) {
+File<wchar>& File<wchar>::read(wchar* string, size_type count) {
 	std::fread(string, sizeof(wchar), count, m_stream);
 	return *this;
 }
-File<wchar>& File<wchar>::read(void* string, size_t size, size_t count) {
+File<wchar>& File<wchar>::read(void* string, size_type size, size_type count) {
 	std::fread(string, size, count, m_stream);
 	return *this;
 }
@@ -367,11 +367,11 @@ File<wchar>& File<wchar>::put(wchar c) {
 	std::fputwc(c, m_stream);
 	return *this;
 }
-File<wchar>& File<wchar>::write(const void* string, size_t size, size_t count) {
+File<wchar>& File<wchar>::write(const void* string, size_type size, size_type count) {
 	std::fwrite(string, size, count, m_stream);
 	return *this;
 }
-File<wchar>& File<wchar>::write(const wchar* string, size_t count) {
+File<wchar>& File<wchar>::write(const wchar* string, size_type count) {
 	std::fwrite(string, sizeof(wchar), count, m_stream);
 	return *this;
 }
@@ -398,7 +398,7 @@ File<wchar>& File<wchar>::seekp(filepos off, SeekDirection dir) {
 	std::fseek(m_stream, off, static_cast<int>(dir));
 	return *this;
 }
-size_t File<wchar>::size() const {
+size_type File<wchar>::size() const {
 	auto p = std::ftell(m_stream);
 	std::fseek(m_stream, 0, SEEK_END);
 	auto r = std::ftell(m_stream);
