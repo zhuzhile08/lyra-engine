@@ -72,7 +72,7 @@ public:
 		return std::destroy_at(p);
 	}
 
-	NODISCARD static constexpr size_type maxSize(const allocator_type& a) noexcept {
+	NODISCARD static constexpr size_type maxSize(const allocator_type&) noexcept {
 		return std::numeric_limits<size_type>::max() / sizeof(value_type);
 	}
 	DEPRECATED NODISCARD static constexpr size_type max_size(const allocator_type& a) noexcept {
