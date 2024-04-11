@@ -41,13 +41,13 @@ private:
 			}
 
 		private:
-			deleter_type m_d = deleter_type();
+			NO_UNIQUE_ADDRESS deleter_type m_d = deleter_type();
 		};
 
 		using deleter_type = UniquePointer<DeleterBase>;
 
 	public:
-		constexpr ReferenceCounter() noexcept = default;
+		constexpr ReferenceCounter() noexcept : m_deleter(UniquePointer<Deleter<>>::create()) { }
 		template <class D> constexpr ReferenceCounter(D del) noexcept : m_deleter(UniquePointer<Deleter<D>>::create(std::forward<D>(del))) { }
 		constexpr ReferenceCounter(ReferenceCounter&& other) : m_counter(other.m_counter), m_deleter(std::move(other.m_deleter)) { }
 		template <class OTy> constexpr ReferenceCounter(SharedPointer<OTy>::ReferenceCounter&& other) : m_counter(other.m_counter), m_deleter(std::move(other.m_deleter)) { }
@@ -65,11 +65,10 @@ private:
 		}
 
 		constexpr counter_type destroy(value_type* ptr) {
-			if (m_counter == 1 && m_deleter) {
+			if (m_counter == 1) {
 				m_deleter->destroy(ptr);
 			}
 
-			ptr = nullptr;
 			return --m_counter;
 		}
 
@@ -89,34 +88,30 @@ public:
 	constexpr SharedPointer() noexcept = default;
 	constexpr SharedPointer(nullpointer) noexcept { }
 	template <class Other> constexpr SharedPointer(Other* ptr) { 
-		auto p = std::exchange(m_pointer, ptr);
-		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
+		m_pointer = ptr;
 		if (m_pointer) m_refCount = new reference_counter_type();
 	}
 	template <class Other, class Deleter> constexpr SharedPointer(Other* ptr, Deleter del) requires std::is_copy_constructible_v<Deleter> { 
-		auto p = std::exchange(m_pointer, ptr);
-		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
+		m_pointer = ptr;
 		if (m_pointer) m_refCount = new reference_counter_type(std::forward<Deleter>(del));
 	}
 	constexpr SharedPointer(const wrapper& other) : m_pointer(other.m_pointer), m_refCount(other.m_refCount) { m_refCount->increment(); }
-	constexpr SharedPointer(wrapper&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)), m_refCount(std::move(other.m_refCount)) { }
+	constexpr SharedPointer(wrapper&& other) : m_pointer(other.m_pointer), m_refCount(std::move(other.m_refCount)) { }
 	template <class T> constexpr SharedPointer(const SharedPointer<T>& other) : m_pointer(other.m_pointer), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { m_refCount->increment(); }
-	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { }
+	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(other.m_pointer), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { }
 	template <class T> constexpr SharedPointer(UniquePointer<T>&& other) {
 		auto p = std::exchange(m_pointer, std::move(other.release()));
-		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type();
 	}
 	template <class T, class D> constexpr SharedPointer(UniquePointer<T, D>&& other) {
 		auto p = std::exchange(m_pointer, std::move(other.release()));
-		if (m_refCount) if (m_refCount->destroy(p) == 0) delete m_refCount;
 		if (m_pointer) m_refCount = new reference_counter_type(other.deleter());
 	}
 
 	constexpr ~SharedPointer() {
-		if (m_refCount) {
-			if (m_refCount->destroy(m_pointer) == 0) delete m_refCount;
-		} else delete m_pointer;
+		if (m_refCount->destroy(m_pointer) == 0) delete m_refCount;
+		m_pointer = nullptr;
+		m_refCount = nullptr;
 	}
 
 	constexpr SharedPointer& operator=(const wrapper& other) {
