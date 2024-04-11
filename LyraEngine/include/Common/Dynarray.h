@@ -13,7 +13,7 @@
 
 #include <Common/Common.h>
 #include <Common/Array.h>
-#include <Common/Iterator.h>
+#include <Common/Iterators.h>
 
 #include <type_traits>
 #include <span>
@@ -25,19 +25,24 @@ template <typename Ty>
 concept DynarrayValueType = std::is_move_assignable_v<Ty> && std::is_default_constructible_v<Ty>; // allowed dynamic array internal type
 
 // very dangerous dynamic array implementation, please only store contents <= 4 bytes in small quantities
-template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
+template <DynarrayValueType Ty, size_type Capacity> struct Dynarray {
 	using value_type = Ty;
+	using const_value = const value_type;
 	using reference = value_type&;
-	using const_reference = const value_type&;
-	using array = Array<value_type, Capacity>;
-	using wrapper = Dynarray<value_type, Capacity>;
+	using const_reference = const_value&;
+
 	using span = std::span<value_type>;
 	using const_span = std::span<const value_type>;
+	using array = Array<value_type, Capacity>;
+	using wrapper = Dynarray<value_type, Capacity>;
+
 	using iterator = typename array::iterator;
 	using const_iterator = typename array::const_iterator;
+	using reverse_iterator = typename array::reverse_iterator;
+	using const_reverse_iterator = typename array::const_reverse_iterator; 
 
 	constexpr Dynarray() noexcept = default;
-	constexpr Dynarray(size_t size, const Ty& value) {
+	constexpr Dynarray(size_type size, const Ty& value) {
 		m_size = (Capacity < size) ? Capacity : size;
 		std::fill_n(begin(), m_size, value);
 	}
@@ -49,32 +54,32 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 			pushBack(*first);
 		}
 	}
-	template <size_t OtherSize> constexpr Dynarray(const Dynarray<value_type, OtherSize>& other) { 
+	template <size_type OtherSize> constexpr Dynarray(const Dynarray<value_type, OtherSize>& other) { 
 		m_size = (Capacity < other.m_size) ? Capacity : other.m_size;
 		std::swap_ranges(begin(), begin() + m_size, other.begin());
 	}
-	template <size_t OtherSize> constexpr Dynarray(Dynarray<value_type, OtherSize>&& other) {
+	template <size_type OtherSize> constexpr Dynarray(Dynarray<value_type, OtherSize>&& other) {
 		m_size = (Capacity < other.m_size) ? Capacity : other.m_size;
 		std::swap_ranges(begin(), begin() + m_size, other.begin());
 	}
 	constexpr Dynarray(std::initializer_list<value_type> list) {
 		m_size = (Capacity < list.size()) ? Capacity : list.size();
-		for (size_t i = 0; i < m_size; i++) {
+		for (size_type i = 0; i < m_size; i++) {
 			if (i == Capacity) break;
 			m_array[i] = std::move(*(list.begin() + i));
 		}
 	}
 
-	NODISCARD constexpr reference operator[](size_t index) noexcept {
+	NODISCARD constexpr reference operator[](size_type index) noexcept {
 		return m_array[index];
 	}
-	NODISCARD constexpr const_reference operator[](size_t index) const noexcept {
+	NODISCARD constexpr const_reference operator[](size_type index) const noexcept {
 		return m_array[index];
 	}
-	DEPRECATED NODISCARD constexpr reference at(size_t index) noexcept {
+	DEPRECATED NODISCARD constexpr reference at(size_type index) noexcept {
 		return m_array.at(index);
 	}
-	DEPRECATED NODISCARD constexpr const_reference at(size_t index) const noexcept {
+	DEPRECATED NODISCARD constexpr const_reference at(size_type index) const noexcept {
 		return m_array.at(index);
 	}
 
@@ -90,10 +95,14 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	NODISCARD constexpr const_reference back() const {
 		return m_array[m_size - 1];
 	}
+
 	NODISCARD constexpr iterator begin() noexcept {
 		return m_array.begin();
 	}
 	NODISCARD constexpr const_iterator begin() const noexcept {
+		return m_array.begin();
+	}
+	NODISCARD constexpr const_iterator cbegin() const noexcept {
 		return m_array.begin();
 	}
 	NODISCARD constexpr iterator end() noexcept {
@@ -102,6 +111,27 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	NODISCARD constexpr const_iterator end() const noexcept {
 		return &m_array.m_array[m_size];
 	}
+	NODISCARD constexpr const_iterator cend() const noexcept {
+		return &m_array.m_array[m_size];
+	}
+	NODISCARD constexpr reverse_iterator rbegin() noexcept {
+		return (&m_array.m_array[m_size]) - 1;
+	}
+	NODISCARD constexpr const_iterator rbegin() const noexcept {
+		return (&m_array.m_array[m_size]) - 1;
+	}
+	NODISCARD constexpr const_iterator crbegin() const noexcept {
+		return (&m_array.m_array[m_size]) - 1;
+	}
+	NODISCARD constexpr iterator rend() noexcept {
+		return m_array.rend();
+	}
+	NODISCARD constexpr const_iterator rend() const noexcept {
+		return m_array.rend();
+	}
+	NODISCARD constexpr const_iterator crend() const noexcept {
+		return m_array.rend();
+	}
 
 	constexpr void fill(const_reference value) { 
 		std::fill_n(begin(), m_size, value);
@@ -109,7 +139,7 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	constexpr void fill(value_type&& value) { 
 		std::fill_n(begin(), m_size, value);
 	}
-	constexpr void fill(const value_type* const array, size_t size) {
+	constexpr void fill(const value_type* const array, size_type size) {
 		m_size = (m_size < size) ? m_size : size;
 		std::swap_ranges(begin(), begin() + m_size, array[0]);
 	}
@@ -117,7 +147,7 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 		m_size = array.m_size;
 		std::swap_ranges(begin(), end(), array.end());
 	}
-	template <size_t OtherCapacity> constexpr void fill(const Dynarray<Ty, OtherCapacity>& array) {
+	template <size_type OtherCapacity> constexpr void fill(const Dynarray<Ty, OtherCapacity>& array) {
 		m_size = (Capacity < array.m_size) ? Capacity : array.m_size;
 		std::swap_ranges(begin(), begin() + m_size, array.begin());
 	}
@@ -148,25 +178,25 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 		*f = std::move(value);
 		return f;
 	}
-	constexpr iterator insert(const_iterator begin, size_t count, const_reference value) {
+	constexpr iterator insert(const_iterator begin, size_type count, const_reference value) {
 		if (m_size + count > Capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array is already full!");
 		iterator f, b;
 		for (f = this->end(); f >= begin; f--) {
 			b = f;
 			*(++b + count) = *f;
-		} for (size_t i = 0; i < count; i++) {
+		} for (size_type i = 0; i < count; i++) {
 			*(f + i) = value;
 			m_size++;
 		}
 		return f;
 	}
-	constexpr iterator insert(const_iterator begin, size_t count, value_type&& value) {
+	constexpr iterator insert(const_iterator begin, size_type count, value_type&& value) {
 		if (m_size + count > Capacity) throw std::out_of_range("lyra::Dynarray::insert: Dynamic Array is already full!");
 		iterator f, b;
 		for (f = this->end(); f >= begin; f--) {
 			b = f;
 			*(++b + count) = *f;
-		} for (size_t i = 0; i < count; i++) {
+		} for (size_type i = 0; i < count; i++) {
 			*(f + i) = std::move(value);
 			m_size++;
 		}
@@ -216,7 +246,7 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 		back() = std::move(value_type());
 		m_size--;
 	}
-	constexpr void resize(size_t size) noexcept {
+	constexpr void resize(size_type size) noexcept {
 		if (m_size <= size) m_size = size;
 		else for ( ; m_size > size; m_size--) popBack();
 	}
@@ -224,13 +254,13 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 		std::swap(m_array, array.m_array);
 	}
 
-	NODISCARD constexpr size_t size() const noexcept {
+	NODISCARD constexpr size_type size() const noexcept {
 		return m_size;
 	}
-	NODISCARD constexpr size_t maxSize() const noexcept { 
+	NODISCARD constexpr size_type maxSize() const noexcept { 
 		return Capacity;
 	}
-	DEPRECATED NODISCARD constexpr size_t max_size() const noexcept {
+	DEPRECATED NODISCARD constexpr size_type max_size() const noexcept {
 		return Capacity;
 	}
 	NODISCARD constexpr bool empty() const noexcept {
@@ -254,7 +284,7 @@ template <DynarrayValueType Ty, size_t Capacity> struct Dynarray {
 	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
 private:
-	size_t m_size = 0;
+	size_type m_size = 0;
 	array m_array = array();
 };
 
