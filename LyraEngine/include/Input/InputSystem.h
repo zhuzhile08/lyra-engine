@@ -76,26 +76,22 @@ void disableImGui() noexcept;
 
 } // namespace input
 
+template <> struct Hash<lyra::input::Key> {
+	constexpr size_type operator()(const lyra::input::Key& k) const {
+		return static_cast<size_type>(k.type);
+	}
+};
+
+template <> struct Hash<lyra::input::MouseButton> {
+	constexpr size_type operator()(const lyra::input::MouseButton& b) const {
+		return static_cast<size_type>(b.type);
+	}
+};
+
+template <> struct Hash<lyra::input::ControllerButton> {
+	constexpr size_type operator()(const lyra::input::ControllerButton& b) const {
+		return static_cast<size_type>(b.type);
+	}
+};
+
 } // namespace lyra
-
-namespace std {
-
-template <> struct hash<lyra::input::Key> {
-	size_t operator()(const lyra::input::Key& k) const {
-		return static_cast<size_t>(k.type);
-	}
-};
-
-template <> struct hash<lyra::input::MouseButton> {
-	size_t operator()(const lyra::input::MouseButton& b) const {
-		return static_cast<size_t>(b.type);
-	}
-};
-
-template <> struct hash<lyra::input::ControllerButton> {
-	size_t operator()(const lyra::input::ControllerButton& b) const {
-		return static_cast<size_t>(b.type);
-	}
-};
-
-} // namespace std
