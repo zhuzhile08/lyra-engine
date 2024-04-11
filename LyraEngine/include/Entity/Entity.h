@@ -5,6 +5,7 @@
  * @brief Entity class
  * 
  * @date 2022-24-7
+ * 
  * @copyright Copyright (c) 2022
 *************************/
 
@@ -23,57 +24,63 @@ namespace lyra {
 
 class Entity : public Node<Entity> {
 public:
-	Entity(std::string_view name = "Entity", Entity* parent = nullptr);
-	Entity(std::string_view name, Entity& parent) : Entity(name, &parent) { }
+	constexpr Entity(std::string_view name = "Entity", EntityComponentSystem* ecs = ecs::defaultECS()) : 
+		Node<Entity>(name), 
+		m_id(ecs->m_entityManager.uniqueID()),
+		m_ecs(ecs) { 
+		m_ecs->m_entityManager.addEntity(this);
+	}
+	constexpr Entity(const Entity&) = delete;
+	constexpr Entity(Entity&&) = default;
+	constexpr ~Entity() {
+		m_ecs->removeAllComponents(m_id);
+		m_ecs->m_entityManager.returnEntity(m_id);
+	}
 
-	~Entity();
+	// constexpr Entity& operator=(const Entity&) = delete;
+	// constexpr Entity& operator=(Entity&&) = default;
 
-	Entity(Entity&&) = default;
+	Entity& operator=(const Entity&) = delete;
 	Entity& operator=(Entity&&) = default;
 
-	template <class Ty, class... Args> Entity& addComponent(Args&&... args) {
-		auto c = new (ecs::addComponent(ecs::typeID<Ty>(), sizeof(Ty), m_id)) Ty(std::forward<Args>(args)...);
-
-		if constexpr (std::is_base_of_v<BasicComponent, Ty>) c->entity = this;
+	template <class Ty, class... Args> constexpr Entity& addComponent(Args&&... args) noexcept {
+		if constexpr (std::is_base_of_v<BasicComponent, Ty>) m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
+		else m_ecs->addComponent<Ty>(m_id, std::forward<Args>(args)...);
 
 		return *this;
 	}
-	template <class Ty> Entity& removeComponent() {
-		ecs::removeComponent(ecs::typeID<Ty>(), m_id);
+	template <class Ty, class... Args> constexpr const Entity& addComponent(Args&&... args) const noexcept {
+		if constexpr (std::is_base_of_v<BasicComponent, Ty>) m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
+		else m_ecs->addComponent<Ty>(m_id, std::forward<Args>(args)...);
+
 		return *this;
 	}
-	template <class Ty> const Entity& removeComponent() const {
-		ecs::removeComponent(ecs::typeID<Ty>(), m_id);
+	template <class Ty> constexpr Entity& removeComponent() noexcept {
+		m_ecs->removeComponent<Ty>();
 		return *this;
 	}
-	Entity& removeAll() {
-		ecs::removeAllComponents(m_id);
+	template <class Ty> constexpr const Entity& removeComponent() const noexcept {
+		m_ecs->removeComponent<Ty>();
 		return *this;
 	}
-	const Entity& removeAll() const {
-		ecs::removeAllComponents(m_id);
+	constexpr Entity& removeAll() noexcept {
+		m_ecs->removeAllComponents(m_id);
+		return *this;
+	}
+	constexpr const Entity& removeAll() const noexcept {
+		m_ecs->removeAllComponents(m_id);
 		return *this;
 	}
 
-	template <class Ty> NODISCARD Ty& component() {
-		if (!ecs::containsComponent(ecs::typeID<Ty>(), m_id)) {
-			addComponent<Ty>();
-			log::error("lyra::Entity::component(): trying to access a component with internal type of: {} but it did't exist! Component was therefore added.", typeid(Ty).name());
-		}
-
-		return *reinterpret_cast<Ty*>(ecs::component(ecs::typeID<Ty>(), m_id));
+	template <class Ty> NODISCARD constexpr Ty& component() noexcept {
+		return m_ecs->component<Ty>(m_id);
 	}
-	template <class Ty> NODISCARD const Ty& component() const {
-		if (!ecs::containsComponent(ecs::typeID<Ty>(), m_id)) { // bypass const
-			auto c = new (ecs::addComponent(ecs::typeID<Ty>(), sizeof(Ty), m_id)) Ty();
-			if constexpr (std::is_base_of_v<BasicComponent, Ty>) c->entity = this;
-		}
-
-		return *reinterpret_cast<Ty*>(ecs::c_component(typeID<Ty>(), m_id));
+	template <class Ty> NODISCARD constexpr const Ty& component() const {
+		return m_ecs->component<Ty>(m_id);
 	}
 
-	template <class Ty> NODISCARD bool containsComponent() const {
-		return ecs::containsComponent(ecs::typeID<Ty>(), m_id);
+	template <class Ty> NODISCARD constexpr bool containsComponent() const {
+		return m_ecs->containsComponent<Ty>(m_id);
 	}
 
 	NODISCARD constexpr objectid id() const noexcept {
@@ -82,6 +89,7 @@ public:
 
 private:
 	objectid m_id;
+	EntityComponentSystem* m_ecs;
 };
 
 } // namespace lyra
