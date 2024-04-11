@@ -6,7 +6,7 @@
  * 
  * @date 2024-01-31
  * 
- * @copyright Copyright (c) 2022
+ * @copyright Copyright (c) 2024
  *************************/
 
 #pragma once
