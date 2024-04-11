@@ -50,7 +50,7 @@ using filepos = fpos_t;
 using objectid = uint64;
 using uintptr = uintptr_t;
 using nullpointer = decltype(nullptr);
-using size = size_t; // unreliable mostly because of size function in most containers, resort to 
+using size_type = std::size_t;
 
 // color type
 struct Color {
@@ -75,6 +75,12 @@ struct Radian {
 		return r;
 	}
 };
+
+
+// Hash function
+
+template <class Ty> struct Hash;
+
 
 // some higher level wrappers
 
