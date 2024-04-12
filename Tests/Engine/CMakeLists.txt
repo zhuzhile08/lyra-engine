@@ -21,15 +21,21 @@ PRIVATE
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
-	${LIBRARY_PATH}/assimp/include
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
 )
 
+# copy data files to the build location
+add_custom_target(copy_engine_data
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}data/
+)
+
 add_executable(Engine
 	"src/main.cpp"
 )
+
+add_dependencies(Engine copy_engine_data)
 
 target_link_libraries(Engine
 PRIVATE
