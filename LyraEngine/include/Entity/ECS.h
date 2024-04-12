@@ -16,6 +16,8 @@
 #include <Common/Vector.h>
 #include <Common/UnorderedSparseMap.h>
 
+#include <Entity/Component.h>
+
 #include <typeindex>
 
 namespace lyra {
@@ -111,12 +113,19 @@ private:
 
 public:
 	// component functions
-	template <class Ty, class... Args> constexpr Ty& addComponent(objectid e, Args&&... args) noexcept {
+	template <class Ty, class... Args> constexpr Ty& addComponent(objectid e, Entity* p, Args&&... args) noexcept {
 		std::type_index type(typeid(Ty));
 
-		return dynamic_cast<ComponentAllocator<Ty>*>(
+		auto& component = dynamic_cast<ComponentAllocator<Ty>*>(
 			m_componentAllocators.tryEmplace(type, concrete_allocator<Ty>::create()).first->second.get())->
 				allocateComponent(m_lookup[type][e], std::forward<Args>(args)...);
+
+		if constexpr (std::is_base_of_v<BasicComponent, Ty>) {
+			component.entity = p;
+			component.init();
+		}
+
+		return component;
 	}
 	template <class Ty> constexpr void removeComponent(objectid e) noexcept {
 		std::type_index type(typeid(Ty));
@@ -141,11 +150,7 @@ public:
 
 	template <class Ty> constexpr Ty& component(objectid e) noexcept {
 		std::type_index type(typeid(Ty));
-
-		if (containsComponent<Ty>(e))
-			return dynamic_cast<ComponentAllocator<Ty>*>(m_componentAllocators.at(type).get())->component(m_lookup[type][e]);
-		else
-			return addComponent<Ty>(e);
+		return dynamic_cast<ComponentAllocator<Ty>*>(m_componentAllocators.at(type).get())->component(m_lookup[type][e]);
 	}
 	template <class Ty> constexpr const Ty& component(objectid e) const noexcept {
 		std::type_index type(typeid(Ty));

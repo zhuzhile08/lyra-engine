@@ -21,13 +21,14 @@ public:
 	BasicComponent() noexcept = default;
 	virtual ~BasicComponent() noexcept = default;
 
-	virtual void init(void) { };
-	virtual void update(void) { };
+	virtual void init(void) { }
+	virtual void update(void) { }
 
 protected:
-	Entity* entity; // only exception I'll make to my naming convention for a better API interface
+	Entity* entity;
 
 	friend class Entity;
+	friend class EntityComponentSystem;
 };
 
 using BasicScript = BasicComponent;

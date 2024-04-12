@@ -44,15 +44,15 @@ public:
 	Entity& operator=(Entity&&) = default;
 
 	template <class Ty, class... Args> constexpr Entity& addComponent(Args&&... args) noexcept {
-		if constexpr (std::is_base_of_v<BasicComponent, Ty>) m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
-		else m_ecs->addComponent<Ty>(m_id, std::forward<Args>(args)...);
+		m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
 
 		return *this;
 	}
 	template <class Ty, class... Args> constexpr const Entity& addComponent(Args&&... args) const noexcept {
-		if constexpr (std::is_base_of_v<BasicComponent, Ty>) m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
+		if constexpr (std::is_base_of_v<BasicComponent, Ty>)
+			auto& c = m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
 		else m_ecs->addComponent<Ty>(m_id, std::forward<Args>(args)...);
-
+		
 		return *this;
 	}
 	template <class Ty> constexpr Entity& removeComponent() noexcept {
