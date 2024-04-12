@@ -77,22 +77,22 @@ public:
 	}
 
 	NODISCARD glm::vec3 forward() const {
-		return glm::normalize(glm::rotate(orientation, { 0.0f, 1.0f, 0.0f }));
+		return glm::normalize(glm::rotate(glm::inverse(orientation), { 0.0f, 0.0f, 1.0f }));
 	}
 	NODISCARD glm::vec3 left() const {
-		return glm::normalize(glm::rotate(orientation, { 1.0f, 0.0f, 0.0f }));
+		return glm::normalize(glm::rotate(glm::inverse(orientation), { 1.0f, 0.0f, 0.0f }));
 	}
 	NODISCARD glm::vec3 up() const {
-		return glm::normalize(glm::rotate(orientation, { 0.0f, 0.0f, 1.0f }));
+		return glm::normalize(glm::rotate(glm::inverse(orientation), { 0.0f, 1.0f, 0.0f }));
 	}
-	NODISCARD glm::vec3 globalForward() const {
-		return glm::normalize(glm::rotate(globalOrientation(), { 0.0f, 1.0f, 0.0f }));
+	NODISCARD static glm::vec3 globalForward() {
+		return { 0.0f, 1.0f, 0.0f };
 	}
-	NODISCARD glm::vec3 globalLeft() const {
-		return glm::normalize(glm::rotate(globalOrientation(), { 1.0f, 0.0f, 0.0f }));
+	NODISCARD static glm::vec3 globalLeft() {
+		return { 1.0f, 0.0f, 0.0f };
 	}
-	NODISCARD glm::vec3 globalUp() const {
-		return glm::normalize(glm::rotate(globalOrientation(), { 0.0f, 0.0f, 1.0f }));
+	NODISCARD static glm::vec3 globalUp() {
+		return { 0.0f, 0.0f, 1.0f };
 	}
 
 	NODISCARD glm::vec3 localRotation() const {
