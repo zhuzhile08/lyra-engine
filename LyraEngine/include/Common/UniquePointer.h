@@ -120,7 +120,7 @@ public:
 
 private:
 	pointer m_pointer = nullptr;
-	deleter_type m_deleter;
+	NO_UNIQUE_ADDRESS deleter_type m_deleter;
 
 	template <class, class>
 	friend class UniquePointer;
@@ -201,7 +201,7 @@ public:
 
 private:
 	pointer m_pointer = nullptr;
-	deleter_type m_deleter;
+	NO_UNIQUE_ADDRESS deleter_type m_deleter;
 
 	template <class, class>
 	friend class UniquePointer;
