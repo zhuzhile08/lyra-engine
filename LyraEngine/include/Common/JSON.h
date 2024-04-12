@@ -163,9 +163,9 @@ public:
 	constexpr string_type stringifyPretty() const {
 		string_type r;
 
-		if (isObject()) stringifyObjectPretty(*this, r);
-		else if (isArray()) stringifyArrayPretty(*this, r);
-		else stringifyPairPretty(*this, r);
+		if (isObject()) stringifyObjectPretty(0, *this, r);
+		else if (isArray()) stringifyArrayPretty(0, *this, r);
+		else stringifyPairPretty(0, *this, r);
 
 		return r;
 	}
@@ -228,7 +228,6 @@ private:
 					break;
 
 				case '\"':
-					++begin;
 					return r;
 					break;
 				
@@ -319,7 +318,8 @@ private:
 							r.push_back(*begin);
 
 							break;
-						case '\n':
+
+						default:
 							if (isFloat) return std::stof(r);
 							else if (isUnsigned) return static_cast<unsigned_type>(std::stoi(r));
 							else return std::stoi(r);
@@ -338,14 +338,15 @@ private:
 	template <class Iterator> static constexpr pointer parseObject(Iterator& begin, Iterator& end, json_type& json) {
 		for (++begin; begin != end; begin++) {
 			switch(skipCharacters(begin, end)) {
+				default:
+					json.insert(parsePair(begin, end));
+					break;
+					
 				case '}':
 					return &json;
 					break;
 				case ',':
 					break;
-
-				default:
-					json.insert(parsePair(begin, end));
 			}
 		}
 
@@ -362,28 +363,34 @@ private:
 			switch(skipCharacters(begin, end)) {
 				case '{':
 					tok->m_value = parseObject(begin, end, *tok);
+					r.emplaceBack(tok.release());
 
 					break;
 				case '[':
 					tok->m_value = parseArray(begin, end);
+					r.emplaceBack(tok.release());
 
 					break;
 				case '\"':
 					tok->m_value = parseString(begin, end);
+					r.emplaceBack(tok.release());
+
+					if (*(begin + 1) != ']') ++begin;
 
 					break;
 				case ']':
 					return r;
 					break;
+				case '}':
 				case ',':
 					break;
 
 				default:
 					tok->m_value = parsePrimitive(begin, end);
+					r.emplaceBack(tok.release());
+					
 					break;
 			}
-
-			r.emplaceBack(tok.release());
 		}
 
 		ASSERT(false, "lyra::Json::parseArray(): JSON Syntax Error: missing token!");
@@ -394,6 +401,7 @@ private:
 		json_type tok;
 
 		tok.m_name = parseString(begin, end);
+		++begin;
 		ASSERT(*begin++ == ':', "lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
 
 		switch(skipCharacters(begin, end)) {
@@ -489,18 +497,18 @@ private:
 			if (it != t.begin()) s.append(",\n");
 			stringifyPairPretty(indent, *it->second, s);
 		}
-		s.append("\n").append(--indent, '\t').pushBack('}');
+		s.append("\n").append(--indent, '\t').push_back('}');
 	}
 	static constexpr void stringifyArrayPretty(size_type indent, const json_type& t, string_type& s) {
 		indent += 1;
 		s.append("[\n");
 		const auto& array = t.get<array_type>();
-		for (auto it = array.rbegin(); it != array.rend(); it++) {
-			if (it != array.rbegin()) s.append(",\n");
+		for (auto it = array.begin(); it != array.end(); it++) {
+			if (it != array.begin()) s.append(",\n");
 			s.append(indent, '\t');
 
 			if ((*it)->isString())
-				s.append("\"").append((*it)->template get<string_type>()).pushBack('\"');
+				s.append("\"").append((*it)->template get<string_type>()).push_back('\"');
 			else if ((*it)->isObject())
 				stringifyObjectPretty(indent, **it, s);
 			else if ((*it)->isArray())
@@ -508,13 +516,13 @@ private:
 			else
 				stringifyPrimitive(**it, s);
 		}
-		s.append("\n").append(--indent, '\t').pushBack(']');
+		s.append("\n").append(--indent, '\t').push_back(']');
 	}
 	static constexpr void stringifyPairPretty(size_type indent, const json_type& t, string_type& s) {
 		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
 		
 		if (t.isString())
-			s.append("\"").append(t.get<string_type>()).pushBack('\"');
+			s.append("\"").append(t.get<string_type>()).push_back('\"');
 		else if (t.isObject())
 			stringifyObjectPretty(indent, t, s);
 		else if (t.isArray())
