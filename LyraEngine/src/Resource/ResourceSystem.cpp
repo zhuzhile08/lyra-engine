@@ -2,6 +2,7 @@
 
 #include <Common/Logger.h>
 #include <Common/FileSystem.h>
+#include <Common/UniquePointer.h>
 
 #include <Common/JSON.h>
 
@@ -22,10 +23,10 @@ public:
 		
 	}
 
-	UnorderedSparseMap<std::string, vulkan::Shader> shaders;
-	UnorderedSparseMap<std::string, Texture> textures;
-	UnorderedSparseMap<std::string, Vector<Mesh>> meshes;
-	UnorderedSparseMap<std::string, Material> materials;
+	UnorderedSparseMap<std::string, UniquePointer<vulkan::Shader>> shaders;
+	UnorderedSparseMap<std::string, UniquePointer<Texture>> textures;
+	UnorderedSparseMap<std::string, UniquePointer<Vector<Mesh>>> meshes;
+	UnorderedSparseMap<std::string, UniquePointer<Material>> materials;
 
 	Json assetsFile;
 };
@@ -53,32 +54,37 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 		Vector<char> data(compressedFile.size());
 		compressedFile.read(data.data(), data.size());
 
-		globalResourceSystem->shaders.emplace(path.string(), vulkan::Shader(
-			static_cast<vulkan::Shader::Type>(js.child("Type").get<uint32>()), 
-			data
-		));
+		globalResourceSystem->shaders.emplace(
+			path.string(),
+			UniquePointer<vulkan::Shader>::create(
+				static_cast<vulkan::Shader::Type>(js.child("Type").get<uint32>()), 
+				data
+			)
+		);
 	}
 
-	return globalResourceSystem->shaders.at(path.string());
+	return *globalResourceSystem->shaders.at(path.string());
 }
 
 const Texture& texture(std::filesystem::path path) {
 	if (!globalResourceSystem->textures.contains(path.string())) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
-		globalResourceSystem->textures.emplace(path.string(), Texture(loadTextureFile(
-			absolutePath(std::filesystem::path("data")/(path)),
-			js.child("Uncompressed").get<uint32>(),
-			js.child("Width").get<uint32>(),
-			js.child("Height").get<uint32>(),
-			js.child("Type").get<uint32>(),
-			js.child("Alpha").get<uint32>(),
-			js.child("Mipmap").get<uint32>(),
-			js.child("Dimension").get<uint32>(),
-			js.child("Wrap").get<uint32>()
+		globalResourceSystem->textures.emplace(
+			path.string(), 
+			UniquePointer<Texture>::create(loadTextureFile(
+				absolutePath(std::filesystem::path("data")/(path)),
+				js.child("Uncompressed").get<uint32>(),
+				js.child("Width").get<uint32>(),
+				js.child("Height").get<uint32>(),
+				js.child("Type").get<uint32>(),
+				js.child("Alpha").get<uint32>(),
+				js.child("Mipmap").get<uint32>(),
+				js.child("Dimension").get<uint32>(),
+				js.child("Wrap").get<uint32>()
 		)));
 	}
 
-	return globalResourceSystem->textures.at(path.string());
+	return *globalResourceSystem->textures.at(path.string());
 }
 
 const Vector<Mesh>& mesh(std::filesystem::path path) {
@@ -93,15 +99,15 @@ const Vector<Mesh>& mesh(std::filesystem::path path) {
 			vertexBlocks,
 			indexBlocks
 		);
-		auto& vec = globalResourceSystem->meshes.emplace(path.string(), Vector<Mesh>()).first->second;
-		vec.reserve(vertexBlocks.size());
+		auto vec = globalResourceSystem->meshes.emplace(path.string(), UniquePointer<Vector<Mesh>>::create()).first->second.get();
+		vec->reserve(vertexBlocks.size());
 
 		for (uint32 i = 0; i < vertexBlocks.size(); i++) {
-			vec.emplaceBack(meshData, i);
+			vec->emplaceBack(meshData, i);
 		}
 	}
 
-	return globalResourceSystem->meshes.at(path.string());
+	return *globalResourceSystem->meshes.at(path.string());
 }
 
 const Material& material(std::filesystem::path path) {
@@ -110,12 +116,12 @@ const Material& material(std::filesystem::path path) {
 		// globalResourceSystem->materials.emplace(path.string(), MaterialFile{});
 	}
 
-	return globalResourceSystem->materials.at(path.string());
+	return *globalResourceSystem->materials.at(path.string());
 }
 
 const Texture& defaultTexture() {
 	if (!globalResourceSystem->textures.contains("defaultTexture")) {
-		globalResourceSystem->textures.emplace("defaultTexture", Texture({
+		globalResourceSystem->textures.emplace("defaultTexture", UniquePointer<Texture>::create(TextureFile{
 			1,
 			1,
 			0,
@@ -127,12 +133,12 @@ const Texture& defaultTexture() {
 		}));
 	}
 
-	return globalResourceSystem->textures.at("defaultTexture");
+	return *globalResourceSystem->textures.at("defaultTexture");
 }
 
 const Texture& defaultNormal() {
 	if (!globalResourceSystem->textures.contains("defaultNormal")) {
-		globalResourceSystem->textures.emplace("defaultNormal", Texture({
+		globalResourceSystem->textures.emplace("defaultNormal", UniquePointer<Texture>::create(TextureFile{
 			1,
 			1,
 			1,
@@ -144,7 +150,7 @@ const Texture& defaultNormal() {
 		}));
 	}
 
-	return globalResourceSystem->textures.at("defaultNormal");
+	return *globalResourceSystem->textures.at("defaultNormal");
 }
 
 } // namespace resource
