@@ -117,7 +117,7 @@ public:
 	}
 
 private:
-	SharedPointer<std::FILE> m_stream = nullptr;
+	file_type m_stream = nullptr;
 	char* m_buffer = nullptr;
 
 	std::filesystem::path m_path;
