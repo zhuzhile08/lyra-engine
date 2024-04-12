@@ -67,10 +67,10 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Resource/LoadTextureFile.cpp"
 	"src/Resource/ResourceSystem.cpp"
 
-	"src/EntitySystem/Entity.cpp"
-	"src/EntitySystem/Camera.cpp"
-	#"src/EntitySystem/Cubemap.cpp"
-	"src/EntitySystem/MeshRenderer.cpp"
+	"src/Entity/ECS.cpp"
+	"src/Entity/Components/Camera.cpp"
+	#"src/Entity/Components/Cubemap.cpp"
+	"src/Entity/Components/MeshRenderer.cpp"
 
 	"src/Input/InputSystem.cpp"
 )
@@ -112,17 +112,21 @@ LINK_PUBLIC
 
 target_precompile_headers(LyraEngine
 PUBLIC
+	<typeindex>
+	<type_traits>
 	<algorithm>
 	<array>
 	<chrono>
 	<cmath>
 	<cstdio>
+	<cstdint>
 	<cstdlib>
 	<deque>
 	<filesystem>
 	<fstream>
 	<functional>
 	<iostream>
+	<initializer_list>
 	<map>
 	<set>
 	<stddef.h>
@@ -131,9 +135,31 @@ PUBLIC
 	<string>
 	<string_view>
 	<type_traits>
-	<unordered_map>
-	<unordered_set>
 	<utility>
-	<vector>
 	<wchar.h>
+	<Common/Allocator.h>
+	<Common/Array.h>
+	<Common/Benchmark.h>
+	<Common/Common.h>
+	<Common/Config.h>
+	<Common/Dynarray.h>
+	<Common/FileSystem.h>
+	<Common/ForwardList.h>
+	<Common/ForwardListNode.h>
+	<Common/FunctionPointer.h>
+	<Common/Hash.h>
+	<Common/Iterators.h>
+	<Common/JSON.h>
+	<Common/Logger.h>
+	<Common/Node.h>
+	<Common/RAIIContainers.h>
+	<Common/RenderSystem.h>
+	<Common/SharedPointer.h>
+	#<Common/SparseMap.h>
+	#<Common/SparseSet.h>
+	<Common/UniquePointer.h>
+	<Common/UnorderedSparseMap.h>
+	<Common/UnorderedSparseSet.h>
+	<Common/Utility.h>
+	<Common/Vector.h>
 )
