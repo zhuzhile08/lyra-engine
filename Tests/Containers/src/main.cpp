@@ -1,5 +1,7 @@
 #include <Common/Array.h>
 #include <Common/Dynarray.h>
+#include <Common/Vector.h>
+#include <Common/UnorderedSparseMap.h>
 #include <Common/SharedPointer.h>
 #include <Common/Logger.h>
 #include <Common/FunctionPointer.h>
@@ -15,52 +17,121 @@
 #include <iostream>
 #include <map>
 
+#include <numeric>
+
 #include <memory>
 
 namespace {
 
-int add(int a, int b) {
-	return a + b;
-}
+constexpr const char* json("\
+{ \
+	\"First Loose Variable Test\": \"Hello, World!\",\
+\
+	\"Structure Test\": {\
+		\"String\": \"cFRzGjjQPs\%UQK@jRutx\",\
+		\"Floating Point\": 3.1415926,\
+		\"Nestled Structure Test\": {\
+			\"Unsigned Integer\": 23450908\
+		},\
+		\"Nestled Array Test\": [\
+			\"Unsigned Integer\": 159807.234\
+		],\
+		\"Signed Integer\": -485038\
+	},\
+\
+	\"Array Test\": [\
+		\"cc1UjRB*q6BRY1&MWUk0\",\
+		\"xePtYYW=Mm&rKQ8mQtf1\",\
+		\"+1OkC4QafUb\%46ptJprU\",\
+		\"O*%1Kn!\%x#KCeUs4Qa1z\"\
+	],\
+\
+	\"Structure inside Array Test\": [\
+		{\
+			\"Exponent\": 2954.8e-7,\
+			\"String\": \"h09vJ+SvsKpDPoP6ZbfJ\"\
+		},\
+		{\
+			\"Joke\": \"Why did the chicken cross the road? Because it wanted to get to the other side\",\
+			\"Fact\": \"The brain is one of the organs in the human body with the highest percent of fat\",\
+			\"Sentence\": \"Kept you waiting, huh?\"\
+		}\
+	],\
+\
+	\"Second Loose Variable Test\": \"Goodbye, World!\"\
+}\
+");
+
+class Test : public lyra::Node<Test> {
+public:
+	using lyra::Node<Test>::BasicNode;
+};
+
+struct ComponentFoo {
+	ComponentFoo() = default;
+	ComponentFoo(std::string_view eName) : entityName(eName) { }
+
+	std::string entityName;
+	glm::vec2 v;
+};
+
+struct ComponentBar {
+	ComponentBar() = default;
+
+	void printComponentFooInfo(const lyra::Entity& entity, ComponentFoo& foo) const {
+		//lyra::log::warning("System found entity with name: {} and index: {} with both components foo and bar!", foo.entityName, entity.id());
+		foo.v = {1, 1};
+	}
+	void printComponentFooInfo(ComponentFoo& foo) const {
+		//lyra::log::warning("System found entity with name: {} and index: {} with both components foo and bar!", foo.entityName, entity.id());
+		foo.v = {1, 1};
+	}
+
+	char c;
+};
+
+struct SystemTest {
+	void update() {
+		system.each([](const lyra::Entity& entity, ComponentFoo& foo, const ComponentBar& bar){
+			bar.printComponentFooInfo(foo);
+		});
+	}
+
+	lyra::System<ComponentFoo, ComponentBar> system;
+};
 
 }
 
 int main(int argc, char* argv[]) {
-	lyra::initFileSystem(argv);
 	lyra::initLoggingSystem();
 	lyra::initECS();
-	
-	{ // function pointer test
-		lyra::Function<int(int, int)> addFunction(add);
-		lyra::log::debug("Result of an addition function stored in a function pointer (w. args): {}\n");
-	}
 
 	{ // dynarray test
 		lyra::Dynarray<int, 16> foo;
 		foo.resize(10);
 		foo.fill(4);
-
 		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
+
 		lyra::log::newLine();
 		lyra::log::debug("After insert:");
 		foo.insert(foo.begin() + 5, 5);
-
 		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
+
 		lyra::log::newLine();
 		lyra::log::debug("After inserting multiple elements:");
 		foo.insert(foo.begin() + 6, 2, 6);
-
 		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
+
 		lyra::log::newLine();
 		lyra::log::debug("After erasing one element:");
 		foo.erase(foo.begin() + 9);
-
 		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
+
 		lyra::log::newLine();
 		lyra::log::debug("After erasing multiple elements:");
 		foo.erase(foo.begin() + 6, foo.end() - 1);
-
 		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
+
 		lyra::log::newLine();
 		lyra::log::debug("After inserting multiple elements and causing an exception:");
 		try {
@@ -87,62 +158,31 @@ int main(int argc, char* argv[]) {
 	}
 
 	{ // ECS test
-		struct ComponentFoo {
-			ComponentFoo() = default;
-			ComponentFoo(std::string_view eName) : entityName(eName) {
-				lyra::log::debug("Component (ComponentFoo) added to Entity!\n");
-			}
-
-			std::string entityName;
-		};
-
-		struct ComponentBar {
-			ComponentBar() {
-				lyra::log::debug("Component (ComponentBar) added to Entity!\n");
-			}
-
-			void printComponentFooInfo(const lyra::Entity& entity, const ComponentFoo& foo) const {
-				lyra::log::warning("System found entity with name: {} and index: {} with both components foo and bar!", foo.entityName, entity.id());
-			}
-		};
-
-		struct SystemTest {
-			void update() {
-				system.each([](const lyra::Entity& entity, const ComponentFoo& foo, const ComponentBar& bar){
-					bar.printComponentFooInfo(entity, foo);
-				});
-			}
-
-			lyra::System<ComponentFoo, ComponentBar> system;
-		};
-
 		lyra::Entity e("Root");
-		e.insert("First")
-		 .insert("Second")
-		 .insert("Third");
 
-		auto& third = e.child("First::Second::Third");
-		auto& foo = third.insert("Foo");
-		auto& bar = third.insert("Bar");
-		auto& foobar = third.insert("FooBar");
+		{
+			lyra::Benchmark b;
 
-		foo.addComponent<ComponentFoo>(foo.name());
-		bar.addComponent<ComponentBar>();
+			for (lyra::objectid i = 0; i < 65535; i++) {
+				e.insert(std::to_string(i + 65535)).addComponent<ComponentBar>();
+				auto& t = e.insert(std::to_string(i));
+				t.addComponent<ComponentFoo>(t.name())
+				 .addComponent<ComponentBar>();
+			}
+		}
 
-		foobar.addComponent<ComponentFoo>(foobar.name())
-			  .addComponent<ComponentBar>();
-		
-		third.addComponent<ComponentFoo>(third.name())
-			 .addComponent<ComponentBar>();
+		{
+			lyra::Benchmark b;
 
-		SystemTest system;
-		system.update();
+			SystemTest system;
+			system.update();
+		}
 	}
 
-	// lyra::CharVectorStream file("test.json");
-	// lyra::Json jsonFile1 = lyra::Json::parse(file.data());
-
-	// lyra::log::info("\nJson Parsing Test: {}\n", jsonFile1.stringify());
+	{ // json parser test
+		lyra::Json jsonParse = lyra::Json::parse(std::string(json));
+		lyra::log::info("\nJson Parsing Test: {}\n", jsonParse.stringifyPretty());
+	}
 
 	return 0;
 }
