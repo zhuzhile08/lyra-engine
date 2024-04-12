@@ -62,10 +62,10 @@ template <class Integer> inline constexpr bool isPrime(Integer n) noexcept requi
 	if (n == 2 || n == 3)
 		return true;
 	if (n <= 1 || n % 2 == 0 || n % 3 == 0)
-        return false;
+		return false;
 	for (Integer i = 5; i * i <= n; i += 6)
-        if (n % i == 0 || n % (i + 2) == 0)
-            return false;
+		if (n % i == 0 || n % (i + 2) == 0)
+			return false;
 	return true;
 };
 

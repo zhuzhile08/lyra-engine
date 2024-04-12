@@ -18,17 +18,17 @@ namespace lyra {
 
 struct ForwardListNodeBase {
 public:
-    ForwardListNodeBase* next = nullptr;
+	ForwardListNodeBase* next = nullptr;
 };
 
 template <class Ty> class ForwardListNode : public ForwardListNodeBase {
 public:
-    using value_type = Ty;
+	using value_type = Ty;
 
-    constexpr ForwardListNode() = default;
-    template <class... Args> constexpr ForwardListNode(Args&&... args) noexcept : value(std::forward<Args>(args)...) { }
+	constexpr ForwardListNode() = default;
+	template <class... Args> constexpr ForwardListNode(Args&&... args) noexcept : value(std::forward<Args>(args)...) { }
 
-    value_type value { }; 
+	value_type value { }; 
 };
 
 } // namespace lyra
