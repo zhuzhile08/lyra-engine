@@ -2,6 +2,7 @@
 # and include sub-projects here.
 #
 cmake_minimum_required (VERSION 3.24.0)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "14.3" CACHE STRING "Minimum OS X deployment version")
 
 project (LyraEngineToolchain)
 
@@ -13,13 +14,6 @@ if (BUILD_STATIC)
 else ()
 	option(BUILD_SHARED_LIBS "Build all 3rd party libraries and LyraEngine as shared" ON)
 endif()
-
-option(BUILD_DEBUG "Build the toolchain in debug mode" ON)
-if (BUILD_DEBUG)
-	set(CMAKE_BUILD_TYPE Debug)
-else ()
-	set(CMAKE_BUILD_TYPE Release)
-endif ()
 
 
 # apple compiler path
