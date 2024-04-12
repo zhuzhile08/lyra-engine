@@ -577,7 +577,7 @@ private:
 	template <class K, class... Args> constexpr iterator basicEmplace(K&& key, Args&&... args) noexcept {
 		auto i = keyToBucket(std::forward<K>(key));
 
-		m_array.emplaceBack(std::forward<K>(key), std::forward<Args>(args)...);
+		m_array.emplaceBack(std::forward<K>(key), mapped_type(std::forward<Args>(args)...));
 		m_buckets[i].emplaceFront(m_array.size() - 1);
 		rehashIfNecessary();
 
