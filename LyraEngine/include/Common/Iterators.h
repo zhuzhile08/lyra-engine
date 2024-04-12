@@ -132,7 +132,7 @@ public:
 	}
 	constexpr wrapper operator++(int) noexcept { 
 		wrapper tmp = *this; 
-		--(*this); 
+		++(*this); 
 		return tmp; 
 	}
 	constexpr wrapper_reference operator--() noexcept { 
@@ -141,7 +141,7 @@ public:
 	}
 	constexpr wrapper operator--(int) noexcept { 
 		wrapper tmp = *this; 
-		++(*this); 
+		--(*this); 
 		return tmp; 
 	}
 
