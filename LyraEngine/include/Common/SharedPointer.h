@@ -96,9 +96,9 @@ public:
 		if (m_pointer) m_refCount = new reference_counter_type(std::forward<Deleter>(del));
 	}
 	constexpr SharedPointer(const wrapper& other) : m_pointer(other.m_pointer), m_refCount(other.m_refCount) { m_refCount->increment(); }
-	constexpr SharedPointer(wrapper&& other) : m_pointer(other.m_pointer), m_refCount(std::move(other.m_refCount)) { }
+	constexpr SharedPointer(wrapper&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)), m_refCount(std::exchange(other.m_refCount, nullptr)) { }
 	template <class T> constexpr SharedPointer(const SharedPointer<T>& other) : m_pointer(other.m_pointer), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { m_refCount->increment(); }
-	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(other.m_pointer), m_refCount(dynamic_cast<reference_counter>(other.m_refCount)) { }
+	template <class T> constexpr SharedPointer(SharedPointer<T>&& other) : m_pointer(std::exchange(other.m_pointer, nullptr)), m_refCount(dynamic_cast<reference_counter>(std::exchange(other.m_refCount, nullptr))) { }
 	template <class T> constexpr SharedPointer(UniquePointer<T>&& other) {
 		auto p = std::exchange(m_pointer, std::move(other.release()));
 		if (m_pointer) m_refCount = new reference_counter_type();
@@ -109,7 +109,7 @@ public:
 	}
 
 	constexpr ~SharedPointer() {
-		if (m_refCount->destroy(m_pointer) == 0) delete m_refCount;
+		if (m_refCount && m_refCount->destroy(m_pointer) == 0) delete m_refCount;
 		m_pointer = nullptr;
 		m_refCount = nullptr;
 	}
