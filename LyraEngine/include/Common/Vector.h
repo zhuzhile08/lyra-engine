@@ -174,13 +174,13 @@ public:
 		return &m_array[m_size];
 	}
 	NODISCARD constexpr reverse_iterator rbegin() noexcept {
-		return (&m_array[m_size]) - 1;
+		return (&m_array[(m_size == 0) ? 0 : (m_size - 1)]);
 	}
 	NODISCARD constexpr const_reverse_iterator rbegin() const noexcept {
-		return (&m_array[m_size]) - 1;
+		return (&m_array[(m_size == 0) ? 0 : (m_size - 1)]);
 	}
 	NODISCARD constexpr const_reverse_iterator crbegin() const noexcept {
-		return (&m_array[m_size]) - 1;
+		return (&m_array[(m_size == 0) ? 0 : (m_size - 1)]);
 	}
 	NODISCARD constexpr reverse_iterator rend() noexcept {
 		return (&m_array[0]) - 1;
