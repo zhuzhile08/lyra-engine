@@ -25,11 +25,16 @@ PUBLIC
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
-	${LIBRARY_PATH}/assimp/include
+	${LIBRARY_PATH}/tinygltf/
 	${LIBRARY_PATH}/pfd/
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
+)
+
+# copy data files to the build location
+add_custom_target(copy_assets_data
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/LyraAssets/data ${CMAKE_BINARY_DIR}data/
 )
 
 # build the content manager
@@ -47,9 +52,9 @@ else ()
 	target_compile_options(LyraAssets PRIVATE -Wall -Wextra -Wpedantic)
 endif ()
 
+add_dependencies(LyraAssets copy_assets_data)
+
 target_link_libraries(LyraAssets
 PRIVATE
 	LyraEngine
-
-	assimp
 )
