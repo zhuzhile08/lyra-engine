@@ -25,14 +25,14 @@ namespace lyra {
 template <class... Types> class System {
 public:
 	template <class Callable> void each(Callable&& callable) const {
-		ecs::defaultECS()->executeSystem<Types...>(callable);
+		ecs::globalECS->executeSystem<Types...>(callable);
 	}
 
 	Vector<Entity*> entites() const {
-		return ecs::defaultECS()->findEntities<Types...>();
+		return ecs::globalECS->findEntities<Types...>();
 	}
 	Vector<const Entity*> centites() const {
-		return ecs::defaultECS()->findEntities<Types...>();
+		return ecs::globalECS->findEntities<Types...>();
 	}
 };
 

@@ -3,9 +3,9 @@
 #include <Common/Common.h>
 #include <Common/FunctionPointer.h>
 #include <Common/UniquePointer.h>
-#include <Common/RenderSystem.h>
+#include <Common/BasicRenderer.h>
 
-#include <Graphics/SDLWindow.h>
+#include <Graphics/Window.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -14,10 +14,9 @@
 
 namespace lyra {
 
-class ImGuiRenderer : public VectorRenderSystem {
+class ImGuiRenderer : public VectorBasicRenderer {
 public:
-	ImGuiRenderer() = default;
-	ImGuiRenderer(const Window& window);
+	ImGuiRenderer();
 	virtual ~ImGuiRenderer();
 
 	void draw();
@@ -33,7 +32,6 @@ protected:
 	virtual void endFrame() = 0;
 
 	ImGuiIO* m_io;
-	const Window* m_window;
 };
 
 } // namespace lyra

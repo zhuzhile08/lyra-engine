@@ -8,7 +8,7 @@
 
 namespace lyra {
 
-ImGuiRenderer::ImGuiRenderer(const Window& window) : m_window(&window) {
+ImGuiRenderer::ImGuiRenderer() {
 	ImGui::CreateContext();
 	m_io = &ImGui::GetIO();
 }

@@ -25,8 +25,7 @@
 namespace lyra {
 
 void initRenderSystem(
-	const Array<uint32, 3>& version, 
-	const Window& window, 
+	const Array<uint32, 3>& version,
 	std::string_view defaultVertexShaderPath = "shader/vert.spv", 
 	std::string_view defaultFragmentShaderPath = "shader/frag.spv"
 );

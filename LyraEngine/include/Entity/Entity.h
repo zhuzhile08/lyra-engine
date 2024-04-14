@@ -24,7 +24,7 @@ namespace lyra {
 
 class Entity : public Node<Entity> {
 public:
-	constexpr Entity(std::string_view name = "Entity", EntityComponentSystem* ecs = ecs::defaultECS()) : 
+	constexpr Entity(std::string_view name = "Entity", EntityComponentSystem* ecs = ecs::globalECS) : 
 		Node<Entity>(name), 
 		m_id(ecs->m_entityManager.uniqueID()),
 		m_ecs(ecs) { 

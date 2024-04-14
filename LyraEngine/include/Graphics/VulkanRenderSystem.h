@@ -1252,6 +1252,249 @@ private:
 	vulkan::RenderTarget m_renderTarget;
 };
 
+class RenderSystem {
+public:
+	struct QueueFamilies {
+		uint32 graphicsFamilyIndex = std::numeric_limits<uint32>::max();
+		uint32 computeFamilyIndex = std::numeric_limits<uint32>::max();
+		uint32 copyFamilyIndex = std::numeric_limits<uint32>::max();
+		// uint32 videoFamilyIndex = VK_QUEUE_FAMILY_IGNORED; @todo
+		
+		Vector <VkQueueFamilyProperties> queueFamilyProperties;
+	};
+
+	RenderSystem(
+		const Array<uint32, 3>& version,
+		std::string_view defaultVertexShaderPath, 
+		std::string_view defaultFragmentShaderPath
+	);
+
+	void initRenderComponents();
+
+	/**
+	 * @brief wrappers around the core Vulkan API and VMA functions
+	 * @brief these are basically copied directly from the Vulkan API with minor modifications to reduce bloat and suit a more modern C++ style
+	 * @brief please refer to the official Vulkan documentation (preferably at https:/devdocs.io// and https:/gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/) for the documentation of these functions
+	 */
+
+	VkResult findMemoryTypeIndexForBufferInfo(const VkBufferCreateInfo& bufferCreateInfo, const VmaAllocationCreateInfo& allocationCreateInfo, uint32 memoryTypeIndex) {
+		return vmaFindMemoryTypeIndexForBufferInfo(allocator, &bufferCreateInfo, &allocationCreateInfo, &memoryTypeIndex);
+	}
+	VkResult findMemoryTypeIndexForImageInfo(const VkImageCreateInfo& pImageCreateInfo, const VmaAllocationCreateInfo& allocationCreateInfo, uint32 memoryTypeIndex) {
+		return vmaFindMemoryTypeIndexForImageInfo(allocator, &pImageCreateInfo, &allocationCreateInfo, &memoryTypeIndex);
+	}
+	VkResult findMemoryTypeIndex(uint32 memoryTypeBits, const VmaAllocationCreateInfo& allocationCreateInfo, uint32 pMemoryTypeIndex) {
+		return vmaFindMemoryTypeIndex(allocator, memoryTypeBits, &allocationCreateInfo, &pMemoryTypeIndex);
+	}
+	VkResult checkPoolCorruption(const VmaPool& pool) {
+		return vmaCheckPoolCorruption(allocator, pool);
+	}
+	void getPoolName(const vma::Pool& pool, const char*& name) {
+		vmaGetPoolName(allocator, pool, &name);
+	}
+	void setPoolName(const vma::Pool& pool, const char* name) {
+		vmaSetPoolName(allocator, pool, name);
+	}
+	VkResult allocateMemoryPage(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
+		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, 1, &allocation.get(), &allocationInfo);
+	}
+	VkResult allocateMemoryPages(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, Vector<VmaAllocation>& allocations, VmaAllocationInfo& allocationInfo) {
+		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, allocations.size(), allocations.data(), &allocationInfo);
+	}
+	VkResult allocateMemoryForBuffer(const vk::Buffer& buffer, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
+		return vmaAllocateMemoryForBuffer(allocator, buffer, &createInfo, &allocation.get(), &allocationInfo);
+	}
+	VkResult allocateMemoryForImage(const vk::Image& image, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
+		return vmaAllocateMemoryForImage(allocator, image, &createInfo, &allocation.get(), &allocationInfo);
+	}
+	void freeMemoryPage(const vma::Allocation& allocation) {
+		vmaFreeMemoryPages(allocator, 1, &allocation.get());
+	}
+	void freeMemoryPages(const Vector<VmaAllocation>& allocations) {
+		vmaFreeMemoryPages(allocator, allocations.size(), allocations.data());
+	}
+	void getAllocationInfo(const vma::Allocation& allocation, VmaAllocationInfo& pAllocationInfo) {
+		vmaGetAllocationInfo(allocator, allocation, &pAllocationInfo);
+	}
+	void setAllocationUserData(const vma::Allocation& allocation, void* pUserData) {
+		vmaSetAllocationUserData(allocator, allocation, pUserData);
+	}
+	void setAllocationName(const vma::Allocation& allocation, const char* pName) {
+		vmaSetAllocationName(allocator, allocation, pName);
+	}
+	void getAllocationMemoryProperties(const vma::Allocation& allocation, VkMemoryPropertyFlags& flags) {
+		vmaGetAllocationMemoryProperties(allocator, allocation, &flags);
+	}
+	VkResult flushAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
+		return vmaFlushAllocation(allocator, allocation, offset, size);
+	}
+	VkResult flushAllocations(const Vector<VmaAllocation>& allocations, const Vector<VkDeviceSize> offsets, const Vector<VkDeviceSize> sizes) {
+		return vmaFlushAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
+	}
+	VkResult invalidateAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
+		return vmaInvalidateAllocation(allocator, allocation.get(), offset, size);
+	}
+	VkResult invalidateAllocations(const Vector<VmaAllocation>& allocations, const Vector<VkDeviceSize> offsets, const Vector<VkDeviceSize> sizes) {
+		return vmaInvalidateAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
+	}
+	VkResult checkCorruption(uint32 memoryTypeBits) {
+		return vmaCheckCorruption(allocator, memoryTypeBits);
+	}
+	VkResult beginDefragmentation(const VmaDefragmentationInfo& info, vma::DefragmentationContext& context) {
+		return vmaBeginDefragmentation(allocator, &info, &context.get());
+	}
+	void endDefragmentation(const vma::DefragmentationContext& context, VmaDefragmentationStats& pStats) {
+		vmaEndDefragmentation(allocator, context, &pStats);
+	}
+	VkResult beginDefragmentationPass(const vma::DefragmentationContext& context, VmaDefragmentationPassMoveInfo& passInfo) {
+		return vmaBeginDefragmentationPass(allocator, context, &passInfo);
+	}
+	VkResult endDefragmentationPass(const vma::DefragmentationContext& context, VmaDefragmentationPassMoveInfo& passInfo) {
+		return vmaEndDefragmentationPass(allocator, context, &passInfo);
+	}
+	VkResult bindBufferMemory(const vma::Allocation& allocation, const vk::Buffer& buffer) {
+		return vmaBindBufferMemory(allocator, allocation, buffer);
+	}
+	VkResult bindBufferMemory2(const vma::Allocation& allocation, VkDeviceSize allocationLocalOffset, const vk::Buffer& buffer, const void* pNext) {
+		return vmaBindBufferMemory2(allocator, allocation, allocationLocalOffset, buffer, pNext);
+	}
+	VkResult bindImageMemory(const vma::Allocation& allocation, const vk::Image& image) {
+		return vmaBindImageMemory(allocator, allocation, image);
+	}
+	VkResult bindImageMemory2(const vma::Allocation& allocation, VkDeviceSize allocationLocalOffset, const vk::Image& image, const void* pNext) {
+		return vmaBindImageMemory2(allocator, allocation, allocationLocalOffset, image, pNext);
+	}
+	void freeMemory(const vma::Allocation& allocation) {
+		vmaFreeMemory(allocator, allocation);
+	}
+	VkResult flushMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
+		return vkFlushMappedMemoryRanges(device, 1, &memoryRange);
+	}
+	VkResult flushMappedMemoryRanges(const Vector<VkMappedMemoryRange>& memoryRanges) {
+		return vkFlushMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
+	}
+	VkResult getEventStatus(const vk::Event& event) {
+		return vkGetEventStatus(device, event);
+	}
+	VkResult getFenceStatus(const vk::Fence& fence) {
+		return vkGetFenceStatus(device, fence);
+	}
+	void getImageMemoryRequirements(const VkImage& image, VkMemoryRequirements& memoryRequirements) {
+		vkGetImageMemoryRequirements(device, image, &memoryRequirements);
+	}
+	void getImageSparseMemoryRequirements(const vk::Image& image, Vector<VkSparseImageMemoryRequirements>& sparseMemoryRequirements) {
+		uint32 s;
+		vkGetImageSparseMemoryRequirements(device, image, &s, nullptr);
+		sparseMemoryRequirements.resize(s);
+		vkGetImageSparseMemoryRequirements(device, image, &s, sparseMemoryRequirements.data());
+	}
+	void getImageSubresourceLayout(const vk::Image& image, const VkImageSubresource& subresource, VkSubresourceLayout& layout) {
+		vkGetImageSubresourceLayout(device, image, &subresource, &layout);
+	}
+	VkResult getPipelineCacheData(const vk::PipelineCache& pipelineCache, size_type& pDataSize, void* pData) {
+		return vkGetPipelineCacheData(device, pipelineCache, &pDataSize, pData);
+	}
+	VkResult getQueryPoolResults(const vk::QueryPool& queryPool, uint32 firstQuery, uint32 queryCount, size_type dataSize, void* pData, VkDeviceSize stride, VkQueryResultFlags flags) {
+		return vkGetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+	}
+	void getRenderAreaGranularity(const vk::RenderPass& renderPass, VkExtent2D& pGranularity) {
+		vkGetRenderAreaGranularity(device, renderPass, &pGranularity);
+	}
+	VkResult invalidateMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
+		return vkInvalidateMappedMemoryRanges(device, 1, &memoryRange);
+	}
+	VkResult invalidateMappedMemoryRanges(const Vector<VkMappedMemoryRange>& memoryRanges) {
+		return vkInvalidateMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
+	}
+	VkResult mapMemory(const vma::Allocation& allocation, void** ppData) {
+		return vmaMapMemory(allocator, allocation, ppData);
+	}
+	VkResult mergePipelineCache(const vk::PipelineCache& dstCache, const vk::PipelineCache srcCache) {
+		return vkMergePipelineCaches(device, dstCache, 1, &srcCache.get());
+	}
+	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const Vector<VkPipelineCache>& srcCaches) {
+		return vkMergePipelineCaches(device, dstCache, static_cast<uint32>(srcCaches.size()), srcCaches.data());
+	}
+	VkResult resetCommandPool(const vk::CommandPool& commandPool, VkCommandPoolResetFlags flags) {
+		return vkResetCommandPool(device, commandPool, flags);
+	}
+	VkResult resetDescriptorPool(const vk::DescriptorPool& descriptorPool, VkDescriptorPoolResetFlags flags) {
+		return vkResetDescriptorPool(device, descriptorPool, flags);
+	}
+	VkResult resetEvent(const vk::Event& event) {
+		return vkResetEvent(device, event);
+	}
+	VkResult resetFence(const vk::Fence& fence) {
+		return vkResetFences(device, 1, &fence.get());
+	}
+	VkResult resetFences(uint32 fenceCount, const VkFence* fences) {
+		return vkResetFences(device, fenceCount, fences);
+	}
+	VkResult setEvent(const vk::Event& event) {
+		return vkSetEvent(device, event.get());
+	}
+	void unmapMemory(const vma::Allocation& allocation) {
+		vmaUnmapMemory(allocator.get(), allocation);
+	}
+	void updateDescriptorSet(const Vector<VkWriteDescriptorSet>& descriptorWrites) {
+		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	}
+	void updateDescriptorSet(const Vector<VkWriteDescriptorSet>& descriptorWrites, const Vector<VkCopyDescriptorSet>& descriptorCopies) {
+		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), static_cast<uint32>(descriptorCopies.size()), descriptorCopies.data());
+	}
+	VkResult waitForFence(const vk::Fence& fence, VkBool32 waitAll, uint64 timeout) {
+		return vkWaitForFences(device, 1, &fence.get(), waitAll, timeout);
+	}
+	VkResult waitForFences(const Vector<VkFence>& fences, VkBool32 waitAll, uint64 timeout) {
+		return vkWaitForFences(device, static_cast<uint32>(fences.size()), fences.data(), waitAll, timeout);
+	}
+
+	vk::Instance instance;
+	vk::DebugUtilsMessenger debugMessenger;
+
+	vk::PhysicalDevice physicalDevice;
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceDescriptorIndexingPropertiesEXT descriptorIndexingProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vk::Device device;
+
+	QueueFamilies queueFamilies;
+	vk::Queue graphicsQueue;
+	vk::Queue computeQueue;
+	vk::Queue copyQueue;
+
+	vma::Allocator allocator;
+
+	vk::PipelineCache pipelineCache; // Implement the pipeline cache @todo
+
+	UniquePointer<CommandQueue> commandQueue;
+	UniquePointer<Swapchain> swapchain;
+	UniquePointer<DescriptorPools> descriptorPools;
+
+	Vector<RenderTarget*> renderTargets;
+	UnorderedSparseMap<std::string, const GraphicsProgram*> graphicsPrograms;
+	UnorderedSparseMap<std::string, GraphicsPipeline*> graphicsPipelines;
+
+	RenderTarget* defaultRenderTarget;
+	const GraphicsProgram* defaultGraphicsProgram;
+
+	std::filesystem::path defaultVertexShaderPath;
+	std::filesystem::path defaultFragmentShaderPath;
+
+	const Shader* defaultVertexShader;
+	const Shader* defaultFragmentShader;
+
+	Entity* sceneRoot;
+
+	Vector<Camera*> cameras;
+	UnorderedSparseMap<GraphicsPipeline*, Vector<const Material*>> materials;
+	UnorderedSparseMap<Material*, Vector<const MeshRenderer*>> meshRenderers;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+
+	float32 deltaTime;
+};
+
 } // namespace vulkan
 
 } // namespace lyra

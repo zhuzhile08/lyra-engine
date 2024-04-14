@@ -2,7 +2,7 @@
 
 #include <Common/Logger.h>
 
-#include <Graphics/SDLWindow.h>
+#include <Graphics/Window.h>
 
 #include <SDL3/SDL.h>
 #include <backends/imgui_impl_sdl3.h>
@@ -11,6 +11,12 @@
 
 namespace lyra {
 
+namespace renderer {
+
+extern Window* globalWindow;
+
+} // namespace renderer
+
 namespace input {
 
 namespace {
@@ -18,7 +24,7 @@ namespace {
 class InputSystem {
 public:
 	InputSystem() noexcept = default;
-	InputSystem(Window& window, const ImGuiContext* context) noexcept : window(&window), imGUI(context) { 
+	InputSystem(const ImGuiContext* context) noexcept : imGUI(context) { 
 		mouseState = SDL_GetMouseState(&mousePos.x, &mousePos.y);
 		keyboardState = SDL_GetKeyboardState(nullptr);
 	}
@@ -26,6 +32,8 @@ public:
 	UnorderedSparseMap<input::KeyType, input::Key> keys;
 	UnorderedSparseMap<input::MouseButtonType, input::MouseButton> mouseButtons;
 	UnorderedSparseMap<input::ControllerButtonType, input::ControllerButton> controllerButtons;
+
+	bool quit = false;
 
 	uint32 mouseState;
 	const uint8* keyboardState;
@@ -35,35 +43,42 @@ public:
 	glm::vec2 stickPos;
 	glm::vec2 stickDelta;
 
-	Window* window;
 	const ImGuiContext* imGUI = nullptr;
 };
 
+}
+
 static InputSystem* globalInputSystem = nullptr;
 
+bool quit() {
+	return globalInputSystem->quit;
+}
+void cancelQuit() {
+	globalInputSystem->quit = false;
 }
 
-const Key& keyboard(KeyType type) noexcept {
+const Key& keyboard(KeyType type) {
 	return globalInputSystem->keys[type];
 }
-const MouseButton& mouse(MouseButtonType type) noexcept {
+const MouseButton& mouse(MouseButtonType type) {
 	return globalInputSystem->mouseButtons[type];
 }
-const ControllerButton& controller(ControllerButtonType type) noexcept {
+const ControllerButton& controller(ControllerButtonType type) {
 	return globalInputSystem->controllerButtons[type];
 }
-const glm::vec2& mousePos() noexcept {
+const glm::vec2& mousePos() {
 	return globalInputSystem->mousePos;
 }
-const glm::vec2& mouseDelta() noexcept {
+const glm::vec2& mouseDelta() {
 	return globalInputSystem->mouseDelta;
 }
-const glm::vec2& analogueStickPos() noexcept {
+const glm::vec2& analogueStickPos() {
 	return globalInputSystem->stickPos;
 }
 
 void update() {
-	globalInputSystem->window->m_changed = false;
+	renderer::globalWindow->changed = false;
+	globalInputSystem->mouseDelta = { 0, 0 };
 	
 	SDL_PumpEvents();
 	
@@ -71,9 +86,7 @@ void update() {
 		button.second.reset();
 	}
 	
-	globalInputSystem->mouseDelta = -globalInputSystem->mousePos;
 	auto mState = SDL_GetMouseState(&globalInputSystem->mousePos.x, &globalInputSystem->mousePos.y);
-	globalInputSystem->mouseDelta += globalInputSystem->mousePos;
 	for (auto& button : globalInputSystem->mouseButtons) {
 		button.second.reset();
 		
@@ -98,11 +111,11 @@ void update() {
 		// default events that are always checked
 		switch (event.type) {
 			case SDL_EVENT_QUIT:
-				globalInputSystem->window->m_running = false;
+				globalInputSystem->quit = true;
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 			case SDL_EVENT_WINDOW_MINIMIZED:
 			case SDL_EVENT_WINDOW_MAXIMIZED:
-				globalInputSystem->window->m_changed = true;
+				renderer::globalWindow->changed = true;
 			case SDL_EVENT_KEY_DOWN:
 				for (auto& key : globalInputSystem->keys) {
 					if (event.key.keysym.sym == static_cast<int>(key.first)) key.second.pressed = true;
@@ -127,26 +140,27 @@ void update() {
 				for (auto& key : globalInputSystem->controllerButtons) {
 					if (event.button.button == static_cast<uint8>(key.first)) key.second.released = true;
 				}
+
+			case SDL_EVENT_MOUSE_MOTION:
+				globalInputSystem->mouseDelta = { event.motion.xrel, event.motion.yrel };
 		}
 	}
 }
 
-void enableImGui(const ImGuiContext* context) noexcept {
+void enableImGui(const ImGuiContext* context) {
 	globalInputSystem->imGUI = context;
 }
-void disableImGui() noexcept {
+void disableImGui() {
 	globalInputSystem->imGUI = nullptr;
 }
 
 } // namespace input
 
-void initInputSystem(Window& window, const ImGuiContext* context) {
-	if (input::globalInputSystem) {
+void initInputSystem(const ImGuiContext* context) {
+	if (input::globalInputSystem) 
 		log::error("lyra::initInputSystem(): The input system is already initialized!");
-		return;
-	}
-
-	input::globalInputSystem = new input::InputSystem(window, context);
+	else 
+		input::globalInputSystem = new input::InputSystem(context);
 }
 
 } // namespace lyra

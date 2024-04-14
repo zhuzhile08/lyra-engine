@@ -20,7 +20,7 @@
 
 namespace lyra {
 
-void initInputSystem(Window& window, const ImGuiContext* context = nullptr);
+void initInputSystem(const ImGuiContext* context = nullptr);
 
 namespace input {
 
@@ -30,7 +30,7 @@ public:
 	bool released;
 	bool held;
 	
-	void reset() {
+	void reset() noexcept {
 		pressed = false;
 		released = false;
 		held = false;
@@ -41,55 +41,59 @@ public:
 
 class Key : public Button {
 public:
-	Key() = default;
-	Key(KeyType t) : type(t) { }
+	Key() noexcept = default;
+	Key(KeyType t) noexcept : type(t) { }
 	
 	KeyType type;
 };
 
 class MouseButton : public Button {
 public:
-	MouseButton() = default;
-	MouseButton(MouseButtonType t) : type(t) { }
+	MouseButton() noexcept = default;
+	MouseButton(MouseButtonType t) noexcept : type(t) { }
 	
 	MouseButtonType type;
 };
 
 class ControllerButton : public Button {
 public:
-	ControllerButton() = default;
-	ControllerButton(ControllerButtonType t) : type(t) { }
+	ControllerButton() noexcept = default;
+	ControllerButton(ControllerButtonType t) noexcept : type(t) { }
 	
 	ControllerButtonType type;
 };
 
 
-const Key& keyboard(KeyType type) noexcept;
-const MouseButton& mouse(MouseButtonType type) noexcept;
-const ControllerButton& controller(ControllerButtonType type) noexcept;
-const glm::vec2& mousePos() noexcept;
-const glm::vec2& mouseDelta() noexcept;
-const glm::vec2& analogueStickPos() noexcept;
+bool quit();
+void cancelQuit();
+
+const Key& keyboard(KeyType type);
+const MouseButton& mouse(MouseButtonType type);
+const ControllerButton& controller(ControllerButtonType type);
+const glm::vec2& mousePos();
+const glm::vec2& mouseDelta();
+const glm::vec2& analogueStickPos();
+
 void update();
-void enableImGui(const ImGuiContext* context) noexcept;
-void disableImGui() noexcept;
+void enableImGui(const ImGuiContext* context);
+void disableImGui();
 
 } // namespace input
 
 template <> struct Hash<lyra::input::Key> {
-	constexpr size_type operator()(const lyra::input::Key& k) const {
+	constexpr size_type operator()(const lyra::input::Key& k) const noexcept {
 		return static_cast<size_type>(k.type);
 	}
 };
 
 template <> struct Hash<lyra::input::MouseButton> {
-	constexpr size_type operator()(const lyra::input::MouseButton& b) const {
+	constexpr size_type operator()(const lyra::input::MouseButton& b) const noexcept {
 		return static_cast<size_type>(b.type);
 	}
 };
 
 template <> struct Hash<lyra::input::ControllerButton> {
-	constexpr size_type operator()(const lyra::input::ControllerButton& b) const {
+	constexpr size_type operator()(const lyra::input::ControllerButton& b) const noexcept {
 		return static_cast<size_type>(b.type);
 	}
 };

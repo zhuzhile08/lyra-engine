@@ -254,7 +254,7 @@ private:
 
 namespace ecs {
 
-EntityComponentSystem* defaultECS();
+extern EntityComponentSystem* globalECS;
 
 } // namespace ecs
 
