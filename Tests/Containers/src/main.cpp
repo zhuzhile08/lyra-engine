@@ -67,37 +67,50 @@ public:
 	using lyra::Node<Test>::BasicNode;
 };
 
-struct ComponentFoo {
-	ComponentFoo() = default;
-	ComponentFoo(std::string_view eName) : entityName(eName) { }
+struct Component1 {
+	glm::vec2 v;
+};
 
-	std::string entityName;
+struct Component2 {
+	glm::vec2 v;
+};
+
+struct Component3 {
+	glm::vec2 v;
+};
+
+struct Component4 {
+	glm::vec2 v;
+};
+
+struct Component5 {
 	glm::vec2 v;
 };
 
 struct ComponentBar {
 	ComponentBar() = default;
 
-	void printComponentFooInfo(const lyra::Entity& entity, ComponentFoo& foo) const {
-		//lyra::log::warning("System found entity with name: {} and index: {} with both components foo and bar!", foo.entityName, entity.id());
-		foo.v = {1, 1};
-	}
-	void printComponentFooInfo(ComponentFoo& foo) const {
-		//lyra::log::warning("System found entity with name: {} and index: {} with both components foo and bar!", foo.entityName, entity.id());
-		foo.v = {1, 1};
+	void updateComponents(Component1& c1, Component2& c2, Component3& c3, Component4& c4,  Component5& c5) const {
+		c1.v = {1, 1};
+		c2.v = {2, 2};
+		c3.v = {3, 3};
+		c4.v = {4, 4};
+		c5.v = {5, 5};
+		executionCount++;
 	}
 
-	char c;
+	static lyra::uint32 executionCount;
 };
+lyra::uint32 ComponentBar::executionCount = 0;
 
 struct SystemTest {
 	void update() {
-		system.each([](const lyra::Entity& entity, ComponentFoo& foo, const ComponentBar& bar){
-			bar.printComponentFooInfo(foo);
+		system.each([](const lyra::Entity& entity, Component1& c1, Component2& c2, Component3& c3, Component4& c4,  Component5& c5, const ComponentBar& bar){
+			bar.updateComponents(c1, c2, c3, c4, c5);
 		});
 	}
 
-	lyra::System<ComponentFoo, ComponentBar> system;
+	lyra::System<Component1, Component2, Component3, Component4, Component5, ComponentBar> system;
 };
 
 }
@@ -164,10 +177,14 @@ int main(int argc, char* argv[]) {
 			lyra::Benchmark b;
 
 			for (lyra::objectid i = 0; i < 65535; i++) {
-				e.insert(std::to_string(i + 65535)).addComponent<ComponentBar>();
 				auto& t = e.insert(std::to_string(i));
-				t.addComponent<ComponentFoo>(t.name())
-				 .addComponent<ComponentBar>();
+				
+				t.addComponent<ComponentBar>();
+				if (i % 2 == 0) t.addComponent<Component1>();
+				if (i % 3 == 0) t.addComponent<Component2>();
+				if (i % 4 == 0) t.addComponent<Component3>();
+				if (i % 5 == 0) t.addComponent<Component4>();
+				if (i % 6 == 0) t.addComponent<Component5>();
 			}
 		}
 
@@ -177,6 +194,8 @@ int main(int argc, char* argv[]) {
 			SystemTest system;
 			system.update();
 		}
+
+		lyra::log::debug("System execution count: {}\n", ComponentBar::executionCount);
 	}
 
 	{ // json parser test
