@@ -13,7 +13,6 @@
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "gdb.exe",
@@ -34,7 +33,6 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "gdb.exe",
@@ -55,7 +53,6 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "gdb.exe",
@@ -76,7 +73,6 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
                 "miDebuggerPath": "gdb.exe",
