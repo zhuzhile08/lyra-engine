@@ -49,8 +49,9 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Common/FileSystem.cpp"
 
 	"src/Graphics/VulkanRenderSystem.cpp"
-	"src/Graphics/SDLWindow.cpp"
+	"src/Graphics/Window.cpp"
 	"src/Graphics/ImGuiRenderer.cpp"
+	"src/Graphics/Renderer.cpp"
 	"src/Graphics/Material.cpp"
 	"src/Graphics/Texture.cpp"
 	
@@ -153,10 +154,8 @@ PUBLIC
 	<Common/Logger.h>
 	<Common/Node.h>
 	<Common/RAIIContainers.h>
-	<Common/RenderSystem.h>
+	<Common/BasicRenderer.h>
 	<Common/SharedPointer.h>
-	#<Common/SparseMap.h>
-	#<Common/SparseSet.h>
 	<Common/UniquePointer.h>
 	<Common/UnorderedSparseMap.h>
 	<Common/UnorderedSparseSet.h>
