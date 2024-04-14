@@ -123,14 +123,12 @@ const char* enumToOpenMode(OpenMode m) {
 static FileSystem* globalFileSystem;
 
 void initFileSystem(char** argv) {
-	if (globalFileSystem) {
+	if (globalFileSystem)
 		log::warning("lyra::initFileSystem(): The file system is already initialzed!");
-		return;
+	else {
+		std::ios::sync_with_stdio();
+		globalFileSystem = new FileSystem(argv);
 	}
-
-	std::ios::sync_with_stdio();
-
-	globalFileSystem = new FileSystem(argv);
 }
 
 std::filesystem::path absolutePath(const std::filesystem::path& path) {

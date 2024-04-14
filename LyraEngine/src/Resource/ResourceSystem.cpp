@@ -36,12 +36,10 @@ static ResourceSystem* globalResourceSystem = nullptr;
 }
 
 void initResourceSystem() {
-	if (globalResourceSystem) {
+	if (globalResourceSystem)
 		log::error("lyra::initResourceSystem(): The resource system was already initialized!");
-		return;
-	}
-
-	globalResourceSystem = new ResourceSystem();
+	else
+		globalResourceSystem = new ResourceSystem();
 }
 
 namespace resource {

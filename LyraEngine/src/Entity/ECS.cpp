@@ -12,27 +12,18 @@
 
 namespace lyra {
 
-namespace {
-
-static EntityComponentSystem* globalECS;
-
-}
-
-void initECS() {
-	if (globalECS) {
-		log::error("initECS(): The entity component system is already initialized!");
-		return;
-	}
-
-	globalECS = new EntityComponentSystem();
-}
-
 namespace ecs {
 
-EntityComponentSystem* defaultECS() {
-	return globalECS;
+EntityComponentSystem* globalECS = nullptr;
+
 }
 
-} // namespace ecs
+
+void initECS() {
+	if (ecs::globalECS)
+		log::error("initECS(): The entity component system is already initialized!");
+	else
+		ecs::globalECS = new EntityComponentSystem();
+}
 
 } // namespace lyra

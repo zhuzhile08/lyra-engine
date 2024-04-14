@@ -70,12 +70,10 @@ UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger) {
 } // namespace log
 
 void initLoggingSystem() {
-	if (globalLoggingContext) {
+	if (globalLoggingContext)
 		log::error("initLoggingSystem(): The logging system is already initialized!");
-		return;
-	}
-
-	globalLoggingContext = new LoggingContext();
+	else
+		globalLoggingContext = new LoggingContext();
 }
 
 } // namespace lyra
