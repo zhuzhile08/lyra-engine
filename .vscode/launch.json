@@ -13,16 +13,15 @@
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
-                "miDebuggerPath": "gdb.exe",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Containers/Debug/Containers"
+                "MiDebuggerPath": "gdb.exe",
+                "program": "${workspaceFolder}/out/build/Debug/Tests/Containers/Debug/Containers.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "miDebuggerPath": "lldb-mi",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Containers/Debug/Containers"
+                "MiDebuggerPath": "lldb-mi",
+                "program": "${workspaceFolder}/out/build/Debug/Tests/Containers/Containers"
             }
         },
         {
@@ -34,16 +33,15 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
-                "miDebuggerPath": "gdb.exe",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Engine/Debug/Engine"
+                "MiDebuggerPath": "gdb.exe",
+                "program": "${workspaceFolder}/out/build/Debug/Tests/Engine/Debug/Engine.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "miDebuggerPath": "lldb-mi",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Engine/Debug/Engine"
+                "MiDebuggerPath": "lldb-mi",
+                "program": "${workspaceFolder}/out/build/Debug/Tests/Engine/Engine"
             }
         },
         {
@@ -55,16 +53,15 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
-                "miDebuggerPath": "gdb.exe",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Compute/Debug/Compute"
+                "MiDebuggerPath": "gdb.exe",
+                "program": "${workspaceFolder}/out/build/Debug/Tests/Compute/Debug/Compute.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "miDebuggerPath": "lldb-mi",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Compute/Debug/Compute"
+                "MiDebuggerPath": "lldb-mi",
+                "program": "${workspaceFolder}/out/build/Debug/Tests/Compute/Compute"
             }
         },
         {
@@ -76,16 +73,15 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": true,
-            "preLaunchTask": "build",
             "windows": {
                 "MIMode": "gdb",
-                "miDebuggerPath": "gdb.exe",
-                "program": "${workspaceFolder}/out/build/Debug/LyraAssets/Debug/LyraAssets"
+                "MiDebuggerPath": "gdb.exe",
+                "program": "${workspaceFolder}/out/build/Debug/LyraAssets/Debug/LyraAssets.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "miDebuggerPath": "lldb-mi",
-                "program": "${workspaceFolder}/out/build/Debug/LyraAssets/Debug/LyraAssets"
+                "MiDebuggerPath": "lldb-mi",
+                "program": "${workspaceFolder}/out/build/Debug/LyraAssets/LyraAssets"
             }
         }
     ]
