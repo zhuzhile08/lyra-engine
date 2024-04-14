@@ -15,6 +15,7 @@
 #include <Common/FunctionPointer.h>
 #include <Common/Vector.h>
 #include <Common/UnorderedSparseMap.h>
+#include <Common/Benchmark.h>
 
 #include <Entity/Component.h>
 
@@ -109,7 +110,8 @@ private:
 	using basic_allocator = UniquePointer<BasicComponentAllocator>;
 	template <class Ty> using concrete_allocator = UniquePointer<ComponentAllocator<Ty>>;
 	using allocators_type = UnorderedSparseMap<std::type_index, basic_allocator>;
-	using lookup_type = UnorderedSparseMap<std::type_index, UnorderedSparseMap<objectid, objectid>>;
+	using entity_to_component = UnorderedSparseMap<objectid, objectid>;
+	using lookup_type = UnorderedSparseMap<std::type_index, entity_to_component>;
 
 public:
 	// component functions
@@ -161,28 +163,33 @@ public:
 	template <class... Types> constexpr Vector<Entity*> findEntities() noexcept {
 		Vector<Entity*> r;
 
-		lookup_type::iterator set { };
-		Vector<std::type_index> types;
+		entity_to_component* smallest = nullptr;
+		Vector<entity_to_component*> mappings;
 
-		for (std::type_index type : { typeid(Types)... }) {
+		for (std::type_index type : { std::type_index(typeid(Types))... }) {
 			auto it = m_lookup.find(type);
 
 			if (it != m_lookup.end()) {
-				if (!set.get()) set = it;
-				else if (it->second.size() > set->second.size()) {
-					types.pushBack(set->first);
-					set = it;
-				} else types.pushBack(type);
+				if (!smallest) smallest = &it->second;
+				else if (it->second.size() < smallest->size()) {
+					mappings.pushBack(smallest);
+					smallest = &it->second;
+				} else mappings.pushBack(&it->second);
 			}
 		}
 
-		for (const auto& type : types) {
-			for (const auto& object : set->second) {
-				auto& l = m_lookup.at(type);
-				auto id = object.first;
-				auto it = l.find(id);
-				if (it != l.end()) r.pushBack(m_entityManager.entity(id));
+		for (auto object = smallest->begin(); object != smallest->end(); object++) {
+			bool hasComponents = true;
+			auto id = object->first;
+
+			for (auto mapping = mappings.rbegin(); mapping != mappings.rend(); mapping++) { // because the components with the smaller amount of objects are sorted backwards
+				if (!(*mapping)->contains(id)) {
+					hasComponents = false;
+					break;
+				}
 			}
+
+			if (hasComponents) r.pushBack(m_entityManager.entity(id));
 		}
 
 		return r;
@@ -190,56 +197,66 @@ public:
 	template <class... Types> constexpr Vector<const Entity*> findEntities() const noexcept {
 		Vector<const Entity*> r;
 
-		lookup_type::const_iterator set { };
-		Vector<std::type_index> types;
+		const entity_to_component* smallest = nullptr;
+		Vector<const entity_to_component*> mappings;
 
-		for (std::type_index type : { typeid(Types)... }) {
+		for (std::type_index type : { std::type_index(typeid(Types))... }) {
 			auto it = m_lookup.find(type);
 
 			if (it != m_lookup.end()) {
-				if (!set.get()) set = it;
-				else if (it->second.size() > set->second.size()) {
-					types.pushBack(set->first);
-					set = it;
-				} else types.pushBack(type);
+				if (!smallest) smallest = &it->second;
+				else if (it->second.size() < smallest->size()) {
+					mappings.pushBack(smallest);
+					smallest = &it->second;
+				} else mappings.pushBack(&it->second);
 			}
 		}
 
-		for (const auto& type : types) {
-			for (const auto& object : set->second) {
-				auto& l = m_lookup.at(type);
-				auto id = object.first;
-				auto it = l.find(id);
-				if (it != l.end()) r.pushBack(m_entityManager.entity(id));
+		for (auto object = smallest->begin(); object != smallest->end(); object++) {
+			bool hasComponents = true;
+			auto id = object->first;
+
+			for (auto mapping = mappings.rbegin(); mapping != mappings.rend(); mapping++) { // because the components with the smaller amount of objects are sorted backwards
+				if (!(*mapping)->contains(id)) {
+					hasComponents = false;
+					break;
+				}
 			}
+
+			if (hasComponents) r.pushBack(m_entityManager.entity(id));
 		}
 
 		return r;
 	}
 
 	template <class... Types, class Callable> constexpr void executeSystem(Callable&& callable) {
-		lookup_type::iterator set { };
-		Vector<std::type_index> types;
+		entity_to_component* smallest = nullptr;
+		Vector<entity_to_component*> mappings;
 
 		for (std::type_index type : { std::type_index(typeid(Types))... }) {
 			auto it = m_lookup.find(type);
 
 			if (it != m_lookup.end()) {
-				if (!set.get()) set = it;
-				else if (it->second.size() > set->second.size()) {
-					types.pushBack(set->first);
-					set = it;
-				} else types.pushBack(type);
+				if (!smallest) smallest = &it->second;
+				else if (it->second.size() < smallest->size()) {
+					mappings.pushBack(smallest);
+					smallest = &it->second;
+				} else mappings.pushBack(&it->second);
 			}
 		}
 
-		for (const auto& type : types) {
-			for (const auto& object : set->second) {
-				auto& l = m_lookup.at(type);
-				auto id = object.first;
-				auto it = l.find(id);
-				if (it != l.end()) callable(*m_entityManager.entity(id), component<Types>(id)...);
+		for (auto object = smallest->begin(); object != smallest->end(); object++) {
+			bool hasComponents = true;
+			auto id = object->first;
+
+			for (auto mapping = mappings.rbegin(); mapping != mappings.rend(); mapping++) { // because the components with the smaller amount of objects are sorted backwards
+				if (!(*mapping)->contains(id)) {
+					hasComponents = false;
+					break;
+				}
 			}
+
+			if (hasComponents) callable(*m_entityManager.entity(id), component<Types>(id)...);
 		}
 	}
 
