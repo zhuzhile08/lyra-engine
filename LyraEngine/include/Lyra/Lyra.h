@@ -43,6 +43,7 @@ enum class InitFlags {
 	renderSystem = 0x00000080 | window | resourceSystem,
 
 	all = loggingSystem | fileSystem | resourceSystem | ecs | window | inputSystem | renderSystem,
+	allExtended = loggingSystem | fileSystem | resourceSystem | ecs | extendedWindow | inputSystem | renderSystem,
 	none = 0x00000000
 };
 
