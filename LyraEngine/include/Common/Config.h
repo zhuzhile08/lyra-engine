@@ -63,6 +63,7 @@ inline constexpr bool borderless = false;
 inline constexpr bool fullscreen = false;
 inline constexpr bool alwaysOnTop = false;
 inline constexpr bool vSync = false;
+// inline constexpr bool
 
 } // namespace config
 
