@@ -15,12 +15,10 @@
             "externalConsole": false,
             "windows": {
                 "MIMode": "gdb",
-                "MiDebuggerPath": "gdb.exe",
-                "program": "${workspaceFolder}/out/build/Debug/Tests/Containers/Debug/Containers.exe"
+                "program": "${workspaceFolder}\\out\\build\\Debug\\Tests\\Containers\\Debug\\Containers.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "MiDebuggerPath": "lldb-mi",
                 "program": "${workspaceFolder}/out/build/Debug/Tests/Containers/Containers"
             }
         },
@@ -35,12 +33,10 @@
             "externalConsole": true,
             "windows": {
                 "MIMode": "gdb",
-                "MiDebuggerPath": "gdb.exe",
                 "program": "${workspaceFolder}/out/build/Debug/Tests/Engine/Debug/Engine.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "MiDebuggerPath": "lldb-mi",
                 "program": "${workspaceFolder}/out/build/Debug/Tests/Engine/Engine"
             }
         },
@@ -55,12 +51,10 @@
             "externalConsole": true,
             "windows": {
                 "MIMode": "gdb",
-                "MiDebuggerPath": "gdb.exe",
                 "program": "${workspaceFolder}/out/build/Debug/Tests/Compute/Debug/Compute.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "MiDebuggerPath": "lldb-mi",
                 "program": "${workspaceFolder}/out/build/Debug/Tests/Compute/Compute"
             }
         },
@@ -75,12 +69,10 @@
             "externalConsole": true,
             "windows": {
                 "MIMode": "gdb",
-                "MiDebuggerPath": "gdb.exe",
                 "program": "${workspaceFolder}/out/build/Debug/LyraAssets/Debug/LyraAssets.exe"
             },
             "osx": {
                 "MIMode": "lldb",
-                "MiDebuggerPath": "lldb-mi",
                 "program": "${workspaceFolder}/out/build/Debug/LyraAssets/LyraAssets"
             }
         }
