@@ -91,10 +91,10 @@ class Texture;
 
 // basic rendering patterns
 
-class RenderSystem;
-class UnorderedRenderSystem;
-class OrderedRenderSystem;
-class VectorRenderSystem;
+class BasicRenderer;
+class UnorderedBasicRenderer;
+class OrderedBasicRenderer;
+class VectorBasicRenderer;
 class RenderObject;
 
 // core vulkan wrappers

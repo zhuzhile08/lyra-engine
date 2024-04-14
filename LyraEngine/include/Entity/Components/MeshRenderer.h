@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/RenderSystem.h>
+#include <Common/BasicRenderer.h>
 
 #include <Entity/Entity.h>
 #include <Entity/ECS.h>

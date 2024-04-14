@@ -1,5 +1,5 @@
 /*************************
- * @file RenderSystem.h
+ * @file BasicRenderer.h
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  * 
  * @brief A base implementation for render systems interacting with render objects
@@ -16,7 +16,7 @@
 
 namespace lyra {
 
-class RenderSystem {
+class BasicRenderer {
 public:
 	virtual void drawAll() const = 0;
 
@@ -30,7 +30,7 @@ protected:
 class RenderObject {
 public:
 	RenderObject() = default;
-	RenderObject(RenderSystem* renderSystem) : m_renderSystem(renderSystem) {
+	RenderObject(BasicRenderer* renderSystem) : m_renderSystem(renderSystem) {
 		renderSystem->addRenderObject(this);
 	}
 	~RenderObject() {
@@ -40,10 +40,10 @@ public:
 	virtual void draw() = 0;
 
 protected:
-	RenderSystem* m_renderSystem;
+	BasicRenderer* m_renderSystem;
 };
 
-class UnorderedRenderSystem : public RenderSystem {
+class UnorderedBasicRenderer : public BasicRenderer {
 public:
 	void drawAll() const final {
 		for (auto& object : m_objects) {
@@ -62,7 +62,7 @@ protected:
 	UnorderedSparseSet<RenderObject*> m_objects;
 };
 
-class VectorRenderSystem : public RenderSystem {
+class VectorBasicRenderer : public BasicRenderer {
 public:
 	void drawAll() const final {
 		for (uint32 i = 0; i < m_objects.size(); i++) {

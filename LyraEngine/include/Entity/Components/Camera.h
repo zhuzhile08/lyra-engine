@@ -16,7 +16,7 @@
 #include <Common/Common.h>
 #include <Common/Array.h>
 #include <Common/UniquePointer.h>
-#include <Common/RenderSystem.h>
+#include <Common/BasicRenderer.h>
 #include <Common/Config.h>
 
 #include <Entity/Entity.h>
