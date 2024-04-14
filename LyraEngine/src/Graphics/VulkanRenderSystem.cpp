@@ -1973,9 +1973,9 @@ ImGuiRenderer::ImGuiRenderer() {
 		renderer::globalRenderSystem->queueFamilies.graphicsFamilyIndex,
 		renderer::globalRenderSystem->graphicsQueue,
 		m_descriptorPools.descriptorPools[0],
-		0,
-		3,
-		3,
+		m_renderTarget.renderPass,
+		2,
+		static_cast<uint32>(renderer::globalRenderSystem->swapchain->images.size()),
 		renderer::globalRenderSystem->swapchain->maxMultisamples,
 		renderer::globalRenderSystem->pipelineCache
 	};
