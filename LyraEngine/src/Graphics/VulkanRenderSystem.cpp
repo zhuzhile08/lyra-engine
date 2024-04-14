@@ -1948,7 +1948,7 @@ void GraphicsPipeline::bind() const {
 	}
 }
 
-ImGuiRenderer::ImGuiRenderer(const Window& window) {
+ImGuiRenderer::ImGuiRenderer() {
 	Vector<vulkan::DescriptorPools::Size> poolSizes ({
 		{ vulkan::DescriptorSets::Type::sampler, 512 },
 		{ vulkan::DescriptorSets::Type::imageSampler, 512 },

@@ -1237,8 +1237,7 @@ public:
 
 class ImGuiRenderer : public lyra::ImGuiRenderer {
 public:
-	ImGuiRenderer() = default;
-	ImGuiRenderer(const Window& window);
+	ImGuiRenderer();
 	~ImGuiRenderer();
 
 	// Call this after adding all fonts
