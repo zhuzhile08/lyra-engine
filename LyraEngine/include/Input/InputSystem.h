@@ -35,8 +35,6 @@ public:
 		released = false;
 		held = false;
 	}
-
-	friend class InputSystem;
 };
 
 class Key : public Button {

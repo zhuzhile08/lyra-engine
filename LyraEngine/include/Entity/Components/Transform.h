@@ -32,7 +32,7 @@ public:
 		const glm::quat& orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f), 
 		const glm::vec3& scale = glm::vec3(1.0f)
 	) : translation(translation), orientation(orientation), scale(scale), m_dirty(true) { }
-	GLM_CONSTEXPR Transform(
+	Transform(
 		const glm::vec3& translation,
 		const glm::vec3& axis,
 		float32 angle,
