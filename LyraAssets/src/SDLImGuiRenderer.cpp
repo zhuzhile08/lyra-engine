@@ -1,12 +1,23 @@
 #include "SDLImGuiRenderer.h"
 
+#include <Graphics/Window.h>
+
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
 
-SDLImGuiRenderer::SDLImGuiRenderer(const lyra::Window& window) : 
-	ImGuiRenderer(window), 
-	m_renderer(SDL_CreateRenderer(window.get(), nullptr, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)) {
-	ImGui_ImplSDL3_InitForSDLRenderer(window.get(), m_renderer);
+namespace lyra { 
+
+namespace renderer { 
+
+extern Window* globalWindow;
+
+} // namespace renderer
+
+} // namespace lyra
+
+SDLImGuiRenderer::SDLImGuiRenderer() :
+	m_renderer(SDL_CreateRenderer(lyra::renderer::globalWindow->window, nullptr, SDL_RENDERER_PRESENTVSYNC)) {
+	ImGui_ImplSDL3_InitForSDLRenderer(lyra::renderer::globalWindow->window, m_renderer);
 	ImGui_ImplSDLRenderer3_Init(m_renderer);
 }
 

@@ -18,8 +18,7 @@
 
 class SDLImGuiRenderer : public lyra::ImGuiRenderer {
 public:
-	SDLImGuiRenderer() = default;
-	SDLImGuiRenderer(const lyra::Window& window);
+	SDLImGuiRenderer();
 	~SDLImGuiRenderer();
 
 private:

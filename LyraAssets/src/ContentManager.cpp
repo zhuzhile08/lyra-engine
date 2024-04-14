@@ -1,19 +1,18 @@
 #include "ContentManager.h"
-#include "AssimpFileSystem.h"
 
 #include <Common/Logger.h>
 
 #include <portable-file-dialogs.h>
 #include <lz4.h>
 #include <stb_image.h>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <tiny_gltf.h>
 
 #include <algorithm>
 
+#ifdef _WIN32
 #undef min
 #undef max
+#endif
 
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
@@ -32,7 +31,7 @@ void ContentManager::loadProjectFile() {
 	if (!f.empty()) {
 		lyra::log::info("Loading project file...");
 		
-		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f[0]));
+		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.insert(f[0])));
 		m_projectFilePath = f[0];
 		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
 
@@ -67,7 +66,7 @@ void ContentManager::createProjectFile() {
 		f.append("/Assets.lyproj");
 		lyra::log::info("Creating new project file...");
 
-		m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(f));
+		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.insert(f)));
 		m_projectFilePath = f;
 
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
@@ -118,7 +117,7 @@ void ContentManager::saveAs() {
 			f.write(s.data(), s.size());
 			f.flush();
 
-			m_recents.get<lyra::Json::array_type>().push_back(m_recents.insert(p[0]));
+			m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::UniquePointer<lyra::Json>::create(p[0]));
 			m_projectFilePath = p;
 
 			m_validProject = true;
@@ -175,7 +174,7 @@ void ContentManager::build() {
 		auto ext = m_newFiles[i].extension();
 		auto filepath = std::filesystem::path(m_projectFilePath).remove_filename() /= m_newFiles[i];
 		auto concat = filepath;
-		auto* js = &m_projectFile[m_newFiles[i].generic_string()];
+		auto& js = m_projectFile.child(m_newFiles[i].generic_string());
 		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
@@ -190,13 +189,16 @@ void ContentManager::build() {
 				&channels, 
 				4
 			);
+			
+			auto totalSize = width * height * sizeof(lyra::uint8) * 4;
+			
+			js.child("Uncompressed").get<lyra::uint32>() = static_cast<lyra::uint32>(totalSize);
+			js.child("Width").get<lyra::uint32>() = static_cast<lyra::uint32>(width);
+			js.child("Height").get<lyra::uint32>() = static_cast<lyra::uint32>(height);
+			js.child("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
-			js->operator[]("Width").get<lyra::uint32>() = static_cast<lyra::uint32>(width);
-			js->operator[]("Height").get<lyra::uint32>() = static_cast<lyra::uint32>(height);
-			js->operator[]("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
-
-			std::vector<char> result(LZ4_compressBound(width * height * sizeof(lyra::uint8) * 4));
-			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), width * height * sizeof(lyra::uint8) * 4, static_cast<lyra::uint32>(result.size())));
+			lyra::Vector<char> result(LZ4_compressBound(static_cast<int>(totalSize)));
+			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), static_cast<int>(totalSize), static_cast<lyra::uint32>(result.size())));
 
 			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary, false);
 			buildFile.write(
@@ -206,29 +208,47 @@ void ContentManager::build() {
 			);
 
 			stbi_image_free(data);
-		} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
+		} else if (ext == ".glb") {
+			/**
 			lyra::log::debug("\tModel: {}", filepath.string());
 
-			Assimp::Importer importer;
-			importer.SetIOHandler(new AssimpFileSystem);
+			tinygltf::TinyGLTF importer;
 
-			const aiScene* scene = importer.ReadFile(filepath.string(), m_projectFile[m_newFiles[i].generic_string()]["ImportFlags"].get<lyra::uint32>());
+			tinygltf::Model model;
 
-			std::vector<lyra::Array<lyra::Array<lyra::float32, 3>, 4>> vertexBlock;
-			std::vector<lyra::uint32> indexBlock;
-            
-            auto& jsVertexBlocks = js->operator[]("VertexBlocks").get<lyra::Json::array_type>();
-            auto& jsIndexBlocks = js->operator[]("IndexBlocks").get<lyra::Json::array_type>();
-            
-            jsVertexBlocks.clear();
-            jsIndexBlocks.clear();
+			std::string warn, err;
 
-			for (lyra::uint32 i = 0; i < scene->mNumMeshes; i++) {
-				const auto* mesh = scene->mMeshes[i];
-                
-                vertexBlock.reserve(vertexBlock.size() + mesh->mNumVertices);
+			lyra::FileStream<Vector, unsigned char> modelData(filepath, lyra::OpenMode::read | lyra::OpenMode::binary, false);
+
+			ASSERT(importer.LoadBinaryFromMemory(&model, &err, &warn, modelData.data().data(), static_cast<lyra::uint32>(modelData.data().size())), "A fatal error occured whilst importing an mesh!");
+
+			if (!warn.empty()) lyra::log::warning("A warning occured whilst importing a mesh: {}", warn);
+			if (!err.empty()) lyra::log::error("An error occured whilst importing a mesh: {}", err);
+
+			Vector<lyra::Array<lyra::Array<lyra::float32, 3>, 4>> vertexBlock;
+			Vector<lyra::uint32> indexBlock;
+			
+			auto loopNodes = [&model](lyra::Json* const js, const tinygltf::Node& node, glm::mat4 transform, auto&& loopNodes) -> void {
+				for (const auto& node : model.nodes) {
+					
+					//loopNodes(transform, loopNodes);
+				}
+			};
+			
+			glm::mat4 transform(1.0f);
+			
+			for (const auto& node : model.nodes) {
+				loopNodes(js, node, transform, loopNodes);
+			}
+			
+			for (const auto& mesh : model.mesh) {
+				lyra::uint32 indices = mesh->mNumFaces * 3;
+				indexBlock.reserve(indices);
+				
+				vertexBlock.reserve(vertexBlock.size() + mesh->mNumVertices);
+				
 				for (lyra::uint32 j = 0; j < mesh->mNumVertices; j++) {
-					vertexBlock.push_back({{
+					vertexBlock.pushBack({{
 						{{
 							mesh->mVertices[j].x,
 							mesh->mVertices[j].y,
@@ -237,7 +257,7 @@ void ContentManager::build() {
 						{{
 							(mesh->HasNormals()) ? mesh->mNormals[j].x : 0.0f,
 							(mesh->HasNormals()) ? mesh->mNormals[j].y : 0.0f,
-                            (mesh->HasNormals()) ? mesh->mNormals[j].z : 1.0f
+							(mesh->HasNormals()) ? mesh->mNormals[j].z : 1.0f
 						}},
 						{{
 							(mesh->HasVertexColors(0)) ? mesh->mColors[0][j].r : 0.0f,
@@ -251,31 +271,30 @@ void ContentManager::build() {
 						}}
 					}});
 				}
-
-				lyra::uint32 indices = mesh->mNumFaces * 3;
-                indexBlock.reserve(indices);
-
+				
 				for (lyra::uint32 j = 0; j < mesh->mNumFaces; j++) {
 					const auto* face = &mesh->mFaces[j];
-                    
-                    indexBlock.push_back(face->mIndices[0]);
-                    indexBlock.push_back(face->mIndices[1]);
-                    indexBlock.push_back(face->mIndices[2]);
+					
+					for (lyra::uint32 i = 0; i < 3; i++) {
+						indexBlock.pushBack(face->mIndices[i]);
+					}
 				}
 
-				jsVertexBlocks.push_back(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(mesh->mNumVertices)));
-				jsIndexBlocks.push_back(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices)));
+				jsVertexBlocks.pushBack(js->operator[]("VertexBlocks").insert(static_cast<lyra::uint32>(mesh->mNumVertices)));
+				jsIndexBlocks.pushBack(js->operator[]("IndexBlocks").insert(static_cast<lyra::uint32>(indices)));
 			}
-            
-            auto vertexBlockSize = vertexBlock.size() * sizeof(lyra::float32) * 3 * 4;
-            auto indexBlockSize = indexBlock.size() * sizeof(lyra::uint32);
-            auto totalSize = vertexBlockSize + indexBlockSize;
+			
+			auto vertexBlockSize = vertexBlock.size() * sizeof(lyra::float32) * 3 * 4;
+			auto indexBlockSize = indexBlock.size() * sizeof(lyra::uint32);
+			auto totalSize = vertexBlockSize + indexBlockSize;
+			
+			js->operator[]("Uncompressed").get<lyra::uint32>() = static_cast<lyra::uint32>(totalSize);
 
-			std::vector<char> data(totalSize);
+			Vector<char> data(totalSize);
 			std::memcpy(data.data(), vertexBlock.data(), vertexBlockSize);
 			std::memcpy(data.data() + vertexBlockSize, indexBlock.data(), indexBlockSize);
-            
-			std::vector<char> result(LZ4_compressBound(static_cast<lyra::uint32>(data.size())));
+			
+			Vector<char> result(LZ4_compressBound(static_cast<lyra::uint32>(data.size())));
 			result.resize(LZ4_compress_default(data.data(), result.data(), static_cast<lyra::uint32>(data.size()), static_cast<lyra::uint32>(result.size())));
 
 			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary, false);
@@ -285,6 +304,7 @@ void ContentManager::build() {
 				sizeof(char),
 				result.size()
 			);
+			*/
 		} else if (ext == ".ttf") {
 			
 		} else if (ext == ".ogg" || ext == ".wav") {
@@ -296,7 +316,7 @@ void ContentManager::build() {
 
 	m_newFiles.clear();
 	unsaved = true;
-    save();
+	save();
 
 	lyra::log::info("Build successful!");
 }
@@ -308,7 +328,7 @@ void ContentManager::rebuild() {
 
 	m_newFiles.clear();
 	for (const auto& path : m_projectFile) {
-		m_newFiles.push_back(path.first);
+		m_newFiles.pushBack(path.first);
 	}
 	
 	build();
@@ -343,7 +363,7 @@ bool ContentManager::close() {
 	}
 
 	auto recentsFile = lyra::ByteFile("data/recents.dat", lyra::OpenMode::write | lyra::OpenMode::extend, false);
-	m_recents.get<lyra::Json::array_type>().resize(std::min(m_recents.get<lyra::Json::array_type>().size(), size_t(8)));
+	m_recents.get<lyra::Json::array_type>().resize(std::min(m_recents.get<lyra::Json::array_type>().size(), lyra::size_type(8)));
 	auto stringified = m_recents.stringify();
 	recentsFile.write(stringified.data(), stringified.size());
 
@@ -351,7 +371,7 @@ bool ContentManager::close() {
 }
 
 void ContentManager::loadItem(const std::filesystem::path& path) {
-	auto* js = &m_projectFile;
+	auto& js = m_projectFile;
 	auto rel = std::filesystem::relative(path, std::filesystem::path(m_projectFilePath).remove_filename());
 	auto ext = path.extension();
 
@@ -359,33 +379,28 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		return;
 	} 
 	
-	js = js->insert(rel.generic_string(), js)->second;
+	js = js.insert(rel.generic_string(), js);
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
-		js->insert("Width", 0U);
-		js->insert("Height", 0U);
-		js->insert("Type", 0U);
-		js->insert("Alpha", 0U);
-		js->insert("Mipmap", 0U);
-		js->insert("Dimension", 1U);
-		js->insert("Wrap", 0U);
-	} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
-		js->insert("ImportFlags", 0U);
-		js->insert("RotationX", 0U);
-		js->insert("RotationY", 0U);
-		js->insert("RotationZ", 0U);
-		js->insert("Scale", 1U);
-		js->insert("VertexBlocks", lyra::Json::array_type());
-		js->insert("IndexBlocks", lyra::Json::array_type());
+		js.insert("Uncompressed", 0U);
+		js.insert("Width", 0U);
+		js.insert("Height", 0U);
+		js.insert("Type", 0U);
+		js.insert("Alpha", 0U);
+		js.insert("Mipmap", 0U);
+		js.insert("Dimension", 1U);
+		js.insert("Wrap", 0U);
+	} else if (ext == ".glb") {
+		js.insert("Uncompressed", 0U);
 	} else if (ext == ".ttf") {
 
 	} else if (ext == ".ogg" || ext == ".wav") {
 
 	} else if (ext == ".spv") {
-		js->insert("Type", 1U);
+		js.insert("Type", 1U);
 	} else if (ext == ".lua" || ext == ".txt" || ext == ".json") {
 
 	} 
 
-	m_newFiles.push_back(rel);
+	m_newFiles.pushBack(rel);
 }

@@ -17,7 +17,7 @@
 
 #include <Common/FileSystem.h>
 
-#include <Json/Json.h>
+#include <Common/JSON.h>
 
 #include <SDL_render.h>
 
@@ -68,7 +68,7 @@ private:
 
 	std::filesystem::path m_projectFilePath;
 
-	std::vector<std::filesystem::path> m_newFiles;
+	lyra::Vector<std::filesystem::path> m_newFiles;
 	
 	bool m_buildCancelled = false;
 	bool m_validProject = false;

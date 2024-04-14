@@ -6,8 +6,6 @@
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-#include <assimp/postprocess.h>
-
 namespace gui {
 
 namespace {
@@ -58,7 +56,7 @@ void MainMenuBar::draw() {
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit")) {
-				*m_state->running = false;
+				m_state->quit = true;
 			}
 		});
 		ImGui::EndMenu();
@@ -264,10 +262,10 @@ void Window::draw() {
 				if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 					static constexpr lyra::Array<const char*, 5> textureTypeComboPreview {"Texture", "Normal Map", "Light Map", "Directional Light Map", "Shadow Mask"};
 
-					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js["Type"].get<lyra::uint32>()])) {	
+					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js.child("Type").get<lyra::uint32>()])) {	
 						for (lyra::uint32 i = 0; i < textureTypeComboPreview.size(); i++) {
-							if (ImGui::Selectable(textureTypeComboPreview[i], js["Type"].get<lyra::uint32>() == i)) {
-								js["Type"] = i;
+							if (ImGui::Selectable(textureTypeComboPreview[i], js.child("Type").get<lyra::uint32>() == i)) {
+								js.child("Type") = i;
 								m_state->contentManager->unsaved = true;
 							}
 						}
@@ -275,8 +273,8 @@ void Window::draw() {
 						ImGui::EndCombo();
 					} 
 
-					if (ImGui::InputInt("Dimension", reinterpret_cast<int*>(&js["Dimension"].get<lyra::uint32>()))) {
-						js["Dimension"] = std::clamp(js["Dimension"].get<lyra::uint32>(), 1U, 3U);
+					if (ImGui::InputInt("Dimension", reinterpret_cast<int*>(&js.child("Dimension").get<lyra::uint32>()))) {
+						js.child("Dimension") = std::clamp(js.child("Dimension").get<lyra::uint32>(), 1U, 3U);
 						m_state->contentManager->unsaved = true;
 					}
 
@@ -285,7 +283,7 @@ void Window::draw() {
 					if (ImGui::BeginCombo("Wrap", textureWrapComboPreview[js["Wrap"]])) {	
 						for (lyra::uint32 i = 0; i < textureWrapComboPreview.size(); i++) {
 							if (ImGui::Selectable(textureWrapComboPreview[i], js["Wrap"] == i)) {
-								js["Wrap"] = i;
+								js.child("Wrap") = i;
 								m_state->contentManager->unsaved = true;
 							}
 						}
@@ -295,10 +293,10 @@ void Window::draw() {
 
 					static constexpr lyra::Array<const char*, 3> textureAlphaComboPreview {"Transparent", "Opaque Black", "Opaque White"};
 					
-					if (ImGui::BeginCombo("Alpha", textureAlphaComboPreview[js["Alpha"].get<lyra::uint32>()])) {	
+					if (ImGui::BeginCombo("Alpha", textureAlphaComboPreview[js.child("Alpha").get<lyra::uint32>()])) {	
 						for (lyra::uint32 i = 0; i < textureAlphaComboPreview.size(); i++) {
 							if (ImGui::Selectable(textureAlphaComboPreview[i], js["Alpha"] == i)) {
-								js["Alpha"] = i;
+								js.child("Alpha") = i;
 								m_state->contentManager->unsaved = true;
 							}
 						}
@@ -306,10 +304,11 @@ void Window::draw() {
 						ImGui::EndCombo();
 					} 
 				} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
-					if (ImGui::InputInt("RotationX", reinterpret_cast<int*>(&js["RotationX"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
-					if (ImGui::InputInt("RotationY", reinterpret_cast<int*>(&js["RotationY"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
-					if (ImGui::InputInt("RotationZ", reinterpret_cast<int*>(&js["RotationZ"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
-					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&js["Scale"].get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationX", reinterpret_cast<int*>(&js.child("RotationX").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationY", reinterpret_cast<int*>(&js.child("RotationY").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationZ", reinterpret_cast<int*>(&js.child("RotationZ").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&js.child("Scale").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					/*
 					if (ImGui::TreeNode("ImportFlags")) {
 						if (ImGui::CheckboxFlags("CalcTangentSpace", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_CalcTangentSpace)) m_state->contentManager->unsaved = true;
 						if (ImGui::CheckboxFlags("JoinIdenticalVertices", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_JoinIdenticalVertices)) m_state->contentManager->unsaved = true;
@@ -345,6 +344,7 @@ void Window::draw() {
 						if (ImGui::CheckboxFlags("GenBoundingBoxes", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_GenBoundingBoxes)) m_state->contentManager->unsaved = true;
 						ImGui::TreePop();
 					}
+					*/
 				} else if (ext == ".ttf") {
 
 				} else if (ext == ".spv") {
@@ -375,10 +375,10 @@ void Window::draw() {
 						return "All";
 					};
 
-					if (ImGui::BeginCombo("Type", findInShaderTypeComboPreview(js["Type"].get<lyra::uint32>()))) {	
+					if (ImGui::BeginCombo("Type", findInShaderTypeComboPreview(js.child("Type").get<lyra::uint32>()))) {	
 						for (lyra::uint32 i = 0; i < shaderTypeComboPreview.size(); i++) {
 							if (ImGui::Selectable(shaderTypeComboPreview[i].first, js["Type"] == shaderTypeComboPreview[i].second)) {
-								js["Type"] = shaderTypeComboPreview[i].second;
+								js.child("Type") = shaderTypeComboPreview[i].second;
 								m_state->contentManager->unsaved = true;
 							}
 						}

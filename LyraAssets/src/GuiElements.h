@@ -14,9 +14,11 @@
 #include "ContentManager.h"
 
 #include <Common/Common.h>
-#include <Common/RenderSystem.h>
+#include <Common/BasicRenderer.h>
 #include <Common/Logger.h>
-#include <Graphics/SDLWindow.h>
+
+#include <Graphics/Window.h>
+#include <Graphics/VulkanRenderSystem.h>
 
 #include <filesystem>
 
@@ -35,12 +37,12 @@ struct ProgramState {
 	bool showProperties = true;
 	bool showConsole = true;
 
+	bool quit = false;
+
 	std::string stringBuffer;
 	std::filesystem::path nameBuffer;
 
 	std::string logBuffer;
-
-	bool* running = nullptr;
 };
 
 namespace gui {
@@ -48,7 +50,7 @@ namespace gui {
 class MainMenuBar : public lyra::RenderObject {
 public:
 	MainMenuBar(
-		SDLImGuiRenderer& renderer,
+		lyra::vulkan::ImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
 	void draw() final;
@@ -60,7 +62,7 @@ private:
 class ButtonBar : public lyra::RenderObject {
 public:
 	ButtonBar(
-		SDLImGuiRenderer& renderer,
+		lyra::vulkan::ImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
 	void draw() final;
@@ -72,7 +74,7 @@ private:
 class Window : public lyra::RenderObject {
 public:
 	Window(
-		SDLImGuiRenderer& renderer,
+		lyra::vulkan::ImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
 	void draw() final;
