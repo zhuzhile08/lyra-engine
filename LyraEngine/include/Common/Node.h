@@ -14,22 +14,25 @@
 #include <Common/Common.h>
 #include <Common/UniquePointer.h>
 #include <Common/SharedPointer.h>
+#include <Common/UnorderedSparseSet.h>
 
 #include <type_traits>
 #include <utility>
 
 #include <string>
 #include <string_view>
-#include <Common/UnorderedSparseMap.h>
 
 namespace lyra {
+
+template <class, class = void> struct IsHashMap : std::false_type { };
+template <class Ty> struct IsHashMap<Ty, std::void_t<typename Ty::hasher>> : std::true_type { };
+template <class Ty> static inline bool isHashMapValue = IsHashMap<Ty>::value;
 
 template <
 	class Type, 
 	template<class...> class SmartPointer = UniquePointer,
-	class Key = std::string, 
-	class HashOrCompare = std::hash<Key>, 
-	template<class...> class Container = std::unordered_map> 
+	class Key = std::string,
+	template<class...> class Container = UnorderedSparseSet> 
 class BasicNode {
 public:
 	using value_type = Type;
@@ -47,12 +50,39 @@ public:
 	using const_key_reference = const key_type&;
 	using key_rvreference = key_type&&;
 
-	using hash_function = HashOrCompare;
-	using container = Container<key_type, smart_pointer, hash_function>;
+private:
+	struct HashFunction {
+		constexpr size_type operator()(const smart_pointer& p) const noexcept {
+			return Hash<key_type>{}(p->m_name);
+		}
+		constexpr size_type operator()(const_key_reference s) const noexcept {
+			return Hash<key_type>{}(s);
+		}
+	};
+
+	struct EqualFunction {
+		constexpr bool operator()(const smart_pointer& first, const smart_pointer& second) const noexcept {
+			return first->m_name == second->m_name;
+		}
+		constexpr bool operator()(const smart_pointer& first, const_key_reference second) const noexcept {
+			return first->m_name == second;
+		}
+		constexpr bool operator()(const_key_reference first, const smart_pointer& second) const noexcept {
+			return first == second->m_name;
+		}
+		constexpr bool operator()(const_key_reference first, const_key_reference second) const noexcept {
+			return first == second;
+		}
+	};
+
+public:
+	using container = Container<smart_pointer, HashFunction, EqualFunction>;
 
 	using iterator = typename container::iterator;
 	using const_iterator = typename container::const_iterator;
 	using iterator_pair = std::pair<iterator, bool>;
+
+	static_assert(isHashMapValue<Container>&& std::is_same_v<typename container::value_type, smart_pointer>, "lyra::BasicNode: Container template parameter only supports key-only hash maps. Please make sure the container is a hash map and has the type alias hasher defined!");
 
 	constexpr BasicNode() = default;
 	template <class KeyType> explicit constexpr BasicNode(const KeyType& name) : m_name(name) { }
@@ -91,22 +121,20 @@ public:
 
 	constexpr reference insert(movable child) {
 		child.m_parent = this;
-		return *m_children.emplace(child.m_name, smart_pointer::create(std::move(child))).first->second.get();
+		return *m_children.emplace(smart_pointer::create(std::move(child))).first->second.get();
 	}
 	template <template <class...> class SPtr> constexpr reference insert(SPtr<pointer> child) {
 		child->m_parent = this;
-		return *m_children.emplace(child->m_name, smart_pointer(child.release())).first->second.get();
+		return *m_children.emplace(smart_pointer(child.release())).first->second.get();
 	}
-	template <class... Args> constexpr reference insert(Args&&... args) {
-		auto child = smart_pointer::create(std::forward<Args>(args)...);
-		child->m_parent = this;
-		return *m_children.emplace(child->m_name, child.release()).first->second.get();
+	template <class... Args> constexpr reference emplace(Args&&... args) {
+		return insert(smart_pointer::create(std::forward<Args>(args)...));
 	}
 
 	template <class KeyType> constexpr reference rename(KeyType&& name) {
 		auto t = dynamic_cast<pointer>(this);
 		m_parent->m_children.extract(std::exchange(m_name, std::forward<KeyType>(name)));
-		m_parent->m_children.emplace(m_name, smart_pointer(t));
+		m_parent->m_children.emplace(smart_pointer(t));
 		return *t;
 	}
 
@@ -211,6 +239,9 @@ protected:
 
 	BasicNode* m_parent = nullptr;
 	container m_children { };
+
+	friend class HashFunction;
+	friend class EqualFunction;
 };
 
 template <class Ty> using Node = BasicNode<Ty, UniquePointer>;

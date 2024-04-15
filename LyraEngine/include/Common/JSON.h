@@ -30,14 +30,12 @@ template <
 	class Integer = int32,
 	class Unsigned = uint32,
 	class Floating = float32,
-	class HashOrCompare = std::hash<std::basic_string<Literal>>, 
-	template <class...> class NodeContainer = UnorderedSparseMap,
+	template <class...> class NodeContainer = UnorderedSparseSet,
 	template <class...> class SmartPointer = UniquePointer> 
 class BasicJson : public BasicNode<
-	BasicJson<Literal, ArrayContainer, Integer, Unsigned, Floating, HashOrCompare, NodeContainer, SmartPointer>, 
+	BasicJson<Literal, ArrayContainer, Integer, Unsigned, Floating, NodeContainer, SmartPointer>, 
 	SmartPointer,
 	std::basic_string<Literal>, 
-	HashOrCompare, 
 	NodeContainer> {
 public:
 	struct NullType { };
@@ -57,7 +55,7 @@ public:
 	using smart_pointer = SmartPointer<json_type>;
 
 	using array_type = ArrayContainer<smart_pointer>;
-	using node_type = BasicNode<json_type, SmartPointer, string_type, HashOrCompare, NodeContainer>;
+	using node_type = BasicNode<json_type, SmartPointer, string_type, NodeContainer>;
 	using value_type = std::variant<
 		null_type,
 		pointer,
@@ -533,6 +531,8 @@ private:
 };
 
 using Json = BasicJson<>;
-using SharedJson = BasicJson<char, Vector, int32, uint32, float32, std::hash<std::basic_string<char>>, UnorderedSparseMap, UniquePointer>;
+using SharedJson = BasicJson<char, Vector, int32, uint32, float32, UnorderedSparseMap, SharedPointer>;
+using WJson = BasicJson<wchar>;
+using WSharedJson = BasicJson<wchar, Vector, int32, uint32, float32, UnorderedSparseMap, SharedPointer>;
 
 } // namespace lyra
