@@ -1,0 +1,251 @@
+{
+	"mesh/cube.fbx": {
+		"VertexBlocks": [
+			24
+		],
+		"RotationX": 0,
+		"RotationZ": 0,
+		"Scale": 1,
+		"ImportFlags": 0,
+		"IndexBlocks": [
+			18
+		],
+		"RotationY": 0,
+		"Uncompressed": 1224
+	},
+	"shader/frag.spv": {
+		"Type": 16
+	},
+	"img/ray_eye_glow.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 4096,
+		"Height": 32,
+		"Type": 0,
+		"Mipmap": 2,
+		"Alpha": 0,
+		"Width": 32
+	},
+	"img/auto_unite3.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 4194304,
+		"Height": 1024,
+		"Type": 0,
+		"Mipmap": 7,
+		"Alpha": 0,
+		"Width": 1024
+	},
+	"img/p3_femc_sees_tex.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 33554432,
+		"Height": 2048,
+		"Type": 0,
+		"Mipmap": 9,
+		"Alpha": 0,
+		"Width": 4096
+	},
+	"img/viking_room.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 4194304,
+		"Height": 1024,
+		"Type": 0,
+		"Mipmap": 7,
+		"Alpha": 0,
+		"Width": 1024
+	},
+	"img/ray_canopy_ovl_mod1120_emap.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 16384,
+		"Height": 64,
+		"Type": 0,
+		"Mipmap": 3,
+		"Alpha": 0,
+		"Width": 64
+	},
+	"img/searchlight.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 262144,
+		"Height": 256,
+		"Type": 0,
+		"Mipmap": 5,
+		"Alpha": 0,
+		"Width": 256
+	},
+	"img/p3_femc_sees_emission.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 33554432,
+		"Height": 2048,
+		"Type": 0,
+		"Mipmap": 9,
+		"Alpha": 0,
+		"Width": 4096
+	},
+	"mesh/cube.glb": {
+		"VertexBlocks": [
+
+		],
+		"RotationZ": 0,
+		"RotationX": 0,
+		"Scale": 1,
+		"ImportFlags": 0,
+		"IndexBlocks": [
+
+		],
+		"RotationY": 0,
+		"Uncompressed": 0
+	},
+	"img/ray_marines_alp_ovl.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 16384,
+		"Height": 32,
+		"Type": 0,
+		"Mipmap": 4,
+		"Alpha": 0,
+		"Width": 128
+	},
+	"img/Normal.bmp": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 4,
+		"Height": 1,
+		"Type": 1,
+		"Mipmap": 1,
+		"Alpha": 0,
+		"Width": 1
+	},
+	"shader/vert.spv": {
+		"Type": 1
+	},
+	"mesh/mgRAY.obj": {
+		"VertexBlocks": [
+			5142,
+			12,
+			6558,
+			84,
+			432
+		],
+		"RotationX": 0,
+		"RotationZ": 0,
+		"Scale": 1,
+		"ImportFlags": 0,
+		"IndexBlocks": [
+			5142,
+			12,
+			6558,
+			84,
+			432
+		],
+		"RotationY": 0,
+		"Uncompressed": 635856
+	},
+	"img/Default.bmp": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 4,
+		"Height": 1,
+		"Type": 0,
+		"Mipmap": 1,
+		"Alpha": 0,
+		"Width": 1
+	},
+	"shader/cubemapFrag.spv": {
+		"Type": 16
+	},
+	"mesh/femc.obj": {
+		"VertexBlocks": [
+			34672,
+			2130,
+			1464,
+			1512
+		],
+		"RotationX": 0,
+		"RotationZ": 0,
+		"Scale": 1,
+		"ImportFlags": 0,
+		"IndexBlocks": [
+			34542,
+			2130,
+			1464,
+			1512
+		],
+		"RotationY": 0,
+		"Uncompressed": 2067936
+	},
+	"mesh/viking_room.obj": {
+		"VertexBlocks": [
+			11484
+		],
+		"RotationX": 0,
+		"RotationZ": 0,
+		"Scale": 1,
+		"ImportFlags": 1248585,
+		"IndexBlocks": [
+			11484
+		],
+		"RotationY": 0,
+		"Uncompressed": 597168
+	},
+	"shader/cubemapVert.spv": {
+		"Type": 1
+	},
+	"shader/skyboxVert.spv": {
+		"Type": 1
+	},
+	"img/auto_unite3Alp.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 4194304,
+		"Height": 1024,
+		"Type": 0,
+		"Mipmap": 7,
+		"Alpha": 0,
+		"Width": 1024
+	},
+	"shader/compute.spv": {
+		"Type": 32
+	},
+	"img/ray_tail_s1x_sub_alp_ovl.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 65536,
+		"Height": 64,
+		"Type": 0,
+		"Mipmap": 5,
+		"Alpha": 0,
+		"Width": 256
+	},
+	"shader/skyboxFrag.spv": {
+		"Type": 16
+	},
+	"img/skybox.png": {
+		"Wrap": 0,
+		"Dimension": 1,
+		"Uncompressed": 1048576,
+		"Height": 512,
+		"Type": 0,
+		"Mipmap": 6,
+		"Alpha": 0,
+		"Width": 512
+	},
+	"mesh/cube.obj": {
+		"Uncompressed": 1296,
+		"RotationY": 0,
+		"IndexBlocks": [
+			36
+		],
+		"ImportFlags": 14,
+		"Scale": 1,
+		"RotationZ": 0,
+		"RotationX": 0,
+		"VertexBlocks": [
+			24
+		]
+	}
+}
