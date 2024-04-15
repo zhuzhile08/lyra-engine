@@ -34,7 +34,7 @@ constexpr const char* json("\
 			\"Unsigned Integer\": 23450908\
 		},\
 		\"Nestled Array Test\": [\
-			\"Unsigned Integer\": 159807.234\
+			159807.234\
 		],\
 		\"Signed Integer\": -485038\
 	},\
