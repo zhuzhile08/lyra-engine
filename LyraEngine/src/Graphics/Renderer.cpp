@@ -125,7 +125,7 @@ void setScene(Entity& sceneRoot) {
 	renderer::globalRenderSystem->sceneRoot = &sceneRoot;
 
 	auto loopEntity = [](const Entity& entity, auto&& func) -> void {
-		for (const auto& [k, e] : entity) {
+		for (const auto& e : entity) {
 			if (e->containsComponent<Camera>()) {
 				renderer::globalRenderSystem->cameras.pushBack(&e->component<Camera>());
 			} if (e->containsComponent<MeshRenderer>()) {

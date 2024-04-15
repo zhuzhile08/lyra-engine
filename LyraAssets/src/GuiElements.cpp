@@ -236,11 +236,11 @@ void Window::draw() {
 		if (m_state->contentManager->validProject()) {
 			if (ImGui::TreeNode("Assets.lyproj")) {
 				for (const auto& i : m_state->contentManager->projectFile()) {
-					auto b = (i.first == m_state->nameBuffer);
+					auto b = (i->name() == m_state->nameBuffer);
 					if (!m_state->selected) m_state->selected = b;
 
-					if (ImGui::Selectable(i.first.c_str(), b)) {
-						m_state->nameBuffer = i.first;
+					if (ImGui::Selectable(i->name().c_str(), b)) {
+						m_state->nameBuffer = i->name();
 					}
 				}
 

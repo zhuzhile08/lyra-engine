@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
 	lyra::Entity sceneRoot;
 	auto& c = sceneRoot
 		.addComponent<lyra::Transform>()
-		.insert("Camera")
+		.emplace("Camera")
 			.addComponent<lyra::Transform>()
 			.addComponent<CameraScript>()
 			.addComponent<lyra::Camera>();
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 		}
 	);
 
-	sceneRoot.insert("MeshRenderer").addComponent<lyra::MeshRenderer>(quad, material);
+	sceneRoot.emplace("MeshRenderer").addComponent<lyra::MeshRenderer>(quad, material);
 	// meshRenderer.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), material);
 	// meshRenderer.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/cube.fbx", 0), material);
 

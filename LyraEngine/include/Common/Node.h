@@ -26,7 +26,7 @@ namespace lyra {
 
 template <class, class = void> struct IsHashMap : std::false_type { };
 template <class Ty> struct IsHashMap<Ty, std::void_t<typename Ty::hasher>> : std::true_type { };
-template <class Ty> static inline bool isHashMapValue = IsHashMap<Ty>::value;
+template <class Ty> static constexpr inline bool isHashMapValue = IsHashMap<Ty>::value;
 
 template <
 	class Type, 
@@ -82,7 +82,7 @@ public:
 	using const_iterator = typename container::const_iterator;
 	using iterator_pair = std::pair<iterator, bool>;
 
-	static_assert(isHashMapValue<Container>&& std::is_same_v<typename container::value_type, smart_pointer>, "lyra::BasicNode: Container template parameter only supports key-only hash maps. Please make sure the container is a hash map and has the type alias hasher defined!");
+	static_assert(isHashMapValue<container> && std::is_same_v<typename container::value_type, smart_pointer>, "lyra::BasicNode: Container template parameter only supports key-only hash maps. Please make sure the container is a hash map and has the type alias hasher defined!");
 
 	constexpr BasicNode() = default;
 	template <class KeyType> explicit constexpr BasicNode(const KeyType& name) : m_name(name) { }
@@ -106,7 +106,7 @@ public:
 		return m_children.begin();
 	}
 	constexpr const_iterator cbegin() const noexcept {
-		return m_children.begin();
+		return m_children.cbegin();
 	}
 
 	constexpr iterator end() noexcept {
@@ -116,16 +116,16 @@ public:
 		return m_children.end();
 	}
 	constexpr const_iterator cend() const noexcept {
-		return m_children.end();
+		return m_children.cend();
 	}
 
 	constexpr reference insert(movable child) {
 		child.m_parent = this;
-		return *m_children.emplace(smart_pointer::create(std::move(child))).first->second.get();
+		return *m_children.emplace(smart_pointer::create(std::move(child))).first->get();
 	}
-	template <template <class...> class SPtr> constexpr reference insert(SPtr<pointer> child) {
+	template <template <class...> class SPtr> constexpr reference insert(SPtr<value_type> child) {
 		child->m_parent = this;
-		return *m_children.emplace(smart_pointer(child.release())).first->second.get();
+		return *m_children.emplace(smart_pointer(child.release())).first->get();
 	}
 	template <class... Args> constexpr reference emplace(Args&&... args) {
 		return insert(smart_pointer::create(std::forward<Args>(args)...));
@@ -133,7 +133,8 @@ public:
 
 	template <class KeyType> constexpr reference rename(KeyType&& name) {
 		auto t = dynamic_cast<pointer>(this);
-		m_parent->m_children.extract(std::exchange(m_name, std::forward<KeyType>(name)));
+		m_parent->m_children.extract(m_name);
+		m_name = std::forward<KeyType>(name);
 		m_parent->m_children.emplace(smart_pointer(t));
 		return *t;
 	}

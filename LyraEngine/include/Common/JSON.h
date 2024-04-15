@@ -168,10 +168,6 @@ public:
 		return r;
 	}
 
-	template <class... Args> reference insert(Args&&... args) {
-		return node_type::template insert(std::forward<Args>(args)...);
-	}
-
 	template <class Ty> constexpr const Ty& get() const noexcept {
 		return std::get<Ty>(m_value);
 	}
@@ -455,7 +451,7 @@ private:
 		s.push_back('{');
 		for (auto it = t.begin(); it != t.end(); it++) {
 			if (it != t.begin()) s.push_back(',');
-			stringifyPair(*dynamic_cast<json_type*>(it->second.get()), s);
+			stringifyPair(*dynamic_cast<json_type*>(it->get()), s);
 		}
 		s.push_back('}');
 	}
@@ -493,7 +489,7 @@ private:
 		s.append("{\n");
 		for (auto it = t.begin(); it != t.end(); it++) {
 			if (it != t.begin()) s.append(",\n");
-			stringifyPairPretty(indent, *it->second, s);
+			stringifyPairPretty(indent, *it->get(), s);
 		}
 		s.append("\n").append(--indent, '\t').push_back('}');
 	}

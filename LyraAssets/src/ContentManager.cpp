@@ -31,7 +31,7 @@ void ContentManager::loadProjectFile() {
 	if (!f.empty()) {
 		lyra::log::info("Loading project file...");
 		
-		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.insert(f[0])));
+		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.emplace(f[0])));
 		m_projectFilePath = f[0];
 		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
 
@@ -66,7 +66,7 @@ void ContentManager::createProjectFile() {
 		f.append("/Assets.lyproj");
 		lyra::log::info("Creating new project file...");
 
-		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.insert(f)));
+		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.emplace(f)));
 		m_projectFilePath = f;
 
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
@@ -328,7 +328,7 @@ void ContentManager::rebuild() {
 
 	m_newFiles.clear();
 	for (const auto& path : m_projectFile) {
-		m_newFiles.pushBack(path.first);
+		m_newFiles.pushBack(path->name());
 	}
 	
 	build();
@@ -379,25 +379,25 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		return;
 	} 
 	
-	js = js.insert(rel.generic_string(), js);
+	js = js.emplace(rel.generic_string(), js);
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
-		js.insert("Uncompressed", 0U);
-		js.insert("Width", 0U);
-		js.insert("Height", 0U);
-		js.insert("Type", 0U);
-		js.insert("Alpha", 0U);
-		js.insert("Mipmap", 0U);
-		js.insert("Dimension", 1U);
-		js.insert("Wrap", 0U);
+		js.emplace("Uncompressed", 0U);
+		js.emplace("Width", 0U);
+		js.emplace("Height", 0U);
+		js.emplace("Type", 0U);
+		js.emplace("Alpha", 0U);
+		js.emplace("Mipmap", 0U);
+		js.emplace("Dimension", 1U);
+		js.emplace("Wrap", 0U);
 	} else if (ext == ".glb") {
-		js.insert("Uncompressed", 0U);
+		js.emplace("Uncompressed", 0U);
 	} else if (ext == ".ttf") {
 
 	} else if (ext == ".ogg" || ext == ".wav") {
 
 	} else if (ext == ".spv") {
-		js.insert("Type", 1U);
+		js.emplace("Type", 1U);
 	} else if (ext == ".lua" || ext == ".txt" || ext == ".json") {
 
 	} 
