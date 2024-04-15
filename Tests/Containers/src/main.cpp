@@ -28,7 +28,7 @@ constexpr const char* json("\
 	\"First Loose Variable Test\": \"Hello, World!\",\
 \
 	\"Structure Test\": {\
-		\"String\": \"cFRzGjjQPs\%UQK@jRutx\",\
+		\"String\": \"cFRzGjjQPs%UQK@jRutx\",\
 		\"Floating Point\": 3.1415926,\
 		\"Nestled Structure Test\": {\
 			\"Unsigned Integer\": 23450908\
@@ -42,8 +42,8 @@ constexpr const char* json("\
 	\"Array Test\": [\
 		\"cc1UjRB*q6BRY1&MWUk0\",\
 		\"xePtYYW=Mm&rKQ8mQtf1\",\
-		\"+1OkC4QafUb\%46ptJprU\",\
-		\"O*%1Kn!\%x#KCeUs4Qa1z\"\
+		\"+1OkC4QafUb%46ptJprU\",\
+		\"O*%1Kn!%x#KCeUs4Qa1z\"\
 	],\
 \
 	\"Structure inside Array Test\": [\
