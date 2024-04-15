@@ -53,9 +53,9 @@ struct InitInfo {
 
 	Array<uint32, 3> version = {0, 0, 1};
 
-	std::string windowName;
+	std::string windowName = "";
 	Window::Flags windowFlags = Window::Flags::none;
-	glm::ivec2 windowSize;
+	glm::ivec2 windowSize = { 640, 480 };
 };
 
 inline void init(InitFlags flags = InitFlags::all, InitInfo info = InitInfo()) {

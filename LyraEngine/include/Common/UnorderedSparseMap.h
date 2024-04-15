@@ -113,7 +113,7 @@ public:
 		m_array(other.m_array), m_buckets(other.m_buckets) { }
 	constexpr UnorderedSparseMap(const_wrapper_reference other, const allocator_type& alloc) :
 		m_array(other.m_array, alloc), m_buckets(other.m_buckets) { }
-	constexpr UnorderedSparseMap(wrapper_rvreference other) : 
+	constexpr UnorderedSparseMap(wrapper_rvreference other) noexcept : 
 		m_array(std::move(other.m_array)), m_buckets(std::move(other.m_buckets)) { }
 	constexpr UnorderedSparseMap(wrapper_rvreference other, const allocator_type& alloc) : 
 		m_array(std::move(other.m_array), alloc), m_buckets(std::move(other.m_buckets)) { }

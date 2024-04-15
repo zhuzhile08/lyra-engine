@@ -89,7 +89,7 @@ public:
 		m_capacity(other.size()) {
 		if (m_size > 0) assignImpl(other.begin(), other.end());
 	}
-	constexpr Vector(wrapper_rvreference other) : 
+	constexpr Vector(wrapper_rvreference other) noexcept :
 		m_alloc(std::exchange(other.m_alloc, m_alloc)), 
 		m_array(std::exchange(other.m_array, nullptr)),
 		m_size(std::exchange(other.m_size, 0)),

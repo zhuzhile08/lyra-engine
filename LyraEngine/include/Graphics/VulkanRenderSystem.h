@@ -974,7 +974,7 @@ public:
 
 			m_bindingFlags[binding.set].pushBack(static_cast<VkDescriptorBindingFlags>(binding.flags));
 			
-			if ((binding.flags | Flags::variableCount) == Flags::variableCount) {
+			if ((binding.flags & Flags::variableCount) == Flags::variableCount) {
 				if (m_bindingFlagsCreateInfo.size() <= binding.set) m_bindingFlagsCreateInfo.resize(binding.set);
 
 				m_bindingFlagsCreateInfo[binding.set] = {

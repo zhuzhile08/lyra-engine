@@ -123,7 +123,7 @@ public:
 		child.m_parent = this;
 		return *m_children.emplace(smart_pointer::create(std::move(child))).first->get();
 	}
-	template <template <class...> class SPtr> constexpr reference insert(SPtr<value_type> child) {
+	constexpr reference insert(smart_pointer&& child) {
 		child->m_parent = this;
 		return *m_children.emplace(smart_pointer(child.release())).first->get();
 	}
