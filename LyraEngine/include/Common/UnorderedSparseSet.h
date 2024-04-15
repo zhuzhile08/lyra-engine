@@ -58,7 +58,7 @@ public:
 	using const_bucket_iterator = typename buckets::const_iterator;
 
 	using hasher = Hash;
-	using equal = Equal;
+	using key_equal = Equal;
 
 	using wrapper = UnorderedSparseSet;
 	using const_wrapper_reference = const wrapper&;
@@ -68,7 +68,7 @@ public:
 	explicit constexpr UnorderedSparseSet(
 		size_type bucketCount, 
 		const hasher& hash = hasher(), 
-		const equal& keyEqual = equal(), 
+		const key_equal& keyEqual = key_equal(), 
 		const allocator_type& alloc = allocator_type()) noexcept : 
 		m_array(alloc),
 		m_buckets(bucketSizeCheck(bucketCount, 2)), 
@@ -84,7 +84,7 @@ public:
 		It first, It last, 
 		size_type bucketCount = 0, // set to 0 for default evaluation
 		const hasher& hash = hasher(), 
-		const equal& keyEqual = equal(), 
+		const key_equal& keyEqual = key_equal(), 
 		const allocator_type& alloc = allocator_type()) noexcept requires isIteratorValue<It> : 
 		m_array(alloc),
 		m_buckets(bucketSizeCheck(bucketCount, last - first)), 
@@ -119,7 +119,7 @@ public:
 		std::initializer_list<value_type> ilist, 
 		size_type bucketCount = 0, // set to 0 for default evaluation
 		const hasher& hash = hasher(), 
-		const equal& keyEqual = equal(), 
+		const key_equal& keyEqual = key_equal(), 
 		const allocator_type& alloc = allocator_type()) noexcept : 
 		m_array(alloc),
 		m_buckets(bucketSizeCheck(bucketCount, ilist.size())), 
@@ -385,7 +385,8 @@ public:
 
 		return 0;
 	}
-	template <class K> constexpr size_type erase(K&& key) noexcept {
+	template <class K> constexpr size_type erase(K&& key) noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto it = find(std::forward<K>(key));
 
 		if (it != m_array.end()) {
@@ -467,7 +468,8 @@ public:
 	DEPRECATED NODISCARD constexpr size_type bucket_size(size_type index) const noexcept {
 		return m_buckets[index]->size();
 	}
-	template <class K> NODISCARD size_type bucket(const K& key) const noexcept {
+	template <class K> NODISCARD size_type bucket(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		return keyToBucket(key);
 	}
 
@@ -478,7 +480,8 @@ public:
 		return loadFactor();
 	}
 
-	template <class K> NODISCARD constexpr bool contains(const K& key) const noexcept {
+	template <class K> NODISCARD constexpr bool contains(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto& bucketList = m_buckets[keyToBucket(key)];
 		
 		auto found = false;
@@ -490,19 +493,23 @@ public:
 		}
 		return found;
 	}
-	template <class K> NODISCARD constexpr size_type count(const K& key) const noexcept {
+	template <class K> NODISCARD constexpr size_type count(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		if (contains(key)) return 1;
 		return 0;
 	}
-	template <class K> NODISCARD constexpr pair_type<iterator, iterator> equalRange(const K& key) const noexcept {
+	template <class K> NODISCARD constexpr pair_type<iterator, iterator> equalRange(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto it = find(key);
 		return { it, it };
 	}
-	template <class K> DEPRECATED NODISCARD constexpr pair_type<iterator, iterator> equal_range(const K& key) const noexcept {
+	template <class K> DEPRECATED NODISCARD constexpr pair_type<iterator, iterator> equal_range(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		return equalRange(key);
 	}
 
-	template <class K> NODISCARD constexpr iterator find(const K& key) noexcept {
+	template <class K> NODISCARD constexpr iterator find(const K& key) noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto& bucketList = m_buckets[keyToBucket(key)];
 
 		for (auto it = bucketList.begin(); it != bucketList.end(); it++) {
@@ -511,7 +518,8 @@ public:
 
 		return m_array.end();
 	}
-	template <class K> NODISCARD constexpr const_iterator find(const K& key) const noexcept {
+	template <class K> NODISCARD constexpr const_iterator find(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto& bucketList = m_buckets[keyToBucket(key)];
 
 		for (auto it = bucketList.begin(); it != bucketList.end(); it++)
@@ -520,21 +528,25 @@ public:
 		return m_array.end();
 	}
 
-	template <class K> NODISCARD constexpr value_type& at(const K& key) {
+	template <class K> NODISCARD constexpr value_type& at(const K& key)
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto it = find(key);
 		if (it == m_array.end()) throw std::out_of_range("lyra::UnorderedSparseSet::at(): Specified key could not be found in container!");
 		return it->second;
 	}
-	template <class K> NODISCARD constexpr const value_type& at(const K& key) const {
+	template <class K> NODISCARD constexpr const value_type& at(const K& key) const
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto it = find(key);
 		if (it == m_array.end()) throw std::out_of_range("lyra::UnorderedSparseSet::at(): Specified key could not be found in container!");
 		return it->second;
 	}
-	template <class K> NODISCARD constexpr value_type& operator[](const K& key) {
+	template <class K> NODISCARD constexpr value_type& operator[](const K& key)
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto it = find(key);
 		return (it == m_array.end()) ? basicEmplace(key, value_type())->second : it->second;
 	}
-	template <class K> NODISCARD constexpr value_type& operator[](K&& key) {
+	template <class K> NODISCARD constexpr value_type& operator[](K&& key)
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		auto it = find(std::forward<K>(key));
 		return (it == m_array.end()) ? basicEmplace(std::forward<K>(key), value_type())->second : it->second;
 	}
@@ -544,7 +556,7 @@ private:
 	buckets m_buckets { };
 
 	NO_UNIQUE_ADDRESS hasher m_hasher { };
-	NO_UNIQUE_ADDRESS equal m_equal { };
+	NO_UNIQUE_ADDRESS key_equal m_equal { };
 
 	static constexpr size_type bucketSizeCheck(size_type requested, size_type alternative) noexcept {
 		return (requested == 0) ? nextPrime(alternative) : nextPrime(requested);
@@ -552,7 +564,8 @@ private:
 	constexpr void rehashIfNecessary() noexcept {
 		if (m_array.size() >= m_buckets.size() * maxLoadFactor) rehash(nextPrime(m_array.size()));
 	}
-	constexpr size_type keyToBucket(const key_type& key) const noexcept {
+	template <class K> constexpr size_type keyToBucket(const K& key) const noexcept
+		requires(!std::is_convertible_v<K, iterator> && !std::is_convertible_v<K, const_iterator>) {
 		return m_hasher(key) % m_buckets.size();
 	}
 	constexpr iterator basicInsert(const value_type& value) noexcept {
