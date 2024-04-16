@@ -55,6 +55,10 @@ VKAPI_ATTR VkBool32 VKAPI_CALL validationCallBack(
 	return VK_FALSE;
 }
 
+constexpr void imguiVulkanAssert(VkResult r) {
+	vulkanAssert(r, "ImGUI Vulkan: Vulkan call failed with code: {}", r);
+}
+
 }
 
 namespace renderer {
@@ -572,26 +576,16 @@ GPUBuffer::GPUBuffer(
 }
 
 void GPUBuffer::copyData(const void* src, size_type copySize) {
-	void* data;
+	void* data { };
 	VULKAN_ASSERT(renderer::globalRenderSystem->mapMemory(memory, &data), "map buffer memory at {}", getAddress(memory));
 	
-#ifndef NDEBUG
 	memcpy(data, src, (copySize == 0) ? static_cast<size_type>(size) : copySize);
-#else
-	// custom memcpy functionality, (probably) faster in release mode
-	const char* s = (char*)src;
-	char* d = (char*)data;
-
-	for (size_type i = 0; i < (copySize == 0) ? static_cast<size_type>(size) : copySize; i++) d[i] = s[i];
-
-	data = std::move(d);
-#endif
 
 	renderer::globalRenderSystem->unmapMemory(memory);
 }
 
 void GPUBuffer::copyData(const void** src, uint32 arraySize, size_type elementSize) {
-	char* data;
+	char* data { };
 	VULKAN_ASSERT(renderer::globalRenderSystem->mapMemory(memory, (void**)&data), "map buffer memory at {}", getAddress(memory));
 
 	for (uint32 i = 0; i < arraySize; i++) {
@@ -773,7 +767,7 @@ Swapchain::Swapchain(CommandQueue& commandQueue) : commandQueue(&commandQueue) {
 
 	{ // check present queue compatibility
 		for (uint32 i = 0; i < renderer::globalRenderSystem->queueFamilies.queueFamilyProperties.size(); i++) {
-			VkBool32 presentSupport;
+			VkBool32 presentSupport { };
 			VULKAN_ASSERT(vkGetPhysicalDeviceSurfaceSupportKHR(renderer::globalRenderSystem->physicalDevice, i, surface, &presentSupport),
 				"check physical device queue family presentation support");
 			
@@ -918,7 +912,7 @@ void Swapchain::createSwapchain() {
 	{ // create swapchain images
 		Vector<VkImage> tempImages;
 		
-		uint32 imageCount;
+		uint32 imageCount { };
 		VULKAN_ASSERT(vkGetSwapchainImagesKHR(renderer::globalRenderSystem->device, swapchain, &imageCount, nullptr), "retrieve Vulkan swapchain images");
 		images.resize(imageCount); tempImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(renderer::globalRenderSystem->device, swapchain, &imageCount, tempImages.data());
@@ -1975,20 +1969,23 @@ ImGuiRenderer::ImGuiRenderer() {
 		m_descriptorPools.descriptorPools[0],
 		m_renderTarget.renderPass,
 		2,
-		static_cast<uint32>(renderer::globalRenderSystem->swapchain->images.size()),
+		renderer::globalRenderSystem->swapchain->images.size(),
 		renderer::globalRenderSystem->swapchain->maxMultisamples,
-		renderer::globalRenderSystem->pipelineCache
+		//VK_SAMPLE_COUNT_1_BIT,
+		renderer::globalRenderSystem->pipelineCache,
+		0,
+		VK_FALSE,
+#ifdef VK_KHR_dynamic_rendering
+		{ },
+#endif
+		nullptr,
+		&imguiVulkanAssert
 	};
 	ImGui_ImplVulkan_Init(&initInfo);
 }
 
 void ImGuiRenderer::uploadFonts() {
-	vulkan::CommandQueue commandQueue;
-	commandQueue.oneTimeBegin();
 	ImGui_ImplVulkan_CreateFontsTexture();
-	commandQueue.oneTimeSubmit();
-
-	ImGui_ImplVulkan_DestroyFontsTexture();
 }
 
 ImGuiRenderer::~ImGuiRenderer() {
@@ -1997,13 +1994,15 @@ ImGuiRenderer::~ImGuiRenderer() {
 }
 
 void ImGuiRenderer::beginFrame() {
-	m_renderTarget.begin();
-
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
+	ImGui::NewFrame();
 }
 
 void ImGuiRenderer::endFrame() {
+	ImGui::Render();
+
+	m_renderTarget.begin();
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer::globalRenderSystem->commandQueue->activeCommandBuffer->commandBuffer);
 	m_renderTarget.end();
 }

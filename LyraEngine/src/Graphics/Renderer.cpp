@@ -45,7 +45,7 @@ void draw() {
 		for (uint32 j = 0; j < cameras.size(); j++) {
 			auto camera = cameras[j];
 			
-			for (auto& [graphicsPipeline, materials] : materials) {
+			for (auto& [graphicsPipeline, material] : materials) {
 				if (std::holds_alternative<VkViewport>(graphicsPipeline->dynamicViewport)) {
 					graphicsPipeline->dynamicViewport = VkViewport {
 						0.0f,

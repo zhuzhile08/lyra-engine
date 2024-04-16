@@ -43,16 +43,16 @@ int main(int argc, char* argv[]) {
 	lyra::ByteFile logFile = lyra::tmpFile();
 	lyra::log::setDefaultLogger(lyra::UniquePointer<lyra::Logger>::create(logFile.stream(), "default"));
 
+	lyra::vulkan::ImGuiRenderer guiRenderer;
+	guiRenderer.enableDocking();
+
+	lyra::input::enableImGui(ImGui::GetCurrentContext());
+
 	ContentManager contentManager;
 
 	ProgramState state;
 	state.contentManager = &contentManager;
 
-	lyra::vulkan::ImGuiRenderer guiRenderer;
-	guiRenderer.enableDocking();
-	
-	lyra::input::enableImGui(ImGui::GetCurrentContext());
-	
 	ImFontConfig config;
 	config.MergeMode = true; 
 	config.PixelSnapH = true;
@@ -72,10 +72,11 @@ int main(int argc, char* argv[]) {
 			lyra::input::cancelQuit();
 		}
 
-		if (!lyra::renderer::beginFrame()) continue;
-		//lyra::renderer::draw();
-
 		guiRenderer.draw();
+
+		if (!lyra::renderer::beginFrame()) continue;
+
+		lyra::renderer::draw();
 
 		lyra::renderer::endFrame();
 	}

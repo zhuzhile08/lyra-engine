@@ -19,11 +19,9 @@ ImGuiRenderer::~ImGuiRenderer() {
 
 void ImGuiRenderer::draw() {
 	beginFrame();
-	ImGui::NewFrame();
 
 	drawAll();
 
-	ImGui::Render();
 	endFrame();
 }
 
