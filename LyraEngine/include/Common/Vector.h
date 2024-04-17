@@ -108,7 +108,7 @@ public:
 	}
 
 	constexpr ~Vector() {
-		if (m_array) {
+		if (m_size != 0) {
 			destroyElementsAtEnd(&m_array[0]);
 		}
 		allocator_traits::deallocate(m_alloc, m_array, m_capacity);
@@ -246,27 +246,23 @@ public:
 	}
 
 	constexpr iterator insert(const_iterator pos, const_reference value) {
-		auto index = pos - begin();
+		auto it = resizeWithGap(pos - begin(), 1);
+		allocator_traits::construct(m_alloc, &*it, value);
 
-		resizeWithGap(index, 1);
-		allocator_traits::construct(m_alloc, &m_array[index], value);
-
-		return &m_array[index]; // possible reallocation, therefore iterator has to be accessed again
+		return it;
 	}
 	constexpr iterator insert(const_iterator pos, rvreference value) {
-		auto index = pos - begin();
+		auto it = resizeWithGap(pos - begin(), 1);
+		allocator_traits::construct(m_alloc, &*it, std::move(value));
 
-		resizeWithGap(index, 1);
-		allocator_traits::construct(m_alloc, &m_array[index], std::move(value));
-
-		return &m_array[index]; // possible reallocation, therefore iterator has to be accessed again
+		return it;
 	}
 	constexpr iterator insert(const_iterator pos, size_type count, const_reference value) {
 		auto index = pos - &m_array[0];
 		
 		if (count > 0) {
-			resizeWithGap(index, count);
-			for (auto it = &m_array[index]; it < &m_array[index + count]; it++) allocator_traits::construct(m_alloc, it, value);
+			for (auto it = resizeWithGap(index, count); it != &m_array[index + count]; it++)
+				allocator_traits::construct(m_alloc, &*it, value);
 		}
 		
 		return &m_array[index];
@@ -277,30 +273,21 @@ public:
 		if (first != last) {
 			auto size = last - first;
 
-			resizeWithGap(index, size);
-			std::move(first, last, &m_array[index]);
+			for (auto it = resizeWithGap(index, size); it != &m_array[index + size]; it++, first++)
+				allocator_traits::construct(m_alloc, &*it, *first);
 		}
 		
 		return &m_array[index];
 	}
 	constexpr iterator insert(const_iterator pos, init_list ilist) {
-		auto index = pos - begin();
-
-		if (ilist.size() > 0) {
-			resizeWithGap(index, ilist.size());
-			std::move(ilist.begin(), ilist.end(), &m_array[index]);
-		}
-		
-		return &m_array[index];
+		return insert(pos, ilist.begin(), ilist.end());
 	}
 
 	template <class... Args> constexpr iterator emplace(const_iterator pos, Args&&... args) {
-		auto index = pos - begin();
+		auto it = resizeWithGap(pos - begin(), 1);
+		allocator_traits::construct(m_alloc, &*it, std::forward<Args>(args)...);
 
-		resizeWithGap(index, 1);
-		allocator_traits::construct(m_alloc, &m_array[index], std::forward<Args>(args)...);
-
-		return &m_array[index];
+		return it;
 	}
 	template <class... Args> constexpr reference emplaceBack(Args&&... args) {
 		smartReserve(m_size + 1);
@@ -337,14 +324,15 @@ public:
 		return it;
 	}
 	constexpr iterator erase(const_iterator first, const_iterator last) {
-		auto rangeBegin = begin() + (first - begin());
+		auto rangeBegin = &m_array[0] + (first - begin());
 
 		if (first < last) {
 			auto distance = last - first;
-			auto l = rangeBegin + distance;
+			auto rangeEnd = rangeBegin + distance;
 
-			for (auto it = &*rangeBegin; it < l; it++) allocator_traits::destroy(m_alloc, it);
-			std::move(l, end(), rangeBegin);
+			for (auto rangeIt = rangeBegin, it = rangeEnd; it != &m_array[m_size]; rangeIt++, it++)
+				*rangeIt = std::move(*it);
+
 			destroyElementsAtEnd(&m_array[m_size -= distance]);
 		}
 
@@ -442,17 +430,27 @@ private:
 		clear();
 		resize(size);
 	}
-	constexpr void resizeWithGap(size_type index, size_type count) noexcept {
-		auto newSize = m_size + count;
-		smartReserve(newSize);
+	constexpr iterator resizeWithGap(size_type index, size_type count) noexcept {
+		if (m_size != 0) {
+			auto newSize = m_size + count;
+			smartReserve(newSize);
 
-		auto first = &m_array[index];
-		auto last = &m_array[index + count];
+			auto rfirst = &m_array[m_size] - 1;
+			auto rlast = &m_array[index] - 1;
+			auto newBack = rfirst + count;
 
-		std::move(first, &m_array[m_size], last);
+			for (; rfirst != rlast; rfirst--, newBack--) {
+				allocator_traits::construct(m_alloc, newBack, std::move(*rfirst));
+				allocator_traits::destroy(m_alloc, rfirst);
+			}
 
-		m_size = newSize;
-		for (; first != last; first++) allocator_traits::destroy(m_alloc, first);
+			m_size = newSize;
+			return ++rlast;
+		} else {
+			resize(count);
+			return &m_array[0];
+		}
+		return m_array;
 	}
 
 	template <class It> constexpr void destroyElementsAtEnd(It position) noexcept requires isIteratorValue<It> {
