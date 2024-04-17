@@ -72,11 +72,11 @@ int main(int argc, char* argv[]) {
 			lyra::input::cancelQuit();
 		}
 
-		guiRenderer.draw();
 
 		if (!lyra::renderer::beginFrame()) continue;
 
-		lyra::renderer::draw();
+		guiRenderer.draw();
+		//lyra::renderer::draw();
 
 		lyra::renderer::endFrame();
 	}

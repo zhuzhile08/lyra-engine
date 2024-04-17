@@ -81,6 +81,7 @@ RenderSystem::RenderSystem(
 #ifdef __APPLE__
 		setenv("MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS", "1", 1);
 #endif
+		SDL_setenv("VK_LAYER_PATH", "C:\\Vulkan-ValidationLayers\\build\\layers\\Debug", 1);
 
 		// check if requested validation layers are available
 #ifndef NDEBUG
@@ -917,11 +918,10 @@ void Swapchain::createSwapchain() {
 		images.resize(imageCount); tempImages.resize(imageCount);
 		vkGetSwapchainImagesKHR(renderer::globalRenderSystem->device, swapchain, &imageCount, tempImages.data());
 
-		for (auto& image : images) {
-			auto i = &image - &images[0];
-			image.image = std::move(tempImages[i]);
+		for (uint32 i = 0; i < imageCount; i++) {
+			images[i].image = std::move(tempImages[i]);
 
-			image.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+			images[i].createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 		}
 	}
 }
@@ -1969,7 +1969,7 @@ ImGuiRenderer::ImGuiRenderer() {
 		m_descriptorPools.descriptorPools[0],
 		m_renderTarget.renderPass,
 		2,
-		renderer::globalRenderSystem->swapchain->images.size(),
+		static_cast<uint32>(renderer::globalRenderSystem->swapchain->images.size()),
 		renderer::globalRenderSystem->swapchain->maxMultisamples,
 		//VK_SAMPLE_COUNT_1_BIT,
 		renderer::globalRenderSystem->pipelineCache,
