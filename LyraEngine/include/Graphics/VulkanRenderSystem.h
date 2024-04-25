@@ -722,9 +722,9 @@ public:
 
 	bool update(bool windowChanged = false); // returns if the Swapchain has updated or not
 
-	bool aquire();
+	void aquire();
 	void begin();
-	bool present();
+	void present();
 
 	vk::Surface surface;
 	vk::Swapchain swapchain;

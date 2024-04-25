@@ -16,7 +16,9 @@
 
 ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
-		m_recents = lyra::Json::parse(lyra::StringStream("data/recents.dat", lyra::OpenMode::read | lyra::OpenMode::extend, false).data());
+		auto ss = lyra::StringStream("data/recents.dat", lyra::OpenMode::read | lyra::OpenMode::extend, false);
+		if (!ss.data().empty())
+			m_recents = lyra::Json::parse(ss.data());
 	}
 }
 
@@ -31,7 +33,7 @@ void ContentManager::loadProjectFile() {
 	if (!f.empty()) {
 		lyra::log::info("Loading project file...");
 		
-		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.emplace(f[0])));
+		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f[0]));
 		m_projectFilePath = f[0];
 		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
 
@@ -66,7 +68,7 @@ void ContentManager::createProjectFile() {
 		f.append("/Assets.lyproj");
 		lyra::log::info("Creating new project file...");
 
-		m_recents.get<lyra::Json::array_type>().pushBack(lyra::Json::createUnique(m_recents.emplace(f)));
+		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f));
 		m_projectFilePath = f;
 
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
@@ -359,7 +361,7 @@ void ContentManager::cancel() {
 bool ContentManager::close() {
 	if (unsaved) {
 		auto r = pfd::message("Unsaved Changes!", "You still have unsaved changes, do you still want to proceed?", pfd::choice::ok_cancel, pfd::icon::warning).result();
-		if (r == pfd::button::cancel) return true;
+		if (r == pfd::button::cancel) return false;
 	}
 
 	auto recentsFile = lyra::ByteFile("data/recents.dat", lyra::OpenMode::write | lyra::OpenMode::extend, false);
@@ -367,7 +369,7 @@ bool ContentManager::close() {
 	auto stringified = m_recents.stringify();
 	recentsFile.write(stringified.data(), stringified.size());
 
-	return false;
+	return true;
 }
 
 void ContentManager::loadItem(const std::filesystem::path& path) {

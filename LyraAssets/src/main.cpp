@@ -65,15 +65,14 @@ int main(int argc, char* argv[]) {
 	gui::ButtonBar buttonBar(guiRenderer, state);
 	gui::Window guiWindow(guiRenderer, state);
 
-	while (!lyra::input::quit() && !state.quit) {
+	while (!state.quit) {
 		lyra::input::update();
 		if (lyra::input::quit()) {
-			state.quit = contentManager.close();
-			lyra::input::cancelQuit();
+			if (contentManager.close()) break;
 		}
 
 
-		if (!lyra::renderer::beginFrame()) continue;
+		lyra::renderer::beginFrame();
 
 		guiRenderer.draw();
 		//lyra::renderer::draw();

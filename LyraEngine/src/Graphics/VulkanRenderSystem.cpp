@@ -79,9 +79,12 @@ RenderSystem::RenderSystem(
 ) : defaultVertexShaderPath(defaultVertexShaderPath), defaultFragmentShaderPath(defaultFragmentShaderPath) {
 	{ // create instance
 #ifdef __APPLE__
-		setenv("MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS", "1", 1);
+		SDL_setenv("MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS", "1", 1);
 #endif
-		SDL_setenv("VK_LAYER_PATH", "C:\\Vulkan-ValidationLayers\\build\\layers\\Debug", 1);
+
+#ifdef CUSTOM_VULKAN_VALIDATION_LAYER
+		SDL_setenv("VK_LAYER_PATH", CUSTOM_VULKAN_VALIDATION_LAYER_PATH, 1);
+#endif
 
 		// check if requested validation layers are available
 #ifndef NDEBUG
@@ -1026,7 +1029,7 @@ bool Swapchain::update(bool windowChanged) {
 	return false;
 }
 
-bool Swapchain::aquire() {
+void Swapchain::aquire() {
 	currentFrame = commandQueue->currentFrame;
 
 	renderer::globalRenderSystem->waitForFence(renderFinishedFences[currentFrame], VK_TRUE, std::numeric_limits<uint64>::max());
@@ -1055,8 +1058,6 @@ bool Swapchain::aquire() {
 			VULKAN_ASSERT(result, "aquire next vulkan swapchain image");
 			break;
 	}
-
-	return !update();
 }
 
 void Swapchain::begin() {
@@ -1067,7 +1068,7 @@ void Swapchain::begin() {
 	commandQueue->signalSemaphores.pushBack(submitFinishedSemaphores[currentFrame]);
 }
 
-bool Swapchain::present() {
+void Swapchain::present() {
 	VkPresentInfoKHR presentInfo {
 		VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		nullptr,
@@ -1097,8 +1098,6 @@ bool Swapchain::present() {
 			VULKAN_ASSERT(result, "present swapchain");
 			break;
 	}
-
-	return !update(renderer::globalWindow->changed);
 }
 
 RenderTarget::RenderTarget() {
@@ -1967,7 +1966,8 @@ ImGuiRenderer::ImGuiRenderer() {
 		renderer::globalRenderSystem->queueFamilies.graphicsFamilyIndex,
 		renderer::globalRenderSystem->graphicsQueue,
 		m_descriptorPools.descriptorPools[0],
-		m_renderTarget.renderPass,
+		//m_renderTarget.renderPass,
+		renderer::globalRenderSystem->defaultRenderTarget->renderPass,
 		2,
 		static_cast<uint32>(renderer::globalRenderSystem->swapchain->images.size()),
 		renderer::globalRenderSystem->swapchain->maxMultisamples,
@@ -1989,6 +1989,7 @@ void ImGuiRenderer::uploadFonts() {
 }
 
 ImGuiRenderer::~ImGuiRenderer() {
+	ImGui_ImplVulkan_DestroyFontsTexture();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 }
@@ -2001,10 +2002,17 @@ void ImGuiRenderer::beginFrame() {
 
 void ImGuiRenderer::endFrame() {
 	ImGui::Render();
+	
+	if (m_io->ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 
-	m_renderTarget.begin();
+	//m_renderTarget.begin();
+	renderer::globalRenderSystem->defaultRenderTarget->begin();
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), renderer::globalRenderSystem->commandQueue->activeCommandBuffer->commandBuffer);
-	m_renderTarget.end();
+	renderer::globalRenderSystem->defaultRenderTarget->end();
+	//m_renderTarget.end();
 }
 
 } // namespace vulkan
