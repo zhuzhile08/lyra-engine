@@ -199,7 +199,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	{ // json parser test
-		lyra::Json jsonParse = lyra::Json::parse(std::string(json));
+		lyra::Json jsonParse;
+		jsonParse = lyra::Json::parse(std::string(json));
 		lyra::log::info("\nJson Parsing Test: {}\n", jsonParse.stringifyPretty());
 	}
 
