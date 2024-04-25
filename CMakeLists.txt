@@ -23,6 +23,10 @@ if (APPLE)
 endif()
 
 
+# custom validation layer options
+option(USE_CUSTOM_VULKAN_VALIDATION_LAYERS "Use vulkan validation layers from a custom path instead of the default one" ON)
+
+
 # 3rd party library path
 set(LIBRARY_PATH ${CMAKE_SOURCE_DIR}/3rdParty)
 

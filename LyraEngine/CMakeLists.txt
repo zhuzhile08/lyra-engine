@@ -90,6 +90,13 @@ else ()
 	target_compile_options(LyraEngine PRIVATE -Wall -Wextra -Wpedantic)
 endif ()
 
+# custom validation layer
+if (USE_CUSTOM_VULKAN_VALIDATION_LAYERS)
+	include("include/ValidationLayerPath.cmake")
+	target_compile_definitions(LyraEngine PRIVATE CUSTOM_VULKAN_VALIDATION_LAYER)
+	target_compile_definitions(LyraEngine PRIVATE CUSTOM_VULKAN_VALIDATION_LAYER_PATH="${VALIDATION_LAYER_PATH}")
+endif ()
+
 add_dependencies(LyraEngine build_shaders)
 
 # link some libraries
