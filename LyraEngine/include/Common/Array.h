@@ -19,6 +19,8 @@
 namespace lyra {
 
 template <class Ty, size_type Size> struct Array {
+	static_assert(Size != 0, "lyra::Array: A zero length array is forbidden!");
+
 	using value_type = Ty;
 	using const_value = const value_type;
 	using rvreference = value_type&&;
