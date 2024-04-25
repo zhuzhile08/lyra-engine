@@ -50,7 +50,7 @@ public:
 	using json_type = BasicJson;
 	using reference = json_type&;
 	using const_reference = const json_type&;
-	using rvalue_reference = json_type&&;
+	using rvreference = json_type&&;
 	using pointer = json_type*;
 	using smart_pointer = SmartPointer<json_type>;
 
@@ -68,12 +68,13 @@ public:
 	>;
 
 	constexpr BasicJson() noexcept = default;
-	template <class KeyType> constexpr BasicJson(KeyType&& key, value_type&& value) noexcept : node_type(std::forward<KeyType>(key)), m_value(std::move(value)) { }
+	constexpr BasicJson(const value_type& value) noexcept requires std::is_copy_assignable_v<smart_pointer> : m_value(value) { }
 	constexpr BasicJson(value_type&& value) noexcept : m_value(std::move(value)) { }
+	template <class KeyType> constexpr BasicJson(KeyType&& key, value_type&& value) noexcept : node_type(std::forward<KeyType>(key)), m_value(std::move(value)) { }
 	constexpr BasicJson(BasicJson&&) = default;
 	constexpr BasicJson(const BasicJson&) requires std::is_copy_assignable_v<smart_pointer> = default;
 
-	constexpr reference operator=(const value_type& value) noexcept requires std::is_copy_assignable_v<smart_pointer> { 
+	constexpr reference operator=(const value_type& value) noexcept requires std::is_copy_assignable_v<smart_pointer> {
 		m_value = value;
 		return *this;
 	}
@@ -89,6 +90,9 @@ public:
 		m_value = std::forward<Value>(value);
 		return *this;
 	}
+
+	constexpr reference operator=(const_reference other) noexcept requires std::is_copy_assignable_v<smart_pointer> = default;
+	constexpr reference operator=(rvreference other) noexcept = default;
 
 	template <class Iterator> NODISCARD static constexpr json_type parse(Iterator begin, Iterator end) {
 		// first node
@@ -114,7 +118,7 @@ public:
 		return parse(container.begin(), container.end());
 	}
 
-	template <class... Args> NODISCARD static constexpr smart_pointer createUnique(Args&&... args) {
+	template <class... Args> NODISCARD static constexpr smart_pointer create(Args&&... args) {
 		return smart_pointer::create(std::forward<Args>(args)...);
 	}
 
