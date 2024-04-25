@@ -156,40 +156,40 @@ public:
 	}
 
 	NODISCARD constexpr iterator begin() noexcept {
-		return &m_array[0];
+		return m_array;
 	}
 	NODISCARD constexpr const_iterator begin() const noexcept {
-		return &m_array[0];
+		return m_array;
 	}
 	NODISCARD constexpr const_iterator cbegin() const noexcept {
-		return &m_array[0];
+		return m_array;
 	}
 	NODISCARD constexpr iterator end() noexcept {
-		return &m_array[m_size];
+		return m_array + m_size;
 	}
 	NODISCARD constexpr const_iterator end() const noexcept {
-		return &m_array[m_size];
+		return m_array + m_size;
 	}
 	NODISCARD constexpr const_iterator cend() const noexcept {
-		return &m_array[m_size];
+		return m_array + m_size;
 	}
 	NODISCARD constexpr reverse_iterator rbegin() noexcept {
-		return (&m_array[(m_size == 0) ? 0 : (m_size - 1)]);
+		return m_array + ((m_size == 0) ? 0 : (m_size - 1));
 	}
 	NODISCARD constexpr const_reverse_iterator rbegin() const noexcept {
-		return (&m_array[(m_size == 0) ? 0 : (m_size - 1)]);
+		return m_array + ((m_size == 0) ? 0 : (m_size - 1));
 	}
 	NODISCARD constexpr const_reverse_iterator crbegin() const noexcept {
-		return (&m_array[(m_size == 0) ? 0 : (m_size - 1)]);
+		return m_array + ((m_size == 0) ? 0 : (m_size - 1));
 	}
 	NODISCARD constexpr reverse_iterator rend() noexcept {
-		return (&m_array[0]) - 1;
+		return m_array - ((m_size == 0) ? 0 : 1);
 	}
 	NODISCARD constexpr const_reverse_iterator rend() const noexcept {
-		return (&m_array[0]) - 1;
+		return m_array - ((m_size == 0) ? 0 : 1);
 	}
 	NODISCARD constexpr const_reverse_iterator crend() const noexcept {
-		return (&m_array[0]) - 1;
+		return m_array - ((m_size == 0) ? 0 : 1);
 	}
 
 	NODISCARD constexpr reference front() noexcept {
@@ -199,10 +199,10 @@ public:
 		return m_array[0];
 	}
 	NODISCARD constexpr reference back() noexcept {
-		return m_array[m_size - 1];
+		return m_array[(m_size == 0) ? 0 : (m_size - 1)];
 	}
 	NODISCARD constexpr const_reference back() const noexcept {
-		return m_array[m_size - 1];
+		return m_array[(m_size == 0) ? 0 : (m_size - 1)];
 	}
 	
 	constexpr void resize(size_type size) noexcept {
