@@ -33,7 +33,7 @@ void quitRenderSystem();
 
 namespace renderer {
 
-bool beginFrame();
+void beginFrame();
 void endFrame();
 
 void draw();

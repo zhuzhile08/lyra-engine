@@ -11,24 +11,29 @@ namespace lyra {
 
 namespace renderer {
 
+extern Window* globalWindow;
 extern vulkan::RenderSystem* globalRenderSystem;
 
-bool beginFrame() {
+void beginFrame() {
 	// calculate deltatime
 	auto now = std::chrono::high_resolution_clock::now();
 	renderer::globalRenderSystem->deltaTime = std::chrono::duration<float32, std::chrono::seconds::period>(now - renderer::globalRenderSystem->startTime).count();
 	renderer::globalRenderSystem->startTime = now;
 
-	if (!renderer::globalRenderSystem->swapchain->aquire()) return false;
+	renderer::globalRenderSystem->swapchain->aquire();
+	if (renderer::globalRenderSystem->swapchain->update()) {
+		beginFrame();
+		return;
+	}
 	renderer::globalRenderSystem->swapchain->begin();
 	renderer::globalRenderSystem->commandQueue->activeCommandBuffer->begin();
-	return true;
 }
 
 void endFrame() {
 	renderer::globalRenderSystem->commandQueue->activeCommandBuffer->end();
 	renderer::globalRenderSystem->commandQueue->submit(renderer::globalRenderSystem->swapchain->renderFinishedFences[renderer::globalRenderSystem->swapchain->currentFrame]);
 	renderer::globalRenderSystem->swapchain->present();
+	renderer::globalRenderSystem->swapchain->update(renderer::globalWindow->changed);
 }
 
 void draw() {
