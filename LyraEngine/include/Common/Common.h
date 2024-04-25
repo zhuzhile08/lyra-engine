@@ -166,6 +166,9 @@ class AudioFilter;
 
 // assert function forward declarations
 
+#ifdef NDEBUG
+template <class Cond> inline constexpr void conditionToExpression(const Cond&) { }
+#endif
 template <class Msg> inline constexpr void lyraAssert(bool, Msg);
 template <class Msg> inline constexpr void vulkanAssert(int, Msg);
 template <class Format, typename ... Args> inline constexpr void lyraAssert(bool, Format&&, Args&&...);
@@ -179,8 +182,8 @@ template <class Format, typename ... Args> inline constexpr void vulkanAssert(in
 #define ASSERT(...) lyra::lyraAssert(__VA_ARGS__)
 #define VULKAN_ASSERT(...) lyra::vulkanAssert(__VA_ARGS__)
 #else
-#define ASSERT(...)
-#define VULKAN_ASSERT(...)
+#define ASSERT(cond, ...) conditionToExpression(cond);
+#define VULKAN_ASSERT(cond, ...) conditionToExpression(cond);
 #endif
 
 #define NODISCARD [[nodiscard]]
