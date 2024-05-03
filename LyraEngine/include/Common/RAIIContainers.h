@@ -123,9 +123,7 @@ public:
 			}
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a buffer
-	 */
+
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VmaAllocator allocator, 
@@ -138,9 +136,7 @@ public:
 			VULKAN_ASSERT(vmaCreateBuffer(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create buffer and/or its memory");
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is an aligned buffer
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VmaAllocator allocator, 
@@ -154,9 +150,7 @@ public:
 			VULKAN_ASSERT(vmaCreateBufferWithAlignment(allocator, &createInfo, &allocCreateInfo, minAlignment, &m_handle, &allocation.get(), &allocInfo), "create aligned buffer and/or its memory");
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is an aliasing buffer
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VmaAllocator allocator, 
@@ -167,9 +161,7 @@ public:
 			VULKAN_ASSERT(vmaCreateAliasingBuffer(allocator, &allocation.get(), &createInfo, &m_handle), "create aliasing buffer and/or its memory");
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is an image
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VmaAllocator allocator, 
@@ -182,9 +174,7 @@ public:
 			VULKAN_ASSERT(vmaCreateImage(allocator, &createInfo, &allocCreateInfo, &m_handle, &allocation.get(), &allocInfo), "create image and/or its memory");
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is an aliasing image
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VmaAllocator allocator, 
@@ -204,9 +194,7 @@ public:
 			result = vkAllocateDescriptorSets(device, &allocInfo, &this->m_handle);
 		} 
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the handle is a graphics pipeline
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VkPipelineCache pipelineCache, 
@@ -216,9 +204,7 @@ public:
 			VULKAN_ASSERT(vkCreateGraphicsPipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create graphics pipeline");
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the handle is a compute pipeline
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		VkPipelineCache pipelineCache, 
@@ -228,9 +214,7 @@ public:
 			VULKAN_ASSERT(vkCreateComputePipelines(m_owner, pipelineCache, 1, &createInfo, nullptr, &m_handle), "create compute pipeline");
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a queue
-	 */
+	
 	constexpr RAIIContainer(
 		owner_type owner, 
 		uint32_t familyIndex, 
@@ -241,9 +225,7 @@ public:
 			vkGetDeviceQueue(m_owner, familyIndex, queueIndex, &m_handle);
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a surface
-	 */
+	
 	constexpr RAIIContainer(owner_type owner, SDL_Window* window) 
 		requires(std::is_same_v<handle_type, VkSurfaceKHR> && std::is_same_v<owner_type, VkInstance>)
 		 : m_owner(owner) {
@@ -251,9 +233,7 @@ public:
 			SDL_Vulkan_CreateSurface(window, this->m_owner, nullptr, &this->m_handle);
 		}
 	}
-	/**
-	 * @brief construct a new RAIIContainer if the internal handle is a SDL_Window
-	 */
+	
 	constexpr RAIIContainer(
 		std::string_view title, 
 		int x,
@@ -336,21 +316,22 @@ public:
 	}
 
 	constexpr RAIIContainer& operator=(movable_handle handle) noexcept {
-		if (handle != this->m_handle) {
-			m_handle = std::exchange(handle, handle_type { } );
-		}
+		std::swap(m_handle, handle);
 		return *this;
 	}
-	constexpr RAIIContainer& operator=(movable_container container) noexcept {
-		if (&container != this) {
-			m_handle = std::exchange(container.m_handle, handle_type { } );
-			m_owner = std::exchange(container.m_owner, owner_type { } );
-		}
+	constexpr RAIIContainer& operator=(movable_container other) noexcept {
+		std::swap(m_handle, other.m_handle);
+		std::swap(m_owner, other.m_owner);
 		return *this;
 	}
 
-	constexpr handle_type release() noexcept {
+	NODISCARD constexpr handle_type release() noexcept {
 		return std::exchange(m_handle, handle_type { });
+	}
+
+	constexpr void swap(container& other) noexcept {
+		std::swap(m_handle, other.m_handle);
+		std::swap(m_owner, other.m_owner);
 	}
 
 	constexpr handle_type& get() noexcept { return m_handle; }

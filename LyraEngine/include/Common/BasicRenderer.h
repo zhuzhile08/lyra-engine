@@ -45,17 +45,17 @@ protected:
 
 class UnorderedBasicRenderer : public BasicRenderer {
 public:
-	void drawAll() const final {
+	void drawAll() const {
 		for (auto& object : m_objects) {
 			object->draw();
 		}
 	}
 
 protected:
-	void addRenderObject(RenderObject* o) final {
+	void addRenderObject(RenderObject* o) {
 		m_objects.insert(o);
 	}
-	void removeRenderObject(RenderObject* o) final {
+	void removeRenderObject(RenderObject* o) {
 		m_objects.erase(o);
 	}
 
@@ -64,17 +64,17 @@ protected:
 
 class VectorBasicRenderer : public BasicRenderer {
 public:
-	void drawAll() const final {
+	void drawAll() const {
 		for (uint32 i = 0; i < m_objects.size(); i++) {
 			m_objects[i]->draw();
 		}
 	}
 
 protected:
-	void addRenderObject(RenderObject* o) final {
+	void addRenderObject(RenderObject* o) {
 		m_objects.pushBack(o);
 	}
-	void removeRenderObject(RenderObject* o) final {
+	void removeRenderObject(RenderObject* o) {
 		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), o), m_objects.end());
 	}
 

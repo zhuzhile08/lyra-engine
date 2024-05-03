@@ -20,16 +20,6 @@
 
 namespace lyra {
 
-/**
- * @brief an implementation of the pythagorean theorum
- * 
- * @tparam _Size size of the vectors
- * @tparam Ty type stored in the vectors
- * @param a first vector
- * @param b second vector
- * 
- * @return Ty 
- */
 template <size_type Size, class Ty> NODISCARD constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b);
 
 template <size_type Size, class Ty> constexpr Ty pythagoras(const glm::vec<Size, Ty, glm::defaultp>& a, const glm::vec<Size, Ty, glm::defaultp>& b) {
@@ -40,33 +30,12 @@ template <size_type Size, class Ty> constexpr Ty pythagoras(const glm::vec<Size,
 	return sqrt(result);
 }
 
-/**
- * @brief get the position on a line based on a normalized value
- * 
- * @tparam type of vector to use
- * 
- * @param first first point
- * @param second second point
- * @param value normalized length
- * 
- * @return Ty
-*/
 template <class Ty> NODISCARD constexpr Ty point_on_line(Ty first, Ty second, float32 value);
 
 template <class Ty> constexpr Ty point_on_line(Ty first, Ty second, float32 value) {
 	return first + (second - first) * value;
 }
 
-/**
- * @brief get a point on a bezier curve
- * 
- * @tparam Ty type of the vector
- * 
- * @param points points of the bezier curve
- * @param value normalized position on the bezier
- * 
- * @return Ty 
-*/
 template <class Ty> NODISCARD constexpr Ty bezier(Vector<Ty> points, float32 value);
 
 template <class Ty> constexpr Ty bezier(Vector<Ty> points, float32 value) {
@@ -79,24 +48,8 @@ template <class Ty> constexpr Ty bezier(Vector<Ty> points, float32 value) {
 	bezier<Ty>(remaining_points, value);
 }
 
-/**
- * @brief randomly generate a float32ing point number
- * 
- * @param x bottom limit
- * @param y upper limit
- * 
- * @return float32
- */
 NODISCARD float32 randfloat32(float32 x, float32 y);
 
-/**
- * @brief decompose the transformation matrix
- * 
- * @param matrix matrix to decompose
- * @param translation translation vector
- * @param rotation rotation vector
- * @param scale scale vector
- */
 void decompose_transform_matrix(
 	const glm::mat4& matrix, 
 	glm::vec3& translation, 
@@ -106,31 +59,5 @@ void decompose_transform_matrix(
 	glm::vec3& up, 
 	glm::vec3& left
 );
-
-// pointer alignment mode
-enum AlignMode : uint8 {
-	ALIGN_FORWARD,
-	ALIGH_BACKWARD
-};
-
-/**
- * @brief align a address to a memory aligment
- *
- * @param address address
- * @param alignment alignment
- * @param mode align mode
- */
-void alignPointer(void* address, uint8 alignment, uint8 mode = 0);
-
-/**
- * @brief calculate by how many bytes the address has to be shifted to be aligned
- *
- * @param address address
- * @param alignment alignment
- * @param mode align mode
- *
- * @return uint8
- */
-NODISCARD uint8 alignPointerAdjustment(const void* address, uint8 alignment, uint8 mode = 0);
 
 } // namespace lyra

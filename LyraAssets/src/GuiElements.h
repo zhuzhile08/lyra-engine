@@ -53,7 +53,7 @@ public:
 		lyra::vulkan::ImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
-	void draw() final;
+	void draw();
 
 private:
 	ProgramState* m_state;
@@ -65,7 +65,7 @@ public:
 		lyra::vulkan::ImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
-	void draw() final;
+	void draw();
 
 private:
 	ProgramState* m_state;
@@ -77,7 +77,7 @@ public:
 		lyra::vulkan::ImGuiRenderer& renderer,
 		ProgramState& state) : lyra::RenderObject(&renderer), m_state(&state) { }
 
-	void draw() final;
+	void draw();
 
 private:
 	ProgramState* m_state;

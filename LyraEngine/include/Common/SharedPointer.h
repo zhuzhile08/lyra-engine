@@ -36,7 +36,7 @@ private:
 			constexpr Deleter() = default;
 			constexpr Deleter(const deleter_type& d) : m_d(d) { }
 
-			constexpr void destroy(value_type* ptr) final override {
+			constexpr void destroy(value_type* ptr) override {
 				m_d(ptr);
 			}
 

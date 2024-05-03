@@ -22,8 +22,8 @@ public:
 	~SDLImGuiRenderer();
 
 private:
-	void beginFrame() final;
-	void endFrame() final;
+	void beginFrame();
+	void endFrame();
 
 	SDL_Renderer* m_renderer;
 };
