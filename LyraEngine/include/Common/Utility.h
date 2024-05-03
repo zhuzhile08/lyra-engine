@@ -12,7 +12,6 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Vector.h>
 
 #include <functional>
 #include <string>
@@ -24,34 +23,34 @@ template <typename Ty> NODISCARD constexpr inline const void* getAddress(const T
 	return static_cast<const void*>(type);
 }
 
-NODISCARD inline constexpr Vector<std::string> parse(std::string_view s, std::string_view d) noexcept {
-	Vector<std::string> r;
+template <template <class...> class Container> NODISCARD inline constexpr Container<std::string> parse(std::string_view s, std::string_view d) noexcept {
+	Container<std::string> r;
 
 	size_type begin = 0;
 	size_type current;
 
 	while ((current = s.find(d, begin)) != std::string::npos) {
-		r.emplaceBack(s.substr(begin, current - begin));
+		r.emplace_back(s.substr(begin, current - begin));
 		begin = current + d.size();
 	}
 	
-	r.emplaceBack(s.substr(begin));
+	r.emplace_back(s.substr(begin));
 
 	return r;
 }
 
-NODISCARD inline constexpr Vector<std::wstring> parse(std::wstring_view s, std::wstring_view d) noexcept {
-	Vector<std::wstring> r;
+template <template <class...> class Container> NODISCARD inline constexpr Container<std::wstring> parse(std::wstring_view s, std::wstring_view d) noexcept {
+	Container<std::wstring> r;
 
 	size_type begin = 0;
 	size_type current;
 
 	while ((current = s.find(d, begin)) != std::string::npos) {
-		r.emplaceBack(s.substr(begin, current - begin));
+		r.emplace_back(s.substr(begin, current - begin));
 		begin = current + d.size();
 	}
 	
-	r.emplaceBack(s.substr(begin));
+	r.emplace_back(s.substr(begin));
 
 	return r;
 }
@@ -93,13 +92,9 @@ template <class Integer> inline constexpr Integer lastPrime(Integer n) noexcept 
 	}
 };
 
-template <class Ty> struct CallableUnderlying {
-	using type = Ty;
-};
-
-template <class Ty, class... Args> struct CallableUnderlying<Ty(Args...)> {
-	typedef Ty(*type)(Args...);
-};
+template <class Integer> inline constexpr Integer sizeToIndex(Integer size) noexcept requires std::is_integral_v<Integer> {
+	return (size == 0) ? 0 : size - 1;
+}
 
 template <class Ty> concept EnumType = std::is_enum_v<Ty>;
 
