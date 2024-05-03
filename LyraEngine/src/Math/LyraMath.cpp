@@ -50,16 +50,4 @@ void decompose_transform_matrix(
 	}
 }
 
-void alignPointer(void* address, const uint8_t alignment, const uint8_t mode) {
-	address = (mode == 1) ? (void*)((reinterpret_cast<uintptr_t>(address) + static_cast<uintptr_t>(alignment - 1)) & static_cast<uintptr_t>(~(alignment - 1))) :
-		(void*)(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(~(alignment - 1)));
-}
-
-uint8_t alignPointerAdjustment(const void* address, const uint8_t alignment, const uint8_t mode) {
-	uint8_t adjustment = (mode == 1) ? alignment - (reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(alignment - 1)) : 
-		(reinterpret_cast<uintptr_t>(address) & static_cast<uintptr_t>(alignment - 1));
-
-	return adjustment;
-}
-
 }
