@@ -310,6 +310,9 @@ public:
 				SDL_DestroyWindow(m_handle);
 			} // some objects don't need to be destroyed explicitly, so they aren't here, even though they use this RAII container
 		}
+
+		m_handle = VK_NULL_HANDLE;
+		m_owner = VK_NULL_HANDLE;
 	}
 	virtual ~RAIIContainer() {
 		destroy();
