@@ -118,42 +118,7 @@ struct SystemTest {
 int main(int argc, char* argv[]) {
 	lyra::initLoggingSystem();
 	lyra::initECS();
-
-	{ // dynarray test
-		lyra::Dynarray<int, 16> foo;
-		foo.resize(10);
-		foo.fill(4);
-		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
-
-		lyra::log::newLine();
-		lyra::log::debug("After insert:");
-		foo.insert(foo.begin() + 5, 5);
-		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
-
-		lyra::log::newLine();
-		lyra::log::debug("After inserting multiple elements:");
-		foo.insert(foo.begin() + 6, 2, 6);
-		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
-
-		lyra::log::newLine();
-		lyra::log::debug("After erasing one element:");
-		foo.erase(foo.begin() + 9);
-		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
-
-		lyra::log::newLine();
-		lyra::log::debug("After erasing multiple elements:");
-		foo.erase(foo.begin() + 6, foo.end() - 1);
-		for (const auto& it : foo) lyra::log::log("{}{} ", lyra::ansi::setStyle(lyra::ansi::Font::none, 242), it);
-
-		lyra::log::newLine();
-		lyra::log::debug("After inserting multiple elements and causing an exception:");
-		try {
-			foo.insert(foo.begin(), 30, 8);
-		} catch(...) {
-			lyra::log::error("Catched an exception!\n");
-		}
-	}
-
+	
 	{ // shared pointer test
 		lyra::SharedPointer<lyra::uint64> shared1 = lyra::SharedPointer<lyra::uint64>::create(12211411);
 		lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());

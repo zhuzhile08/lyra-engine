@@ -12,6 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
+#include <Common/Utility.h>
 #include <Common/Allocator.h>
 #include <Common/Iterators.h>
 
@@ -117,19 +118,19 @@ public:
 		m_size = 0;
 	}
 
-	constexpr wrapper& operator=(const_wrapper_reference other) {
+	constexpr wrapper_reference operator=(const_wrapper_reference other) {
 		m_alloc = other.m_alloc;
 		assign(other.begin(), other.end());
 		return *this;
 	}
-	constexpr wrapper& operator=(wrapper_rvreference other) noexcept {
+	constexpr wrapper_reference operator=(wrapper_rvreference other) noexcept {
 		std::swap(other.m_alloc, m_alloc);
 		std::swap(other.m_array, m_array);
 		std::swap(other.m_size, m_size);
 		std::swap(other.m_capacity, m_capacity);
 		return *this;
 	}
-	constexpr wrapper& operator=(init_list ilist) {
+	constexpr wrapper_reference operator=(init_list ilist) {
 		assign(ilist.begin(), ilist.end());
 		return *this;
 	}
@@ -149,7 +150,7 @@ public:
 		assign(ilist.begin(), ilist.end());
 	}
 
-	constexpr void swap(wrapper& other) {
+	constexpr void swap(wrapper_reference other) {
 		std::swap(m_array, other.m_array);
 		std::swap(m_size, other.m_size);
 		std::swap(m_capacity, other.m_capacity);
@@ -174,13 +175,13 @@ public:
 		return m_array + m_size;
 	}
 	NODISCARD constexpr reverse_iterator rbegin() noexcept {
-		return m_array + ((m_size == 0) ? 0 : (m_size - 1));
+		return m_array + sizeToIndex(m_size);
 	}
 	NODISCARD constexpr const_reverse_iterator rbegin() const noexcept {
-		return m_array + ((m_size == 0) ? 0 : (m_size - 1));
+		return m_array + sizeToIndex(m_size);
 	}
 	NODISCARD constexpr const_reverse_iterator crbegin() const noexcept {
-		return m_array + ((m_size == 0) ? 0 : (m_size - 1));
+		return m_array + sizeToIndex(m_size);
 	}
 	NODISCARD constexpr reverse_iterator rend() noexcept {
 		return m_array - ((m_size == 0) ? 0 : 1);
@@ -199,10 +200,10 @@ public:
 		return m_array[0];
 	}
 	NODISCARD constexpr reference back() noexcept {
-		return m_array[(m_size == 0) ? 0 : (m_size - 1)];
+		return m_array[sizeToIndex(m_size)];
 	}
 	NODISCARD constexpr const_reference back() const noexcept {
-		return m_array[(m_size == 0) ? 0 : (m_size - 1)];
+		return m_array[sizeToIndex(m_size)];
 	}
 	
 	constexpr void resize(size_type size) noexcept {
@@ -435,8 +436,8 @@ private:
 			auto newSize = m_size + count;
 			smartReserve(newSize);
 
-			auto rfirst = &m_array[m_size] - 1;
-			auto rlast = &m_array[index] - 1;
+			auto rfirst = m_array + sizeToIndex(m_size);
+			auto rlast = m_array + index - 1;
 			auto newBack = rfirst + count;
 
 			for (; rfirst != rlast; rfirst--, newBack--) {
