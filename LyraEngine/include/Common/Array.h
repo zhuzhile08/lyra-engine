@@ -37,23 +37,9 @@ template <class Ty, size_type Size> struct Array {
 	constexpr void fill(const_reference value) { 
 		std::fill_n(begin(), Size, value);
 	}
-	constexpr void fill(rvreference value) { 
-		std::fill_n(begin(), Size, value);
-	}
-	constexpr void fill(const value_type* const array, size_type size) {
-		size_type length = (Size < size) ? Size : size;
-		std::swap_ranges(begin(), begin() + length, array[0]);
-	}
-	constexpr void fill(const wrapper& array) {
-		std::swap_ranges(begin(), end(), array.end());
-	}
-	template <size_type OtherSize> constexpr void fill(const Array<value_type, OtherSize>& array) {
-		size_type length = (Size < OtherSize) ? Size : OtherSize;
-		std::swap_ranges(begin(), begin() + length, array.begin());
-	}
 
 	constexpr void swap(wrapper& array) {
-		std::swap(m_array, array.m_array);
+		std::swap_ranges(begin(), end(), array.begin());
 	}
 
 	NODISCARD constexpr reference front() {
@@ -126,14 +112,18 @@ template <class Ty, size_type Size> struct Array {
 	NODISCARD constexpr size_type size() const noexcept {
 		return Size;
 	}
+	NODISCARD constexpr size_type maxSize() const noexcept {
+		return std::numeric_limits<size_type>::max();
+	}
+	NODISCARD DEPRECATED constexpr size_type max_size() const noexcept {
+		return maxSize();
+	}
 	NODISCARD constexpr bool empty() const noexcept {
 		return Size == 0;
 	}
 
 	NODISCARD constexpr value_type* data() noexcept { return m_array; }
 	NODISCARD constexpr const value_type* data() const noexcept { return m_array; }
-	NODISCARD constexpr operator value_type* () noexcept { return m_array; }
-	NODISCARD constexpr operator const value_type* () const noexcept { return m_array; }
 
 	array m_array;
 };
