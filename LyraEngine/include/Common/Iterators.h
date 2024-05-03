@@ -66,17 +66,26 @@ public:
 	friend constexpr wrapper operator+(const_wrapper_reference it, size_type i) noexcept {
 		return wrapper(it.m_pointer + i);
 	}
-	friend constexpr wrapper operator-(const_wrapper_reference it, size_type i) noexcept {
-		return it + (-i); 
-	}
 	friend constexpr wrapper operator+(size_type i, const_wrapper_reference it) noexcept {
 		return wrapper(it.m_pointer + i);
+	}
+	friend constexpr wrapper operator-(const_wrapper_reference it, size_type i) noexcept {
+		return it + (-i); 
 	}
 	friend constexpr wrapper operator-(size_type i, const_wrapper_reference it) noexcept {
 		return it + (-i); 
 	}
 	friend constexpr size_type operator-(const_wrapper_reference first, const_wrapper_reference second) noexcept {
 		return first.m_pointer - second.m_pointer;
+	}
+
+	friend wrapper& operator+=(wrapper_reference it, size_type i) noexcept {
+		it = it + i;
+		return it;
+	}
+	friend wrapper& operator-=(wrapper_reference it, size_type i) noexcept {
+		it = it - i;
+		return it;
 	}
 
 	constexpr operator Iterator<const_value>() const noexcept {
@@ -148,17 +157,26 @@ public:
 	friend constexpr wrapper operator+(const_wrapper_reference it, size_type i) noexcept {
 		return wrapper(it.m_pointer - i);
 	}
-	friend constexpr wrapper operator-(const_wrapper_reference it, size_type i) noexcept {
-		return it + i; 
-	}
 	friend constexpr wrapper operator+(size_type i, const_wrapper_reference it) noexcept {
 		return wrapper(it.m_pointer - i);
+	}
+	friend constexpr wrapper operator-(const_wrapper_reference it, size_type i) noexcept {
+		return it + i; 
 	}
 	friend constexpr wrapper operator-(size_type i, const_wrapper_reference it) noexcept {
 		return it + i; 
 	}
 	friend constexpr size_type operator-(const_wrapper_reference first, const_wrapper_reference second) noexcept {
 		return first.m_pointer + second.m_pointer;
+	}
+
+	friend wrapper& operator+=(wrapper_reference it, size_type i) noexcept {
+		it = it + 1;
+		return it;
+	}
+	friend wrapper& operator-=(wrapper_reference it, size_type i) noexcept {
+		it = it - 1;
+		return it;
 	}
 
 	constexpr operator Iterator<const_value>() const noexcept {
