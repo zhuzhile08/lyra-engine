@@ -19,6 +19,18 @@
 
 namespace lyra {
 
+namespace detail {
+
+template <class Ty> struct CallableUnderlying {
+	using type = Ty;
+};
+
+template <class Ty, class... Args> struct CallableUnderlying<Ty(Args...)> {
+	typedef Ty(*type)(Args...);
+};
+
+} // namespace detail
+
 template <class> class Function;
 
 template <class Ty, class... Args> class Function <Ty(Args...)> {
@@ -64,9 +76,9 @@ public:
 	constexpr Function(const wrapper& function) noexcept : callable((function.callable) ? function.callable->clone() : nullptr) { }
 	constexpr Function(wrapper&& function) noexcept : callable(std::move(function.function)) { }
 	template <class Callable> constexpr Function(const Callable& callable) noexcept : 
-		callable(real_callable<typename CallableUnderlying<Callable>::type>::create(callable)) { }
+		callable(real_callable<typename detail::CallableUnderlying<Callable>::type>::create(callable)) { }
 	template <class Callable> constexpr Function(Callable&& callable) noexcept : 
-		callable(real_callable<typename CallableUnderlying<Callable>::type>::create(std::forward<Callable>(callable))) { }
+		callable(real_callable<typename detail::CallableUnderlying<Callable>::type>::create(std::forward<Callable>(callable))) { }
 
 	constexpr Function& operator=(const wrapper& function) noexcept {
 		this->callable = (function.callable) ? function.callable->clone() : nullptr;
