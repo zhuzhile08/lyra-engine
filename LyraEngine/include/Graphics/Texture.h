@@ -31,13 +31,13 @@ public:
 	};
 
 	Texture() = default;
-	Texture(const resource::TextureFile& imageData, const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB);
+	Texture(const resource::TextureFile& imageData, vulkan::Image::Format format = vulkan::Image::Format::r8g8b8a8SRGB);
 
-	NODISCARD constexpr VkDescriptorImageInfo getDescriptorImageInfo(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
+	NODISCARD constexpr VkDescriptorImageInfo getDescriptorImageInfo(vulkan::Image::Layout layout = vulkan::Image::Layout::shaderReadOnly) const noexcept {
 		return {
 			m_sampler,
-			m_image.view,
-			layout
+			m_imageResource.view,
+			static_cast<VkImageLayout>(layout)
 		};
 	}
 
@@ -45,6 +45,7 @@ public:
 
 private:
 	vulkan::Image m_image;
+	vulkan::Image::Resource m_imageResource;
 	vulkan::GPUMemory m_memory;
 	vulkan::vk::Sampler m_sampler;
 

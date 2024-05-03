@@ -315,8 +315,6 @@ enum class ControllerButtonType {
 	paddle3, /* Xbox Elite paddle P2 */
 	paddle4, /* Xbox Elite paddle P4 */
 	touchpad, /* PS4/PS5 touchpad button */
-
-	maxEnum
 };
 
 } // namespace input

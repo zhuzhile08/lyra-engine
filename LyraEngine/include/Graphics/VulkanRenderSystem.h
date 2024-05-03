@@ -90,6 +90,402 @@ using DefragmentationContext = RAIIContainer<VmaDefragmentationContext, VmaAlloc
 
 } // namespace vma 
 
+class GPUMemory {
+public:
+	enum class Access {
+		none = 0x00000000,
+		indirectCommandRead = 0x00000001,
+		indexRead = 0x00000002,
+		vertexAttributeRead = 0x00000004,
+		uniformRead = 0x00000008,
+		inputAttachmentRead = 0x00000010,
+		shaderRead = 0x00000020,
+		shaderWrite = 0x00000040,
+		colorAttachmentRead = 0x00000080,
+		colorAttachmentWrite = 0x00000100,
+		depthStencilAttachmentRead = 0x00000200,
+		depthStencilAttachmentWrite = 0x00000400,
+		transferRead = 0x00000800,
+		transferWrite = 0x00001000,
+		hostRead = 0x00002000,
+		hostWrite = 0x00004000,
+		memoryRead = 0x00008000,
+		memoryWrite = 0x00010000
+	};
+
+	enum class LoadMode {
+		load = 0,
+		clear = 1,
+		dontCare = 2
+	};
+
+	enum class StoreMode {
+		store = 0,
+		dontCare = 1
+	};
+
+	void destroy() { memory.destroy(); }
+
+	NODISCARD constexpr static VmaAllocationCreateInfo getAllocCreateInfo(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) noexcept {
+		return {
+			0,
+			usage,
+			requiredFlags,
+			0,
+			0,
+			0,
+			nullptr,
+			0
+		}; // the rest is absolutely useless
+	}
+
+	vma::Allocation memory;
+};
+
+class GPUBuffer : public GPUMemory {
+public:
+	constexpr GPUBuffer() = default;
+	GPUBuffer(VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
+
+	void copy(const GPUBuffer& srcBuffer);
+	void copyData(const void* src, size_type copySize = 0);
+	void copyData(const void** src, uint32 arraySize, size_type elementSize = 0);
+
+	NODISCARD constexpr VkDescriptorBufferInfo getDescriptorBufferInfo() const noexcept {
+		return {
+			buffer, 
+			0, 
+			size
+		};
+	}
+	
+	NODISCARD constexpr VkBufferMemoryBarrier bufferMemoryBarrier(
+		GPUMemory::Access srcAccessMask, 
+		GPUMemory::Access dstAccessMask,
+		uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+			nullptr,
+			static_cast<VkAccessFlags>(srcAccessMask),
+			static_cast<VkAccessFlags>(dstAccessMask),
+			srcQueueFamily,
+			dstQueueFamily,
+			buffer,
+			0,
+			size
+		};
+	}
+
+	vk::Buffer buffer;
+	VkDeviceSize size = 0;
+};
+
+class Image {
+public:
+	enum class Type { // also contains enums for VkImageViewType
+		dim1,
+		dim2,
+		dim3,
+		cube,
+		arrayDim1,
+		arrayDim2,
+		arrayCube,
+		max = 0x7FFFFFFF
+	};
+
+	enum class Compare {
+		never,
+		less,
+		equal,
+		lessOrEqual,
+		greater,
+		notEqual,
+		greaterOrEqual,
+		always
+	};
+
+	enum class Aspect {
+		none = 0,
+		color = 0x00000001,
+		depth = 0x00000002,
+		stencil = 0x00000004,
+		metadata = 0x00000008,
+		plane0 = 0x00000010,
+		plane1 = 0x00000020,
+		plane2 = 0x00000040,
+		max = 0x7FFFFFFF
+	};
+
+	enum class SampleCount {
+		bit0 = 0x00000000, // not valid bit, only for utility
+		bit1 = 0x00000001,
+		bit2 = 0x00000002,
+		bit4 = 0x00000004,
+		bit8 = 0x00000008,
+		bit6 = 0x00000010,
+		bit32 = 0x00000020,
+		bit64 = 0x00000040
+	};
+
+	enum class Layout {
+		undefined,
+		general,
+		colorAttachment,
+		depthStencilAttachment,
+		depthStencilReadOnly,
+		shaderReadOnly,
+		transferSrc,
+		transferDst,
+		reinitialized,
+		present = 1000001002,
+		max = 0x7FFFFFFF
+	};
+
+	enum class Tiling {
+		optimal,
+		linear,
+		max = 0x7FFFFFFF
+	};
+
+	enum class Format {
+		undefined,
+		r4g4UNormPack8,
+		r4g4b4a4UNormPack16,
+		b4g4r4a4UNormPack16,
+		r5g6b5UNormPack16,
+		b5g6r5UNormPack16,
+		r5g5b5a1UNormPack16,
+		b5g5r5a1UNormPack16,
+		a1r5g5b5UNormPack16,
+		r8UNorm,
+		r8SNorm,
+		r8UScaled,
+		r8SScaled,
+		r8UInt,
+		r8SInt,
+		r8SRGB,
+		r8g8UNorm,
+		r8g8SNorm,
+		r8g8UScaled,
+		r8g8SScaled,
+		r8g8UInt,
+		r8g8SInt,
+		r8g8SRGB,
+		r8g8b8UNorm,
+		r8g8b8SNorm,
+		r8g8b8UScaled,
+		r8g8b8SScaled,
+		r8g8b8UInt,
+		r8g8b8SInt,
+		r8g8b8SRGB,
+		b8g8r8UNorm,
+		b8g8r8SNorm,
+		b8g8r8UScaled,
+		b8g8r8SScaled,
+		b8g8r8UInt,
+		b8g8r8SInt,
+		b8g8r8SRGB,
+		r8g8b8a8UNorm,
+		r8g8b8a8SNorm,
+		r8g8b8a8UScaled,
+		r8g8b8a8SScaled,
+		r8g8b8a8UInt,
+		r8g8b8a8SInt,
+		r8g8b8a8SRGB,
+		b8g8r8a8UNorm,
+		b8g8r8a8SNorm,
+		b8g8r8a8UScaled,
+		b8g8r8a8SScaled,
+		b8g8r8a8UInt,
+		b8g8r8a8SInt,
+		b8g8r8a8SRGB,
+		a8b8g8r8UNormPack32,
+		a8b8g8r8SNormPack32,
+		a8b8g8r8UScaledPack32,
+		a8b8g8r8SScaledPack32,
+		a8b8g8r8UIntPack32,
+		a8b8g8r8SIntPack32,
+		a8b8g8r8SRGBPack32,
+		a2r10g10b10UNormPack32,
+		a2r10g10b10SNormPack32,
+		a2r10g10b10UScaledPack32,
+		a2r10g10b10SScaledPack32,
+		a2r10g10b10UIntPack32,
+		a2r10g10b10SIntPack32,
+		a2b10g10r10UNormPack32,
+		a2b10g10r10SNormPack32,
+		a2b10g10r10UScaledPack32,
+		a2b10g10r10SScaledPack32,
+		a2b10g10r10UIntPack32,
+		a2b10g10r10SIntPack32,
+		r16UNorm,
+		r16SNorm,
+		r16UScaled,
+		r16SScaled,
+		r16UInt,
+		r16SInt,
+		r16SFloat,
+		r16g16UNorm,
+		r16g16SNorm,
+		r16g16UScaled,
+		r16g16SScaled,
+		r16g16UInt,
+		r16g16SInt,
+		r16g16SFloat,
+		r16g16b16UNorm,
+		r16g16b16SNorm,
+		r16g16b16UScaled,
+		r16g16b16SScaled,
+		r16g16b16UInt,
+		r16g16b16SInt,
+		r16g16b16SFloat,
+		r16g16b16a16UNorm,
+		r16g16b16a16SNorm,
+		r16g16b16a16UScaled,
+		r16g16b16a16SScaled,
+		r16g16b16a16UInt,
+		r16g16b16a16SInt,
+		r16g16b16a16SFloat,
+		r32UInt,
+		r32SInt,
+		r32SFloat,
+		r32g32UInt,
+		r32g32SInt,
+		r32g32SFloat,
+		r32g32b32UInt,
+		r32g32b32SInt,
+		r32g32b32SFloat,
+		r32g32b32a32UInt,
+		r32g32b32a32SInt,
+		r32g32b32a32SFloat,
+		r64UInt,
+		r64SInt,
+		r64SFloat,
+		r64g64UInt,
+		r64g64SInt,
+		r64g64SFloat,
+		r64g64b64UInt,
+		r64g64b64SInt,
+		r64g64b64SFloat,
+		r64g64b64a64UInt,
+		r64g64b64a64SInt,
+		r64g64b64a64SFloat,
+		b10g11r11UFloatPack32,
+		e5b9g9r9UFloatPack32,
+		d16UNorm,
+		x8d24UNormPack32,
+		d32SFloat,
+		s8UInt,
+		d16UNormS8UInt,
+		d24UNormS8UInt,
+		d32SFloatS8UInt,
+		max = 0x7FFFFFFF
+	};
+
+	class Resource {
+	public:
+		Resource() = default;
+		Resource(
+			const Image& image,
+			const VkImageSubresourceRange& subresourceRange,
+			Type viewType = Type::dim2,
+			Format format = Format::max,
+			const VkComponentMapping& colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
+		);
+	
+		vk::ImageView view;
+		const Image* image;
+	};
+
+	Image() = default;
+	Image(const VkImageCreateInfo& info, const VmaAllocationCreateInfo& allocInfo, vma::Allocation& memory);
+
+	NODISCARD static vk::Sampler createSampler(
+		VkSamplerAddressMode addressModeU,
+		VkSamplerAddressMode addressModeV,
+		VkSamplerAddressMode addressModeW,
+		VkBorderColor borderColor,
+		float32 maxLod,
+		float32 minLod = 0.0f,
+		float32 mipLodBias = 0.0f,
+		VkFilter magFilter = VK_FILTER_LINEAR,
+		VkFilter minFilter = VK_FILTER_LINEAR,
+		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
+		VkCompareOp compareOp = VK_COMPARE_OP_NEVER,
+		VkBool32 unnormalizedCoordinates = VK_FALSE
+	) noexcept;
+
+	NODISCARD static constexpr VkImageCreateInfo imageCreateInfo(
+		Format format,
+		const VkExtent3D& extent,
+		VkImageUsageFlags usage,
+		uint32 mipLevels = 1,
+		Type imageType = Type::dim2,
+		uint32 arrayLayers = 1,
+		VkImageCreateFlags flags = 0,
+		SampleCount samples = SampleCount::bit1,
+		Tiling tiling = Tiling::optimal
+	) noexcept {
+		return {
+			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+			nullptr,
+			flags,
+			static_cast<VkImageType>(imageType),
+			static_cast<VkFormat>(format),
+			extent,
+			mipLevels,
+			arrayLayers,
+			static_cast<VkSampleCountFlagBits>(samples),
+			static_cast<VkImageTiling>(tiling),
+			usage,
+			VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
+			0,
+			0,
+			VK_IMAGE_LAYOUT_UNDEFINED
+		};
+	}
+
+	NODISCARD constexpr VkImageMemoryBarrier imageMemoryBarrier(
+		GPUMemory::Access srcAccessMask,
+		GPUMemory::Access dstAccessMask,
+		Layout srcLayout,
+		Layout dstLayout,
+		const VkImageSubresourceRange& subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+		uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
+		uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
+	) const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+			nullptr,
+			static_cast<VkAccessFlags>(srcAccessMask),
+			static_cast<VkAccessFlags>(dstAccessMask),
+			static_cast<VkImageLayout>(srcLayout),
+			static_cast<VkImageLayout>(dstLayout),
+			srcQueueFamily,
+			dstQueueFamily,
+			image,
+			subresourceRange
+		};
+	}
+	
+	NODISCARD static Format bestFormat(const Vector<Format>& candidates, Tiling tiling, VkFormatFeatureFlags features);
+	NODISCARD VkFormatProperties formatProperties(Format format = Format::r8g8b8a8SRGB) const noexcept;
+
+	void transitionLayout(Layout oldLayout, Layout newLayout, const VkImageSubresourceRange& subresourceRange) const;
+
+	void copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
+
+	vk::Image image;
+
+	Format format = Format::max;
+	SampleCount samples = SampleCount::bit0;
+	Tiling tiling = Tiling::max;
+
+	friend class Window;
+};
+
 class CommandQueue {
 public:
 	class CommandPool {
@@ -179,23 +575,23 @@ public:
 		}
 		void blitImage(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const VkImageBlit& region, 
 			VkFilter filter
 		) const {
-			vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, 1, &region, filter);
+			vkCmdBlitImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), 1, &region, filter);
 		}
 		void blitImage(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const Vector<VkImageBlit>& regions, 
 			VkFilter filter
 		) const {
-			vkCmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data(), filter);
+			vkCmdBlitImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data(), filter);
 		}
 		void clearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect) const {
 			vkCmdClearAttachments(commandBuffer, 1, &attachment, 1, &rect);
@@ -205,35 +601,35 @@ public:
 		}
 		void clearColorImage(
 			const vk::Image& image, 
-			VkImageLayout imageLayout, 
+			Image::Layout imageLayout, 
 			const VkClearColorValue& color, 
 			const VkImageSubresourceRange& range
 		) const {
-			vkCmdClearColorImage(commandBuffer, image, imageLayout, &color, 1, &range);
+			vkCmdClearColorImage(commandBuffer, image, static_cast<VkImageLayout>(imageLayout), &color, 1, &range);
 		}
 		void clearColorImage(
 			const vk::Image& image, 
-			VkImageLayout imageLayout,
+			Image::Layout imageLayout,
 			const VkClearColorValue& color, 
 			const Vector<VkImageSubresourceRange>& ranges
 		) const {
-			vkCmdClearColorImage(commandBuffer, image, imageLayout, &color, static_cast<uint32>(ranges.size()), ranges.data());
+			vkCmdClearColorImage(commandBuffer, image, static_cast<VkImageLayout>(imageLayout), &color, static_cast<uint32>(ranges.size()), ranges.data());
 		}
 		void clearDepthStencilImage(
 			const vk::Image& image, 
-			VkImageLayout imageLayout, 
+			Image::Layout imageLayout, 
 			const VkClearDepthStencilValue& depthStencil, 
 			const VkImageSubresourceRange& range
 		) const {
-			vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, &depthStencil, 1, &range);
+			vkCmdClearDepthStencilImage(commandBuffer, image, static_cast<VkImageLayout>(imageLayout), &depthStencil, 1, &range);
 		}
 		void clearDepthStencilImage(
 			const vk::Image&image, 
-			VkImageLayout imageLayout, 
+			Image::Layout imageLayout, 
 			const VkClearDepthStencilValue& depthStencil, 
 			const Vector<VkImageSubresourceRange>& ranges
 		) const {
-			vkCmdClearDepthStencilImage(commandBuffer, image, imageLayout, &depthStencil, static_cast<uint32>(ranges.size()), ranges.data());
+			vkCmdClearDepthStencilImage(commandBuffer, image, static_cast<VkImageLayout>(imageLayout), &depthStencil, static_cast<uint32>(ranges.size()), ranges.data());
 		}
 		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const VkBufferCopy& region) const {
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &region);
@@ -244,52 +640,52 @@ public:
 		void copyBufferToImage(
 			const vk::Buffer& srcBuffer, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const VkBufferImageCopy& region
 		) const {
-			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, 1, &region);
+			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, static_cast<VkImageLayout>(dstImageLayout), 1, &region);
 		}
 		void copyBufferToImage(
 			const vk::Buffer& srcBuffer, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const Vector<VkBufferImageCopy>& regions
 		) const {
-			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
+			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyImage(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const VkImageCopy& region
 		) const {
-			vkCmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, 1, &region);
+			vkCmdCopyImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), 1, &region);
 		}
 		void copyImage(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const Vector<VkImageCopy>& regions
 		) const {
-			vkCmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
+			vkCmdCopyImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyImageToBuffer(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Buffer& dstBuffer, 
 			const VkBufferImageCopy& region
 		) const {
-			vkCmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, 1, &region);
+			vkCmdCopyImageToBuffer(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstBuffer, 1, &region);
 		}
 		void copyImageToBuffer(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Buffer& dstBuffer, 
 			const Vector<VkBufferImageCopy>& regions
 		) const {
-			vkCmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, static_cast<uint32>(regions.size()), regions.data());
+			vkCmdCopyImageToBuffer(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyQueryPoolResults(
 			const VkQueryPool queryPool,
@@ -396,19 +792,19 @@ public:
 		}
 		void resolveImage(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage,
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const VkImageResolve& region) const {
-			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, 1, &region);
+			vkCmdResolveImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), 1, &region);
 		}
 		void resolveImage(
 			const vk::Image& srcImage, 
-			VkImageLayout srcImageLayout, 
+			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
-			VkImageLayout dstImageLayout, 
+			Image::Layout dstImageLayout, 
 			const Vector<VkImageResolve>& regions) const {
-			vkCmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, static_cast<uint32>(regions.size()), regions.data());
+			vkCmdResolveImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data());
 		}
 		void setBlendConstants(float32 blendConstants[4]) const {
 			vkCmdSetBlendConstants(commandBuffer, blendConstants);
@@ -522,197 +918,6 @@ public:
 	uint32 currentFrame = 0;
 };
 
-class GPUMemory {
-public:
-	void destroy() { memory.destroy(); }
-
-	NODISCARD constexpr static VmaAllocationCreateInfo getAllocCreateInfo(VmaMemoryUsage usage, VkMemoryPropertyFlags requiredFlags = 0) noexcept {
-		return {
-			0,
-			usage,
-			requiredFlags,
-			0,
-			0,
-			0,
-			nullptr,
-			0
-		}; // the rest is absolutely useless
-	}
-
-	vma::Allocation memory;
-};
-
-class GPUBuffer : public GPUMemory {
-public:
-	constexpr GPUBuffer() = default;
-	GPUBuffer(VkDeviceSize size, VkBufferUsageFlags bufferUsage, VmaMemoryUsage memUsage);
-
-	void copy(const GPUBuffer& srcBuffer);
-	void copyData(const void* src, size_type copySize = 0);
-	void copyData(const void** src, uint32 arraySize, size_type elementSize = 0);
-
-	NODISCARD constexpr VkDescriptorBufferInfo getDescriptorBufferInfo() const noexcept {
-		return {
-			buffer, 
-			0, 
-			size
-		};
-	}
-	
-	NODISCARD constexpr VkBufferMemoryBarrier bufferMemoryBarrier(
-		const VkAccessFlags srcAccessMask, 
-		const VkAccessFlags dstAccessMask,
-		uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
-	) const noexcept {
-		return {
-			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-			nullptr,
-			srcAccessMask,
-			dstAccessMask,
-			srcQueueFamily,
-			dstQueueFamily,
-			buffer,
-			0,
-			size
-		};
-	}
-
-	vk::Buffer buffer;
-	VkDeviceSize size = 0;
-};
-
-class Image {
-public:
-	enum class Compare {
-		never,
-		less,
-		equal,
-		lessOrEqual,
-		greater,
-		notEqual,
-		greaterOrEqual,
-		always
-	};
-
-	enum class SampleCount {
-		bit1 = 0x00000001,
-		bit2 = 0x00000002,
-		bit4 = 0x00000004,
-		bit8 = 0x00000008,
-		bit6 = 0x00000010,
-		bit32 = 0x00000020,
-		bit64 = 0x00000040
-	};
-
-	void destroy() {
-		image.destroy();
-		view.destroy();
-	}
-
-	NODISCARD constexpr VkImageCreateInfo imageCreateInfo(
-		VkFormat format,
-		const VkExtent3D& extent,
-		VkImageUsageFlags usage,
-		uint32 mipLevels = 1,
-		VkImageType imageType = VK_IMAGE_TYPE_2D,
-		uint32 arrayLayers = 1,
-		VkImageCreateFlags flags = 0,
-		VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT,
-		VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL
-	) noexcept {
-		m_tiling = tiling;
-
-		return {
-			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-			nullptr,
-			flags,
-			imageType,
-			format,
-			extent,
-			mipLevels,
-			arrayLayers,
-			samples,
-			tiling,
-			usage,
-			VK_SHARING_MODE_EXCLUSIVE, /** @todo may come back to this area later */
-			0,
-			0,
-			VK_IMAGE_LAYOUT_UNDEFINED
-		};
-	}
-
-	void createImage(
-		const VkImageCreateInfo& info,
-		const VmaAllocationCreateInfo& allocInfo,
-		vma::Allocation& memory
-	);
-
-	void createView(
-		VkFormat format,
-		const VkImageSubresourceRange& subresourceRange,
-		VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D,
-		const VkComponentMapping& colorComponents = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY }
-	);
-
-	void transitionLayout(
-		VkImageLayout oldLayout,
-		VkImageLayout newLayout,
-		const VkImageSubresourceRange& subresourceRange
-	) const;
-
-	void copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExtent3D& extent, uint32 layerCount = 1);
-
-	NODISCARD static vk::Sampler createSampler(
-		VkSamplerAddressMode addressModeU,
-		VkSamplerAddressMode addressModeV,
-		VkSamplerAddressMode addressModeW,
-		VkBorderColor borderColor,
-		float32 maxLod,
-		float32 minLod = 0.0f,
-		float32 mipLodBias = 0.0f,
-		VkFilter magFilter = VK_FILTER_LINEAR,
-		VkFilter minFilter = VK_FILTER_LINEAR,
-		VkSamplerMipmapMode mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR,
-		VkCompareOp compareOp = VK_COMPARE_OP_NEVER,
-		VkBool32 unnormalizedCoordinates = VK_FALSE
-	) noexcept;
-	
-	NODISCARD static VkFormat bestFormat(const Vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling);
-
-	NODISCARD constexpr VkImageMemoryBarrier imageMemoryBarrier(
-		VkAccessFlags srcAccessMask,
-		VkAccessFlags dstAccessMask,
-		VkImageLayout srcLayout,
-		VkImageLayout dstLayout,
-		const VkImageSubresourceRange& subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1 , 0, 1 },
-		uint32 srcQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-		uint32 dstQueueFamily = VK_QUEUE_FAMILY_IGNORED
-	) const noexcept {
-		return {
-			VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-			nullptr,
-			srcAccessMask,
-			dstAccessMask,
-			srcLayout,
-			dstLayout,
-			srcQueueFamily,
-			dstQueueFamily,
-			image,
-			subresourceRange
-		};
-	}
-
-	NODISCARD VkFormatProperties formatProperties(VkFormat format = VK_FORMAT_R8G8B8A8_SRGB) const noexcept;
-
-	vk::Image image;
-	vk::ImageView view;
-
-	VkImageTiling m_tiling = VK_IMAGE_TILING_MAX_ENUM;
-
-	friend class Window;
-};
-
 class Swapchain {
 public:
 	Swapchain() = default;
@@ -733,18 +938,14 @@ public:
 	uint32 presentFamilyIndex = std::numeric_limits<uint32>::max();
 	vk::Queue presentQueue;
 
-	VkFormat format;
-	VkExtent2D extent;
-
 	Dynarray<Image, config::maxSwapchainImages> images;
+	VkExtent2D extent;
 	
 	Image colorImage;
 	GPUMemory colorMem;
-	VkSampleCountFlagBits maxMultisamples = VK_SAMPLE_COUNT_1_BIT;
 
 	Image depthImage;
 	GPUMemory depthMem;
-	VkFormat depthBufferFormat;
 
 	Array<vk::Semaphore, config::maxFramesInFlight> imageAquiredSemaphores;
 	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
@@ -759,26 +960,6 @@ public:
 
 	CommandQueue* commandQueue;
 	CommandQueue::CommandBuffer commandBuffer;
-};
-
-class RenderTarget {
-public:
-	// construct a framebuffer in the engine default configuration
-	RenderTarget();
-	// @todo add a constructor with custom attachments
-	// RenderTarget(const Vector<Arrachment>& attachments);
-	~RenderTarget();
-
-	void begin() const;
-	void end() const;
-
-	void destroyFramebuffers() {
-		for (auto& target : framebuffers) target.destroy();
-	}
-	void createFramebuffers();
-	
-	vk::RenderPass renderPass;
-	Dynarray <vulkan::vk::Framebuffer, config::maxSwapchainImages> framebuffers;
 };
 
 class Shader {
@@ -923,6 +1104,129 @@ public:
 	Vector<VkDescriptorPoolSize> sizes;
 };
 
+class Pipeline {
+public:
+	enum class BindPoint {
+		graphics,
+		compute
+	};
+
+	enum class Stage {
+		none = 0x00000000,
+		topOfPipe = 0x00000001,
+		drawIndirect = 0x00000002,
+		vertexInput = 0x00000004,
+		vertexShader = 0x00000008,
+		tessellationControlShader = 0x00000010,
+		tessellationEvaluationShader = 0x00000020,
+		geometryShader = 0x00000040,
+		fragmentShader = 0x00000080,
+		earlyFragmentTests = 0x00000100,
+		lateFragmentTests = 0x00000200,
+		colorAttachmentOutput = 0x00000400,
+		computeShader = 0x00000800,
+		transfer = 0x00001000,
+		bottomOfPipe = 0x00002000,
+		host = 0x00004000,
+		allGraphics = 0x00008000,
+		allCommands = 0x00010000,
+	};
+
+	Pipeline() = default;
+	Pipeline(const RenderTarget* const renderTarget, const std::string& hash) : renderTarget(renderTarget), hash(hash) { }
+
+	virtual void bind() const = 0;
+
+	vk::Pipeline pipeline;
+
+	const RenderTarget* renderTarget;
+
+	std::string hash;
+};
+
+class RenderTarget {
+public:
+	static constexpr uint32 externalSubpass = VK_SUBPASS_EXTERNAL;
+
+	struct Attachment {
+		enum class Type {
+			input,
+			color,
+			render,
+			depth
+		};
+
+		struct Ranges {
+			uint32 mipLayer = 0;
+			uint32 mipCount = 1;
+			uint32 arrayLayer = 0;
+			uint32 arrayCount = 1;
+		};
+
+		struct Dependencies {
+			bool enabled = false;
+			uint32 dependentPass;
+			Pipeline::Stage stageDependencies = Pipeline::Stage::none;
+			Pipeline::Stage stageWait = Pipeline::Stage::none;
+			GPUMemory::Access memDependencies = GPUMemory::Access::none;
+			GPUMemory::Access memWait = GPUMemory::Access::none;
+		};
+
+		struct MemoryModes {
+			GPUMemory::LoadMode load = GPUMemory::LoadMode::dontCare;
+			GPUMemory::StoreMode store = GPUMemory::StoreMode::dontCare;
+			GPUMemory::LoadMode stencilLoad = GPUMemory::LoadMode::dontCare;
+			GPUMemory::StoreMode stencilStore = GPUMemory::StoreMode::dontCare;
+		};
+
+		Vector<const Image*> images;
+
+		Type type;
+		Image::Aspect aspect;
+
+		uint32 subpass;
+
+		Image::Layout layout;
+		Image::Layout initialLayout;
+		Image::Layout finalLayout;
+
+		MemoryModes memoryModes = { };
+		Dependencies dependencies = { };
+		Ranges ranges = { };
+	};
+
+	class Framebuffer {
+	public:
+		Framebuffer() = default;
+		Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size);
+
+		Framebuffer& operator=(Framebuffer&&) noexcept = default;
+
+		Vector<Image::Resource> imageResources;
+		vulkan::vk::Framebuffer framebuffer;
+
+		glm::ivec2 size;
+	};
+
+	// build a render target with default engine configurations
+	RenderTarget();
+	// build a render target with custom configurations
+	RenderTarget(const std::vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
+	~RenderTarget();
+
+	RenderTarget& operator=(RenderTarget&&) noexcept = default;
+
+	void createFramebuffers(const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
+
+	void begin() const;
+	void end() const;
+
+	std::vector<Attachment> attachments;
+	
+	vk::RenderPass renderPass;
+	Dynarray<Framebuffer, config::maxSwapchainImages> framebuffers;
+};
+
 class GraphicsProgram {
 public:
 	class Builder {
@@ -1052,9 +1356,9 @@ public:
 	std::string hash;
 };
 
-class GraphicsPipeline {
+class GraphicsPipeline : public Pipeline {
 public:
-	static constexpr VkPipelineBindPoint bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	static constexpr Pipeline::BindPoint bindPoint = Pipeline::BindPoint::graphics;
 
 	struct Viewport {
 		glm::vec2 extent;
@@ -1214,15 +1518,10 @@ public:
 
 	void bind() const;
 
-	vk::Pipeline pipeline;
-
 	std::variant<bool, VkViewport> dynamicViewport;
 	std::variant<bool, VkRect2D> dynamicScissor;
 
-	const RenderTarget* renderTarget;
 	const GraphicsProgram* program;
-
-	std::string hash;
 };
 
 class ComputeProgram {
@@ -1230,7 +1529,7 @@ public:
 
 };
 
-class ComputePipeline {
+class ComputePipeline : public Pipeline {
 public:
 
 };
@@ -1244,8 +1543,8 @@ public:
 	void uploadFonts();
 
 private:
-	void beginFrame() final;
-	void endFrame() final;
+	void beginFrame();
+	void endFrame();
 
 	vulkan::DescriptorPools m_descriptorPools;
 	vulkan::RenderTarget m_renderTarget;
@@ -1259,7 +1558,7 @@ public:
 		uint32 copyFamilyIndex = std::numeric_limits<uint32>::max();
 		// uint32 videoFamilyIndex = VK_QUEUE_FAMILY_IGNORED; @todo
 		
-		Vector <VkQueueFamilyProperties> queueFamilyProperties;
+		Vector<VkQueueFamilyProperties> queueFamilyProperties;
 	};
 
 	RenderSystem(
