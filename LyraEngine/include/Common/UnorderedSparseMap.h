@@ -359,7 +359,7 @@ public:
 			auto& bucketList = m_buckets[keyToBucket(m_array.back().first)];
 
 			for (auto bucketIt = bucketList.begin(); bucketIt != bucketList.end(); bucketIt++) {
-				if (*bucketIt == (m_array.size() - 1)) {
+				if (*bucketIt == sizeToIndex(m_array.size())) {
 					*bucketIt = index;
 					break;
 				}
@@ -573,7 +573,7 @@ private:
 		auto i = keyToBucket(value.first);
 	
 		m_array.emplaceBack(value);
-		m_buckets[i].emplaceFront(m_array.size() - 1);
+		m_buckets[i].emplaceFront(sizeToIndex(m_array.size()));
 		rehashIfNecessary();
 
 		return --m_array.end();
@@ -582,7 +582,7 @@ private:
 		auto i = keyToBucket(value.first);
 
 		m_array.emplaceBack(std::move(value));
-		m_buckets[i].emplaceFront(m_array.size() - 1);
+		m_buckets[i].emplaceFront(sizeToIndex(m_array.size()));
 		rehashIfNecessary();
 
 		return --m_array.end();
@@ -591,7 +591,7 @@ private:
 		auto i = keyToBucket(std::forward<K>(key));
 
 		m_array.emplaceBack(std::forward<K>(key), mapped_type(std::forward<Args>(args)...));
-		m_buckets[i].emplaceFront(m_array.size() - 1);
+		m_buckets[i].emplaceFront(sizeToIndex(m_array.size()));
 		rehashIfNecessary();
 
 		return --m_array.end();
