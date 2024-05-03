@@ -17,7 +17,7 @@ CubemapBase::CubemapBase(
 	std::string_view vertexShaderPath,
 	std::string_view fragShaderPath,
 	Camera* const camera,
-	const VkFormat& format,
+	const Image::Format& format,
 	const ColorBlending& colorBlending,
 	const Tessellation& tessellation,
 	const Multisampling& multisampling
@@ -112,7 +112,7 @@ CubemapBase::CubemapBase(
 		// copy the buffer contents into the image
 		copyFromBuffer(&stagingBuffer, imageExtent);
 		
-		// finally, create the image view
+		//ly, create the image view
 		createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 6 }, VK_IMAGE_VIEW_TYPE_CUBE);
 	}
 

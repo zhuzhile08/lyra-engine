@@ -35,7 +35,7 @@ public:
 		std::string_view vertexShaderPath,
 		std::string_view fragShaderPath,
 		Camera* const camera,
-		const VkFormat& format,
+		const Image::Format& format,
 		const ColorBlending& colorBlending,
 		const Tessellation& tessellation,
 		const Multisampling& multisampling
@@ -54,7 +54,7 @@ public:
 	 * 
 	 * @return VkDescriptorImageInfo
 	*/
-	NODISCARD constexpr VkDescriptorImageInfo getDescriptorcubemapInfo(const VkImageLayout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
+	NODISCARD constexpr VkDescriptorImageInfo getDescriptorcubemapInfo(const Image::Layout& layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) const noexcept {
 		return {
 			m_sampler,
 			m_view,
@@ -84,7 +84,7 @@ public:
 		const Array<std::string_view, 6>& paths,
 		Script* script,
 		Camera* const camera,
-		const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB,
+		const Image::Format& format = VK_FORMAT_R8G8B8A8_SRGB,
 		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
 		const Tessellation& tessellation = Tessellation::TESSELLATION_ENABLE,
 		const Multisampling& multisampling = Multisampling::MULTISAMPLING_ENABLE
@@ -97,7 +97,7 @@ public:
 	Skybox(
 		const Array<std::string_view, 6>& paths,
 		Camera* const camera,
-		const VkFormat& format = VK_FORMAT_R8G8B8A8_SRGB,
+		const Image::Format& format = VK_FORMAT_R8G8B8A8_SRGB,
 		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
 		const Tessellation& tessellation = Tessellation::TESSELLATION_ENABLE,
 		const Multisampling& multisampling = Multisampling::MULTISAMPLING_ENABLE

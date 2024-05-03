@@ -90,7 +90,7 @@ RenderSystem::RenderSystem(
 #ifndef NDEBUG
 		uint32 availableValidationLayerCount = 0;
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, nullptr);
-		Vector <VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
+		Vector<VkLayerProperties> availableValidationLayers(availableValidationLayerCount);
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, availableValidationLayers.data());
 
 		// go through every requested layers and see if they are available
@@ -196,7 +196,7 @@ RenderSystem::RenderSystem(
 		// get all devices
 		uint32 deviceCount = 0;
 		VULKAN_ASSERT(vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr), "find any Vulkan suitable GPUs");
-		Vector <VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
+		Vector<VkPhysicalDevice> devices(deviceCount);			 // just put this in here cuz I was lazy
 		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 		// a ordered map with every GPU. The one with the highest score is the one that is going to be the used GPU
@@ -258,7 +258,7 @@ RenderSystem::RenderSystem(
 				// get the available extensions
 				uint32 availableDeviceExtensionCount = 0;
 				vkEnumerateDeviceExtensionProperties(device, nullptr, &availableDeviceExtensionCount, nullptr);
-				Vector <VkExtensionProperties> availableDeviceExtensions(availableDeviceExtensionCount);
+				Vector<VkExtensionProperties> availableDeviceExtensions(availableDeviceExtensionCount);
 				vkEnumerateDeviceExtensionProperties(device, nullptr, &availableDeviceExtensionCount, availableDeviceExtensions.data());	
 
 				VkPhysicalDeviceDescriptorIndexingProperties descriptorIndexingProperties {
@@ -331,7 +331,7 @@ RenderSystem::RenderSystem(
 	}
 
 	{ // create logical device
-		Vector <VkDeviceQueueCreateInfo> queueCreateInfos;
+		Vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		UnorderedSparseSet <uint32> uniqueQueueFamilies { queueFamilies.graphicsFamilyIndex, queueFamilies.computeFamilyIndex, queueFamilies.copyFamilyIndex };
 		
 		float32 queuePriority = 1.0f;
@@ -613,33 +613,20 @@ void GPUBuffer::copy(const GPUBuffer& srcBuffer) {
 	commandQueue.oneTimeSubmit();
 }
 
-void Image::createImage(
-	const VkImageCreateInfo& info,
-	const VmaAllocationCreateInfo& allocInfo,
-	vma::Allocation& memory
-) {
-	image = vulkan::vk::Image(
-		renderer::globalRenderSystem->device,
-		renderer::globalRenderSystem->allocator,
-		info,
-		allocInfo,
-		memory
-	);
-}
-
-void Image::createView(
-	VkFormat format, 
+Image::Resource::Resource(
+	const Image& image,
 	const VkImageSubresourceRange& subresourceRange, 
-	VkImageViewType viewType, 
+	Type viewType, 
+	Format format, 
 	const VkComponentMapping& colorComponents
-) {
+) : image(&image) {
 	VkImageViewCreateInfo createInfo{
 		VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
 		nullptr,
 		0,
-		image,
-		viewType,
-		format,
+		image.image,
+		static_cast<VkImageViewType>(viewType),
+		static_cast<VkFormat>((format == Format::max) ? image.format : format),
 		colorComponents,
 		subresourceRange
 	};
@@ -647,33 +634,50 @@ void Image::createView(
 	view = vk::ImageView(renderer::globalRenderSystem->device, createInfo);
 }
 
-void Image::transitionLayout(
-	VkImageLayout oldLayout,
-	VkImageLayout newLayout,
-	const VkImageSubresourceRange& subresourceRange
-) const {
-	CommandQueue commandQueue;
-	commandQueue.oneTimeBegin();
+Image::Image(const VkImageCreateInfo& info, const VmaAllocationCreateInfo& allocInfo, vma::Allocation& memory) : 
+	image(
+		renderer::globalRenderSystem->device,
+		renderer::globalRenderSystem->allocator,
+		info,
+		allocInfo,
+		memory
+	),
+	format(static_cast<Image::Format>(info.format)),
+	samples(static_cast<Image::SampleCount>(info.samples)),
+	tiling(static_cast<Image::Tiling>(info.tiling)) { }
 
+void Image::transitionLayout(Image::Layout oldLayout, Image::Layout newLayout, const VkImageSubresourceRange& subresourceRange) const {
 	// goofy ahh check to see which image layout to use
 	VkPipelineStageFlags sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	VkPipelineStageFlags destinationStage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-	VkAccessFlags sourceAccess = 0;
-	VkAccessFlags destinationAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+	GPUMemory::Access sourceAccess = GPUMemory::Access::none;
+	GPUMemory::Access destinationAccess = GPUMemory::Access::transferWrite;
 
-	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-		sourceAccess = 0; destinationAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	if (oldLayout == Image::Layout::undefined && newLayout == Image::Layout::transferDst) {
+		sourceAccess = GPUMemory::Access::none; 
+		destinationAccess = GPUMemory::Access::transferWrite;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; 
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-		sourceAccess = VK_ACCESS_TRANSFER_WRITE_BIT; destinationAccess = VK_ACCESS_SHADER_READ_BIT;
-		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT; destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	else if (oldLayout == Image::Layout::transferDst && newLayout == Image::Layout::shaderReadOnly) {
+		sourceAccess = GPUMemory::Access::transferWrite; 
+		destinationAccess = GPUMemory::Access::shaderRead;
+
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT; 
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
-		sourceAccess = 0; destinationAccess = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	else if (oldLayout == Image::Layout::undefined && newLayout == Image::Layout::depthStencilAttachment) {
+		sourceAccess = GPUMemory::Access::none; 
+		destinationAccess = GPUMemory::Access::depthStencilAttachmentRead | GPUMemory::Access::depthStencilAttachmentWrite;
+		
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT; 
+		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 	}
 	else ASSERT(false, "Invalid image layout transition was requested whilst transitioning an image layout at: {}!", getAddress(this));
+
+	CommandQueue commandQueue;
+	commandQueue.oneTimeBegin();
 
 	commandQueue.activeCommandBuffer->pipelineBarrier(
 		sourceStage, 
@@ -701,11 +705,11 @@ void Image::copyFromBuffer(const vulkan::GPUBuffer& stagingBuffer, const VkExten
 		0,
 		0,
 		0,
-		{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layerCount},
-		{0, 0, 0},
+		{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layerCount },
+		{ 0, 0, 0 },
 		extent
 	};
-	commandQueue.activeCommandBuffer->copyBufferToImage(stagingBuffer.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageCopy);
+	commandQueue.activeCommandBuffer->copyBufferToImage(stagingBuffer.buffer, image, Image::Layout::transferDst, imageCopy);
 
 	commandQueue.oneTimeSubmit();
 }
@@ -746,23 +750,23 @@ vk::Sampler Image::createSampler(
 	});
 }
 
-VkFormat Image::bestFormat(const Vector<VkFormat>& candidates, VkFormatFeatureFlags features, VkImageTiling tiling) {
+Image::Format Image::bestFormat(const Vector<Format>& candidates, Tiling tiling, VkFormatFeatureFlags features) {
 	for (const auto& candidate : candidates) {
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(renderer::globalRenderSystem->physicalDevice, candidate, &props);
+		vkGetPhysicalDeviceFormatProperties(renderer::globalRenderSystem->physicalDevice, static_cast<VkFormat>(candidate), &props);
 
-		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) return candidate;
-		else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) return candidate;
+		if (tiling == Tiling::linear && (props.linearTilingFeatures & features) == features) return candidate;
+		else if (tiling == Tiling::optimal && (props.optimalTilingFeatures & features) == features) return candidate;
 	}
 
 	ASSERT(false, "Failed to find supported format out of user defined formats!");
 
-	return VK_FORMAT_MAX_ENUM;
+	return Format::max;
 }
 
-VkFormatProperties Image::formatProperties(VkFormat format) const noexcept {
+VkFormatProperties Image::formatProperties(Format format) const noexcept {
 	VkFormatProperties formatProperties;
-	vkGetPhysicalDeviceFormatProperties(renderer::globalRenderSystem->physicalDevice, format, &formatProperties);
+	vkGetPhysicalDeviceFormatProperties(renderer::globalRenderSystem->physicalDevice, static_cast<VkFormat>(format), &formatProperties);
 	return formatProperties;
 }
 
@@ -818,7 +822,7 @@ void Swapchain::createSwapchain() {
 	{ // determine the best format
 		uint32 availableFormatCount = 0;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(renderer::globalRenderSystem->physicalDevice, surface, &availableFormatCount, nullptr);
-		Vector <VkSurfaceFormatKHR> availableFormats(availableFormatCount);
+		Vector<VkSurfaceFormatKHR> availableFormats(availableFormatCount);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(renderer::globalRenderSystem->physicalDevice, surface, &availableFormatCount, availableFormats.data());
 		// check the formats
 		for (const auto& availableFormat : availableFormats) {
@@ -828,16 +832,15 @@ void Swapchain::createSwapchain() {
 		}
 
 		surfaceFormat = availableFormats[0];
-		format = surfaceFormat.format;
 
-		log::debug("\tFormat is: {} (preferred format is format: {} with color space: {})", format, VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
+		log::debug("\tFormat is: {} (preferred format is format: {} with color space: {})", surfaceFormat.format, VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
 	}
 	
 	VkPresentModeKHR presentMode;
 	{ // determine the presentation mode
 		uint32 availablePresentModeCount = 0;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(renderer::globalRenderSystem->physicalDevice, surface, &availablePresentModeCount, nullptr);
-		Vector <VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
+		Vector<VkPresentModeKHR> availablePresentModes(availablePresentModeCount);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(renderer::globalRenderSystem->physicalDevice, surface, &availablePresentModeCount, availablePresentModes.data());
 		// check the presentation modess
 		for (const auto& availablePresentMode : availablePresentModes) {
@@ -923,61 +926,61 @@ void Swapchain::createSwapchain() {
 
 		for (uint32 i = 0; i < imageCount; i++) {
 			images[i].image = std::move(tempImages[i]);
-
-			images[i].createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+			images[i].format = static_cast<Image::Format>(surfaceFormat.format);
+			images[i].samples = Image::SampleCount::bit1;
 		}
 	}
 }
 
 void Swapchain::createAttachments() {
 	{ // create anti aliasing images
+		uint32 sampleCount = 0;
+
 		{ // configure the multisample
 			VkSampleCountFlags counts = renderer::globalRenderSystem->deviceProperties.limits.framebufferColorSampleCounts & renderer::globalRenderSystem->deviceProperties.limits.framebufferDepthSampleCounts;
 
-			if (counts & VK_SAMPLE_COUNT_64_BIT) { maxMultisamples = VK_SAMPLE_COUNT_64_BIT; }
-			else if (counts & VK_SAMPLE_COUNT_32_BIT) { maxMultisamples = VK_SAMPLE_COUNT_32_BIT; }
-			else if (counts & VK_SAMPLE_COUNT_16_BIT) { maxMultisamples = VK_SAMPLE_COUNT_16_BIT; }
-			else if (counts & VK_SAMPLE_COUNT_8_BIT) { maxMultisamples = VK_SAMPLE_COUNT_8_BIT; }
-			else if (counts & VK_SAMPLE_COUNT_4_BIT) { maxMultisamples = VK_SAMPLE_COUNT_4_BIT; }
-			else if (counts & VK_SAMPLE_COUNT_2_BIT) { maxMultisamples = VK_SAMPLE_COUNT_2_BIT; }
-			else { maxMultisamples = VK_SAMPLE_COUNT_1_BIT; }
+			uint32 mask = 2;
+			while (counts & mask) mask <<= 1;
+			sampleCount = mask >> 1;
 		}
 
-		colorImage.createImage(
+		colorImage = Image(
 			colorImage.imageCreateInfo(
-				format,
+				images[0].format,
 				{ extent.width, extent.height, 1 },
 				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 				1,
-				VK_IMAGE_TYPE_2D,
+				Image::Type::dim2,
 				1,
 				0,
-				maxMultisamples
+				static_cast<Image::SampleCount>(sampleCount)
 			),
 			GPUMemory::getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 			colorMem.memory
 		);
-		colorImage.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
 	}
 	
 	{ // create depth images
-		depthBufferFormat = Image::bestFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_TILING_OPTIMAL);
-
-		depthImage.createImage(
+		depthImage = Image(
 			depthImage.imageCreateInfo(
-				depthBufferFormat,
+				Image::bestFormat({ 
+						Image::Format::d32SFloat,
+						Image::Format::d32SFloatS8UInt,
+						Image::Format::d24UNormS8UInt
+					}, 
+					Image::Tiling::optimal, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+				),
 				{ extent.width, extent.height, 1 },
 				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 				1,
-				VK_IMAGE_TYPE_2D,
+				Image::Type::dim2,
 				1,
 				0,
-				maxMultisamples
+				colorImage.samples
 			),
 			GPUMemory::getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY, VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)),
 			depthMem.memory
 		);
-		depthImage.createView(VK_FORMAT_D32_SFLOAT, { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 });
 	}
 }
 
@@ -991,21 +994,12 @@ bool Swapchain::update(bool windowChanged) {
 
 		vkDeviceWaitIdle(renderer::globalRenderSystem->device);
 
-		for (auto& target : renderer::globalRenderSystem->renderTargets) {
-			target->destroyFramebuffers();
-		}
-		depthImage.destroy();
 		depthMem.destroy();
-		colorImage.destroy();
 		colorMem.destroy();
 
 		if (invalidSwapchain || lostSurface || renderer::globalWindow->changed) {
 			if (oldSwapchain != nullptr) oldSwapchain.destroy();
-			oldSwapchain = vk::Swapchain(std::move(this->swapchain));
-
-			for (auto& image : images) {
-				image.view.destroy();
-			}
+			oldSwapchain.swap(swapchain);
 
 			if (lostSurface) {
 				surface = vk::Surface(renderer::globalRenderSystem->instance, renderer::globalWindow->window);
@@ -1100,102 +1094,199 @@ void Swapchain::present() {
 	}
 }
 
+RenderTarget::Framebuffer::Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size) : size(size) { // create the framebuffers
+	Vector<VkImageView> views;
+
+	for (const auto& attachment : renderTarget.attachments) {
+		imageResources.pushBack({
+			*attachment.images[(index + 1) % attachment.images.size()], // guarantee that the images wrap pack on themselves
+			{ 
+				static_cast<VkImageAspectFlags>(attachment.aspect), 
+				attachment.ranges.mipLayer, 
+				attachment.ranges.mipCount, 
+				attachment.ranges.arrayLayer, 
+				attachment.ranges.arrayCount 
+			}
+		});
+		views.pushBack(imageResources.back().view);
+	}
+
+	// create the framebuffer
+	VkFramebufferCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		nullptr,
+		0,
+		renderTarget.renderPass,
+		static_cast<uint32>(views.size()),
+		views.data(),
+		static_cast<uint32>(size.x),
+		static_cast<uint32>(size.y),
+		1
+	};
+
+	framebuffer = vk::Framebuffer(renderer::globalRenderSystem->device, createInfo);
+}
+
 RenderTarget::RenderTarget() {
-	{ // create the render pass
-		VkAttachmentDescription colorAttachmentDescriptions {
-			0,
-			renderer::globalRenderSystem->swapchain->format,
-			renderer::globalRenderSystem->swapchain->maxMultisamples,
-			VK_ATTACHMENT_LOAD_OP_CLEAR,
-			VK_ATTACHMENT_STORE_OP_STORE,
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-		};
+	const auto& swapchain = *renderer::globalRenderSystem->swapchain;
 
-		VkAttachmentDescription	depthBufferAttachmentDescriptions {
-			0,
-			renderer::globalRenderSystem->swapchain->depthBufferFormat,
-			renderer::globalRenderSystem->swapchain->maxMultisamples,
-			VK_ATTACHMENT_LOAD_OP_CLEAR,
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-		};
+	Vector<const Image*> swapchainImages;
+	swapchainImages.reserve(swapchain.images.size());
 
-		VkAttachmentDescription colorAttachmentFinalDescriptions { 
+	for (const auto& image : swapchain.images)
+		swapchainImages.pushBack(&image);
+	
+	*this = RenderTarget({
+		{
+			{ &swapchain.colorImage },
+			Attachment::Type::color,
+			Image::Aspect::color,
 			0,
-			renderer::globalRenderSystem->swapchain->format,
-			VK_SAMPLE_COUNT_1_BIT,
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			VK_ATTACHMENT_STORE_OP_STORE,
-			VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-		};
-
-		VkAttachmentReference colorAttachmentReferences {
+			Image::Layout::colorAttachment,
+			Image::Layout::undefined,
+			Image::Layout::colorAttachment,
+			{ 
+				GPUMemory::LoadMode::clear,
+				GPUMemory::StoreMode::store,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			},
+			{
+				true,
+				VK_SUBPASS_EXTERNAL,
+				Pipeline::Stage::colorAttachmentOutput | Pipeline::Stage::earlyFragmentTests,
+				Pipeline::Stage::colorAttachmentOutput | Pipeline::Stage::earlyFragmentTests,
+				GPUMemory::Access::none,
+				GPUMemory::Access::colorAttachmentWrite | GPUMemory::Access::depthStencilAttachmentWrite
+			}
+		},
+		{
+			{ &swapchain.depthImage },
+			Attachment::Type::depth,
+			Image::Aspect::depth,
 			0,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-		};
-
-		VkAttachmentReference depthBufferAttachmentReferences {
-			1,
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-		};
-
-		VkAttachmentReference colorAttachmentFinalReferences {
-			2,
-			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-		};
-
-		Array<VkAttachmentDescription, 3> attachments = {{ colorAttachmentDescriptions, depthBufferAttachmentDescriptions, colorAttachmentFinalDescriptions }};
-
-		VkSubpassDescription subpassDescriptions {
+			Image::Layout::depthStencilAttachment,
+			Image::Layout::undefined,
+			Image::Layout::depthStencilAttachment,
+			{ 
+				GPUMemory::LoadMode::clear,
+				GPUMemory::StoreMode::dontCare,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			}
+		},
+		{
+			swapchainImages,
+			Attachment::Type::render,
+			Image::Aspect::color,
 			0,
-			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			0,
-			nullptr,
-			1,
-			&colorAttachmentReferences,
-			&colorAttachmentFinalReferences,
-			&depthBufferAttachmentReferences,
-			0,
-			nullptr
-		};
+			Image::Layout::colorAttachment,
+			Image::Layout::undefined,
+			Image::Layout::present,
+			{ 
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::store,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			}
+		}
+	});
+}
 
-		VkSubpassDependency dependencies {
-			VK_SUBPASS_EXTERNAL,
-			0,
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-			0,
-			VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-			0
-		};
+RenderTarget::RenderTarget(const std::vector<Attachment>& attchmts, const glm::u32vec2& size) : attachments(attchmts) { // ugly, but to avoid refering to the wrong object
+	static constexpr VkAttachmentReference defaultAttachment = { VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED };
 
-		// create the render pass
+	{ // create render pass
+		Vector<VkAttachmentDescription> attachmentDescriptions;
+		attachmentDescriptions.reserve(attachments.size());
+
+		Vector<Vector<VkAttachmentReference>> inputAttachments;
+		Vector<Vector<VkAttachmentReference>> colorAttachments;
+		Vector<Vector<VkAttachmentReference>> renderAttachments;
+		Vector<VkAttachmentReference> depthAttachments;
+
+		Vector<VkSubpassDescription> subpasses;
+		Vector<VkSubpassDependency> dependencies;
+
+		for (uint32 i = 0; i < attachments.size(); i++) {
+			const auto& attachment = attachments[i];
+
+			inputAttachments.resize(attachment.subpass + 1);
+			colorAttachments.resize(attachment.subpass + 1);
+			renderAttachments.resize(attachment.subpass + 1);
+			subpasses.resize(attachment.subpass + 1);
+
+			attachmentDescriptions.pushBack({
+				0,
+				static_cast<VkFormat>(attachment.images[0]->format),
+				static_cast<VkSampleCountFlagBits>(attachment.images[0]->samples),
+				static_cast<VkAttachmentLoadOp>(attachment.memoryModes.load),
+				static_cast<VkAttachmentStoreOp>(attachment.memoryModes.store),
+				static_cast<VkAttachmentLoadOp>(attachment.memoryModes.stencilLoad),
+				static_cast<VkAttachmentStoreOp>(attachment.memoryModes.stencilStore),
+				static_cast<VkImageLayout>(attachment.initialLayout),
+				static_cast<VkImageLayout>(attachment.finalLayout)
+			});
+
+			if (attachment.dependencies.enabled) dependencies.pushBack({
+				attachment.dependencies.dependentPass,
+				attachment.subpass,
+				static_cast<VkPipelineStageFlags>(attachment.dependencies.stageDependencies),
+				static_cast<VkPipelineStageFlags>(attachment.dependencies.stageWait),
+				static_cast<VkAccessFlags>(attachment.dependencies.memDependencies),
+				static_cast<VkAccessFlags>(attachment.dependencies.memWait),
+				0
+			});
+
+			Vector<VkAttachmentReference>* references;
+
+			// add the attachment references
+			if (attachment.type == Attachment::Type::input) {
+				references = &inputAttachments[attachment.subpass];
+			} else if (attachment.type == Attachment::Type::color) {
+				references = &colorAttachments[attachment.subpass];
+			} else if (attachment.type == Attachment::Type::render) {
+				references = &renderAttachments[attachment.subpass];
+			} else if (attachment.type == Attachment::Type::depth) {
+				references = &depthAttachments;
+			} else references = nullptr;
+
+			references->pushBack({ i, static_cast<VkImageLayout>(attachment.layout) });
+		}
+
+		for (uint32 i = 0; i < subpasses.size(); i++) {
+			// guarantee that the color and resolve attachments are the same size
+			auto largerSize = std::max(colorAttachments[i].size(), renderAttachments[i].size());
+			colorAttachments[i].resize(largerSize, defaultAttachment);
+			renderAttachments[i].resize(largerSize, defaultAttachment);
+
+			subpasses[i] = {
+				.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+				.inputAttachmentCount = static_cast<uint32>(inputAttachments[i].size()),
+				.pInputAttachments = inputAttachments[i].data(),
+				.colorAttachmentCount = static_cast<uint32>(colorAttachments[i].size()),
+				.pColorAttachments = colorAttachments[i].data(),
+				.pResolveAttachments = renderAttachments[i].data(),
+				.pDepthStencilAttachment = ((depthAttachments.size() > i) ? &depthAttachments[i] : nullptr)
+			};
+		}
+
 		VkRenderPassCreateInfo createInfo {
 			VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 			nullptr,
 			0,
-			static_cast<uint32>(attachments.size()),
-			attachments.data(),
-			1,
-			&subpassDescriptions,
-			1,
-			&dependencies
+			static_cast<uint32>(attachmentDescriptions.size()),
+			attachmentDescriptions.data(),
+			static_cast<uint32>(subpasses.size()),
+			subpasses.data(),
+			static_cast<uint32>(dependencies.size()),
+			dependencies.data()
 		};
 
 		renderPass = vk::RenderPass(renderer::globalRenderSystem->device, createInfo);
 	}
 
-	framebuffers.resize(renderer::globalRenderSystem->swapchain->images.size());
-	createFramebuffers();
+	createFramebuffers(size);
 }
 
 RenderTarget::~RenderTarget() {
@@ -1203,29 +1294,19 @@ RenderTarget::~RenderTarget() {
 	fb.erase(std::remove(fb.begin(), fb.end(), this), fb.end());
 }
 
-void RenderTarget::createFramebuffers() { // create the framebuffers
-	for (uint32 i = 0; i < framebuffers.size(); i++) {
-		Array<VkImageView, 3> attachments = { {
-			renderer::globalRenderSystem->swapchain->colorImage.view,
-			renderer::globalRenderSystem->swapchain->depthImage.view,
-			renderer::globalRenderSystem->swapchain->images[i].view
-		} };
+void RenderTarget::createFramebuffers(const glm::u32vec2& size) {
+	framebuffers.resize(attachments.back().images.size());
 
-		// create the frame buffers
-		VkFramebufferCreateInfo createInfo{
-			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-			nullptr,
-			0,
-			renderPass,
-			static_cast<uint32>(attachments.size()),
-			attachments.data(),
-			renderer::globalRenderSystem->swapchain->extent.width,
-			renderer::globalRenderSystem->swapchain->extent.height,
-			1
+	auto s = size;
+
+	if (size.x == std::numeric_limits<uint32>::max() || size.y == std::numeric_limits<uint32>::max()) {
+		s = { 
+			renderer::globalRenderSystem->swapchain->extent.width, 
+			renderer::globalRenderSystem->swapchain->extent.height 
 		};
-
-		framebuffers[i] = vk::Framebuffer(renderer::globalRenderSystem->device, createInfo);
 	}
+
+	for (uint32 i = 0; i < framebuffers.size(); i++) framebuffers[i] = Framebuffer(i, *this, s);
 }
 
 void RenderTarget::begin() const {
@@ -1242,7 +1323,7 @@ void RenderTarget::begin() const {
 		VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
 		nullptr,
 		renderPass,
-		framebuffers[renderer::globalRenderSystem->swapchain->imageIndex],
+		framebuffers[renderer::globalRenderSystem->swapchain->imageIndex].framebuffer,
 		{	// rendering area
 			{ 0, 0 },
 			renderer::globalRenderSystem->swapchain->extent
@@ -1631,11 +1712,13 @@ std::string GraphicsPipeline::Builder::hash() const noexcept {
 }
 
 GraphicsPipeline::GraphicsPipeline() : 
+	Pipeline(
+		renderer::globalRenderSystem->defaultRenderTarget,
+		Builder().hash()
+	), 
 	dynamicViewport(VkViewport()),
 	dynamicScissor(VkRect2D()),
-	renderTarget(renderer::globalRenderSystem->defaultRenderTarget), 
-	program(renderer::globalRenderSystem->defaultGraphicsProgram), 
-	hash(Builder().hash()) {
+	program(renderer::globalRenderSystem->defaultGraphicsProgram) {
 	static constexpr VkVertexInputBindingDescription bindingDescription = Mesh::Vertex::bindingDescription();
 	static constexpr Array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Mesh::Vertex::attributeDescriptions();
 	static constexpr VkPipelineVertexInputStateCreateInfo vertexInputInfo {
@@ -1730,7 +1813,7 @@ GraphicsPipeline::GraphicsPipeline() :
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 		nullptr,
 		0,
-		renderer::globalRenderSystem->swapchain->maxMultisamples,
+		static_cast<VkSampleCountFlagBits>(renderer::globalRenderSystem->swapchain->colorImage.samples),
 		VK_FALSE,
 		0.0f,
 		nullptr,
@@ -1764,9 +1847,11 @@ GraphicsPipeline::GraphicsPipeline() :
 }
 
 GraphicsPipeline::GraphicsPipeline(const Builder& builder) : 
-	renderTarget((builder.m_renderTarget) ? builder.m_renderTarget : renderer::globalRenderSystem->defaultRenderTarget), 
-	program((builder.m_graphicsProgram) ? builder.m_graphicsProgram : renderer::globalRenderSystem->defaultGraphicsProgram), 
-	hash(builder.hash()) {
+	Pipeline(
+		((builder.m_renderTarget) ? builder.m_renderTarget : renderer::globalRenderSystem->defaultRenderTarget),
+		builder.hash()
+	), 
+	program((builder.m_graphicsProgram) ? builder.m_graphicsProgram : renderer::globalRenderSystem->defaultGraphicsProgram) {
 	static constexpr VkVertexInputBindingDescription bindingDescription = Mesh::Vertex::bindingDescription();
 	static constexpr Array<VkVertexInputAttributeDescription, 4> attributeDescriptions = Mesh::Vertex::attributeDescriptions();
 	static constexpr VkPipelineVertexInputStateCreateInfo vertexInputInfo {
@@ -1810,7 +1895,12 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 		VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
 		nullptr,
 		0,
-		(renderer::globalRenderSystem->swapchain->maxMultisamples > static_cast<VkSampleCountFlagBits>(builder.m_sampleCount) && static_cast<VkSampleCountFlagBits>(builder.m_sampleCount) > 0) ? renderer::globalRenderSystem->swapchain->maxMultisamples : static_cast<VkSampleCountFlagBits>(builder.m_sampleCount),
+		static_cast<VkSampleCountFlagBits>((
+			(renderer::globalRenderSystem->swapchain->colorImage.samples > builder.m_sampleCount) && 
+			(builder.m_sampleCount != Image::SampleCount::bit0)
+		) ? 
+			renderer::globalRenderSystem->swapchain->colorImage.samples : 
+			builder.m_sampleCount),
 		VK_FALSE,
 		0.0f,
 		nullptr,
@@ -1929,7 +2019,7 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 }
 
 void GraphicsPipeline::bind() const {
-	renderer::globalRenderSystem->commandQueue->activeCommandBuffer->bindPipeline(bindPoint, pipeline);
+	renderer::globalRenderSystem->commandQueue->activeCommandBuffer->bindPipeline(static_cast<VkPipelineBindPoint>(bindPoint), pipeline);
 	renderer::globalRenderSystem->commandQueue->pipelineStageFlags.pushBack(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
 	if (std::holds_alternative<VkViewport>(dynamicViewport)) {
@@ -1970,7 +2060,7 @@ ImGuiRenderer::ImGuiRenderer() {
 		renderer::globalRenderSystem->defaultRenderTarget->renderPass,
 		2,
 		static_cast<uint32>(renderer::globalRenderSystem->swapchain->images.size()),
-		renderer::globalRenderSystem->swapchain->maxMultisamples,
+		static_cast<VkSampleCountFlagBits>(renderer::globalRenderSystem->swapchain->colorImage.samples),
 		//VK_SAMPLE_COUNT_1_BIT,
 		renderer::globalRenderSystem->pipelineCache,
 		0,

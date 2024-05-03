@@ -4,7 +4,7 @@
 
 namespace lyra {
 
-Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format) : 
+Texture::Texture(const resource::TextureFile& imageData, vulkan::Image::Format format) : 
 	m_type(static_cast<Type>(imageData.type)),
 	m_width(imageData.width), 
 	m_height(imageData.height)
@@ -19,20 +19,20 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 		VkExtent3D imageExtent = { m_width, m_height, 1 };
 
 		// create the image and allocate its memory
-		m_image.createImage(
+		m_image = vulkan::Image(
 			m_image.imageCreateInfo(
 				format, 
 				imageExtent,
 				VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
 				imageData.mipmap,
-				static_cast<VkImageType>(imageData.dimension)
+				static_cast<vulkan::Image::Type>(imageData.dimension)
 			),
 			m_memory.getAllocCreateInfo(VMA_MEMORY_USAGE_GPU_ONLY),
 			m_memory.memory
 		);
 
 		// convert the image layout and copy it from the buffer
-		m_image.transitionLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, { VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1 });
+		m_image.transitionLayout(vulkan::Image::Layout::undefined, vulkan::Image::Layout::transferDst, { VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1 });
 		m_image.copyFromBuffer(stagingBuffer, imageExtent);
 
 		// generate the mipmaps
@@ -54,10 +54,10 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 					{ },
 					{ },
 					m_image.imageMemoryBarrier(
-						VK_ACCESS_TRANSFER_WRITE_BIT,
-						VK_ACCESS_TRANSFER_READ_BIT,
-						VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+						vulkan::GPUMemory::Access::transferWrite,
+						vulkan::GPUMemory::Access::transferRead,
+						vulkan::Image::Layout::transferDst,
+						vulkan::Image::Layout::transferSrc, 
 						{ VK_IMAGE_ASPECT_COLOR_BIT, i - 1, 1, 0, 1 }
 					)
 				);
@@ -72,9 +72,9 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 
 				cmdQueue.activeCommandBuffer->blitImage(
 					m_image.image, 
-					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+					vulkan::Image::Layout::transferSrc, 
 					m_image.image, 
-					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+					vulkan::Image::Layout::transferDst, 
 					blit, 
 					VK_FILTER_LINEAR
 				);
@@ -86,10 +86,10 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 					{ },
 					{ },
 					m_image.imageMemoryBarrier(
-						VK_ACCESS_TRANSFER_READ_BIT,
-						VK_ACCESS_SHADER_READ_BIT,
-						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-						VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+						vulkan::GPUMemory::Access::transferRead,
+						vulkan::GPUMemory::Access::shaderRead,
+						vulkan::Image::Layout::transferSrc,
+						vulkan::Image::Layout::shaderReadOnly,
 						{ VK_IMAGE_ASPECT_COLOR_BIT, i - 1, 1, 0, 1 }
 					)
 				);
@@ -105,10 +105,10 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 				{ },
 				{ },
 				m_image.imageMemoryBarrier(
-					VK_ACCESS_TRANSFER_WRITE_BIT,
-					VK_ACCESS_SHADER_READ_BIT,
-					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+					vulkan::GPUMemory::Access::transferWrite,
+					vulkan::GPUMemory::Access::shaderRead,
+					vulkan::Image::Layout::transferDst,
+					vulkan::Image::Layout::shaderReadOnly,
 					{ VK_IMAGE_ASPECT_COLOR_BIT, imageData.mipmap - 1, 1, 0, 1 }
 				)
 			);
@@ -118,7 +118,11 @@ Texture::Texture(const resource::TextureFile& imageData, const VkFormat& format)
 	}
 
 	// create the image view
-	m_image.createView(format, { VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1 }, static_cast<VkImageViewType>(imageData.dimension));
+	m_imageResource = vulkan::Image::Resource(
+		m_image,
+		{ VK_IMAGE_ASPECT_COLOR_BIT, 0, imageData.mipmap, 0, 1 }, 
+		static_cast<vulkan::Image::Type>(imageData.dimension)
+	);
 
 	m_sampler = m_image.createSampler(
 		static_cast<VkSamplerAddressMode>(imageData.wrap),

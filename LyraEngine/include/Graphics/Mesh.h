@@ -89,16 +89,16 @@ public:
 	}
 
 	Mesh(
-		const Vector <Vertex>& vertices, 
-		const Vector <uint32>& indices
+		const Vector<Vertex>& vertices, 
+		const Vector<uint32>& indices
 	) : m_vertices(vertices), m_indices(indices) { }
 
-	NODISCARD Vector <Vertex> vertices() const noexcept { return m_vertices; }
-	NODISCARD Vector <uint32> indices() const noexcept { return m_indices; }
+	NODISCARD const Vector<Vertex>& vertices() const noexcept { return m_vertices; }
+	NODISCARD const Vector<uint32>& indices() const noexcept { return m_indices; }
 
 private:
-	Vector <Vertex> m_vertices;
-	Vector <uint32> m_indices;
+	Vector<Vertex> m_vertices;
+	Vector<uint32> m_indices;
 };
 
 } // namespace lyra
