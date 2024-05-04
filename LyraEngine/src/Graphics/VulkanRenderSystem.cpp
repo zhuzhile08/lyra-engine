@@ -2029,6 +2029,53 @@ void GraphicsPipeline::bind() const {
 }
 
 ImGuiRenderer::ImGuiRenderer() {
+	Vector<const Image*> swapchainImages;
+	swapchainImages.reserve(renderer::globalRenderSystem->swapchain->images.size());
+
+	for (const auto& image : renderer::globalRenderSystem->swapchain->images)
+		swapchainImages.pushBack(&image);
+
+	m_renderTarget = RenderTarget({
+		{
+			{ &renderer::globalRenderSystem->swapchain->colorImage },
+			RenderTarget::Attachment::Type::color,
+			Image::Layout::colorAttachment,
+			Image::Layout::undefined,
+			Image::Layout::colorAttachment,
+			Image::Aspect::color,
+			0,
+			{ 
+				GPUMemory::LoadMode::clear,
+				GPUMemory::StoreMode::store,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			},
+			{
+				true,
+				VK_SUBPASS_EXTERNAL,
+				Pipeline::Stage::colorAttachmentOutput,
+				Pipeline::Stage::colorAttachmentOutput,
+				GPUMemory::Access::none,
+				GPUMemory::Access::colorAttachmentWrite
+			}
+		},
+		{
+			swapchainImages,
+			RenderTarget::Attachment::Type::render,
+			Image::Layout::colorAttachment,
+			Image::Layout::undefined,
+			Image::Layout::present,
+			Image::Aspect::color,
+			0,
+			{ 
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::store,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			}
+		}
+	});
+
 	Vector<vulkan::DescriptorPools::Size> poolSizes ({
 		{ vulkan::DescriptorSets::Type::sampler, 512 },
 		{ vulkan::DescriptorSets::Type::imageSampler, 512 },
