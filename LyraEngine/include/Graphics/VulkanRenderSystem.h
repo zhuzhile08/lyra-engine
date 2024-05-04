@@ -1209,7 +1209,7 @@ public:
 	// build a render target with default engine configurations
 	RenderTarget();
 	// build a render target with custom configurations
-	RenderTarget(const std::vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
+	RenderTarget(const Vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
 	~RenderTarget();
 
 	RenderTarget& operator=(RenderTarget&&) noexcept = default;
@@ -1219,7 +1219,7 @@ public:
 	void begin() const;
 	void end() const;
 
-	std::vector<Attachment> attachments;
+	Vector<Attachment> attachments;
 	
 	vk::RenderPass renderPass;
 	Dynarray<Framebuffer, config::maxSwapchainImages> framebuffers;
