@@ -40,7 +40,6 @@ add_custom_target(copy_assets_data
 # build the content manager
 add_executable(LyraAssets
 	"src/main.cpp"
-	"src/SDLImGuiRenderer.cpp"
 	"src/ContentManager.cpp"
 	"src/GuiElements.cpp"
 )

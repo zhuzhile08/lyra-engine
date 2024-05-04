@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "SDLImGuiRenderer.h"
 #include "ContentManager.h"
 
 #include <Common/Common.h>

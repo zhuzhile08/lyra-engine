@@ -14,7 +14,6 @@
 #include <tiny_gltf.h>
 
 #include "ContentManager.h"
-#include "SDLImGuiRenderer.h"
 #include "GuiElements.h"
 #include "IconsCodicons.h"
 
@@ -74,8 +73,8 @@ int main(int argc, char* argv[]) {
 
 		lyra::renderer::beginFrame();
 
+		lyra::renderer::draw();
 		guiRenderer.draw();
-		//lyra::renderer::draw();
 
 		lyra::renderer::endFrame();
 	}
