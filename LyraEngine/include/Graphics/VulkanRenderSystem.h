@@ -918,6 +918,46 @@ public:
 	uint32 currentFrame = 0;
 };
 
+class Pipeline {
+public:
+	enum class BindPoint {
+		graphics,
+		compute
+	};
+
+	enum class Stage {
+		none = 0x00000000,
+		topOfPipe = 0x00000001,
+		drawIndirect = 0x00000002,
+		vertexInput = 0x00000004,
+		vertexShader = 0x00000008,
+		tessellationControlShader = 0x00000010,
+		tessellationEvaluationShader = 0x00000020,
+		geometryShader = 0x00000040,
+		fragmentShader = 0x00000080,
+		earlyFragmentTests = 0x00000100,
+		lateFragmentTests = 0x00000200,
+		colorAttachmentOutput = 0x00000400,
+		computeShader = 0x00000800,
+		transfer = 0x00001000,
+		bottomOfPipe = 0x00002000,
+		host = 0x00004000,
+		allGraphics = 0x00008000,
+		allCommands = 0x00010000,
+	};
+
+	Pipeline() = default;
+	Pipeline(const RenderTarget* const renderTarget, const std::string& hash) : renderTarget(renderTarget), hash(hash) { }
+
+	virtual void bind() const = 0;
+
+	vk::Pipeline pipeline;
+
+	const RenderTarget* renderTarget;
+
+	std::string hash;
+};
+
 class Swapchain {
 public:
 	Swapchain() = default;
@@ -931,12 +971,19 @@ public:
 	void begin();
 	void present();
 
-	vk::Surface surface;
-	vk::Swapchain swapchain;
-	vk::Swapchain oldSwapchain;
+	uint32 imageIndex = 0;
+	uint32 currentFrame = 0;
+
+	bool lostSurface = false;
+	bool invalidSwapchain = false;
+	bool invalidAttachments = false;
 
 	uint32 presentFamilyIndex = std::numeric_limits<uint32>::max();
 	vk::Queue presentQueue;
+
+	vk::Surface surface;
+	vk::Swapchain swapchain;
+	vk::Swapchain oldSwapchain;
 
 	Dynarray<Image, config::maxSwapchainImages> images;
 	VkExtent2D extent;
@@ -951,60 +998,87 @@ public:
 	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
 	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
-	uint32 imageIndex = 0;
-	uint32 currentFrame = 0;
-
-	bool lostSurface = false;
-	bool invalidSwapchain = false;
-	bool invalidAttachments = false;
-
 	CommandQueue* commandQueue;
 	CommandQueue::CommandBuffer commandBuffer;
 };
 
-class Shader {
+class RenderTarget {
 public:
-	static constexpr const char* const entry = "main"; // entry will always be main
+	static constexpr uint32 externalSubpass = VK_SUBPASS_EXTERNAL;
 
-	enum class Type { 
-		vertex = 0x00000001,
-		tessellationControl = 0x00000002,
-		tessellationEvaluation = 0x00000004,
-		geometry = 0x00000008,
-		fragment = 0x00000010,
-		graphics = 0x0000001F,
-		all = 0x7FFFFFFF,
-		compute = 0x00000020,
-		rayGeneration = 0x00000100,
-		anyHit = 0x00000200,
-		closestHit = 0x00000400,
-		miss = 0x00000800,
-		intersection = 0x00001000,
-		callable = 0x00002000,
-		task = 0x00000040,
-		mesh = 0x00000080
-	}; // Refer to the API for the documentation of these enums
-
-	Shader() = default;
-	Shader(Type type, Vector<char>&& source);
-	Shader(Type type, const Vector<char>& source);
-
-	NODISCARD constexpr VkPipelineShaderStageCreateInfo stageCreateInfo() const noexcept {
-		return {
-			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-			nullptr,
-			0,
-			static_cast<VkShaderStageFlagBits>(type),
-			module,
-			entry,
-			nullptr
+	struct Attachment {
+		enum class Type {
+			input,
+			color,
+			render,
+			depth
 		};
-	}
 
-	vk::ShaderModule module;
-	Vector<char> shaderSrc;
+		struct MemoryModes {
+			GPUMemory::LoadMode load = GPUMemory::LoadMode::dontCare;
+			GPUMemory::StoreMode store = GPUMemory::StoreMode::dontCare;
+			GPUMemory::LoadMode stencilLoad = GPUMemory::LoadMode::dontCare;
+			GPUMemory::StoreMode stencilStore = GPUMemory::StoreMode::dontCare;
+		};
 
-	Type type;
+		struct Dependencies {
+			bool enabled = false;
+
+			uint32 dependentPass;
+			Pipeline::Stage stageDependencies = Pipeline::Stage::none;
+			Pipeline::Stage stageWait = Pipeline::Stage::none;
+			GPUMemory::Access memDependencies = GPUMemory::Access::none;
+			GPUMemory::Access memWait = GPUMemory::Access::none;
+		};
+
+		struct Ranges {
+			uint32 mipLayer = 0;
+			uint32 mipCount = 1;
+			uint32 arrayLayer = 0;
+			uint32 arrayCount = 1;
+		};
+
+		Vector<const Image*> images;
+
+		Type type;
+		Image::Layout layout;
+		Image::Layout initialLayout;
+		Image::Layout finalLayout;
+		Image::Aspect aspect;
+
+		uint32 subpass = 0;
+
+		MemoryModes memoryModes = { };
+		Dependencies dependencies = { };
+		Ranges ranges = { };
+	};
+
+	class Framebuffer {
+	public:
+		Framebuffer() = default;
+		Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size);
+
+		Vector<Image::Resource> imageResources;
+		vulkan::vk::Framebuffer framebuffer;
+
+		glm::ivec2 size;
+	};
+
+	RenderTarget() = default;
+	RenderTarget(const Vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
+	~RenderTarget();
+
+	RenderTarget& operator=(RenderTarget&&) noexcept = default;
+
+	void createFramebuffers(const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
+
+	void begin() const;
+	void end() const;
+
+	Vector<Attachment> attachments;
+	
+	vk::RenderPass renderPass;
+	Dynarray<Framebuffer, config::maxSwapchainImages> framebuffers;
 };
 
 class DescriptorSets {
@@ -1104,125 +1178,49 @@ public:
 	Vector<VkDescriptorPoolSize> sizes;
 };
 
-class Pipeline {
+class Shader {
 public:
-	enum class BindPoint {
-		graphics,
-		compute
-	};
+	static constexpr const char* const entry = "main"; // entry will always be main
 
-	enum class Stage {
-		none = 0x00000000,
-		topOfPipe = 0x00000001,
-		drawIndirect = 0x00000002,
-		vertexInput = 0x00000004,
-		vertexShader = 0x00000008,
-		tessellationControlShader = 0x00000010,
-		tessellationEvaluationShader = 0x00000020,
-		geometryShader = 0x00000040,
-		fragmentShader = 0x00000080,
-		earlyFragmentTests = 0x00000100,
-		lateFragmentTests = 0x00000200,
-		colorAttachmentOutput = 0x00000400,
-		computeShader = 0x00000800,
-		transfer = 0x00001000,
-		bottomOfPipe = 0x00002000,
-		host = 0x00004000,
-		allGraphics = 0x00008000,
-		allCommands = 0x00010000,
-	};
+	enum class Type { 
+		vertex = 0x00000001,
+		tessellationControl = 0x00000002,
+		tessellationEvaluation = 0x00000004,
+		geometry = 0x00000008,
+		fragment = 0x00000010,
+		graphics = 0x0000001F,
+		all = 0x7FFFFFFF,
+		compute = 0x00000020,
+		rayGeneration = 0x00000100,
+		anyHit = 0x00000200,
+		closestHit = 0x00000400,
+		miss = 0x00000800,
+		intersection = 0x00001000,
+		callable = 0x00002000,
+		task = 0x00000040,
+		mesh = 0x00000080
+	}; // Refer to the API for the documentation of these enums
 
-	Pipeline() = default;
-	Pipeline(const RenderTarget* const renderTarget, const std::string& hash) : renderTarget(renderTarget), hash(hash) { }
+	Shader() = default;
+	Shader(Type type, Vector<char>&& source);
+	Shader(Type type, const Vector<char>& source);
 
-	virtual void bind() const = 0;
-
-	vk::Pipeline pipeline;
-
-	const RenderTarget* renderTarget;
-
-	std::string hash;
-};
-
-class RenderTarget {
-public:
-	static constexpr uint32 externalSubpass = VK_SUBPASS_EXTERNAL;
-
-	struct Attachment {
-		enum class Type {
-			input,
-			color,
-			render,
-			depth
+	NODISCARD constexpr VkPipelineShaderStageCreateInfo stageCreateInfo() const noexcept {
+		return {
+			VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			nullptr,
+			0,
+			static_cast<VkShaderStageFlagBits>(type),
+			module,
+			entry,
+			nullptr
 		};
+	}
 
-		struct MemoryModes {
-			GPUMemory::LoadMode load = GPUMemory::LoadMode::dontCare;
-			GPUMemory::StoreMode store = GPUMemory::StoreMode::dontCare;
-			GPUMemory::LoadMode stencilLoad = GPUMemory::LoadMode::dontCare;
-			GPUMemory::StoreMode stencilStore = GPUMemory::StoreMode::dontCare;
-		};
+	vk::ShaderModule module;
+	Vector<char> shaderSrc;
 
-		struct Dependencies {
-			bool enabled = false;
-
-			uint32 dependentPass;
-			Pipeline::Stage stageDependencies = Pipeline::Stage::none;
-			Pipeline::Stage stageWait = Pipeline::Stage::none;
-			GPUMemory::Access memDependencies = GPUMemory::Access::none;
-			GPUMemory::Access memWait = GPUMemory::Access::none;
-		};
-
-		struct Ranges {
-			uint32 mipLayer = 0;
-			uint32 mipCount = 1;
-			uint32 arrayLayer = 0;
-			uint32 arrayCount = 1;
-		};
-
-		Vector<const Image*> images;
-
-		Type type;
-		Image::Layout layout;
-		Image::Layout initialLayout;
-		Image::Layout finalLayout;
-		Image::Aspect aspect;
-
-		uint32 subpass = 0;
-
-		MemoryModes memoryModes = { };
-		Dependencies dependencies = { };
-		Ranges ranges = { };
-	};
-
-	class Framebuffer {
-	public:
-		Framebuffer() = default;
-		Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size);
-
-		Vector<Image::Resource> imageResources;
-		vulkan::vk::Framebuffer framebuffer;
-
-		glm::ivec2 size;
-	};
-
-	// build a render target with default engine configurations
-	RenderTarget();
-	// build a render target with custom configurations
-	RenderTarget(const Vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
-	~RenderTarget();
-
-	RenderTarget& operator=(RenderTarget&&) noexcept = default;
-
-	void createFramebuffers(const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
-
-	void begin() const;
-	void end() const;
-
-	Vector<Attachment> attachments;
-	
-	vk::RenderPass renderPass;
-	Dynarray<Framebuffer, config::maxSwapchainImages> framebuffers;
+	Type type;
 };
 
 class GraphicsProgram {

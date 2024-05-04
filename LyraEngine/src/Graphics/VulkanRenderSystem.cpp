@@ -430,8 +430,69 @@ void RenderSystem::initRenderComponents() {
 	defaultVertexShader = &resource::shader(defaultVertexShaderPath);
 	defaultFragmentShader = &resource::shader(defaultFragmentShaderPath);
 
-	renderTargets.pushBack(new RenderTarget());
+	Vector<const Image*> swapchainImages;
+	swapchainImages.reserve(swapchain->images.size());
+
+	for (const auto& image : swapchain->images)
+		swapchainImages.pushBack(&image);
+
+	renderTargets.pushBack(new RenderTarget({
+		{
+			{ &swapchain->colorImage },
+			RenderTarget::Attachment::Type::color,
+			Image::Layout::colorAttachment,
+			Image::Layout::undefined,
+			Image::Layout::colorAttachment,
+			Image::Aspect::color,
+			0,
+			{ 
+				GPUMemory::LoadMode::clear,
+				GPUMemory::StoreMode::store,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			},
+			{
+				true,
+				VK_SUBPASS_EXTERNAL,
+				Pipeline::Stage::colorAttachmentOutput | Pipeline::Stage::earlyFragmentTests,
+				Pipeline::Stage::colorAttachmentOutput | Pipeline::Stage::earlyFragmentTests,
+				GPUMemory::Access::none,
+				GPUMemory::Access::colorAttachmentWrite | GPUMemory::Access::depthStencilAttachmentWrite
+			}
+		},
+		{
+			{ &swapchain->depthImage },
+			RenderTarget::Attachment::Type::depth,
+			Image::Layout::depthStencilAttachment,
+			Image::Layout::undefined,
+			Image::Layout::depthStencilAttachment,
+			Image::Aspect::depth,
+			0,
+			{ 
+				GPUMemory::LoadMode::clear,
+				GPUMemory::StoreMode::dontCare,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			}
+		},
+		{
+			swapchainImages,
+			RenderTarget::Attachment::Type::render,
+			Image::Layout::colorAttachment,
+			Image::Layout::undefined,
+			Image::Layout::present,
+			Image::Aspect::color,
+			0,
+			{ 
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::store,
+				GPUMemory::LoadMode::dontCare,
+				GPUMemory::StoreMode::dontCare
+			}
+		}
+	}));
 	defaultRenderTarget = renderTargets.back();
+
 	defaultGraphicsProgram = new GraphicsProgram();
 	graphicsPrograms.emplace(defaultGraphicsProgram->hash, defaultGraphicsProgram);
 	graphicsPipelines.emplace(GraphicsPipeline::Builder().hash(), new GraphicsPipeline());
@@ -1129,72 +1190,6 @@ RenderTarget::Framebuffer::Framebuffer(uint32 index, const RenderTarget& renderT
 	framebuffer = vk::Framebuffer(renderer::globalRenderSystem->device, createInfo);
 }
 
-RenderTarget::RenderTarget() {
-	const auto& swapchain = *renderer::globalRenderSystem->swapchain;
-
-	Vector<const Image*> swapchainImages;
-	swapchainImages.reserve(swapchain.images.size());
-
-	for (const auto& image : swapchain.images)
-		swapchainImages.pushBack(&image);
-	
-	*this = RenderTarget({
-		{
-			{ &swapchain.colorImage },
-			Attachment::Type::color,
-			Image::Layout::colorAttachment,
-			Image::Layout::undefined,
-			Image::Layout::colorAttachment,
-			Image::Aspect::color,
-			0,
-			{ 
-				GPUMemory::LoadMode::clear,
-				GPUMemory::StoreMode::store,
-				GPUMemory::LoadMode::dontCare,
-				GPUMemory::StoreMode::dontCare
-			},
-			{
-				true,
-				VK_SUBPASS_EXTERNAL,
-				Pipeline::Stage::colorAttachmentOutput | Pipeline::Stage::earlyFragmentTests,
-				Pipeline::Stage::colorAttachmentOutput | Pipeline::Stage::earlyFragmentTests,
-				GPUMemory::Access::none,
-				GPUMemory::Access::colorAttachmentWrite | GPUMemory::Access::depthStencilAttachmentWrite
-			}
-		},
-		{
-			{ &swapchain.depthImage },
-			Attachment::Type::depth,
-			Image::Layout::depthStencilAttachment,
-			Image::Layout::undefined,
-			Image::Layout::depthStencilAttachment,
-			Image::Aspect::depth,
-			0,
-			{ 
-				GPUMemory::LoadMode::clear,
-				GPUMemory::StoreMode::dontCare,
-				GPUMemory::LoadMode::dontCare,
-				GPUMemory::StoreMode::dontCare
-			}
-		},
-		{
-			swapchainImages,
-			Attachment::Type::render,
-			Image::Layout::colorAttachment,
-			Image::Layout::undefined,
-			Image::Layout::present,
-			Image::Aspect::color,
-			0,
-			{ 
-				GPUMemory::LoadMode::dontCare,
-				GPUMemory::StoreMode::store,
-				GPUMemory::LoadMode::dontCare,
-				GPUMemory::StoreMode::dontCare
-			}
-		}
-	});
-}
-
 RenderTarget::RenderTarget(const Vector<Attachment>& attchmts, const glm::u32vec2& size) : attachments(attchmts) { // ugly, but to avoid refering to the wrong object
 	static constexpr VkAttachmentReference defaultAttachment = { VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED };
 
@@ -1339,30 +1334,6 @@ void RenderTarget::begin() const {
 
 void RenderTarget::end() const {
 	renderer::globalRenderSystem->commandQueue->activeCommandBuffer->endRenderPass();
-}
-
-Shader::Shader(Type type, Vector<char>&& source) : shaderSrc(source), type(type) {
-	VkShaderModuleCreateInfo createInfo{
-		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		nullptr,
-		0,
-		shaderSrc.size(),
-		reinterpret_cast<const uint32*>(shaderSrc.data())
-	};
-
-	module = vk::ShaderModule(renderer::globalRenderSystem->device, createInfo);
-}
-
-Shader::Shader(Type type, const Vector<char>& source) : shaderSrc(source), type(type) {
-	VkShaderModuleCreateInfo createInfo{
-		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		nullptr,
-		0,
-		shaderSrc.size(),
-		reinterpret_cast<const uint32*>(shaderSrc.data())
-	};
-
-	module = vk::ShaderModule(renderer::globalRenderSystem->device, createInfo);
 }
 
 DescriptorSets::~DescriptorSets() {
@@ -1510,6 +1481,30 @@ vk::DescriptorSet DescriptorPools::allocate(const GraphicsProgram& program, uint
 	}
 
 	return descriptorSet;
+}
+
+Shader::Shader(Type type, Vector<char>&& source) : shaderSrc(source), type(type) {
+	VkShaderModuleCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		nullptr,
+		0,
+		shaderSrc.size(),
+		reinterpret_cast<const uint32*>(shaderSrc.data())
+	};
+
+	module = vk::ShaderModule(renderer::globalRenderSystem->device, createInfo);
+}
+
+Shader::Shader(Type type, const Vector<char>& source) : shaderSrc(source), type(type) {
+	VkShaderModuleCreateInfo createInfo{
+		VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		nullptr,
+		0,
+		shaderSrc.size(),
+		reinterpret_cast<const uint32*>(shaderSrc.data())
+	};
+
+	module = vk::ShaderModule(renderer::globalRenderSystem->device, createInfo);
 }
 
 std::string GraphicsProgram::Builder::hash() const noexcept {
