@@ -1156,22 +1156,6 @@ public:
 			depth
 		};
 
-		struct Ranges {
-			uint32 mipLayer = 0;
-			uint32 mipCount = 1;
-			uint32 arrayLayer = 0;
-			uint32 arrayCount = 1;
-		};
-
-		struct Dependencies {
-			bool enabled = false;
-			uint32 dependentPass;
-			Pipeline::Stage stageDependencies = Pipeline::Stage::none;
-			Pipeline::Stage stageWait = Pipeline::Stage::none;
-			GPUMemory::Access memDependencies = GPUMemory::Access::none;
-			GPUMemory::Access memWait = GPUMemory::Access::none;
-		};
-
 		struct MemoryModes {
 			GPUMemory::LoadMode load = GPUMemory::LoadMode::dontCare;
 			GPUMemory::StoreMode store = GPUMemory::StoreMode::dontCare;
@@ -1179,16 +1163,32 @@ public:
 			GPUMemory::StoreMode stencilStore = GPUMemory::StoreMode::dontCare;
 		};
 
+		struct Dependencies {
+			bool enabled = false;
+
+			uint32 dependentPass;
+			Pipeline::Stage stageDependencies = Pipeline::Stage::none;
+			Pipeline::Stage stageWait = Pipeline::Stage::none;
+			GPUMemory::Access memDependencies = GPUMemory::Access::none;
+			GPUMemory::Access memWait = GPUMemory::Access::none;
+		};
+
+		struct Ranges {
+			uint32 mipLayer = 0;
+			uint32 mipCount = 1;
+			uint32 arrayLayer = 0;
+			uint32 arrayCount = 1;
+		};
+
 		Vector<const Image*> images;
 
 		Type type;
-		Image::Aspect aspect;
-
-		uint32 subpass;
-
 		Image::Layout layout;
 		Image::Layout initialLayout;
 		Image::Layout finalLayout;
+		Image::Aspect aspect;
+
+		uint32 subpass = 0;
 
 		MemoryModes memoryModes = { };
 		Dependencies dependencies = { };
@@ -1199,8 +1199,6 @@ public:
 	public:
 		Framebuffer() = default;
 		Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size);
-
-		Framebuffer& operator=(Framebuffer&&) noexcept = default;
 
 		Vector<Image::Resource> imageResources;
 		vulkan::vk::Framebuffer framebuffer;

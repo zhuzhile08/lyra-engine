@@ -1140,11 +1140,11 @@ RenderTarget::RenderTarget() {
 		{
 			{ &swapchain.colorImage },
 			Attachment::Type::color,
-			Image::Aspect::color,
-			0,
 			Image::Layout::colorAttachment,
 			Image::Layout::undefined,
 			Image::Layout::colorAttachment,
+			Image::Aspect::color,
+			0,
 			{ 
 				GPUMemory::LoadMode::clear,
 				GPUMemory::StoreMode::store,
@@ -1163,11 +1163,11 @@ RenderTarget::RenderTarget() {
 		{
 			{ &swapchain.depthImage },
 			Attachment::Type::depth,
-			Image::Aspect::depth,
-			0,
 			Image::Layout::depthStencilAttachment,
 			Image::Layout::undefined,
 			Image::Layout::depthStencilAttachment,
+			Image::Aspect::depth,
+			0,
 			{ 
 				GPUMemory::LoadMode::clear,
 				GPUMemory::StoreMode::dontCare,
@@ -1178,11 +1178,11 @@ RenderTarget::RenderTarget() {
 		{
 			swapchainImages,
 			Attachment::Type::render,
-			Image::Aspect::color,
-			0,
 			Image::Layout::colorAttachment,
 			Image::Layout::undefined,
 			Image::Layout::present,
+			Image::Aspect::color,
+			0,
 			{ 
 				GPUMemory::LoadMode::dontCare,
 				GPUMemory::StoreMode::store,
@@ -1295,14 +1295,14 @@ RenderTarget::~RenderTarget() {
 }
 
 void RenderTarget::createFramebuffers(const glm::u32vec2& size) {
-	framebuffers.resize(attachments.back().images.size());
+	framebuffers.resize(attachments.back().images.size()); // there will be always as many framebuffers as images in the final attachment
 
 	auto s = size;
 
 	if (size.x == std::numeric_limits<uint32>::max() || size.y == std::numeric_limits<uint32>::max()) {
-		s = { 
+		s = {
 			renderer::globalRenderSystem->swapchain->extent.width, 
-			renderer::globalRenderSystem->swapchain->extent.height 
+			renderer::globalRenderSystem->swapchain->extent.height
 		};
 	}
 
@@ -1896,8 +1896,8 @@ GraphicsPipeline::GraphicsPipeline(const Builder& builder) :
 		nullptr,
 		0,
 		static_cast<VkSampleCountFlagBits>((
-			(renderer::globalRenderSystem->swapchain->colorImage.samples > builder.m_sampleCount) && 
-			(builder.m_sampleCount != Image::SampleCount::bit0)
+			(renderer::globalRenderSystem->swapchain->colorImage.samples > builder.m_sampleCount) || 
+			(builder.m_sampleCount == Image::SampleCount::bit0)
 		) ? 
 			renderer::globalRenderSystem->swapchain->colorImage.samples : 
 			builder.m_sampleCount),
