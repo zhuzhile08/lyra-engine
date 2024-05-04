@@ -1096,10 +1096,12 @@ void Swapchain::present() {
 
 RenderTarget::Framebuffer::Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size) : size(size) { // create the framebuffers
 	Vector<VkImageView> views;
+	views.reserve(renderTarget.attachments.size());
+	imageResources.reserve(renderTarget.attachments.size());
 
 	for (const auto& attachment : renderTarget.attachments) {
 		imageResources.pushBack({
-			*attachment.images[(index + 1) % attachment.images.size()], // guarantee that the images wrap pack on themselves
+			*attachment.images[index % attachment.images.size()], // guarantee that the images wrap pack on themselves
 			{ 
 				static_cast<VkImageAspectFlags>(attachment.aspect), 
 				attachment.ranges.mipLayer, 
@@ -1193,7 +1195,7 @@ RenderTarget::RenderTarget() {
 	});
 }
 
-RenderTarget::RenderTarget(const std::vector<Attachment>& attchmts, const glm::u32vec2& size) : attachments(attchmts) { // ugly, but to avoid refering to the wrong object
+RenderTarget::RenderTarget(const Vector<Attachment>& attchmts, const glm::u32vec2& size) : attachments(attchmts) { // ugly, but to avoid refering to the wrong object
 	static constexpr VkAttachmentReference defaultAttachment = { VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED };
 
 	{ // create render pass
