@@ -24,8 +24,8 @@
 
 namespace lyra {
 
-template <class, class = void> struct IsHashMap : std::false_type { };
-template <class Ty> struct IsHashMap<Ty, std::void_t<typename Ty::hasher>> : std::true_type { };
+template <class, class = void> struct IsHashMap : public std::false_type { };
+template <class Ty> struct IsHashMap<Ty, std::void_t<typename Ty::hasher>> : public std::true_type { };
 template <class Ty> static constexpr inline bool isHashMapValue = IsHashMap<Ty>::value;
 
 template <
@@ -38,7 +38,7 @@ public:
 	using value_type = Type;
 	using const_value = const value_type;
 	using reference = value_type&;
-	using const_reference = const value_type&;
+	using const_reference = const_value&;
 	using movable = value_type&&;
 	using pointer = value_type*;
 	using const_pointer = const pointer;

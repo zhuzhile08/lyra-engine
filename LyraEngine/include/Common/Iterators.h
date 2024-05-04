@@ -14,6 +14,7 @@
 #include <Common/ForwardListNode.h>
 
 #include <cstddef>
+#include <type_traits>
 #include <iterator>
 
 namespace lyra {
@@ -25,10 +26,10 @@ public:
 
 	using value_type = Ty;
 	using const_value = const value_type;
-	using pointer = Ty*;
+	using pointer = value_type*;
 	using const_pointer = const pointer;
-	using reference = Ty&;
-	using const_reference = Ty&;
+	using reference = value_type&;
+	using const_reference = const_value&;
 	using wrapper = Iterator;
 	using wrapper_reference = wrapper&;
 	using const_wrapper_reference = const wrapper&;
@@ -116,10 +117,10 @@ public:
 
 	using value_type = Ty;
 	using const_value = const value_type;
-	using pointer = Ty*;
+	using pointer = value_type*;
 	using const_pointer = const pointer;
-	using reference = Ty&;
-	using const_reference = Ty&;
+	using reference = value_type&;
+	using const_reference = const_value&;
 	using wrapper = ReverseIterator;
 	using wrapper_reference = wrapper&;
 	using const_wrapper_reference = const wrapper&;
@@ -207,10 +208,10 @@ public:
 
 	using value_type = Ty;
 	using const_value = const value_type;
-	using pointer = Ty*;
+	using pointer = value_type*;
 	using const_pointer = const pointer;
-	using reference = Ty&;
-	using const_reference = const Ty&;
+	using reference = value_type&;
+	using const_reference = const_value&;
 
 	using node_base = ForwardListNodeBase;
 	using node_type = ForwardListNode<value_type>;
@@ -251,14 +252,14 @@ private:
 	node_base* m_pointer;
 };
 
-template <class, class = void> struct IsIterator : std::false_type { };
+template <class, class = void> struct IsIterator : public std::false_type { };
 template <class Ty> struct IsIterator<Ty, std::void_t<
 	typename std::iterator_traits<Ty>::difference_type,
 	typename std::iterator_traits<Ty>::pointer,
 	typename std::iterator_traits<Ty>::reference,
 	typename std::iterator_traits<Ty>::value_type,
 	typename std::iterator_traits<Ty>::iterator_category
->> : std::true_type { };
+>> : public std::true_type { };
 
 template <class Ty> inline constexpr bool isIteratorValue = IsIterator<Ty>::value;
 
