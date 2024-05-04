@@ -24,7 +24,7 @@ endif()
 
 
 # custom validation layer options
-option(USE_CUSTOM_VULKAN_VALIDATION_LAYERS "Use vulkan validation layers from a custom path instead of the default one" ON)
+option(USE_CUSTOM_VULKAN_VALIDATION_LAYERS "Use vulkan validation layers from a custom path instead of the default one" OFF)
 
 
 # 3rd party library path
