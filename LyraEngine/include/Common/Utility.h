@@ -23,6 +23,9 @@ template <typename Ty> NODISCARD constexpr inline const void* getAddress(const T
 	return static_cast<const void*>(type);
 }
 
+
+// string operation
+
 template <template <class...> class Container> NODISCARD inline constexpr Container<std::string> parse(std::string_view s, std::string_view d) noexcept {
 	Container<std::string> r;
 
@@ -57,6 +60,7 @@ template <template <class...> class Container> NODISCARD inline constexpr Contai
 
 
 // prime number utility
+
 template <class Integer> inline constexpr bool isPrime(Integer n) noexcept requires std::is_integral_v<Integer> {
 	if (n == 2 || n == 3)
 		return true;
@@ -95,6 +99,20 @@ template <class Integer> inline constexpr Integer lastPrime(Integer n) noexcept 
 template <class Integer> inline constexpr Integer sizeToIndex(Integer size) noexcept requires std::is_integral_v<Integer> {
 	return (size == 0) ? 0 : size - 1;
 }
+
+
+// compile time type id generator
+
+template <class> class TypeId {
+public:
+    consteval static type_id get() { return &m_id; }
+
+private:
+    constexpr static char m_id { };
+};
+
+
+// enum utilities
 
 template <class Ty> concept EnumType = std::is_enum_v<Ty>;
 
