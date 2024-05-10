@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 		{
 			lyra::Benchmark b;
 
-			for (lyra::objectid i = 0; i < 65535; i++) {
+			for (lyra::object_id i = 0; i < 65535; i++) {
 				auto& t = e.emplace(std::to_string(i));
 				
 				t.addComponent<ComponentBar>();
