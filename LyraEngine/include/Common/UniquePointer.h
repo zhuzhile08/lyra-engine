@@ -13,6 +13,8 @@
 
 #include <Common/Common.h>
 
+#include <utility>
+
 namespace lyra {
 
 namespace detail {
@@ -63,11 +65,16 @@ public:
 
 	constexpr UniquePointer& operator=(UniquePointer&& right) {
 		reset(right.release());
-		m_deleter = std::forward<deleter_type>(right.m_deleter);
+		m_deleter = std::move(right.m_deleter);
 		return *this;
 	}
-	constexpr UniquePointer& operator=(pointer right) {
-		reset(right);
+	template <class OTy, class ODTy> constexpr UniquePointer& operator=(UniquePointer<OTy, ODTy>&& right) {
+		reset(right.release());
+		m_deleter = std::move(right.m_deleter);
+		return *this;
+	}
+	constexpr UniquePointer& operator=(std::nullptr_t) {
+		reset();
 		return *this;
 	}
 	constexpr UniquePointer& operator=(const UniquePointer&) = delete;
@@ -149,13 +156,19 @@ public:
 
 	constexpr UniquePointer& operator=(UniquePointer&& right) {
 		reset(right.release());
-		m_deleter = std::forward<deleter_type>(right.m_deleter);
+		m_deleter = std::move<deleter_type>(right.m_deleter);
 		return *this;
 	}
-	constexpr UniquePointer& operator=(pointer right) {
-		reset(right);
+	template <class OTy, class ODTy> constexpr UniquePointer& operator=(UniquePointer<OTy, ODTy>&& right) {
+		reset(right.release());
+		m_deleter = std::move<deleter_type>(right.m_deleter);
 		return *this;
 	}
+	constexpr UniquePointer& operator=(std::nullptr_t) {
+		reset();
+		return *this;
+	}
+	constexpr UniquePointer& operator=(const UniquePointer&) = delete;
 
 	template <class ... Args> NODISCARD static constexpr UniquePointer create(size_type size) {
 		return UniquePointer(new value_type[size]);
@@ -165,6 +178,10 @@ public:
 		return std::exchange(m_pointer, nullptr);
 	}
 	constexpr void reset(pointer ptr = nullptr) noexcept {
+		pointer old = std::exchange(m_pointer, ptr);
+		if (old) m_deleter(old);
+	}
+	template <class Ptr> constexpr void reset(Ptr ptr) noexcept {
 		pointer old = std::exchange(m_pointer, ptr);
 		if (old) m_deleter(old);
 	}
