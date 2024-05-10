@@ -26,33 +26,21 @@ class Entity : public Node<Entity> {
 public:
 	constexpr Entity(std::string_view name = "Entity", EntityComponentSystem* ecs = ecs::globalECS) : 
 		Node<Entity>(name), 
-		m_id(ecs->m_entityManager.uniqueID()),
-		m_ecs(ecs) { 
-		m_ecs->m_entityManager.addEntity(this);
-	}
+		m_id(ecs->addEntity(this)),
+		m_ecs(ecs) { }
 	constexpr Entity(const Entity&) = delete;
 	constexpr Entity(Entity&&) = default;
 	constexpr ~Entity() {
-		m_ecs->removeAllComponents(m_id);
-		m_ecs->m_entityManager.returnEntity(m_id);
+		m_ecs->clearEntity(m_id);
+		m_ecs->removeEntity(m_id);
 	}
-
-	// constexpr Entity& operator=(const Entity&) = delete;
-	// constexpr Entity& operator=(Entity&&) = default;
 
 	Entity& operator=(const Entity&) = delete;
 	Entity& operator=(Entity&&) = default;
 
 	template <class Ty, class... Args> constexpr Entity& addComponent(Args&&... args) noexcept {
-		m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
+		m_ecs->addComponent<Ty>(m_id, std::forward<Args>(args)...);
 
-		return *this;
-	}
-	template <class Ty, class... Args> constexpr const Entity& addComponent(Args&&... args) const noexcept {
-		if constexpr (std::is_base_of_v<BasicComponent, Ty>)
-			auto& c = m_ecs->addComponent<Ty>(m_id, this, std::forward<Args>(args)...);
-		else m_ecs->addComponent<Ty>(m_id, std::forward<Args>(args)...);
-		
 		return *this;
 	}
 	template <class Ty> constexpr Entity& removeComponent() noexcept {
@@ -64,11 +52,11 @@ public:
 		return *this;
 	}
 	constexpr Entity& removeAll() noexcept {
-		m_ecs->removeAllComponents(m_id);
+		m_ecs->clearEntity(m_id);
 		return *this;
 	}
 	constexpr const Entity& removeAll() const noexcept {
-		m_ecs->removeAllComponents(m_id);
+		m_ecs->clearEntity(m_id);
 		return *this;
 	}
 
@@ -81,14 +69,15 @@ public:
 
 	template <class Ty> NODISCARD constexpr bool containsComponent() const {
 		return m_ecs->containsComponent<Ty>(m_id);
+		return false;
 	}
 
-	NODISCARD constexpr objectid id() const noexcept {
+	NODISCARD constexpr object_id id() const noexcept {
 		return m_id;
 	}
 
 private:
-	objectid m_id;
+	object_id m_id;
 	EntityComponentSystem* m_ecs;
 };
 

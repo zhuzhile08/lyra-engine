@@ -24,16 +24,45 @@ namespace lyra {
 
 template <class... Types> class System {
 public:
-	template <class Callable> void each(Callable&& callable) const {
-		ecs::globalECS->executeSystem<Types...>(callable);
+	constexpr System() = default;
+	template <class Callable> constexpr System(Callable&& callable, EntityComponentSystem* ecs = ecs::globalECS) : 
+		//m_id(ecs->addSystem()),
+		m_ecs(ecs) { }
+	constexpr System(System&&) = default;
+	constexpr System(const System&) {
+		
+	}
+	constexpr ~System() {
+		//m_ecs->removeSystem();
 	}
 
-	Vector<Entity*> entites() const {
-		return ecs::globalECS->findEntities<Types...>();
+	constexpr System& operator=(System&&) = default;
+	constexpr System& operator=(const System&) {
+		
 	}
-	Vector<const Entity*> centites() const {
-		return ecs::globalECS->findEntities<Types...>();
+	template <class Callable> constexpr System& operator=(Callable&& callable) {
+		
 	}
+
+	template <class Callable> void execute() {
+		//ecs::globalECS->executeSystem<Types...>(callable);
+	}
+	template <class Callable> void execute() const {
+		//ecs::globalECS->executeSystem<Types...>(callable);
+	}
+
+	Vector<Entity*> query() {
+		//return ecs::globalECS->query<Types...>();
+	}
+	Vector<const Entity*> query() const {
+		//return ecs::globalECS->query<Types...>();
+	}
+
+private:
+	Function<void(Types...)> m_system;
+	object_id m_id;
+
+	EntityComponentSystem* m_ecs;
 };
 
 } // namespace lyra

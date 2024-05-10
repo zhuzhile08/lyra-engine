@@ -105,9 +105,9 @@ lyra::uint32 ComponentBar::executionCount = 0;
 
 struct SystemTest {
 	void update() {
-		system.each([](const lyra::Entity& entity, Component1& c1, Component2& c2, Component3& c3, Component4& c4,  Component5& c5, const ComponentBar& bar){
-			bar.updateComponents(c1, c2, c3, c4, c5);
-		});
+		//system.execute([](const lyra::Entity& entity, Component1& c1, Component2& c2, Component3& c3, Component4& c4,  Component5& c5, const ComponentBar& bar){
+		//	bar.updateComponents(c1, c2, c3, c4, c5);
+		//});
 	}
 
 	lyra::System<Component1, Component2, Component3, Component4, Component5, ComponentBar> system;
@@ -159,6 +159,18 @@ int main(int argc, char* argv[]) {
 			SystemTest system;
 			system.update();
 		}
+
+		/**
+		{
+			e.emplace("Test")
+				.addComponent<ComponentBar>()
+				.addComponent<Component1>()
+				.addComponent<Component2>()
+				.addComponent<Component3>()
+				.addComponent<Component4>()
+				.addComponent<Component5>();
+		}
+		*/
 
 		lyra::log::debug("System execution count: {}\n", ComponentBar::executionCount);
 	}

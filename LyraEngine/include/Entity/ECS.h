@@ -13,6 +13,7 @@
 
 #include <Common/Common.h>
 #include <Common/FunctionPointer.h>
+#include <Common/SharedPointer.h>
 #include <Common/Vector.h>
 #include <Common/UnorderedSparseMap.h>
 #include <Common/Benchmark.h>
@@ -20,6 +21,7 @@
 #include <Entity/Component.h>
 
 #include <typeindex>
+#include <tuple>
 
 namespace lyra {
 
@@ -31,7 +33,7 @@ private:
 	public:
 		EntityManager() = default;
 
-		constexpr objectid uniqueID() noexcept {
+		constexpr object_id uniqueID() noexcept {
 			if (m_unused.empty()) {
 				return m_entities.size();
 			} else {
@@ -40,126 +42,428 @@ private:
 				return id;
 			}
 		}
-		constexpr void addEntity(Entity* e) noexcept {
-			m_entities.pushBack(e);
+		constexpr void addEntity(object_id id, Entity* e) noexcept {
+			m_entities.resize(id + 1, nullptr);
+			m_entities[id] = e;
 		}
 
-		constexpr Entity* entity(objectid id) noexcept {
+		constexpr Entity* entity(object_id id) noexcept {
 			return m_entities[id];
 		}
-		constexpr const Entity* entity(objectid id) const noexcept {
+		constexpr const Entity* entity(object_id id) const noexcept {
 			return m_entities[id];
 		}
-		constexpr void returnEntity(objectid id) noexcept {
+		constexpr void returnEntity(object_id id) noexcept {
 			m_unused.pushBack(id);
 			m_entities[id] = nullptr;
 		}
 
 	private:
 		Vector<Entity*> m_entities;
-		Vector<objectid> m_unused;
+		Vector<object_id> m_unused;
 
 		friend class Entity;
 	};
 
-	class BasicComponentAllocator {
-	public:
-		constexpr BasicComponentAllocator() noexcept = default;
-		constexpr BasicComponentAllocator(const BasicComponentAllocator&) noexcept = default;
-		constexpr BasicComponentAllocator(BasicComponentAllocator&&) noexcept = default;
-		constexpr virtual ~BasicComponentAllocator() noexcept = default;
-		constexpr virtual void returnComponent(objectid id) noexcept = 0;
-	};
+	class ComponentAllocator {
+	private:
+		class BasicMemory {
+		public:
+			virtual constexpr ~BasicMemory() { }
 
-	template <class Ty> class ComponentAllocator : public BasicComponentAllocator {
-	public:
-		using value_type = Ty;
+			virtual constexpr void* emplaceBack(void*) = 0;
+			virtual constexpr size_type removeComponent(size_type) = 0;
 
-		ComponentAllocator() = default;
-		ComponentAllocator(const ComponentAllocator&) = default;
-		ComponentAllocator(ComponentAllocator&&) = default;
+			virtual constexpr void* componentData(size_type) = 0;
+			virtual constexpr const void* componentData(size_type) const = 0;
 
-		template <class... Args> constexpr value_type& allocateComponent(objectid& id, Args&&... args) noexcept {
-			if (m_unused.empty()) {
-				id = m_data.size();
-				return m_data.emplaceBack(std::forward<Args>(args)...);
-			} else {
-				id = m_unused.back();
-				m_unused.popBack();
-				return *(new (&m_data[id]) value_type(std::forward<Args>(args)...));
+			virtual constexpr size_type size() const noexcept = 0;
+			virtual constexpr size_type count() const noexcept = 0;
+
+			virtual constexpr void* begin() noexcept = 0;
+			virtual constexpr const void* begin() const noexcept = 0;
+			virtual constexpr void* end() noexcept = 0;
+			virtual constexpr const void* end() const noexcept = 0;
+
+			virtual constexpr UniquePointer<BasicMemory> copyType() const = 0;
+		};
+
+		template <class Ty> class Memory : public BasicMemory {
+			using value_type = Ty;
+
+			constexpr void* emplaceBack(void* data) override {
+				return &m_memory.emplaceBack(std::move(*static_cast<Ty*>(data)));
 			}
+			constexpr size_type removeComponent(size_type index) override {
+				m_memory[index] = std::move(m_memory.back());
+				m_memory.popBack();
+				return m_memory.size(); // return the size because this would now be the component index of the entity that needs to change too
+			}
+
+			constexpr void* componentData(size_type index) override {
+				return &m_memory[index];
+			}
+			constexpr const void* componentData(size_type index) const override {
+				return &m_memory[index];
+			}
+
+			constexpr size_type size() const noexcept override {
+				return sizeof(value_type);
+			}
+			constexpr size_type count() const noexcept override {
+				return m_memory.size();
+			}
+
+			constexpr void* begin() noexcept override {
+				return m_memory.begin().get();
+			}
+			constexpr const void* begin() const noexcept override {
+				return m_memory.cbegin().get();
+			}
+			constexpr void* end() noexcept override {
+				return m_memory.end().get();
+			}
+			constexpr const void* end() const noexcept override {
+				return m_memory.cend().get();
+			}
+
+			constexpr UniquePointer<BasicMemory> copyType() const override {
+				return UniquePointer<Memory>::create();
+			}
+		
+		private:
+			Vector<value_type> m_memory;
+		};
+
+		constexpr ComponentAllocator() = default; // cursed
+
+	public:
+		constexpr ComponentAllocator(ComponentAllocator&&) = default;
+		constexpr ComponentAllocator(const ComponentAllocator& other) : m_memory(other.m_memory->copyType()) { }
+
+		template <class Ty> static constexpr ComponentAllocator create() {
+			ComponentAllocator a;
+			a.m_memory = UniquePointer<Memory<Ty>>::create();
+			return a;
 		}
 
-		constexpr void returnComponent(objectid id) noexcept {
-			m_data[id].~value_type();
-			m_unused.pushBack(id);
+		template <class Ty> constexpr void* emplaceBack(Ty&& component) {
+			Ty cmp = std::move(component);
+			return m_memory->emplaceBack(&cmp);
+		}
+		constexpr void* emplaceBackData(void* component) {
+			return m_memory->emplaceBack(component);
+		}
+		constexpr size_type removeComponent(size_type index) {
+			return m_memory->removeComponent(index);
 		}
 
-		constexpr value_type& component(objectid id) noexcept {
-			return m_data[id];
+		template <class Ty> constexpr Ty* component(size_type index) {
+			return static_cast<Ty*>(m_memory->componentData(index));
 		}
-		constexpr const value_type& component(objectid id) const noexcept {
-			return m_data[id];
+		template <class Ty> constexpr const Ty* component(size_type index) const {
+			return static_cast<Ty*>(m_memory->componentData(index));
+		}
+		constexpr void* componentData(size_type index) {
+			return m_memory->componentData(index);
+		}
+		constexpr const void* componentData(size_type index) const {
+			return m_memory->componentData(index);
+		}
+
+		constexpr size_type size() const noexcept {
+			return m_memory->size();
+		}
+		constexpr size_type count() const noexcept {
+			return m_memory->count();
+		}
+
+		template <class Ty> constexpr Iterator<Ty> begin() noexcept {
+			return Iterator<Ty>(static_cast<Ty*>(m_memory->begin()));
+		}
+		template <class Ty> constexpr Iterator<Ty> begin() const noexcept {
+			return Iterator<Ty>(static_cast<Ty*>(m_memory->begin()));
+		}
+		template <class Ty> constexpr Iterator<Ty> end() noexcept {
+			return Iterator<Ty>(static_cast<Ty*>(m_memory->end()));
+		}
+		template <class Ty> constexpr Iterator<Ty> end() const noexcept {
+			return Iterator<Ty>(static_cast<Ty*>(m_memory->end()));
 		}
 
 	private:
-		Vector<value_type> m_data;
-		Vector<objectid> m_unused;
+
+		UniquePointer<BasicMemory> m_memory;
 	};
 
-	using basic_allocator = UniquePointer<BasicComponentAllocator>;
-	template <class Ty> using concrete_allocator = UniquePointer<ComponentAllocator<Ty>>;
-	using allocators_type = UnorderedSparseMap<std::type_index, basic_allocator>;
-	using entity_to_component = UnorderedSparseMap<objectid, objectid>;
-	using lookup_type = UnorderedSparseMap<std::type_index, entity_to_component>;
+	class Archetype {
+	private:
+		struct Edge { 
+		public:
+			Archetype* superset { };
+			Archetype* subset { };
+		};
+
+		using edges = UnorderedSparseMap<type_id, Edge>;
+
+		using component_alloc = ComponentAllocator;
+		using components = UnorderedSparseMap<type_id, component_alloc>;
+		using entities = UnorderedSparseMap<object_id, size_type>;
+
+		class Hasher {
+		public:
+			constexpr size_type operator()(const UniquePointer<Archetype>& archetype) const noexcept {
+				return archetype->m_hash;
+			}
+			constexpr size_type operator()(size_type hash) const noexcept {
+				return hash;
+			}
+		};
+
+		class Equal {
+		public:
+			constexpr bool operator()(const UniquePointer<Archetype>& first, const UniquePointer<Archetype>& second) const noexcept {
+				return first->m_hash == second->m_hash;
+			}
+			constexpr bool operator()(const UniquePointer<Archetype>& first, size_type second) const noexcept {
+				return first->m_hash == second;
+			}
+			constexpr bool operator()(size_type first, const UniquePointer<Archetype>& second) const noexcept {
+				return first == second->m_hash;
+			}
+			constexpr bool operator()(size_type first, size_type second) const noexcept {
+				return first == second;
+			}
+		};
+		
+	public:
+		constexpr Archetype() = default;
+		constexpr Archetype(Archetype&&) = default;
+
+		template <class Ty> static constexpr size_type superHash(const Archetype& archetype) {
+			auto compTypeId = typeId<Ty>();
+			auto inserted = false;
+
+			auto hash = archetype.m_components.size() + 1;
+
+			for (const auto& component : archetype.m_components) {
+				if (component.first > compTypeId) {
+					inserted = true;
+					hash ^= reinterpret_cast<uintptr>(compTypeId) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+				}
+
+				hash ^= reinterpret_cast<uintptr>(component.first) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+			}
+			if (!inserted) hash ^= reinterpret_cast<uintptr>(compTypeId) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+			return hash;
+		}
+		template <class Ty> static constexpr size_type subHash(const Archetype& archetype) {
+			auto compTypeId = typeId<Ty>();
+
+			auto hash = archetype.m_components.size() - 1;
+
+			for (const auto& component : archetype.m_components)
+				if (component.first != compTypeId)
+					hash ^= reinterpret_cast<uintptr>(component.first) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+			return hash;
+		}
+
+		template <class Ty> static Archetype createSuper(Archetype& archetype, size_type hash) {
+			Archetype a;
+			a.m_hash = hash;
+
+			{ // insert component in the proper ordered position
+				auto compTypeId = typeId<Ty>();
+				auto inserted = false;
+				for (const auto& component : archetype.m_components) {
+					if (component.first > compTypeId) {
+						inserted = true;
+						a.m_components.emplace(compTypeId, ComponentAllocator::create<Ty>());
+					}
+
+					a.m_components.emplace(component.first, component.second);
+				}
+
+				if (!inserted) a.m_components.emplace(compTypeId, ComponentAllocator::create<Ty>());
+			}
+
+			a.edge<Ty>().subset = &archetype;
+
+			return a;
+		}
+		template <class Ty> static Archetype createSub(Archetype& archetype, size_type hash) {
+			ASSERT(!archetype.m_components.empty(), "lyra::EntityComponentSystem::Archetype::createSub(): Cannot create subset archetype of empty archetype!");
+
+			Archetype a;
+			a.m_hash = hash;
+
+			{ // insert component in the proper ordered position
+				auto compTypeId = typeId<Ty>();
+				for (const auto& component : archetype.m_components)
+					if (component.first != compTypeId) // insert component if it is not of type Ty
+						a.m_components.emplace(component.first, component.second);
+			}
+
+			a.edge<Ty>().superset = &archetype;
+
+			return a;
+		}
+
+		template <class Ty> constexpr Ty& addSubEntity(object_id entityId, Archetype& subset, Ty&& component) {
+			m_entities.emplace(entityId, m_components.begin()->second.count());
+
+			auto& c = *static_cast<Ty*>(m_components.at(typeId<Ty>()).emplaceBack(std::move(component)));
+
+			auto entityIndex = subset.m_entities.at(entityId);
+
+			for (auto& component : subset.m_components) {
+				m_components.at(component.first).emplaceBackData(
+					component.second.componentData(entityIndex)
+				);
+			}
+
+			subset.removeEntity(entityId);
+
+			return c;
+		}
+		template <class Ty> constexpr void addSuperEntity(object_id entityId, Archetype& superset) {
+			m_entities.emplace(entityId, m_components.begin()->second.count());
+
+			auto entityIndex = superset.m_entities.at(entityId);
+
+			auto id = typeId<Ty>();
+
+			for (auto& component : superset.m_components)
+				if (component.first != id) 
+					m_components.at(component.first).emplaceBackData(component.second.componentData(entityIndex));
+
+			superset.removeEntity(entityId);
+		}
+		void removeEntity(object_id entityId) {
+			auto it = m_entities.find(entityId);
+
+			if (it != m_entities.end()) {
+				auto index = m_entities.extract(it).second;
+				size_type s = index;
+
+				for (auto& component : m_components) s = component.second.removeComponent(index);
+
+				if (s != index) std::find_if(m_entities.begin(), m_entities.end(), [s](typename entities::const_reference e){ return e.second == s; })->second = index;
+			} else log::error("lyra::EnitityComponentSystem::Archetype::removeEntity(): Archetype did not contain entity with ID: {} !", entityId);
+		}
+
+		template <class Ty> constexpr Ty& component(object_id entityId) {
+			return *m_components.at(typeId<Ty>()).template component<Ty>(m_entities.at(entityId));
+		}
+		template <class Ty> constexpr const Ty& component(object_id entityId) const {
+			return *m_components.at(typeId<Ty>()).template component<Ty>(m_entities.at(entityId));
+		}
+
+		template <class Ty> constexpr bool contains() const {
+			return m_components.contains(typeId<Ty>());
+		}
+
+		template <class Ty> constexpr const Edge& edge() const {
+			return m_edges.at(typeId<Ty>());
+		}
+		template <class Ty> constexpr Edge& edge() {
+			return m_edges[typeId<Ty>()];
+		}
+
+		template <class... Types, class Callable> constexpr void each(const Callable& c) {
+
+		}
+		template <class... Types, class Callable> constexpr void each(const Callable& c) const {
+			
+		}
+
+	private:
+		components m_components;
+		entities m_entities;
+
+		edges m_edges;
+		size_type m_hash = 0;
+
+		friend class EntityComponentSystem;
+		friend class Hasher;
+		friend class Equal;
+	};
+
+	using archetype = UniquePointer<Archetype>;
+
+	using entity_to_archetype = UnorderedSparseMap<object_id, Archetype*>;
+	using archetypes = UnorderedSparseSet<archetype, Archetype::Hasher, Archetype::Equal>;
 
 public:
+	constexpr EntityComponentSystem() { m_archetypes.emplace(archetype::create()); }
+
+	// entity functions
+
+	constexpr object_id addEntity(Entity* entity) {
+		auto id = m_entities.uniqueID();
+
+		m_entities.addEntity(id, entity);
+
+		auto* archetype = m_archetypes.at(0).get();
+		archetype->m_entities.emplace(id, 0);
+
+		m_lookup.emplace(id, archetype);
+
+		return id;
+	}
+	constexpr void removeEntity(object_id e) {
+		m_entities.returnEntity(e);
+		m_lookup.erase(e);
+	}
+
+	constexpr void clearEntity(object_id e) {
+		auto& archetype = m_lookup.at(e);
+
+		archetype->removeEntity(e);
+		archetype = m_archetypes.begin()->get();
+	}
+
+
 	// component functions
-	template <class Ty, class... Args> constexpr Ty& addComponent(objectid e, Entity* p, Args&&... args) noexcept {
-		std::type_index type(typeid(Ty));
 
-		auto& component = dynamic_cast<ComponentAllocator<Ty>*>(
-			m_componentAllocators.tryEmplace(type, concrete_allocator<Ty>::create()).first->second.get())->
-				allocateComponent(m_lookup[type][e], std::forward<Args>(args)...);
+	template <class Ty, class... Args> constexpr Ty& addComponent(object_id entityId, Args&&... args) noexcept {
+		auto archetypeIt = m_lookup.find(entityId);
 
-		if constexpr (std::is_base_of_v<BasicComponent, Ty>) {
-			component.entity = p;
-			component.init();
+		Archetype* base = (archetypeIt != m_lookup.end()) ? archetypeIt->second : m_archetypes.begin()->get();
+		Archetype* archetype = addOrFindSuperset<Ty>(base);
+
+		m_lookup.insertOrAssign(entityId, archetype);
+
+		return archetype->addSubEntity(entityId, *base, Ty(std::forward<Args>(args)...));
+	}
+	template <class Ty> constexpr void removeComponent(object_id entityId) noexcept {
+		auto archetypeIt = m_lookup.find(entityId);
+
+		if (archetypeIt != m_lookup.end()) {
+			Archetype* archetype = addOrFindSubset<Ty>(archetypeIt->second);
+			archetype->addSuperEntity<Ty>(entityId, archetypeIt->second);
+
+			m_lookup.insertOrAssign(entityId, archetype);
 		}
 
-		return component;
+		log::error("lyra::EntityComponentSystem::removeComponent(): Entity with ID: {} was empty!", entityId);
 	}
-	template <class Ty> constexpr void removeComponent(objectid e) noexcept {
-		std::type_index type(typeid(Ty));
-		m_componentAllocators.at(type)->returnComponent(m_lookup[type].extract(e).second);
-	} 
-	constexpr void removeAllComponents(objectid e) noexcept {
-		for (auto& mapping : m_lookup) {
-			auto& comp = mapping.second;
-			auto it = comp.find(e);
 
-			if (it != comp.end()) {
-				m_componentAllocators.at(mapping.first)->returnComponent(it->second);
-				comp.erase(it);
-			}
-		}
+	template <class Ty> constexpr bool containsComponent(object_id e) const {
+		return m_lookup.at(e)->contains<Ty>();
+	}
+
+	template <class Ty> constexpr Ty& component(object_id e) noexcept {
+		return m_lookup.at(e)->component<Ty>(e);
+	}
+	template <class Ty> constexpr const Ty& component(object_id e) const noexcept {
+		return m_lookup.at(e)->component<Ty>(e);
 	}
 
 
-	template <class Ty> constexpr bool containsComponent(objectid e) const {
-		return m_lookup.at(typeid(Ty)).contains(e);
-	}
-
-	template <class Ty> constexpr Ty& component(objectid e) noexcept {
-		std::type_index type(typeid(Ty));
-		return dynamic_cast<ComponentAllocator<Ty>*>(m_componentAllocators.at(type).get())->component(m_lookup[type][e]);
-	}
-	template <class Ty> constexpr const Ty& component(objectid e) const noexcept {
-		std::type_index type(typeid(Ty));
-		return dynamic_cast<ComponentAllocator<Ty>*>(m_componentAllocators.at(type).get())->component(m_lookup.at(type).at(e));
-	}
-
-
+	/*
 	template <class... Types> constexpr Vector<Entity*> findEntities() noexcept {
 		Vector<Entity*> r;
 
@@ -259,14 +563,50 @@ public:
 			if (hasComponents) callable(*m_entityManager.entity(id), component<Types>(id)...);
 		}
 	}
+	*/
 
 private:
-	EntityManager m_entityManager;
-	allocators_type m_componentAllocators;
-	
-	lookup_type m_lookup; // vertical: component mappings, horizontal: entity mappings
+	archetypes m_archetypes;
+	entity_to_archetype m_lookup;
 
-	friend class Entity;
+	EntityManager m_entities;
+
+	template <class Ty> Archetype* addOrFindSuperset(Archetype* baseArchetype) {
+		auto& edge = baseArchetype->template edge<Ty>();
+		auto archetype = edge.superset;
+
+		if (!archetype) {
+			auto hash = Archetype::superHash<Ty>(*baseArchetype);
+			auto it = m_archetypes.find(hash);
+
+			if (it != m_archetypes.end())
+				archetype = it->get();
+			else
+				archetype = m_archetypes.tryEmplace(archetype::create(Archetype::createSuper<Ty>(*baseArchetype, hash))).first->get();
+			
+			edge.superset = archetype;
+		}
+
+ 		return archetype;
+	}
+	template <class Ty> Archetype* addOrFindSubset(Archetype* baseArchetype) {
+		auto& edge = baseArchetype->template edge<Ty>();
+		auto archetype = edge.subset;
+
+		if (!archetype) {
+			auto hash = Archetype::subHash<Ty>(*baseArchetype);
+			auto it = m_archetypes.find(hash);
+
+			if (it != m_archetypes.end())
+				archetype = it->get();
+			else
+				archetype = m_archetypes.tryEmplace(archetype::create(Archetype::createSuper<Ty>(*baseArchetype, hash))).first->get();
+			
+			edge.subset = archetype;
+		}
+
+ 		return archetype;
+	}
 };
 
 namespace ecs {

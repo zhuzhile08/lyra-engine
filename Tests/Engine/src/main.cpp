@@ -85,11 +85,11 @@ int main(int argc, char* argv[]) {
 	while (!lyra::input::quit()) {
 		lyra::input::update();
 		// lyra::ecs::update();
+
 		lyra::renderer::beginFrame();
 		
-		c.component<CameraScript>().update();
-		
 		lyra::renderer::draw();
+		
 		lyra::renderer::endFrame();
 	}
 
