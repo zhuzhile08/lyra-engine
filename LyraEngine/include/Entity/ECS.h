@@ -72,7 +72,7 @@ private:
 			virtual constexpr ~BasicMemory() { }
 
 			virtual constexpr void* emplaceBack(void*) = 0;
-			virtual constexpr size_type removeComponent(size_type) = 0;
+			virtual constexpr void removeComponent(size_type) = 0;
 
 			virtual constexpr void* componentData(size_type) = 0;
 			virtual constexpr const void* componentData(size_type) const = 0;
@@ -94,10 +94,9 @@ private:
 			constexpr void* emplaceBack(void* data) override {
 				return &m_memory.emplaceBack(std::move(*static_cast<Ty*>(data)));
 			}
-			constexpr size_type removeComponent(size_type index) override {
+			constexpr void removeComponent(size_type index) override {
 				m_memory[index] = std::move(m_memory.back());
 				m_memory.popBack();
-				return m_memory.size(); // return the size because this would now be the component index of the entity that needs to change too
 			}
 
 			constexpr void* componentData(size_type index) override {
@@ -154,8 +153,8 @@ private:
 		constexpr void* emplaceBackData(void* component) {
 			return m_memory->emplaceBack(component);
 		}
-		constexpr size_type removeComponent(size_type index) {
-			return m_memory->removeComponent(index);
+		constexpr void removeComponent(size_type index) {
+			m_memory->removeComponent(index);
 		}
 
 		template <class Ty> constexpr Ty* component(size_type index) {
@@ -204,12 +203,6 @@ private:
 			Archetype* subset { };
 		};
 
-		using edges = UnorderedSparseMap<type_id, Edge>;
-
-		using component_alloc = ComponentAllocator;
-		using components = UnorderedSparseMap<type_id, component_alloc>;
-		using entities = UnorderedSparseMap<object_id, size_type>;
-
 		class Hasher {
 		public:
 			constexpr size_type operator()(const UniquePointer<Archetype>& archetype) const noexcept {
@@ -235,6 +228,12 @@ private:
 				return first == second;
 			}
 		};
+
+		using component_alloc = ComponentAllocator;
+		using components = UnorderedSparseMap<type_id, component_alloc>;
+
+		using edges = UnorderedSparseMap<type_id, Edge>;
+		using entities = UnorderedSparseSet<object_id>;
 		
 	public:
 		constexpr Archetype() = default;
@@ -312,11 +311,11 @@ private:
 		}
 
 		template <class Ty> constexpr Ty& addSubEntity(object_id entityId, Archetype& subset, Ty&& component) {
-			m_entities.emplace(entityId, m_components.begin()->second.count());
+			m_entities.emplace(entityId);
 
 			auto& c = *static_cast<Ty*>(m_components.at(typeId<Ty>()).emplaceBack(std::move(component)));
 
-			auto entityIndex = subset.m_entities.at(entityId);
+			auto entityIndex = (subset.m_entities.find(entityId) - subset.m_entities.begin());
 
 			for (auto& component : subset.m_components) {
 				m_components.at(component.first).emplaceBackData(
@@ -329,9 +328,9 @@ private:
 			return c;
 		}
 		template <class Ty> constexpr void addSuperEntity(object_id entityId, Archetype& superset) {
-			m_entities.emplace(entityId, m_components.begin()->second.count());
+			m_entities.emplace(entityId);
 
-			auto entityIndex = superset.m_entities.at(entityId);
+			auto entityIndex = (superset.m_entities.find(entityId) - superset.m_entities.begin());
 
 			auto id = typeId<Ty>();
 
@@ -345,13 +344,15 @@ private:
 			auto it = m_entities.find(entityId);
 
 			if (it != m_entities.end()) {
-				auto index = m_entities.extract(it).second;
-				size_type s = index;
+				auto index = (it - m_entities.begin());
+				m_entities.erase(it);
 
-				for (auto& component : m_components) s = component.second.removeComponent(index);
+				for (auto& component : m_components) component.second.removeComponent(index);
 
-				if (s != index) std::find_if(m_entities.begin(), m_entities.end(), [s](typename entities::const_reference e){ return e.second == s; })->second = index;
-			} else log::error("lyra::EnitityComponentSystem::Archetype::removeEntity(): Archetype did not contain entity with ID: {} !", entityId);
+				return;
+			}
+
+			log::error("lyra::EnitityComponentSystem::Archetype::removeEntity(): Archetype did not contain entity with ID: {} !", entityId);
 		}
 
 		template <class Ty> constexpr Ty& component(object_id entityId) {
@@ -407,7 +408,7 @@ public:
 		m_entities.addEntity(id, entity);
 
 		auto* archetype = m_archetypes.at(0).get();
-		archetype->m_entities.emplace(id, 0);
+		archetype->m_entities.emplace(id);
 
 		m_lookup.emplace(id, archetype);
 
@@ -418,7 +419,7 @@ public:
 		m_lookup.erase(e);
 	}
 
-	constexpr void clearEntity(object_id e) {
+	WIN32_CONSTEXPR void clearEntity(object_id e) {
 		auto& archetype = m_lookup.at(e);
 
 		archetype->removeEntity(e);

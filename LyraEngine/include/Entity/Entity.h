@@ -30,7 +30,7 @@ public:
 		m_ecs(ecs) { }
 	constexpr Entity(const Entity&) = delete;
 	constexpr Entity(Entity&&) = default;
-	constexpr ~Entity() {
+	WIN32_CONSTEXPR ~Entity() {
 		m_ecs->clearEntity(m_id);
 		m_ecs->removeEntity(m_id);
 	}
@@ -51,11 +51,11 @@ public:
 		m_ecs->removeComponent<Ty>();
 		return *this;
 	}
-	constexpr Entity& removeAll() noexcept {
+	WIN32_CONSTEXPR Entity& removeAll() noexcept {
 		m_ecs->clearEntity(m_id);
 		return *this;
 	}
-	constexpr const Entity& removeAll() const noexcept {
+	WIN32_CONSTEXPR const Entity& removeAll() const noexcept {
 		m_ecs->clearEntity(m_id);
 		return *this;
 	}
