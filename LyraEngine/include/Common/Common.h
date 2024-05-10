@@ -195,3 +195,9 @@ template <class Format, typename ... Args> inline constexpr void vulkanAssert(in
 #define DEFINE_DEFAULT_MOVE(type) type(type&&) = default; type& operator=(type&&) = default;
 
 #define GLM_FORCE_RADIANS
+
+#ifdef _WIN32
+#define WIN32_CONSTEXPR
+#else
+#define WIN32_CONSTEXPR constexpr
+#endif

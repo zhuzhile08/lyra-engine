@@ -75,10 +75,8 @@ public:
 	};
 
 	constexpr Mesh() = default;
-#ifndef _WIN32
-	constexpr
-#endif
-	Mesh(const resource::MeshFile& mesh, uint32 index) : 
+
+	WIN32_CONSTEXPR Mesh(const resource::MeshFile& mesh, uint32 index) : 
 		m_vertices(mesh.vertexBlocks[index]), 
 		m_indices(mesh.indexData[index]) { 
 		std::memcpy(

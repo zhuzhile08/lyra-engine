@@ -52,18 +52,12 @@ enum class Font {
 	blink
 };
 
-#ifdef _WIN32
-#define IS_FMT_CONSTEXPR
-#else
-#define IS_FMT_CONSTEXPR constexpr
-#endif
-
-inline IS_FMT_CONSTEXPR std::string setStyle(Font font, uint32 foreground, uint32 background) {
+inline WIN32_CONSTEXPR std::string setStyle(Font font, uint32 foreground, uint32 background) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{};48;5;{}m", static_cast<int>(font), foreground, background);
 	else return "";
 }
-inline IS_FMT_CONSTEXPR std::string setStyle(Font font, uint32 foreground) {
+inline WIN32_CONSTEXPR std::string setStyle(Font font, uint32 foreground) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{}m", static_cast<int>(font), foreground);
 	else return "";
@@ -140,10 +134,10 @@ public:
 		log<log::Level::exception>(std::forward<Msg>(message));
 	}
 
-	IS_FMT_CONSTEXPR void newLine() {
+	WIN32_CONSTEXPR void newLine() {
 		fmt::print(m_outStream, "\n");
 	}
-	IS_FMT_CONSTEXPR void newLine(uint32 count) {
+	WIN32_CONSTEXPR void newLine(uint32 count) {
 		for (uint32 i = 0; i < count; i++)
 			fmt::print(m_outStream, "\n");
 	}
