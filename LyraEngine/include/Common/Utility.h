@@ -103,13 +103,16 @@ template <class Integer> inline constexpr Integer sizeToIndex(Integer size) noex
 
 // compile time type id generator
 
-template <class> class TypeId {
-public:
-    consteval static type_id get() { return &m_id; }
-
+template <class> struct TypeId {
 private:
     constexpr static char m_id { };
+
+	template <class> friend constexpr type_id typeId() noexcept;
 };
+
+template <class Ty> constexpr type_id typeId() noexcept {
+	return &TypeId<Ty>::m_id;
+}
 
 
 // enum utilities

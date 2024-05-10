@@ -47,11 +47,11 @@ using float128 = long double; // not supported everywhere, so don't really use t
 
 using wchar = wchar_t;
 using filepos = fpos_t;
-using objectid = uint64;
-using uintptr = uintptr_t;
+using object_id = uint64;
+using uintptr = std::uintptr_t;
 using nullpointer = decltype(nullptr);
 using size_type = std::size_t;
-using type_id = void*;
+using type_id = const void*;
 
 // color type
 struct Color {
