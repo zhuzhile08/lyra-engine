@@ -402,9 +402,8 @@ public:
 	constexpr value_type extract(const_iterator pos) noexcept {
 		ASSERT(pos < m_array.end(), "lyra::UnorderedSparseMap::extract(): The end iterator was passed to the function!");
 
-		iterator it = m_array.begin() + (pos - m_array.begin());
-		value_type v(std::move(*it));
-		erase(it);
+		value_type v(std::move(*const_cast<value_type*>(pos.get())));
+		erase(pos);
 		return v;
 	}
 	constexpr value_type extract(const key_type& key) noexcept {
