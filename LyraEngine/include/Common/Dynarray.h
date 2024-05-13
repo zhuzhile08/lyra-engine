@@ -40,7 +40,7 @@ template <DynarrayValueType Ty, size_type Capacity> struct Dynarray {
 
 	using wrapper = Dynarray<value_type, Capacity>;
 	using wrapper_reference = wrapper&;
-	using const_wrapper_reference = const wrapper_reference;
+	using const_wrapper_reference = const wrapper&;
 	using wrapper_rvreference = wrapper&&;
 	using init_list = std::initializer_list<value_type>;
 

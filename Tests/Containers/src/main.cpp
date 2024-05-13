@@ -15,11 +15,12 @@
 
 #include <fmt/core.h>
 #include <iostream>
-#include <map>
-
 #include <numeric>
-
 #include <memory>
+#include <random>
+#include <set>
+#include <span>
+#include <unordered_set>
 
 namespace {
 
@@ -68,34 +69,34 @@ public:
 };
 
 struct Component1 {
-	glm::vec2 v;
+	glm::mat4 m;
 };
 
 struct Component2 {
-	glm::vec2 v;
+	glm::mat4 m;
 };
 
 struct Component3 {
-	glm::vec2 v;
+	glm::mat4 m;
 };
 
 struct Component4 {
-	glm::vec2 v;
+	glm::mat4 m;
 };
 
 struct Component5 {
-	glm::vec2 v;
+	glm::mat4 m;
 };
 
 struct ComponentBar {
 	ComponentBar() = default;
 
-	void updateComponents(Component1& c1, Component2& c2, Component3& c3, Component4& c4,  Component5& c5) const {
-		c1.v = {1, 1};
-		c2.v = {2, 2};
-		c3.v = {3, 3};
-		c4.v = {4, 4};
-		c5.v = {5, 5};
+	void updateComponents(Component1& c1, Component2& c2, Component3& c3, Component4& c4, Component5& c5) const {
+		c1.m = glm::mat4(1);
+		c2.m = glm::mat4(2);
+		c3.m = glm::mat4(3);
+		c4.m = glm::mat4(4);
+		c5.m = glm::mat4(5);
 		executionCount++;
 	}
 
@@ -159,18 +160,6 @@ int main(int argc, char* argv[]) {
 			SystemTest system;
 			system.update();
 		}
-
-		/**
-		{
-			e.emplace("Test")
-				.addComponent<ComponentBar>()
-				.addComponent<Component1>()
-				.addComponent<Component2>()
-				.addComponent<Component3>()
-				.addComponent<Component4>()
-				.addComponent<Component5>();
-		}
-		*/
 
 		lyra::log::debug("System execution count: {}\n", ComponentBar::executionCount);
 	}

@@ -583,7 +583,7 @@ private:
 			if (it != m_archetypes.end())
 				archetype = it->get();
 			else
-				archetype = m_archetypes.tryEmplace(archetype::create(Archetype::createSuper<Ty>(*baseArchetype, hash))).first->get();
+				archetype = m_archetypes.emplace(archetype::create(Archetype::createSuper<Ty>(*baseArchetype, hash))).first->get();
 			
 			edge.superset = archetype;
 		}
@@ -601,7 +601,7 @@ private:
 			if (it != m_archetypes.end())
 				archetype = it->get();
 			else
-				archetype = m_archetypes.tryEmplace(archetype::create(Archetype::createSuper<Ty>(*baseArchetype, hash))).first->get();
+				archetype = m_archetypes.emplace(archetype::create(Archetype::createSuper<Ty>(*baseArchetype, hash))).first->get();
 			
 			edge.subset = archetype;
 		}

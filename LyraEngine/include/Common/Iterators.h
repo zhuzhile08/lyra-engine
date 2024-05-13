@@ -172,11 +172,11 @@ public:
 	}
 
 	friend wrapper& operator+=(wrapper_reference it, size_type i) noexcept {
-		it = it + 1;
+		it = it + i;
 		return it;
 	}
 	friend wrapper& operator-=(wrapper_reference it, size_type i) noexcept {
-		it = it - 1;
+		it = it - i;
 		return it;
 	}
 

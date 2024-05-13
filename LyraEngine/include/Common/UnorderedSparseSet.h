@@ -71,13 +71,13 @@ public:
 		const key_equal& keyEqual = key_equal(), 
 		const allocator_type& alloc = allocator_type()) noexcept : 
 		m_array(alloc),
-		m_buckets(bucketSizeCheck(bucketCount, 2)), 
+		m_buckets(hashmapBucketSizeCheck(bucketCount, 2)), 
 		m_hasher(hash), 
 		m_equal(keyEqual) { } 
 	constexpr UnorderedSparseSet(size_type bucketCount, const allocator_type& alloc) noexcept : 
-		m_array(alloc), m_buckets(bucketSizeCheck(bucketCount, 2)) { } 
+		m_array(alloc), m_buckets(hashmapBucketSizeCheck(bucketCount, 2)) { } 
 	constexpr UnorderedSparseSet(size_type bucketCount, const hasher& hasher, const allocator_type& alloc) noexcept : 
-		m_array(alloc), m_buckets(bucketSizeCheck(bucketCount, 2)), m_hasher(hasher) { } 
+		m_array(alloc), m_buckets(hashmapBucketSizeCheck(bucketCount, 2)), m_hasher(hasher) { } 
 	explicit constexpr UnorderedSparseSet(const allocator_type& alloc) noexcept : 
 		m_array(alloc), m_buckets(2) { } 
 	template <class It> constexpr UnorderedSparseSet(
@@ -87,14 +87,14 @@ public:
 		const key_equal& keyEqual = key_equal(), 
 		const allocator_type& alloc = allocator_type()) noexcept requires isIteratorValue<It> : 
 		m_array(alloc),
-		m_buckets(bucketSizeCheck(bucketCount, last - first)), 
+		m_buckets(hashmapBucketSizeCheck(bucketCount, last - first)), 
 		m_hasher(hash), 
 		m_equal(keyEqual) {
 		insert(first, last);
 	}
 	template <class It> constexpr UnorderedSparseSet(
 		It first, It last, size_type bucketCount, const allocator_type& alloc) noexcept 
-		requires isIteratorValue<It> : m_array(alloc), m_buckets(bucketSizeCheck(bucketCount, last - first)) {
+		requires isIteratorValue<It> : m_array(alloc), m_buckets(hashmapBucketSizeCheck(bucketCount, last - first)) {
 		insert(first, last);
 	}
 	template <class It> constexpr UnorderedSparseSet(
@@ -103,7 +103,7 @@ public:
 		const hasher& hasher,
 		const allocator_type& alloc) noexcept requires isIteratorValue<It> : 
 		m_array(alloc),
-		m_buckets(bucketSizeCheck(bucketCount, last - first)), 
+		m_buckets(hashmapBucketSizeCheck(bucketCount, last - first)), 
 		m_hasher(hasher) {
 		insert(first, last);
 	}
@@ -122,18 +122,18 @@ public:
 		const key_equal& keyEqual = key_equal(), 
 		const allocator_type& alloc = allocator_type()) noexcept : 
 		m_array(alloc),
-		m_buckets(bucketSizeCheck(bucketCount, ilist.size())), 
+		m_buckets(hashmapBucketSizeCheck(bucketCount, ilist.size())), 
 		m_hasher(hash), 
 		m_equal(keyEqual) {
 		insert(ilist.begin(), ilist.end());
 	} 
 	constexpr UnorderedSparseSet(std::initializer_list<value_type> ilist, size_type bucketCount, const allocator_type& alloc) noexcept : 
-		m_array(alloc), m_buckets(bucketSizeCheck(bucketCount, ilist.size())) {
+		m_array(alloc), m_buckets(hashmapBucketSizeCheck(bucketCount, ilist.size())) {
 		insert(ilist.begin(), ilist.end());
 	} 
 	constexpr UnorderedSparseSet(
 		std::initializer_list<value_type> ilist, size_type bucketCount, const hasher& hasher, const allocator_type& alloc) noexcept : 
-		m_array(alloc), m_buckets(bucketSizeCheck(bucketCount, ilist.size())), m_hasher(hasher) {
+		m_array(alloc), m_buckets(hashmapBucketSizeCheck(bucketCount, ilist.size())), m_hasher(hasher) {
 		insert(ilist.begin(), ilist.end());
 	}
 	constexpr ~UnorderedSparseSet() = default;
@@ -254,19 +254,30 @@ public:
 		else
 			return { basicInsert(value), true };
 	}
-	template <class Value> constexpr pair_type<iterator, bool> insert(Value&& value) noexcept requires std::is_constructible_v<value_type, Value&&> {
+	constexpr pair_type<iterator, bool> insert(rvreference value) noexcept {
 		auto it = find(value);
 
 		if (it != m_array.end())
 			return { it, false };
 		else
-			return { basicInsert(std::forward<Value>(value)), true };
+			return { basicInsert(std::move(value)), true };
 	}
-	DEPRECATED constexpr iterator insert(const_bucket_iterator, const_reference value) noexcept {
+	template <class K> constexpr pair_type<iterator, bool> insert(K&& obj) noexcept requires std::is_constructible_v<value_type, K&&> {
+		auto it = find(obj);
+
+		if (it != m_array.end())
+			return { it, false };
+		else
+			return { basicInsert(std::forward<K>(obj)), true };
+	}
+	DEPRECATED constexpr iterator insert(const_iterator, const_reference value) noexcept {
 		return insert(value).first;
 	}
-	template <class Value> DEPRECATED constexpr iterator insert(const_bucket_iterator, Value&& value) noexcept requires std::is_constructible_v<value_type, Value&&> {
-		return insert(std::forward<Value>(value)).first;
+	DEPRECATED constexpr iterator insert(const_iterator, rvreference value) noexcept {
+		return insert(std::move(value)).first;
+	}
+	template <class K> DEPRECATED constexpr iterator insert(const_iterator, K&& obj) noexcept requires std::is_constructible_v<value_type, K&&> {
+		return insert(std::forward<K>(obj)).first;
 	}
 	template <class It> constexpr void insert(It first, It last) noexcept requires isIteratorValue<It> {
 		for (; first < last; first++) {
@@ -275,48 +286,6 @@ public:
 	}
 	constexpr void insert(std::initializer_list<value_type> ilist) noexcept {
 		insert(ilist.begin(), ilist.end());
-	}
-
-	template <class K, class V> constexpr pair_type<iterator, bool> insertOrAssign(K&& key, V&& value) noexcept {
-		auto it = find(key);
-
-		if (it != m_array.end()) {
-			*it = std::move(value_type(std::forward<K>(key), std::forward<V>(value)));
-			return { it, false };
-		} else {
-			return { basicEmplace(std::forward<K>(key), std::forward<V>(value)), true };
-		}
-	}
-	template <class K, class V> DEPRECATED constexpr pair_type<iterator, bool> insert_or_assign(K&& key, V&& value) noexcept {
-		return insertOrAssign(std::forward<K>(key), std::forward<V>(value));
-	}
-	template <class K, class V> DEPRECATED constexpr pair_type<iterator, bool> insertOrAssign(const_iterator, K&& key, V&& value) noexcept {
-		return insertOrAssign(std::forward<K>(key), std::forward<V>(value));
-	}
-	template <class K, class V> DEPRECATED constexpr pair_type<iterator, bool> insert_or_assign(const_iterator, K&& key, V&& value) noexcept {
-		return insertOrAssign(std::forward<K>(key), std::forward<V>(value));
-	}
-
-	template <class K, class... Args> constexpr pair_type<iterator, bool> tryEmplace(K&& key, Args&&... args) noexcept {
-		auto it = find(std::forward<K>(key));
-
-		if (it != m_array.end()) {
-			return { it, false };
-		} else {
-			return { basicEmplace(std::forward<K>(key), std::forward<Args>(args)...), true };
-		}
-	}
-	template <class K, class... Args> DEPRECATED constexpr iterator tryEmplace(const_iterator, K&& key, Args&&... args) noexcept {
-		auto it = find(std::forward<K>(key));
-
-		if (it != m_array.end()) {
-			return it;
-		} else {
-			return basicEmplace(std::forward<K>(key), std::forward<Args>(args)...);
-		}
-	}
-	template <class K, class... Args> DEPRECATED constexpr iterator try_emplace(const_iterator, K&& key, Args&&... args) noexcept {
-		tryEmplace(std::forward<K>(key), std::forward<Args>(args)...);
 	}
 
 	template <class... Args> constexpr pair_type<iterator, bool> emplace(Args&&... args) noexcept {
@@ -547,9 +516,6 @@ private:
 	NO_UNIQUE_ADDRESS hasher m_hasher { };
 	NO_UNIQUE_ADDRESS key_equal m_equal { };
 
-	static constexpr size_type bucketSizeCheck(size_type requested, size_type alternative) noexcept {
-		return (requested == 0) ? nextPrime(alternative) : nextPrime(requested);
-	}
 	constexpr void rehashIfNecessary() noexcept {
 		if (m_array.size() >= m_buckets.size() * maxLoadFactor) rehash(nextPrime(m_array.size()));
 	}
@@ -559,8 +525,8 @@ private:
 	constexpr iterator basicInsert(const value_type& value) noexcept {
 		auto i = keyToBucket(value);
 	
+		m_buckets[i].emplaceFront(m_array.size());
 		m_array.emplaceBack(value);
-		m_buckets[i].emplaceFront(sizeToIndex(m_array.size()));
 		rehashIfNecessary();
 
 		return --m_array.end();
@@ -568,8 +534,8 @@ private:
 	constexpr iterator basicInsert(value_type&& value) noexcept {
 		auto i = keyToBucket(value);
 
+		m_buckets[i].emplaceFront(m_array.size());
 		m_array.emplaceBack(std::move(value));
-		m_buckets[i].emplaceFront(sizeToIndex(m_array.size()));
 		rehashIfNecessary();
 
 		return --m_array.end();
@@ -577,8 +543,8 @@ private:
 	template <class K, class... Args> constexpr iterator basicEmplace(K&& key, Args&&... args) noexcept {
 		auto i = keyToBucket(std::forward<K>(key));
 
+		m_buckets[i].emplaceFront(m_array.size());
 		m_array.emplaceBack(std::forward<K>(key), std::forward<Args>(args)...);
-		m_buckets[i].emplaceFront(sizeToIndex(m_array.size()));
 		rehashIfNecessary();
 
 		return --m_array.end();
