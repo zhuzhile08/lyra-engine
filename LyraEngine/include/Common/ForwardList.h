@@ -67,7 +67,7 @@ public:
 	constexpr ForwardList(const_wrapper_reference other, const_alloc_reference alloc = allocator_type()) :
 		m_alloc(alloc) { insertAfter(beforeBegin(), other.begin(), other.end()); }
 	constexpr ForwardList(wrapper_rvreference other, const_alloc_reference alloc = allocator_type()) : 
-		m_alloc(alloc), m_beforeHead(std::exchange(other.m_beforeHead, nullptr)) { }
+		m_alloc(alloc), m_beforeHead(std::exchange(other.m_beforeHead, { })) { }
 	constexpr ForwardList(init_list ilist, const_alloc_reference alloc = allocator_type()) :
 		m_alloc(alloc) { insertAfter(beforeBegin(), ilist.begin(), ilist.end()); }
 	

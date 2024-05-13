@@ -125,10 +125,12 @@ public:
 	}
 	constexpr reference insert(smart_pointer&& child) {
 		child->m_parent = this;
-		return *m_children.emplace(smart_pointer(child.release())).first->get();
+		return *m_children.emplace(std::move(child)).first->get();
 	}
 	template <class... Args> constexpr reference emplace(Args&&... args) {
-		return insert(smart_pointer::create(std::forward<Args>(args)...));
+		auto child = m_children.emplace(smart_pointer::create(std::forward<Args>(args)...)).first->get();
+		child->m_parent = this;
+		return *child;
 	}
 
 	template <class KeyType> constexpr reference rename(KeyType&& name) {
@@ -241,8 +243,8 @@ protected:
 	BasicNode* m_parent = nullptr;
 	container m_children { };
 
-	friend class HashFunction;
-	friend class EqualFunction;
+	friend struct HashFunction;
+	friend struct EqualFunction;
 };
 
 template <class Ty> using Node = BasicNode<Ty, UniquePointer>;

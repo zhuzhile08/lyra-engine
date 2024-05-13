@@ -64,9 +64,9 @@ template <template <class...> class Container> NODISCARD inline constexpr Contai
 template <class Integer> inline constexpr bool isPrime(Integer n) noexcept requires std::is_integral_v<Integer> {
 	if (n == 2 || n == 3)
 		return true;
-	if (n <= 1 || n % 2 == 0 || n % 3 == 0)
+	else if (n <= 1 || n % 2 == 0 || n % 3 == 0)
 		return false;
-	for (Integer i = 5; i * i <= n; i += 6)
+	else for (Integer i = 5; i * i <= n; i += 6)
 		if (n % i == 0 || n % (i + 2) == 0)
 			return false;
 	return true;
@@ -95,6 +95,10 @@ template <class Integer> inline constexpr Integer lastPrime(Integer n) noexcept 
 		}
 	}
 };
+
+inline constexpr size_type hashmapBucketSizeCheck(size_type requested, size_type required) noexcept {
+	return (requested < required) ? nextPrime(required) : nextPrime(requested);
+}
 
 template <class Integer> inline constexpr Integer sizeToIndex(Integer size) noexcept requires std::is_integral_v<Integer> {
 	return (size == 0) ? 0 : size - 1;
