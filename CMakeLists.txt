@@ -10,13 +10,13 @@ project (LyraEngineToolchain)
 # project options
 option(BUILD_STATIC "Build LyraEngine statically" ON)
 if (BUILD_STATIC)
-	option(BUILD_SHARED_LIBS "Build all 3rd party libraries and LyraEngine as shared" OFF)
+	option(BUILD_SHARED_LIBS OFF)
 else ()
-	option(BUILD_SHARED_LIBS "Build all 3rd party libraries and LyraEngine as shared" ON)
+	option(BUILD_SHARED_LIBS ON)
 endif()
 
 
-# apple compiler path
+# MacOS compiler path
 if (APPLE)
 	set( CMAKE_CXX_COMPILER "/usr/bin/clang++" )
 	set( CMAKE_C_COMPILER "/usr/bin/clang" )
