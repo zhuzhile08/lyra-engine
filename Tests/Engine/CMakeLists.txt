@@ -28,7 +28,7 @@ PRIVATE
 
 # copy data files to the build location
 add_custom_target(copy_engine_data
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}data/
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data/
 )
 
 add_executable(Engine
