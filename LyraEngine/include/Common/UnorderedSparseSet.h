@@ -14,7 +14,6 @@
 #include <Common/Common.h>
 #include <Common/Utility.h>
 #include <Common/Iterators.h>
-#include <Common/UniquePointer.h>
 #include <Common/Vector.h>
 #include <Common/Hash.h>
 #include <Common/Allocator.h>
