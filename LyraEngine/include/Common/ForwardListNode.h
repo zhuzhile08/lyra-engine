@@ -16,6 +16,8 @@
 
 namespace lyra {
 
+namespace detail {
+
 struct ForwardListNodeBase {
 public:
 	ForwardListNodeBase* next = nullptr;
@@ -25,10 +27,12 @@ template <class Ty> class ForwardListNode : public ForwardListNodeBase {
 public:
 	using value_type = Ty;
 
-	constexpr ForwardListNode() = default;
+	constexpr ForwardListNode() requires std::is_default_constructible_v<value_type> = default;
 	template <class... Args> constexpr ForwardListNode(Args&&... args) noexcept : value(std::forward<Args>(args)...) { }
 
-	value_type value { }; 
+	value_type value; 
 };
+
+} // namespace detail
 
 } // namespace lyra
