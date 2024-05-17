@@ -16,7 +16,6 @@
 #include <Common/UniquePointer.h>
 #include <Common/SharedPointer.h>
 #include <Common/Node.h>
-#include <Common/FileSystem.h>
 
 #include <Common/Vector.h>
 #include <Common/UnorderedSparseMap.h>
@@ -73,6 +72,7 @@ public:
 	template <class KeyType> constexpr BasicJson(KeyType&& key, value_type&& value) noexcept : node_type(std::forward<KeyType>(key)), m_value(std::move(value)) { }
 	constexpr BasicJson(BasicJson&&) = default;
 	constexpr BasicJson(const BasicJson&) requires std::is_copy_assignable_v<smart_pointer> = default;
+	constexpr ~BasicJson() noexcept = default;
 
 	constexpr reference operator=(const value_type& value) noexcept requires std::is_copy_assignable_v<smart_pointer> {
 		m_value = value;
@@ -400,7 +400,8 @@ private:
 
 		tok.m_name = parseString(begin, end);
 		++begin;
-		ASSERT(*begin++ == ':', "lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
+		ASSERT(skipCharacters(begin, end) == ':', "lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
+		++begin;
 
 		switch(skipCharacters(begin, end)) {
 			case '{':
