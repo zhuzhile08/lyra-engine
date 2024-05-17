@@ -14,6 +14,7 @@
 #include <Common/Common.h>
 #include <Common/UniquePointer.h>
 #include <Common/SharedPointer.h>
+#include <Common/Hash.h>
 #include <Common/UnorderedSparseSet.h>
 
 #include <type_traits>
@@ -51,32 +52,11 @@ public:
 	using key_rvreference = key_type&&;
 
 private:
-	struct HashFunction {
-		constexpr size_type operator()(const smart_pointer& p) const noexcept {
-			return Hash<key_type>{}(p->m_name);
-		}
-		constexpr size_type operator()(const_key_reference s) const noexcept {
-			return Hash<key_type>{}(s);
-		}
-	};
-
-	struct EqualFunction {
-		constexpr bool operator()(const smart_pointer& first, const smart_pointer& second) const noexcept {
-			return first->m_name == second->m_name;
-		}
-		constexpr bool operator()(const smart_pointer& first, const_key_reference second) const noexcept {
-			return first->m_name == second;
-		}
-		constexpr bool operator()(const_key_reference first, const smart_pointer& second) const noexcept {
-			return first == second->m_name;
-		}
-		constexpr bool operator()(const_key_reference first, const_key_reference second) const noexcept {
-			return first == second;
-		}
-	};
+	CUSTOM_HASHER(Hasher, const smart_pointer&, const_key_reference, Hash<key_type>{}, ->m_name)
+	CUSTOM_EQUAL(Equal, const smart_pointer&, const_key_reference, ->m_name)
 
 public:
-	using container = Container<smart_pointer, HashFunction, EqualFunction>;
+	using container = Container<smart_pointer, Hasher, Equal>;
 
 	using iterator = typename container::iterator;
 	using const_iterator = typename container::const_iterator;

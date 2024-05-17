@@ -79,3 +79,33 @@ template <> struct Hash<std::filesystem::path> {
 };
 
 } // namespace lyra
+
+#define CUSTOM_HASHER(name, type, hashType, hasher, toHashType)\
+class name {\
+public:\
+	constexpr size_type operator()(type ty) const noexcept {\
+		return hasher(toHashType(ty));\
+	}\
+	constexpr size_type operator()(hashType hash) const noexcept {\
+		return hasher(hash);\
+	}\
+};
+
+#define CUSTOM_EQUAL(name, type, hashType, toHashType)\
+class name {\
+public:\
+	constexpr bool operator()(type first, type second) const noexcept {\
+		return toHashType(first) == toHashType(second);\
+	}\
+	constexpr bool operator()(type first, hashType second) const noexcept {\
+		return toHashType(first) == second;\
+	}\
+	constexpr bool operator()(hashType first, type second) const noexcept {\
+		return first == toHashType(second);\
+	}\
+	constexpr bool operator()(hashType first, hashType second) const noexcept {\
+		return first == second;\
+	}\
+};
+
+#define MEMBER_ACCESS_AS_FUNCTION(v, memberAccess) (v)memberAccess
