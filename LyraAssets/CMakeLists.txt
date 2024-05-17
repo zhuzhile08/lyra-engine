@@ -34,7 +34,7 @@ PUBLIC
 
 # copy data files to the build location
 add_custom_target(copy_assets_data
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/LyraAssets/data ${CMAKE_BINARY_DIR}data/
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/LyraAssets/data ${CMAKE_BINARY_DIR}/data/
 )
 
 # build the content manager
