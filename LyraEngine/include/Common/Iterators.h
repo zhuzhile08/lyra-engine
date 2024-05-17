@@ -28,6 +28,7 @@ public:
 	using const_value = const value_type;
 	using pointer = value_type*;
 	using const_pointer = const pointer;
+	using pointer_const = const_value*;
 	using reference = value_type&;
 	using const_reference = const_value&;
 	using wrapper = Iterator;
@@ -79,6 +80,12 @@ public:
 	friend constexpr size_type operator-(const_wrapper_reference first, const_wrapper_reference second) noexcept {
 		return first.m_pointer - second.m_pointer;
 	}
+	friend constexpr size_type operator-(pointer_const first, const_wrapper_reference second) noexcept {
+		return first - second.m_pointer;
+	}
+	friend constexpr size_type operator-(const_wrapper_reference first, pointer_const second) noexcept {
+		return first.m_pointer - second;
+	}
 
 	friend wrapper& operator+=(wrapper_reference it, size_type i) noexcept {
 		it = it + i;
@@ -119,6 +126,7 @@ public:
 	using const_value = const value_type;
 	using pointer = value_type*;
 	using const_pointer = const pointer;
+	using pointer_const = const_value*;
 	using reference = value_type&;
 	using const_reference = const_value&;
 	using wrapper = ReverseIterator;
@@ -168,7 +176,13 @@ public:
 		return it + i; 
 	}
 	friend constexpr size_type operator-(const_wrapper_reference first, const_wrapper_reference second) noexcept {
-		return first.m_pointer + second.m_pointer;
+		return second.m_pointer - first.m_pointer;
+	}
+	friend constexpr size_type operator-(pointer_const first, const_wrapper_reference second) noexcept {
+		return second.m_pointer - first;
+	}
+	friend constexpr size_type operator-(const_wrapper_reference first, pointer_const second) noexcept {
+		return second - first.m_pointer;
 	}
 
 	friend wrapper& operator+=(wrapper_reference it, size_type i) noexcept {
@@ -213,8 +227,8 @@ public:
 	using reference = value_type&;
 	using const_reference = const_value&;
 
-	using node_base = ForwardListNodeBase;
-	using node_type = ForwardListNode<value_type>;
+	using node_base = detail::ForwardListNodeBase;
+	using node_type = detail::ForwardListNode<value_type>;
 	using node_pointer = node_type*;
 
 	using wrapper = ForwardListIterator;
