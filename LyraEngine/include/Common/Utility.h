@@ -109,7 +109,7 @@ template <class Integer> inline constexpr Integer sizeToIndex(Integer size) noex
 
 template <class> struct TypeId {
 private:
-    constexpr static char m_id { };
+	constexpr static char m_id { };
 
 	template <class> friend constexpr type_id typeId() noexcept;
 };
