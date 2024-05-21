@@ -19,9 +19,9 @@
 #include <Common/BasicRenderer.h>
 #include <Common/Config.h>
 
-#include <Entity/Entity.h>
-#include <Entity/ECS.h>
-#include <Entity/Components/Transform.h>
+#include <ECS/Entity.h>
+#include <ECS/ECS.h>
+#include <ECS/Components/Transform.h>
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>

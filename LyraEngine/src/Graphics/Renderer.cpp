@@ -3,9 +3,9 @@
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/Material.h>
 
-#include <Entity/Entity.h>
-#include <Entity/Components/Camera.h>
-#include <Entity/Components/MeshRenderer.h>
+#include <ECS/Entity.h>
+#include <ECS/Components/Camera.h>
+#include <ECS/Components/MeshRenderer.h>
 
 namespace lyra {
 

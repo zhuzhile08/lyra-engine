@@ -1,4 +1,4 @@
-#include <Entity/Cubemap.h>
+#include <ECS/Cubemap.h>
 
 #include <Common/Config.h>
 
@@ -8,7 +8,7 @@
 #include <Graphics/VulkanImpl/PipelineBase.h>
 #include <Graphics/VulkanImpl/GPUBuffer.h>
 
-#include <Entity/Camera.h>
+#include <ECS/Camera.h>
 
 namespace lyra {
 

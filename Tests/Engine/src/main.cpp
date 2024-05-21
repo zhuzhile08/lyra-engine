@@ -10,10 +10,10 @@
 #include <Graphics/Texture.h>
 #include <Graphics/Mesh.h>
 
-#include <Entity/Entity.h>
-#include <Entity/Components/Transform.h>
-#include <Entity/Components/Camera.h>
-#include <Entity/Components/MeshRenderer.h>
+#include <ECS/Entity.h>
+#include <ECS/Components/Transform.h>
+#include <ECS/Components/Camera.h>
+#include <ECS/Components/MeshRenderer.h>
 
 #include <Resource/ResourceSystem.h>
 

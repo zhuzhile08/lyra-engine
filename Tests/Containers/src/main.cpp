@@ -9,9 +9,9 @@
 #include <Common/Benchmark.h>
 #include <Common/JSON.h>
 
-#include <Entity/Entity.h>
-#include <Entity/System.h>
-#include <Entity/ECS.h>
+#include <ECS/Entity.h>
+#include <ECS/System.h>
+#include <ECS/ECS.h>
 
 #include <fmt/core.h>
 #include <iostream>
@@ -151,6 +151,28 @@ int main(int argc, char* argv[]) {
 				if (i % 4 == 0) t.addComponent<Component3>();
 				if (i % 5 == 0) t.addComponent<Component4>();
 				if (i % 6 == 0) t.addComponent<Component5>();
+				
+			}
+		}
+
+		{
+			lyra::Vector<lyra::Entity> v;
+			v.reserve(65535);
+			v.resize(65535);
+
+			{
+				lyra::Benchmark b;
+				
+				for (lyra::object_id i = 0; i < 65535; i++) {
+					auto& t = v[i];
+
+					t.addComponent<ComponentBar>();
+					if (i % 2 == 0) t.addComponent<Component1>();
+					if (i % 3 == 0) t.addComponent<Component2>();
+					if (i % 4 == 0) t.addComponent<Component3>();
+					if (i % 5 == 0) t.addComponent<Component4>();
+					if (i % 6 == 0) t.addComponent<Component5>();
+				}
 			}
 		}
 

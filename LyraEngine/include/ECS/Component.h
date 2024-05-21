@@ -28,7 +28,6 @@ protected:
 	Entity* entity;
 
 	friend class Entity;
-	friend class EntityComponentSystem;
 };
 
 using BasicScript = BasicComponent;
