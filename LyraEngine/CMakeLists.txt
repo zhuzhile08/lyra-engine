@@ -68,10 +68,14 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Resource/LoadTextureFile.cpp"
 	"src/Resource/ResourceSystem.cpp"
 
-	"src/Entity/ECS.cpp"
-	"src/Entity/Components/Camera.cpp"
-	#"src/Entity/Components/Cubemap.cpp"
-	"src/Entity/Components/MeshRenderer.cpp"
+	"src/ECS/ECS.cpp"
+	
+	"src/ECS/World/Archetype.cpp"
+	"src/ECS/World/Managers.cpp"
+
+	"src/ECS/Components/Camera.cpp"
+	#"src/ECS/Components/Cubemap.cpp"
+	"src/ECS/Components/MeshRenderer.cpp"
 
 	"src/Input/InputSystem.cpp"
 )

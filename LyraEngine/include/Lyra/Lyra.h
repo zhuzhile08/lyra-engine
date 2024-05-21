@@ -21,7 +21,7 @@
 
 #include <Resource/ResourceSystem.h>
 
-#include <Entity/ECS.h>
+#include <ECS/ECS.h>
 
 #include <Graphics/Window.h>
 #include <Graphics/Renderer.h>

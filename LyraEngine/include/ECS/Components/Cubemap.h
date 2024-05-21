@@ -23,7 +23,7 @@
 #include <Graphics/GraphicsPipelineSystem.h>
 
 #include <Resource/Mesh.h>
-#include <Entity/MeshRenderer.h>
+#include <ECS/MeshRenderer.h>
 
 namespace lyra {
 

@@ -14,8 +14,8 @@
 #include <Common/Common.h>
 #include <Common/BasicRenderer.h>
 
-#include <Entity/Entity.h>
-#include <Entity/ECS.h>
+#include <ECS/Entity.h>
+#include <ECS/ECS.h>
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>

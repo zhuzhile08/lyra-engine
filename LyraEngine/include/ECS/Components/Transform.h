@@ -13,8 +13,8 @@
 
 #include <Common/Common.h>
 
-#include <Entity/Entity.h>
-#include <Entity/ECS.h>
+#include <ECS/Entity.h>
+#include <ECS/ECS.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>

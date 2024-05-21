@@ -9,8 +9,8 @@
 #include <Graphics/Material.h>
 #include <Graphics/Mesh.h>
 
-#include <Entity/Components/Camera.h>
-#include <Entity/Components/MeshRenderer.h>
+#include <ECS/Components/Camera.h>
+#include <ECS/Components/MeshRenderer.h>
 
 #include <Resource/ResourceSystem.h>
 

@@ -18,7 +18,7 @@
 
 #include <Graphics/VulkanRenderSystem.h>
 
-#include <Entity/Entity.h>
+#include <ECS/Entity.h>
 
 #include <Common/UnorderedSparseMap.h>
 
