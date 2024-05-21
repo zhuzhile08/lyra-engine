@@ -110,7 +110,7 @@ public:
 		clear();
 		resize(count, value);
 	}
-	template <class It> constexpr void assign(It first, It last) noexcept requires isIteratorValue<It> {
+	template <class It> constexpr void assign(It first, It last) requires isIteratorValue<It> {
 		clear();
 
 		if (first != last) {
@@ -183,21 +183,21 @@ public:
 		return *(m_end - 1);
 	}
 	
-	constexpr void resize(size_type count) noexcept {
+	constexpr void resize(size_type count) {
 		auto s = size();
 		if (count > s)
 			append(count - s);
 		else if (count < s) 
 			destructBehind(m_begin + count);
 	}
-	constexpr void resize(size_type count, const_reference value) noexcept {
+	constexpr void resize(size_type count, const_reference value) {
 		auto s = size();
 		if (count > s)
 			append(count - s, value);
 		else if (count < s) 
 			destructBehind(m_begin + count);
 	}
-	constexpr void reserve(size_type count) noexcept {
+	constexpr void reserve(size_type count) {
 		auto cap = capacity();
 
 		if (count > cap) {
@@ -217,7 +217,7 @@ public:
 			}
 		}
 	}
-	constexpr void shrinkToFit() noexcept {
+	constexpr void shrinkToFit() {
 		auto s = size();
 		auto cap = capacity();
 
@@ -231,7 +231,7 @@ public:
 			}
 		}
 	}
-	DEPRECATED constexpr void shrink_to_fit() noexcept {
+	DEPRECATED constexpr void shrink_to_fit() {
 		shrinkToFit();
 	}
 
@@ -422,14 +422,14 @@ public:
 		return firstIt;
 	}
 
-	constexpr void popBack() noexcept {
+	constexpr void popBack() {
 		destructBehind(m_end - 1);
 	}
-	DEPRECATED constexpr void pop_back() noexcept {
+	DEPRECATED constexpr void pop_back() {
 		popBack();
 	}
 
-	constexpr void clear() noexcept {
+	constexpr void clear() {
 		destructBehind(m_begin);
 	}
 
@@ -473,12 +473,12 @@ public:
 		if (ptr >= m_end) throw std::out_of_range("lyra::Vector::at(): Index exceded current internal array bounds!");
 		return *ptr;
 	}
-	NODISCARD constexpr const_reference operator[](size_type index) const noexcept {
+	NODISCARD constexpr const_reference operator[](size_type index) const {
 		auto ptr = m_begin + index;
 		ASSERT(ptr < m_end, "lyra::Vector::operator[]: Index of: {} exceded array size of: {}!", index, size());
 		return *ptr;
 	}
-	NODISCARD constexpr reference operator[](size_type index) noexcept {
+	NODISCARD constexpr reference operator[](size_type index) {
 		auto ptr = m_begin + index;
 		ASSERT(ptr < m_end, "lyra::Vector::operator[]: Index of: {} exceded array size of: {}!", index, size());
 		return *ptr;
@@ -563,7 +563,7 @@ private:
 		}
 	}
 
-	template <class It> constexpr void destructBehind(It position) noexcept requires isIteratorValue<It> {
+	template <class It> constexpr void destructBehind(It position) requires isIteratorValue<It> {
 		while (m_end != position) allocator_traits::destroy(m_alloc, --m_end);
 	}
 
