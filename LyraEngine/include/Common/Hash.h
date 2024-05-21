@@ -84,7 +84,7 @@ template <> struct Hash<std::filesystem::path> {
 class name {\
 public:\
 	constexpr size_type operator()(type ty) const noexcept {\
-		return hasher(toHashType(ty));\
+		return hasher((ty)toHashType);\
 	}\
 	constexpr size_type operator()(hashType hash) const noexcept {\
 		return hasher(hash);\
@@ -95,17 +95,15 @@ public:\
 class name {\
 public:\
 	constexpr bool operator()(type first, type second) const noexcept {\
-		return toHashType(first) == toHashType(second);\
+		return (first)toHashType == (second)toHashType;\
 	}\
 	constexpr bool operator()(type first, hashType second) const noexcept {\
-		return toHashType(first) == second;\
+		return (first)toHashType == second;\
 	}\
 	constexpr bool operator()(hashType first, type second) const noexcept {\
-		return first == toHashType(second);\
+		return first == (second)toHashType;\
 	}\
 	constexpr bool operator()(hashType first, hashType second) const noexcept {\
 		return first == second;\
 	}\
 };
-
-#define MEMBER_ACCESS_AS_FUNCTION(v, memberAccess) (v)memberAccess
