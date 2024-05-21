@@ -15,6 +15,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+
 #include <cassert>
 
 #include <glm/glm.hpp>
@@ -27,6 +29,7 @@ using uint8 = uint8_t;
 using uint16 = uint16_t;
 using uint32 = uint32_t;
 using uint64 = uint64_t;
+using uint = unsigned int;
 
 using uchar = unsigned char; // mostly alternative names, borrowed from ogre
 using ushort = unsigned short;
@@ -126,7 +129,13 @@ class ImGuiRenderer;
 
 class Entity;
 class BasicSystem;
-class EntityComponentSystem;
+
+namespace ecs {
+
+class World;
+class Archetype;
+
+}
 
 class Transform;
 
