@@ -6,19 +6,19 @@ namespace lyra {
 
 namespace ecs {
 
-World* globalECSWorld = nullptr;
+World* globalWorld = nullptr;
 
 void update() {
-	
+	globalWorld->update();
 }
 
 } // namespace ecs
 
 void initECS() {
-	if (ecs::globalECSWorld)
+	if (ecs::globalWorld)
 		log::error("initECS(): The entity component system is already initialized!");
 	else
-		ecs::globalECSWorld = new ecs::World();
+		ecs::globalWorld = new ecs::World();
 }
 
 } // namespace lyra

@@ -144,7 +144,7 @@ private:
 			return *static_cast<Ty*>(m_memory->at(index));
 		}
 		template <class Ty> const Ty& at(size_type index) const noexcept {
-			return *static_cast<Ty*>(m_memory->at(index));
+			return *static_cast<const Ty*>(m_memory->at(index));
 		}
 
 	private:
@@ -169,16 +169,6 @@ private:
 public:
 	constexpr Archetype() = default;
 	constexpr Archetype(Archetype&&) = default;
-
-	template <class Container> static size_type generateHash(const Container& container) {
-		auto hash = container.size() + 1;
-
-		for (const auto& component : container) {
-			hash ^= reinterpret_cast<uintptr>(component) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-		}
-
-		return hash;
-	}
 
 	static size_type superHash(const Archetype& archetype, type_id typeId);
 	static size_type subHash(const Archetype& archetype, type_id typeId);
@@ -276,20 +266,12 @@ public:
 	}
 
 	template <class... Types, class Callable> void each(Callable& system) {
-		for (auto i = m_entities.size(); i > 0; i++) system(*m_components.at(typeId<Types>()).template at<Types>(i)...);
-
 		for (auto& edge : m_edges) {
 			auto superset = edge.second.superset;
-			if (superset) superset->each(system);
+			if (superset) superset->each<Types...>(system);
 		}
-	}
-	template <class... Types, class Callable> void each(const Callable& system) const {
-		for (auto i = m_entities.size(); i > 0; i++) system(*m_components.at(typeId<Types>()).template at<Types>(i)...);
 
-		for (const auto& edge : m_edges) {
-			auto superset = edge.second.superset;
-			if (superset) superset->each(system);
-		}
+		for (size_type i = 0; i < m_entities.size(); i++) system((m_components.at(typeId<Types>()).template at<Types>(i))...);
 	}
 
 private:

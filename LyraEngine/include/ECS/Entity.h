@@ -21,7 +21,7 @@ namespace lyra {
 
 class Entity : public Node<Entity> {
 public:
-	Entity(std::string_view name = "Entity", ecs::World* world = ecs::globalECSWorld) : 
+	Entity(std::string_view name = "Entity", ecs::World* world = ecs::globalWorld) : 
 		Node<Entity>(name), 
 		m_world(world) {
 		m_world->insertEntity(this);

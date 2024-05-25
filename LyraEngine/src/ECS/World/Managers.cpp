@@ -9,7 +9,9 @@ namespace lyra {
 
 namespace ecs {
 
-void EntityManager::insert(pointer entity, Archetype* archetype) {
+void EntityManager::insert(pointer entity) {
+	auto& archetype = m_world->m_archetypes.front();
+
 	entity->m_id = uniqueId();
 	m_lookup.emplace(entity, archetype);
 	archetype->m_entities.emplace(entity->m_id);
@@ -30,21 +32,23 @@ Archetype*& EntityManager::archetype(object_id entityId) {
 	return m_lookup.at(entityId);
 }
 
-const Archetype* const& EntityManager::archetype(object_id entityId) const {
+Archetype* const& EntityManager::archetype(object_id entityId) const {
 	return m_lookup.at(entityId);
 }
 
 
-void SystemManager::insert(pointer object, Archetype* archetype) {
-	m_lookup.emplace(object, archetype);
+void SystemManager::insert(pointer object) {
+	m_lookup.emplace(object, object->generateHash());
 }
 
-void SystemManager::erase(object_id id) {
-	m_unused.pushBack(id);
-	m_lookup.erase(id);
+void SystemManager::erase(object_id systemId) {
+	m_unused.pushBack(systemId);
+	m_lookup.erase(systemId);
 }
 
-
+size_type SystemManager::hash(object_id systemId) const {
+	return m_lookup.at(systemId);
+}
 
 } // namespace ecs
 

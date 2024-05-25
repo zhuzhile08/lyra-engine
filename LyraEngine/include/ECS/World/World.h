@@ -31,10 +31,11 @@ public:
 		m_archetypes.emplace(archetype::create()); 
 	}
 
+
 	// entity functions
 
 	void insertEntity(Entity* entity) {
-		m_entities.insert(entity, m_archetypes.front());
+		m_entities.insert(entity);
 	}
 	void eraseEntity(object_id entityId) {
 		m_entities.erase(entityId);
@@ -42,6 +43,7 @@ public:
 	void clearEntity(object_id entityId) {
 		m_entities.clear(entityId);
 	}
+
 
 	// component functions
 
@@ -69,14 +71,25 @@ public:
 		return m_entities.archetype(entityId)->component<Ty>(entityId);
 	}
 
+
 	// systems functions
 
-	object_id addSystem(BasicSystem* system) {
-
+	void insertSystem(BasicSystem* system) {
+		m_systems.insert(system);
 	}
-	void removeSystem(object_id id) {
-
+	void eraseSystem(object_id systemId) {
+		m_systems.erase(systemId);
 	}
+
+	Archetype* systemArchetype(object_id systemId) {
+		auto archetype = m_archetypes.find(m_systems.hash(systemId));
+
+		if (archetype != m_archetypes.end()) return archetype->get();
+		else return nullptr;
+	}
+
+
+	// general update function
 
 	void update() {
 
@@ -127,11 +140,9 @@ private:
 
 	friend class EntityManager;
 	friend class SystemManager;
-	friend class Entity;
-	template <class...> friend class System;
 };
 
-extern World* globalECSWorld;
+extern World* globalWorld;
 
 } // namespace lyra
 

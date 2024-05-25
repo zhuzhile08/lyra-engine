@@ -22,10 +22,11 @@ namespace ecs {
 
 namespace detail {
 
-template <class Ty> class BasicManager {
+template <class Ty, class Mapped> class BasicManager {
 protected:
 	using value_type = Ty;
 	using pointer = value_type*;
+	using mapped_type = Mapped;
 
 	CUSTOM_HASHER(Hasher, pointer, size_type, static_cast<size_type>, ->id())
 	CUSTOM_EQUAL(Equal, pointer, size_type, ->id())
@@ -43,11 +44,11 @@ public:
 		}
 	}
 
-	virtual void insert(pointer object, Archetype* archetype) = 0;
-	virtual void erase(object_id id) = 0;
+	virtual void insert(pointer) = 0;
+	virtual void erase(object_id) = 0;
 
 protected:
-	UnorderedSparseMap<pointer, Archetype*, Hasher, Equal> m_lookup;
+	UnorderedSparseMap<pointer, mapped_type, Hasher, Equal> m_lookup;
 	Vector<object_id> m_unused;
 
 	World* m_world;
@@ -55,29 +56,33 @@ protected:
 
 } // namespace detail
 
-class EntityManager : public detail::BasicManager<Entity> {
+class EntityManager : public detail::BasicManager<Entity, Archetype*> {
 public:
-	using basic_manager = detail::BasicManager<Entity>;
+	using basic_manager = detail::BasicManager<Entity, Archetype*>;
+	using pointer = basic_manager::pointer;
 
 	EntityManager(World* world) noexcept : basic_manager(world) { }
 
-	void insert(basic_manager::pointer entity, Archetype* archetype) override;
+	void insert(pointer entity) override;
 	void erase(object_id id) override;
 
 	void clear(object_id id);
 
 	Archetype*& archetype(object_id entityId);
-	const Archetype* const& archetype(object_id entityId) const;
+	Archetype* const& archetype(object_id entityId) const;
 };
 
-class SystemManager : public detail::BasicManager<BasicSystem> {
+class SystemManager : public detail::BasicManager<BasicSystem, size_type> {
 public:
-	using basic_manager = detail::BasicManager<BasicSystem>;
+	using basic_manager = detail::BasicManager<BasicSystem, size_type>;
+	using pointer = basic_manager::pointer;
 
-	SystemManager(World* world) noexcept : detail::BasicManager<BasicSystem>(world) { }
+	SystemManager(World* world) noexcept : basic_manager(world) { }
 
-	void insert(basic_manager::pointer object, Archetype* archetype) override;
+	void insert(pointer object) override;
 	void erase(object_id id) override;
+
+	size_type hash(object_id entityId) const;
 };
 
 } // namespace ecs
