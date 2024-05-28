@@ -18,6 +18,8 @@
 #include <Common/UnorderedSparseMap.h>
 #include <Common/UnorderedSparseSet.h>
 
+#include <tuple>
+
 namespace lyra {
 
 namespace ecs {
@@ -38,10 +40,10 @@ private:
 			virtual void* componentData(size_type) = 0;
 			virtual const void* componentData(size_type) const = 0;
 
-			virtual size_type count() const noexcept = 0;
+			virtual void* begin() = 0;
+			virtual const void* begin() const = 0;
 
-			virtual void* at(size_type) noexcept = 0;
-			virtual const void* at(size_type) const noexcept = 0;
+			virtual size_type count() const noexcept = 0;
 
 			virtual UniquePointer<BasicMemory> copyType() const = 0;
 		};
@@ -74,18 +76,18 @@ private:
 				else return &m_memory[index];
 			}
 
+			void* begin() override {
+				if constexpr (std::is_empty_v<value_type>) return &m_memory;
+				else return m_memory.begin().get();
+			}
+			const void* begin() const override {
+				if constexpr (std::is_empty_v<value_type>) return &m_memory;
+				else return m_memory.begin().get();
+			}
+
 			size_type count() const noexcept override {
 				if constexpr (std::is_empty_v<value_type>) return 1;
 				else return m_memory.size();
-			}
-
-			void* at(size_type index) noexcept override {
-				if constexpr (std::is_empty_v<value_type>) return &m_memory;
-				else return &m_memory.at(index);
-			}
-			const void* at(size_type index) const noexcept override {
-				if constexpr (std::is_empty_v<value_type>) return &m_memory;
-				else return &m_memory.at(index);
 			}
 
 			UniquePointer<BasicMemory> copyType() const override {
@@ -140,11 +142,11 @@ private:
 			return m_memory->count();
 		}
 
-		template <class Ty> Ty& at(size_type index) noexcept {
-			return *static_cast<Ty*>(m_memory->at(index));
+		template <class Ty> Ty* begin() noexcept {
+			return static_cast<Ty*>(m_memory->begin());
 		}
-		template <class Ty> const Ty& at(size_type index) const noexcept {
-			return *static_cast<const Ty*>(m_memory->at(index));
+		template <class Ty> const Ty* begin() const noexcept {
+			return static_cast<const Ty*>(m_memory->begin());
 		}
 
 	private:
@@ -271,7 +273,9 @@ public:
 			if (superset) superset->each<Types...>(system);
 		}
 
-		for (size_type i = 0; i < m_entities.size(); i++) system((m_components.at(typeId<Types>()).template at<Types>(i))...);
+		auto iterators = std::make_tuple((m_components.at(typeId<Types>()).template begin<Types>())...);
+
+		for (auto i = m_entities.size(); i > 0; i--) system((*std::get<Types*>(iterators)++)...);
 	}
 
 private:
