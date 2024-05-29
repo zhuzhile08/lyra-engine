@@ -1,6 +1,6 @@
 #include <Graphics/Window.h>
 
-#include <SDL_error.h>
+#include <SDL3/SDL_error.h>
 #include <backends/imgui_impl_sdl3.h>
 
 #include <Common/Logger.h>
