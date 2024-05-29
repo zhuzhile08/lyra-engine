@@ -96,6 +96,9 @@ template <class Integer> inline constexpr Integer lastPrime(Integer n) noexcept 
 	}
 };
 
+
+// hash map utility
+
 inline constexpr size_type hashmapBucketSizeCheck(size_type requested, size_type required) noexcept {
 	return (requested < required) ? nextPrime(required) : nextPrime(requested);
 }
