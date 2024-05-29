@@ -63,56 +63,38 @@ constexpr const char* json("\
 }\
 ");
 
-class Test : public lyra::Node<Test> {
-public:
-	using lyra::Node<Test>::BasicNode;
-};
-
 struct Component1 {
-	glm::mat4 m;
+	glm::vec3 vec;
 };
 
 struct Component2 {
-	glm::mat4 m;
+	char m[64];
 };
 
 struct Component3 {
-	glm::mat4 m;
+	char m[64];
 };
 
 struct Component4 {
-	glm::mat4 m;
+	char m[64];
 };
 
 struct Component5 {
-	glm::mat4 m;
+	char m[64];
 };
 
 struct ComponentBar {
 	ComponentBar() = default;
 
-	void updateComponents(Component1& c1, Component2& c2, Component3& c3, Component4& c4, Component5& c5) const {
-		c1.m = glm::mat4(1);
-		c2.m = glm::mat4(2);
-		c3.m = glm::mat4(3);
-		c4.m = glm::mat4(4);
-		c5.m = glm::mat4(5);
+	void update(Component1& c1) const {
+		c1.vec = glm::vec3(executionCount);
+
 		executionCount++;
 	}
 
 	static lyra::uint32 executionCount;
 };
 lyra::uint32 ComponentBar::executionCount = 0;
-
-struct SystemTest {
-	void update() {
-		//system.execute([](const lyra::Entity& entity, Component1& c1, Component2& c2, Component3& c3, Component4& c4,  Component5& c5, const ComponentBar& bar){
-		//	bar.updateComponents(c1, c2, c3, c4, c5);
-		//});
-	}
-
-	lyra::System<Component1, Component2, Component3, Component4, Component5, ComponentBar> system;
-};
 
 }
 
@@ -121,11 +103,11 @@ int main(int argc, char* argv[]) {
 	lyra::initECS();
 	
 	{ // shared pointer test
-		lyra::SharedPointer<lyra::uint64> shared1 = lyra::SharedPointer<lyra::uint64>::create(12211411);
+		lyra::SharedPointer<lyra::uint64> shared1 = lyra::SharedPointer<lyra::uint64>::create(0);
 		lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());
 
 		lyra::SharedPointer<lyra::uint64> shared2 = shared1;
-		*shared2 = 9381295254938;
+		*shared2 = 1;
 		lyra::log::debug("Shared pointer value and count after copy and modification: {}, {}", *shared2, shared2.count());
 
 		{
@@ -139,10 +121,16 @@ int main(int argc, char* argv[]) {
 	{ // ECS test
 		lyra::Entity e("Root");
 
+		lyra::System<const ComponentBar, Component1> system;
+		system.each(
+			[](const ComponentBar& bar, Component1 c1){
+			bar.update(c1);
+		});
+
 		{
 			lyra::Benchmark b;
 
-			for (lyra::object_id i = 0; i < 65535; i++) {
+			for (lyra::object_id i = 0; i < 1000*1000*2; i++) {
 				auto& t = e.emplace(std::to_string(i));
 				
 				t.addComponent<ComponentBar>();
@@ -151,36 +139,12 @@ int main(int argc, char* argv[]) {
 				if (i % 4 == 0) t.addComponent<Component3>();
 				if (i % 5 == 0) t.addComponent<Component4>();
 				if (i % 6 == 0) t.addComponent<Component5>();
-				
-			}
-		}
-
-		{
-			lyra::Vector<lyra::Entity> v;
-			v.reserve(65535);
-			v.resize(65535);
-
-			{
-				lyra::Benchmark b;
-				
-				for (lyra::object_id i = 0; i < 65535; i++) {
-					auto& t = v[i];
-
-					t.addComponent<ComponentBar>();
-					if (i % 2 == 0) t.addComponent<Component1>();
-					if (i % 3 == 0) t.addComponent<Component2>();
-					if (i % 4 == 0) t.addComponent<Component3>();
-					if (i % 5 == 0) t.addComponent<Component4>();
-					if (i % 6 == 0) t.addComponent<Component5>();
-				}
 			}
 		}
 
 		{
 			lyra::Benchmark b;
-
-			SystemTest system;
-			system.update();
+			system.run();
 		}
 
 		lyra::log::debug("System execution count: {}\n", ComponentBar::executionCount);
