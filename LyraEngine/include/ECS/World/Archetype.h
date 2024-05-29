@@ -273,7 +273,7 @@ public:
 			if (superset) superset->each<Types...>(system);
 		}
 
-		auto iterators = std::make_tuple((m_components.at(typeId<Types>()).template begin<Types>())...);
+		auto iterators = std::make_tuple((m_components.at(typeId<std::remove_cv_t<Types>>()).template begin<Types>())...);
 
 		for (auto i = m_entities.size(); i > 0; i--) system((*std::get<Types*>(iterators)++)...);
 	}
