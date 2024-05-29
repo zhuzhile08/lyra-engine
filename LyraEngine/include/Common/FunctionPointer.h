@@ -19,18 +19,6 @@
 
 namespace lyra {
 
-namespace detail {
-
-template <class Ty> struct CallableUnderlying {
-	using type = Ty;
-};
-
-template <class Ty, class... Args> struct CallableUnderlying<Ty(Args...)> {
-	typedef Ty(*type)(Args...);
-};
-
-} // namespace detail
-
 template <class> class Function;
 
 template <class Ty, class... Args> class Function <Ty(Args...)> {
@@ -38,88 +26,106 @@ private:
 	using result = Ty;
 	using wrapper = Function;
 
-	class BasicCallable {
+	class BasicCallableWrapper {
 	public:
-		BasicCallable() = default;
-		BasicCallable(const BasicCallable&) = default;
-		BasicCallable(BasicCallable&&) = default;
-		virtual ~BasicCallable() = default;
-		virtual constexpr UniquePointer<BasicCallable> clone() const noexcept = 0;
-		virtual constexpr Ty operator()(Args&&...) const noexcept = 0;
+		virtual ~BasicCallableWrapper() = default;
+
+		virtual constexpr UniquePointer<BasicCallableWrapper> clone() const noexcept = 0;
+
+		virtual constexpr const std::type_info& standardTargetType() const noexcept = 0;
+		virtual constexpr type_id targetType() const noexcept = 0;
+
+		virtual constexpr Ty run(Args...) noexcept = 0;
 	};
 
-	template <class C> class Callable : public BasicCallable {
+	template <class Callable> class CallableWrapper : public BasicCallableWrapper {
 	public:
-		using callable_type = C;
-		using pointer = UniquePointer<Callable>;
+		using callable_type = Callable;
 
-		template <class OC> Callable(const OC& c) : callable(c) { }
-		template <class OC> Callable(OC&& c) : callable(std::forward<OC>(c)) { }
+		CallableWrapper(const callable_type& c) noexcept : m_callable(c) { }
+		CallableWrapper(callable_type&& c) noexcept : m_callable(std::move(c)) { }
 
-		constexpr UniquePointer<BasicCallable> clone() const noexcept {
-			return pointer::create(callable);
+		constexpr UniquePointer<BasicCallableWrapper> clone() const noexcept override {
+			return UniquePointer<CallableWrapper>::create(m_callable);
 		}
 
-		constexpr Ty operator()(Args&&... args) const noexcept {
-			return callable(std::forward<Args>(args)...);
+		constexpr const std::type_info& standardTargetType() const noexcept override {
+			return typeid(callable_type);
+		}
+		constexpr type_id targetType() const noexcept override {
+			return typeId<callable_type>();
+		}
+
+		constexpr Ty run(Args... args) noexcept override {
+			return std::invoke(m_callable, std::forward<Args>(args)...);
 		}
 	
 	private:
-		callable_type callable;
+		callable_type m_callable;
 	};
 
-	using basic_callable = UniquePointer<BasicCallable>;
-	template <class C> using real_callable = UniquePointer<Callable<C>>;
+	using basic_callable = UniquePointer<BasicCallableWrapper>;
+	template <class Callable> using real_callable = UniquePointer<CallableWrapper<Callable>>;
 
 public:
 	constexpr Function() noexcept = default;
-	constexpr Function(const wrapper& function) noexcept : callable((function.callable) ? function.callable->clone() : nullptr) { }
-	constexpr Function(wrapper&& function) noexcept : callable(std::move(function.function)) { }
-	template <class Callable> constexpr Function(const Callable& callable) noexcept : 
-		callable(real_callable<typename detail::CallableUnderlying<Callable>::type>::create(callable)) { }
-	template <class Callable> constexpr Function(Callable&& callable) noexcept : 
-		callable(real_callable<typename detail::CallableUnderlying<Callable>::type>::create(std::forward<Callable>(callable))) { }
+	constexpr Function(const wrapper& function) noexcept : m_callable(function.m_callable ? function.m_callable->clone() : nullptr) { }
+	constexpr Function(wrapper&& function) noexcept : m_callable(std::move(function.function)) { }
+	template <class Callable> constexpr Function(Callable&& callable) noexcept requires std::is_invocable_r_v<Ty, Callable, Args...> : 
+		m_callable(real_callable<Callable>::create(std::forward<Callable>(callable))) { }
 
 	constexpr Function& operator=(const wrapper& function) noexcept {
-		this->callable = (function.callable) ? function.callable->clone() : nullptr;
+		m_callable = (function.m_callable) ? std::move(function.m_callable->clone()) : nullptr;
+		return *this;
 	}
 	constexpr Function& operator=(wrapper&& function) noexcept {
-		this->callable = std::move(function.callable);
+		m_callable = std::move(function.m_callable);
+		return *this;
 	}
-	template <class Callable> constexpr Function& operator=(const Callable& callable) noexcept {
-		this->callable = real_callable<Callable>::create(callable);
+	constexpr Function& operator=(std::nullptr_t) noexcept {
+		m_callable.reset();
+		return *this;
 	}
-	template <class Callable> constexpr Function& operator=(Callable&& callable) noexcept {
-		this->callable = real_callable<Callable>::create(std::forward<Callable>(callable));
+	template <class Callable> constexpr Function& operator=(Callable&& callable) noexcept requires std::is_invocable_r_v<Ty, Callable, Args...> {
+		m_callable = real_callable<Callable>::create(std::forward<Callable>(callable));
+		return *this;
 	}
 
 	constexpr void swap(wrapper& second) noexcept {
-		this->callable.swap(second->callable);
+		m_callable.swap(second->m_callable);
 	}
 
-	constexpr const std::type_info& targetType() const noexcept {
-		if (!std::is_same_v<Ty, void>) return typeid(Ty);
-		return typeid(void);	
+	DEPRECATED constexpr const std::type_info& standardTargetType() const noexcept {
+		if (m_callable) return m_callable->standardTargetType();
+		else return typeid(void);
 	}
+	DEPRECATED constexpr const std::type_info& target_type() const noexcept {
+		return targetType();
+	}
+	constexpr const type_id targetType() const noexcept {
+		if (m_callable) return m_callable->targetType();
+		else return typeId<void>();
+	}
+
 	template<class TTy> constexpr TTy* target() noexcept {
-		if (targetType() == typeid(TTy)) return callable;
-		return nullptr;
+		if constexpr (targetType() == typeId<TTy>()) return m_callable;
+		else return nullptr;
 	}
 	template<class TTy> constexpr const TTy* target() const noexcept{
-		if (targetType() == typeid(TTy)) return callable;
-		return nullptr;
+		if constexpr (targetType() == typeId<TTy>()) return m_callable;
+		else return nullptr;
 	}
 
 	constexpr operator bool() const noexcept {
-		return static_cast<bool>(callable);
+		return m_callable;
 	}
-	constexpr result operator()(Args&&... arguments) const {
-		if (callable) return (*callable)(std::forward<Args>(arguments)...);
-		return result();
+	constexpr result operator()(Args... args) {
+		if (!m_callable) throw std::bad_function_call();
+		return m_callable->run(std::forward<Args>(args)...);
 	}
 
 private:
-	basic_callable callable {};
+	basic_callable m_callable {};
 };
 
 } // namespace lyra
