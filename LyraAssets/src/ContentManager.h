@@ -16,10 +16,7 @@
 #include <Lyra/Lyra.h>
 
 #include <Common/FileSystem.h>
-
 #include <Common/JSON.h>
-
-#include <SDL_render.h>
 
 #include <filesystem>
 
