@@ -12,9 +12,9 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/UniquePointer.h>
+#include <LSD/UniquePointer.h>
 
-#include <Common/Vector.h>
+#include <LSD/Vector.h>
 #include <filesystem>
 
 namespace lyra {
@@ -30,7 +30,7 @@ struct TextureFile {
 	uint32 dimension;
 	uint32 wrap;
 
-	Vector<char> data;
+	lsd::Vector<char> data;
 };
 
 NODISCARD TextureFile loadTextureFile(

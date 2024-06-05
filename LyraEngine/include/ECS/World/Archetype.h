@@ -12,11 +12,11 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Utility.h>
-#include <Common/UniquePointer.h>
-#include <Common/Hash.h>
-#include <Common/UnorderedSparseMap.h>
-#include <Common/UnorderedSparseSet.h>
+#include <LSD/Utility.h>
+#include <LSD/UniquePointer.h>
+#include <LSD/Hash.h>
+#include <LSD/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseSet.h>
 
 #include <tuple>
 
@@ -45,12 +45,12 @@ private:
 
 			virtual size_type count() const noexcept = 0;
 
-			virtual UniquePointer<BasicMemory> copyType() const = 0;
+			virtual lsd::UniquePointer<BasicMemory> copyType() const = 0;
 		};
 
 		template <class Ty> class Memory : public BasicMemory {
 			using value_type = Ty;
-			using memory = std::conditional_t<std::is_empty_v<value_type>, Ty, Vector<Ty>>; // tiny memory optimization
+			using memory = std::conditional_t<std::is_empty_v<value_type>, Ty, lsd::Vector<Ty>>; // tiny memory optimization
 
 			bool emptyComponent() const noexcept override {
 				return std::is_empty_v<value_type>;
@@ -90,8 +90,8 @@ private:
 				else return m_memory.size();
 			}
 
-			UniquePointer<BasicMemory> copyType() const override {
-				return UniquePointer<Memory>::create();
+			lsd::UniquePointer<BasicMemory> copyType() const override {
+				return lsd::UniquePointer<Memory>::create();
 			}
 		
 		private:
@@ -106,7 +106,7 @@ private:
 
 		template <class Ty> static ComponentAllocator create() {
 			ComponentAllocator a;
-			a.m_memory = UniquePointer<Memory<Ty>>::create();
+			a.m_memory = lsd::UniquePointer<Memory<Ty>>::create();
 			return a;
 		}
 
@@ -150,7 +150,7 @@ private:
 		}
 
 	private:
-		UniquePointer<BasicMemory> m_memory;
+		lsd::UniquePointer<BasicMemory> m_memory;
 	};
 
 	struct Edge { 
@@ -159,28 +159,28 @@ private:
 		Archetype* subset { };
 	};
 
-	CUSTOM_HASHER(Hasher, const UniquePointer<Archetype>&, size_type, static_cast<size_type>, ->m_hash)
-	CUSTOM_EQUAL(Equal, const UniquePointer<Archetype>&, size_type, ->m_hash)
+	CUSTOM_HASHER(Hasher, const lsd::UniquePointer<Archetype>&, size_type, static_cast<size_type>, ->m_hash)
+	CUSTOM_EQUAL(Equal, const lsd::UniquePointer<Archetype>&, size_type, ->m_hash)
 
 	using component_alloc = ComponentAllocator;
-	using components = UnorderedSparseMap<type_id, component_alloc>;
+	using components = lsd::UnorderedSparseMap<lsd::type_id, component_alloc>;
 
-	using edges = UnorderedSparseMap<type_id, Edge>;
-	using entities = UnorderedSparseSet<object_id>;
+	using edges = lsd::UnorderedSparseMap<lsd::type_id, Edge>;
+	using entities = lsd::UnorderedSparseSet<object_id>;
 	
 public:
 	constexpr Archetype() = default;
 	constexpr Archetype(Archetype&&) = default;
 
-	static size_type superHash(const Archetype& archetype, type_id typeId);
-	static size_type subHash(const Archetype& archetype, type_id typeId);
+	static size_type superHash(const Archetype& archetype, lsd::type_id typeId);
+	static size_type subHash(const Archetype& archetype, lsd::type_id typeId);
 
 	template <class Ty> static Archetype createSuper(Archetype& archetype, size_type hash) {
 		Archetype a;
 		a.m_hash = hash;
 
 		{ // insert component in the proper ordered position
-			auto compTypeId = typeId<Ty>();
+			auto compTypeId = lsd::typeId<Ty>();
 			auto inserted = false;
 			for (const auto& component : archetype.m_components) {
 				if (component.first > compTypeId) {
@@ -205,7 +205,7 @@ public:
 		a.m_hash = hash;
 
 		{ // insert component in the proper ordered position
-			auto compTypeId = typeId<Ty>();
+			auto compTypeId = lsd::typeId<Ty>();
 			for (const auto& component : archetype.m_components)
 				if (component.first != compTypeId) // insert component if it is not of type Ty
 					a.m_components.emplace(component.first, component.second);
@@ -219,7 +219,7 @@ public:
 	template <class Ty, class... Args> Ty& insertEntityFromSub(object_id entityId, Archetype& subset, Args&&... args) {
 		m_entities.emplace(entityId);
 
-		auto& c = *static_cast<Ty*>(m_components.at(typeId<Ty>()).emplaceBack(Ty(std::forward<Args>(args)...)));
+		auto& c = *static_cast<Ty*>(m_components.at(lsd::typeId<Ty>()).emplaceBack(Ty(std::forward<Args>(args)...)));
 
 		auto entityIndex = (subset.m_entities.find(entityId) - subset.m_entities.begin());
 
@@ -238,7 +238,7 @@ public:
 
 		auto entityIndex = (superset.m_entities.find(entityId) - superset.m_entities.begin());
 
-		auto id = typeId<Ty>();
+		auto id = lsd::typeId<Ty>();
 
 		for (auto& component : superset.m_components)
 			if (component.first != id) 
@@ -250,21 +250,21 @@ public:
 	void eraseEntity(object_id entityId);
 
 	template <class Ty> Ty& component(object_id entityId) {
-		return *m_components.at(typeId<Ty>()).template component<Ty>(m_entities.at(entityId));
+		return *m_components.at(lsd::typeId<Ty>()).template component<Ty>(m_entities.at(entityId));
 	}
 	template <class Ty> const Ty& component(object_id entityId) const {
-		return *m_components.at(typeId<Ty>()).template component<Ty>(m_entities.at(entityId));
+		return *m_components.at(lsd::typeId<Ty>()).template component<Ty>(m_entities.at(entityId));
 	}
 
 	template <class Ty> bool contains() const {
-		return m_components.contains(typeId<Ty>());
+		return m_components.contains(lsd::typeId<Ty>());
 	}
 
 	template <class Ty> const Edge& edge() const {
-		return m_edges.at(typeId<Ty>());
+		return m_edges.at(lsd::typeId<Ty>());
 	}
 	template <class Ty> Edge& edge() {
-		return m_edges[typeId<Ty>()];
+		return m_edges[lsd::typeId<Ty>()];
 	}
 
 	template <class... Types, class Callable> void each(Callable& system) {
@@ -273,7 +273,7 @@ public:
 			if (superset) superset->each<Types...>(system);
 		}
 
-		auto iterators = std::make_tuple((m_components.at(typeId<std::remove_cv_t<Types>>()).template begin<Types>())...);
+		auto iterators = std::make_tuple((m_components.at(lsd::typeId<std::remove_cv_t<Types>>()).template begin<Types>())...);
 
 		for (auto i = m_entities.size(); i > 0; i--) system((*std::get<Types*>(iterators)++)...);
 	}

@@ -11,9 +11,9 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/UniquePointer.h>
-#include <Common/Hash.h>
-#include <Common/UnorderedSparseSet.h>
+#include <LSD/UniquePointer.h>
+#include <LSD/Hash.h>
+#include <LSD/UnorderedSparseSet.h>
 
 #include <ECS/World/Archetype.h>
 #include <ECS/World/Managers.h>
@@ -24,8 +24,8 @@ namespace ecs {
 
 class World {
 public:
-	using archetype = UniquePointer<Archetype>;
-	using archetypes = UnorderedSparseSet<archetype, Archetype::Hasher, Archetype::Equal>;
+	using archetype = lsd::UniquePointer<Archetype>;
+	using archetypes = lsd::UnorderedSparseSet<archetype, Archetype::Hasher, Archetype::Equal>;
 
 	World() : m_entities(this), m_systems(this) { 
 		m_archetypes.emplace(archetype::create()); 
@@ -92,7 +92,7 @@ public:
 	// general update function
 
 	void update() {
-
+		m_systems.update();
 	}
 
 private:
@@ -106,7 +106,7 @@ private:
 		auto archetype = edge.superset;
 
 		if (!archetype) {
-			auto hash = Archetype::superHash(*baseArchetype, typeId<Ty>());
+			auto hash = Archetype::superHash(*baseArchetype, lsd::typeId<Ty>());
 			auto it = m_archetypes.find(hash);
 
 			if (it != m_archetypes.end())
@@ -124,7 +124,7 @@ private:
 		auto archetype = edge.subset;
 
 		if (!archetype) {
-			auto hash = Archetype::subHash(*baseArchetype, typeId<Ty>());
+			auto hash = Archetype::subHash(*baseArchetype, lsd::typeId<Ty>());
 			auto it = m_archetypes.find(hash);
 
 			if (it != m_archetypes.end())

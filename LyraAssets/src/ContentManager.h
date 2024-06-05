@@ -65,7 +65,7 @@ private:
 
 	std::filesystem::path m_projectFilePath;
 
-	lyra::Vector<std::filesystem::path> m_newFiles;
+	lsd::Vector<std::filesystem::path> m_newFiles;
 	
 	bool m_buildCancelled = false;
 	bool m_validProject = false;

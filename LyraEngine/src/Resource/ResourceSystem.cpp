@@ -2,7 +2,7 @@
 
 #include <Common/Logger.h>
 #include <Common/FileSystem.h>
-#include <Common/UniquePointer.h>
+#include <LSD/UniquePointer.h>
 
 #include <Common/JSON.h>
 
@@ -11,7 +11,7 @@
 #include <Resource/LoadMeshFile.h>
 
 #include <utility>
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -23,10 +23,10 @@ public:
 		
 	}
 
-	UnorderedSparseMap<std::string, UniquePointer<vulkan::Shader>> shaders;
-	UnorderedSparseMap<std::string, UniquePointer<Texture>> textures;
-	UnorderedSparseMap<std::string, UniquePointer<Vector<Mesh>>> meshes;
-	UnorderedSparseMap<std::string, UniquePointer<Material>> materials;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<vulkan::Shader>> shaders;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Texture>> textures;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<lsd::Vector<Mesh>>> meshes;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Material>> materials;
 
 	Json assetsFile;
 };
@@ -49,12 +49,12 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
 
 		ByteFile compressedFile(absolutePath(std::filesystem::path("data")/(path)), OpenMode::read | OpenMode::binary, false);
-		Vector<char> data(compressedFile.size());
+		lsd::Vector<char> data(compressedFile.size());
 		compressedFile.read(data.data(), data.size());
 
 		globalResourceSystem->shaders.emplace(
 			path.string(),
-			UniquePointer<vulkan::Shader>::create(
+			lsd::UniquePointer<vulkan::Shader>::create(
 				static_cast<vulkan::Shader::Type>(js.child("Type").get<uint32>()), 
 				data
 			)
@@ -69,7 +69,7 @@ const Texture& texture(std::filesystem::path path) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
 		globalResourceSystem->textures.emplace(
 			path.string(), 
-			UniquePointer<Texture>::create(loadTextureFile(
+			lsd::UniquePointer<Texture>::create(loadTextureFile(
 				absolutePath(std::filesystem::path("data")/(path)),
 				js.child("Uncompressed").get<uint32>(),
 				js.child("Width").get<uint32>(),
@@ -85,7 +85,7 @@ const Texture& texture(std::filesystem::path path) {
 	return *globalResourceSystem->textures.at(path.string());
 }
 
-const Vector<Mesh>& mesh(std::filesystem::path path) {
+const lsd::Vector<Mesh>& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path.string())) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.string());
 		const auto& vertexBlocks = js.child("VertexBlocks").get<Json::array_type>();
@@ -97,7 +97,7 @@ const Vector<Mesh>& mesh(std::filesystem::path path) {
 			vertexBlocks,
 			indexBlocks
 		);
-		auto vec = globalResourceSystem->meshes.emplace(path.string(), UniquePointer<Vector<Mesh>>::create()).first->second.get();
+		auto vec = globalResourceSystem->meshes.emplace(path.string(), lsd::UniquePointer<lsd::Vector<Mesh>>::create()).first->second.get();
 		vec->reserve(vertexBlocks.size());
 
 		for (uint32 i = 0; i < vertexBlocks.size(); i++) {
@@ -119,7 +119,7 @@ const Material& material(std::filesystem::path path) {
 
 const Texture& defaultTexture() {
 	if (!globalResourceSystem->textures.contains("defaultTexture")) {
-		globalResourceSystem->textures.emplace("defaultTexture", UniquePointer<Texture>::create(TextureFile{
+		globalResourceSystem->textures.emplace("defaultTexture", lsd::UniquePointer<Texture>::create(TextureFile{
 			1,
 			1,
 			0,
@@ -136,7 +136,7 @@ const Texture& defaultTexture() {
 
 const Texture& defaultNormal() {
 	if (!globalResourceSystem->textures.contains("defaultNormal")) {
-		globalResourceSystem->textures.emplace("defaultNormal", UniquePointer<Texture>::create(TextureFile{
+		globalResourceSystem->textures.emplace("defaultNormal", lsd::UniquePointer<Texture>::create(TextureFile{
 			1,
 			1,
 			1,

@@ -23,7 +23,7 @@ TextureFile loadTextureFile(
 	uint32 wrap
 ) {
 	ByteFile compressedFile(path.concat(".dat"), OpenMode::read | OpenMode::binary, false);
-	Vector<char> fileData(compressedFile.size());
+	lsd::Vector<char> fileData(compressedFile.size());
 	compressedFile.read(fileData.data(), fileData.size());
 
 	TextureFile data {

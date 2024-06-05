@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/UnorderedSparseSet.h>
+#include <LSD/UnorderedSparseSet.h>
 
 namespace lyra {
 
@@ -59,7 +59,7 @@ protected:
 		m_objects.erase(o);
 	}
 
-	UnorderedSparseSet<RenderObject*> m_objects;
+	lsd::UnorderedSparseSet<RenderObject*> m_objects;
 };
 
 class VectorBasicRenderer : public BasicRenderer {
@@ -78,7 +78,7 @@ protected:
 		m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), o), m_objects.end());
 	}
 
-	Vector<RenderObject*> m_objects;
+	lsd::Vector<RenderObject*> m_objects;
 };
 
 } // namespace lyra

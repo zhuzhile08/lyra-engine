@@ -13,7 +13,7 @@
 namespace lyra {
 
 CubemapBase::CubemapBase(
-	const Array<std::string_view, 6>& paths,
+	const lsd::Array<std::string_view, 6>& paths,
 	std::string_view vertexShaderPath,
 	std::string_view fragShaderPath,
 	Camera* const camera,
@@ -70,7 +70,7 @@ CubemapBase::CubemapBase(
 {
 	{ // stuff for creating images
 		// load all the images raw first
-		Array<resource::TextureFile, 6> imageData;
+		lsd::Array<resource::TextureFile, 6> imageData;
 		for (uint32 i = 0; i < 6; i++) imageData[i] = ResourceSystem::unpack_texture(paths[i]);
 
 		// get the size of one of the images for future use

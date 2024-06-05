@@ -31,3 +31,6 @@
 [submodule "3rdParty/tinygltf"]
 	path = 3rdParty/tinygltf
 	url = https://github.com/syoyo/tinygltf.git
+[submodule "3rdParty/lsd"]
+	path = 3rdParty/lsd
+	url = https://github.com/zhuzhile08/Lyra-Standard-Library.git

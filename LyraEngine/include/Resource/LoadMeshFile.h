@@ -12,11 +12,11 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Utility.h>
+#include <LSD/Utility.h>
 
 #include <Common/JSON.h>
 
-#include <Common/Vector.h>
+#include <LSD/Vector.h>
 #include <string_view>
 #include <filesystem>
 
@@ -25,11 +25,11 @@ namespace lyra {
 namespace resource {
 
 struct MeshFile {
-	Vector<uint32> vertexBlocks;
-	Vector<uint32> indexBlocks;
+	lsd::Vector<uint32> vertexBlocks;
+	lsd::Vector<uint32> indexBlocks;
 
-	Vector<Vector<float32>> vertexData;
-	Vector<Vector<uint32>> indexData;
+	lsd::Vector<lsd::Vector<float32>> vertexData;
+	lsd::Vector<lsd::Vector<uint32>> indexData;
 };
 
 NODISCARD MeshFile loadMeshFile(

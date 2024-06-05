@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Array.h>
+#include <LSD/Array.h>
 
 #include <Resource/LoadMaterialFile.h>
 
@@ -34,7 +34,7 @@ public:
 
 	Material(
 		const Color& albedoColor = Color(),
-		const Vector<const Texture*>& albedoTextures = { },
+		const lsd::Vector<const Texture*>& albedoTextures = { },
 		float32 metallic = 0.0f,
 		float32 roughness = 0.0f,
 		const Texture* metallicTexture = nullptr,
@@ -51,14 +51,14 @@ public:
 	);
 
 private:
-	Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_fragShaderBuffers;
+	lsd::Array<vulkan::GPUBuffer, config::maxFramesInFlight> m_fragShaderBuffers;
 
 	vulkan::GraphicsPipeline* m_graphicsPipeline = nullptr;
 
 	vulkan::DescriptorSets m_descriptorSets;
 
 	Color m_albedoColor;
-	Vector<const Texture*> m_albedoTextures;
+	lsd::Vector<const Texture*> m_albedoTextures;
 
 	float32 m_metallic;
 	float32 m_roughness;

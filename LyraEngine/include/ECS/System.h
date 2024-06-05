@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/FunctionPointer.h>
+#include <LSD/FunctionPointer.h>
 
 #include <ECS/Entity.h>
 #include <ECS/World/World.h>
@@ -47,7 +47,8 @@ public:
 		if (archetype) archetype->template each<Types...>(m_callable);
 	}
 	void operator()() {
-		run();
+		auto archetype = m_world->systemArchetype(m_id);
+		if (archetype) archetype->template each<Types...>(m_callable);
 	}
 
 	template <class Callable> void each(Callable&& callable) {
@@ -55,7 +56,7 @@ public:
 	}
 
 	NODISCARD size_type generateHash() const override {
-		std::set<type_id> container({ typeId<std::remove_cv_t<Types>>()... });
+		std::set<lsd::type_id> container({ lsd::typeId<std::remove_cv_t<Types>>()... });
 
 		auto hash = container.size();
 
@@ -74,7 +75,7 @@ private:
 	ecs::World* m_world;
 	size_type m_id;
 
-	Function<void(Types&...)> m_callable;
+	lsd::Function<void(Types&...)> m_callable;
 };
 
 } // namespace lyra

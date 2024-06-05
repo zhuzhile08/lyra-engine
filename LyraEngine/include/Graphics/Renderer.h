@@ -13,19 +13,19 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Array.h>
-#include <Common/UniquePointer.h>
+#include <LSD/Array.h>
+#include <LSD/UniquePointer.h>
 
 #include <Graphics/VulkanRenderSystem.h>
 
 #include <ECS/Entity.h>
 
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseMap.h>
 
 namespace lyra {
 
 void initRenderSystem(
-	const Array<uint32, 3>& version,
+	const lsd::Array<uint32, 3>& version,
 	std::string_view defaultVertexShaderPath = "shader/vert.spv", 
 	std::string_view defaultFragmentShaderPath = "shader/frag.spv"
 );

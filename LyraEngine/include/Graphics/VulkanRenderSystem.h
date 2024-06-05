@@ -12,8 +12,8 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Array.h>
-#include <Common/Dynarray.h>
+#include <LSD/Array.h>
+#include <LSD/Dynarray.h>
 #include <Common/RAIIContainers.h>
 #include <Common/Config.h>
 
@@ -36,9 +36,9 @@
 #endif
 
 #include <variant>
-#include <Common/Vector.h>
-#include <Common/UnorderedSparseMap.h>
-#include <Common/UnorderedSparseSet.h>
+#include <LSD/Vector.h>
+#include <LSD/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseSet.h>
 
 namespace lyra {
 
@@ -470,7 +470,7 @@ public:
 		};
 	}
 	
-	NODISCARD static Format bestFormat(const Vector<Format>& candidates, Tiling tiling, VkFormatFeatureFlags features);
+	NODISCARD static Format bestFormat(const lsd::Vector<Format>& candidates, Tiling tiling, VkFormatFeatureFlags features);
 	NODISCARD VkFormatProperties formatProperties(Format format = Format::r8g8b8a8SRGB) const noexcept;
 
 	void transitionLayout(Layout oldLayout, Layout newLayout, const VkImageSubresourceRange& subresourceRange) const;
@@ -556,8 +556,8 @@ public:
 			VkPipelineBindPoint pipelineBindPoint,
 			const vk::PipelineLayout& layout,
 			uint32 firstSet,
-			const Vector<VkDescriptorSet>& descriptorSets,
-			const Vector<uint32>& dynamicOffsets
+			const lsd::Vector<VkDescriptorSet>& descriptorSets,
+			const lsd::Vector<uint32>& dynamicOffsets
 		) const {
 			vkCmdBindDescriptorSets(commandBuffer, pipelineBindPoint, layout, firstSet, static_cast<uint32>(descriptorSets.size()), descriptorSets.data(), static_cast<uint32>(dynamicOffsets.size()), dynamicOffsets.data());
 		}
@@ -570,7 +570,7 @@ public:
 		void bindVertexBuffer(const vk::Buffer& buffer, VkDeviceSize offset, uint32 firstBinding) const {
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, 1, &buffer.get(), &offset);
 		}
-		void bindVertexBuffers(const Vector<VkBuffer>& buffers, const Vector<VkDeviceSize>& offsets, uint32 firstBinding) const {
+		void bindVertexBuffers(const lsd::Vector<VkBuffer>& buffers, const lsd::Vector<VkDeviceSize>& offsets, uint32 firstBinding) const {
 			vkCmdBindVertexBuffers(commandBuffer, firstBinding, static_cast<uint32>(buffers.size()), buffers.data(), offsets.data());
 		}
 		void blitImage(
@@ -588,7 +588,7 @@ public:
 			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
 			Image::Layout dstImageLayout, 
-			const Vector<VkImageBlit>& regions, 
+			const lsd::Vector<VkImageBlit>& regions, 
 			VkFilter filter
 		) const {
 			vkCmdBlitImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data(), filter);
@@ -596,7 +596,7 @@ public:
 		void clearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect) const {
 			vkCmdClearAttachments(commandBuffer, 1, &attachment, 1, &rect);
 		}
-		void clearAttachments(const Vector<VkClearAttachment> attachments, const Vector<VkClearRect>& rects) const {
+		void clearAttachments(const lsd::Vector<VkClearAttachment> attachments, const lsd::Vector<VkClearRect>& rects) const {
 			vkCmdClearAttachments(commandBuffer, static_cast<uint32>(attachments.size()), attachments.data(), static_cast<uint32>(rects.size()), rects.data());
 		}
 		void clearColorImage(
@@ -611,7 +611,7 @@ public:
 			const vk::Image& image, 
 			Image::Layout imageLayout,
 			const VkClearColorValue& color, 
-			const Vector<VkImageSubresourceRange>& ranges
+			const lsd::Vector<VkImageSubresourceRange>& ranges
 		) const {
 			vkCmdClearColorImage(commandBuffer, image, static_cast<VkImageLayout>(imageLayout), &color, static_cast<uint32>(ranges.size()), ranges.data());
 		}
@@ -627,14 +627,14 @@ public:
 			const vk::Image&image, 
 			Image::Layout imageLayout, 
 			const VkClearDepthStencilValue& depthStencil, 
-			const Vector<VkImageSubresourceRange>& ranges
+			const lsd::Vector<VkImageSubresourceRange>& ranges
 		) const {
 			vkCmdClearDepthStencilImage(commandBuffer, image, static_cast<VkImageLayout>(imageLayout), &depthStencil, static_cast<uint32>(ranges.size()), ranges.data());
 		}
 		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const VkBufferCopy& region) const {
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &region);
 		}
-		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const Vector<VkBufferCopy>& regions) const {
+		void copyBuffer(const vk::Buffer& srcBuffer, const vk::Buffer& dstBuffer, const lsd::Vector<VkBufferCopy>& regions) const {
 			vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
 		void copyBufferToImage(
@@ -649,7 +649,7 @@ public:
 			const vk::Buffer& srcBuffer, 
 			const vk::Image& dstImage, 
 			Image::Layout dstImageLayout, 
-			const Vector<VkBufferImageCopy>& regions
+			const lsd::Vector<VkBufferImageCopy>& regions
 		) const {
 			vkCmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data());
 		}
@@ -667,7 +667,7 @@ public:
 			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
 			Image::Layout dstImageLayout, 
-			const Vector<VkImageCopy>& regions
+			const lsd::Vector<VkImageCopy>& regions
 		) const {
 			vkCmdCopyImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data());
 		}
@@ -683,7 +683,7 @@ public:
 			const vk::Image& srcImage, 
 			Image::Layout srcImageLayout, 
 			const vk::Buffer& dstBuffer, 
-			const Vector<VkBufferImageCopy>& regions
+			const lsd::Vector<VkBufferImageCopy>& regions
 		) const {
 			vkCmdCopyImageToBuffer(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstBuffer, static_cast<uint32>(regions.size()), regions.data());
 		}
@@ -724,7 +724,7 @@ public:
 		void executeCommands(const vk::CommandBuffer& cmdBuffer) const {
 			vkCmdExecuteCommands(commandBuffer, 1, &cmdBuffer.get());
 		}
-		void executeCommands(const Vector<VkCommandBuffer>& cmdBuffers) const {
+		void executeCommands(const lsd::Vector<VkCommandBuffer>& cmdBuffers) const {
 			vkCmdExecuteCommands(commandBuffer, static_cast<uint32>(cmdBuffers.size()), cmdBuffers.data());
 		}
 		void fillBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32 data) const {
@@ -758,9 +758,9 @@ public:
 			VkPipelineStageFlags srcStageFlags,
 			VkPipelineStageFlags dstStageFlags,
 			VkDependencyFlags dependency,
-			const Vector<VkMemoryBarrier>& memory,
-			const Vector<VkBufferMemoryBarrier>& buffer,
-			const Vector<VkImageMemoryBarrier>& image
+			const lsd::Vector<VkMemoryBarrier>& memory,
+			const lsd::Vector<VkBufferMemoryBarrier>& buffer,
+			const lsd::Vector<VkImageMemoryBarrier>& image
 		) const {
 			vkCmdPipelineBarrier(
 				commandBuffer,
@@ -803,7 +803,7 @@ public:
 			Image::Layout srcImageLayout, 
 			const vk::Image& dstImage, 
 			Image::Layout dstImageLayout, 
-			const Vector<VkImageResolve>& regions) const {
+			const lsd::Vector<VkImageResolve>& regions) const {
 			vkCmdResolveImage(commandBuffer, srcImage, static_cast<VkImageLayout>(srcImageLayout), dstImage, static_cast<VkImageLayout>(dstImageLayout), static_cast<uint32>(regions.size()), regions.data());
 		}
 		void setBlendConstants(float32 blendConstants[4]) const {
@@ -824,7 +824,7 @@ public:
 		void setScissor(const VkRect2D& scissor) const {
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 		}
-		void setScissors(const Vector<VkRect2D>& scissors, uint32 firstScissor = 0) const {
+		void setScissors(const lsd::Vector<VkRect2D>& scissors, uint32 firstScissor = 0) const {
 			vkCmdSetScissor(commandBuffer, firstScissor, static_cast<uint32>(scissors.size()), scissors.data());
 		}
 		void setStencilCompareMask(VkStencilFaceFlags faceMask, uint32 compareMask) const {
@@ -839,7 +839,7 @@ public:
 		void setViewport(const VkViewport& pViewport) const {
 			vkCmdSetViewport(commandBuffer, 0, 1, &pViewport);
 		}
-		void setViewport(const Vector<VkViewport>& viewports, uint32 firstViewport = 0) const {
+		void setViewport(const lsd::Vector<VkViewport>& viewports, uint32 firstViewport = 0) const {
 			vkCmdSetViewport(commandBuffer, firstViewport, static_cast<uint32>(viewports.size()), viewports.data());
 		}
 		void updateBuffer(const vk::Buffer& dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* data) const {
@@ -868,12 +868,12 @@ public:
 			);
 		}
 		void waitEvents(
-			const Vector<VkEvent>& events,
+			const lsd::Vector<VkEvent>& events,
 			VkPipelineStageFlags srcStageMask,
 			VkPipelineStageFlags dstStageMask,
-			const Vector<VkMemoryBarrier>& memory,
-			const Vector<VkBufferMemoryBarrier>& buffer,
-			const Vector<VkImageMemoryBarrier>& image
+			const lsd::Vector<VkMemoryBarrier>& memory,
+			const lsd::Vector<VkBufferMemoryBarrier>& buffer,
+			const lsd::Vector<VkImageMemoryBarrier>& image
 		) const {
 			vkCmdWaitEvents(
 				commandBuffer, 
@@ -908,12 +908,12 @@ public:
 	
 	VkQueue queue = VK_NULL_HANDLE;
 
-	Vector<VkSemaphore> waitSemaphores;
-	Vector<VkSemaphore> signalSemaphores;
-	Vector<VkPipelineStageFlags> pipelineStageFlags;
+	lsd::Vector<VkSemaphore> waitSemaphores;
+	lsd::Vector<VkSemaphore> signalSemaphores;
+	lsd::Vector<VkPipelineStageFlags> pipelineStageFlags;
 
 	const CommandBuffer* activeCommandBuffer;
-	Vector<CommandPool> commandPools;
+	lsd::Vector<CommandPool> commandPools;
 
 	uint32 currentFrame = 0;
 };
@@ -985,7 +985,7 @@ public:
 	vk::Swapchain swapchain;
 	vk::Swapchain oldSwapchain;
 
-	Dynarray<Image, config::maxSwapchainImages> images;
+	lsd::Dynarray<Image, config::maxSwapchainImages> images;
 	VkExtent2D extent;
 	
 	Image colorImage;
@@ -994,9 +994,9 @@ public:
 	Image depthImage;
 	GPUMemory depthMem;
 
-	Array<vk::Semaphore, config::maxFramesInFlight> imageAquiredSemaphores;
-	Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
-	Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
+	lsd::Array<vk::Semaphore, config::maxFramesInFlight> imageAquiredSemaphores;
+	lsd::Array<vk::Semaphore, config::maxFramesInFlight> submitFinishedSemaphores;
+	lsd::Array<vk::Fence, config::maxFramesInFlight> renderFinishedFences;
 
 	CommandQueue* commandQueue;
 	CommandQueue::CommandBuffer commandBuffer;
@@ -1038,7 +1038,7 @@ public:
 			uint32 arrayCount = 1;
 		};
 
-		Vector<const Image*> images;
+		lsd::Vector<const Image*> images;
 
 		Type type;
 		Image::Layout layout;
@@ -1058,14 +1058,14 @@ public:
 		Framebuffer() = default;
 		Framebuffer(uint32 index, const RenderTarget& renderTarget, const glm::u32vec2& size);
 
-		Vector<Image::Resource> imageResources;
+		lsd::Vector<Image::Resource> imageResources;
 		vulkan::vk::Framebuffer framebuffer;
 
 		glm::ivec2 size;
 	};
 
 	RenderTarget() = default;
-	RenderTarget(const Vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
+	RenderTarget(const lsd::Vector<Attachment>& attachments, const glm::u32vec2& size = { std::numeric_limits<uint32>::max(), std::numeric_limits<uint32>::max() });
 	~RenderTarget();
 
 	RenderTarget& operator=(RenderTarget&&) noexcept = default;
@@ -1075,10 +1075,10 @@ public:
 	void begin() const;
 	void end() const;
 
-	Vector<Attachment> attachments;
+	lsd::Vector<Attachment> attachments;
 	
 	vk::RenderPass renderPass;
-	Dynarray<Framebuffer, config::maxSwapchainImages> framebuffers;
+	lsd::Dynarray<Framebuffer, config::maxSwapchainImages> framebuffers;
 };
 
 class DescriptorSets {
@@ -1098,13 +1098,13 @@ public:
 	};
 
 	struct ImageWrite {
-		Vector<VkDescriptorImageInfo> infos;
+		lsd::Vector<VkDescriptorImageInfo> infos;
 		uint32 binding;
 		Type type;
 	};
 
 	struct BufferWrite {
-		Vector<VkDescriptorBufferInfo> infos;
+		lsd::Vector<VkDescriptorBufferInfo> infos;
 		uint32 binding;
 		Type type;
 	};
@@ -1117,13 +1117,13 @@ public:
 	) : variableCount(variableCount), layoutIndex(layoutIndex), graphicsProgram(&graphicsProgram) { }
 	~DescriptorSets();
 
-	constexpr void addWrites(const Vector<ImageWrite>& newWrites) noexcept {
+	constexpr void addWrites(const lsd::Vector<ImageWrite>& newWrites) noexcept {
 		dirty = true;
 
 		imageWrites.reserve(imageWrites.size() + newWrites.size());
 		imageWrites.insert(imageWrites.end(), newWrites.begin(), newWrites.end());
 	}
-	constexpr void addWrites(const Vector<BufferWrite>& newWrites) noexcept {
+	constexpr void addWrites(const lsd::Vector<BufferWrite>& newWrites) noexcept {
 		dirty = true;
 
 		bufferWrites.reserve(bufferWrites.size() + newWrites.size());
@@ -1136,11 +1136,11 @@ public:
 
 	void bind(uint32 index);
 
-	Vector<vk::DescriptorSet> descriptorSets;
+	lsd::Vector<vk::DescriptorSet> descriptorSets;
 
-	Vector<ImageWrite> imageWrites;
-	Vector<BufferWrite> bufferWrites;
-	Vector<VkWriteDescriptorSet> writes;
+	lsd::Vector<ImageWrite> imageWrites;
+	lsd::Vector<BufferWrite> bufferWrites;
+	lsd::Vector<VkWriteDescriptorSet> writes;
 
 	bool variableCount;
 
@@ -1165,17 +1165,17 @@ public:
 	};
 
 	DescriptorPools() = default;
-	DescriptorPools(const Vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
+	DescriptorPools(const lsd::Vector<Size>& sizes, Flags flags = Flags::freeDescriptorSet);
 
 	void reset();
 	vk::DescriptorSet allocate(const GraphicsProgram& program, uint32 layoutIndex, bool variableCount);
 
-	Vector<vk::DescriptorPool> descriptorPools;
+	lsd::Vector<vk::DescriptorPool> descriptorPools;
 
 	uint32 allocationIndex = 0;
 
 	VkDescriptorPoolCreateInfo createInfo;
-	Vector<VkDescriptorPoolSize> sizes;
+	lsd::Vector<VkDescriptorPoolSize> sizes;
 };
 
 class Shader {
@@ -1202,8 +1202,8 @@ public:
 	}; // Refer to the API for the documentation of these enums
 
 	Shader() = default;
-	Shader(Type type, Vector<char>&& source);
-	Shader(Type type, const Vector<char>& source);
+	Shader(Type type, lsd::Vector<char>&& source);
+	Shader(Type type, const lsd::Vector<char>& source);
 
 	NODISCARD constexpr VkPipelineShaderStageCreateInfo stageCreateInfo() const noexcept {
 		return {
@@ -1218,7 +1218,7 @@ public:
 	}
 
 	vk::ShaderModule module;
-	Vector<char> shaderSrc;
+	lsd::Vector<char> shaderSrc;
 
 	Type type;
 };
@@ -1246,7 +1246,7 @@ public:
 			// flags
 			Flags flags;
 			// immutable samplers
-			const Vector<VkSampler>& immutableSamplers = { };
+			const lsd::Vector<VkSampler>& immutableSamplers = { };
 		};
 		
 		struct PushConstant {
@@ -1295,7 +1295,7 @@ public:
 				std::to_string(binding.immutableSamplers.size())
 			);
 		}
-		constexpr void addBindings(const Vector<Binding>& bindings) {
+		constexpr void addBindings(const lsd::Vector<Binding>& bindings) {
 			for (const auto& binding : bindings) addBinding(binding);
 		}
 
@@ -1308,7 +1308,7 @@ public:
 
 			m_pushConstantHash.append(std::to_string(pushConstant.shaderType) + std::to_string(pushConstant.size));
 		}
-		constexpr void addPushConstants(const Vector<PushConstant>& pushConstants) {
+		constexpr void addPushConstants(const lsd::Vector<PushConstant>& pushConstants) {
 			for (const auto& pushConstant : pushConstants) addPushConstant(pushConstant);
 		}
 
@@ -1322,10 +1322,10 @@ public:
 		std::string hash() const noexcept;
 
 	private:
-		Dynarray<Vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
-		Dynarray<Vector<VkDescriptorBindingFlags>, config::maxShaderSets> m_bindingFlags;
-		Dynarray<VkDescriptorSetLayoutBindingFlagsCreateInfo, config::maxShaderSets> m_bindingFlagsCreateInfo;
-		Vector<VkPushConstantRange> m_pushConstants;
+		lsd::Dynarray<lsd::Vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
+		lsd::Dynarray<lsd::Vector<VkDescriptorBindingFlags>, config::maxShaderSets> m_bindingFlags;
+		lsd::Dynarray<VkDescriptorSetLayoutBindingFlagsCreateInfo, config::maxShaderSets> m_bindingFlagsCreateInfo;
+		lsd::Vector<VkPushConstantRange> m_pushConstants;
 
 		const Shader* m_vertexShader;
 		const Shader* m_fragmentShader;
@@ -1342,8 +1342,8 @@ public:
 	// Constructs a shader program with a custom layout
 	GraphicsProgram(const Builder& builder);
 
-	Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
-	Dynarray<uint32, config::maxShaderSets> dynamicDescriptorCounts;
+	lsd::Dynarray<vk::DescriptorSetLayout, config::maxShaderSets> descriptorSetLayouts;
+	lsd::Dynarray<uint32, config::maxShaderSets> dynamicDescriptorCounts;
 	vk::PipelineLayout pipelineLayout;
 
 	const Shader* vertexShader;
@@ -1476,7 +1476,7 @@ public:
 		constexpr void addBlendAttachment(const VkPipelineColorBlendAttachmentState& attachment) noexcept {
 			m_blendAttachments.pushBack(attachment);
 		}
-		constexpr void addBlendAttachments(const Vector<VkPipelineColorBlendAttachmentState>& attachments) noexcept {
+		constexpr void addBlendAttachments(const lsd::Vector<VkPipelineColorBlendAttachmentState>& attachments) noexcept {
 			m_blendAttachments.insert(m_blendAttachments.end(), attachments.begin(), attachments.end());
 		}
 
@@ -1499,7 +1499,7 @@ public:
 		Image::SampleCount m_sampleCount;
 		std::variant<bool, float32> m_sampleShading;
 		std::variant<bool, DepthStencil> m_depthStencil;
-		Vector<VkPipelineColorBlendAttachmentState> m_blendAttachments; // I have no idea what this does @todo
+		lsd::Vector<VkPipelineColorBlendAttachmentState> m_blendAttachments; // I have no idea what this does @todo
 
 		const RenderTarget* m_renderTarget;
 		const GraphicsProgram* m_graphicsProgram;
@@ -1554,11 +1554,11 @@ public:
 		uint32 copyFamilyIndex = std::numeric_limits<uint32>::max();
 		// uint32 videoFamilyIndex = VK_QUEUE_FAMILY_IGNORED; @todo
 		
-		Vector<VkQueueFamilyProperties> queueFamilyProperties;
+		lsd::Vector<VkQueueFamilyProperties> queueFamilyProperties;
 	};
 
 	RenderSystem(
-		const Array<uint32, 3>& version,
+		const lsd::Array<uint32, 3>& version,
 		std::string_view defaultVertexShaderPath, 
 		std::string_view defaultFragmentShaderPath
 	);
@@ -1592,7 +1592,7 @@ public:
 	VkResult allocateMemoryPage(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
 		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, 1, &allocation.get(), &allocationInfo);
 	}
-	VkResult allocateMemoryPages(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, Vector<VmaAllocation>& allocations, VmaAllocationInfo& allocationInfo) {
+	VkResult allocateMemoryPages(const VkMemoryRequirements& memoryRequirements, const VmaAllocationCreateInfo& createInfo, lsd::Vector<VmaAllocation>& allocations, VmaAllocationInfo& allocationInfo) {
 		return vmaAllocateMemoryPages(allocator, &memoryRequirements, &createInfo, allocations.size(), allocations.data(), &allocationInfo);
 	}
 	VkResult allocateMemoryForBuffer(const vk::Buffer& buffer, const VmaAllocationCreateInfo& createInfo, vma::Allocation& allocation, VmaAllocationInfo& allocationInfo) {
@@ -1604,7 +1604,7 @@ public:
 	void freeMemoryPage(const vma::Allocation& allocation) {
 		vmaFreeMemoryPages(allocator, 1, &allocation.get());
 	}
-	void freeMemoryPages(const Vector<VmaAllocation>& allocations) {
+	void freeMemoryPages(const lsd::Vector<VmaAllocation>& allocations) {
 		vmaFreeMemoryPages(allocator, allocations.size(), allocations.data());
 	}
 	void getAllocationInfo(const vma::Allocation& allocation, VmaAllocationInfo& pAllocationInfo) {
@@ -1622,13 +1622,13 @@ public:
 	VkResult flushAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
 		return vmaFlushAllocation(allocator, allocation, offset, size);
 	}
-	VkResult flushAllocations(const Vector<VmaAllocation>& allocations, const Vector<VkDeviceSize> offsets, const Vector<VkDeviceSize> sizes) {
+	VkResult flushAllocations(const lsd::Vector<VmaAllocation>& allocations, const lsd::Vector<VkDeviceSize> offsets, const lsd::Vector<VkDeviceSize> sizes) {
 		return vmaFlushAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult invalidateAllocation(const vma::Allocation& allocation, VkDeviceSize offset, VkDeviceSize size) {
 		return vmaInvalidateAllocation(allocator, allocation.get(), offset, size);
 	}
-	VkResult invalidateAllocations(const Vector<VmaAllocation>& allocations, const Vector<VkDeviceSize> offsets, const Vector<VkDeviceSize> sizes) {
+	VkResult invalidateAllocations(const lsd::Vector<VmaAllocation>& allocations, const lsd::Vector<VkDeviceSize> offsets, const lsd::Vector<VkDeviceSize> sizes) {
 		return vmaInvalidateAllocations(allocator, static_cast<uint32>(allocations.size()), allocations.data(), offsets.data(), sizes.data());
 	}
 	VkResult checkCorruption(uint32 memoryTypeBits) {
@@ -1664,7 +1664,7 @@ public:
 	VkResult flushMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
 		return vkFlushMappedMemoryRanges(device, 1, &memoryRange);
 	}
-	VkResult flushMappedMemoryRanges(const Vector<VkMappedMemoryRange>& memoryRanges) {
+	VkResult flushMappedMemoryRanges(const lsd::Vector<VkMappedMemoryRange>& memoryRanges) {
 		return vkFlushMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
 	}
 	VkResult getEventStatus(const vk::Event& event) {
@@ -1676,7 +1676,7 @@ public:
 	void getImageMemoryRequirements(const VkImage& image, VkMemoryRequirements& memoryRequirements) {
 		vkGetImageMemoryRequirements(device, image, &memoryRequirements);
 	}
-	void getImageSparseMemoryRequirements(const vk::Image& image, Vector<VkSparseImageMemoryRequirements>& sparseMemoryRequirements) {
+	void getImageSparseMemoryRequirements(const vk::Image& image, lsd::Vector<VkSparseImageMemoryRequirements>& sparseMemoryRequirements) {
 		uint32 s;
 		vkGetImageSparseMemoryRequirements(device, image, &s, nullptr);
 		sparseMemoryRequirements.resize(s);
@@ -1697,7 +1697,7 @@ public:
 	VkResult invalidateMappedMemoryRange(const VkMappedMemoryRange& memoryRange) {
 		return vkInvalidateMappedMemoryRanges(device, 1, &memoryRange);
 	}
-	VkResult invalidateMappedMemoryRanges(const Vector<VkMappedMemoryRange>& memoryRanges) {
+	VkResult invalidateMappedMemoryRanges(const lsd::Vector<VkMappedMemoryRange>& memoryRanges) {
 		return vkInvalidateMappedMemoryRanges(device, static_cast<uint32>(memoryRanges.size()), memoryRanges.data());
 	}
 	VkResult mapMemory(const vma::Allocation& allocation, void** ppData) {
@@ -1706,7 +1706,7 @@ public:
 	VkResult mergePipelineCache(const vk::PipelineCache& dstCache, const vk::PipelineCache srcCache) {
 		return vkMergePipelineCaches(device, dstCache, 1, &srcCache.get());
 	}
-	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const Vector<VkPipelineCache>& srcCaches) {
+	VkResult mergePipelineCaches(const vk::PipelineCache& dstCache, const lsd::Vector<VkPipelineCache>& srcCaches) {
 		return vkMergePipelineCaches(device, dstCache, static_cast<uint32>(srcCaches.size()), srcCaches.data());
 	}
 	VkResult resetCommandPool(const vk::CommandPool& commandPool, VkCommandPoolResetFlags flags) {
@@ -1730,16 +1730,16 @@ public:
 	void unmapMemory(const vma::Allocation& allocation) {
 		vmaUnmapMemory(allocator.get(), allocation);
 	}
-	void updateDescriptorSet(const Vector<VkWriteDescriptorSet>& descriptorWrites) {
+	void updateDescriptorSet(const lsd::Vector<VkWriteDescriptorSet>& descriptorWrites) {
 		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
-	void updateDescriptorSet(const Vector<VkWriteDescriptorSet>& descriptorWrites, const Vector<VkCopyDescriptorSet>& descriptorCopies) {
+	void updateDescriptorSet(const lsd::Vector<VkWriteDescriptorSet>& descriptorWrites, const lsd::Vector<VkCopyDescriptorSet>& descriptorCopies) {
 		vkUpdateDescriptorSets(device, static_cast<uint32>(descriptorWrites.size()), descriptorWrites.data(), static_cast<uint32>(descriptorCopies.size()), descriptorCopies.data());
 	}
 	VkResult waitForFence(const vk::Fence& fence, VkBool32 waitAll, uint64 timeout) {
 		return vkWaitForFences(device, 1, &fence.get(), waitAll, timeout);
 	}
-	VkResult waitForFences(const Vector<VkFence>& fences, VkBool32 waitAll, uint64 timeout) {
+	VkResult waitForFences(const lsd::Vector<VkFence>& fences, VkBool32 waitAll, uint64 timeout) {
 		return vkWaitForFences(device, static_cast<uint32>(fences.size()), fences.data(), waitAll, timeout);
 	}
 
@@ -1761,13 +1761,13 @@ public:
 
 	vk::PipelineCache pipelineCache; // Implement the pipeline cache @todo
 
-	UniquePointer<CommandQueue> commandQueue;
-	UniquePointer<Swapchain> swapchain;
-	UniquePointer<DescriptorPools> descriptorPools;
+	lsd::UniquePointer<CommandQueue> commandQueue;
+	lsd::UniquePointer<Swapchain> swapchain;
+	lsd::UniquePointer<DescriptorPools> descriptorPools;
 
-	Vector<RenderTarget*> renderTargets;
-	UnorderedSparseMap<std::string, const GraphicsProgram*> graphicsPrograms;
-	UnorderedSparseMap<std::string, GraphicsPipeline*> graphicsPipelines;
+	lsd::Vector<RenderTarget*> renderTargets;
+	lsd::UnorderedSparseMap<std::string, const GraphicsProgram*> graphicsPrograms;
+	lsd::UnorderedSparseMap<std::string, GraphicsPipeline*> graphicsPipelines;
 
 	RenderTarget* defaultRenderTarget;
 	const GraphicsProgram* defaultGraphicsProgram;
@@ -1780,9 +1780,9 @@ public:
 
 	Entity* sceneRoot;
 
-	Vector<Camera*> cameras;
-	UnorderedSparseMap<GraphicsPipeline*, Vector<const Material*>> materials;
-	UnorderedSparseMap<Material*, Vector<const MeshRenderer*>> meshRenderers;
+	lsd::Vector<Camera*> cameras;
+	lsd::UnorderedSparseMap<GraphicsPipeline*, lsd::Vector<const Material*>> materials;
+	lsd::UnorderedSparseMap<Material*, lsd::Vector<const MeshRenderer*>> meshRenderers;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
 

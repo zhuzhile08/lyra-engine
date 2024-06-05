@@ -183,7 +183,7 @@ vulkan::GraphicsPipeline& graphicsPipeline(
 } // namespace renderer
 
 void initRenderSystem(
-	const Array<uint32, 3>& version,
+	const lsd::Array<uint32, 3>& version,
 	std::string_view defaultVertexShaderPath, 
 	std::string_view defaultFragmentShaderPath) {
 	if (renderer::globalRenderSystem)

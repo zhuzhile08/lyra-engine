@@ -13,7 +13,7 @@
 
 #include <Common/Common.h>
 
-#include <Common/Utility.h>
+#include <LSD/Utility.h>
 #include <Common/Logger.h>
 
 #include <Graphics/VulkanImpl/PipelineBase.h>

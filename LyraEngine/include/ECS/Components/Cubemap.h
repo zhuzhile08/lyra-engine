@@ -13,7 +13,7 @@
 
 #include <Common/Common.h>
 
-#include <Common/Array.h>
+#include <LSD/Array.h>
 #include <vulkan/vulkan.h>
 #include <Common/RAIIContainers.h>
 
@@ -31,7 +31,7 @@ namespace lyra {
 class CubemapBase : public vulkan::Image, public vulkan::GPUMemory, public GraphicsPipeline {
 public:	
 	CubemapBase(
-		const Array<std::string_view, 6>& paths,
+		const lsd::Array<std::string_view, 6>& paths,
 		std::string_view vertexShaderPath,
 		std::string_view fragShaderPath,
 		Camera* const camera,
@@ -72,7 +72,7 @@ public:
 private:
 	vulkan::vk::Sampler m_sampler;
 
-	Vector<vulkan::Descriptor> m_descriptorSets;
+	lsd::Vector<vulkan::Descriptor> m_descriptorSets;
 	Mesh m_cubeMesh;
 	MeshRenderer m_cubeMeshRenderer;
 };
@@ -81,7 +81,7 @@ private:
 class Cubemap : public CubemapBase {
 public:
 	Cubemap(
-		const Array<std::string_view, 6>& paths,
+		const lsd::Array<std::string_view, 6>& paths,
 		Script* script,
 		Camera* const camera,
 		const Image::Format& format = VK_FORMAT_R8G8B8A8_SRGB,
@@ -95,7 +95,7 @@ public:
 class Skybox : public CubemapBase {
 public:
 	Skybox(
-		const Array<std::string_view, 6>& paths,
+		const lsd::Array<std::string_view, 6>& paths,
 		Camera* const camera,
 		const Image::Format& format = VK_FORMAT_R8G8B8A8_SRGB,
 		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,

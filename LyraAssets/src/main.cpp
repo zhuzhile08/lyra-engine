@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 	});
 
 	lyra::ByteFile logFile = lyra::tmpFile();
-	lyra::log::setDefaultLogger(lyra::UniquePointer<lyra::Logger>::create(logFile.stream(), "default"));
+	lyra::log::setDefaultLogger(lsd::UniquePointer<lyra::Logger>::create(logFile.stream(), "default"));
 
 	lyra::vulkan::ImGuiRenderer guiRenderer;
 	guiRenderer.enableDocking();

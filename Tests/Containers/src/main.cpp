@@ -1,13 +1,14 @@
-#include <Common/Array.h>
-#include <Common/Dynarray.h>
-#include <Common/Vector.h>
-#include <Common/UnorderedSparseMap.h>
-#include <Common/SharedPointer.h>
 #include <Common/Logger.h>
-#include <Common/FunctionPointer.h>
 #include <Common/FileSystem.h>
 #include <Common/Benchmark.h>
 #include <Common/JSON.h>
+
+#include <LSD/Array.h>
+#include <LSD/Dynarray.h>
+#include <LSD/Vector.h>
+#include <LSD/UnorderedSparseMap.h>
+#include <LSD/SharedPointer.h>
+#include <LSD/FunctionPointer.h>
 
 #include <ECS/Entity.h>
 #include <ECS/System.h>
@@ -103,15 +104,15 @@ int main(int argc, char* argv[]) {
 	lyra::initECS();
 	
 	{ // shared pointer test
-		lyra::SharedPointer<lyra::uint64> shared1 = lyra::SharedPointer<lyra::uint64>::create(0);
+		lsd::SharedPointer<lyra::uint64> shared1 = lsd::SharedPointer<lyra::uint64>::create(0);
 		lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());
 
-		lyra::SharedPointer<lyra::uint64> shared2 = shared1;
+		lsd::SharedPointer<lyra::uint64> shared2 = shared1;
 		*shared2 = 1;
 		lyra::log::debug("Shared pointer value and count after copy and modification: {}, {}", *shared2, shared2.count());
 
 		{
-			lyra::SharedPointer<lyra::uint64> shared3 = shared2;
+			lsd::SharedPointer<lyra::uint64> shared3 = shared2;
 			lyra::log::debug("Unnamed scope shared pointer value and count after copy: {}, {}\n", *shared3, shared3.count());
 		}
 

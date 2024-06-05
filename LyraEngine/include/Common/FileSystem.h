@@ -12,9 +12,9 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Array.h>
-#include <Common/SharedPointer.h>
-#include <Common/Vector.h>
+#include <LSD/Array.h>
+#include <LSD/SharedPointer.h>
+#include <LSD/Vector.h>
 
 #include <type_traits>
 #include <algorithm>
@@ -51,7 +51,7 @@ template <class Ty> class File;
 template<> class File<char> {
 public: 
 	using literal_type = char;
-	using file_type = SharedPointer<std::FILE>;
+	using file_type = lsd::SharedPointer<std::FILE>;
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
@@ -128,7 +128,7 @@ private:
 template<> class File<wchar> {
 public:
 	using literal_type = wchar;
-	using file_type = SharedPointer<std::FILE>;
+	using file_type = lsd::SharedPointer<std::FILE>;
 
 	File() = default;
 	File(const std::filesystem::path& path, OpenMode mode = OpenMode::read, bool buffered = true);
@@ -499,10 +499,10 @@ private:
 
 using StringStream = FileStream<std::basic_string, char>;
 using WideStringStream = FileStream<std::basic_string, wchar_t>;
-using CharVectorStream = FileStream<Vector, char>;
-using WideCharVectorStream = FileStream<Vector, wchar_t>;
-using Uint8VectorStream = FileStream<Vector, uint8>;
-using Uint16VectorStream = FileStream<Vector, uint16>;
+using CharVectorStream = FileStream<lsd::Vector, char>;
+using WideCharVectorStream = FileStream<lsd::Vector, wchar_t>;
+using Uint8VectorStream = FileStream<lsd::Vector, uint8>;
+using Uint16VectorStream = FileStream<lsd::Vector, uint16>;
 
 NODISCARD std::filesystem::path absolutePath(const std::filesystem::path& path);
 NODISCARD std::filesystem::path localPath(const std::filesystem::path& path);

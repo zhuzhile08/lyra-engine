@@ -22,7 +22,7 @@
 #include <Graphics/Mesh.h>
 #include <Graphics/Material.h>
 
-#include <Common/Vector.h>
+#include <LSD/Vector.h>
 
 namespace lyra {
 

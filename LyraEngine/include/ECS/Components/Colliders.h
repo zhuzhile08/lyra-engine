@@ -15,7 +15,7 @@
 
 #include <glm/glm.hpp>
 
-#include <Common/Node.h>
+#include <LSD/Node.h>
 #include <ECS/Entity.h>
 
 #include <ECS/Rigidbody.h>

@@ -12,7 +12,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/UniquePointer.h>
+#include <LSD/UniquePointer.h>
 
 namespace lyra {
 

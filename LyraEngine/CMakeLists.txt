@@ -32,6 +32,7 @@ PUBLIC
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
+	${LIBRARY_PATH}/lsd/
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
@@ -94,12 +95,18 @@ else ()
 	target_compile_options(LyraEngine PRIVATE -Wall -Wextra -Wpedantic)
 endif ()
 
+
+# build LSD with the enum utilities
+
+target_compile_definitions(LyraEngine PUBLIC LSD_ENUM_UTILITIES)
+
 # custom validation layer
 if (USE_CUSTOM_VULKAN_VALIDATION_LAYERS)
 	include("include/ValidationLayerPath.cmake")
 	target_compile_definitions(LyraEngine PRIVATE CUSTOM_VULKAN_VALIDATION_LAYER)
 	target_compile_definitions(LyraEngine PRIVATE CUSTOM_VULKAN_VALIDATION_LAYER_PATH="${VALIDATION_LAYER_PATH}")
 endif ()
+
 
 add_dependencies(LyraEngine build_shaders)
 
@@ -149,27 +156,4 @@ PUBLIC
 	<type_traits>
 	<utility>
 	<wchar.h>
-	<Common/Allocator.h>
-	<Common/Array.h>
-	<Common/Benchmark.h>
-	<Common/Common.h>
-	<Common/Config.h>
-	<Common/Dynarray.h>
-	<Common/FileSystem.h>
-	<Common/ForwardList.h>
-	<Common/ForwardListNode.h>
-	<Common/FunctionPointer.h>
-	<Common/Hash.h>
-	<Common/Iterators.h>
-	<Common/JSON.h>
-	<Common/Logger.h>
-	<Common/Node.h>
-	<Common/RAIIContainers.h>
-	<Common/BasicRenderer.h>
-	<Common/SharedPointer.h>
-	<Common/UniquePointer.h>
-	<Common/UnorderedSparseMap.h>
-	<Common/UnorderedSparseSet.h>
-	<Common/Utility.h>
-	<Common/Vector.h>
 )

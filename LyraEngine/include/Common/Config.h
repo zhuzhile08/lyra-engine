@@ -13,7 +13,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Array.h>
+#include <LSD/Array.h>
 
 #include <string_view>
 
@@ -37,11 +37,11 @@ inline constexpr DisableLog disableLog = DisableLog::none;
 inline constexpr bool coloredLog = true;
 inline constexpr bool displayFPS = false; // @todo
 
-inline constexpr Array<const char*, 2> requestedDeviceExtensions({
+inline constexpr lsd::Array<const char*, 2> requestedDeviceExtensions({
 	"VK_EXT_descriptor_indexing",
 	"VK_KHR_swapchain"
 });
-inline constexpr Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
+inline constexpr lsd::Array<const char*, 1> requestedValidationLayers({ "VK_LAYER_KHRONOS_validation" });
 inline constexpr size_type maxFramesInFlight = 2;
 inline constexpr size_type maxSwapchainImages = 8;
 inline constexpr size_type maxConcurrentRenderers = 16;

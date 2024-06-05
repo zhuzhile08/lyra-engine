@@ -12,9 +12,9 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Vector.h>
-#include <Common/Hash.h>
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/Vector.h>
+#include <LSD/Hash.h>
+#include <LSD/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -48,8 +48,8 @@ public:
 	virtual void erase(object_id) = 0;
 
 protected:
-	UnorderedSparseMap<pointer, mapped_type, Hasher, Equal> m_lookup;
-	Vector<object_id> m_unused;
+	lsd::UnorderedSparseMap<pointer, mapped_type, Hasher, Equal> m_lookup;
+	lsd::Vector<object_id> m_unused;
 
 	World* m_world;
 };
@@ -83,6 +83,8 @@ public:
 	void erase(object_id id) override;
 
 	size_type hash(object_id entityId) const;
+
+	void update();
 };
 
 } // namespace ecs

@@ -13,25 +13,25 @@
 
 #include <Common/Common.h>
 #include <Common/Logger.h>
-#include <Common/UniquePointer.h>
-#include <Common/SharedPointer.h>
-#include <Common/Node.h>
+#include <LSD/UniquePointer.h>
+#include <LSD/SharedPointer.h>
+#include <LSD/Node.h>
 
-#include <Common/Vector.h>
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/Vector.h>
+#include <LSD/UnorderedSparseMap.h>
 #include <variant>
 
 namespace lyra {
 
 template <
 	class Literal = char, 
-	template <class...> class ArrayContainer = Vector,
+	template <class...> class ArrayContainer = lsd::Vector,
 	class Integer = int32,
 	class Unsigned = uint32,
 	class Floating = float32,
-	template <class...> class NodeContainer = UnorderedSparseSet,
-	template <class...> class SmartPointer = UniquePointer> 
-class BasicJson : public BasicNode<
+	template <class...> class NodeContainer = lsd::UnorderedSparseSet,
+	template <class...> class SmartPointer = lsd::UniquePointer> 
+class BasicJson : public lsd::BasicNode<
 	BasicJson<Literal, ArrayContainer, Integer, Unsigned, Floating, NodeContainer, SmartPointer>, 
 	SmartPointer,
 	std::basic_string<Literal>, 
@@ -54,7 +54,7 @@ public:
 	using smart_pointer = SmartPointer<json_type>;
 
 	using array_type = ArrayContainer<smart_pointer>;
-	using node_type = BasicNode<json_type, SmartPointer, string_type, NodeContainer>;
+	using node_type = lsd::BasicNode<json_type, SmartPointer, string_type, NodeContainer>;
 	using value_type = std::variant<
 		null_type,
 		pointer,
@@ -532,8 +532,8 @@ private:
 };
 
 using Json = BasicJson<>;
-using SharedJson = BasicJson<char, Vector, int32, uint32, float32, UnorderedSparseMap, SharedPointer>;
+using SharedJson = BasicJson<char, lsd::Vector, int32, uint32, float32, lsd::UnorderedSparseMap, lsd::SharedPointer>;
 using WJson = BasicJson<wchar>;
-using WSharedJson = BasicJson<wchar, Vector, int32, uint32, float32, UnorderedSparseMap, SharedPointer>;
+using WSharedJson = BasicJson<wchar, lsd::Vector, int32, uint32, float32, lsd::UnorderedSparseMap, lsd::SharedPointer>;
 
 } // namespace lyra

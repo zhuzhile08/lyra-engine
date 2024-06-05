@@ -24,6 +24,7 @@ PUBLIC
 	${LIBRARY_PATH}/openal-soft/include/
 
 	# utility libraries
+	${LIBRARY_PATH}/lsd/
 	${LIBRARY_PATH}/stb/
 	${LIBRARY_PATH}/tinygltf/
 	${LIBRARY_PATH}/pfd/

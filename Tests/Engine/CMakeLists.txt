@@ -20,6 +20,7 @@ PRIVATE
 	${LIBRARY_PATH}/openal-soft/include/
 
 	# utility libraries
+	${LIBRARY_PATH}/lsd/
 	${LIBRARY_PATH}/stb/
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/

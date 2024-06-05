@@ -260,7 +260,7 @@ void Window::draw() {
 
 			if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
 				if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
-					static constexpr lyra::Array<const char*, 5> textureTypeComboPreview {"Texture", "Normal Map", "Light Map", "Directional Light Map", "Shadow Mask"};
+					static constexpr lsd::Array<const char*, 5> textureTypeComboPreview {"Texture", "Normal Map", "Light Map", "Directional Light Map", "Shadow Mask"};
 
 					if (ImGui::BeginCombo("Type", textureTypeComboPreview[js.child("Type").get<lyra::uint32>()])) {	
 						for (lyra::uint32 i = 0; i < textureTypeComboPreview.size(); i++) {
@@ -278,7 +278,7 @@ void Window::draw() {
 						m_state->contentManager->unsaved = true;
 					}
 
-					static constexpr lyra::Array<const char*, 5> textureWrapComboPreview {"Repeat", "Mirror and Repeat", "Clamp to Edge", "Clamp to Border", "Mirror and Clamp to Edge"};
+					static constexpr lsd::Array<const char*, 5> textureWrapComboPreview {"Repeat", "Mirror and Repeat", "Clamp to Edge", "Clamp to Border", "Mirror and Clamp to Edge"};
 					
 					if (ImGui::BeginCombo("Wrap", textureWrapComboPreview[js["Wrap"]])) {	
 						for (lyra::uint32 i = 0; i < textureWrapComboPreview.size(); i++) {
@@ -291,7 +291,7 @@ void Window::draw() {
 						ImGui::EndCombo();
 					} 
 
-					static constexpr lyra::Array<const char*, 3> textureAlphaComboPreview {"Transparent", "Opaque Black", "Opaque White"};
+					static constexpr lsd::Array<const char*, 3> textureAlphaComboPreview {"Transparent", "Opaque Black", "Opaque White"};
 					
 					if (ImGui::BeginCombo("Alpha", textureAlphaComboPreview[js.child("Alpha").get<lyra::uint32>()])) {	
 						for (lyra::uint32 i = 0; i < textureAlphaComboPreview.size(); i++) {
@@ -348,7 +348,7 @@ void Window::draw() {
 				} else if (ext == ".ttf") {
 
 				} else if (ext == ".spv") {
-					static constexpr lyra::Array<std::pair<const char*, lyra::uint32>, 16> shaderTypeComboPreview {{
+					static constexpr lsd::Array<std::pair<const char*, lyra::uint32>, 16> shaderTypeComboPreview {{
 						{ "Vertex", 0x00000001 },
 						{ "Tessellation Control", 0x00000002 },
 						{ "Tessellation Evaluation", 0x00000004 },

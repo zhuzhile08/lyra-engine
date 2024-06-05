@@ -6,7 +6,7 @@ namespace lyra {
 
 namespace ecs {
 
-size_type Archetype::superHash(const Archetype& archetype, type_id typeId) {
+size_type Archetype::superHash(const Archetype& archetype, lsd::type_id typeId) {
 	auto hash = archetype.m_components.size() + 1;
 
 	auto inserted = false;
@@ -24,7 +24,7 @@ size_type Archetype::superHash(const Archetype& archetype, type_id typeId) {
 	return hash;
 }
 
-size_type Archetype::subHash(const Archetype& archetype, type_id typeId) {
+size_type Archetype::subHash(const Archetype& archetype, lsd::type_id typeId) {
 	auto hash = archetype.m_components.size() - 1;
 
 	for (const auto& component : archetype.m_components)

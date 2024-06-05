@@ -1,9 +1,9 @@
 #include <Common/Logger.h>
-#include <Common/UniquePointer.h>
+#include <LSD/UniquePointer.h>
 
 #include <ios>
 #include <mutex>
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseMap.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -28,13 +28,13 @@ public:
 		SetConsoleMode(stdoutHandle, outMode);
 #endif
 
-		defaultLogger = UniquePointer<Logger>::create();
+		defaultLogger = lsd::UniquePointer<Logger>::create();
 	}
 
 	std::mutex mutex;
 
-	UniquePointer<Logger> defaultLogger;
-	UnorderedSparseMap<std::string, UniquePointer<Logger>> loggers;
+	lsd::UniquePointer<Logger> defaultLogger;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Logger>> loggers;
 };
 
 }
@@ -48,7 +48,7 @@ Logger* logger(std::string_view name) {
 	return globalLoggingContext->loggers.find(name.data())->second.get();
 }
 
-UniquePointer<Logger> releaseLogger(std::string_view name) {
+lsd::UniquePointer<Logger> releaseLogger(std::string_view name) {
 	return globalLoggingContext->loggers.extract(name.data()).second;
 }
 
@@ -57,13 +57,13 @@ Logger* defaultLogger() {
 	return globalLoggingContext->defaultLogger.get();
 }
 
-Logger* addLogger(UniquePointer<Logger>&& logger) {
+Logger* addLogger(lsd::UniquePointer<Logger>&& logger) {
 	return globalLoggingContext->loggers.emplace(logger->name(), logger.release()).first->second.get();
 }
 
-UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger) {
+lsd::UniquePointer<Logger> setDefaultLogger(lsd::UniquePointer<Logger>&& logger) {
 	auto p = std::move(globalLoggingContext->defaultLogger);
-	globalLoggingContext->defaultLogger = UniquePointer<Logger>(logger.release());
+	globalLoggingContext->defaultLogger = lsd::UniquePointer<Logger>(logger.release());
 	return p;
 }
 

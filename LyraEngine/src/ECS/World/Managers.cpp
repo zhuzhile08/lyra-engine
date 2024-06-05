@@ -50,6 +50,10 @@ size_type SystemManager::hash(object_id systemId) const {
 	return m_lookup.at(systemId);
 }
 
+void SystemManager::update() {
+	for (auto& system : m_lookup) system.first->run();
+}
+
 } // namespace ecs
 
 } // namespace lyra

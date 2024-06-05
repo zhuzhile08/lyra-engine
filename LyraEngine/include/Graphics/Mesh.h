@@ -13,7 +13,7 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/Array.h>
+#include <LSD/Array.h>
 
 #include <Resource/LoadMeshFile.h>
 
@@ -21,7 +21,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Common/Vector.h>
+#include <LSD/Vector.h>
 
 namespace lyra {
 
@@ -44,7 +44,7 @@ public:
 			};
 		}
 
-		NODISCARD static constexpr Array<VkVertexInputAttributeDescription, 4> attributeDescriptions() noexcept {
+		NODISCARD static constexpr lsd::Array<VkVertexInputAttributeDescription, 4> attributeDescriptions() noexcept {
 			return {
 				{{
 					0,
@@ -87,16 +87,16 @@ public:
 	}
 
 	Mesh(
-		const Vector<Vertex>& vertices, 
-		const Vector<uint32>& indices
+		const lsd::Vector<Vertex>& vertices, 
+		const lsd::Vector<uint32>& indices
 	) : m_vertices(vertices), m_indices(indices) { }
 
-	NODISCARD const Vector<Vertex>& vertices() const noexcept { return m_vertices; }
-	NODISCARD const Vector<uint32>& indices() const noexcept { return m_indices; }
+	NODISCARD const lsd::Vector<Vertex>& vertices() const noexcept { return m_vertices; }
+	NODISCARD const lsd::Vector<uint32>& indices() const noexcept { return m_indices; }
 
 private:
-	Vector<Vertex> m_vertices;
-	Vector<uint32> m_indices;
+	lsd::Vector<Vertex> m_vertices;
+	lsd::Vector<uint32> m_indices;
 };
 
 } // namespace lyra

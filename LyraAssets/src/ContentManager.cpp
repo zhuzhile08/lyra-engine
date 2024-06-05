@@ -2,6 +2,8 @@
 
 #include <Common/Logger.h>
 
+#include <LSD/Utility.h>
+
 #include <portable-file-dialogs.h>
 #include <lz4.h>
 #include <stb_image.h>
@@ -119,7 +121,7 @@ void ContentManager::saveAs() {
 			f.write(s.data(), s.size());
 			f.flush();
 
-			m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::UniquePointer<lyra::Json>::create(p[0]));
+			m_recents.get<lyra::Json::array_type>().emplaceBack(lsd::UniquePointer<lyra::Json>::create(p[0]));
 			m_projectFilePath = p;
 
 			m_validProject = true;
@@ -199,7 +201,7 @@ void ContentManager::build() {
 			js.child("Height").get<lyra::uint32>() = static_cast<lyra::uint32>(height);
 			js.child("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
-			lyra::Vector<char> result(LZ4_compressBound(static_cast<int>(totalSize)));
+			lsd::Vector<char> result(LZ4_compressBound(static_cast<int>(totalSize)));
 			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), static_cast<int>(totalSize), static_cast<lyra::uint32>(result.size())));
 
 			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary, false);
@@ -227,8 +229,8 @@ void ContentManager::build() {
 			if (!warn.empty()) lyra::log::warning("A warning occured whilst importing a mesh: {}", warn);
 			if (!err.empty()) lyra::log::error("An error occured whilst importing a mesh: {}", err);
 
-			Vector<lyra::Array<lyra::Array<lyra::float32, 3>, 4>> vertexBlock;
-			Vector<lyra::uint32> indexBlock;
+			lsd::Vector<lsd::Array<lsd::Array<lyra::float32, 3>, 4>> vertexBlock;
+			lsd::Vector<lyra::uint32> indexBlock;
 			
 			auto loopNodes = [&model](lyra::Json* const js, const tinygltf::Node& node, glm::mat4 transform, auto&& loopNodes) -> void {
 				for (const auto& node : model.nodes) {
@@ -292,11 +294,11 @@ void ContentManager::build() {
 			
 			js->operator[]("Uncompressed").get<lyra::uint32>() = static_cast<lyra::uint32>(totalSize);
 
-			Vector<char> data(totalSize);
+			lsd::Vector<char> data(totalSize);
 			std::memcpy(data.data(), vertexBlock.data(), vertexBlockSize);
 			std::memcpy(data.data() + vertexBlockSize, indexBlock.data(), indexBlockSize);
 			
-			Vector<char> result(LZ4_compressBound(static_cast<lyra::uint32>(data.size())));
+			lsd::Vector<char> result(LZ4_compressBound(static_cast<lyra::uint32>(data.size())));
 			result.resize(LZ4_compress_default(data.data(), result.data(), static_cast<lyra::uint32>(data.size()), static_cast<lyra::uint32>(result.size())));
 
 			lyra::ByteFile buildFile(concat, lyra::OpenMode::write | lyra::OpenMode::binary, false);

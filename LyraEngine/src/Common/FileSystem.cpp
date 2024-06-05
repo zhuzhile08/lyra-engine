@@ -1,15 +1,15 @@
 #include <Common/FileSystem.h>
 
 #include <Common/Logger.h>
-#include <Common/SharedPointer.h>
-#include <Common/Vector.h>
+#include <LSD/SharedPointer.h>
+#include <LSD/Vector.h>
 
 #include <fmt/core.h>
 
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -36,7 +36,7 @@ public:
 		return absolutePathBase/path; 
 	}
 
-	NODISCARD SharedPointer<std::FILE> loadFile(const std::filesystem::path& path, const char* mode) {
+	NODISCARD lsd::SharedPointer<std::FILE> loadFile(const std::filesystem::path& path, const char* mode) {
 		// @todo implement as multithreaded
 		// return signal (bool mutex?)
 		// run on different thread and set bool to true when done
@@ -89,15 +89,15 @@ public:
 		buffers.pushBack(buffer);
 	}
 
-	Vector<char*> buffers;
+	lsd::Vector<char*> buffers;
 
-	UnorderedSparseMap<PathStringType, SharedPointer<std::FILE>> loadedFiles;
+	lsd::UnorderedSparseMap<PathStringType, lsd::SharedPointer<std::FILE>> loadedFiles;
 
 	std::filesystem::path absolutePathBase;
 };
 
 const char* enumToOpenMode(OpenMode m) {
-	static constexpr Array<const char*, 15> openModes {
+	static constexpr lsd::Array<const char*, 15> openModes {
 		"rt",
 		"wt",
 		"at",

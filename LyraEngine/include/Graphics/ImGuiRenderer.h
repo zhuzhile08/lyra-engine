@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/FunctionPointer.h>
-#include <Common/UniquePointer.h>
+#include <LSD/FunctionPointer.h>
+#include <LSD/UniquePointer.h>
 #include <Common/BasicRenderer.h>
 
 #include <Graphics/Window.h>

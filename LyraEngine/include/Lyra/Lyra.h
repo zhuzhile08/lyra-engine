@@ -19,6 +19,8 @@
 #include <Common/Logger.h>
 #include <Common/FileSystem.h>
 
+#include <LSD/Utility.h>
+
 #include <Resource/ResourceSystem.h>
 
 #include <ECS/ECS.h>
@@ -51,7 +53,7 @@ struct InitInfo {
 	int argc = 0;
 	char** argv = nullptr;
 
-	Array<uint32, 3> version = {0, 0, 1};
+	lsd::Array<uint32, 3> version = {0, 0, 1};
 
 	std::string windowName = "";
 	Window::Flags windowFlags = Window::Flags::none;

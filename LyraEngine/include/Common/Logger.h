@@ -15,9 +15,10 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/UniquePointer.h>
-#include <Common/Utility.h>
 #include <Common/Config.h>
+
+#include <LSD/Utility.h>
+#include <LSD/UniquePointer.h>
 
 #include <fmt/core.h>
 #include <fmt/xchar.h>
@@ -201,11 +202,11 @@ private:
 namespace log {
 
 Logger* logger(std::string_view name);
-UniquePointer<Logger> releaseLogger(std::string_view name);
+lsd::UniquePointer<Logger> releaseLogger(std::string_view name);
 Logger* defaultLogger();
 
-Logger* addLogger(UniquePointer<Logger>&& logger);
-UniquePointer<Logger> setDefaultLogger(UniquePointer<Logger>&& logger);
+Logger* addLogger(lsd::UniquePointer<Logger>&& logger);
+lsd::UniquePointer<Logger> setDefaultLogger(lsd::UniquePointer<Logger>&& logger);
 
 void disableColor();
 void enableColor();

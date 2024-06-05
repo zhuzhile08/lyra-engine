@@ -11,10 +11,10 @@ namespace resource {
 
 MeshFile loadMeshFile(std::filesystem::path path, uint32 uncompressed, const Json::array_type& vertexBlocks, const Json::array_type& indexBlocks) {
 	ByteFile compressedFile(path.concat(".dat"), OpenMode::read | OpenMode::binary, false);
-	Vector<char> fileData(compressedFile.size());
+	lsd::Vector<char> fileData(compressedFile.size());
 	compressedFile.read(fileData.data(), fileData.size());
 
-	Vector<char> file(uncompressed);
+	lsd::Vector<char> file(uncompressed);
 	LZ4_decompress_safe(fileData.data(), file.data(), static_cast<uint32>(fileData.size()), static_cast<uint32>(file.size()));
 
 	MeshFile meshes { };

@@ -13,16 +13,16 @@
 
 #include <Common/Common.h>
 #include <Common/Logger.h>
-#include <Common/Node.h>
+#include <LSD/Node.h>
 
 #include <ECS/World/World.h>
  
 namespace lyra {
 
-class Entity : public Node<Entity> {
+class Entity : public lsd::Node<Entity> {
 public:
 	Entity(std::string_view name = "Entity", ecs::World* world = ecs::globalWorld) : 
-		Node<Entity>(name), 
+		lsd::Node<Entity>(name), 
 		m_world(world) {
 		m_world->insertEntity(this);
 	}

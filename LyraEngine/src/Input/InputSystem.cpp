@@ -7,7 +7,7 @@
 #include <SDL3/SDL.h>
 #include <backends/imgui_impl_sdl3.h>
 
-#include <Common/UnorderedSparseMap.h>
+#include <LSD/UnorderedSparseMap.h>
 
 namespace lyra {
 
@@ -29,9 +29,9 @@ public:
 		keyboardState = SDL_GetKeyboardState(nullptr);
 	}
 
-	UnorderedSparseMap<input::KeyType, input::Key> keys;
-	UnorderedSparseMap<input::MouseButtonType, input::MouseButton> mouseButtons;
-	UnorderedSparseMap<input::ControllerButtonType, input::ControllerButton> controllerButtons;
+	lsd::UnorderedSparseMap<input::KeyType, input::Key> keys;
+	lsd::UnorderedSparseMap<input::MouseButtonType, input::MouseButton> mouseButtons;
+	lsd::UnorderedSparseMap<input::ControllerButtonType, input::ControllerButton> controllerButtons;
 
 	bool quit = false;
 

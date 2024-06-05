@@ -15,6 +15,7 @@ PRIVATE
 	${LIBRARY_PATH}/glm/
 
 	# utility libraries
+	${LIBRARY_PATH}/lsd/
 	${LIBRARY_PATH}/stb/
 	${LIBRARY_PATH}/assimp/include
 	${LIBRARY_PATH}/lz4/lib/

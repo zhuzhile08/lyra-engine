@@ -26,7 +26,7 @@ namespace resource {
 const vulkan::Shader& shader(std::filesystem::path name);
 const Texture& texture(std::filesystem::path name);
 const Material& material(std::filesystem::path name);
-const Vector<Mesh>& mesh(std::filesystem::path name);
+const lsd::Vector<Mesh>& mesh(std::filesystem::path name);
 
 const Texture& defaultTexture();
 const Texture& defaultNormal();

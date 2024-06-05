@@ -14,8 +14,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 
 #include <Common/Common.h>
-#include <Common/Array.h>
-#include <Common/UniquePointer.h>
+#include <LSD/Array.h>
+#include <LSD/UniquePointer.h>
 #include <Common/BasicRenderer.h>
 #include <Common/Config.h>
 
@@ -28,7 +28,7 @@
 
 #include <glm/glm.hpp>
 
-#include <Common/Vector.h>
+#include <LSD/Vector.h>
 
 namespace lyra {
 

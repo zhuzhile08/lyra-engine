@@ -76,15 +76,16 @@ int main(int argc, char* argv[]) {
 		}
 	);
 
-	sceneRoot.emplace("MeshRenderer").addComponent<lyra::MeshRenderer>(quad, material);
-	// meshRenderer.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), material);
-	// meshRenderer.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/cube.fbx", 0), material);
+	sceneRoot.emplace("MeshRenderer")
+		.addComponent<lyra::MeshRenderer>(quad, material);
+		//.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), material)
+		//.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/cube.fbx", 0), material);
 
 	lyra::renderer::setScene(sceneRoot);
 
 	while (!lyra::input::quit()) {
 		lyra::input::update();
-		// lyra::ecs::update();
+		lyra::ecs::update();
 
 		lyra::renderer::beginFrame();
 		

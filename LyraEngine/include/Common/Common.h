@@ -54,7 +54,6 @@ using object_id = uint64;
 using uintptr = std::uintptr_t;
 using nullpointer = decltype(nullptr);
 using size_type = std::size_t;
-using type_id = const void*;
 
 // color type
 struct Color {

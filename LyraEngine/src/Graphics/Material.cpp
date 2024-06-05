@@ -9,7 +9,7 @@ namespace lyra {
 // material data
 Material::Material(
 	const Color& albedoColor,
-	const Vector<const Texture*>& albedoTextures,
+	const lsd::Vector<const Texture*>& albedoTextures,
 	float32 metallic,
 	float32 roughness,
 	const Texture* metallicTexture,
@@ -58,7 +58,7 @@ Material::Material(
 		});
 	}
 
-	Vector<VkDescriptorImageInfo> albedoImageInfos(m_albedoTextures.size());
+	lsd::Vector<VkDescriptorImageInfo> albedoImageInfos(m_albedoTextures.size());
 
 	for (uint32 i = 0; i < m_albedoTextures.size(); i++) {
 		albedoImageInfos[i] = m_albedoTextures[i]->getDescriptorImageInfo();
@@ -96,7 +96,7 @@ Material::Material(
 			lyra::vulkan::DescriptorSets::Type::imageSampler
 		},
 		{ 
-			albedoImageInfos.empty() ? Vector<VkDescriptorImageInfo> { resource::defaultTexture().getDescriptorImageInfo() } : albedoImageInfos, 
+			albedoImageInfos.empty() ? lsd::Vector<VkDescriptorImageInfo> { resource::defaultTexture().getDescriptorImageInfo() } : albedoImageInfos, 
 			7, 
 			lyra::vulkan::DescriptorSets::Type::imageSampler
 		}
