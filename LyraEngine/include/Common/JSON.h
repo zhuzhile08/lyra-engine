@@ -13,15 +13,39 @@
 
 #include <Common/Common.h>
 #include <Common/Logger.h>
+
 #include <LSD/UniquePointer.h>
 #include <LSD/SharedPointer.h>
 #include <LSD/Node.h>
-
 #include <LSD/Vector.h>
 #include <LSD/UnorderedSparseMap.h>
+
+#include <exception>
 #include <variant>
 
 namespace lyra {
+
+class JsonParseError : public std::runtime_error {
+public:
+	JsonParseError(const std::string& message) : std::runtime_error(message) {
+		m_message.append(message).push_back('!');
+	}
+	JsonParseError(const char* message) : std::runtime_error(message) {
+		m_message.append(message).push_back('!');
+	}
+	JsonParseError(const JsonParseError&) = default;
+	JsonParseError(JsonParseError&&) = default;
+
+	JsonParseError& operator=(const JsonParseError&) = default;
+	JsonParseError& operator=(JsonParseError&&) = default;
+
+	const char* what() const noexcept override {
+		return m_message.c_str();
+	}
+
+private:
+	std::string m_message { "Program terminated with lyra::JsonParseError: " };
+};
 
 template <
 	class Literal = char, 
@@ -109,7 +133,7 @@ public:
 			log::warning("Requested JSON file to parse was empty! JSON node defaults to object type.");
 			json.m_value = &json;
 		} else {
-			ASSERT(false, "lyra::Json::parse(): invalid file!");
+			// throw std::exception
 		}
 
 		return json;
@@ -214,14 +238,13 @@ private:
 	}
 
 	template <class Iterator> static constexpr string_type parseString(Iterator& begin, Iterator& end) {
-		ASSERT(*begin == '\"', "lyra::Json::parseString(): JSON Syntax Error: unexcpected token!");
+		if (*begin != '\"') throw JsonParseError("lyra::Json::parseString(): JSON Syntax Error: unexcpected token!");
 
 		string_type r;
 
 		for (++begin; begin != end; begin++) {
 			switch (*begin) {
 				case '\\':
-					r.push_back(*begin);
 					r.push_back(*++begin);
 					break;
 
@@ -235,13 +258,13 @@ private:
 			}
 		}
 
-		ASSERT(false, "lyra::Json::parseString(): JSON Syntax Error: missing token!");
+		throw JsonParseError("lyra::Json::parseString(): JSON Syntax Error: missing token!");
 		return r;
 	}
 	template <class Iterator> static constexpr value_type parsePrimitive(Iterator& begin, Iterator& end) {
 		switch(*begin) {
 			default:
-				ASSERT(false, "lyra::Json::parsePrimitive(): JSON Syntax Error: unexpected token!");
+				throw JsonParseError("lyra::Json::parseString(): JSON Syntax Error: unexcpected token!");
 				break;
 
 			case 't':
@@ -329,7 +352,7 @@ private:
 				break;
 		}
 
-		ASSERT(false, "lyra::Json::parsePrimitive(): JSON Syntax Error: missing token!");
+		throw JsonParseError("lyra::Json::parsePrimitive(): JSON Syntax Error: missing token!");
 
 		return value_type();
 	}
@@ -348,7 +371,7 @@ private:
 			}
 		}
 
-		ASSERT(false, "lyra::Json::parseObject(): JSON Syntax Error: missing token!");
+		throw JsonParseError("lyra::Json::parseObject(): JSON Syntax Error: missing token!");
 
 		return &json;
 	}
@@ -391,7 +414,7 @@ private:
 			}
 		}
 
-		ASSERT(false, "lyra::Json::parseArray(): JSON Syntax Error: missing token!");
+		throw JsonParseError("lyra::Json::parseArray(): JSON Syntax Error: missing token!");
 
 		return r;
 	}
@@ -400,7 +423,7 @@ private:
 
 		tok.m_name = parseString(begin, end);
 		++begin;
-		ASSERT(skipCharacters(begin, end) == ':', "lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
+		if (skipCharacters(begin, end) != ':') throw JsonParseError("lyra::Json::parsePair(): JSON Syntax Error: unexcpected token!");
 		++begin;
 
 		switch(skipCharacters(begin, end)) {
