@@ -1,6 +1,5 @@
 /*************************
  * @file Window.h
- *
  * @author Zhile Zhu (zhuzhile08@gmail.com)
  *
  * @brief wrapper around the Window

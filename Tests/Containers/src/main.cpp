@@ -102,7 +102,7 @@ lyra::uint32 ComponentBar::executionCount = 0;
 int main(int argc, char* argv[]) {
 	lyra::initLoggingSystem();
 	lyra::initECS();
-	
+
 	{ // shared pointer test
 		lsd::SharedPointer<lyra::uint64> shared1 = lsd::SharedPointer<lyra::uint64>::create(0);
 		lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());
