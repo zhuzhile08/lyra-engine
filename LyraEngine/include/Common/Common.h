@@ -80,11 +80,6 @@ struct Radian {
 };
 
 
-// Hash function
-
-template <class Ty> struct Hash;
-
-
 // some higher level wrappers
 
 class Logger;
@@ -200,7 +195,7 @@ template <class Format, typename ... Args> inline constexpr void vulkanAssert(in
 
 #define NODISCARD [[nodiscard]]
 #define DEPRECATED [[deprecated]]
-#define NO_UNIQUE_ADDRESS [[no_unique_address]]
+#define [[no_unique_address]] [[no_unique_address]]
 #define DEFINE_DEFAULT_MOVE(type) type(type&&) = default; type& operator=(type&&) = default;
 
 #define GLM_FORCE_RADIANS
