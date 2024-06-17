@@ -151,8 +151,6 @@ PUBLIC
 	<stddef.h>
 	<stdexcept>
 	<stdint.h>
-	<string>
-	<string_view>
 	<type_traits>
 	<utility>
 	<wchar.h>
