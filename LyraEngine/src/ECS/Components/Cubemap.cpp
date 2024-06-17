@@ -13,9 +13,9 @@
 namespace lyra {
 
 CubemapBase::CubemapBase(
-	const lsd::Array<std::string_view, 6>& paths,
-	std::string_view vertexShaderPath,
-	std::string_view fragShaderPath,
+	const lsd::Array<lsd::StringView, 6>& paths,
+	lsd::StringView vertexShaderPath,
+	lsd::StringView fragShaderPath,
 	Camera* const camera,
 	const Image::Format& format,
 	const ColorBlending& colorBlending,

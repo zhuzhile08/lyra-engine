@@ -59,7 +59,7 @@ public:
 	}; // refer to the docs of the current version of SDL for the documentation of these enums
 
 	Window();
-	Window(std::string_view title, Flags flags, const glm::ivec2& size);
+	Window(lsd::StringView title, Flags flags, const glm::ivec2& size);
 
 	sdl::Window window;
 
@@ -70,7 +70,7 @@ public:
 };
 
 void initWindow();
-void initWindow(std::string_view title, Window::Flags flags, const glm::ivec2& size);
+void initWindow(lsd::StringView title, Window::Flags flags, const glm::ivec2& size);
 
 namespace renderer {
 

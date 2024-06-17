@@ -48,7 +48,7 @@ enum class FileState {
 
 template <class Ty> class File;
 
-template<> class File<char> {
+template <> class File<char> {
 public: 
 	using literal_type = char;
 	using file_type = lsd::SharedPointer<std::FILE>;
@@ -125,7 +125,7 @@ private:
 	bool m_buffered;
 };
 
-template<> class File<wchar> {
+template <> class File<wchar> {
 public:
 	using literal_type = wchar;
 	using file_type = lsd::SharedPointer<std::FILE>;
@@ -210,7 +210,7 @@ using WideFile = File<wchar>;
 // Implements most functions found in the standard IO library, therefore slower than Byte- / WideFile
 // Does not call internal file functions whilst reading, but may do so with most other functions
 // Does not read from the File itself, but from an internal buffer synchronised to the current supposed state of the file
-template <template<class...> class CTy, class LTy> class FileStream {
+template <template <class...> class CTy, class LTy> class FileStream {
 public:
 	using literal_type = LTy;
 	// note that the container type (CTy) has to be a type implemented in or using the pretty much exact style of the standard library
@@ -279,10 +279,10 @@ public:
 	FileStream& get(literal_type* string, size_type count) {
 		return get(string, count, '\n');
 	}
-	template<template<class...> class S> FileStream& get(S<literal_type>& container) {
+	template <template <class...> class S> FileStream& get(S<literal_type>& container) {
 		return get(container.data(), container.size(), '\n');
 	}
-	template<template<class...> class S> FileStream& get(S<literal_type>& container, literal_type delim) {
+	template <template <class...> class S> FileStream& get(S<literal_type>& container, literal_type delim) {
 		return get(container.data(), container.size(), delim);
 	}
 	FileStream& getline(literal_type* string, size_type count) {

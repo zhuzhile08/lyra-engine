@@ -34,7 +34,7 @@ public:
 	std::mutex mutex;
 
 	lsd::UniquePointer<Logger> defaultLogger;
-	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Logger>> loggers;
+	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<Logger>> loggers;
 };
 
 }
@@ -43,12 +43,12 @@ static LoggingContext* globalLoggingContext = nullptr;
 
 namespace log {
 
-Logger* logger(std::string_view name) {
+Logger* logger(lsd::StringView name) {
 	std::lock_guard<std::mutex> guard(globalLoggingContext->mutex);
 	return globalLoggingContext->loggers.find(name.data())->second.get();
 }
 
-lsd::UniquePointer<Logger> releaseLogger(std::string_view name) {
+lsd::UniquePointer<Logger> releaseLogger(lsd::StringView name) {
 	return globalLoggingContext->loggers.extract(name.data()).second;
 }
 

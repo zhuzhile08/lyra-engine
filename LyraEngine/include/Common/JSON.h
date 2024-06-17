@@ -27,11 +27,11 @@ namespace lyra {
 
 class JsonParseError : public std::runtime_error {
 public:
-	JsonParseError(const std::string& message) : std::runtime_error(message) {
-		m_message.append(message).push_back('!');
+	JsonParseError(const lsd::String& message) : std::runtime_error(message.cStr()) {
+		m_message.append(message).pushBack('!');
 	}
 	JsonParseError(const char* message) : std::runtime_error(message) {
-		m_message.append(message).push_back('!');
+		m_message.append(message).pushBack('!');
 	}
 	JsonParseError(const JsonParseError&) = default;
 	JsonParseError(JsonParseError&&) = default;
@@ -40,11 +40,11 @@ public:
 	JsonParseError& operator=(JsonParseError&&) = default;
 
 	const char* what() const noexcept override {
-		return m_message.c_str();
+		return m_message.cStr();
 	}
 
 private:
-	std::string m_message { "Program terminated with lyra::JsonParseError: " };
+	lsd::String m_message { "Program terminated with lyra::JsonParseError: " };
 };
 
 template <
@@ -219,20 +219,8 @@ private:
 	value_type m_value;
 
 	template <class Iterator> static constexpr int skipCharacters(Iterator& begin, Iterator& end) {
-		for (; begin != end; begin++) {
-			switch (*begin) { // skip whitespaces
-				case '\n':
-				case '\t':
-				case '\r':
-				case ' ':
-				case '\0':
-					break;
-
-				default:
-					return *begin;
-					break;
-			}
-		}
+		for (; begin != end; begin++)
+			if (!std::isspace(*begin)) return *begin;
 
 		return *begin;
 	}
@@ -459,19 +447,19 @@ private:
 			else s.append("false");
 		} else if (t.isUnsigned()) {
 			if constexpr (sizeof(literal_type) <= 1)
-				s.append(std::to_string(t.get<unsigned_type>()));
+				s.append(lsd::toString(t.get<unsigned_type>()));
 			else
-				s.append(std::to_wstring(t.get<unsigned_type>()));
+				s.append(lsd::toWString(t.get<unsigned_type>()));
 		} else if (t.isSigned()) {
 			if constexpr (sizeof(literal_type) <= 1)
-				s.append(std::to_string(t.get<integer_type>()));
+				s.append(lsd::toString(t.get<integer_type>()));
 			else
-				s.append(std::to_wstring(t.get<integer_type>()));
+				s.append(lsd::toWString(t.get<integer_type>()));
 		} else if (t.isFloating()) {
 			if constexpr (sizeof(literal_type) <= 1)
-				s.append(std::to_string(t.get<float32>()));
+				s.append(lsd::toString(t.get<float32>()));
 			else
-				s.append(std::to_wstring(t.get<float32>()));
+				s.append(lsd::toWString(t.get<float32>()));
 		} else 
 			s.append("null");
 	}

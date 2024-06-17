@@ -55,7 +55,7 @@ struct InitInfo {
 
 	lsd::Array<uint32, 3> version = {0, 0, 1};
 
-	std::string windowName = "";
+	lsd::String windowName = "";
 	Window::Flags windowFlags = Window::Flags::none;
 	glm::ivec2 windowSize = { 640, 480 };
 };

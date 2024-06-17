@@ -25,9 +25,9 @@ void ImGuiRenderer::draw() {
 	endFrame();
 }
 
-void ImGuiRenderer::setIconFont(const std::string& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float32 size) {
+void ImGuiRenderer::setIconFont(const lsd::String& path, const ImFontConfig& fontConfig, const ImWchar* ranges, float32 size) {
 	m_io->Fonts->AddFontDefault();
-	m_io->Fonts->AddFontFromFileTTF(lyra::absolutePath(path).string().c_str(), size, &fontConfig, ranges);
+	m_io->Fonts->AddFontFromFileTTF(lyra::absolutePath(path.cStr()).string().c_str(), size, &fontConfig, ranges);
 }
 
 void ImGuiRenderer::enableDocking() {

@@ -15,7 +15,7 @@
 #include <Common/Common.h>
 #include <LSD/Array.h>
 
-#include <string_view>
+#include <LSD/StringView.h>
 
 namespace lyra {
 
@@ -53,8 +53,8 @@ inline constexpr bool enableAnistropy = true;
 inline constexpr float32 anistropyStrength = 1.0f;
 inline constexpr float32 resolution = 100;
 
-inline constexpr std::string_view title = "Lyra Engine";
-inline constexpr std::string_view iconPath = "";
+inline constexpr lsd::StringView title = "Lyra Engine";
+inline constexpr lsd::StringView iconPath = "";
 inline constexpr uint32 windowWidth = 1280; // window width and height
 inline constexpr uint32 windowHeight = 720;
 inline constexpr bool resizable = true;

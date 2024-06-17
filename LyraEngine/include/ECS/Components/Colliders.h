@@ -29,7 +29,7 @@ class Collider {
 public:
 	Collider(
 		Rigidbody* parent,
-		std::string_view name = "BaseCollider",
+		lsd::StringView name = "BaseCollider",
 		uint32 tag = 0,
 		bool active = true,
 		const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -49,7 +49,7 @@ class BoxCollider : Collider {
 public:
 	BoxCollider(
 		Rigidbody* parent,
-		std::string_view name = "BoxCollider",
+		lsd::StringView name = "BoxCollider",
 		const glm::vec3& dimensions = glm::vec3(1.0f, 1.0f, 1.0f),
 		bool active = true,
 		uint32 tag = 0,

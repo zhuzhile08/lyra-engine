@@ -30,7 +30,7 @@ Window::Window() {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
-Window::Window(std::string_view title, Flags flags, const glm::ivec2& size) {
+Window::Window(lsd::StringView title, Flags flags, const glm::ivec2& size) {
 	window = sdl::Window(title, size.x, size.y, static_cast<uint32>(flags));
 
 	ASSERT(window, "Failed to create SDL window with error: {}!", SDL_GetError());
@@ -42,7 +42,7 @@ void initWindow() {
 	else
 		renderer::globalWindow = new Window();
 }
-void initWindow(std::string_view title, Window::Flags flags, const glm::ivec2& size) {
+void initWindow(lsd::StringView title, Window::Flags flags, const glm::ivec2& size) {
 	if (renderer::globalWindow)
 		log::error("lyra::initWindow(): The window is already initialized!");
 	else

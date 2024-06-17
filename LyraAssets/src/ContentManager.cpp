@@ -220,7 +220,7 @@ void ContentManager::build() {
 
 			tinygltf::Model model;
 
-			std::string warn, err;
+			lsd::String warn, err;
 
 			lyra::FileStream<Vector, unsigned char> modelData(filepath, lyra::OpenMode::read | lyra::OpenMode::binary, false);
 

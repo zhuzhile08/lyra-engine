@@ -184,8 +184,8 @@ vulkan::GraphicsPipeline& graphicsPipeline(
 
 void initRenderSystem(
 	const lsd::Array<uint32, 3>& version,
-	std::string_view defaultVertexShaderPath, 
-	std::string_view defaultFragmentShaderPath) {
+	lsd::StringView defaultVertexShaderPath, 
+	lsd::StringView defaultFragmentShaderPath) {
 	if (renderer::globalRenderSystem)
 		log::error("lyra::initRenderSystem(): The render system is already initialized!");
 	else {

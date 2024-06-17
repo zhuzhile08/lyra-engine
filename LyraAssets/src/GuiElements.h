@@ -38,10 +38,10 @@ struct ProgramState {
 
 	bool quit = false;
 
-	std::string stringBuffer;
+	lsd::String stringBuffer;
 	std::filesystem::path nameBuffer;
 
-	std::string logBuffer;
+	lsd::String logBuffer;
 };
 
 namespace gui {

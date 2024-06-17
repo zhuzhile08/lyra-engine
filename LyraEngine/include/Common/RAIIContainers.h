@@ -11,9 +11,7 @@
 
 #pragma once
 
-#include <type_traits>
-#include <algorithm>
-#include <string_view>
+#include <Common/Logger.h>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -32,7 +30,10 @@
 #include <vk_mem_alloc.h>
 #endif
 
-#include <Common/Logger.h>
+#include <LSD/StringView.h>
+
+#include <type_traits>
+#include <algorithm>
 
 namespace lyra {
 
@@ -235,7 +236,7 @@ public:
 	}
 	
 	constexpr RAIIContainer(
-		std::string_view title, 
+		lsd::StringView title, 
 		int x,
 		int y,
 		uint32_t flags

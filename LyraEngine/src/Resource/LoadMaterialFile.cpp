@@ -15,10 +15,10 @@ MaterialFile loadMaterialFile(const std::filesystem::path& path) {
 	material.path = path;
 
 	// warning and errors
-	std::string error, warning;
+	lsd::String error, warning;
 
 	// basically useless
-	std::map<std::string, int> mats;
+	std::map<lsd::String, int> mats;
 
 	// load the material
 	std::ifstream file; // raw file

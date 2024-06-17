@@ -6,7 +6,7 @@ namespace lyra {
 
 BoxCollider::BoxCollider(
 		Rigidbody* parent,
-		std::string_view name,
+		lsd::StringView name,
 		const glm::vec3& dimensions,
 		bool active,
 		uint32 tag,

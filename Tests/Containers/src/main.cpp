@@ -6,6 +6,7 @@
 #include <LSD/Array.h>
 #include <LSD/Dynarray.h>
 #include <LSD/Vector.h>
+#include <LSD/String.h>
 #include <LSD/UnorderedSparseMap.h>
 #include <LSD/SharedPointer.h>
 #include <LSD/FunctionPointer.h>
@@ -103,6 +104,8 @@ int main(int argc, char* argv[]) {
 	lyra::initLoggingSystem();
 	lyra::initECS();
 
+	
+
 	{ // shared pointer test
 		lsd::SharedPointer<lyra::uint64> shared1 = lsd::SharedPointer<lyra::uint64>::create(0);
 		lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());
@@ -153,7 +156,7 @@ int main(int argc, char* argv[]) {
 
 	{ // json parser test
 		lyra::Json jsonParse;
-		jsonParse = lyra::Json::parse(std::string(json));
+		jsonParse = lyra::Json::parse(lsd::String(json));
 		lyra::log::info("\nJson Parsing Test: {}\n", jsonParse.stringifyPretty());
 	}
 

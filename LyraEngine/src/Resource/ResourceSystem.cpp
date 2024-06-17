@@ -23,10 +23,10 @@ public:
 		
 	}
 
-	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<vulkan::Shader>> shaders;
-	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Texture>> textures;
-	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<lsd::Vector<Mesh>>> meshes;
-	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Material>> materials;
+	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<vulkan::Shader>> shaders;
+	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<Texture>> textures;
+	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<lsd::Vector<Mesh>>> meshes;
+	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<Material>> materials;
 
 	Json assetsFile;
 };

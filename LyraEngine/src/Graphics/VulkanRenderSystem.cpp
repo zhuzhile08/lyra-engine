@@ -1,6 +1,5 @@
 #include <Graphics/VulkanRenderSystem.h>
 
-#include <LSD/Utility.h>
 #include <Common/Logger.h>
 #include <Common/Config.h>
 
@@ -18,10 +17,12 @@
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_sdl3.h>
 
+#include <LSD/Utility.h>
+#include <LSD/String.h>
+
 #include <utility>
 #include <limits>
 #include <map>
-#include <string>
 
 namespace lyra {
 
@@ -74,9 +75,9 @@ namespace vulkan {
 // render system
 RenderSystem::RenderSystem(
 	const lsd::Array<uint32, 3>& version,
-	std::string_view defaultVertexShaderPath, 
-	std::string_view defaultFragmentShaderPath
-) : defaultVertexShaderPath(defaultVertexShaderPath), defaultFragmentShaderPath(defaultFragmentShaderPath) {
+	lsd::StringView defaultVertexShaderPath, 
+	lsd::StringView defaultFragmentShaderPath
+) : defaultVertexShaderPath(defaultVertexShaderPath.data()), defaultFragmentShaderPath(defaultFragmentShaderPath.data()) {
 	{ // create instance
 #ifdef __APPLE__
 		SDL_setenv("MVK_CONFIG_USE_METAL_ARGUMENT_BUFFERS", "1", 1);
@@ -203,7 +204,7 @@ RenderSystem::RenderSystem(
 		std::multimap <uint32, PhysicalDeviceData> possibleDevices;
 
 		for (const auto& device : devices) {
-			log::info("GPU {}: ", std::to_string((&device - &devices[0]) + 1));
+			log::info("GPU {}: ", lsd::toString((&device - &devices[0]) + 1));
 			
 			{ // rate the physical device
 				// set the score to 1 first, if the GPU does not have required features, set it to 0
@@ -281,7 +282,7 @@ RenderSystem::RenderSystem(
 							log::debug("\t{}", availableDeviceExtension.extensionName);
 						}
 #endif
-						lsd::UnorderedSparseSet<std::string> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
+						lsd::UnorderedSparseSet<lsd::String> requestedExtensions(config::requestedDeviceExtensions.begin(), config::requestedDeviceExtensions.end());
 #ifdef __APPLE__
 						requestedExtensions.emplace("VK_KHR_portability_subset"); 
 #endif
@@ -1507,12 +1508,12 @@ Shader::Shader(Type type, const lsd::Vector<char>& source) : shaderSrc(source), 
 	module = vk::ShaderModule(renderer::globalRenderSystem->device, createInfo);
 }
 
-std::string GraphicsProgram::Builder::hash() const noexcept {
+lsd::String GraphicsProgram::Builder::hash() const noexcept {
 	return 
-		std::string(m_bindingHash) + 
+		lsd::String(m_bindingHash) + 
 		m_pushConstantHash + 
-		std::to_string(reinterpret_cast<uintptr>((m_vertexShader) ? m_vertexShader : renderer::globalRenderSystem->defaultVertexShader)) + 
-		std::to_string(reinterpret_cast<uintptr>((m_fragmentShader) ? m_fragmentShader : renderer::globalRenderSystem->defaultFragmentShader));
+		lsd::toString(reinterpret_cast<uintptr>((m_vertexShader) ? m_vertexShader : renderer::globalRenderSystem->defaultVertexShader)) + 
+		lsd::toString(reinterpret_cast<uintptr>((m_fragmentShader) ? m_fragmentShader : renderer::globalRenderSystem->defaultFragmentShader));
 }
 
 GraphicsProgram::GraphicsProgram() : 
@@ -1683,29 +1684,29 @@ GraphicsProgram::GraphicsProgram(const Builder& builder) :
 	pipelineLayout = vk::PipelineLayout(renderer::globalRenderSystem->device, pipelineLayoutCreateInfo);
 }
 
-std::string GraphicsPipeline::Builder::hash() const noexcept {
+lsd::String GraphicsPipeline::Builder::hash() const noexcept {
 	return 
-		std::to_string(std::holds_alternative<bool>(m_viewport)) + 
-		std::to_string(std::holds_alternative<bool>(m_scissor)) +
-		std::to_string(m_topology) + 
-		std::to_string(m_renderMode) + 
-		std::to_string(m_polyFrontFace) + 
-		std::to_string(m_sampleCount) + 
+		lsd::toString(std::holds_alternative<bool>(m_viewport)) + 
+		lsd::toString(std::holds_alternative<bool>(m_scissor)) +
+		lsd::toString(m_topology) + 
+		lsd::toString(m_renderMode) + 
+		lsd::toString(m_polyFrontFace) + 
+		lsd::toString(m_sampleCount) + 
 		(
 			std::holds_alternative<bool>(m_sampleShading) ? 
-				std::to_string(std::get<bool>(m_sampleShading)) : 
-				std::to_string(std::get<float32>(m_sampleShading))
+				lsd::toString(std::get<bool>(m_sampleShading)) : 
+				lsd::toString(std::get<float32>(m_sampleShading))
 		) + 
 		(std::holds_alternative<bool>(m_depthStencil) ? 
-			std::to_string(std::get<bool>(m_sampleShading)) : 
+			lsd::toString(std::get<bool>(m_sampleShading)) : 
 			(
-				std::to_string(std::get<Builder::DepthStencil>(m_depthStencil).write) + 
-					std::to_string(std::get<Builder::DepthStencil>(m_depthStencil).compare)
+				lsd::toString(std::get<Builder::DepthStencil>(m_depthStencil).write) + 
+					lsd::toString(std::get<Builder::DepthStencil>(m_depthStencil).compare)
 			)
 		) + 
-		std::to_string(m_blendAttachments.size()) +
-		std::to_string(reinterpret_cast<uintptr>((m_renderTarget) ? m_renderTarget : renderer::globalRenderSystem->defaultRenderTarget)) + 
-		std::to_string(reinterpret_cast<uintptr>((m_graphicsProgram) ? m_graphicsProgram : renderer::globalRenderSystem->defaultGraphicsProgram));
+		lsd::toString(m_blendAttachments.size()) +
+		lsd::toString(reinterpret_cast<uintptr>((m_renderTarget) ? m_renderTarget : renderer::globalRenderSystem->defaultRenderTarget)) + 
+		lsd::toString(reinterpret_cast<uintptr>((m_graphicsProgram) ? m_graphicsProgram : renderer::globalRenderSystem->defaultGraphicsProgram));
 }
 
 GraphicsPipeline::GraphicsPipeline() : 

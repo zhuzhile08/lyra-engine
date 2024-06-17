@@ -947,7 +947,7 @@ public:
 	};
 
 	Pipeline() = default;
-	Pipeline(const RenderTarget* const renderTarget, const std::string& hash) : renderTarget(renderTarget), hash(hash) { }
+	Pipeline(const RenderTarget* const renderTarget, const lsd::String& hash) : renderTarget(renderTarget), hash(hash) { }
 
 	virtual void bind() const = 0;
 
@@ -955,7 +955,7 @@ public:
 
 	const RenderTarget* renderTarget;
 
-	std::string hash;
+	lsd::String hash;
 };
 
 class Swapchain {
@@ -1287,12 +1287,12 @@ public:
 
 			// compute the hash from the binding
 			m_bindingHash.append(
-				std::to_string(binding.type) + 
-				std::to_string(binding.shaderType) + 
-				std::to_string(binding.set) + 
-				std::to_string(binding.arraySize) + 
-				std::to_string(binding.flags) + 
-				std::to_string(binding.immutableSamplers.size())
+				lsd::toString(binding.type) + 
+				lsd::toString(binding.shaderType) + 
+				lsd::toString(binding.set) + 
+				lsd::toString(binding.arraySize) + 
+				lsd::toString(binding.flags) + 
+				lsd::toString(binding.immutableSamplers.size())
 			);
 		}
 		constexpr void addBindings(const lsd::Vector<Binding>& bindings) {
@@ -1306,7 +1306,7 @@ public:
 				pushConstant.size
 			});
 
-			m_pushConstantHash.append(std::to_string(pushConstant.shaderType) + std::to_string(pushConstant.size));
+			m_pushConstantHash.append(lsd::toString(pushConstant.shaderType) + lsd::toString(pushConstant.size));
 		}
 		constexpr void addPushConstants(const lsd::Vector<PushConstant>& pushConstants) {
 			for (const auto& pushConstant : pushConstants) addPushConstant(pushConstant);
@@ -1319,7 +1319,7 @@ public:
 			m_fragmentShader = &shader;
 		}
 
-		std::string hash() const noexcept;
+		lsd::String hash() const noexcept;
 
 	private:
 		lsd::Dynarray<lsd::Vector<VkDescriptorSetLayoutBinding>, config::maxShaderSets> m_bindings;
@@ -1330,8 +1330,8 @@ public:
 		const Shader* m_vertexShader;
 		const Shader* m_fragmentShader;
 
-		std::string m_bindingHash;
-		std::string m_pushConstantHash;
+		lsd::String m_bindingHash;
+		lsd::String m_pushConstantHash;
 
 		friend class GraphicsProgram;
 	};
@@ -1349,7 +1349,7 @@ public:
 	const Shader* vertexShader;
 	const Shader* fragmentShader;
 
-	std::string hash;
+	lsd::String hash;
 };
 
 class GraphicsPipeline : public Pipeline {
@@ -1487,7 +1487,7 @@ public:
 			m_graphicsProgram = &graphicsProgram;
 		}
 
-		NODISCARD std::string hash() const noexcept;
+		NODISCARD lsd::String hash() const noexcept;
 
 	private:
 		std::variant<bool, VkViewport> m_viewport;
@@ -1559,8 +1559,8 @@ public:
 
 	RenderSystem(
 		const lsd::Array<uint32, 3>& version,
-		std::string_view defaultVertexShaderPath, 
-		std::string_view defaultFragmentShaderPath
+		lsd::StringView defaultVertexShaderPath, 
+		lsd::StringView defaultFragmentShaderPath
 	);
 
 	void initRenderComponents();
@@ -1766,8 +1766,8 @@ public:
 	lsd::UniquePointer<DescriptorPools> descriptorPools;
 
 	lsd::Vector<RenderTarget*> renderTargets;
-	lsd::UnorderedSparseMap<std::string, const GraphicsProgram*> graphicsPrograms;
-	lsd::UnorderedSparseMap<std::string, GraphicsPipeline*> graphicsPipelines;
+	lsd::UnorderedSparseMap<lsd::String, const GraphicsProgram*> graphicsPrograms;
+	lsd::UnorderedSparseMap<lsd::String, GraphicsPipeline*> graphicsPipelines;
 
 	RenderTarget* defaultRenderTarget;
 	const GraphicsProgram* defaultGraphicsProgram;

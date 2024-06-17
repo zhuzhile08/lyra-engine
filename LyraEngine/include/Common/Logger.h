@@ -52,17 +52,17 @@ enum class Font {
 	blink
 };
 
-inline WIN32_CONSTEXPR std::string setStyle(Font font, uint32 foreground, uint32 background) {
+inline WIN32_CONSTEXPR lsd::String setStyle(Font font, uint32 foreground, uint32 background) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{};48;5;{}m", static_cast<int>(font), foreground, background);
 	else return "";
 }
-inline WIN32_CONSTEXPR std::string setStyle(Font font, uint32 foreground) {
+inline WIN32_CONSTEXPR lsd::String setStyle(Font font, uint32 foreground) {
 	if constexpr (config::coloredLog == true)
 		return fmt::format("\033[{};38;5;{}m", static_cast<int>(font), foreground);
 	else return "";
 }
-inline constexpr std::string resetStyle() noexcept {
+inline constexpr lsd::String resetStyle() noexcept {
 	if constexpr (config::coloredLog == true)
 		return "\033[0;0;0m";	
 	else return "";
@@ -87,8 +87,8 @@ enum class Level {
 class Logger {
 public:
 	Logger() = default;
-	Logger(std::FILE* out, std::FILE* err, std::string_view name) : m_outStream(out), m_errStream(err), m_name(name) { }
-	Logger(std::FILE* stream, std::string_view name) : m_outStream(stream), m_errStream(stream), m_name(name) { }
+	Logger(std::FILE* out, std::FILE* err, lsd::StringView name) : m_outStream(out), m_errStream(err), m_name(name) { }
+	Logger(std::FILE* stream, lsd::StringView name) : m_outStream(stream), m_errStream(stream), m_name(name) { }
 
 	template <class Format, typename ... Args> constexpr void log(Format&& format, Args&&... message) {
 		fmt::print(m_outStream, fmt::runtime(std::forward<Format>(format)), std::forward<Args>(message)...);
@@ -154,14 +154,14 @@ public:
 	NODISCARD constexpr std::FILE* errStream() noexcept {
 		return m_errStream;
 	}
-	NODISCARD constexpr std::string name() const noexcept {
+	NODISCARD constexpr lsd::String name() const noexcept {
 		return m_name;
 	}
 
 private:
 	std::FILE* m_outStream = stdout;
 	std::FILE* m_errStream = stderr;
-	std::string m_name;
+	lsd::String m_name;
 
 	template <log::Level logLevel, class Format, typename ... Args> void log(Format&& fmt, Args&&... message) {
 		if constexpr (static_cast<int>(config::disableLog) < static_cast<int>(logLevel)) {
@@ -201,8 +201,8 @@ private:
 
 namespace log {
 
-Logger* logger(std::string_view name);
-lsd::UniquePointer<Logger> releaseLogger(std::string_view name);
+Logger* logger(lsd::StringView name);
+lsd::UniquePointer<Logger> releaseLogger(lsd::StringView name);
 Logger* defaultLogger();
 
 Logger* addLogger(lsd::UniquePointer<Logger>&& logger);

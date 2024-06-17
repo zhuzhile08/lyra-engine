@@ -31,9 +31,9 @@ namespace lyra {
 class CubemapBase : public vulkan::Image, public vulkan::GPUMemory, public GraphicsPipeline {
 public:	
 	CubemapBase(
-		const lsd::Array<std::string_view, 6>& paths,
-		std::string_view vertexShaderPath,
-		std::string_view fragShaderPath,
+		const lsd::Array<lsd::StringView, 6>& paths,
+		lsd::StringView vertexShaderPath,
+		lsd::StringView fragShaderPath,
 		Camera* const camera,
 		const Image::Format& format,
 		const ColorBlending& colorBlending,
@@ -81,7 +81,7 @@ private:
 class Cubemap : public CubemapBase {
 public:
 	Cubemap(
-		const lsd::Array<std::string_view, 6>& paths,
+		const lsd::Array<lsd::StringView, 6>& paths,
 		Script* script,
 		Camera* const camera,
 		const Image::Format& format = VK_FORMAT_R8G8B8A8_SRGB,
@@ -95,7 +95,7 @@ public:
 class Skybox : public CubemapBase {
 public:
 	Skybox(
-		const lsd::Array<std::string_view, 6>& paths,
+		const lsd::Array<lsd::StringView, 6>& paths,
 		Camera* const camera,
 		const Image::Format& format = VK_FORMAT_R8G8B8A8_SRGB,
 		const ColorBlending& colorBlending = ColorBlending::BLEND_ENABLE,
