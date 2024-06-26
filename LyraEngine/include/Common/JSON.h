@@ -58,7 +58,7 @@ template <
 class BasicJson : public lsd::BasicNode<
 	BasicJson<Literal, ArrayContainer, Integer, Unsigned, Floating, NodeContainer, SmartPointer>, 
 	SmartPointer,
-	std::basic_string<Literal>, 
+	lsd::BasicString<Literal>, 
 	NodeContainer> {
 public:
 	struct NullType { };
@@ -68,7 +68,7 @@ public:
 	using unsigned_type = Unsigned;
 	using floating_type = Floating;
 	using literal_type = Literal;
-	using string_type = std::basic_string<literal_type>;
+	using string_type = lsd::BasicString<literal_type>;
 
 	using json_type = BasicJson;
 	using reference = json_type&;
@@ -233,7 +233,7 @@ private:
 		for (++begin; begin != end; begin++) {
 			switch (*begin) {
 				case '\\':
-					r.push_back(*++begin);
+					r.pushBack(*++begin);
 					break;
 
 				case '\"':
@@ -241,7 +241,7 @@ private:
 					break;
 				
 				default:
-					r.push_back(*begin);
+					r.pushBack(*begin);
 					break;
 			}
 		}
@@ -291,7 +291,7 @@ private:
 					switch (*begin) {
 						case '-':
 							isUnsigned = false;
-							r.push_back(*begin);
+							r.pushBack(*begin);
 
 							break;
 
@@ -318,20 +318,20 @@ private:
 						case 'e':
 						case 'F':
 						case 'f':
-							r.push_back(*begin);
+							r.pushBack(*begin);
 
 							break;
 
 						case '.':
 							isFloat = true;
-							r.push_back(*begin);
+							r.pushBack(*begin);
 
 							break;
 
 						default:
-							if (isFloat) return std::stof(r);
-							else if (isUnsigned) return static_cast<unsigned_type>(std::stoi(r));
-							else return std::stoi(r);
+							if (isFloat) return lsd::stof(r);
+							else if (isUnsigned) return static_cast<unsigned_type>(lsd::stoi(r));
+							else return lsd::stoi(r);
 
 							break;
 					}
@@ -464,20 +464,20 @@ private:
 			s.append("null");
 	}
 	static constexpr void stringifyObject(const json_type& t, string_type& s) {
-		s.push_back('{');
+		s.pushBack('{');
 		for (auto it = t.begin(); it != t.end(); it++) {
-			if (it != t.begin()) s.push_back(',');
+			if (it != t.begin()) s.pushBack(',');
 			stringifyPair(*dynamic_cast<json_type*>(it->get()), s);
 		}
-		s.push_back('}');
+		s.pushBack('}');
 	}
 	static constexpr void stringifyArray(const json_type& t, string_type& s) {
-		s.push_back('[');
+		s.pushBack('[');
 		const auto& array = t.get<array_type>();
 		for (auto it = array.rbegin(); it != array.rend(); it++) {
-			if (it != array.rbegin()) s.push_back(',');
+			if (it != array.rbegin()) s.pushBack(',');
 			if ((*it)->isString())
-				s.append("\"").append((*it)->template get<string_type>()).push_back('\"');
+				s.append("\"").append((*it)->template get<string_type>()).pushBack('\"');
 			else if ((*it)->isObject())
 				stringifyObject(**it, s);
 			else if ((*it)->isArray())
@@ -485,7 +485,7 @@ private:
 			else
 				stringifyPrimitive(**it, s);
 		}
-		s.push_back(']');
+		s.pushBack(']');
 	}
 	static constexpr void stringifyPair(const json_type& t, string_type& s) {
 		s.append("\"").append(t.m_name).append("\":");
@@ -507,7 +507,7 @@ private:
 			if (it != t.begin()) s.append(",\n");
 			stringifyPairPretty(indent, *it->get(), s);
 		}
-		s.append("\n").append(--indent, '\t').push_back('}');
+		s.append("\n").append(--indent, '\t').pushBack('}');
 	}
 	static constexpr void stringifyArrayPretty(size_type indent, const json_type& t, string_type& s) {
 		indent += 1;
@@ -518,7 +518,7 @@ private:
 			s.append(indent, '\t');
 
 			if ((*it)->isString())
-				s.append("\"").append((*it)->template get<string_type>()).push_back('\"');
+				s.append("\"").append((*it)->template get<string_type>()).pushBack('\"');
 			else if ((*it)->isObject())
 				stringifyObjectPretty(indent, **it, s);
 			else if ((*it)->isArray())
@@ -526,13 +526,13 @@ private:
 			else
 				stringifyPrimitive(**it, s);
 		}
-		s.append("\n").append(--indent, '\t').push_back(']');
+		s.append("\n").append(--indent, '\t').pushBack(']');
 	}
 	static constexpr void stringifyPairPretty(size_type indent, const json_type& t, string_type& s) {
 		s.append(indent, '\t').append("\"").append(t.m_name).append("\": ");
 		
 		if (t.isString())
-			s.append("\"").append(t.get<string_type>()).push_back('\"');
+			s.append("\"").append(t.get<string_type>()).pushBack('\"');
 		else if (t.isObject())
 			stringifyObjectPretty(indent, t, s);
 		else if (t.isArray())
