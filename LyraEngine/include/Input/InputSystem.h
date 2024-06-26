@@ -15,6 +15,8 @@
 
 #include <Input/InputEnums.h>
 
+#include <LSD/Hash.h>
+
 #include <glm/glm.hpp>
 #include <imgui.h>
 
@@ -78,22 +80,26 @@ void disableImGui();
 
 } // namespace input
 
+} // namespace lyra
+
+namespace lsd {
+
 template <> struct Hash<lyra::input::Key> {
-	constexpr size_type operator()(const lyra::input::Key& k) const noexcept {
-		return static_cast<size_type>(k.type);
+	constexpr std::size_t operator()(const lyra::input::Key& k) const noexcept {
+		return static_cast<std::size_t>(k.type);
 	}
 };
 
 template <> struct Hash<lyra::input::MouseButton> {
-	constexpr size_type operator()(const lyra::input::MouseButton& b) const noexcept {
-		return static_cast<size_type>(b.type);
+	constexpr std::size_t operator()(const lyra::input::MouseButton& b) const noexcept {
+		return static_cast<std::size_t>(b.type);
 	}
 };
 
 template <> struct Hash<lyra::input::ControllerButton> {
-	constexpr size_type operator()(const lyra::input::ControllerButton& b) const noexcept {
-		return static_cast<size_type>(b.type);
+	constexpr std::size_t operator()(const lyra::input::ControllerButton& b) const noexcept {
+		return static_cast<std::size_t>(b.type);
 	}
 };
 
-} // namespace lyra
+} // namespace lsd
