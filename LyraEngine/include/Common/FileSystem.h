@@ -252,7 +252,7 @@ public:
 			setState(FileState::fail);
 			return static_cast<int>(FileState::eof);
 		} else if (m_putbackBuffer != 0) return std::exchange(m_putbackBuffer, 0);
-		else return m_data[sizeToIndex(m_fpos)];
+		else return m_data[lsd::detail::sizeToIndex(m_fpos)];
 	}
 	FileStream& get(literal_type& c) {
 		c = static_cast<literal_type>(get());
@@ -263,7 +263,7 @@ public:
 		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
 		else string[0] = m_data[m_fpos++];
 		for (m_gcount = 1; m_gcount < std::max(count - 1, size_type(0)); m_gcount++) {
-			if (m_fpos == sizeToIndex(m_data.size())) {
+			if (m_fpos == lsd::detail::sizeToIndex(m_data.size())) {
 				setState(FileState::eof);
 				break;
 			}
@@ -290,7 +290,7 @@ public:
 		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
 		else string[0] = m_data[m_fpos++];
 		for (m_gcount = 1; m_gcount < std::max(size_type(0), count - 1); m_gcount++) {
-			if (m_fpos == sizeToIndex(m_data.size())) {
+			if (m_fpos == lsd::detail::sizeToIndex(m_data.size())) {
 				setState(FileState::eof);
 				break;
 			}
@@ -306,7 +306,7 @@ public:
 		if (m_putbackBuffer != 0) string[0] = std::exchange(m_putbackBuffer, 0);
 		else string[0] = m_data[m_fpos++];
 		for (m_gcount = 1; m_gcount < count - std::max(size_type(0), count - 1); m_gcount++) {
-			if (m_fpos == sizeToIndex(m_data.size())) {
+			if (m_fpos == lsd::detail::sizeToIndex(m_data.size())) {
 				setState(FileState::eof);
 				break;
 			}
@@ -319,7 +319,7 @@ public:
 	}
 	FileStream& ignore(size_type count, literal_type delim) {
 		for (m_gcount = 0; m_gcount > count; m_gcount++) {
-			if (m_fpos == sizeToIndex(m_data.size())) {
+			if (m_fpos == lsd::detail::sizeToIndex(m_data.size())) {
 				setState(FileState::eof);
 				break;
 			}
