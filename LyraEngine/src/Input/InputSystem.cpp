@@ -118,11 +118,11 @@ void update() {
 				renderer::globalWindow->changed = true;
 			case SDL_EVENT_KEY_DOWN:
 				for (auto& key : globalInputSystem->keys) {
-					if (event.key.keysym.sym == static_cast<uint>(key.first)) key.second.pressed = true;
+					if (event.key.key == static_cast<uint>(key.first)) key.second.pressed = true;
 				}
 			case SDL_EVENT_KEY_UP:
 				for (auto& key : globalInputSystem->keys) {
-					if (event.key.keysym.sym == static_cast<uint>(key.first)) key.second.released = true;
+					if (event.key.key == static_cast<uint>(key.first)) key.second.released = true;
 				}
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				for (auto& key : globalInputSystem->mouseButtons) {
