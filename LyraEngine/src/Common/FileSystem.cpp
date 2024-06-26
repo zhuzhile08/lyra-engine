@@ -150,9 +150,9 @@ bool fileLoaded(const std::filesystem::path& path) {
 ByteFile tmpFile() {
 	auto s = 
 #ifdef _WIN32
-		lsd::toWString(
+		std::to_wstring(
 #else
-		lsd::toString(
+		std::to_string(
 #endif
 			std::time(nullptr)); // could be funny
 	globalFileSystem->loadedFiles.emplace(s, std::tmpfile());
