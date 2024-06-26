@@ -35,7 +35,7 @@ void ContentManager::loadProjectFile() {
 	if (!f.empty()) {
 		lyra::log::info("Loading project file...");
 		
-		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f[0]));
+		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f[0].c_str()));
 		m_projectFilePath = f[0];
 		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
 
@@ -70,7 +70,7 @@ void ContentManager::createProjectFile() {
 		f.append("/Assets.lyproj");
 		lyra::log::info("Creating new project file...");
 
-		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f));
+		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f.c_str()));
 		m_projectFilePath = f;
 
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
@@ -178,7 +178,7 @@ void ContentManager::build() {
 		auto ext = m_newFiles[i].extension();
 		auto filepath = std::filesystem::path(m_projectFilePath).remove_filename() /= m_newFiles[i];
 		auto concat = filepath;
-		auto& js = m_projectFile.child(m_newFiles[i].generic_string());
+		auto& js = m_projectFile.child(m_newFiles[i].generic_string().c_str());
 		concat.concat(".dat");
 
 		if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
@@ -332,7 +332,7 @@ void ContentManager::rebuild() {
 
 	m_newFiles.clear();
 	for (const auto& path : m_projectFile) {
-		m_newFiles.pushBack(path->name());
+		m_newFiles.pushBack(path->name().cStr());
 	}
 	
 	build();
@@ -383,7 +383,7 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		return;
 	} 
 	
-	js = js.emplace(rel.generic_string(), js);
+	js = js.emplace(rel.generic_string().c_str(), js);
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 		js.emplace("Uncompressed", 0U);

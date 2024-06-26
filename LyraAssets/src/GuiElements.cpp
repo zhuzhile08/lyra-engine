@@ -36,8 +36,8 @@ void MainMenuBar::draw() {
 				m_state->contentManager->loadProjectFile();
 			} if (ImGui::BeginMenu("Open Recent...")) {
 				for (const auto& path : m_state->contentManager->recents().get<lyra::Json::array_type>()) {
-					if (ImGui::MenuItem(path->get<lyra::Json::string_type>().c_str())) {
-						m_state->contentManager->loadRecent(path->get<lyra::Json::string_type>());
+					if (ImGui::MenuItem(path->get<lyra::Json::string_type>().cStr())) {
+						m_state->contentManager->loadRecent(path->get<lyra::Json::string_type>().cStr());
 					}
 				}
 
@@ -110,7 +110,10 @@ void MainMenuBar::draw() {
 
 	if (ImGui::BeginPopupModal("Rename Item...", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
 		m_state->nameBuffer.clear();
-		ImGui::InputText("New name: ", &m_state->stringBuffer);
+
+		std::string s;
+		ImGui::InputText("New name: ", &s);
+		m_state->stringBuffer = s.c_str();
 
 		if (ImGui::Button("Cancel...")) {
 			ImGui::CloseCurrentPopup();
@@ -120,8 +123,8 @@ void MainMenuBar::draw() {
 		if (ImGui::Button("OK")) {
 			ImGui::CloseCurrentPopup();
 		}
-		std::filesystem::rename(m_state->contentManager->projectFilePath().remove_filename()/m_state->nameBuffer, m_state->contentManager->projectFilePath().remove_filename()/m_state->stringBuffer);
-		m_state->contentManager->projectFile()[m_state->nameBuffer.generic_string()].rename(m_state->stringBuffer);
+		std::filesystem::rename(m_state->contentManager->projectFilePath().remove_filename()/m_state->nameBuffer, m_state->contentManager->projectFilePath().remove_filename()/s);
+		m_state->contentManager->projectFile()[m_state->nameBuffer.generic_string().c_str()].rename(m_state->stringBuffer);
 		m_state->contentManager->unsaved = true;
 		
 		ImGui::EndPopup();
@@ -220,7 +223,7 @@ void Window::draw() {
 					break;
 			}
 			
-			m_state->logBuffer.push_back(c);
+			m_state->logBuffer.pushBack(c);
 
 			c = std::fgetc(f);
 		}
@@ -236,11 +239,11 @@ void Window::draw() {
 		if (m_state->contentManager->validProject()) {
 			if (ImGui::TreeNode("Assets.lyproj")) {
 				for (const auto& i : m_state->contentManager->projectFile()) {
-					auto b = (i->name() == m_state->nameBuffer);
+					auto b = (i->name() == m_state->nameBuffer.c_str());
 					if (!m_state->selected) m_state->selected = b;
 
-					if (ImGui::Selectable(i->name().c_str(), b)) {
-						m_state->nameBuffer = i->name();
+					if (ImGui::Selectable(i->name().cStr(), b)) {
+						m_state->nameBuffer = i->name().cStr();
 					}
 				}
 
@@ -256,7 +259,7 @@ void Window::draw() {
 
 		if (!m_state->nameBuffer.empty()) {
 			auto ext = m_state->nameBuffer.extension();
-			auto& js = m_state->contentManager->projectFile()[m_state->nameBuffer.generic_string()];
+			auto& js = m_state->contentManager->projectFile()[m_state->nameBuffer.generic_string().c_str()];
 
 			if (ImGui::CollapsingHeader("Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
 				if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
