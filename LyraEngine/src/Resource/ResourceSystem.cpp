@@ -23,10 +23,10 @@ public:
 		
 	}
 
-	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<vulkan::Shader>> shaders;
-	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<Texture>> textures;
-	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<lsd::Vector<Mesh>>> meshes;
-	lsd::UnorderedSparseMap<lsd::String, lsd::UniquePointer<Material>> materials;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<vulkan::Shader>> shaders;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Texture>> textures;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<lsd::Vector<Mesh>>> meshes;
+	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Material>> materials;
 
 	Json assetsFile;
 };
@@ -46,7 +46,7 @@ namespace resource {
 
 const vulkan::Shader& shader(std::filesystem::path path) {
 	if (!globalResourceSystem->shaders.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
+		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string().c_str());
 
 		ByteFile compressedFile(absolutePath(std::filesystem::path("data")/(path)), OpenMode::read | OpenMode::binary, false);
 		lsd::Vector<char> data(compressedFile.size());
@@ -66,7 +66,7 @@ const vulkan::Shader& shader(std::filesystem::path path) {
 
 const Texture& texture(std::filesystem::path path) {
 	if (!globalResourceSystem->textures.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string());
+		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string().c_str());
 		globalResourceSystem->textures.emplace(
 			path.string(), 
 			lsd::UniquePointer<Texture>::create(loadTextureFile(
@@ -87,7 +87,7 @@ const Texture& texture(std::filesystem::path path) {
 
 const lsd::Vector<Mesh>& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path.string())) {
-		const auto& js = globalResourceSystem->assetsFile.child(path.string());
+		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string().c_str());
 		const auto& vertexBlocks = js.child("VertexBlocks").get<Json::array_type>();
 		const auto& indexBlocks = js.child("IndexBlocks").get<Json::array_type>();
 
