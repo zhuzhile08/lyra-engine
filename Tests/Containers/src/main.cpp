@@ -21,8 +21,6 @@
 #include <memory>
 #include <random>
 #include <set>
-#include <span>
-#include <unordered_set>
 
 namespace {
 
@@ -104,24 +102,6 @@ int main(int argc, char* argv[]) {
 	lyra::initLoggingSystem();
 	lyra::initECS();
 
-	
-
-	{ // shared pointer test
-		lsd::SharedPointer<lyra::uint64> shared1 = lsd::SharedPointer<lyra::uint64>::create(0);
-		lyra::log::debug("\nShared pointer value and count after construction: {}, {}\n", *shared1, shared1.count());
-
-		lsd::SharedPointer<lyra::uint64> shared2 = shared1;
-		*shared2 = 1;
-		lyra::log::debug("Shared pointer value and count after copy and modification: {}, {}", *shared2, shared2.count());
-
-		{
-			lsd::SharedPointer<lyra::uint64> shared3 = shared2;
-			lyra::log::debug("Unnamed scope shared pointer value and count after copy: {}, {}\n", *shared3, shared3.count());
-		}
-
-		lyra::log::debug("Shared pointer count after previous exited scope: {}\n", shared2.count());
-	}
-
 	{ // ECS test
 		lyra::Entity e("Root");
 
@@ -134,8 +114,8 @@ int main(int argc, char* argv[]) {
 		{
 			lyra::Benchmark b;
 
-			for (lyra::object_id i = 0; i < 1000*1000*2; i++) {
-				auto& t = e.emplace(std::to_string(i));
+			for (lyra::object_id i = 0; i < 1000*1000; i++) {
+				auto& t = e.emplace(lsd::toString(i));
 				
 				t.addComponent<ComponentBar>();
 				if (i % 2 == 0) t.addComponent<Component1>();
