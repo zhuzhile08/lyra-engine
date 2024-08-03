@@ -96,10 +96,6 @@ else ()
 endif ()
 
 
-# build LSD with the enum utilities
-
-target_compile_definitions(LyraEngine PUBLIC LSD_ENUM_UTILITIES)
-
 # custom validation layer
 if (USE_CUSTOM_VULKAN_VALIDATION_LAYERS)
 	include("include/ValidationLayerPath.cmake")

@@ -61,6 +61,8 @@ struct InitInfo {
 };
 
 inline void init(InitFlags flags = InitFlags::all, InitInfo info = InitInfo()) {
+	using namespace lsd::enum_operators;
+
 	ASSERT(
 		SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS) == 0, 
 		"lyra::init(): SDL init error: {}!", SDL_GetError()

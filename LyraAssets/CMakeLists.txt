@@ -5,8 +5,6 @@ project(LyraAssets VERSION 1.0.0)
 # find vulkan 
 find_package(Vulkan REQUIRED)
 
-target_compile_definitions(LyraEngine PUBLIC LSD_ENUM_UTILITIES)
-
 # includes and stuff
 include_directories(
 PUBLIC

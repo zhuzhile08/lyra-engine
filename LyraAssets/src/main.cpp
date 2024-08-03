@@ -30,6 +30,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+using namespace lsd::enum_operators;
+
 int main(int argc, char* argv[]) {
 	lyra::init(lyra::InitFlags::allExtended, { 
 		.argc = argc, 

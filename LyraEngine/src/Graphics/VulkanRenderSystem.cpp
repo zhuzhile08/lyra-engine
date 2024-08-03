@@ -24,6 +24,8 @@
 #include <limits>
 #include <map>
 
+using namespace lsd::enum_operators;
+
 namespace lyra {
 
 namespace {

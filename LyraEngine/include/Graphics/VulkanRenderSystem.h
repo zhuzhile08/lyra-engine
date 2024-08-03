@@ -1257,6 +1257,8 @@ public:
 		};
 
 		constexpr void addBinding(const Binding& binding) {
+			using namespace lsd::enum_operators;
+
 			if (m_bindings.size() <= binding.set) {
 				m_bindings.pushBack({});
 				m_bindingFlags.pushBack({});
