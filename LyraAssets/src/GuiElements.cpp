@@ -35,9 +35,9 @@ void MainMenuBar::draw() {
 			} if (ImGui::MenuItem(ICON_CI_WINDOW " Open...")) {
 				m_state->contentManager->loadProjectFile();
 			} if (ImGui::BeginMenu("Open Recent...")) {
-				for (const auto& path : m_state->contentManager->recents().get<lyra::Json::array_type>()) {
-					if (ImGui::MenuItem(path->get<lyra::Json::string_type>().cStr())) {
-						m_state->contentManager->loadRecent(path->get<lyra::Json::string_type>().cStr());
+				for (const auto& path : m_state->contentManager->recents().get<lsd::Json::array_type>()) {
+					if (ImGui::MenuItem(path->get<lsd::Json::string_type>().cStr())) {
+						m_state->contentManager->loadRecent(path->get<lsd::Json::string_type>().cStr());
 					}
 				}
 
@@ -276,7 +276,7 @@ void Window::draw() {
 						ImGui::EndCombo();
 					} 
 
-					if (ImGui::InputInt("Dimension", reinterpret_cast<int*>(&js.child("Dimension").get<lyra::uint32>()))) {
+					if (ImGui::InputInt("Dimension", reinterpret_cast<int*>(&js.child("Dimension").uInt()))) {
 						js.child("Dimension") = std::clamp(js.child("Dimension").get<lyra::uint32>(), 1U, 3U);
 						m_state->contentManager->unsaved = true;
 					}
@@ -307,10 +307,10 @@ void Window::draw() {
 						ImGui::EndCombo();
 					} 
 				} else if (ext == ".fbx" || ext == ".dae" || ext == ".blend" || ext == ".obj" || ext == ".gltf" || ext == ".glb") {
-					if (ImGui::InputInt("RotationX", reinterpret_cast<int*>(&js.child("RotationX").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
-					if (ImGui::InputInt("RotationY", reinterpret_cast<int*>(&js.child("RotationY").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
-					if (ImGui::InputInt("RotationZ", reinterpret_cast<int*>(&js.child("RotationZ").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
-					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&js.child("Scale").get<lyra::uint32>()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationX", reinterpret_cast<int*>(&js.child("RotationX").uInt()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationY", reinterpret_cast<int*>(&js.child("RotationY").uInt()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("RotationZ", reinterpret_cast<int*>(&js.child("RotationZ").uInt()))) m_state->contentManager->unsaved = true;
+					if (ImGui::InputInt("Scale", reinterpret_cast<int*>(&js.child("Scale").uInt()))) m_state->contentManager->unsaved = true;
 					/*
 					if (ImGui::TreeNode("ImportFlags")) {
 						if (ImGui::CheckboxFlags("CalcTangentSpace", &js["ImportFlags"].get<lyra::uint32>(), aiProcess_CalcTangentSpace)) m_state->contentManager->unsaved = true;

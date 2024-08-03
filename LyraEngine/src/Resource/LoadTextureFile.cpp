@@ -7,6 +7,8 @@
 
 #include <lz4.h>
 
+using namespace lsd::enum_operators;
+
 namespace lyra {
 
 namespace resource {

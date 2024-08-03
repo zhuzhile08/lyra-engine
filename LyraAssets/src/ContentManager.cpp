@@ -16,11 +16,13 @@
 #undef max
 #endif
 
-ContentManager::ContentManager() : m_recents(lyra::Json::array_type()) {
+using namespace lsd::enum_operators;
+
+ContentManager::ContentManager() : m_recents(lsd::Json::array_type()) {
 	if (lyra::fileExists("data/recents.dat")) {
 		auto ss = lyra::StringStream("data/recents.dat", lyra::OpenMode::read | lyra::OpenMode::extend, false);
 		if (!ss.data().empty())
-			m_recents = lyra::Json::parse(ss.data());
+			m_recents = lsd::Json::parse(ss.data());
 	}
 }
 
@@ -35,9 +37,9 @@ void ContentManager::loadProjectFile() {
 	if (!f.empty()) {
 		lyra::log::info("Loading project file...");
 		
-		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f[0].c_str()));
+		m_recents.array().emplaceBack(lsd::Json::create(f[0].c_str()));
 		m_projectFilePath = f[0];
-		m_projectFile = lyra::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
+		m_projectFile = lsd::Json::parse(lyra::StringStream(f[0], lyra::OpenMode::read).data());
 
 		m_validProject = true;
 
@@ -50,7 +52,7 @@ void ContentManager::loadRecent(const std::filesystem::path& p) {
 		lyra::log::info("Loading project file...");
 
 		m_projectFilePath = p;
-		m_projectFile = lyra::Json::parse(lyra::StringStream(p, lyra::OpenMode::read).data());
+		m_projectFile = lsd::Json::parse(lyra::StringStream(p, lyra::OpenMode::read).data());
 
 		m_validProject = true;
 		unsaved = false;
@@ -70,13 +72,13 @@ void ContentManager::createProjectFile() {
 		f.append("/Assets.lyproj");
 		lyra::log::info("Creating new project file...");
 
-		m_recents.get<lyra::Json::array_type>().emplaceBack(lyra::Json::create(f.c_str()));
+		m_recents.array().emplaceBack(lsd::Json::create(f.c_str()));
 		m_projectFilePath = f;
 
 		if (std::filesystem::exists(lyra::absolutePath(f))) {
 			auto r = pfd::message("File already exsists!", "A Lyra project file already exists at the specified location, do you want to overwrite it?", pfd::choice::yes_no, pfd::icon::warning).result();
 			if (r == pfd::button::no) {
-				m_projectFile = lyra::Json::parse(lyra::StringStream(f, lyra::OpenMode::read | lyra::OpenMode::extend).data());
+				m_projectFile = lsd::Json::parse(lyra::StringStream(f, lyra::OpenMode::read | lyra::OpenMode::extend).data());
 				return;
 			}
 		}
@@ -87,7 +89,7 @@ void ContentManager::createProjectFile() {
 		}
 		s.write("{}", 2);
 		s.flush();
-		m_projectFile = lyra::Json::parse(s.data());
+		m_projectFile = lsd::Json::parse(s.data());
 
 		m_validProject = true;
 		unsaved = true;
@@ -121,7 +123,7 @@ void ContentManager::saveAs() {
 			f.write(s.data(), s.size());
 			f.flush();
 
-			m_recents.get<lyra::Json::array_type>().emplaceBack(lsd::UniquePointer<lyra::Json>::create(p[0]));
+			m_recents.array().emplaceBack(lsd::UniquePointer<lsd::Json>::create(p[0]));
 			m_projectFilePath = p;
 
 			m_validProject = true;
@@ -196,10 +198,10 @@ void ContentManager::build() {
 			
 			auto totalSize = width * height * sizeof(lyra::uint8) * 4;
 			
-			js.child("Uncompressed").get<lyra::uint32>() = static_cast<lyra::uint32>(totalSize);
-			js.child("Width").get<lyra::uint32>() = static_cast<lyra::uint32>(width);
-			js.child("Height").get<lyra::uint32>() = static_cast<lyra::uint32>(height);
-			js.child("Mipmap").get<lyra::uint32>() = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
+			js.child("Uncompressed") = static_cast<lyra::uint32>(totalSize);
+			js.child("Width") = static_cast<lyra::uint32>(width);
+			js.child("Height") = static_cast<lyra::uint32>(height);
+			js.child("Mipmap") = static_cast<lyra::uint32>(std::max(static_cast<int>(std::floor(std::log2(std::max(width, height)))) - 3, 1)); 
 
 			lsd::Vector<char> result(LZ4_compressBound(static_cast<int>(totalSize)));
 			result.resize(LZ4_compress_default(reinterpret_cast<char*>(data), result.data(), static_cast<int>(totalSize), static_cast<lyra::uint32>(result.size())));
@@ -232,7 +234,7 @@ void ContentManager::build() {
 			lsd::Vector<lsd::Array<lsd::Array<lyra::float32, 3>, 4>> vertexBlock;
 			lsd::Vector<lyra::uint32> indexBlock;
 			
-			auto loopNodes = [&model](lyra::Json* const js, const tinygltf::Node& node, glm::mat4 transform, auto&& loopNodes) -> void {
+			auto loopNodes = [&model](lsd::Json* const js, const tinygltf::Node& node, glm::mat4 transform, auto&& loopNodes) -> void {
 				for (const auto& node : model.nodes) {
 					
 					//loopNodes(transform, loopNodes);
@@ -367,7 +369,7 @@ bool ContentManager::close() {
 	}
 
 	auto recentsFile = lyra::ByteFile("data/recents.dat", lyra::OpenMode::write | lyra::OpenMode::extend, false);
-	m_recents.get<lyra::Json::array_type>().resize(std::min(m_recents.get<lyra::Json::array_type>().size(), lyra::size_type(8)));
+	m_recents.array().resize(std::min(m_recents.get<lsd::Json::array_type>().size(), lyra::size_type(8)));
 	auto stringified = m_recents.stringify();
 	recentsFile.write(stringified.data(), stringified.size());
 
@@ -375,7 +377,6 @@ bool ContentManager::close() {
 }
 
 void ContentManager::loadItem(const std::filesystem::path& path) {
-	auto& js = m_projectFile;
 	auto rel = std::filesystem::relative(path, std::filesystem::path(m_projectFilePath).remove_filename());
 	auto ext = path.extension();
 
@@ -383,7 +384,7 @@ void ContentManager::loadItem(const std::filesystem::path& path) {
 		return;
 	} 
 	
-	js = js.emplace(rel.generic_string().c_str(), js);
+	auto& js = m_projectFile.emplace(rel.generic_string().c_str(), lsd::JsonObject());
 
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == ".jpeg" || ext == ".psd") {
 		js.emplace("Uncompressed", 0U);

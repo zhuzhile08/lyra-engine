@@ -5,11 +5,13 @@
 
 #include <lz4.h>
 
+using namespace lsd::enum_operators;
+
 namespace lyra {
 
 namespace resource {
 
-MeshFile loadMeshFile(std::filesystem::path path, uint32 uncompressed, const Json::array_type& vertexBlocks, const Json::array_type& indexBlocks) {
+MeshFile loadMeshFile(std::filesystem::path path, uint32 uncompressed, const lsd::Json::array_type& vertexBlocks, const lsd::Json::array_type& indexBlocks) {
 	ByteFile compressedFile(path.concat(".dat"), OpenMode::read | OpenMode::binary, false);
 	lsd::Vector<char> fileData(compressedFile.size());
 	compressedFile.read(fileData.data(), fileData.size());

@@ -16,7 +16,7 @@
 #include <Lyra/Lyra.h>
 
 #include <Common/FileSystem.h>
-#include <Common/JSON.h>
+#include <LSD/JSON.h>
 
 #include <filesystem>
 
@@ -41,13 +41,13 @@ public:
 
 	bool close();
 
-	NODISCARD const lyra::Json& projectFile() const noexcept {
+	NODISCARD const lsd::Json& projectFile() const noexcept {
 		return m_projectFile;
 	}
-	NODISCARD lyra::Json& projectFile() noexcept {
+	NODISCARD lsd::Json& projectFile() noexcept {
 		return m_projectFile;
 	}
-	NODISCARD const lyra::Json& recents() const noexcept {
+	NODISCARD const lsd::Json& recents() const noexcept {
 		return m_recents;
 	}
 	NODISCARD std::filesystem::path projectFilePath() const noexcept {
@@ -60,8 +60,8 @@ public:
 	bool unsaved = false;
 
 private:
-	lyra::Json m_projectFile;
-	lyra::Json m_recents;
+	lsd::Json m_projectFile;
+	lsd::Json m_recents;
 
 	std::filesystem::path m_projectFilePath;
 

@@ -1,11 +1,13 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <LSD/FunctionPointer.h>
-#include <LSD/UniquePointer.h>
 #include <Common/BasicRenderer.h>
 
 #include <Graphics/Window.h>
+
+#include <LSD/UniquePointer.h>
+#include <LSD/FunctionPointer.h>
+#include <LSD/String.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>

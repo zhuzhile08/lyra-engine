@@ -1,7 +1,6 @@
 #include <Common/Logger.h>
 #include <Common/FileSystem.h>
 #include <Common/Benchmark.h>
-#include <Common/JSON.h>
 
 #include <LSD/Array.h>
 #include <LSD/Dynarray.h>
@@ -10,6 +9,8 @@
 #include <LSD/UnorderedSparseMap.h>
 #include <LSD/SharedPointer.h>
 #include <LSD/FunctionPointer.h>
+#include <LSD/Format.h>
+#include <LSD/JSON.h>
 
 #include <ECS/Entity.h>
 #include <ECS/System.h>
@@ -22,6 +23,7 @@
 #include <random>
 #include <set>
 
+/*
 namespace {
 
 constexpr const char* json("\
@@ -135,10 +137,18 @@ int main(int argc, char* argv[]) {
 	}
 
 	{ // json parser test
-		lyra::Json jsonParse;
-		jsonParse = lyra::Json::parse(lsd::String(json));
+		lsd::Json jsonParse;
+		jsonParse = lsd::Json::parse(lsd::String(json));
 		lyra::log::info("\nJson Parsing Test: {}\n", jsonParse.stringifyPretty());
 	}
 
 	return 0;
+}
+*/
+
+int main() {
+	//std::cout << std::format( "{:<20}\n", "left");
+	//std::cout << std::format( "{:>20}\n", "right");
+	//std::cout << std::format( "{:^20}\n", "centered");
+	std::cout << fmt::format("{{}}{{}} {{}} {}", "fuckery");
 }

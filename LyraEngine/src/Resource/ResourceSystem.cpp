@@ -2,16 +2,18 @@
 
 #include <Common/Logger.h>
 #include <Common/FileSystem.h>
-#include <LSD/UniquePointer.h>
-
-#include <Common/JSON.h>
 
 #include <Resource/LoadTextureFile.h>
 #include <Resource/LoadMaterialFile.h>
 #include <Resource/LoadMeshFile.h>
 
-#include <utility>
+#include <LSD/UniquePointer.h>
 #include <LSD/UnorderedSparseMap.h>
+#include <LSD/JSON.h>
+
+#include <utility>
+
+using namespace lsd::enum_operators;
 
 namespace lyra {
 
@@ -19,7 +21,7 @@ namespace {
 
 class ResourceSystem {
 public:
-	ResourceSystem() : assetsFile(Json::parse(StringStream(assetsFilePath(), OpenMode::read, false).data())) {
+	ResourceSystem() : assetsFile(lsd::Json::parse(StringStream(assetsFilePath(), OpenMode::read, false).data())) {
 		
 	}
 
@@ -28,7 +30,7 @@ public:
 	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<lsd::Vector<Mesh>>> meshes;
 	lsd::UnorderedSparseMap<std::string, lsd::UniquePointer<Material>> materials;
 
-	Json assetsFile;
+	lsd::Json assetsFile;
 };
 
 static ResourceSystem* globalResourceSystem = nullptr;
@@ -88,8 +90,8 @@ const Texture& texture(std::filesystem::path path) {
 const lsd::Vector<Mesh>& mesh(std::filesystem::path path) {
 	if (!globalResourceSystem->meshes.contains(path.string())) {
 		const auto& js = globalResourceSystem->assetsFile.child(path.generic_string().c_str());
-		const auto& vertexBlocks = js.child("VertexBlocks").get<Json::array_type>();
-		const auto& indexBlocks = js.child("IndexBlocks").get<Json::array_type>();
+		const auto& vertexBlocks = js.child("VertexBlocks").get<lsd::Json::array_type>();
+		const auto& indexBlocks = js.child("IndexBlocks").get<lsd::Json::array_type>();
 
 		auto meshData = loadMeshFile(
 			absolutePath(std::filesystem::path("data")/(path)),

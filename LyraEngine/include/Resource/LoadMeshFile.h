@@ -12,11 +12,11 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <Common/JSON.h>
 
 #include <LSD/Utility.h>
 #include <LSD/Vector.h>
 #include <LSD/StringView.h>
+#include <LSD/JSON.h>
 
 #include <filesystem>
 
@@ -35,8 +35,8 @@ struct MeshFile {
 NODISCARD MeshFile loadMeshFile(
 	std::filesystem::path path, 
 	uint32 uncompressed,
-	const Json::array_type& vertexBlocks,
-	const Json::array_type& indexBlocks
+	const lsd::Json::array_type& vertexBlocks,
+	const lsd::Json::array_type& indexBlocks
 );
 
 } // namespace resource
