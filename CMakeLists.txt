@@ -16,13 +16,6 @@ else ()
 endif()
 
 
-# MacOS compiler path
-if (APPLE)
-	set( CMAKE_CXX_COMPILER "/usr/bin/clang++" )
-	set( CMAKE_C_COMPILER "/usr/bin/clang" )
-endif()
-
-
 # custom validation layer options
 option(USE_CUSTOM_VULKAN_VALIDATION_LAYERS "Use vulkan validation layers from a custom path instead of the default one" OFF)
 
