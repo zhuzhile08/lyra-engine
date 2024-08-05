@@ -118,7 +118,7 @@ public:
 			} else if constexpr (std::same_as<handle_type, VkInstance>) {
 				VULKAN_ASSERT(vkCreateInstance(&createInfo, nullptr, &this->m_handle), "create instance");
 			} else if constexpr (std::same_as<handle_type, VkDebugUtilsMessengerEXT>) {
-				static auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(this->m_owner, "vkCreateDebugUtilsMessengerEXT");
+				auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(this->m_owner, "vkCreateDebugUtilsMessengerEXT");
 				ASSERT(func, "vkGetInstanceProcAddr() for \"vkCreateDebugUtilsMessengerEXT\" returned a null poiner!");
 				VULKAN_ASSERT(func(this->m_owner, &createInfo, nullptr, &this->m_handle), "create debug messenger");
 			}
