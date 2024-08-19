@@ -27,7 +27,7 @@ Window::Window() {
 
 	ASSERT(window, "Failed to create SDL window with error: {}!", SDL_GetError());
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_SetWindowRelativeMouseMode(window, SDL_TRUE);
 }
 
 Window::Window(lsd::StringView title, Flags flags, const glm::ivec2& size) {
