@@ -130,7 +130,6 @@ PUBLIC
 	<typeindex>
 	<type_traits>
 	<algorithm>
-	<array>
 	<chrono>
 	<cmath>
 	<cstdio>
