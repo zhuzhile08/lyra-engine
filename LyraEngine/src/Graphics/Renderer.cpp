@@ -3,9 +3,9 @@
 #include <Graphics/VulkanRenderSystem.h>
 #include <Graphics/Material.h>
 
-#include <ECS/Entity.h>
-#include <ECS/Components/Camera.h>
-#include <ECS/Components/MeshRenderer.h>
+#include <ETCS/Entity.h>
+#include <Components/Camera.h>
+#include <Components/MeshRenderer.h>
 
 namespace lyra {
 
@@ -126,10 +126,10 @@ float32 deltaTime() {
 	return renderer::globalRenderSystem->deltaTime;
 }
 
-void setScene(Entity& sceneRoot) {
+void setScene(etcs::Entity& sceneRoot) {
 	renderer::globalRenderSystem->sceneRoot = &sceneRoot;
 
-	auto loopEntity = [](const Entity& entity, auto&& func) -> void {
+	auto loopEntity = [](const etcs::Entity& entity, auto&& func) -> void {
 		for (const auto& e : entity) {
 			if (e->containsComponent<Camera>()) {
 				renderer::globalRenderSystem->cameras.pushBack(&e->component<Camera>());
@@ -146,7 +146,7 @@ void setScene(Entity& sceneRoot) {
 	loopEntity(sceneRoot, loopEntity);
 }
 
-Entity& scene() {
+etcs::Entity& scene() {
 	ASSERT(renderer::globalRenderSystem->sceneRoot, "lyra::renderer::scene(): An active scene wasn't set yet!");
 	return *renderer::globalRenderSystem->sceneRoot;
 }

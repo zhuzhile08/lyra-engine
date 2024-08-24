@@ -10,16 +10,16 @@
 #include <Graphics/Texture.h>
 #include <Graphics/Mesh.h>
 
-#include <ECS/Entity.h>
-#include <ECS/Components/Transform.h>
-#include <ECS/Components/Camera.h>
-#include <ECS/Components/MeshRenderer.h>
+#include <ETCS/Entity.h>
+#include <Components/Transform.h>
+#include <Components/Camera.h>
+#include <Components/MeshRenderer.h>
 
 #include <Resource/ResourceSystem.h>
 
 #include <Input/InputSystem.h>
 
-struct CameraScript : lyra::BasicScript {
+struct CameraScript : etcs::BasicScript {
 	static constexpr lyra::float32 speed = 10.0f;
 	static constexpr lyra::float32 sensitivity = 5.0f;
 	
@@ -51,7 +51,7 @@ struct CameraScript : lyra::BasicScript {
 int main(int argc, char* argv[]) {
 	lyra::init(lyra::InitFlags::all, { argc, argv });
 
-	lyra::Entity sceneRoot;
+	etcs::Entity sceneRoot;
 	auto& c = sceneRoot
 		.addComponent<lyra::Transform>()
 		.emplace("Camera")
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 
 	while (!lyra::input::quit()) {
 		lyra::input::update();
-		lyra::ecs::update();
+		etcs::detail::update();
 
 		lyra::renderer::beginFrame();
 		

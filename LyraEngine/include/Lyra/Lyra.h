@@ -23,7 +23,7 @@
 
 #include <Resource/ResourceSystem.h>
 
-#include <ECS/ECS.h>
+#include <ETCS/ECS.h>
 
 #include <Graphics/Window.h>
 #include <Graphics/Renderer.h>
@@ -74,7 +74,7 @@ inline void init(InitFlags flags = InitFlags::all, InitInfo info = InitInfo()) {
 		initFileSystem(info.argv);
 	}
 	if ((flags & InitFlags::resourceSystem) == InitFlags::resourceSystem) initResourceSystem();
-	if ((flags & InitFlags::ecs) == InitFlags::ecs) initECS();
+	if ((flags & InitFlags::ecs) == InitFlags::ecs) etcs::init();
 	if ((flags & InitFlags::window) == InitFlags::window) {
 		if ((flags & InitFlags::extendedWindow) == InitFlags::extendedWindow)
 			initWindow(info.windowName, info.windowFlags, info.windowSize);

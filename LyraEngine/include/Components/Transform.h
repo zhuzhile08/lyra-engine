@@ -13,8 +13,8 @@
 
 #include <Common/Common.h>
 
-#include <ECS/Entity.h>
-#include <ECS/ECS.h>
+#include <ETCS/Entity.h>
+#include <ETCS/ECS.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -25,7 +25,7 @@
 
 namespace lyra {
 
-class Transform : public BasicComponent {
+class Transform : public etcs::BasicComponent {
 public:
 	GLM_CONSTEXPR Transform(
 		const glm::vec3& translation = glm::vec3(0.0f), 

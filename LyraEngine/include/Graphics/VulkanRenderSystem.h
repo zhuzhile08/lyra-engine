@@ -12,8 +12,6 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <LSD/Array.h>
-#include <LSD/Dynarray.h>
 #include <Common/RAIIContainers.h>
 #include <Common/Config.h>
 
@@ -35,10 +33,15 @@
 #include <vk_mem_alloc.h>
 #endif
 
-#include <variant>
+#include <ETCS/ECS.h>
+
 #include <LSD/Vector.h>
 #include <LSD/UnorderedSparseMap.h>
 #include <LSD/UnorderedSparseSet.h>
+#include <LSD/Array.h>
+#include <LSD/Dynarray.h>
+
+#include <variant>
 
 namespace lyra {
 
@@ -1780,7 +1783,7 @@ public:
 	const Shader* defaultVertexShader;
 	const Shader* defaultFragmentShader;
 
-	Entity* sceneRoot;
+	etcs::Entity* sceneRoot;
 
 	lsd::Vector<Camera*> cameras;
 	lsd::UnorderedSparseMap<GraphicsPipeline*, lsd::Vector<const Material*>> materials;

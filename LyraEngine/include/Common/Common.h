@@ -50,7 +50,6 @@ using float128 = long double; // not supported everywhere, so don't really use t
 
 using wchar = wchar_t;
 using filepos = fpos_t;
-using object_id = uint64;
 using uintptr = std::uintptr_t;
 using nullpointer = decltype(nullptr);
 using size_type = std::size_t;
@@ -118,20 +117,6 @@ class ImGuiRenderer;
 } // namespace vulkan
 
 class ImGuiRenderer;
-
-// entities and components
-
-class Entity;
-class BasicSystem;
-
-namespace ecs {
-
-class World;
-class Archetype;
-
-}
-
-class Transform;
 
 class Mesh;
 class MeshRenderer;

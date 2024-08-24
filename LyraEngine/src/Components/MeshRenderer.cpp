@@ -1,4 +1,4 @@
-#include <ECS/Components/MeshRenderer.h>
+#include <Components/MeshRenderer.h>
 
 namespace lyra {
 

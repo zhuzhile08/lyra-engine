@@ -8,8 +8,8 @@
 #include <Graphics/Material.h>
 #include <Graphics/Mesh.h>
 
-#include <ECS/Components/Camera.h>
-#include <ECS/Components/MeshRenderer.h>
+#include <Components/Camera.h>
+#include <Components/MeshRenderer.h>
 
 #include <Resource/ResourceSystem.h>
 

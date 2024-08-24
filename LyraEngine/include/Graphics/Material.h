@@ -78,7 +78,7 @@ private:
 	const Texture* m_occlusionMapTexture;
 
 	friend void renderer::draw();
-	friend void renderer::setScene(Entity&);
+	friend void renderer::setScene(etcs::Entity&);
 };
 
 } // namespace lyra

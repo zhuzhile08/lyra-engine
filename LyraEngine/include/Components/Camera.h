@@ -19,9 +19,9 @@
 #include <Common/BasicRenderer.h>
 #include <Common/Config.h>
 
-#include <ECS/Entity.h>
-#include <ECS/ECS.h>
-#include <ECS/Components/Transform.h>
+#include <ETCS/Entity.h>
+#include <ETCS/ECS.h>
+#include <Components/Transform.h>
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>
@@ -32,7 +32,7 @@
 
 namespace lyra {
 
-class Camera : public BasicComponent {
+class Camera : public etcs::BasicComponent {
 public:
 	enum class Projection {
 		perspective,

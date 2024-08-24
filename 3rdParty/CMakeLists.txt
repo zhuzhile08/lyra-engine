@@ -16,10 +16,12 @@ else ()
 	option(IMGUI_BUILD_STATIC "Build ImGUI statically" OFF)
 endif ()
 
+add_subdirectory("lsd")
 add_subdirectory("sdl")
 add_subdirectory("lz4/build/cmake")
 add_subdirectory("imgui")
 add_subdirectory("fmt")
+add_subdirectory("etcs")
 
 # GLM and VMA aren't build here because they only build the tests, 
 # which is not necceceary for the library to function 

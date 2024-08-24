@@ -18,7 +18,7 @@
 
 #include <Graphics/VulkanRenderSystem.h>
 
-#include <ECS/Entity.h>
+#include <ETCS/Entity.h>
 
 #include <LSD/UnorderedSparseMap.h>
 
@@ -50,8 +50,8 @@ vulkan::GraphicsPipeline& graphicsPipeline(
 	const vulkan::GraphicsProgram::Builder& programBuilder = { }
 );
 
-void setScene(Entity& sceneRoot);
-Entity& scene();
+void setScene(etcs::Entity& sceneRoot);
+etcs::Entity& scene();
 
 } // namespace renderer
 

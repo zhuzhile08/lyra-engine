@@ -14,8 +14,8 @@
 #include <Common/Common.h>
 #include <Common/BasicRenderer.h>
 
-#include <ECS/Entity.h>
-#include <ECS/ECS.h>
+#include <ETCS/Entity.h>
+#include <ETCS/ECS.h>
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>
@@ -26,7 +26,7 @@
 
 namespace lyra {
 
-class MeshRenderer : public BasicComponent {
+class MeshRenderer : public etcs::BasicComponent {
 public:
 	MeshRenderer() = default;
 	MeshRenderer(const Mesh& mesh, Material& material);
@@ -57,7 +57,7 @@ private:
 	void update() { };
 
 	friend void renderer::draw();
-	friend void renderer::setScene(Entity&);
+	friend void renderer::setScene(etcs::Entity&);
 };
 
 } // namespace lyra

@@ -1,8 +1,8 @@
-#include <ECS/Components/Camera.h>
+#include <Components/Camera.h>
 
 #include <Math/LyraMath.h>
 
-#include <ECS/Entity.h>
+#include <ETCS/Entity.h>
 // #include <ECS/Cubemap.h>
 
 #include <glm/gtc/matrix_transform.hpp>

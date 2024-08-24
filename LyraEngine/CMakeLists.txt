@@ -32,14 +32,13 @@ PUBLIC
 
 	# utility libraries
 	${LIBRARY_PATH}/stb/
-	${LIBRARY_PATH}/lsd/
 	${LIBRARY_PATH}/lz4/lib/
 	${LIBRARY_PATH}/vma/include/
 	${LIBRARY_PATH}/fmt/include/
 )
 
 # compile shaders to Vulkan's spirv format
-add_custom_target(build_shaders ALL
+add_custom_target(BuildShaders ALL
 	COMMAND ${SHADER_COMPILE_COMMANDS_DIR}
 	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
@@ -69,14 +68,9 @@ set (LYRA_ENGINE_SOURCE_FILES
 	"src/Resource/LoadTextureFile.cpp"
 	"src/Resource/ResourceSystem.cpp"
 
-	"src/ECS/ECS.cpp"
-	
-	"src/ECS/World/Archetype.cpp"
-	"src/ECS/World/Managers.cpp"
-
-	"src/ECS/Components/Camera.cpp"
-	#"src/ECS/Components/Cubemap.cpp"
-	"src/ECS/Components/MeshRenderer.cpp"
+	"src/Components/Camera.cpp"
+	#"src/Components/Cubemap.cpp"
+	"src/Components/MeshRenderer.cpp"
 
 	"src/Input/InputSystem.cpp"
 )
@@ -104,7 +98,7 @@ if (USE_CUSTOM_VULKAN_VALIDATION_LAYERS)
 endif ()
 
 
-add_dependencies(LyraEngine build_shaders)
+add_dependencies(LyraEngine BuildShaders)
 
 # link some libraries
 target_link_libraries(LyraEngine
@@ -121,6 +115,9 @@ LINK_PUBLIC
 	# OpenAL::OpenAL
 
 	# utility libraries
+	LyraStandardLibrary::Headers
+	ETCS::Headers
+	ETCS::ETCS-static
 	fmt::fmt
 	lz4_static
 )

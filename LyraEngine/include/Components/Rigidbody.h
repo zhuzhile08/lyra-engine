@@ -15,7 +15,7 @@
 
 
 #include <LSD/Node.h>
-#include <ECS/Entity.h>
+#include <ETCS/Entity.h>
 
 namespace lyra {
 
