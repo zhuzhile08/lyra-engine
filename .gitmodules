@@ -34,3 +34,6 @@
 [submodule "3rdParty/lsd"]
 	path = 3rdParty/lsd
 	url = https://github.com/zhuzhile08/Lyra-Standard-Library.git
+[submodule "3rdParty/etcs"]
+	path = 3rdParty/etcs
+	url = https://github.com/zhuzhile08/Entity-Tree-Component-System.git
