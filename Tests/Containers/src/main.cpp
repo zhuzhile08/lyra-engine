@@ -109,12 +109,15 @@ int main(int argc, char* argv[]) {
 		{
 			lyra::Benchmark b;
 
-			for (etcs::object_id i = 0; i < 1000*1000*10; i++) {
+			for (etcs::object_id i = 0; i < 1000*1000; i++) {
 				auto t = etcs::insertEntity();
 				
 				t.insertComponent<ComponentBar>();
 				if (i % 2 == 0) t.insertComponent<Component1>();
-				if (i % 3 == 0) t.insertComponent<Component2>();
+				if (i % 3 == 0) {
+					t.insertComponent<Component2>();
+					t.disable();
+				}
 				if (i % 4 == 0) t.insertComponent<Component3>();
 				if (i % 5 == 0) t.insertComponent<Component4>();
 				if (i % 6 == 0) t.insertComponent<Component5>();
