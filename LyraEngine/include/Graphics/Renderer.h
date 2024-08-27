@@ -13,13 +13,11 @@
 #pragma once
 
 #include <Common/Common.h>
-#include <LSD/Array.h>
-#include <LSD/UniquePointer.h>
 
 #include <Graphics/VulkanRenderSystem.h>
 
-#include <ETCS/Entity.h>
-
+#include <LSD/Array.h>
+#include <LSD/UniquePointer.h>
 #include <LSD/UnorderedSparseMap.h>
 
 namespace lyra {

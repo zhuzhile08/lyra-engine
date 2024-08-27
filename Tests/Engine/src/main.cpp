@@ -11,7 +11,7 @@
 #include <Graphics/Mesh.h>
 
 #include <ETCS/Entity.h>
-#include <Components/Transform.h>
+#include <ETCS/Components/Transform.h>
 #include <Components/Camera.h>
 #include <Components/MeshRenderer.h>
 
@@ -24,7 +24,7 @@ struct CameraScript : etcs::BasicScript {
 	static constexpr lyra::float32 sensitivity = 5.0f;
 	
 	void init(void) {
-		transform = &entity->component<lyra::Transform>();
+		transform = &entity->component<etcs::Transform>();
 		
 		transform->translation = { 0.0f, 2.0f, 2.0f };
 		transform->lookAt({0.0f, 0.0f, 0.0f});
@@ -45,19 +45,19 @@ struct CameraScript : etcs::BasicScript {
 		}
 	}
 	
-	lyra::Transform* transform;
+	etcs::Transform* transform;
 };
 
 int main(int argc, char* argv[]) {
 	lyra::init(lyra::InitFlags::all, { argc, argv });
 
-	etcs::Entity sceneRoot;
+	etcs::Entity sceneRoot = etcs::insertEntity("Scene");
 	auto& c = sceneRoot
-		.addComponent<lyra::Transform>()
-		.emplace("Camera")
-			.addComponent<lyra::Transform>()
-			.addComponent<CameraScript>()
-			.addComponent<lyra::Camera>();
+		.insertComponent<etcs::Transform>()
+		.insertChild("Camera")
+			.insertComponent<etcs::Transform>()
+			.insertComponent<CameraScript>()
+			.insertComponent<lyra::Camera>();
 	
 	lyra::Material material(
 		lyra::Color(),
@@ -76,16 +76,16 @@ int main(int argc, char* argv[]) {
 		}
 	);
 
-	sceneRoot.emplace("MeshRenderer")
-		.addComponent<lyra::MeshRenderer>(quad, material);
-		//.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), material)
-		//.addComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/cube.fbx", 0), material);
+	sceneRoot.insertChild("MeshRenderer")
+		.insertComponent<lyra::MeshRenderer>(quad, material);
+		//.insertComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/viking_room.obj", 0), material)
+		//.insertComponent<lyra::MeshRenderer>(lyra::resource::mesh("mesh/cube.fbx", 0), material);
 
 	lyra::renderer::setScene(sceneRoot);
 
 	while (!lyra::input::quit()) {
 		lyra::input::update();
-		etcs::detail::update();
+		// etcs::detail::update();
 
 		lyra::renderer::beginFrame();
 		

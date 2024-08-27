@@ -2,6 +2,7 @@
 
 #include <Math/LyraMath.h>
 
+#include <ETCS/Components/Transform.h>
 #include <ETCS/Entity.h>
 // #include <ECS/Cubemap.h>
 
@@ -35,7 +36,7 @@ void Camera::update() {
 
 Camera::TransformData Camera::data(const glm::mat4& meshTransform) const noexcept {
 	return TransformData {
-		entity->component<Transform>().globalTransform(),
+		entity->component<etcs::Transform>().globalTransform(),
 		m_projectionMatrix,
 		meshTransform
 	};

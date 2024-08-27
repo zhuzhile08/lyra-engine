@@ -33,7 +33,7 @@
 #include <vk_mem_alloc.h>
 #endif
 
-#include <ETCS/ECS.h>
+#include <ETCS/ETCS.h>
 
 #include <LSD/Vector.h>
 #include <LSD/UnorderedSparseMap.h>

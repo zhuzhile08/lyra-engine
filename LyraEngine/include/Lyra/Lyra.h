@@ -23,7 +23,7 @@
 
 #include <Resource/ResourceSystem.h>
 
-#include <ETCS/ECS.h>
+#include <ETCS/ETCS.h>
 
 #include <Graphics/Window.h>
 #include <Graphics/Renderer.h>

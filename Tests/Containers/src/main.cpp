@@ -12,9 +12,9 @@
 #include <LSD/Format.h>
 #include <LSD/JSON.h>
 
-#include <ECS/Entity.h>
-#include <ECS/System.h>
-#include <ECS/ECS.h>
+#include <ETCS/Entity.h>
+#include <ETCS/System.h>
+#include <ETCS/ETCS.h>
 
 #include <fmt/core.h>
 #include <iostream>
@@ -23,7 +23,6 @@
 #include <random>
 #include <set>
 
-/*
 namespace {
 
 constexpr const char* json("\
@@ -89,9 +88,7 @@ struct ComponentBar {
 	ComponentBar() = default;
 
 	void update(Component1& c1) const {
-		c1.vec = glm::vec3(executionCount);
-
-		executionCount++;
+		c1.vec *= glm::vec3(++executionCount);
 	}
 
 	static lyra::uint32 executionCount;
@@ -102,53 +99,45 @@ lyra::uint32 ComponentBar::executionCount = 0;
 
 int main(int argc, char* argv[]) {
 	lyra::initLoggingSystem();
-	lyra::initECS();
+	etcs::init();
 
 	{ // ECS test
-		lyra::Entity e("Root");
+		auto e = etcs::insertEntity();
 
-		lyra::System<const ComponentBar, Component1> system;
-		system.each(
-			[](const ComponentBar& bar, Component1 c1){
-			bar.update(c1);
-		});
+		auto system = etcs::insertSystem<const ComponentBar, Component1>();
 
 		{
 			lyra::Benchmark b;
 
-			for (lyra::object_id i = 0; i < 1000*1000; i++) {
-				auto& t = e.emplace(lsd::toString(i));
+			for (etcs::object_id i = 0; i < 1000*1000*10; i++) {
+				auto t = etcs::insertEntity();
 				
-				t.addComponent<ComponentBar>();
-				if (i % 2 == 0) t.addComponent<Component1>();
-				if (i % 3 == 0) t.addComponent<Component2>();
-				if (i % 4 == 0) t.addComponent<Component3>();
-				if (i % 5 == 0) t.addComponent<Component4>();
-				if (i % 6 == 0) t.addComponent<Component5>();
+				t.insertComponent<ComponentBar>();
+				if (i % 2 == 0) t.insertComponent<Component1>();
+				if (i % 3 == 0) t.insertComponent<Component2>();
+				if (i % 4 == 0) t.insertComponent<Component3>();
+				if (i % 5 == 0) t.insertComponent<Component4>();
+				if (i % 6 == 0) t.insertComponent<Component5>();
 			}
 		}
 
 		{
 			lyra::Benchmark b;
-			system.run();
+			system.each([](const ComponentBar& bar, Component1 c1){
+				bar.update(c1);
+			});
 		}
 
 		lyra::log::debug("System execution count: {}\n", ComponentBar::executionCount);
 	}
 
+	/*
 	{ // json parser test
 		lsd::Json jsonParse;
 		jsonParse = lsd::Json::parse(lsd::String(json));
 		lyra::log::info("\nJson Parsing Test: {}\n", jsonParse.stringifyPretty());
 	}
+	*/
 
 	return 0;
-}
-*/
-
-int main() {
-	//std::cout << std::format( "{:<20}\n", "left");
-	//std::cout << std::format( "{:>20}\n", "right");
-	//std::cout << std::format( "{:^20}\n", "centered");
-	std::cout << fmt::format("{{}}{{}} {{}} {}", "fuckery");
 }

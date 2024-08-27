@@ -4,6 +4,8 @@
 #include <Graphics/Material.h>
 
 #include <ETCS/Entity.h>
+#include <ETCS/Components/Transform.h>
+
 #include <Components/Camera.h>
 #include <Components/MeshRenderer.h>
 
@@ -84,7 +86,7 @@ void draw() {
 					for (uint32 i = 0; i < meshes.size(); i++) {
 						auto mesh = meshes[i];
 						
-						auto data = camera->data(mesh->entity->component<Transform>().globalTransform());
+						auto data = camera->data(mesh->entity->component<etcs::Transform>().globalTransform());
 						
 						cmd->pushConstants(
 						   material->m_graphicsPipeline->program->pipelineLayout,
@@ -129,17 +131,23 @@ float32 deltaTime() {
 void setScene(etcs::Entity& sceneRoot) {
 	renderer::globalRenderSystem->sceneRoot = &sceneRoot;
 
-	auto loopEntity = [](const etcs::Entity& entity, auto&& func) -> void {
-		for (const auto& e : entity) {
-			if (e->containsComponent<Camera>()) {
-				renderer::globalRenderSystem->cameras.pushBack(&e->component<Camera>());
-			} if (e->containsComponent<MeshRenderer>()) {
-				auto& m = e->component<MeshRenderer>();
+	etcs::Entity entityHandle = sceneRoot;
+
+	auto loopEntity = [&entityHandle](etcs::Entity& entity, auto&& func) -> void {
+		for (const auto& ev : entity) {
+			entityHandle = etcs::Entity(ev, entity);
+
+			if (entityHandle.contains<Camera>()) {
+				renderer::globalRenderSystem->cameras.pushBack(&entityHandle.component<Camera>());
+			}
+			
+			if (entityHandle.contains<MeshRenderer>()) {
+				auto& m = entityHandle.component<MeshRenderer>();
 				renderer::globalRenderSystem->materials[m.m_material->m_graphicsPipeline].pushBack(m.m_material);
 				renderer::globalRenderSystem->meshRenderers[m.m_material].pushBack(&m);
 			}
 
-			func(*e, func);
+			func(entityHandle, func);
 		}
 	};
 

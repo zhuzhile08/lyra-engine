@@ -15,7 +15,7 @@
 #include <Common/BasicRenderer.h>
 
 #include <ETCS/Entity.h>
-#include <ETCS/ECS.h>
+#include <ETCS/ETCS.h>
 
 #include <Graphics/Renderer.h>
 #include <Graphics/VulkanRenderSystem.h>
